@@ -41,7 +41,7 @@
                     id="mainmenulabel"
                     class="visually-hidden"
                 >
-                    {{ $tc('global.sw-admin-menu.navigation.label') }}
+                    {{ $t('global.sw-admin-menu.navigation.label') }}
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
@@ -79,14 +79,14 @@
         >
 
             {% block sw_admin_menu_toggle_sidebar_icon %}
-            <sw-icon
+            <mt-icon
                 :name="sidebarCollapseIcon"
-                small
+                size="16px"
             />
             {% endblock %}
 
             {% block sw_admin_menu_toggle_sidebar_text %}
-            <span class="collapsible-text">{{ $tc('global.sw-admin-menu.linkMinimizeMenu') }}</span>
+            <span class="collapsible-text">{{ $t('global.sw-admin-menu.linkMinimizeMenu') }}</span>
             {% endblock %}
 
         </button>
@@ -126,7 +126,7 @@
                 </div>
 
                 {% block sw_admin_menu_user_actions_toggle_icon %}
-                <sw-icon
+                <mt-icon
                     :name="userActionsToggleIcon"
                     class="sw-admin-menu__user-actions-indicator"
                 />
@@ -160,18 +160,19 @@
 
                 {% block sw_admin_menu_user_actions_items_logout_user %}
                 <li class="sw-admin-menu__navigation-list-item">
-                    <a
-                        href="#"
+                    <mt-link
+                        as="a"
+                        to="#"
                         class="sw-admin-menu__navigation-link sw-admin-menu__logout-action"
                         @click.prevent="onLogoutUser"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-admin-menu__navigation-link-icon"
                             name="regular-sign-out"
-                            small
+                            size="16px"
                         />
-                        {{ $tc('global.sw-admin-menu.linkLogout') }}
-                    </a>
+                        {{ $t('global.sw-admin-menu.linkLogout') }}
+                    </mt-link>
                 </li>
                 {% endblock %}
                 {% endblock %}

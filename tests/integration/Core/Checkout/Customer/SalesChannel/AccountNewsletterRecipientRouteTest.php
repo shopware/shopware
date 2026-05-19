@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientResult;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +31,9 @@ class AccountNewsletterRecipientRouteTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<NewsletterRecipientCollection>
+     */
     private EntityRepository $newsletterRecipientRepository;
 
     protected function setUp(): void

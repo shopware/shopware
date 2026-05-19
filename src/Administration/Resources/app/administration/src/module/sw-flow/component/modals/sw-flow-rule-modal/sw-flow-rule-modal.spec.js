@@ -55,8 +55,6 @@ async function createWrapper() {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-multi-select': await wrapTestComponent('sw-multi-select'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-modal': {
@@ -71,8 +69,8 @@ async function createWrapper() {
                     'sw-button-process': {
                         template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                     },
-                    'sw-icon': true,
                     'sw-condition-tree': true,
+                    'mt-banner': true,
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-select-selection-list': true,
@@ -122,5 +120,22 @@ describe('module/sw-flow/component/sw-flow-rule-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted()['process-finish']).toBeTruthy();
+    });
+
+    it('should show deprecation warning when legacy product states condition exists', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.conditions = [
+            {
+                type: 'cartLineItemProductStates',
+            },
+        ];
+        await wrapper.vm.$nextTick();
+
+        const banner = wrapper.find('mt-banner-stub.sw-flow-rule-modal__product-type-warning');
+        expect(wrapper.vm.showProductStateConditionWarning).toBe(true);
+        expect(banner.exists()).toBe(true);
+        expect(banner.attributes('variant')).toBe('attention');
     });
 });

@@ -1,0 +1,345 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_action\/increment\/{pool}": {
+            "post": {
+                "tags": [
+                    "Increment Storage"
+                ],
+                "summary": "Increment a value in the specified pool",
+                "description": "Increments a value by key in the specified increment pool. This operation increments the counter for the given key and returns a success response.",
+                "operationId": "incrementValue",
+                "parameters": [
+                    {
+                        "name": "pool",
+                        "in": "path",
+                        "description": "The name of the increment pool (e.g., 'user_activity', 'message_queue').",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster",
+                        "in": "query",
+                        "description": "Optional cluster identifier for the increment operation.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["key"],
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "The key to increment in the pool."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully incremented the value",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - key parameter missing or cluster parameter missing"
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Increment Storage"
+                ],
+                "summary": "List increment values from pool",
+                "description": "Retrieves a list of increment values from the specified pool with pagination support.",
+                "operationId": "getIncrementValues",
+                "parameters": [
+                    {
+                        "name": "pool",
+                        "in": "path",
+                        "description": "The name of the increment pool to list values from.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster",
+                        "in": "query",
+                        "description": "Cluster identifier for the increment operation.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum number of items to return.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Number of items to skip for pagination.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of increment values",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "key": {
+                                                "type": "string",
+                                                "description": "The increment key"
+                                            },
+                                            "count": {
+                                                "type": "integer",
+                                                "description": "The current count value"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - cluster parameter missing"
+                    }
+                }
+            }
+        },
+        "\/_action\/decrement\/{pool}": {
+            "post": {
+                "tags": [
+                    "Increment Storage"
+                ],
+                "summary": "Decrement a value in the specified pool",
+                "description": "Decrements a value by key in the specified increment pool. This operation decrements the counter for the given key and returns a success response.",
+                "operationId": "decrementValue",
+                "parameters": [
+                    {
+                        "name": "pool",
+                        "in": "path",
+                        "description": "The name of the increment pool.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster",
+                        "in": "query",
+                        "description": "Optional cluster identifier for the decrement operation.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["key"],
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "The key to decrement in the pool."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully decremented the value",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - key parameter missing or cluster parameter missing"
+                    }
+                }
+            }
+        },
+        "\/_action\/reset-increment\/{pool}": {
+            "post": {
+                "tags": [
+                    "Increment Storage"
+                ],
+                "summary": "Reset increment values in pool",
+                "description": "Resets increment values in the specified pool. Can reset all values or a specific key if provided.",
+                "operationId": "resetIncrementValues",
+                "parameters": [
+                    {
+                        "name": "pool",
+                        "in": "path",
+                        "description": "The name of the increment pool to reset.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster",
+                        "in": "query",
+                        "description": "Cluster identifier for the reset operation.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "description": "Optional specific key to reset. If not provided, all values in the pool will be reset."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully reset the increment values",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - cluster parameter missing"
+                    }
+                }
+            }
+        },
+        "\/_action\/delete-increment\/{pool}": {
+            "delete": {
+                "tags": [
+                    "Increment Storage"
+                ],
+                "summary": "Delete increment keys from pool",
+                "description": "Deletes specific increment keys from the specified pool.",
+                "operationId": "deleteIncrementKeys",
+                "parameters": [
+                    {
+                        "name": "pool",
+                        "in": "path",
+                        "description": "The name of the increment pool to delete keys from.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cluster",
+                        "in": "query",
+                        "description": "Cluster identifier for the delete operation.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["keys"],
+                                "properties": {
+                                    "keys": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Array of keys to delete from the pool."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successfully deleted the increment keys"
+                    },
+                    "400": {
+                        "description": "Bad request - invalid keys parameter or cluster parameter missing"
+                    }
+                }
+            }
+        }
+    }
+} 

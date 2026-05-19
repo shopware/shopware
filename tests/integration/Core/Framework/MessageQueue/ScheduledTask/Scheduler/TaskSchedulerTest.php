@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
+use Monolog\Logger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
@@ -25,11 +26,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ScheduledTaskCollection>
+     */
     private EntityRepository $scheduledTaskRepo;
 
     private MockObject&MessageBusInterface $messageBus;
@@ -43,7 +46,13 @@ class TaskSchedulerTest extends TestCase
         $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
-        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag());
+        $this->scheduler = new TaskScheduler(
+            $this->scheduledTaskRepo,
+            $this->messageBus,
+            new ParameterBag(),
+            new Logger('test'),
+            12
+        );
 
         $this->connection = static::getContainer()->get(Connection::class);
     }
@@ -65,10 +74,10 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::once())
+        $this->messageBus->expects($this->once())
             ->method('dispatch')
-            ->with(static::callback(function (TestTask $task) use ($taskId) {
-                static::assertEquals($taskId, $task->getTaskId());
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
+                static::assertSame($taskId, $task->getTaskId());
 
                 return true;
             }))
@@ -76,9 +85,52 @@ class TaskSchedulerTest extends TestCase
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+    }
+
+    public function testScheduleTasksGetsRequeuedAfterItIsStuck(): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => 300,
+                'defaultRunInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_RUNNING,
+                'nextExecutionTime' => (new \DateTime()),
+            ],
+        ], Context::createDefaultContext());
+
+        // Fake that the task was updated 12 hours ago, so it is stuck
+        $this->connection->executeStatement('
+            UPDATE scheduled_task
+            SET updated_at = :time
+            WHERE id = :id
+        ', [
+            'id' => Uuid::fromHexToBytes($taskId),
+            'time' => (new \DateTime())->modify('-12 hours')->modify('-1 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->messageBus->expects($this->once())
+            ->method('dispatch')
+            ->with(static::callback(static function (TestTask $task) use ($taskId) {
+                static::assertSame($taskId, $task->getTaskId());
+
+                return true;
+            }))
+            ->willReturn(new Envelope(new TestTask()));
+
+        $this->scheduler->queueScheduledTasks();
+
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testScheduleTasksDoesntScheduleFutureTask(): void
@@ -98,14 +150,14 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
     #[DataProvider('nonScheduledStatus')]
@@ -126,14 +178,14 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         $this->scheduler->queueScheduledTasks();
 
-        /** @var ScheduledTaskEntity $task */
         $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals($status, $task->getStatus());
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertSame($status, $task->getStatus());
     }
 
     /**
@@ -188,15 +240,15 @@ class TaskSchedulerTest extends TestCase
             ],
         ], $context);
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         try {
             $this->scheduler->queueScheduledTasks();
         } catch (\Exception $exception) {
-            /** @var ScheduledTaskEntity $task2Entity */
             $task2Entity = $this->scheduledTaskRepo->search(new Criteria([$taskId2]), $context)->get($taskId2);
-            static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
+            static::assertInstanceOf(ScheduledTaskEntity::class, $task2Entity);
+            static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $task2Entity->getStatus());
 
             throw $exception;
         }
@@ -226,13 +278,13 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         $result = $this->scheduler->getNextExecutionTime();
         static::assertInstanceOf(\DateTime::class, $result);
         // when saving the Date to the DB the microseconds aren't saved, so we can't simply compare the datetime objects
-        static::assertEquals(
+        static::assertSame(
             $nextExecutionTime->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             $result->format(Defaults::STORAGE_DATE_TIME_FORMAT)
         );
@@ -254,7 +306,7 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         static::assertNull($this->scheduler->getNextExecutionTime());
@@ -283,17 +335,17 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
-        static::assertEquals(5, $this->scheduler->getMinRunInterval());
+        static::assertSame(5, $this->scheduler->getMinRunInterval());
     }
 
     public function testGetMinRunIntervalWhenEmpty(): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
-        $this->messageBus->expects(static::never())
+        $this->messageBus->expects($this->never())
             ->method('dispatch');
 
         static::assertNull($this->scheduler->getMinRunInterval());

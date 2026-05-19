@@ -2,13 +2,9 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
-use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Api\AclFacadeHookFactory;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
@@ -16,17 +12,23 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
-use Shopware\Core\Framework\Struct\ArrayStruct;
-use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Twig\Environment;
-use Twig\Extension\DebugExtension;
 
+/**
+ * @codeCoverageIgnore This class is fully tested by @see \Shopware\Tests\Integration\Core\Framework\Script\Execution\ScriptExecutorTest
+ */
 #[Package('framework')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
+
+    /**
+     * @var list<class-string>
+     */
+    private static array $defaultServices = [
+        AclFacadeHookFactory::class,
+    ];
 
     /**
      * @internal
@@ -35,8 +37,7 @@ class ScriptExecutor
         private readonly ScriptLoader $loader,
         private readonly ScriptTraces $traces,
         private readonly ContainerInterface $container,
-        private readonly TranslationExtension $translationExtension,
-        private readonly string $shopwareVersion,
+        private readonly ScriptEnvironmentFactory $scriptEnvironmentFactory,
     ) {
     }
 
@@ -77,13 +78,13 @@ class ScriptExecutor
 
     private function render(Hook $hook, Script $script): void
     {
-        $twig = $this->initEnv($script);
+        $twig = $this->scriptEnvironmentFactory->initEnv($script);
 
         $services = $this->initServices($hook, $script);
 
         $twig->addGlobal('services', $services);
 
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
             if ($hook instanceof DeprecatedHook) {
@@ -123,48 +124,34 @@ class ScriptExecutor
         $this->callAfter($services, $hook, $script);
     }
 
-    private function initEnv(Script $script): Environment
-    {
-        $twig = new TwigEnvironment(
-            new ScriptTwigLoader($script),
-            $script->getTwigOptions()
-        );
-
-        $twig->addExtension(new PhpSyntaxExtension());
-        $twig->addExtension($this->translationExtension);
-        $twig->addExtension(new SecurityExtension([]));
-        $twig->addExtension(new PcreExtension());
-        $twig->addExtension(new ReplaceRecursiveFilter());
-
-        if ($script->getTwigOptions()['debug'] ?? false) {
-            $twig->addExtension(new DebugExtension());
-        }
-
-        $twig->addGlobal('shopware', new ArrayStruct([
-            'version' => $this->shopwareVersion,
-        ]));
-
-        return $twig;
-    }
-
     private function initServices(Hook $hook, Script $script): ServiceStubs
     {
         $services = new ServiceStubs($hook->getName());
         $deprecatedServices = $hook->getDeprecatedServices();
-        foreach ($hook->getServiceIds() as $serviceId) {
-            if (!$this->container->has($serviceId)) {
-                throw new ServiceNotFoundException($serviceId, 'Hook: ' . $hook->getName());
-            }
-
-            $service = $this->container->get($serviceId);
-            if (!$service instanceof HookServiceFactory) {
-                throw ScriptException::noHookServiceFactory($serviceId);
-            }
-
-            $services->add($service->getName(), $service->factory($hook, $script), $deprecatedServices[$serviceId] ?? null);
+        foreach ([...self::$defaultServices, ...$hook->getServiceIds()] as $serviceId) {
+            $service = $this->getService($serviceId, $hook);
+            $services->add(
+                $service->getName(),
+                $service->factory($hook, $script),
+                $deprecatedServices[$serviceId] ?? null
+            );
         }
 
         return $services;
+    }
+
+    private function getService(string $serviceId, Hook $hook): HookServiceFactory
+    {
+        if (!$this->container->has($serviceId)) {
+            throw new ServiceNotFoundException($serviceId, 'Hook: ' . $hook->getName());
+        }
+
+        $service = $this->container->get($serviceId);
+        if (!$service instanceof HookServiceFactory) {
+            throw ScriptException::noHookServiceFactory($serviceId);
+        }
+
+        return $service;
     }
 
     private function callAfter(ServiceStubs $services, Hook $hook, Script $script): void

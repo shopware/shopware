@@ -16,7 +16,7 @@ class WebhookApiTest extends TestCase
 
     public function testWriteWebhookViaApi(): void
     {
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/webhook/',
             [
@@ -28,6 +28,6 @@ class WebhookApiTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), \print_r($response->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), \print_r($response->getContent(), true));
     }
 }

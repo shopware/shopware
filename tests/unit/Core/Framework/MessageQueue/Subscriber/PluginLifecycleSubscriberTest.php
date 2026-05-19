@@ -26,17 +26,17 @@ class PluginLifecycleSubscriberTest extends TestCase
 
         static::assertCount(3, $events);
         static::assertArrayHasKey(PluginPostActivateEvent::class, $events);
-        static::assertEquals('afterPluginStateChange', $events[PluginPostActivateEvent::class]);
+        static::assertSame('afterPluginStateChange', $events[PluginPostActivateEvent::class]);
         static::assertArrayHasKey(PluginPostDeactivateEvent::class, $events);
-        static::assertEquals('afterPluginStateChange', $events[PluginPostDeactivateEvent::class]);
+        static::assertSame('afterPluginStateChange', $events[PluginPostDeactivateEvent::class]);
         static::assertArrayHasKey(PluginPostUpdateEvent::class, $events);
-        static::assertEquals('afterPluginStateChange', $events[PluginPostUpdateEvent::class]);
+        static::assertSame('afterPluginStateChange', $events[PluginPostUpdateEvent::class]);
     }
 
     public function testRegisterScheduledTasks(): void
     {
         $taskRegistry = $this->createMock(TaskRegistry::class);
-        $taskRegistry->expects(static::once())->method('registerTasks');
+        $taskRegistry->expects($this->once())->method('registerTasks');
 
         $signalCachePool = new ArrayAdapter();
         $subscriber = new PluginLifecycleSubscriber($taskRegistry, $signalCachePool);

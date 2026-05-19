@@ -64,7 +64,7 @@ class PaymentMethodValidatorTest extends TestCase
         );
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with(
                 'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
@@ -93,7 +93,7 @@ class PaymentMethodValidatorTest extends TestCase
         );
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchOne')
             ->with(
                 'SELECT id FROM payment_method WHERE id IN (:ids) AND plugin_id IS NOT NULL',
@@ -102,8 +102,7 @@ class PaymentMethodValidatorTest extends TestCase
             )
             ->willReturn('pluginId');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Plugin payment methods can not be deleted via API.');
+        $this->expectExceptionObject(PaymentException::pluginPaymentMethodDeleteRestriction());
         $subscriber = new PaymentMethodValidator($connection);
         $subscriber->validate($event);
     }
@@ -118,7 +117,7 @@ class PaymentMethodValidatorTest extends TestCase
         );
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::never())
+        $connection->expects($this->never())
             ->method('fetchOne');
 
         $subscriber = new PaymentMethodValidator($connection);

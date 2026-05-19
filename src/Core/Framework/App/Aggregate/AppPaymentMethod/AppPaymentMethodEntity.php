@@ -17,7 +17,7 @@ class AppPaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
     protected ?AppEntity $app = null;
 

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -90,7 +91,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByTranslatedFieldsInAssociationsByApplyingLanguageOverrides(): void
@@ -132,7 +133,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByTranslatedFieldsByApplyingInheritanceAndLanguageOverridesPreferringOwnTranslation(): void
@@ -171,7 +172,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $productId1,
                 $productId2,
@@ -205,7 +206,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesTermToTranslatedFieldsByApplyingLanguageOverrides(): void
@@ -233,7 +234,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesQueryToTranslatedFields(): void
@@ -261,7 +262,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchAppliesQueryToTranslatedFieldsByApplyingLanguageOverrides(): void
@@ -289,7 +290,7 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
     }
 
     public function testSearchFiltersByAndAppliesQueryToTranslatedFields(): void
@@ -328,7 +329,54 @@ class EntitySearcherTest extends TestCase
             ]),
         );
 
-        static::assertEquals([$productId1], $productIds->getIds());
+        static::assertSame([$productId1], $productIds->getIds());
+    }
+
+    public function testScoreRankingPicksHighestScoredRowPerGroup(): void
+    {
+        $ids = new IdsCollection();
+
+        // Group A: "Sport Bottle" variants — all share a displayGroup via parent-a
+        $parentA = (new ProductBuilder($ids, 'parent-a'))->price(100)
+            ->name('Parent A');
+        $a1 = (new ProductBuilder($ids, 'a1'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Blue');
+        $a2 = (new ProductBuilder($ids, 'a2'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Red');
+        $a3 = (new ProductBuilder($ids, 'a3'))->parent('parent-a')->tax(null)
+            ->name('Sport Bottle Green');
+
+        // Group B: "Sport Gear" variants — all share a displayGroup via parent-b
+        $parentB = (new ProductBuilder($ids, 'parent-b'))->price(100)
+            ->name('Parent B');
+        $b1 = (new ProductBuilder($ids, 'b1'))->parent('parent-b')->tax(null)
+            ->name('Sport Gear Standard');
+        $b2 = (new ProductBuilder($ids, 'b2'))->parent('parent-b')->tax(null)
+            ->name('Sport Gear Premium Green');
+
+        static::getContainer()->get('product.repository')->create(
+            [$parentA->build(), $a1->build(), $a2->build(), $a3->build(), $parentB->build(), $b1->build(), $b2->build()],
+            Context::createDefaultContext(),
+        );
+
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+        $criteria->addGroupField(new FieldGrouping('displayGroup'));
+
+        $result = $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+
+        $resultIds = array_values($result->getIds());
+
+        static::assertCount(2, $resultIds);
+        static::assertSame($ids->get('b2'), $resultIds[0], 'Highest overall score (Sport Gear Premium Green) should be first');
+        static::assertSame($ids->get('a3'), $resultIds[1], 'Highest score in Group A (Sport Bottle Green) should be second');
     }
 
     /**

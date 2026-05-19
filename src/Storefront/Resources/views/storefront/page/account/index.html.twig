@@ -9,7 +9,8 @@
                 {% if not ableToShipToShippingCountry %}
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'warning',
-                        content: 'account.overviewNotAbleToShip'|trans|sw_sanitize
+                        content: 'account.overviewNotAbleToShip'|trans|sw_sanitize,
+                        announceOnLoad: true
                     } %}
                 {% endif %}
             {% endblock %}
@@ -20,7 +21,8 @@
                         type: 'info',
                         content: 'account.overviewCustomerGroupRequest'|trans({
                             '%group%': page.customer.requestedGroup.translated.name
-                        })
+                        }),
+                        announceOnLoad: true
                     } %}
                 {% endif %}
             {% endblock %}

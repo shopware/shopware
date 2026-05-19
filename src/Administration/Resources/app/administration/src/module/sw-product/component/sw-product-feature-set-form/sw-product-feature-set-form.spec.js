@@ -82,10 +82,6 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                         'sw-container': await wrapTestComponent('sw-container'),
                         'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                         'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
-                        'sw-icon': {
-                            template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                        },
-                        'sw-icons-custom-inherited': true,
                         'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
                         'sw-loader': true,
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -206,7 +202,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     it('show switch to inherit value', async () => {
         const inheritanceSwitch = wrapper.get(`.${classes.inheritanceSwitch}`);
 
-        await inheritanceSwitch.find('.sw-icon').trigger('click');
+        await inheritanceSwitch.find('.mt-icon').trigger('click');
 
         expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
     });
@@ -214,11 +210,11 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     it('show remove inheritance', async () => {
         const inheritanceSwitch = wrapper.get(`.${classes.inheritanceSwitch}`);
 
-        await inheritanceSwitch.find('.sw-icon').trigger('click');
+        await inheritanceSwitch.find('.mt-icon').trigger('click');
 
         expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
 
-        await inheritanceSwitch.find('.sw-icon').trigger('click');
+        await inheritanceSwitch.find('.mt-icon').trigger('click');
 
         expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
     });

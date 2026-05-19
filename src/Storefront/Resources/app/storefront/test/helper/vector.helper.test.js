@@ -15,7 +15,7 @@ describe('Vector tests', () => {
         });
 
         test('it throws for objects being passed as constructor elements', () => {
-            expect(() => { new Vector2({x: 2, y: 4}); }).toThrowError();
+            expect(() => { new Vector2({x: 2, y: 4}); }).toThrow();
         });
     });
 
@@ -199,10 +199,10 @@ describe('Vector tests', () => {
             });
 
             test('throw when multiplied with non numbers', () => {
-                expect(() => { (new Vector2(1,2)).multiply(false); }).toThrowError();
-                expect(() => { (new Vector2(1,2)).multiply(null); }).toThrowError();
-                expect(() => { (new Vector2(1,2)).multiply(undefined); }).toThrowError();
-                expect(() => { (new Vector2(1,2)).multiply({x: 1, y: 2}); }).toThrowError();
+                expect(() => { (new Vector2(1,2)).multiply(false); }).toThrow();
+                expect(() => { (new Vector2(1,2)).multiply(null); }).toThrow();
+                expect(() => { (new Vector2(1,2)).multiply(undefined); }).toThrow();
+                expect(() => { (new Vector2(1,2)).multiply({x: 1, y: 2}); }).toThrow();
             })
         });
 
@@ -263,7 +263,7 @@ describe('Vector tests', () => {
 
             test('throw error when divided by 0', () => {
                 const vec = new Vector4(1, 2, 3, 4);
-                expect(vec.divide.bind(vec, 0)).toThrowError();
+                expect(vec.divide.bind(vec, 0)).toThrow();
             });
         });
 

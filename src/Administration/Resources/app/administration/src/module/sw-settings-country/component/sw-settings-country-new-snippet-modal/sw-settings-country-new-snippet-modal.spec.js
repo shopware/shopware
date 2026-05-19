@@ -62,7 +62,7 @@ async function createWrapper(customPropsData = {}) {
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -89,7 +89,6 @@ async function createWrapper(customPropsData = {}) {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-label': await wrapTestComponent('sw-label'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': true,
                     'sw-tree': await wrapTestComponent('sw-tree'),
                     'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                     'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
@@ -120,12 +119,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to remove the snippet', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

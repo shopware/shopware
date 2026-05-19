@@ -18,18 +18,6 @@ const createWrapperGlobalValue = {
 };
 
 describe('src/app/component/utils/sw-inherit-wrapper', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper({
-            propsData: {
-                value: 1,
-                inheritedValue: 2,
-            },
-            global: createWrapperGlobalValue,
-        });
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not inherit on different values', async () => {
         const wrapper = await createWrapper({
             propsData: {

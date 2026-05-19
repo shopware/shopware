@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -18,6 +19,7 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  */
 #[CoversClass(PaymentMethodValidator::class)]
+#[Package('checkout')]
 class PaymentMethodValidatorTest extends TestCase
 {
     private PaymentMethodValidator $validator;
@@ -50,7 +52,7 @@ class PaymentMethodValidatorTest extends TestCase
         $this->validator->validate($this->cart, $errors, $context);
 
         static::assertCount(1, $errors);
-        $error = $errors->get('payment-method-blocked-');
+        $error = $errors->get('payment-method-blocked-1');
         static::assertNotNull($error);
         static::assertStringContainsString('inactive', $error->getMessage(), print_r($error->getMessage(), true));
     }
@@ -65,7 +67,7 @@ class PaymentMethodValidatorTest extends TestCase
         $this->validator->validate($this->cart, $errors, $context);
 
         static::assertCount(1, $errors);
-        $error = $errors->get('payment-method-blocked-');
+        $error = $errors->get('payment-method-blocked-1');
         static::assertNotNull($error);
         static::assertStringContainsString('not allowed', $error->getMessage());
     }
@@ -80,7 +82,7 @@ class PaymentMethodValidatorTest extends TestCase
         $this->validator->validate($this->cart, $errors, $context);
 
         static::assertCount(1, $errors);
-        $error = $errors->get('payment-method-blocked-');
+        $error = $errors->get('payment-method-blocked-1');
         static::assertNotNull($error);
         static::assertStringContainsString('rule not matching', $error->getMessage());
     }
@@ -97,20 +99,20 @@ class PaymentMethodValidatorTest extends TestCase
         $this->validator->validate($this->cart, $errors, $context);
 
         static::assertCount(1, $errors);
-        $error = $errors->get('payment-method-blocked-');
+        $error = $errors->get('payment-method-blocked-1');
         static::assertNotNull($error);
     }
 
     private function getSalesChannelContext(): SalesChannelContext
     {
         $paymentMethod = new PaymentMethodEntity();
-        $paymentMethod->setId('payment-method-id');
+        $paymentMethod->setId('1');
         $paymentMethod->setActive(true);
         $paymentMethod->setAvailabilityRuleId('payment-method-availability-rule-id');
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
-        $salesChannel->setPaymentMethodIds(['payment-method-id']);
+        $salesChannel->setPaymentMethodIds(['1']);
 
         $base = Context::createDefaultContext();
         $base->setRuleIds(['payment-method-availability-rule-id']);

@@ -2,13 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,7 +17,6 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -61,7 +59,7 @@ class ApiAwareTest extends TestCase
         if (!\is_string($expected)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
         }
-        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $expected = \json_decode($expected, true, flags: \JSON_THROW_ON_ERROR);
 
         if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
@@ -123,9 +121,9 @@ class ApiAwareTest extends TestCase
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 
         $diff = array_diff($mapping, $expected);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
 
         $diff = array_diff($expected, $mapping);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
     }
 }

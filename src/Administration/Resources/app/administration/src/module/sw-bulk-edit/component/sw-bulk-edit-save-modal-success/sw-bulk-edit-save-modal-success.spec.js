@@ -16,7 +16,6 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-label': true,
-                    'sw-icon': true,
                 },
                 provide: {
                     repositoryFactory: {
@@ -44,7 +43,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     let wrapper;
 
     beforeAll(() => {
-        Shopware.Store.get('shopwareApps').selectedIds = ['orderId'];
+        Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
     });
 
     beforeEach(async () => {

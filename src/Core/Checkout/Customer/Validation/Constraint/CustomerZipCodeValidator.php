@@ -7,17 +7,19 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('checkout')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CountryCollection> $countryRepository
      */
     public function __construct(private readonly EntityRepository $countryRepository)
     {
@@ -29,14 +31,14 @@ class CustomerZipCodeValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof CustomerZipCode) {
-            throw new UnexpectedTypeException($constraint, CustomerZipCodeValidator::class);
+            throw CustomerException::unexpectedType($constraint, CustomerZipCodeValidator::class);
         }
 
-        if ($constraint->countryId === null) {
+        if ($constraint->getCountryId() === null) {
             return;
         }
 
-        $country = $this->getCountry($constraint->countryId);
+        $country = $this->getCountry($constraint->getCountryId());
 
         if ($country->getPostalCodeRequired()) {
             if ($value === null || $value === '') {
@@ -62,7 +64,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
             return;
         }
 
-        $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
+        $caseSensitive = $constraint->isCaseSensitiveCheck() ? '' : 'i';
 
         if (preg_match("/^{$pattern}$/" . $caseSensitive, (string) $value, $matches) === 1) {
             return;
@@ -76,9 +78,8 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
     private function getCountry(string $countryId): CountryEntity
     {
-        $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->get($countryId);
-
-        if (!$country instanceof CountryEntity) {
+        $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->getEntities()->first();
+        if (!$country) {
             throw CustomerException::countryNotFound($countryId);
         }
 

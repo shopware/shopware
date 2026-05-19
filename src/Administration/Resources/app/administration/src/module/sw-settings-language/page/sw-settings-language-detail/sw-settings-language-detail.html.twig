@@ -3,15 +3,11 @@
 
     {% block sw_settings_language_detail_header %}
     <template #smart-bar-header>
-        <h2
-            v-if="languageHasName"
-        >
+        <h2 v-if="languageHasName">
             {{ language.name }}
         </h2>
-        <h2
-            v-else
-        >
-            {{ $tc('sw-settings-language.detail.textHeadline') }}
+        <h2 v-else>
+            {{ $t('sw-settings-language.detail.textHeadline') }}
         </h2>
     </template>
     {% endblock %}
@@ -21,9 +17,11 @@
         {% block sw_settings_language_detail_actions_abort %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -37,7 +35,7 @@
             variant="primary"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-language.detail.buttonSave') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -46,6 +44,18 @@
     {% block sw_settings_language_detail_content %}
     <template #content>
         <sw-card-view>
+            <div class="sw-settings-language-detail__snippet-link-wrapper">
+                <router-link
+                    class="sw-settings-language-detail__snippet-link"
+                    :to="{ name: 'sw.settings.snippet.index' }"
+                >
+                    {{ $t('sw-settings-language.list.manageSnippets') }}
+                    <mt-icon
+                        name="long-arrow-right"
+                        size="12"
+                    />
+                </router-link>
+            </div>
             <sw-skeleton v-if="isLoading" />
 
             <template v-else>
@@ -58,7 +68,7 @@
 
                 {% block sw_settings_language_detail_content_card %}
                 <mt-card
-                    :title="$tc('sw-settings-language.detail.titleCard')"
+                    :title="$t('sw-settings-language.detail.titleCard')"
                     position-identifier="sw-settings-language-detail-content"
                 >
                     <sw-container
@@ -67,19 +77,33 @@
                     >
 
                         {% block sw_settings_language_detail_content_field_name %}
-
                         <mt-text-field
                             v-model="language.name"
                             name="sw-field--language-name"
+                            class="sw-settings-language-detail__name"
                             :disabled="!acl.can('language.editor') || undefined"
-                            :label="$tc('sw-settings-language.detail.labelName')"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderName')"
+                            :label="$t('sw-settings-language.detail.labelName')"
+                            :placeholder="$t('sw-settings-language.detail.placeholderName')"
                             :error="languageNameError"
                             validation="required"
                             required
                         />
                         {% endblock %}
 
+                        <mt-switch
+                            v-model="language.active"
+                            name="sw-field--language-active"
+                            class="sw-settings-language-detail__active"
+                            :disabled="isSystemDefaultLanguageId || !acl.can('language.editor') || undefined"
+                            :label="$t('sw-settings-language.detail.labelActive')"
+                            bordered
+                        />
+                    </sw-container>
+
+                    <sw-container
+                        columns="repeat(auto-fit, minmax(250px, 1fr))"
+                        gap="0px 30px"
+                    >
                         {% block sw_settings_language_detail_content_field_localeId %}
                         <sw-entity-single-select
                             id="locales"
@@ -89,9 +113,9 @@
                             show-clearable-button
                             class="sw-settings-language-detail__select-locale"
                             :disabled="!acl.can('language.editor') || undefined"
-                            :label="$tc('sw-settings-language.detail.labelLocale')"
+                            :label="$t('sw-settings-language.detail.labelLocale')"
                             entity="locale"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                            :placeholder="$t('sw-settings-language.detail.placeholderPleaseSelect')"
                             :error="languageLocaleIdError"
                         >
                             <template #selection-label-property="{ item, getKey }">
@@ -118,17 +142,17 @@
                             class="sw-settings-language-detail__select-iso-code"
                             :disabled="!acl.can('language.editor') || undefined"
                             label-property="code"
-                            :label="$tc('sw-settings-language.detail.labelIsoCode')"
+                            :label="$t('sw-settings-language.detail.labelIsoCode')"
                             :required="isIsoCodeRequired"
                             show-clearable-button
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
+                            :placeholder="$t('sw-settings-language.detail.placeholderPleaseSelect')"
                             entity="locale"
                         >
                             <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
                                 <sw-select-result
                                     v-tooltip="{
                                         showDelay: 300,
-                                        message: $tc('sw-settings-language.detail.textIsoCodeIsInUse'),
+                                        message: $t('sw-settings-language.detail.textIsoCodeIsInUse'),
                                         disabled: !isLocaleAlreadyUsed(item?.id)
                                     }"
 
@@ -149,61 +173,61 @@
                             </template>
                             <template #hint>
                                 <div v-if="isLocaleAlreadyUsed(language.translationCodeId)">
-                                    {{ $tc('sw-settings-language.detail.textIsoCodeIsInUse') }}
+                                    {{ $t('sw-settings-language.detail.textIsoCodeIsInUse') }}
                                 </div>
-                            </template>
-                        </sw-entity-single-select>
-
-                        {% endblock %}
-
-                        {% block sw_settings_language_detail_content_field_parentId %}
-                        <sw-entity-single-select
-                            id="inherit"
-                            v-model:value="language.parentId"
-                            name="sw-field--language-parentId"
-                            class="sw-settings-language-detail__select-parent"
-                            :criteria="parentLanguageCriteria"
-                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId || undefined"
-                            :label="$tc('sw-settings-language.detail.labelParent')"
-                            :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
-                            :help-text="inheritanceTooltipText"
-                            entity="language"
-                            show-clearable-button
-                            @update:value="onInputLanguage"
-                        >
-                            <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
-                                <sw-select-result
-                                    v-tooltip="{
-                                        showDelay: 300,
-                                        message: $tc('sw-settings-language.detail.textLanguageHasParent'),
-                                        disabled: !item.parentId
-                                    }"
-                                    :disabled="!!item.parentId || undefined"
-                                    :selected="isSelected(item)"
-                                    v-bind="{ item, index }"
-                                    @item-select="setValue"
-                                >
-                                    <sw-highlight-text
-                                        v-if="highlightSearchTerm"
-                                        :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                        :search-term="searchTerm"
-                                    />
-                                    <template v-else>
-                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                    </template>
-                                </sw-select-result>
                             </template>
                         </sw-entity-single-select>
                         {% endblock %}
                     </sw-container>
+
+                    {% block sw_settings_language_detail_content_field_parentId %}
+                    <sw-entity-single-select
+                        id="inherit"
+                        v-model:value="language.parentId"
+                        name="sw-field--language-parentId"
+                        class="sw-settings-language-detail__select-parent"
+                        :criteria="parentLanguageCriteria"
+                        :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId || undefined"
+                        :label="$t('sw-settings-language.detail.labelParent')"
+                        :placeholder="$t('sw-settings-language.detail.placeholderPleaseSelect')"
+                        :help-text="inheritanceTooltipText"
+                        entity="language"
+                        show-clearable-button
+                        @update:value="onInputLanguage"
+                    >
+                        <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <sw-select-result
+                                v-tooltip="{
+                                    showDelay: 300,
+                                    message: $t('sw-settings-language.detail.textLanguageHasParent'),
+                                    disabled: !item.parentId
+                                }"
+                                :disabled="!!item.parentId || undefined"
+                                :selected="isSelected(item)"
+                                v-bind="{ item, index }"
+                                @item-select="setValue"
+                            >
+                                <sw-highlight-text
+                                    v-if="highlightSearchTerm"
+                                    :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                    :search-term="searchTerm"
+                                />
+                                <template v-else>
+                                    {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                </template>
+                            </sw-select-result>
+                        </template>
+                    </sw-entity-single-select>
+                    {% endblock %}
+
                     {% block sw_settings_language_detail_content_alert_change_parent %}
                     <mt-banner
                         v-if="showAlertForChangeParentLanguage"
                         class="sw-settings-language--alert-change-parent"
-                        :title="$tc('global.default.warning')"
+                        :title="$t('global.default.warning')"
                         variant="attention"
                     >
-                        {{ $tc('sw-settings-language.detail.textAlertChangeParent') }}
+                        {{ $t('sw-settings-language.detail.textAlertChangeParent') }}
                     </mt-banner>
                     {% endblock %}
                 </mt-card>
@@ -213,7 +237,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-language-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

@@ -31,7 +31,7 @@ class ProductVariationBuilderTest extends TestCase
 
         $builder->build($product);
 
-        static::assertEquals($expected, $product->get('variation'));
+        static::assertSame($expected, $product->get('variation'));
     }
 
     public static function buildingProvider(): \Generator

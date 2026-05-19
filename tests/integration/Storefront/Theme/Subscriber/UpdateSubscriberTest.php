@@ -42,8 +42,8 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent(Context::createDefaultContext(), 'v6.2.0', 'v6.2.1');
 
-        $themeLifecycleService->expects(static::once())->method('refreshThemes');
-        $themeService->expects(static::atLeast(2))
+        $themeLifecycleService->expects($this->once())->method('refreshThemes');
+        $themeService->expects($this->atLeast(2))
             ->method('compileThemeById')
             ->willReturnCallback(function ($themeId, $c) use (&$themes, $context) {
                 $this->assertEquals($context, $c);
@@ -89,8 +89,8 @@ class UpdateSubscriberTest extends TestCase
         $updateSubscriber = new UpdateSubscriber($themeService, $themeLifecycleService, $salesChannelRepository);
         $event = new UpdatePostFinishEvent($context, 'v6.2.0', 'v6.2.1');
 
-        $themeLifecycleService->expects(static::never())->method('refreshThemes');
-        $themeService->expects(static::never())->method('compileThemeById');
+        $themeLifecycleService->expects($this->never())->method('refreshThemes');
+        $themeService->expects($this->never())->method('compileThemeById');
 
         $updateSubscriber->updateFinished($event);
     }

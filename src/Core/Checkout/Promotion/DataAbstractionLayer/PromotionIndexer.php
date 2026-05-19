@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Event\PromotionIndexerEvent;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -23,6 +24,8 @@ class PromotionIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -47,7 +50,7 @@ class PromotionIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -58,7 +61,7 @@ class PromotionIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(PromotionDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -77,7 +80,7 @@ class PromotionIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -126,7 +129,7 @@ class PromotionIndexer extends EntityIndexer
 
         $promotionWrittenEvent = $event->getEventByEntityName(PromotionDefinition::ENTITY_NAME);
 
-        if ($promotionWrittenEvent === null || $promotionWrittenEvent->getName() !== 'promotion.written' || !empty($promotionWrittenEvent->getPayloads()[0])) {
+        if ($promotionWrittenEvent === null || $promotionWrittenEvent->getName() !== 'promotion.written' || $promotionWrittenEvent->getPayloads()[0] !== []) {
             return false;
         }
 

@@ -1,13 +1,20 @@
 @import "~scss/variables";
 
-$sw-customer-list-color-error: $color-crimson-500;
-$sw-customer-list-color-success: $color-emerald-500;
+$sw-customer-list-color-error: var(--color-icon-critical-default);
+$sw-customer-list-color-success: var(--color-icon-positive-default);
 
 .sw-customer-list {
     .sw-customer-list__content {
         width: 100%;
         height: 100%;
         position: absolute;
+
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
@@ -31,8 +38,8 @@ $sw-customer-list-color-success: $color-emerald-500;
     }
 
     .sw-label.sw-customer-list__requested-group-label {
-        background: $color-module-orange-500;
-        color: $color-white;
+        background: var(--color-background-attention-default);
+        color: var(--color-text-attention-default);
         font-weight: $font-weight-semi-bold;
     }
 }

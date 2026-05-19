@@ -20,7 +20,6 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-modal': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-snippet-field-edit-modal': true,
                 'sw-help-text': true,
                 'sw-textarea-field': true,
@@ -103,11 +102,6 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/app/component/form/sw-snippet-field', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show admin language translation of snippet field', async () => {
         Shopware.Store.get('session').currentLocale = 'de-DE';
 

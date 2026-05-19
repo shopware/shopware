@@ -20,9 +20,9 @@ class TransactionFailedExceptionTest extends TestCase
         $previous = new \Exception('broken');
         $e = TransactionFailedException::because($previous);
 
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
-        static::assertEquals(TransactionFailedException::TRANSACTION_FAILED, $e->getErrorCode());
-        static::assertEquals('Transaction failed because an exception occurred. Exception: broken', $e->getMessage());
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(TransactionFailedException::TRANSACTION_FAILED, $e->getErrorCode());
+        static::assertSame('Transaction failed because an exception occurred. Exception: broken', $e->getMessage());
         static::assertSame($previous, $e->getPrevious());
     }
 }

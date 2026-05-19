@@ -1,6 +1,5 @@
 import template from './sw-admin-menu-item.html.twig';
 
-const { Component } = Shopware;
 const { createId, types } = Shopware.Utils;
 
 /**
@@ -8,7 +7,7 @@ const { createId, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu-item', {
+export default {
     template,
 
     inject: [
@@ -35,7 +34,6 @@ Component.register('sw-admin-menu-item', {
 
         displayIcon: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -46,13 +44,11 @@ Component.register('sw-admin-menu-item', {
         },
         collapsibleText: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
         sidebarExpanded: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -74,9 +70,9 @@ Component.register('sw-admin-menu-item', {
 
         getEntryLabel() {
             if (this.entry.label instanceof Object) {
-                return this.entry.label.translated ? this.entry.label.label : this.$tc(this.entry.label.label);
+                return this.entry.label.translated ? this.entry.label.label : this.$t(this.entry.label.label);
             }
-            return this.$tc(this.entry.label);
+            return this.$t(this.entry.label);
         },
 
         showMenuItem() {
@@ -226,4 +222,4 @@ Component.register('sw-admin-menu-item', {
             return `${path}-${createId()}`;
         },
     },
-});
+};

@@ -12,9 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -63,23 +65,33 @@ class DocumentBaseConfigDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the document base config.'),
 
-            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('logo_id', 'logoId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('document_type_id', 'documentTypeId', DocumentTypeDefinition::class))->addFlags(new ApiAware(), new Required())->setDescription('Unique identity of the document type.'),
+            (new FkField('logo_id', 'logoId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of the company logo.'),
 
-            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('filename_prefix', 'filenamePrefix'))->addFlags(new ApiAware()),
-            (new StringField('filename_suffix', 'filenameSuffix'))->addFlags(new ApiAware()),
-            (new BoolField('global', 'global'))->addFlags(new ApiAware(), new Required()),
-            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
-            (new JsonField('config', 'config'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required())->setDescription('Name of the document.'),
+            (new StringField('filename_prefix', 'filenamePrefix'))->addFlags(new ApiAware())->setDescription('A prefix name added to the file name separated by an underscore.'),
+            (new StringField('filename_suffix', 'filenameSuffix'))->addFlags(new ApiAware())->setDescription('A suffix name added to the file name separated by an underscore.'),
+            (new BoolField('global', 'global'))->addFlags(new ApiAware(), new Required())->setDescription('When set to `true`, the document can be used across all sales channels.'),
+            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware())->setDescription('Unique number associated with every document.'),
+            (new StringField('page_size', 'pageSize', 32))->setDescription('The page size of the document.'),
+            (new StringField('page_orientation', 'pageOrientation', 32))->setDescription('The page orientation of the document.'),
+            (new IntField('items_per_page', 'itemsPerPage'))->setDescription('The number of items per page.'),
+            (new BoolField('display_header', 'displayHeader'))->setDescription('Whether to display the header.'),
+            (new BoolField('display_footer', 'displayFooter'))->setDescription('Whether to display the footer.'),
+            (new BoolField('display_page_count', 'displayPageCount'))->setDescription('Whether to display the page count.'),
+            (new BoolField('display_company_address', 'displayCompanyAddress'))->setDescription('Whether to display the company address.'),
+            (new BoolField('display_return_address', 'displayReturnAddress'))->setDescription('Whether to display the return address.'),
+            (new BoolField('display_customer_vat_id', 'displayCustomerVatId'))->setDescription('Whether to display the customer VAT ID.'),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new CreatedAtField())->addFlags(new ApiAware()),
-            (new CustomFields())->addFlags(new ApiAware()),
 
             new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'),
-            (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'))->addFlags(new ApiAware())->setDescription('Logo in the document at the top-right corner.'),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
+
+            (new JsonField('config', 'config'))->addFlags(new ApiAware(), new Deprecated('v6.7.11.0', 'v6.8.0.0', 'type'))->setDescription('Specifies detailed information about the component.'),
         ]);
     }
 }

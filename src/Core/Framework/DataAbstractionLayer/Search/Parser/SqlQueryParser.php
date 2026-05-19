@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -39,6 +40,9 @@ class SqlQueryParser
     ) {
     }
 
+    /**
+     * @param list<ScoreQuery> $queries
+     */
     public function parseRanking(
         array $queries,
         EntityDefinition $definition,
@@ -47,7 +51,6 @@ class SqlQueryParser
     ): ParseResult {
         $result = new ParseResult();
 
-        /** @var ScoreQuery $query */
         foreach ($queries as $query) {
             $parsed = $this->parse($query->getQuery(), $definition, $context, $root);
 
@@ -93,21 +96,21 @@ class SqlQueryParser
 
         if ($query instanceof SingleFieldFilter && $query->getResolved()) {
             $result = new ParseResult();
-            $result->addWhere((string) $query->getResolved());
+            $result->addWhere($query->getResolved());
 
             return $result;
         }
 
         return match (true) {
             $query instanceof EqualsFilter => $this->parseEqualsFilter($query, $definition, $root, $context, $negated),
-            $query instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($query, $definition, $root, $context),
+            $query instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($query, $definition, $root, $context, $negated),
             $query instanceof ContainsFilter => $this->parseContainsFilter($query, $definition, $root, $context),
             $query instanceof PrefixFilter => $this->parsePrefixFilter($query, $definition, $root, $context),
             $query instanceof SuffixFilter => $this->parseSuffixFilter($query, $definition, $root, $context),
             $query instanceof RangeFilter => $this->parseRangeFilter($query, $definition, $root, $context),
             $query instanceof NotFilter => $this->parseNotFilter($query, $definition, $root, $context),
             $query instanceof MultiFilter => $this->parseMultiFilter($query, $definition, $root, $context, $negated),
-            default => throw new \RuntimeException(\sprintf('Unsupported query %s', $query::class)),
+            default => throw DataAbstractionLayerException::unsupportedQueryFilter($query::class),
         };
     }
 
@@ -194,7 +197,7 @@ class SqlQueryParser
         return $result;
     }
 
-    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, string $root, Context $context): ParseResult
+    private function parseEqualsAnyFilter(EqualsAnyFilter $query, EntityDefinition $definition, string $root, Context $context, bool $negated): ParseResult
     {
         $key = $this->getKey();
         $select = $this->queryHelper->getFieldAccessor($query->getField(), $definition, $root, $context);
@@ -210,18 +213,54 @@ class SqlQueryParser
                 $where[] = \sprintf('JSON_CONTAINS(%s, JSON_ARRAY(%s))', $select, ':' . $key);
                 $result->addParameter($key, $value);
             }
+
+            if ($where === []) {
+                $result->addWhere('1 = 0');
+
+                return $result;
+            }
+
             $result->addWhere('(' . implode(' OR ', $where) . ')');
 
             return $result;
         }
 
-        $result->addWhere($select . ' IN (:' . $key . ')');
-
-        $value = array_values($query->getValue());
-        if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
+        $hasNulls = false;
+        $value = [];
+        foreach ($query->getValue() as $v) {
+            if ($v === null) {
+                $hasNulls = true;
+                continue;
+            }
+            $value[] = $v;
         }
-        $result->addParameter($key, $value, ArrayParameterType::STRING);
+        if ($field instanceof IdField || $field instanceof FkField) {
+            $value = array_filter(array_map(static fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
+        }
+
+        $where = [];
+        if ($value !== []) {
+            $result->addParameter($key, $value, ArrayParameterType::STRING);
+
+            $inFilter = $select . ' IN (:' . $key . ')';
+            if ($negated && !$hasNulls) {
+                $where[] = '(' . $select . ' IS NOT NULL AND ' . $inFilter . ')';
+            } else {
+                $where[] = $inFilter;
+            }
+        }
+
+        if ($hasNulls) {
+            $where[] = $select . ' IS NULL';
+        }
+
+        if ($where === []) {
+            $result->addWhere('1 = 0');
+
+            return $result;
+        }
+
+        $result->addWhere('(' . implode(' OR ', $where) . ')');
 
         return $result;
     }
@@ -277,7 +316,7 @@ class SqlQueryParser
         $result->resetWheres();
 
         $glue = ' ' . $query->getOperator() . ' ';
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('(' . implode($glue, $wheres) . ')');
         }
 
@@ -294,7 +333,7 @@ class SqlQueryParser
 
         $glue = ' ' . $query->getOperator() . ' ';
 
-        if (!empty($wheres)) {
+        if ($wheres !== []) {
             $result->addWhere('NOT (' . implode($glue, $wheres) . ')');
         }
 

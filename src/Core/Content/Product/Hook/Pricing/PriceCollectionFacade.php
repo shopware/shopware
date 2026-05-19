@@ -45,7 +45,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
     /**
      * The `change()` function allows a complete overwrite of the product quantity prices
      *
-     * @param list<array{to: int|null, price: PriceCollection}> $changes
+     * @param list<array{to: int|'', price: PriceCollection}> $changes
      *
      * @example pricing-cases/product-pricing.twig 40 5 Overwrite the product prices with a new quantity price graduation
      */
@@ -53,7 +53,7 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
     {
         $mapped = [];
         foreach ($changes as $change) {
-            $mapped[(string) $change['to']] = $change['price'];
+            $mapped[$change['to']] = $change['price'];
         }
 
         // check for "null" value
@@ -61,12 +61,12 @@ class PriceCollectionFacade implements \IteratorAggregate, \Countable
             throw ProductException::invalidPriceDefinition();
         }
 
-        $last = $mapped[null];
-        unset($mapped[null]);
+        $last = $mapped[''];
+        unset($mapped['']);
 
         \ksort($mapped, \SORT_NUMERIC);
         $arrayKeys = \array_keys($mapped);
-        \assert(!empty($arrayKeys));
+        \assert($arrayKeys !== []);
         $max = \max($arrayKeys);
 
         $mapped[$max + 1] = $last;

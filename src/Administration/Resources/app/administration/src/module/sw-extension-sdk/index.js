@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import './page/sw-extension-sdk-module';
+/** @private */
+Shopware.Component.register('sw-extension-sdk-module', () => import('./page/sw-extension-sdk-module'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-extension-sdk', {

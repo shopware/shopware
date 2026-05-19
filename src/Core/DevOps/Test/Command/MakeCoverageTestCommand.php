@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\DevOps\Test\Command;
 
-use PHPStan\BetterReflection\BetterReflection;
-use PHPStan\BetterReflection\Reflector\DefaultReflector;
-use PHPStan\BetterReflection\SourceLocator\Type\SingleFileSourceLocator;
 use PHPUnit\TextUI\XmlConfiguration\Loader;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
@@ -50,7 +47,7 @@ class MakeCoverageTestCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $filteredClasses = $this->filterExcludedClasses(array_unique($classes), $input, $io);
 
-        if (empty($filteredClasses)) {
+        if ($filteredClasses === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -78,7 +75,7 @@ class MakeCoverageTestCommand extends Command
             if (str_contains($reflection->getShortName(), 'Migration1')) {
                 $testPath = str_replace('/tests/unit', '/tests/migration', $testPath);
                 $testStub = $migrationTestStub;
-                $namespaceParts = array_values(array_filter($namespaceParts, fn ($part) => !str_contains($part, 'Migration')));
+                $namespaceParts = array_values(array_filter($namespaceParts, static fn ($part) => !str_contains($part, 'Migration')));
             }
 
             $namespace = implode('\\', $namespaceParts);
@@ -104,7 +101,7 @@ class MakeCoverageTestCommand extends Command
             $tests[] = $testFileName;
         }
 
-        if (empty($tests)) {
+        if ($tests === []) {
             $io->note('No coverage tests are created');
 
             return self::SUCCESS;
@@ -118,7 +115,7 @@ class MakeCoverageTestCommand extends Command
     /**
      * @param array<string> $classes
      *
-     * @return array<class-string>
+     * @return list<class-string>
      */
     private function filterExcludedClasses(array $classes, InputInterface $input, SymfonyStyle $io): array
     {
@@ -131,14 +128,14 @@ class MakeCoverageTestCommand extends Command
         $excludedFiles = $xml->source()->excludeFiles();
 
         foreach ($classes as $class) {
-            $class = $this->getClassname($class);
+            $className = $this->getClassname($class);
 
-            if ($class === null || !class_exists($class)) {
-                $io->warning(\sprintf('Class or file %s does not exist', $class));
+            if ($className === null || !class_exists($className)) {
+                $io->warning(\sprintf('Class or file "%s" does not exist', $className ?? $class));
 
                 continue;
             }
-            $reflection = new \ReflectionClass($class);
+            $reflection = new \ReflectionClass($className);
             $fileName = str_replace($this->projectDir, '', (string) $reflection->getFileName());
 
             $failReason = null;
@@ -155,13 +152,13 @@ class MakeCoverageTestCommand extends Command
                     continue;
                 }
 
-                if (!empty($excludedDir->prefix()) && str_ends_with($fileName, $excludedDir->prefix())) {
+                if ($excludedDir->prefix() !== '' && str_ends_with($fileName, $excludedDir->prefix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
 
                     continue;
                 }
 
-                if (!empty($excludedDir->suffix()) && str_ends_with($fileName, $excludedDir->suffix())) {
+                if ($excludedDir->suffix() !== '' && str_ends_with($fileName, $excludedDir->suffix())) {
                     $failReason = \sprintf('Skip coverage test for excluded directory: %s', $fileName);
                 }
             }
@@ -178,7 +175,7 @@ class MakeCoverageTestCommand extends Command
                 continue;
             }
 
-            $filteredClasses[] = $class;
+            $filteredClasses[] = $className;
         }
 
         return array_values(array_unique($filteredClasses));
@@ -189,15 +186,17 @@ class MakeCoverageTestCommand extends Command
         $class = str_replace('"', '', $rawClass);
 
         if (str_ends_with($class, '.php') && $this->filesystem->exists($class)) {
-            $astLocator = (new BetterReflection())->astLocator();
-            $reflector = new DefaultReflector(new SingleFileSourceLocator($class, $astLocator));
-            $classes = $reflector->reflectAllClasses();
+            $content = (string) file_get_contents($class);
+            preg_match('/namespace\s+([^;]+);/', $content, $matches);
+            $namespace = $matches[1] ?? '';
+            preg_match('/class\s+(\w+)/', $content, $matches);
+            $class = $matches[1] ?? '';
 
-            if (empty($classes)) {
+            if ($class === '') {
                 return null;
             }
 
-            return $classes[0]->getName();
+            return $namespace . '\\' . $class;
         }
 
         return $class;

@@ -5,16 +5,9 @@
 import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-icon', { sync: true }), {
+    return mount(await wrapTestComponent('sw-icon-deprecated', { sync: true }), {
         props: {
             name: 'regular-circle-download',
-        },
-        global: {
-            stubs: {
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
-                'mt-icon': true,
-                'sw-icon': true,
-            },
         },
     });
 }
@@ -26,10 +19,6 @@ describe('src/app/component/base/sw-icon-deprecated/index.js', () => {
         wrapper = await createWrapper();
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render the correct icon (circle-download)', async () => {

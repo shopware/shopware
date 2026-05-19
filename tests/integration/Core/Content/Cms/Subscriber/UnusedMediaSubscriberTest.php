@@ -4,8 +4,12 @@ namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\Subscriber\UnusedMediaSubscriber;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Category\CategoryBuilder;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -23,12 +27,24 @@ class UnusedMediaSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CmsPageCollection>
+     */
     private EntityRepository $cmsPageRepository;
 
+    /**
+     * @var EntityRepository<MediaCollection>
+     */
     private EntityRepository $mediaRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     protected function setUp(): void
@@ -66,7 +82,7 @@ class UnusedMediaSubscriberTest extends TestCase
 
         $mediaIds = array_values($ids->all());
 
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
@@ -77,7 +93,7 @@ class UnusedMediaSubscriberTest extends TestCase
     public function testMediaIdsFromAllPossibleLocationsAreRemovedFromEvent(): void
     {
         $mediaIds = $this->createContent();
-        $event = new UnusedMediaSearchEvent($mediaIds);
+        $event = new UnusedMediaSearchEvent($mediaIds, Context::createDefaultContext());
         $listener = new UnusedMediaSubscriber(static::getContainer()->get(Connection::class));
 
         $listener->removeUsedMedia($event);
@@ -86,7 +102,7 @@ class UnusedMediaSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
     private function createContent(): array
     {
@@ -126,7 +142,7 @@ class UnusedMediaSubscriberTest extends TestCase
                 [
                     'sliderItems' => [
                         'source' => 'static',
-                        'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-9', 'media-10']))),
+                        'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-9', 'media-10']))),
                     ],
                     'speed' => ['source' => 'static', 'value' => 300],
                     'autoSlide' => ['source' => 'static', 'value' => false],
@@ -176,7 +192,7 @@ class UnusedMediaSubscriberTest extends TestCase
                 [
                     'sliderItems' => [
                         'source' => 'static',
-                        'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-13', 'media-14']))),
+                        'value' => array_map(static fn (string $id) => ['mediaId' => $id], array_values($ids->getList(['media-13', 'media-14']))),
                     ],
                     'speed' => ['source' => 'static', 'value' => 300],
                     'autoSlide' => ['source' => 'static', 'value' => false],

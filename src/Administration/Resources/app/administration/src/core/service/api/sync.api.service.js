@@ -19,8 +19,10 @@ class SyncApiService extends ApiService {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
 
+        const syncPayloadStringified = JSON.stringify(payload, (k, v) => (v === undefined ? null : v));
+
         return this.httpClient
-            .post(`/_action/${this.apiEndpoint}`, payload, {
+            .post(`/_action/${this.apiEndpoint}`, syncPayloadStringified, {
                 params,
                 headers,
             })

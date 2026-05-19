@@ -44,7 +44,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     #[Group('lineitemgroup')]
     public function testKey(): void
     {
-        static::assertEquals('PRICE_UNIT_GROSS', $this->packager->getKey());
+        static::assertSame('PRICE_UNIT_GROSS', $this->packager->getKey());
     }
 
     /**

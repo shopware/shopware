@@ -17,7 +17,7 @@ class CollectEntityDataMessageHandlerTest extends TestCase
     public function testInvoke(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
-        $entityDispatchService->expects(static::once())
+        $entityDispatchService->expects($this->once())
             ->method('dispatchIterateEntityMessages');
 
         $messageHandler = new CollectEntityDataMessageHandler($entityDispatchService);

@@ -32,7 +32,7 @@ class RemoteZipTest extends TestCase
             $this->createMock(AppDownloader::class),
             $this->createMock(AppExtractor::class),
         );
-        static::assertEquals('remote-zip', $source->name());
+        static::assertSame('remote-zip', $source->name());
     }
 
     public function testSupportsExistingAppWithRemoteZipType(): void
@@ -92,10 +92,10 @@ class RemoteZipTest extends TestCase
         $downloader = $this->createMock(AppDownloader::class);
         $extractor = $this->createMock(AppExtractor::class);
 
-        $downloader->expects(static::never())->method('download');
-        $extractor->expects(static::never())->method('extract');
+        $downloader->expects($this->never())->method('download');
+        $extractor->expects($this->never())->method('extract');
 
-        $fs->expects(static::once())
+        $fs->expects($this->once())
             ->method('exists')
             ->with($dirFactory->path() . '/TestApp')
             ->willReturn(true);
@@ -108,7 +108,7 @@ class RemoteZipTest extends TestCase
 
         $filesystem = $source->filesystem($app);
 
-        static::assertEquals($dirFactory->path() . '/TestApp', $filesystem->location);
+        static::assertSame($dirFactory->path() . '/TestApp', $filesystem->location);
     }
 
     public static function appProvider(): \Generator
@@ -160,12 +160,12 @@ class RemoteZipTest extends TestCase
         $extractor = $this->createMock(AppExtractor::class);
 
         $downloader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('download')
             ->with('https://myapp.com/zip', $dirFactory->path() . '/TestApp.zip');
 
         $extractor
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('extract')
             ->with(
                 'TestApp',
@@ -186,7 +186,7 @@ class RemoteZipTest extends TestCase
 
         $filesystem = $source->filesystem($app);
 
-        static::assertEquals($dirFactory->path() . '/TestApp', $filesystem->location);
+        static::assertSame($dirFactory->path() . '/TestApp', $filesystem->location);
     }
 
     public function testExceptionIsThrowIfDownloadingOrExtractingFails(): void
@@ -206,7 +206,7 @@ class RemoteZipTest extends TestCase
         $extractor = $this->createMock(AppExtractor::class);
 
         $downloader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('download')
             ->with('https://myapp.com/zip', $dirFactory->path() . '/TestApp.zip')
             ->willThrowException($exception);

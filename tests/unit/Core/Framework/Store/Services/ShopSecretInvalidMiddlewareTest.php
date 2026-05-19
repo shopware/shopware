@@ -3,13 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
-use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Services\ShopSecretInvalidMiddleware;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -22,13 +23,20 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     public function testKeepsStoreTokensAndReturnsResponse(): void
     {
         $response = new Response(200, [], '{"payload":"data"}');
+        $request = new Request('GET', '/');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('delete');
 
         $middleware = new ShopSecretInvalidMiddleware(
-            $this->createMock(Connection::class),
-            $this->createMock(SystemConfigService::class)
+            $connection,
+            $systemConfigService
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
     }
@@ -36,27 +44,36 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     public function testKeepsStoreTokensAndReturnsResponseWithRewoundBody(): void
     {
         $response = new Response(401, [], '{"payload":"data"}');
+        $request = new Request('GET', '/');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('delete');
 
         $middleware = new ShopSecretInvalidMiddleware(
-            $this->createMock(Connection::class),
-            $this->createMock(SystemConfigService::class)
+            $connection,
+            $systemConfigService
         );
 
-        $handledResponse = $middleware($response);
+        $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
+        static::assertSame('{"payload":"data"}', (string) $handledResponse->getBody());
     }
 
     public function testThrowsAndDeletesStoreTokensIfApiRespondsWithTokenExpiredException(): void
     {
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-68"}');
+        $request = new Request('GET', '/');
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeStatement');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('delete')
             ->with(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET);
 
@@ -65,7 +82,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
             $systemConfigService
         );
 
-        $this->expectException(ShopSecretInvalidException::class);
-        $middleware($response);
+        $this->expectExceptionObject(StoreException::shopSecretInvalid());
+        $middleware($response, $request);
     }
 }

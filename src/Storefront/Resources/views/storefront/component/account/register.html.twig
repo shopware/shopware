@@ -1,3 +1,7 @@
+{% if formAction is not defined %}
+    {% set formAction = path('frontend.account.register.save') %}
+{% endif %}
+
 {% block component_account_register %}
     <div class="card register-card">
         <div class="card-body">
@@ -10,11 +14,10 @@
             {% endblock %}
 
             {% block component_account_register_form %}
-                <form action="{{ path('frontend.account.register.save') }}"
+                <form action="{{ formAction }}"
                       class="register-form"
                       method="post"
                       data-form-handler="true">
-
                     {% block component_account_register_redirect %}
                         <input type="hidden"
                                name="redirectTo"
@@ -22,7 +25,7 @@
 
                         <input type="hidden"
                                name="redirectParameters"
-                               value="{{ redirectParameters }}">
+                               value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}">
                     {% endblock %}
 
                     {% block component_account_register_create_account %}
@@ -106,18 +109,20 @@
                                             })|sw_sanitize %}
                                         {% endif %}
 
-                                        {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
-                                            type: 'password',
-                                            label: 'account.personalPasswordLabel'|trans|sw_sanitize,
-                                            id: 'personalPassword',
-                                            name: 'password',
-                                            autocomplete: 'new-password',
-                                            description: passwordFieldDescription,
-                                            violationPath: '/password',
-                                            validationRules: 'required,minLength',
-                                            minlength: config('core.loginRegistration.passwordMinLength'),
-                                            additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
-                                        } %}
+                                        {% block component_account_register_personal_password_input %}
+                                            {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+                                                type: 'password',
+                                                label: 'account.personalPasswordLabel'|trans|sw_sanitize,
+                                                id: 'personalPassword',
+                                                name: 'password',
+                                                autocomplete: 'new-password',
+                                                description: passwordFieldDescription,
+                                                violationPath: '/password',
+                                                validationRules: 'required,minLength',
+                                                minlength: config('core.loginRegistration.passwordMinLength'),
+                                                additionalClass: 'col-sm-6 js-form-field-toggle-guest-mode',
+                                            } %}
+                                        {% endblock %}
                                     {% endblock %}
                                 {% endset %}
 

@@ -81,7 +81,7 @@ describe('src/module/sw-category/component/sw-category-view', () => {
         expect(wrapper.get('.swag-category-view__column-info-header').text()).toBe('sw-category.view.columnInfoHeader');
         expect(wrapper.get('.swag-category-view__column-info-content').text()).toBe('sw-category.view.columnInfo');
 
-        expect(wrapper.get('.sw-customer-detail-page__tabs').attributes('position-identifier')).toBe('sw-category-view');
+        expect(wrapper.get('.sw-category-detail-page__tabs').attributes('position-identifier')).toBe('sw-category-view');
     });
 
     function checkGeneralTab(generalTab) {

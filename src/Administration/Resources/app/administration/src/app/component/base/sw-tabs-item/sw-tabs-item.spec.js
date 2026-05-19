@@ -9,10 +9,7 @@ async function createWrapper(props = {}) {
         props,
         global: {
             stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'router-link': true,
-                'mt-icon': true,
             },
             directives: {
                 tooltip: {
@@ -51,13 +48,13 @@ describe('component/base/sw-tabs-item', () => {
             hasError: true,
             errorTooltip: 'Custom error message',
         });
+
         await flushPromises();
 
         expect(wrapper.classes()).toContain('sw-tabs-item--has-error');
 
-        const errorIcon = wrapper.find('.sw-tabs-item__error-badge');
+        const errorIcon = wrapper.find('.sw-tabs-item__error-badge.icon--solid-exclamation-circle');
         expect(errorIcon.isVisible()).toBe(true);
-        expect(errorIcon.attributes('data-testid')).toBe('sw-icon__solid-exclamation-circle');
         expect(errorIcon.attributes('data-tooltip-message')).toBe('Custom error message');
     });
 
@@ -70,10 +67,8 @@ describe('component/base/sw-tabs-item', () => {
 
         expect(wrapper.classes()).toContain('sw-tabs-item--has-warning');
 
-        const warningIcon = wrapper.find('.sw-tabs-item__warning-badge');
+        const warningIcon = wrapper.find('.sw-tabs-item__warning-badge.icon--solid-exclamation-triangle');
         expect(warningIcon.isVisible()).toBe(true);
-
-        expect(warningIcon.attributes('data-testid')).toBe('sw-icon__solid-exclamation-triangle');
         expect(warningIcon.attributes('data-tooltip-message')).toBe('Custom warning message');
     });
 });

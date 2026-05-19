@@ -7,51 +7,47 @@
         {{ formSettings.title.value }}
     </h3>
 
-    <sw-select-field :label="$tc('sw-cms.elements.form.element.label.action')">
-        <option
-            value=""
-            selected
-        >
-            {{ $tc('sw-cms.elements.form.element.label.subscribeToNewsletter') }}
-        </option>
-    </sw-select-field>
+    <mt-select
+        :label="$t('sw-cms.elements.form.element.label.action')"
+        :model-value="''"
+        :options="[{ value: '', label: $t('sw-cms.elements.form.element.label.subscribeToNewsletter') }]"
+    />
 
     <mt-text-field
-        :label="$tc('sw-cms.elements.form.element.label.email')"
-        :model-value="$tc('sw-cms.elements.form.element.placeholder.email')"
+        :label="$t('sw-cms.elements.form.element.label.email')"
+        :model-value="$t('sw-cms.elements.form.element.placeholder.email')"
     />
 
     <div class="sw-cms-el-form-contact-form-group three-items">
-        <sw-select-field :label="$tc('sw-cms.elements.form.element.newsletter.label.salutation')">
-            <option
-                value=""
-                selected
-            >
-                {{ $tc('sw-cms.elements.form.element.label.salutationUndisclosed') }}
-            </option>
-        </sw-select-field>
-
-        <mt-text-field
-            :label="$tc('sw-cms.elements.form.element.newsletter.label.firstName')"
-            :model-value="$tc('sw-cms.elements.form.element.placeholder.firstName')"
+        <mt-select
+            :label="$t('sw-cms.elements.form.element.newsletter.label.salutation')"
+            :options="[{ value: '', label: $t('sw-cms.elements.form.element.label.salutationUndisclosed') }]"
         />
 
         <mt-text-field
-            :label="$tc('sw-cms.elements.form.element.newsletter.label.lastName')"
-            :model-value="$tc('sw-cms.elements.form.element.placeholder.lastName')"
+            :label="$t('sw-cms.elements.form.element.newsletter.label.firstName')"
+            :model-value="$t('sw-cms.elements.form.element.placeholder.firstName')"
+        />
+
+        <mt-text-field
+            :label="$t('sw-cms.elements.form.element.newsletter.label.lastName')"
+            :model-value="$t('sw-cms.elements.form.element.placeholder.lastName')"
         />
     </div>
 
-    <h4>{{ $tc('sw-cms.elements.form.element.label.privacy') }}</h4>
+    <h4>{{ $t('sw-cms.elements.form.element.label.privacy') }}</h4>
 
-    <sw-checkbox-field :label="$tc('sw-cms.elements.form.element.helpText.privacy')" />
+    <p
+        class="sw-cms-el-form-newsletter__privacy"
+        v-html="$t('sw-cms.general.privacyNotice')"
+    ></p>
 
-    <p class="sw-cms-el-form-note">
-        {{ $tc('sw-cms.elements.form.element.helpText.requiredFields') }}
+    <p class="sw-cms-el-form-newsletter__note">
+        {{ $t('sw-cms.elements.form.element.helpText.requiredFields') }}
     </p>
 
     <div class="sw-cms-el-form__action">
-        {{ $tc('sw-cms.elements.form.element.label.send') }}
+        {{ $t('global.default.submit') }}
     </div>
 </div>
 {% endblock %}

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
@@ -35,10 +36,11 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$p1, $p2],
@@ -47,13 +49,13 @@ class LoadProductStockSubscriberTest extends TestCase
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->getStock());
+        static::assertSame(10, $p1->getStock());
         static::assertFalse($p1->getAvailable());
-        static::assertEquals(5, $p1->getMinPurchase());
+        static::assertSame(5, $p1->getMinPurchase());
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->getStock());
+        static::assertSame(12, $p2->getStock());
         static::assertTrue($p2->getAvailable());
         static::assertNull($p2->getMinPurchase());
         static::assertTrue($p2->hasExtension('stock_data'));
@@ -74,10 +76,11 @@ class LoadProductStockSubscriberTest extends TestCase
         $stock1->addArrayExtension('extra', ['arbitrary-data1' => 'foo']);
         $stock2 = new StockData($ids->get('product-2'), 12, true);
 
-        $stockStorage->expects(static::once())
+        $stockStorage->expects($this->once())
             ->method('load')
             ->willReturn(new StockDataCollection([$stock1, $stock2]));
 
+        /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
             $this->createMock(SalesChannelProductDefinition::class),
             [$p1, $p2],
@@ -86,13 +89,13 @@ class LoadProductStockSubscriberTest extends TestCase
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->get('stock'));
+        static::assertSame(10, $p1->get('stock'));
         static::assertFalse($p1->get('available'));
-        static::assertEquals(5, $p1->get('minPurchase'));
+        static::assertSame(5, $p1->get('minPurchase'));
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->get('stock'));
+        static::assertSame(12, $p2->get('stock'));
         static::assertTrue($p2->get('available'));
         static::assertNull($p2->get('minPurchase'));
         static::assertTrue($p2->hasExtension('stock_data'));

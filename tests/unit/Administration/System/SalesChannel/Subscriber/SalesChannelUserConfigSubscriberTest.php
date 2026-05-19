@@ -25,7 +25,9 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 #[CoversClass(SalesChannelUserConfigSubscriber::class)]
 class SalesChannelUserConfigSubscriberTest extends TestCase
 {
-    /** @var MockObject&EntityRepository<UserConfigCollection> */
+    /**
+     * @var MockObject&EntityRepository<UserConfigCollection>
+     */
     private MockObject&EntityRepository $userConfigRepository;
 
     private SalesChannelUserConfigSubscriber $salesChannelUserConfigSubscriber;
@@ -38,7 +40,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             SalesChannelEvents::SALES_CHANNEL_DELETED => 'onSalesChannelDeleted',
         ], $this->salesChannelUserConfigSubscriber->getSubscribedEvents());
     }
@@ -48,7 +50,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
                 ->willReturn(new EntitySearchResult(
                     UserConfigDefinition::ENTITY_NAME,
@@ -59,7 +61,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                     $context
                 ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
@@ -73,7 +75,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -84,7 +86,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);
@@ -98,7 +100,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
         $context = Context::createDefaultContext();
         $event = new EntityDeletedEvent('testEntity', [], $context);
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -109,7 +111,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([], $context);
 
@@ -135,7 +137,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
             $context
         );
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 UserConfigDefinition::ENTITY_NAME,
@@ -146,7 +148,7 @@ class SalesChannelUserConfigSubscriberTest extends TestCase
                 $context
             ));
 
-        $this->userConfigRepository->expects(static::once())
+        $this->userConfigRepository->expects($this->once())
             ->method('upsert')
             ->with([['id' => 'test-deleted', 'value' => []]], $context);
         $this->salesChannelUserConfigSubscriber->onSalesChannelDeleted($event);

@@ -38,11 +38,21 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.finish';
             }
 
             return 'sw.first.run.wizard.index.store';
+        },
+
+        domainOptions() {
+            return this.licenceDomains.map((domain) => {
+                return {
+                    id: domain.domain,
+                    value: domain.domain,
+                    label: domain.domain,
+                };
+            });
         },
     },
 
@@ -83,22 +93,22 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.shopwareAccount.modalTitle'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.shopware.account',
                     disabled: false,
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: this.verifyDomain.bind(this),

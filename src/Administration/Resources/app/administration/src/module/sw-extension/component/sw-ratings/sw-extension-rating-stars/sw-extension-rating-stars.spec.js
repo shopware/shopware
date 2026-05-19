@@ -9,20 +9,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
             await wrapTestComponent('sw-extension-rating-stars', {
                 sync: true,
             }),
-            {
-                global: {
-                    stubs: {
-                        'sw-icon': true,
-                    },
-                },
-            },
         );
     }
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it.each([
         0,

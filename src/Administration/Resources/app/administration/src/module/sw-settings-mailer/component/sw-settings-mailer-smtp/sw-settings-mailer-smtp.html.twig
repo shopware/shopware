@@ -4,8 +4,8 @@
 
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.host']"
-        :label="$tc('sw-settings-mailer.card-smtp.host')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.host')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.host-placeholder')"
         :error="hostError"
         required
         @update:model-value="$emit('host-changed')"
@@ -13,14 +13,16 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_port %}
-    <sw-number-field
-        v-model:value="mailerSettings['core.mailerSettings.port']"
+    <mt-number-field
+        v-model="mailerSettings['core.mailerSettings.port']"
+        number-type="int"
+        :step="1"
         :max="65536"
-        :label="$tc('sw-settings-mailer.card-smtp.port')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.port-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.port')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.port-placeholder')"
         :error="portError"
         required
-        @update:value="$emit('port-changed')"
+        @update:model-value="$emit('port-changed')"
     />
     {% endblock %}
 
@@ -29,17 +31,17 @@
     <mt-text-field
         v-if="!isOauth"
         v-model="mailerSettings['core.mailerSettings.username']"
-        :label="$tc('sw-settings-mailer.card-smtp.username')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.username-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.username')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.username-placeholder')"
     />
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_password %}
-    <sw-password-field
+    <mt-password-field
         v-if="!isOauth"
-        v-model:value="mailerSettings['core.mailerSettings.password']"
-        :label="$tc('sw-settings-mailer.card-smtp.password')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.password-placeholder')"
+        v-model="mailerSettings['core.mailerSettings.password']"
+        :label="$t('sw-settings-mailer.card-smtp.password')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.password-placeholder')"
     />
     {% endblock %}
 
@@ -48,8 +50,8 @@
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.oauthUrl']"
-        :label="$tc('sw-settings-mailer.card-smtp.oauth-url')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-url-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.oauth-url')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.oauth-url-placeholder')"
         required
     />
     {% endblock %}
@@ -59,8 +61,8 @@
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.oauthScope']"
-        :label="$tc('sw-settings-mailer.card-smtp.oauth-scope')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.oauth-scope')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.oauth-scope-placeholder')"
         required
     />
     {% endblock %}
@@ -70,18 +72,18 @@
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.clientId']"
-        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-id')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.oauth-client-id')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.oauth-client-id-placeholder')"
         required
     />
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_client_secret %}
-    <sw-password-field
+    <mt-password-field
         v-if="isOauth"
-        v-model:value="mailerSettings['core.mailerSettings.clientSecret']"
-        :label="$tc('sw-settings-mailer.card-smtp.oauth-client-secret')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.oauth-client-secret-placeholder')"
+        v-model="mailerSettings['core.mailerSettings.clientSecret']"
+        :label="$t('sw-settings-mailer.card-smtp.oauth-client-secret')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.oauth-client-secret-placeholder')"
         required
     />
     {% endblock %}
@@ -89,8 +91,8 @@
     {% block sw_settings_mailer_smtp_encryption %}
     <sw-single-select
         v-model:value="mailerSettings['core.mailerSettings.encryption']"
-        :label="$tc('sw-settings-mailer.card-smtp.encryption')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.encryption-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.encryption')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.encryption-placeholder')"
         :options="encryptionOptions"
         show-clearable-button
     />
@@ -100,8 +102,8 @@
 
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.senderAddress']"
-        :label="$tc('sw-settings-mailer.card-smtp.sender-address')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.sender-address-placeholder')"
+        :label="$t('sw-settings-mailer.card-smtp.sender-address')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.sender-address-placeholder')"
         validation="email"
     />
     {% endblock %}
@@ -110,9 +112,9 @@
 
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
-        :label="$tc('sw-settings-mailer.card-smtp.delivery-address')"
-        :placeholder="$tc('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
-        :help-text="$tc('sw-settings-mailer.card-smtp.delivery-address-helptext')"
+        :label="$t('sw-settings-mailer.card-smtp.delivery-address')"
+        :placeholder="$t('sw-settings-mailer.card-smtp.delivery-address-placeholder')"
+        :help-text="$t('sw-settings-mailer.card-smtp.delivery-address-helptext')"
         validation="email"
     />
     {% endblock %}
@@ -121,7 +123,7 @@
 
     <mt-switch
         v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-        :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
+        :label="$t('sw-settings-mailer.card-smtp.disable-delivery')"
     />
     {% endblock %}
 </div>

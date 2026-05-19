@@ -30,7 +30,7 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
         $container->set(Connection::class, $connectionMock);
 
-        $connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn([]);
+        $connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn([]);
 
         $entityCompilerPass = new TwigLoaderConfigCompilerPass();
         $entityCompilerPass->process($container);
@@ -51,7 +51,7 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
         $container->set(Connection::class, $connectionMock);
 
-        $connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'name' => 'firstApp',
@@ -95,7 +95,7 @@ class TwigLoaderConfigCompilerPassTest extends TestCase
 
         $container->set(Connection::class, $connectionMock);
 
-        $connectionMock->expects(static::once())->method('fetchAllAssociative')->willReturn(
+        $connectionMock->expects($this->once())->method('fetchAllAssociative')->willReturn(
             [
                 [
                     'name' => 'firstApp',

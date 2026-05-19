@@ -51,7 +51,7 @@ TWIG;
         sort($expected);
         sort($variables);
 
-        static::assertEquals($expected, $variables);
+        static::assertSame($expected, $variables);
     }
 
     public function testParserHandlesAssociationsInLoops(): void
@@ -71,6 +71,16 @@ TWIG;
     {{ foo.group.name }}
 {% endfor %}
 
+{% for foo in product.foo|sort((a, b) => a.position <=> b.position) %}
+    {{ foo.bar.baz }}
+{% endfor %}
+
+{% set foo = product.test %}
+{% for bar in foo %}
+    {% set baz = bar.shop %}
+    {{ baz.ware }}
+{% endfor %}
+
 TWIG;
 
         $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
@@ -83,11 +93,16 @@ TWIG;
             'product.options',
             'product.options.group.name',
             'product.stock',
+            'product.foo',
+            'product.foo.bar.baz',
+            'product.test',
+            'product.test.shop',
+            'product.test.shop.ware',
         ];
 
         sort($expected);
         sort($variables);
 
-        static::assertEquals($expected, $variables);
+        static::assertSame($expected, $variables);
     }
 }

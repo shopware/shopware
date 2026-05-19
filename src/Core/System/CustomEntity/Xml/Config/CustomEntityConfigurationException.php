@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException} instead
+ */
 #[Package('framework')]
 class CustomEntityConfigurationException extends HttpException
 {
@@ -14,10 +19,17 @@ class CustomEntityConfigurationException extends HttpException
     final public const INVALID_REFERENCES = 'CUSTOM_ENTITY_INVALID_REFERENCES';
 
     /**
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::entityNotGiven} instead
+     *
      * @param string[] $entities
      */
     public static function entityNotGiven(string $configFileName, array $entities): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'CustomEntityException::entityNotGiven')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::ENTITY_NOT_GIVEN_CODE,
@@ -34,6 +46,8 @@ class CustomEntityConfigurationException extends HttpException
     }
 
     /**
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::duplicateReferences} instead
+     *
      * @param string[] $duplicates
      */
     public static function duplicateReferences(
@@ -42,6 +56,11 @@ class CustomEntityConfigurationException extends HttpException
         string $xmlElement,
         array $duplicates
     ): self {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'CustomEntityException::duplicateReferences')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::DUPLICATE_REFERENCES,
@@ -62,6 +81,8 @@ class CustomEntityConfigurationException extends HttpException
     }
 
     /**
+     * @deprecated tag:v6.8.0 - will be removed, use {@see CustomEntityException::invalidReferences} instead
+     *
      * @param string[] $invalidRefs
      */
     public static function invalidReferences(
@@ -70,6 +91,11 @@ class CustomEntityConfigurationException extends HttpException
         string $xmlElement,
         array $invalidRefs
     ): self {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'CustomEntityException::invalidReferences')
+        );
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_REFERENCES,

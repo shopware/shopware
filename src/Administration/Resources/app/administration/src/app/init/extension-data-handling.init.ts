@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
 /**
  * @sw-package framework
  */
@@ -19,7 +20,6 @@ function getRepository(
     const extension = Shopware.Store.get('extensions').extensionsState?.[extensionName];
     if (!extension) {
         throw new Error(
-            // eslint-disable-next-line max-len
             `Could not find an extension with the given name "${extensionName}" in the extension store (Shopware.Store.get('extensions').extensionsState)`,
         );
     }
@@ -34,7 +34,6 @@ function getRepository(
 }
 
 function rejectRepositoryCreation(entityName: string): unknown {
-    // eslint-disable-next-line prefer-promise-reject-errors
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
@@ -43,19 +42,16 @@ function rejectRepositoryCreation(entityName: string): unknown {
  * @param result
  * @param customContext
  */
-// eslint-disable-next-line max-len
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access */
 function filterContext(result: any, customContext: any) {
     if (result === null || result === 'undefined') {
         return;
     }
 
     if (typeof result === 'object') {
-        // eslint-disable-next-line no-restricted-syntax
         for (const key in result) {
             if (key === 'context') {
                 // delete everything inside context except properties of customContext
-                // eslint-disable-next-line no-restricted-syntax
                 for (const contextKey in result[key]) {
                     if (!customContext || !customContext[contextKey]) {
                         delete result[key][contextKey];

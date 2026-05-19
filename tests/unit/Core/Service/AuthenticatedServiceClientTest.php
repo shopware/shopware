@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AuthenticatedServiceClient;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 
 /**
  * @internal
@@ -36,7 +36,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
         $id = Uuid::randomHex();
         $source = new Source(
             'http:foo',
@@ -57,7 +57,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
         $id = Uuid::randomHex();
         $source = new Source(
             'http:foo',
@@ -78,7 +78,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
         $id = Uuid::randomHex();
         $source = new Source(
             'http:foo',
@@ -99,7 +99,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
         $id = Uuid::randomHex();
         $source = new Source(
             'http:foo',
@@ -121,7 +121,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, null);
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, null);
         $source = new Source(
             'http:foo',
             Uuid::randomHex(),
@@ -138,7 +138,7 @@ class AuthenticatedServiceClientTest extends TestCase
     {
         $this->mockHandler->append(new \Exception('Request error'));
 
-        $entry = new ServiceRegistryEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
+        $entry = new ServiceEntry('serviceA', 'description', 'https://example.com', 'appEndpoint', true, 'https://example.com/sync');
         $source = new Source(
             'http:foo',
             Uuid::randomHex(),

@@ -100,7 +100,7 @@ final class RuleConfig extends Struct
      */
     public function numberField(string $name, array $config = []): self
     {
-        $config['digits'] = $config['digits'] ?? self::DEFAULT_DIGITS;
+        $config['digits'] ??= self::DEFAULT_DIGITS;
 
         return $this->field($name, 'float', $config);
     }
@@ -111,6 +111,14 @@ final class RuleConfig extends Struct
     public function intField(string $name, array $config = []): self
     {
         return $this->field($name, 'int', $config);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function dateField(string $name, array $config = []): self
+    {
+        return $this->field($name, 'date', $config);
     }
 
     /**

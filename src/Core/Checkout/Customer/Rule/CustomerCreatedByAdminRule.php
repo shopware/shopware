@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerCreatedByAdminRule extends Rule
 {
     final public const RULE_NAME = 'customerCreatedByAdmin';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $shouldCustomerBeCreatedByAdmin = true)
     {
         parent::__construct();

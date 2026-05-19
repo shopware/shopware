@@ -27,11 +27,11 @@ class FailedMessageSubscriberTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('insert')
             ->with(
                 static::equalTo('log_entry'),
-                static::callback(function (array $entry) {
+                static::callback(static function (array $entry) {
                     static::assertArrayHasKey('id', $entry);
                     static::assertArrayHasKey('message', $entry);
                     static::assertArrayHasKey('level', $entry);
@@ -48,63 +48,13 @@ class FailedMessageSubscriberTest extends TestCase
                     static::assertSame('Test Exception', $context['error']);
 
                     $extra = json_decode($entry['extra'], true);
+                    static::assertIsArray($extra);
                     static::assertArrayHasKey('exception', $extra);
                     static::assertArrayHasKey('trace', $extra);
 
                     return true;
                 })
             );
-
-        $subscriber = new FailedMessageSubscriber($connection);
-
-        $event = new FailedMessageEvent(
-            new RawMessage('Test Message'),
-            new \Exception('Test Exception')
-        );
-
-        $subscriber->logEvent($event);
-    }
-
-    public function testLogEventFallback(): void
-    {
-        $connection = $this->createMock(Connection::class);
-
-        $matcher = static::exactly(2);
-
-        $connection->expects($matcher)
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use ($matcher) {
-                switch ($matcher->numberOfInvocations()) {
-                    case 1:
-                        static::assertSame('log_entry', $table);
-
-                        static::assertArrayHasKey('context', $data);
-                        $context = json_decode($data['context'], true);
-                        static::assertArrayHasKey('error', $context);
-                        static::assertArrayHasKey('rawMessage', $context);
-
-                        static::assertArrayHasKey('extra', $data);
-                        $extra = json_decode($data['extra'], true);
-                        static::assertArrayHasKey('exception', $extra);
-                        static::assertArrayHasKey('trace', $extra);
-
-                        throw new \Exception('Test Exception');
-                    case 2:
-                        static::assertSame('log_entry', $table);
-
-                        static::assertArrayHasKey('context', $data);
-                        $context = json_decode($data['context'], true);
-                        static::assertSame([], $context);
-
-                        static::assertArrayHasKey('extra', $data);
-                        $extra = json_decode($data['extra'], true);
-                        static::assertSame([], $extra);
-
-                        break;
-                }
-
-                return 1;
-            });
 
         $subscriber = new FailedMessageSubscriber($connection);
 

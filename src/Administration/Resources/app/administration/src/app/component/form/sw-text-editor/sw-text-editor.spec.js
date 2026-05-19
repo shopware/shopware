@@ -17,14 +17,12 @@ async function createWrapper(allowInlineDataMapping = true) {
             stubs: {
                 'sw-text-editor-toolbar-button': await wrapTestComponent('sw-text-editor-toolbar-button'),
                 'sw-text-editor-link-menu': await wrapTestComponent('sw-text-editor-link-menu'),
-                'sw-compact-colorpicker': await wrapTestComponent('sw-compact-colorpicker'),
                 'sw-text-editor-toolbar': await wrapTestComponent('sw-text-editor-toolbar'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
 
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
-                'sw-colorpicker': await wrapTestComponent('sw-colorpicker'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -33,7 +31,6 @@ async function createWrapper(allowInlineDataMapping = true) {
                 'sw-code-editor': {
                     template: '<div id="sw-code-editor"></div>',
                 },
-                'sw-icon': { template: '<div class="sw-icon"></div>' },
                 'sw-select-field': true,
                 'sw-field-error': true,
                 'sw-text-editor-table-toolbar': true,
@@ -153,11 +150,6 @@ describe('src/app/component/form/sw-text-editor', () => {
         document.getSelection().removeAllRanges();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should toggle placeholder', async () => {
         wrapper = await createWrapper();
         const placeholder = 'Enter description...';
@@ -193,7 +185,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.isCodeEdit).toBe(false);
 
         // switch to code editor mode
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(true);
@@ -208,7 +200,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.placeholderVisible).toBe(false);
 
         // switch to text editor mode and make sure that the placeholder is not displayed
-        await wrapper.find('.sw-icon[name="regular-code-xs"]').trigger('click');
+        await wrapper.find('.mt-icon.icon--regular-code-xs').trigger('click');
 
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.isCodeEdit).toBe(false);
@@ -323,7 +315,6 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         await addAndCheckSelection(wrapper, paragraph, 12, 16, 'text');
 
-        // eslint-disable-next-line max-len
         const inlineMappingButton = wrapper.find(
             '.sw-text-editor-toolbar-button__type-data-mapping .sw-text-editor-toolbar-button__icon',
         );
@@ -1129,5 +1120,85 @@ describe('src/app/component/form/sw-text-editor', () => {
         await addTextToEditor(wrapper, contentWithoutMinorNode);
 
         expect(wrapper.vm.hasDirectMinorElements()).toBe(false);
+    });
+
+    it('should preserve selection when clicking inside popover elements', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        expect(wrapper.vm.selection).not.toBeNull();
+        expect(wrapper.vm.hasSelection).toBe(true);
+
+        const popoverClasses = [
+            'sw-popover__wrapper',
+            'mt-popover-deprecated__wrapper',
+            'mt-floating-ui__content',
+        ];
+
+        popoverClasses.forEach((popoverClass) => {
+            const popoverElement = document.createElement('div');
+            popoverElement.classList.add(popoverClass);
+            document.body.appendChild(popoverElement);
+
+            const popoverButton = document.createElement('button');
+            popoverButton.textContent = 'Popover Button';
+            popoverElement.appendChild(popoverButton);
+
+            const mousedownEvent = new MouseEvent('mousedown', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+            });
+
+            Object.defineProperty(mousedownEvent, 'target', {
+                value: popoverButton,
+                enumerable: true,
+            });
+
+            wrapper.vm.onSelectionChange(mousedownEvent);
+
+            expect(wrapper.vm.hasSelection).toBe(true);
+            expect(wrapper.vm.selection.toString()).toBe('Hello World');
+
+            document.body.removeChild(popoverElement);
+        });
+    });
+
+    it('should reset selection when clicking outside editor and toolbar', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        await addTextToEditor(wrapper, '<p id="paragraph">Hello World</p>');
+        const paragraph = document.getElementById('paragraph');
+        await addAndCheckSelection(wrapper, paragraph, 0, 11, 'Hello World');
+
+        expect(wrapper.vm.selection).not.toBeNull();
+        expect(wrapper.vm.hasSelection).toBe(true);
+
+        const outsideElement = document.createElement('div');
+        outsideElement.id = 'outside-element';
+        document.body.appendChild(outsideElement);
+
+        const mousedownEvent = new MouseEvent('mousedown', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+        });
+
+        Object.defineProperty(mousedownEvent, 'target', {
+            value: outsideElement,
+            enumerable: true,
+        });
+
+        wrapper.vm.onSelectionChange(mousedownEvent);
+
+        expect(wrapper.vm.hasSelection).toBe(false);
+
+        document.body.removeChild(outsideElement);
     });
 });

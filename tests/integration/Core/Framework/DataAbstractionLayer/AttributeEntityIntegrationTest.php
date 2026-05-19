@@ -17,18 +17,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\fixture\AttributeEntity;
@@ -83,6 +90,8 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.repository'));
         static::assertTrue(static::getContainer()->has('attribute_entity_translation.definition'));
 
+        static::assertTrue(static::getContainer()->has('my_own_mapping_table_name.definition'));
+
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity.definition'));
         static::assertSame(AttributeEntityCollection::class, static::getContainer()->get('attribute_entity.definition')->getCollectionClass());
 
@@ -91,7 +100,9 @@ class AttributeEntityIntegrationTest extends TestCase
 
         static::assertInstanceOf(AttributeEntityDefinition::class, static::getContainer()->get('attribute_entity_with_hydrator.definition'));
         static::assertSame(EntityCollection::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getCollectionClass());
-        static::assertSame(DummyHydrator::class, static::getContainer()->get('attribute_entity_with_hydrator.definition')->getHydratorClass());
+        $definition = static::getContainer()->get('attribute_entity_with_hydrator.definition');
+        static::assertInstanceOf(EntityDefinition::class, $definition);
+        static::assertSame(DummyHydrator::class, $definition->getHydratorClass());
 
         static::assertInstanceOf(AttributeMappingDefinition::class, static::getContainer()->get('attribute_entity_currency.definition'));
         static::assertInstanceOf(AttributeTranslationDefinition::class, static::getContainer()->get('attribute_entity_translation.definition'));
@@ -203,6 +214,36 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertCount(0, $search);
     }
 
+    public function testRequiredTranslatedFieldFailsIfNotProvided(): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+
+        $wasThrown = false;
+        try {
+            $this->repository('attribute_entity')->create([
+                [
+                    'id' => $ids->create('first-key'),
+                    'string' => 'string',
+                    'emptyString' => '',
+                    'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+                ],
+            ], $context);
+        } catch (WriteException $e) {
+            $wasThrown = true;
+
+            $innerExceptions = $e->getExceptions();
+            static::assertCount(1, $innerExceptions);
+
+            $innerException = $innerExceptions[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $innerException);
+            static::assertSame('/0/translations/' . Defaults::LANGUAGE_SYSTEM, $innerException->getPath());
+        }
+
+        static::assertTrue($wasThrown);
+    }
+
     public function testScalarValues(): void
     {
         $ids = new IdsCollection();
@@ -228,6 +269,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 1, 'net' => 1, 'linked' => true],
             ],
+            'email' => 'test@example.com',
+            'password' => 'shopware',
+            'tags' => ['foo', 'bar'],
             'differentName' => 'string',
             'transString' => 'string',
             'transText' => 'text',
@@ -262,9 +306,9 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame(1, $record->int);
         static::assertSame(1.1, $record->float);
         static::assertTrue($record->bool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->datetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->date);
-        static::assertEquals(new DateInterval('P1D'), $record->dateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->datetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->date?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->dateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->timeZone);
         static::assertSame(StringEnum::B, $record->enum);
         static::assertSame(['key' => 'value'], $record->json);
@@ -277,14 +321,20 @@ class AttributeEntityIntegrationTest extends TestCase
             $record->price
         );
 
+        static::assertSame('test@example.com', $record->email);
+        static::assertNotNull($record->password);
+        static::assertNotSame('shopware', $record->password); // password should be hashed
+        static::assertTrue(password_verify('shopware', $record->password));
+        static::assertSame(['foo', 'bar'], $record->tags);
+
         static::assertSame('string', $record->transString);
         static::assertSame('text', $record->transText);
         static::assertSame(1, $record->transInt);
         static::assertSame(1.1, $record->transFloat);
         static::assertTrue($record->transBool);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 15:15:15'), $record->transDatetime);
-        static::assertEquals(new \DateTimeImmutable('2020-01-01 00:00:00'), $record->transDate);
-        static::assertEquals(new DateInterval('P1D'), $record->transDateInterval);
+        static::assertSame((new \DateTimeImmutable('2020-01-01 15:15:15'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDatetime?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new \DateTimeImmutable('2020-01-01 00:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDate?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame((new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $record->transDateInterval?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('Europe/Berlin', $record->transTimeZone);
         static::assertSame(['key' => 'value'], $record->transJson);
         static::assertSame('string', $record->differentName);
@@ -304,11 +354,11 @@ class AttributeEntityIntegrationTest extends TestCase
             'int' => 1,
             'float' => 1.1,
             'bool' => true,
-            'datetime' => $record->datetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'datetime' => $record->datetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'autoIncrement' => 1,
             'enum' => StringEnum::B,
             'json' => ['key' => 'value'],
-            'date' => $record->date?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'date' => $record->date->format(\DateTimeInterface::RFC3339_EXTENDED),
             'dateInterval' => new DateInterval('P1D'),
             'timeZone' => 'Europe/Berlin',
             'serialized' => new PriceCollection([new Price(Defaults::CURRENCY, 1, 1, true)]),
@@ -318,9 +368,9 @@ class AttributeEntityIntegrationTest extends TestCase
             'transInt' => 1,
             'transFloat' => 1.1,
             'transBool' => true,
-            'transDatetime' => $record->transDatetime?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDatetime' => $record->transDatetime->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transJson' => ['key' => 'value'],
-            'transDate' => $record->transDate?->format(\DateTimeInterface::RFC3339_EXTENDED),
+            'transDate' => $record->transDate->format(\DateTimeInterface::RFC3339_EXTENDED),
             'transDateInterval' => new DateInterval('P1D'),
             'transTimeZone' => 'Europe/Berlin',
             'differentName' => 'string',
@@ -337,6 +387,11 @@ class AttributeEntityIntegrationTest extends TestCase
             'customFields' => null,
             'emptyString' => '',
             'htmlString' => '<p class="text-size-lg">Awesome string with <strong>HTML</strong>!</p>',
+            'email' => 'test@example.com',
+            'longString' => null,
+            'password' => $record->password,
+            'tags' => ['foo', 'bar'],
+            'ownMapping' => [],
         ], $json);
     }
 
@@ -803,10 +858,7 @@ class AttributeEntityIntegrationTest extends TestCase
 
         $record = $search->get($ids->get('first-key'));
         static::assertInstanceOf(AttributeEntity::class, $record);
-        static::assertEquals([
-            'foo' => 'bar',
-            'bar' => 'baz',
-        ], $record->getCustomFields());
+        static::assertEquals(['bar' => 'baz', 'foo' => 'bar'], $record->getCustomFields());
         static::assertSame('bar', $record->getCustomFieldsValue('foo'));
         static::assertSame('baz', $record->getCustomFieldsValue('bar'));
     }
@@ -895,6 +947,108 @@ class AttributeEntityIntegrationTest extends TestCase
         static::assertSame('code-number', $record->number);
     }
 
+    public function testInheritedFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_inheritance.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $inheritedStringField = $definition->getFields()->get('inheritedString');
+        static::assertNotNull($inheritedStringField, 'inheritedString field should exist');
+        static::assertTrue(
+            $inheritedStringField->is(Inherited::class),
+            'inheritedString field should have Inherited flag'
+        );
+
+        $currencyIdField = $definition->getFields()->get('currencyId');
+        static::assertNotNull($currencyIdField, 'currencyId field should exist');
+        static::assertTrue(
+            $currencyIdField->is(Inherited::class),
+            'currencyId field should have Inherited flag'
+        );
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(Inherited::class),
+            'currency association field should have Inherited flag'
+        );
+
+        $inheritedWithForeignKeyField = $definition->getFields()->get('inheritedWithForeignKey');
+        static::assertNotNull($inheritedWithForeignKeyField, 'inheritedWithForeignKey field should exist');
+        static::assertTrue(
+            $inheritedWithForeignKeyField->is(Inherited::class),
+            'inheritedWithForeignKey field should have Inherited flag'
+        );
+
+        $inheritedFlag = $inheritedWithForeignKeyField->getFlag(Inherited::class);
+        static::assertSame('custom_fk', $inheritedFlag->getForeignKey());
+
+        $productField = $definition->getFields()->get('product');
+        static::assertNotNull($productField, 'product field should exist');
+        static::assertTrue(
+            $productField->is(ReverseInherited::class),
+            'product association field should have ReverseInherited flag'
+        );
+    }
+
+    public function testSearchRankingFlagAppliedToFields(): void
+    {
+        $definition = static::getContainer()->get('attribute_entity_search_ranking.definition');
+
+        static::assertInstanceOf(AttributeEntityDefinition::class, $definition);
+
+        $currencyField = $definition->getFields()->get('currency');
+        static::assertNotNull($currencyField, 'currency field should exist');
+        static::assertTrue(
+            $currencyField->is(SearchRanking::class),
+            'currency association field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $currencyField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::ASSOCIATION_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $middleRankedField = $definition->getFields()->get('middleRankedString');
+
+        static::assertNotNull($middleRankedField, 'middle ranked field should exist');
+        static::assertTrue(
+            $middleRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $middleRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::MIDDLE_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
+
+        $lowRankedField = $definition->getFields()->get('lowRankedString');
+
+        static::assertNotNull($lowRankedField, 'low ranked field should exist');
+        static::assertTrue(
+            $lowRankedField->is(SearchRanking::class),
+            'low ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $lowRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::LOW_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertTrue($searchRankingFlag->tokenize());
+
+        $highRankedField = $definition->getFields()->get('highRankedString');
+
+        static::assertNotNull($highRankedField, 'high ranked field should exist');
+        static::assertTrue(
+            $highRankedField->is(SearchRanking::class),
+            'middle ranked field should have SearchRanking flag'
+        );
+
+        $searchRankingFlag = $highRankedField->getFlag(SearchRanking::class);
+        static::assertSame(SearchRanking::HIGH_SEARCH_RANKING, $searchRankingFlag->getRanking());
+        static::assertFalse($searchRankingFlag->tokenize());
+    }
+
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>
+     */
     private function repository(string $entity): EntityRepository
     {
         $repository = static::getContainer()->get($entity . '.repository');

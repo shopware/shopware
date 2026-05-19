@@ -1,13 +1,11 @@
 import template from './sw-condition-type-select.html.twig';
 import './sw-condition-type-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-type-select', {
+export default {
     template: template,
 
     inject: [
@@ -116,23 +114,18 @@ Component.register('sw-condition-type-select', {
     methods: {
         createdComponent() {
             if (this.condition.type === 'scriptRule' && !this.condition.scriptId) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.type = null;
             }
         },
 
         changeItem(item) {
             const { type, scriptId, appScriptCondition } = item ?? {};
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.scriptId = scriptId;
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.appScriptCondition = appScriptCondition;
         },
 
         changeType(type) {
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.value = null;
 
             if (this.condition[this.childAssociationField] && this.condition[this.childAssociationField].length > 0) {
@@ -141,7 +134,6 @@ Component.register('sw-condition-type-select', {
                 });
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
             this.condition.type = type;
         },
 
@@ -201,7 +193,7 @@ Component.register('sw-condition-type-select', {
                         }
 
                         snippet += this.$t(`sw-restricted-rules.restrictedConditions.relation.${key}`, {
-                            assignments: `"${this.$tc(currentValue.snippet, 1)}"`,
+                            assignments: `"${this.$t(currentValue.snippet, 1)}"`,
                         });
                     });
 
@@ -215,4 +207,4 @@ Component.register('sw-condition-type-select', {
             );
         },
     },
-});
+};

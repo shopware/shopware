@@ -71,9 +71,9 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
         $saleChannelRule = array_column($connection->fetchAllAssociative('SELECT `rule_id` FROM `sales_channel_rule`'), 'rule_id');
 
         foreach ($invalidSequenceGroup as $sequence) {
-            $actionSequence = array_values(array_filter($sequence, fn ($sequence) => $sequence['action_name'] !== null))[0] ?? null;
+            $actionSequence = array_values(array_filter($sequence, static fn ($sequence) => $sequence['action_name'] !== null))[0] ?? null;
 
-            $parentCondition = array_values(array_filter($sequence, fn ($sequence) => $sequence['rule_id'] !== null && $sequence['parent_id'] === null))[0] ?? null;
+            $parentCondition = array_values(array_filter($sequence, static fn ($sequence) => $sequence['rule_id'] !== null && $sequence['parent_id'] === null))[0] ?? null;
 
             if ($actionSequence === null || $parentCondition === null) {
                 continue;
@@ -100,7 +100,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
                 );
             }
 
-            $childrenCondition = array_values(array_filter($sequence, fn ($sequence) => $sequence['rule_id'] !== null && $sequence['parent_id'] !== null));
+            $childrenCondition = array_values(array_filter($sequence, static fn ($sequence) => $sequence['rule_id'] !== null && $sequence['parent_id'] !== null));
 
             foreach ($childrenCondition as $child) {
                 \assert($child['id'] !== null);
@@ -146,7 +146,7 @@ class Migration1648803451FixInvalidMigrationOfBusinessEventToFlow extends Migrat
             );
         }
 
-        if (empty($this->sequenceDelete)) {
+        if ($this->sequenceDelete === []) {
             return;
         }
 

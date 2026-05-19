@@ -49,7 +49,7 @@ class OffcanvasCartPageLoader
 
         $page->setCart($this->cartService->get($salesChannelContext->getToken(), $salesChannelContext));
 
-        $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
+        $page->setShippingMethods($this->getShippingMethods($request, $salesChannelContext));
 
         $this->eventDispatcher->dispatch(
             new OffcanvasCartPageLoadedEvent($page, $salesChannelContext, $request)
@@ -58,8 +58,10 @@ class OffcanvasCartPageLoader
         return $page;
     }
 
-    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
+    private function getShippingMethods(Request $request, SalesChannelContext $context): ShippingMethodCollection
     {
-        return $this->shippingMethodRoute->load(new Request(), $context, new Criteria())->getShippingMethods();
+        $shippingMethodRequest = $request->duplicate(['onlyAvailable' => true]);
+
+        return $this->shippingMethodRoute->load($shippingMethodRequest, $context, new Criteria())->getShippingMethods();
     }
 }

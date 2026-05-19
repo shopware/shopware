@@ -1,7 +1,6 @@
 import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/plugin-system/plugin.registry';
 import PluginBaseClass from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 import 'src/plugin-system/plugin.config.manager';
 
 /**
@@ -67,14 +66,15 @@ class PluginManagerSingleton {
      *
      * @param {string} pluginName
      * @param {Plugin} pluginClass
-     * @param {string|NodeList|HTMLElement} selector
+     * @param {string|NodeList|HTMLElement|HTMLDocument} selector
      * @param {Object} options
      *
      * @returns {*}
      */
     register(pluginName, pluginClass, selector = document, options = {}) {
         if (this._registry.has(pluginName, selector)) {
-            throw new Error(`Plugin "${pluginName}" is already registered.`);
+            console.warn(`Plugin "${pluginName}" is already registered.`);
+            return;
         }
 
         // If we cannot find the prototype of the class, we assume it will be loaded async
@@ -95,7 +95,13 @@ class PluginManagerSingleton {
      */
     deregister(pluginName, selector = document) {
         if (!this._registry.has(pluginName, selector)) {
-            throw new Error(`The plugin "${pluginName}" is not registered.`);
+
+            if (!this._registry.has(pluginName)) {
+                console.warn(`The plugin "${pluginName}" is not registered.`);
+                return false;
+            }
+
+            return this._registry.delete(pluginName);
         }
 
         return this._registry.delete(pluginName, selector);
@@ -114,6 +120,11 @@ class PluginManagerSingleton {
      * @returns {boolean}
      */
     extend(fromName, newName, pluginClass, selector = document, options = {}) {
+        if (!this._registry.has(fromName, selector)) {
+            console.warn(`Trying to extend non-registered plugin "${fromName}". The plugin will not be extended.`);
+            return;
+        }
+
         // Register the plugin under a new name
         // If the name is the same, replace it
         if (fromName === newName) {
@@ -143,12 +154,14 @@ class PluginManagerSingleton {
      */
     getPlugin(pluginName, strict = true) {
         if (!pluginName) {
-            throw new Error('A plugin name must be passed!');
+            console.warn('No plugin name was provided while trying to call getPlugin().');
+            return null;
         }
 
         if (!this._registry.has(pluginName)) {
             if (strict) {
-                throw new Error(`The plugin "${pluginName}" is not registered. You might need to register it first.`);
+                console.warn(`The plugin "${pluginName}" is not registered. You might need to register it first.`);
+                return null;
             } else {
                 this._registry.set(pluginName);
             }
@@ -191,8 +204,9 @@ class PluginManagerSingleton {
      * @returns {Map|null}
      */
     static getPluginInstancesFromElement(el) {
-        if (!DomAccess.isNode(el)) {
-            throw new Error('Passed element is not an Html element!');
+        if (!(el instanceof Node)) {
+            console.warn('Passed element in getPluginInstancesFromElement() is not an Html element!');
+            return null;
         }
 
         el.__plugins = el.__plugins || new Map();
@@ -212,16 +226,46 @@ class PluginManagerSingleton {
 
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
-                if (!this._registry.has(pluginName)) {
-                    throw new Error(`The plugin "${pluginName}" is not registered.`);
-                }
-
                 const plugin = this._registry.get(pluginName);
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
                         try {
                             this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
+                        }
+                    }
+                }
+            }
+        }
+
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
+    }
+
+    /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement 
+     * @returns {Promise<void>}
+     */
+    async initializePluginsInParentElement(parentElement) {
+        const initializationFailures = [];
+
+        await this._fetchAsyncPlugins();
+
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                const plugin = this._registry.get(pluginName);
+
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'), parentElement);
                         } catch (failure) {
                             initializationFailures.push(failure);
                         }
@@ -264,7 +308,8 @@ class PluginManagerSingleton {
             }
 
             if (!this._registry.has(pluginName)) {
-                throw new Error(`The plugin "${pluginName}" is not registered.`);
+                console.warn(`The plugin "${pluginName}" is not registered.`);
+                continue;
             }
 
             const plugin = this._registry.get(pluginName);
@@ -280,7 +325,7 @@ class PluginManagerSingleton {
 
                 let selector = entry.selector;
 
-                if (DomAccess.isNode(selector)) {
+                if (selector instanceof Node) {
                     queue.push({ pluginName: pluginName, pluginClassPromise: plugin.get('class') });
                     continue;
                 }
@@ -331,7 +376,7 @@ class PluginManagerSingleton {
         }
 
         let needsFetch = false;
-        if (DomAccess.isNode(selector)) {
+        if (selector instanceof Node) {
             needsFetch = true;
         }
 
@@ -393,17 +438,24 @@ class PluginManagerSingleton {
      * @param {String|NodeList|HTMLElement} selector
      * @param {Object} options
      * @param {string} pluginName
+     * @param {HTMLElement} context - Optional parent element to scope the selector query to.
      */
-    _initializePlugin(pluginClass, selector, options, pluginName = false) {
-        if (DomAccess.isNode(selector)) {
+    _initializePlugin(pluginClass, selector, options, pluginName = false, context = null) {
+        if (selector instanceof Node) {
+            if (context && !context.contains(selector)) {
+                return;
+            }
             return PluginManagerSingleton._initializePluginOnElement(selector, pluginClass, options, pluginName);
         }
 
         if (typeof selector === 'string') {
-            selector = PluginManagerSingleton._queryElements(selector);
+            selector = PluginManagerSingleton._queryElements(selector, context);
         }
 
         return Array.from(selector).forEach(el => {
+            if (context && !context.contains(el)) {
+                return;
+            }
             PluginManagerSingleton._initializePluginOnElement(el, pluginClass, options, pluginName);
         });
     }
@@ -429,10 +481,15 @@ class PluginManagerSingleton {
      * instead of the entire compatible characters
      *
      * @param {string} selector
+     * @param {HTMLElement} context - Optional parent element to scope the query to.
      *
      * @return {NodeList|HTMLCollection|Array}
      */
-    static _queryElements(selector) {
+    static _queryElements(selector, context = null) {
+        if (context) {
+            return context.querySelectorAll(selector);
+        }
+
         if (selector.startsWith('.')) {
             const regexEl = /^\.([\w-]+)$/.exec(selector);
             if (regexEl) {
@@ -463,7 +520,8 @@ class PluginManagerSingleton {
      */
     static _initializePluginOnElement(el, pluginClass, options, pluginName) {
         if (typeof pluginClass !== 'function') {
-            throw new Error('The passed plugin is not a function or a class.');
+            console.warn('The passed plugin is not a function or a class.');
+            return null;
         }
 
         const instance = PluginManager.getPluginInstanceFromElement(el, pluginName);
@@ -488,7 +546,8 @@ class PluginManagerSingleton {
      */
     _extendPlugin(fromName, newName, pluginClass, selector, options = {}) {
         if (!this._registry.has(fromName, selector)) {
-            throw new Error(`The plugin "${fromName}" is not registered.`);
+            console.warn(`Trying to extend non-registered plugin "${fromName}". The plugin will not be extended.`);
+            return;
         }
 
         // get current plugin
@@ -626,6 +685,16 @@ export default class PluginManager {
      */
     static initializePlugins() {
         return PluginManagerInstance.initializePlugins();
+    }
+
+    /**
+     * Initializes all registered plugins, but only for elements within the parent element.
+     *
+     * @param {HTMLElement} parentElement
+     * @return {Promise<void>}
+     */
+    static initializePluginsInParentElement(parentElement) {
+        return PluginManagerInstance.initializePluginsInParentElement(parentElement);
     }
 
     /**

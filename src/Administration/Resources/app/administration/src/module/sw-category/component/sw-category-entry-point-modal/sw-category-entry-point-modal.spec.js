@@ -46,7 +46,6 @@ async function createWrapper() {
                     'sw-cms-list-item': true,
 
                     'sw-cms-layout-modal': true,
-                    'sw-icon': true,
                     'sw-discard-changes-modal': true,
                 },
                 provide: {

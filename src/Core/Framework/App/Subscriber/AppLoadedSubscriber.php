@@ -20,13 +20,12 @@ class AppLoadedSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<AppEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
         foreach ($event->getEntities() as $app) {
-            if (!$app instanceof AppEntity) {
-                continue;
-            }
-
             $iconRaw = $app->getIconRaw();
             if ($iconRaw !== null) {
                 $app->setIcon(base64_encode($iconRaw));

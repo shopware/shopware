@@ -36,7 +36,7 @@ class ConfigurationRequirementsValidatorTest extends TestCase
     public function testValidateRequirements(array $iniValues, array $expectedChecks): void
     {
         $this->configReader->method('get')->willReturnCallback(
-            fn ($arg) => $iniValues[$arg] ?? ''
+            static fn ($arg) => $iniValues[$arg] ?? ''
         );
 
         $checks = $this->validator->validateRequirements(new RequirementsCheckCollection());
@@ -45,10 +45,10 @@ class ConfigurationRequirementsValidatorTest extends TestCase
         foreach ($expectedChecks as $index => $expected) {
             /** @var SystemCheck $check */
             $check = $checks->get($index);
-            static::assertEquals($expected->getStatus(), $check->getStatus());
-            static::assertEquals($expected->getName(), $check->getName());
-            static::assertEquals($expected->getRequiredValue(), $check->getRequiredValue());
-            static::assertEquals($expected->getInstalledValue(), $check->getInstalledValue());
+            static::assertSame($expected->getStatus(), $check->getStatus());
+            static::assertSame($expected->getName(), $check->getName());
+            static::assertSame($expected->getRequiredValue(), $check->getRequiredValue());
+            static::assertSame($expected->getInstalledValue(), $check->getInstalledValue());
         }
     }
 

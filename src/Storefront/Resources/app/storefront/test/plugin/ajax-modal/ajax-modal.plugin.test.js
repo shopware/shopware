@@ -1,6 +1,5 @@
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 import PseudoModalUtil from 'src/utility/modal-extension/pseudo-modal.util';
-import DomAccess from 'src/helper/dom-access.helper';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
 /**
@@ -10,7 +9,7 @@ describe('AjaxModalPlugin tests', () => {
     let ajaxModalPlugin = undefined;
 
     beforeEach(() => {
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
@@ -18,7 +17,9 @@ describe('AjaxModalPlugin tests', () => {
 
         const mockElement = document.createElement('div');
 
-        document.body.insertAdjacentElement = jest.fn();
+        document.body.insertAdjacentElement = jest.fn((position, el) => {
+            document.body.appendChild(el);
+        });
 
         // init ajax modal plugins
         ajaxModalPlugin = new AjaxModalPlugin(mockElement);
@@ -42,7 +43,7 @@ describe('AjaxModalPlugin tests', () => {
             [ 'click', expect.anything() ],
         ]);
 
-        expect(ajaxModalPlugin.el.addEventListener).toBeCalledWith('click', expect.anything());
+        expect(ajaxModalPlugin.el.addEventListener).toHaveBeenCalledWith('click', expect.anything());
     });
 
     test('_onModalOpen will add classes and fire an event', () => {
@@ -55,14 +56,14 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin._onModalOpen(pseudoModalUtil, classes);
 
-        expect(pseudoModalUtil.getModal).toBeCalled();
+        expect(pseudoModalUtil.getModal).toHaveBeenCalled();
 
         expect(element.classList).toContain('foo');
         expect(element.classList).toContain('bar');
 
-        expect(window.PluginManager.initializePlugins).toBeCalled();
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalled();
 
-        expect(ajaxModalPlugin.$emitter.publish).toBeCalledWith('ajaxModalOpen', { modal: element });
+        expect(ajaxModalPlugin.$emitter.publish).toHaveBeenCalledWith('ajaxModalOpen', { modal: element });
     });
 
     test('_openModal will fetch classes and execute _onModalOpen ', () => {
@@ -77,42 +78,63 @@ describe('AjaxModalPlugin tests', () => {
         ajaxModalPlugin.el = element;
         ajaxModalPlugin._openModal(pseudoModalUtil);
 
-        expect(pseudoModalUtil.open).toBeCalled();
-        expect(ajaxModalPlugin._onModalOpen.bind).toBeCalledWith(ajaxModalPlugin, pseudoModalUtil, ['foo', 'bar']);
+        expect(pseudoModalUtil.open).toHaveBeenCalled();
+        expect(ajaxModalPlugin._onModalOpen.bind).toHaveBeenCalledWith(ajaxModalPlugin, pseudoModalUtil, ['foo', 'bar']);
     });
 
     test('_onClickHandleAjaxModal will create a modal window and load its content', () => {
+        document.body.innerHTML = `
+            <!-- This is the modal trigger -->
+            <a
+                data-ajax-modal="true"
+                data-url="/widgets/cms/contact-form-id"
+                data-prev-url="/widgets/cms/prev-id"
+                href="/widgets/cms/contact-form-id"
+            >
+                Open ajax modal
+            </a>
+
+            <div class="js-pseudo-modal-template">
+                <div class="modal modal-lg fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header only-close">
+                                <div class="modal-title js-pseudo-modal-template-title-element h5">Modal Title</div>
+                                <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body js-pseudo-modal-template-content-element">Modal Content</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
         const event = new Event('foo', { cancelable: true });
 
         event.preventDefault = jest.fn();
         event.stopPropagation = jest.fn();
 
-        const element = document.createElement('div');
+        ajaxModalPlugin = new AjaxModalPlugin(document.querySelector('[data-ajax-modal]'));
 
         ajaxModalPlugin._openModal = jest.fn();
         ajaxModalPlugin._loadModalContent = jest.fn();
 
         ajaxModalPlugin.options.centerLoadingIndicatorClass = 'foo';
 
-        // Mock the DomAccess.querySelector method only in this test case
-        const mockDomAccess = jest.spyOn(DomAccess, 'querySelector');
-        mockDomAccess.mockImplementation(() => {
-            return element;
-        });
-
         ajaxModalPlugin._onClickHandleAjaxModal(event);
 
-        expect(element.classList).toContain('foo');
+        const pseudoModal = document.querySelector('.js-pseudo-modal');
+        const modalBody = pseudoModal.querySelector('.modal-body');
 
-        expect(event.preventDefault).toBeCalled();
-        expect(event.stopPropagation).toBeCalled();
-        expect(ajaxModalPlugin._openModal).toBeCalled();
-        expect(ajaxModalPlugin._loadModalContent).toBeCalled();
+        expect(modalBody.classList).toContain('foo');
 
-        mockDomAccess.mockRestore();
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+        expect(ajaxModalPlugin._openModal).toHaveBeenCalled();
+        expect(ajaxModalPlugin._loadModalContent).toHaveBeenCalled();
     });
 
-    test('_loadModalContent will create a loading indicator and load the actual request', () => {
+    test('_loadModalContent will create a loading indicator and load the actual request', async () => {
         const pseudoModalUtil = new PseudoModalUtil();
 
         const element = document.createElement('div');
@@ -120,14 +142,18 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin.el = element;
         ajaxModalPlugin._processResponse = jest.fn();
-        ajaxModalPlugin.httpClient.get = jest.fn((url, callback) => {
-            callback();
-        });
 
-        ajaxModalPlugin._loadModalContent(pseudoModalUtil, element);
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                text: () => Promise.resolve('Some text'),
+            })
+        );
 
-        expect(ajaxModalPlugin.httpClient.get).toBeCalled();
-        expect(ajaxModalPlugin._processResponse).toBeCalled();
+        await ajaxModalPlugin._loadModalContent(pseudoModalUtil, element);
+        await new Promise(process.nextTick);
+
+        expect(ajaxModalPlugin._processResponse).toHaveBeenCalled();
         expect(element.classList).toContain('text-center');
     });
 
@@ -145,8 +171,8 @@ describe('AjaxModalPlugin tests', () => {
 
         ajaxModalPlugin._processResponse(response, loadingIndicatorUtil, pseudoModalUtil, element);
 
-        expect(loadingIndicatorUtil.remove).toBeCalled();
-        expect(pseudoModalUtil.updateContent).toBeCalledWith(response, expect.any(Function));
+        expect(loadingIndicatorUtil.remove).toHaveBeenCalled();
+        expect(pseudoModalUtil.updateContent).toHaveBeenCalledWith(response, expect.any(Function));
         expect(element.classList).not.toContain('text-center');
     });
 

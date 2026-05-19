@@ -24,7 +24,7 @@ class FactoryTest extends TestCase
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
 
         static::assertSame('shopware/platform', $composer->getPackage()->getName());
-        static::assertSame('6.6.9999999-dev', $composer->getPackage()->getVersion());
+        static::assertContains($composer->getPackage()->getVersion(), ['6.6.9999999-dev', '6.7.9999999.9999999-dev', 'dev-trunk']);
     }
 
     public function testCreateComposerWithVersion(): void

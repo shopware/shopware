@@ -140,7 +140,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                     'sw-multi-select': true,
                     'sw-entity-multi-select': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-cms-product-assignment': {
                         template: `
                         <div class="sw-cms-product-assignment">
@@ -148,10 +147,10 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                             <slot
                                 name="empty-state">
                                 <img
-                                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
+                                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
-                                <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                                <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
                             </slot>
                         </div>
                     `,
@@ -213,12 +212,6 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
 describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render category selection', async () => {
@@ -677,7 +670,7 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
     it('should contain all available shop pages', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.shopPages).toHaveLength(9);
+        expect(wrapper.vm.shopPages).toHaveLength(10);
 
         expect(wrapper.vm.shopPages).toEqual(
             expect.arrayContaining([
@@ -715,6 +708,10 @@ describe('module/sw-cms/component/sw-cms-layout-assignment-modal', () => {
                 }),
                 expect.objectContaining({
                     value: 'core.basicInformation.contactPage',
+                    label: expect.any(String),
+                }),
+                expect.objectContaining({
+                    value: 'core.basicInformation.revocationRequestPage',
                     label: expect.any(String),
                 }),
             ]),

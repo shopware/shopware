@@ -17,7 +17,7 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'mt-textarea': true,
                     'sw-text-field': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-users-permissions-permissions-grid': true,
                     'sw-users-permissions-additional-permissions': true,
                 },
@@ -38,11 +38,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-users-permissions/view/sw-users-permissions-role-view-general', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable the button and fields when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 

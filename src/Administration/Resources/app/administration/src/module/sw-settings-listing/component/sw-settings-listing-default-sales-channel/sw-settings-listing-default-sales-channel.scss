@@ -1,12 +1,12 @@
-@import "~scss/variables";
-
 .sw-settings-listing-default-sales-channel {
-    &__description {
-        font-size: $font-size-xs;
-        margin-bottom: 25px;
+    p {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-20);
     }
 
-    .sw-settings-listing-default-sales-channel__options-container {
+    &__options-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -15,18 +15,16 @@
     &__quick-link {
         display: flex;
         justify-content: flex-end;
-        color: $color-shopware-brand-500;
-        font-size: $font-size-xs;
-        cursor: pointer;
+        font-size: var(--font-size-xs);
     }
 
     &__link-icon {
-        margin-left: 4px;
+        margin-left: var(--scale-size-4);
     }
 
     &__visibility-modal,
     &__visibility-modal .sw-grid .sw-grid__header .sw-grid-column {
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
     }
 
     .sw-field--switch {

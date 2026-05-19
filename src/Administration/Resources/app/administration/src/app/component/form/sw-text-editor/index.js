@@ -2,8 +2,6 @@ import { reactive } from 'vue';
 import template from './sw-text-editor.html.twig';
 import './sw-text-editor.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -36,7 +34,7 @@ const { Component } = Shopware;
  *      :is-inline-edit="true"
  *  />
  */
-Component.register('sw-text-editor', {
+export default {
     template,
 
     inject: ['feature'],
@@ -45,9 +43,12 @@ Component.register('sw-text-editor', {
 
     props: {
         value: {
-            type: String,
+            type: [
+                String,
+                null,
+            ],
             required: false,
-            default: '',
+            default: null,
         },
 
         isInlineEdit: {
@@ -442,13 +443,12 @@ Component.register('sw-text-editor', {
 
     methods: {
         createdComponent() {
-            this.content = this.value;
+            this.content = this.value ?? '';
 
             if (!this.$options.buttonConfig) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.buttonConfig.push({
                     type: 'table',
-                    title: this.$tc('sw-text-editor-toolbar.title.insert-table'),
+                    title: this.$t('sw-text-editor-toolbar.title.insert-table'),
                     icon: 'regular-table-xs',
                     tag: 'table',
                     expanded: false,
@@ -456,10 +456,9 @@ Component.register('sw-text-editor', {
                 });
 
                 if (!this.isInlineEdit) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push({
                         type: 'codeSwitch',
-                        title: this.$tc('sw-text-editor-toolbar.title.code-switch'),
+                        title: this.$t('sw-text-editor-toolbar.title.code-switch'),
                         icon: 'regular-code-xs',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
@@ -470,7 +469,7 @@ Component.register('sw-text-editor', {
                 if (this.allowInlineDataMapping && this.availableDataMappings.length > 0) {
                     const dataMappingButton = {
                         type: 'data-mapping',
-                        title: this.$tc('sw-text-editor-toolbar.title.data-mapping'),
+                        title: this.$t('sw-text-editor-toolbar.title.data-mapping'),
                         icon: 'regular-variables-xs',
                         position: 'left',
                         dropdownPosition: 'left',
@@ -487,7 +486,6 @@ Component.register('sw-text-editor', {
 
                     dataMappingButton.children = buttonConfigs;
 
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig.push(dataMappingButton);
                 }
             }
@@ -530,7 +528,14 @@ Component.register('sw-text-editor', {
 
             const path = this.getPath(event);
 
-            if (path.some((element) => element.classList?.contains('sw-popover__wrapper'))) {
+            if (
+                path.some(
+                    (el) =>
+                        el.classList?.contains('sw-popover__wrapper') ||
+                        el.classList?.contains('mt-popover-deprecated__wrapper') ||
+                        el.classList?.contains('mt-floating-ui__content'),
+                )
+            ) {
                 return;
             }
 
@@ -586,7 +591,6 @@ Component.register('sw-text-editor', {
         resetForeColor() {
             Object.keys(this.buttonConfig).forEach((key) => {
                 if (this.buttonConfig[key].type === 'foreColor') {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.buttonConfig[key].value = '';
                 }
             });
@@ -761,6 +765,7 @@ Component.register('sw-text-editor', {
         },
 
         setTableSelectorListeners(selector) {
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             selector.addEventListener('mousedown', (e) => {
                 this.tableData.curCol = e.target.parentElement;
                 this.tableData.nextCol = this.tableData.curCol.nextElementSibling;
@@ -773,6 +778,7 @@ Component.register('sw-text-editor', {
         },
 
         setTableListeners() {
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mousemove', (e) => {
                 if (this.tableData.curCol) {
                     const diffX = e.pageX - this.tableData.pageX;
@@ -785,6 +791,7 @@ Component.register('sw-text-editor', {
                 }
             });
 
+            // eslint-disable-next-line listeners/no-inline-function-event-listener,listeners/no-missing-remove-event-listener
             this.$el.addEventListener('mouseup', () => {
                 this.tableData.curCol = null;
                 this.tableData.nextCol = null;
@@ -1096,4 +1103,4 @@ Component.register('sw-text-editor', {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
-});
+};

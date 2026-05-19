@@ -4,7 +4,7 @@ import './acl';
  * @sw-package checkout
  */
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-tax-list', () => import('./page/sw-settings-tax-list'));
 Shopware.Component.register('sw-settings-tax-detail', () => import('./page/sw-settings-tax-detail'));
 Shopware.Component.register('sw-settings-tax-provider-detail', () => import('./page/sw-settings-tax-provider-detail'));
@@ -38,7 +38,7 @@ Shopware.Component.register(
     'sw-settings-tax-rule-type-zip-code-range-cell',
     () => import('./component/sw-settings-tax-rule-type-zip-code-range-cell'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -48,8 +48,8 @@ Module.register('sw-settings-tax', {
     name: 'settings-tax',
     title: 'sw-settings-tax.general.mainMenuItemGeneral',
     description: 'Tax section in the settings module',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
+    color: 'var(--color-icon-secondary-default)',
+    icon: 'solid-cog',
     favicon: 'icon-module-settings.png',
     entity: 'tax',
 
@@ -72,7 +72,7 @@ Module.register('sw-settings-tax', {
             props: {
                 default(route) {
                     return {
-                        taxId: route.params.id,
+                        taxId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -95,7 +95,7 @@ Module.register('sw-settings-tax', {
             props: {
                 default(route) {
                     return {
-                        taxProviderId: route.params.id,
+                        taxProviderId: route.params.id.toLowerCase(),
                     };
                 },
             },

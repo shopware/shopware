@@ -3,33 +3,14 @@
     {% block sw_dynamic_url_field_content %}
     <div class="sw-dynamic-url-field_link-category">
         {% block sw_dynamic_url_field_content_type %}
-        <sw-select-field
-            :value="linkCategory"
-            :label="$tc('sw-text-editor-toolbar.link.labelType')"
-            require
-            @update:value="onSelectFieldChange"
-        >
-            {% block sw_dynamic_url_field_content_type_options %}
-            <option value="link">
-                {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
-            </option>
-            <option value="detail">
-                {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
-            </option>
-            <option value="navigation">
-                {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
-            </option>
-            <option value="media">
-                {{ $tc('sw-text-editor-toolbar.link.labelMedia') }}
-            </option>
-            <option value="email">
-                {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
-            </option>
-            <option value="phone">
-                {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
-            </option>
-            {% endblock %}
-        </sw-select-field>
+        <mt-select
+            :model-value="linkCategory"
+            :label="$t('sw-text-editor-toolbar.link.labelType')"
+            required
+            :options="linkCategoryOptions"
+            :disabled="disabled"
+            @update:model-value="onSelectFieldChange"
+        />
         {% endblock %}
 
         {% block sw_dynamic_url_field_content_type_inputs %}
@@ -38,8 +19,9 @@
         <mt-text-field
             v-if="linkCategory === 'link'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholder')"
+            :disabled="disabled"
         />
         {% endblock %}
 
@@ -48,17 +30,19 @@
         <mt-text-field
             v-else-if="linkCategory === 'phone'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            :disabled="disabled"
         />
         {% endblock %}
 
         {% block sw_dynamic_url_field_content_type_inputs_email %}
-        <sw-email-field
+        <mt-email-field
             v-else-if="linkCategory === 'email'"
-            v-model:value="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+            v-model="linkTarget"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderEmail')"
+            :disabled="disabled"
         />
         {% endblock %}
 
@@ -71,8 +55,9 @@
             display-variants
             entity="product"
             :criteria="entityFilter"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderProduct')"
+            :disabled="disabled"
             show-clearable-button
         />
         {% endblock %}
@@ -80,10 +65,11 @@
         {% block sw_dynamic_url_field_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
+            :disabled="disabled"
             single-select
             @selection-add="replaceCategorySelection"
             @selection-remove="removeCategorySelection"
@@ -94,8 +80,9 @@
         <sw-media-field
             v-else-if="linkCategory === 'media'"
             v-model:value="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
+            :disabled="disabled"
             single-select
         />
         {% endblock %}
@@ -109,10 +96,10 @@
         variant="critical"
         ghost
         size="small"
-        :disabled="!linkTarget"
+        :disabled="disabled || !linkTarget"
         @click="removeLink"
     >
-        {{ $tc('global.default.remove') }}
+        {{ $t('global.default.remove') }}
     </mt-button>
     {% endblock %}
 </div>

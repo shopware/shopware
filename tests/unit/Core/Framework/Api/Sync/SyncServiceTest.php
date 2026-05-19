@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -52,7 +53,7 @@ class SyncServiceTest extends TestCase
 
         $writer = $this->createMock(EntityWriterInterface::class);
         $writer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sync')
             ->willReturn($writeResult);
 
@@ -121,7 +122,7 @@ class SyncServiceTest extends TestCase
 
         $searcher = $this->createMock(EntitySearcher::class);
         $searcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with($registry->get(ProductCategoryDefinition::class), $criteria);
 
@@ -134,6 +135,7 @@ class SyncServiceTest extends TestCase
                 new AggregationParser(),
                 $this->createMock(ApiCriteriaValidator::class),
                 new CriteriaArrayConverter(new AggregationParser()),
+                new CompressedCriteriaDecoder(),
                 100
             ),
             $this->createMock(SyncFkResolver::class)
@@ -146,9 +148,9 @@ class SyncServiceTest extends TestCase
     {
         $writer = $this->createMock(EntityWriterInterface::class);
         $writer
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) {
+            ->willReturnCallback(static function ($operations) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 
@@ -156,7 +158,7 @@ class SyncServiceTest extends TestCase
 
                 static::assertCount(4, $operation->getPayload());
 
-                $map = \array_map(function (array $payload) {
+                $map = \array_map(static function (array $payload) {
                     return $payload['productId'] . '-' . $payload['categoryId'];
                 }, $operation->getPayload());
 
@@ -179,21 +181,21 @@ class SyncServiceTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', ['product-1', 'product-2']));
 
-        $criteriaBuilder->expects(static::once())
+        $criteriaBuilder->expects($this->once())
             ->method('fromArray')
             ->with(['filter' => $filter])
             ->willReturn($criteria);
 
         $data = [
-            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-1'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-2'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-1'], 'data' => []],
-            ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-2'], 'data' => []],
+            'product-1-category-1' => ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-1'], 'data' => []],
+            'product-1-category-2' => ['primaryKey' => ['productId' => 'product-1', 'categoryId' => 'category-2'], 'data' => []],
+            'product-2-category-1' => ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-1'], 'data' => []],
+            'product-2-category-2' => ['primaryKey' => ['productId' => 'product-2', 'categoryId' => 'category-2'], 'data' => []],
         ];
 
         $ids = new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext());
 
-        $searcher->expects(static::once())
+        $searcher->expects($this->once())
             ->method('search')
             ->willReturn($ids);
 

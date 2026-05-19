@@ -3,6 +3,7 @@
  */
 
 import template from './sw-product-settings-form.html.twig';
+import './sw-product-settings-form.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -14,7 +15,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

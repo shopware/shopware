@@ -26,7 +26,7 @@ class SalesChannelExceptionTest extends TestCase
     }
 
     /**
-     * @return array<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
+     * @return iterable<string, array{exception: ShopwareHttpException|SalesChannelException, statusCode: int, errorCode: string, message: string}>
      */
     public static function exceptionDataProvider(): iterable
     {
@@ -93,11 +93,11 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'Could not find payment method with id "myCustomPaymentMethod"',
         ];
 
-        yield SalesChannelException::SALES_CHANNEL_DOMAIN_IN_USE => [
-            'exception' => SalesChannelException::salesChannelDomainInUse(),
+        yield SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE => [
+            'exception' => SalesChannelException::contextTokenNotAccessible(),
             'statusCode' => Response::HTTP_BAD_REQUEST,
-            'errorCode' => SalesChannelException::SALES_CHANNEL_DOMAIN_IN_USE,
-            'message' => 'The sales channel domain cannot be deleted because it is still referenced in product exports.',
+            'errorCode' => SalesChannelException::CONTEXT_TOKEN_NOT_ACCESSIBLE,
+            'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
     }
 }

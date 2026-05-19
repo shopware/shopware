@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
 
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
@@ -9,6 +8,8 @@ import { createPinia, setActivePinia } from 'pinia';
 /**
  * @sw-package after-sales
  */
+
+const { ACTION } = Shopware.Constants.FLOW;
 
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
@@ -74,9 +75,6 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
             global: {
                 plugins: [pinia],
                 stubs: {
-                    'sw-icon': {
-                        template: '<div class="sw-icon"></div>',
-                    },
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -664,7 +662,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
-                swIcon: 'default-communication-speech-bubbles',
+                swIcon: 'regular-envelope',
                 requirements: [
                     'customerAware',
                     'orderAware',
@@ -676,7 +674,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
-                swIcon: 'default-communication-speech-bubbles',
+                swIcon: 'regular-envelope',
                 requirements: [
                     'customerAware',
                     'orderAware',

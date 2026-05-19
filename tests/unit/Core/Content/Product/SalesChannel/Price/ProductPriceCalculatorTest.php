@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\Extension\ProductPriceCalculationExtension;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -29,13 +30,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -45,18 +48,39 @@ class ProductPriceCalculatorTest extends TestCase
 {
     private ProductPriceCalculator $calculator;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
+        $this->eventDispatcher = new EventDispatcher();
+
+        /** @var StaticEntityRepository<UnitCollection> $unitRepository */
+        $unitRepository = new StaticEntityRepository([
+            new UnitCollection([(
+            new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
+        ]);
+
         $this->calculator = new ProductPriceCalculator(
-            new StaticEntityRepository([
-                new UnitCollection([(
-                new UnitEntity())->assign(['id' => Defaults::CURRENCY, 'translated' => ['name' => 'test']])]),
-            ]),
+            $unitRepository,
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
-            )
+            ),
+            new ExtensionDispatcher($this->eventDispatcher),
         );
+    }
+
+    public function testExtensionIsDispatched(): void
+    {
+        $pre = $this->createMock(CallableClass::class);
+        $pre->expects($this->once())->method('__invoke');
+        $this->eventDispatcher->addListener(ProductPriceCalculationExtension::NAME . '.pre', $pre);
+
+        $post = $this->createMock(CallableClass::class);
+        $post->expects($this->once())->method('__invoke');
+        $this->eventDispatcher->addListener(ProductPriceCalculationExtension::NAME . '.post', $post);
+
+        $this->calculator->calculate([], $this->createMock(SalesChannelContext::class));
     }
 
     #[DataProvider('priceWillBeCalculated')]
@@ -78,11 +102,13 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $price);
 
-        static::assertEquals($expected->price, $price->getTotalPrice());
+        static::assertSame($expected->price, $price->getTotalPrice());
 
-        static::assertEquals($expected->reference, $price->getReferencePrice()?->getPrice());
+        static::assertSame($expected->reference, $price->getReferencePrice()?->getPrice());
 
-        static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
+        static::assertSame($expected->listPrice, $price->getListPrice()?->getPrice());
+
+        static::assertSame($expected->regulation, $price->getRegulationPrice()?->getPrice());
     }
 
     #[DataProvider('taxStateWillBeUsedProvider')]
@@ -101,7 +127,7 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $price);
 
-        static::assertEquals($expected, $price->getTotalPrice());
+        static::assertSame($expected, $price->getTotalPrice());
     }
 
     public static function taxStateWillBeUsedProvider(): \Generator
@@ -122,7 +148,7 @@ class ProductPriceCalculatorTest extends TestCase
 
     public function testEnsureUnitCaching(): void
     {
-        $property = ReflectionHelper::getProperty(ProductPriceCalculator::class, 'units');
+        $property = new \ReflectionProperty(ProductPriceCalculator::class, 'units');
 
         static::assertNull($property->getValue($this->calculator));
 
@@ -147,7 +173,8 @@ class ProductPriceCalculatorTest extends TestCase
             new QuantityPriceCalculator(
                 new GrossPriceCalculator(new TaxCalculator(), new CashRounding()),
                 new NetPriceCalculator(new TaxCalculator(), new CashRounding())
-            )
+            ),
+            new ExtensionDispatcher($this->eventDispatcher)
         ))->getDecorated();
     }
 
@@ -219,14 +246,20 @@ class ProductPriceCalculatorTest extends TestCase
             new PriceAssertion(1.0, null, null, 2.0),
         ];
 
-        yield 'Regulation price will be skipped when equals' => [
+        yield 'Regulation price will be not skipped when equals' => [
             (new PartialEntity())->assign([
                 'taxId' => Uuid::randomHex(),
                 'price' => new PriceCollection([
-                    new Price(Defaults::CURRENCY, 2, 2, false, null, null, new Price(Defaults::CURRENCY, 2, 2, false)),
+                    new Price(
+                        currencyId: Defaults::CURRENCY,
+                        net: 2,
+                        gross: 2,
+                        linked: false,
+                        regulationPrice: new Price(Defaults::CURRENCY, 2, 2, false)
+                    ),
                 ]),
             ]),
-            new PriceAssertion(2.0),
+            new PriceAssertion(2.0, null, null, 2.0),
         ];
     }
 
@@ -254,45 +287,51 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedPriceCollection::class, $prices);
 
-        static::assertEquals(\count($expected), $prices->count());
+        static::assertCount(\count($expected), $prices);
 
         foreach ($expected as $index => $value) {
             static::assertTrue($prices->has($index));
 
             $price = $prices->get($index);
 
-            static::assertEquals($value, $price->getTotalPrice());
+            static::assertSame($value, $price->getTotalPrice());
         }
     }
 
     public static function advancedPricesWillBeCalculatedProvider(): \Generator
     {
         yield 'Prices will not be calculated when not loaded' => [
-            (new PartialEntity())->assign(['prices' => null]),
+            (new PartialEntity())->assign(['id' => Uuid::randomHex(), 'prices' => null]),
             [],
         ];
 
-        yield 'Only product price collection can be calculated' => [
+        yield 'Partial entity price collection will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'taxId' => Uuid::randomHex(),
                 'prices' => new EntityCollection([
-                    (new ProductPriceEntity())->assign([
+                    (new PartialEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
+                        'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([
                             new Price(Defaults::CURRENCY, 1, 1, false),
                         ]),
                         'quantityStart' => 1,
-                        'quantityEnd' => 2,
+                        'quantityEnd' => null,
                     ]),
                 ]),
             ]),
-            [],
+            [1.0],
         ];
 
         yield 'Only matching rule ids will be calculated' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         // not inside the context (see above inside mock)
                         'ruleId' => Defaults::SALES_CHANNEL_TYPE_API,
@@ -309,9 +348,11 @@ class ProductPriceCalculatorTest extends TestCase
 
         yield 'Product will be calculated when price collection loaded' => [
             (new PartialEntity())->assign([
+                'id' => Uuid::randomHex(),
                 'taxId' => Uuid::randomHex(),
                 'prices' => new ProductPriceCollection([
                     (new ProductPriceEntity())->assign([
+                        'id' => Uuid::randomHex(),
                         '_uniqueIdentifier' => Uuid::randomHex(),
                         'ruleId' => Defaults::CURRENCY,
                         'price' => new PriceCollection([
@@ -345,11 +386,11 @@ class ProductPriceCalculatorTest extends TestCase
 
         static::assertInstanceOf(CalculatedCheapestPrice::class, $price);
 
-        static::assertEquals($expected->price, $price->getTotalPrice());
+        static::assertSame($expected->price, $price->getTotalPrice());
 
-        static::assertEquals($expected->reference, $price->getReferencePrice()?->getPrice());
+        static::assertSame($expected->reference, $price->getReferencePrice()?->getPrice());
 
-        static::assertEquals($expected->listPrice, $price->getListPrice()?->getPrice());
+        static::assertSame($expected->listPrice, $price->getListPrice()?->getPrice());
     }
 
     public static function cheapestPriceWillBeCalculatedProvider(): \Generator

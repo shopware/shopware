@@ -12,6 +12,7 @@ export default class AdminNotificationWorker {
     constructor() {
         this._notificationService = Service('notificationsService');
         this._userConfigService = Service('userConfigService');
+        this._userService = Service('userService');
         this._notiticationInterval = 5000;
         this._notiticationTimeoutId = null;
         this._timestamp = null;
@@ -68,12 +69,15 @@ export default class AdminNotificationWorker {
     }
 
     async fetchUserConfig() {
-        await this._userConfigService.search([READ_NOTIFICATION]).then((response) => {
-            const value = response.data[READ_NOTIFICATION];
+        const response = await this._userConfigService.search([READ_NOTIFICATION]);
+        const value = response.data[READ_NOTIFICATION];
 
-            if (value) {
-                this._timestamp = value.timestamp;
-            }
-        });
+        if (value) {
+            this._timestamp = value.timestamp;
+        } else {
+            // If no timestamp is found, fetch the user's creation date as a fallback
+            const userResponse = await this._userService.getUser();
+            this._timestamp = userResponse.data.createdAt.timestamp;
+        }
     }
 }

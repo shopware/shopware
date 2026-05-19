@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -12,13 +12,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerBirthdayRule extends Rule
 {
     final public const RULE_NAME = 'customerBirthday';
 
+    /**
+     * @internal
+     */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
         protected ?string $birthday = null
@@ -29,14 +32,14 @@ class CustomerBirthdayRule extends Rule
     public function getConstraints(): array
     {
         $constraints = [
-            'operator' => RuleConstraints::datetimeOperators(),
+            'operator' => RuleConstraints::dateOperators(),
         ];
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return $constraints;
         }
 
-        $constraints['birthday'] = RuleConstraints::datetime();
+        $constraints['birthday'] = RuleConstraints::date();
 
         return $constraints;
     }
@@ -48,7 +51,7 @@ class CustomerBirthdayRule extends Rule
         }
 
         if ($this->birthday === null && $this->operator !== self::OPERATOR_EMPTY) {
-            throw new UnsupportedValueException(\gettype($this->birthday), self::class);
+            throw CustomerException::unsupportedValue(\gettype($this->birthday), self::class);
         }
 
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
@@ -74,13 +77,13 @@ class CustomerBirthdayRule extends Rule
 
         $birthdayValue = new \DateTime($this->birthday);
 
-        return RuleComparison::datetime($customerBirthday, $birthdayValue, $this->operator);
+        return RuleComparison::date($customerBirthday, $birthdayValue, $this->operator);
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->dateTimeField('birthday');
+            ->dateField('birthday');
     }
 }

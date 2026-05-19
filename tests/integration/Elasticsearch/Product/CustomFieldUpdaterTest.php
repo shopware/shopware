@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -24,7 +23,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 class CustomFieldUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
@@ -97,10 +95,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_newly_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'includeInSearch' => true,
                     ],
                     [
                         'name' => 'test_newly_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'includeInSearch' => true,
                     ],
                 ],
             ],
@@ -140,10 +140,12 @@ class CustomFieldUpdaterTest extends TestCase
                     [
                         'name' => 'test_later_created_field',
                         'type' => CustomFieldTypes::INT,
+                        'includeInSearch' => true,
                     ],
                     [
                         'name' => 'test_later_created_field_text',
                         'type' => CustomFieldTypes::TEXT,
+                        'includeInSearch' => true,
                     ],
                 ],
             ],

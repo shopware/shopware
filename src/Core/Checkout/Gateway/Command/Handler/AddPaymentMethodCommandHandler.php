@@ -6,7 +6,7 @@ use Shopware\Core\Checkout\Gateway\CheckoutGatewayException;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\AbstractCheckoutGatewayCommand;
 use Shopware\Core\Checkout\Gateway\Command\AddPaymentMethodCommand;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -19,6 +19,8 @@ class AddPaymentMethodCommandHandler extends AbstractCheckoutGatewayCommandHandl
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
@@ -41,13 +43,11 @@ class AddPaymentMethodCommandHandler extends AbstractCheckoutGatewayCommandHandl
         $technicalName = $command->paymentMethodTechnicalName;
         $methods = $response->getAvailablePaymentMethods();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
-        $criteria->addAssociation('appPaymentMethod.app');
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('technicalName', $technicalName))
+            ->addAssociation('appPaymentMethod.app');
 
-        /** @var PaymentMethodEntity|null $paymentMethod */
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->first();
-
+        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->first();
         if (!$paymentMethod) {
             $this->logger->logOrThrowException(
                 CheckoutGatewayException::handlerException('Payment method "{{ technicalName }}" not found', ['technicalName' => $technicalName])

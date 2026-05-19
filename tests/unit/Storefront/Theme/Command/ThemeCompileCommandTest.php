@@ -27,12 +27,12 @@ class ThemeCompileCommandTest extends TestCase
         $themeId = 'theme-id';
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::once())
+        $themeService->expects($this->once())
             ->method('compileTheme')
             ->with($salesChannelId, $themeId, static::anything(), null, !$keepAssetsOption);
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
@@ -49,7 +49,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeService = static::createMock(ThemeService::class);
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), $activeOnly)
             ->willReturn([]);
@@ -69,12 +69,12 @@ class ThemeCompileCommandTest extends TestCase
         $context->addState(ThemeService::STATE_NO_QUEUE);
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::once())
+        $themeService->expects($this->once())
             ->method('compileTheme')
             ->with($salesChannelId, $themeId, $context);
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([$salesChannelId => $themeId]);
@@ -94,7 +94,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeId = 'theme-id';
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([
@@ -105,10 +105,10 @@ class ThemeCompileCommandTest extends TestCase
             ]);
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -139,7 +139,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeId = 'theme-id';
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([
@@ -150,10 +150,10 @@ class ThemeCompileCommandTest extends TestCase
             ]);
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -185,7 +185,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeIdIncluded = 'theme-id-included';
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([
@@ -196,10 +196,10 @@ class ThemeCompileCommandTest extends TestCase
             ]);
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -231,7 +231,7 @@ class ThemeCompileCommandTest extends TestCase
         $themeIdIncluded = 'theme-id-included';
 
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::once())
+        $themeProvider->expects($this->once())
             ->method('load')
             ->with(static::anything(), false)
             ->willReturn([
@@ -242,10 +242,10 @@ class ThemeCompileCommandTest extends TestCase
             ]);
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::exactly(2))
+        $themeService->expects($this->exactly(2))
             ->method('compileTheme')
             ->willReturnCallback(
-                function (
+                static function (
                     string $actualSalesChannelId,
                     string $actualThemeId
                 ) use (
@@ -270,11 +270,11 @@ class ThemeCompileCommandTest extends TestCase
     public function testItFailsWithContradictingSalesChannelArgs(): void
     {
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::never())
+        $themeProvider->expects($this->never())
             ->method('load');
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::never())
+        $themeService->expects($this->never())
             ->method('compileTheme');
 
         $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));
@@ -290,11 +290,11 @@ class ThemeCompileCommandTest extends TestCase
     public function testItFailsWithContradictingThemeArgs(): void
     {
         $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
-        $themeProvider->expects(static::never())
+        $themeProvider->expects($this->never())
             ->method('load');
 
         $themeService = static::createMock(ThemeService::class);
-        $themeService->expects(static::never())
+        $themeService->expects($this->never())
             ->method('compileTheme');
 
         $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider));

@@ -79,6 +79,8 @@ class LanguageEntity extends Entity
 
     protected string $name;
 
+    protected bool $active;
+
     protected ?LocaleEntity $locale = null;
 
     protected ?LanguageEntity $parent = null;
@@ -257,6 +259,16 @@ class LanguageEntity extends Entity
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 
     public function getLocale(): ?LocaleEntity

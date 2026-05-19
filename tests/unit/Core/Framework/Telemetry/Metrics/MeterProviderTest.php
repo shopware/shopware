@@ -27,12 +27,12 @@ class MeterProviderTest extends TestCase
 
     public function testBindMeter(): void
     {
-        $this->container->expects(static::once())
+        $this->container->expects($this->once())
             ->method('has')
             ->with(Meter::class)
             ->willReturn(true);
 
-        $this->container->expects(static::once())
+        $this->container->expects($this->once())
             ->method('get')
             ->with(Meter::class)
             ->willReturn($this->meter);
@@ -44,7 +44,7 @@ class MeterProviderTest extends TestCase
 
     public function testBindMeterWhenMeterNotAvailable(): void
     {
-        $this->container->expects(static::once())
+        $this->container->expects($this->once())
             ->method('has')
             ->with(Meter::class)
             ->willReturn(false);

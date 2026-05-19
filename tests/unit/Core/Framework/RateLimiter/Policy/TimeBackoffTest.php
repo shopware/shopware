@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\RateLimiter\Policy;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
  * @internal
@@ -26,7 +25,7 @@ class TimeBackoffTest extends TestCase
             ],
         ]);
 
-        $stringLimits = ReflectionHelper::getProperty(TimeBackoff::class, 'stringLimits');
+        $stringLimits = new \ReflectionProperty(TimeBackoff::class, 'stringLimits');
         $stringLimits->setValue($backoff, 'invalid');
 
         static::expectException(\BadMethodCallException::class);

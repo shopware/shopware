@@ -35,9 +35,6 @@ async function createWrapper(additionalProps = {}) {
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-grid': await wrapTestComponent('sw-grid', {
                         sync: true,
                     }),
@@ -73,10 +70,6 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should keep the text content when search list opens', async () => {

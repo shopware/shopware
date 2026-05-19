@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Content\RevocationRequest\Validation\RevocationRequestFormValidationFactory">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\RevocationRequest\Validation\RevocationRequestFormValidationFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="shopware.rate_limiter" />
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="cms_slot.repository" />
+            <argument type="service" id="category.repository" />
+        </service>
+    </services>
+</container>

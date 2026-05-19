@@ -1,0 +1,30 @@
+{% block component_address_field_zipcode %}
+    {% set zipcodeValue = formViolations.getInputData()['zipcode'] ?? data.get('zipcode') %}
+
+    {% if formViolations.getViolations('/zipcode') is not empty %}
+        {% set violationPath = '/zipcode' %}
+    {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
+        {% set violationPath = "/#{prefix}/zipcode" %}
+    {% endif %}
+
+    {% set zipCodeAutocomplete = 'postal-code' %}
+
+    {% if prefix == 'shippingAddress' %}
+        {% set zipCodeAutocomplete = 'shipping postal-code' %}
+    {% elseif prefix == 'billingAddress' %}
+        {% set zipCodeAutocomplete = 'billing postal-code' %}
+    {% endif %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
+        label: 'address.zipcodeLabel'|trans|sw_sanitize,
+        id: idPrefix ~ prefix ~ 'AddressZipcode',
+        name: prefix ~ '[zipcode]',
+        value: zipcodeValue,
+        autocomplete: zipCodeAutocomplete,
+        violationPath: violationPath,
+        additionalClass: additionalClass ?? 'col-md-3 col-4',
+        attributes: {
+            'data-input-name': 'zipcodeInput'
+        }
+    } %}
+{% endblock %}

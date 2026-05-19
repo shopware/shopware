@@ -14,6 +14,8 @@ class Applier
     /**
      * Returns a list of index offsets for
      * all items that need to be considered for the discount
+     *
+     * @return list<int>
      */
     public function findIndexes(string $applierKey, int $maxItems, int $packageCount, int $originalPackageCount): array
     {

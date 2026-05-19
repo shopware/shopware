@@ -3,7 +3,6 @@
  */
 
 import Plugin from 'src/plugin-system/plugin.class';
-import DomAccess from 'src/helper/dom-access.helper';
 
 export default class FilterBasePlugin extends Plugin {
 
@@ -17,11 +16,11 @@ export default class FilterBasePlugin extends Plugin {
 
         this._validateMethods();
 
-        const parentFilterPanelElement = DomAccess.querySelector(document, this.options.parentFilterPanelSelector);
+        const parentFilterPanelElement = document.querySelector(this.options.parentFilterPanelSelector);
 
         this.listing = window.PluginManager.getPluginInstanceFromElement(
             parentFilterPanelElement,
-            'Listing'
+            'Listing',
         );
 
         this.listing.registerFilter(this);
@@ -30,7 +29,7 @@ export default class FilterBasePlugin extends Plugin {
     }
 
     _preventDropdownClose() {
-        const dropdownMenu = DomAccess.querySelector(this.el, this.options.dropdownSelector, false);
+        const dropdownMenu = this.el.querySelector(this.options.dropdownSelector);
 
         if (!dropdownMenu) {
             return;

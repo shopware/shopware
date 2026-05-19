@@ -77,7 +77,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('payment.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('payment.editor'),
                     showOnDisabledElements: true,
                 };
@@ -162,7 +162,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.paymentMethodId = this.$route.params.id;
+            this.paymentMethodId = this.$route.params.id.toLowerCase();
             this.loadEntityData();
             this.loadCustomFieldSets();
         },
@@ -243,14 +243,13 @@ export default {
 
             try {
                 errorDetails = error.response.data.errors[0].detail;
-            } catch (e) {
+            } catch (_e) {
                 errorDetails = '';
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
-                // eslint-disable-next-line max-len
-                message: `${this.$tc('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
+                title: this.$t('global.default.error'),
+                message: `${this.$t('sw-settings-payment.detail.messageSaveError', { name: this.paymentMethod.name }, 0)} ${errorDetails}`,
             });
         },
 

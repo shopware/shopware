@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
@@ -34,17 +36,20 @@ use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInt
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -71,14 +76,14 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) {
+            ->willReturnCallback(static function (array $create) {
                 static::assertCount(1, $create);
                 static::assertArrayHasKey('accountType', $create[0]);
                 static::assertSame(CustomerEntity::ACCOUNT_TYPE_PRIVATE, $create[0]['accountType']);
@@ -86,20 +91,9 @@ class RegisterRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $register = new RegisterRoute(
-            new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -113,8 +107,7 @@ class RegisterRouteTest extends TestCase
             ],
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -146,31 +139,23 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) use ($definition) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) use ($definition) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => null]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
 
-                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+                static::assertSame($event->getDefinition()->getProperties(), $definition->getProperties());
             }
 
             return $event;
         });
 
-        $register = new RegisterRoute(
-            $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            new DataValidator(Validation::createValidatorBuilder()->getValidator()),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $addressValidation,
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            dataValidator: new DataValidator(Validation::createValidatorBuilder()->getValidator()),
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -185,8 +170,7 @@ class RegisterRouteTest extends TestCase
             ],
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -218,36 +202,27 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => null]));
-                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: null));
+                $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
-                static::assertSame($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+                static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));
+                static::assertEquals($definition->getProperties(), $event->getDefinition()->getProperties());
             }
 
             return $event;
         });
 
-        $register = new RegisterRoute(
-            $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $addressValidation,
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -258,8 +233,7 @@ class RegisterRouteTest extends TestCase
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -291,36 +265,27 @@ class RegisterRouteTest extends TestCase
         $addressValidation->method('create')->willReturn($definition);
 
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function (Event $event) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function (Event $event) {
             if ($event instanceof BuildValidationEvent && $event->getName() === 'framework.validation.address.create') {
                 $definition = new DataValidationDefinition('address.create');
 
                 $definition->add('company', new NotBlank());
-                $definition->set('zipcode', new CustomerZipCode(['countryId' => '123']));
-                $definition->add('zipcode', new Length(['max' => CustomerAddressDefinition::MAX_LENGTH_ZIPCODE]));
+                $definition->set('zipcode', new CustomerZipCode(countryId: '123'));
+                $definition->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE));
 
                 static::assertNull($event->getData()->get('shippingAddress'));
-                static::assertSame($event->getData()->get('accountType'), CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-                static::assertEquals($event->getDefinition()->getProperties(), $definition->getProperties());
+                static::assertSame(CustomerEntity::ACCOUNT_TYPE_BUSINESS, $event->getData()->get('accountType'));
+                static::assertEquals($definition->getProperties(), $event->getDefinition()->getProperties());
             }
 
             return $event;
         });
 
-        $register = new RegisterRoute(
-            $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $addressValidation,
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $dispatcher,
+            addressValidationFactory: $addressValidation,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -333,8 +298,7 @@ class RegisterRouteTest extends TestCase
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         static::expectException(CustomerException::class);
 
@@ -356,14 +320,14 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) {
+            ->willReturnCallback(static function (array $create) {
                 static::assertSame(['mapped' => 1], $create[0]['customFields']);
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
@@ -375,20 +339,10 @@ class RegisterRouteTest extends TestCase
             ],
         ]);
 
-        $register = new RegisterRoute(
-            new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $customFieldMapper,
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            customFieldMapper: $customFieldMapper,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -402,8 +356,7 @@ class RegisterRouteTest extends TestCase
             ],
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -423,7 +376,7 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setDoubleOptInRegistration(false);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
-        $result->method('first')->willReturn($customerEntity);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
 
         $salutationId = Uuid::randomHex();
         /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
@@ -432,9 +385,9 @@ class RegisterRouteTest extends TestCase
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
         $customerRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
-            ->willReturnCallback(function (array $create) use ($salutationId) {
+            ->willReturnCallback(static function (array $create) use ($salutationId) {
                 static::assertCount(1, $create);
                 static::assertArrayHasKey('salutationId', $create[0]);
                 static::assertSame($create[0]['salutationId'], $salutationId);
@@ -442,20 +395,10 @@ class RegisterRouteTest extends TestCase
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
 
-        $register = new RegisterRoute(
-            new EventDispatcher(),
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $salutationRepository,
+        $register = $this->createRegisterRoute(
+            salutationRepository: $salutationRepository,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -467,8 +410,70 @@ class RegisterRouteTest extends TestCase
             'salutationId' => '',
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testSalutationIdIsAssignedToShippingAndBilling(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+
+        $salutationId = Uuid::randomHex();
+        /** @var StaticEntityRepository<SalutationCollection> $salutationRepository */
+        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) use ($salutationId) {
+                static::assertCount(1, $create);
+                static::assertArrayHasKey('salutationId', $create[0]);
+                static::assertSame($create[0]['salutationId'], $salutationId);
+                static::assertIsArray($create[0]['addresses']);
+                static::assertCount(2, $create[0]['addresses']);
+                foreach ($create[0]['addresses'] as $address) {
+                    static::assertArrayHasKey('salutationId', $address);
+                    static::assertSame($address['salutationId'], $salutationId);
+                }
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $register = $this->createRegisterRoute(
+            salutationRepository: $salutationRepository,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'shippingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            'salutationId' => '',
+        ];
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -498,10 +503,10 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
-                static::callback(function (Event $event): bool {
+                static::callback(static function (Event $event): bool {
                     if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
                         $query = [];
                         $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
@@ -515,20 +520,10 @@ class RegisterRouteTest extends TestCase
                 })
             );
 
-        $register = new RegisterRoute(
-            $eventDispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $eventDispatcher,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -541,8 +536,7 @@ class RegisterRouteTest extends TestCase
             'redirectParameters' => '{"productId":"018b906b869273fea7926f161dd23911"}',
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -572,10 +566,10 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::atLeast(1))
+            ->expects($this->atLeast(1))
             ->method('dispatch')
             ->with(
-                static::callback(function ($event): bool {
+                static::callback(static function ($event): bool {
                     if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
                         $query = [];
                         $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
@@ -589,20 +583,10 @@ class RegisterRouteTest extends TestCase
                 })
             );
 
-        $register = new RegisterRoute(
-            $eventDispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
-            $this->createMock(DataValidator::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $this->createMock(DataValidationFactoryInterface::class),
-            $systemConfigService,
-            $customerRepository,
-            $this->createMock(SalesChannelContextPersister::class),
-            $this->createMock(SalesChannelRepository::class),
-            $this->createMock(Connection::class),
-            $this->createMock(SalesChannelContextService::class),
-            $this->createMock(StoreApiCustomFieldMapper::class),
-            $this->createMock(EntityRepository::class),
+        $register = $this->createRegisterRoute(
+            eventDispatcher: $eventDispatcher,
+            systemConfigService: $systemConfigService,
+            customerRepository: $customerRepository
         );
 
         $data = [
@@ -615,8 +599,7 @@ class RegisterRouteTest extends TestCase
             'redirectParameters' => 'thisisnotajson',
         ];
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $register->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -678,6 +661,7 @@ class RegisterRouteTest extends TestCase
                 'countryId' => $countryId,
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',
@@ -688,9 +672,9 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
                 static::assertArrayHasKey('billingAddress', $subs);
@@ -703,7 +687,7 @@ class RegisterRouteTest extends TestCase
                 static::assertCount(3, $properties['vatIds']);
 
                 static::assertInstanceOf(NotBlank::class, $properties['vatIds'][0]);
-                static::assertInstanceOf(Constraint::class, $properties['vatIds'][1]);
+                static::assertInstanceOf(Type::class, $properties['vatIds'][1]);
                 static::assertInstanceOf(CustomerVatIdentification::class, $properties['vatIds'][2]);
 
                 return true;
@@ -728,10 +712,10 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $definitionFactory,
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
     }
@@ -790,6 +774,7 @@ class RegisterRouteTest extends TestCase
             'shippingAddress' => [
                 'id' => Uuid::randomHex(),
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+                'salutationId' => $salutationId,
             ],
             'salutationId' => $salutationId,
             'lastName' => 'Mustermann',
@@ -799,16 +784,16 @@ class RegisterRouteTest extends TestCase
 
         $dataValidator = $this->createMock(DataValidator::class);
         $dataValidator
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getViolations')
-            ->with($data, static::callback(function (DataValidationDefinition $definition) {
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
                 $subs = $definition->getSubDefinitions();
 
                 static::assertArrayHasKey('billingAddress', $subs);
 
                 $billingAddressDefinition = $subs['billingAddress'];
 
-                static::assertCount(5, $billingAddressDefinition->getProperties());
+                static::assertCount(6, $billingAddressDefinition->getProperties());
                 static::assertArrayNotHasKey('vatIds', $billingAddressDefinition->getProperties());
 
                 return true;
@@ -833,11 +818,339 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
+            $definitionFactory,
         );
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+        $salesChannelContext = Generator::generateSalesChannelContext();
 
         $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    #[TestDox('Rejects registration when billing address is not an associative array')]
+    public function testRegisterWithNonArrayBillingAddressViolation(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.showAccountTypeSelection' => true,
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(true);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $countryId = Uuid::randomHex();
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $country->setVatIdRequired(true);
+
+        /** @var StaticSalesChannelRepository<CountryCollection> $countryRepository */
+        $countryRepository = new StaticSalesChannelRepository([new CountryCollection([$country])]);
+
+        $salutationId = Uuid::randomHex();
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => 'Max Mustermanns Address',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'salutationId' => $salutationId,
+            'lastName' => 'Mustermann',
+            'firstName' => 'Max',
+            'vatIds' => ['123'],
+            'storefrontUrl' => 'foo',
+        ];
+
+        $dataValidator = $this->createMock(DataValidator::class);
+
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation(
+                'This value should be of type associative_array.',
+                'This value should be of type {{ type }}.',
+                ['{{ type }}' => 'associative_array'],
+                'billingAddress',
+                'billingAddress',
+                'Max Mustermanns Address'
+            ),
+        ]);
+
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->with($data, static::callback(static function (DataValidationDefinition $definition) {
+                $subs = $definition->getSubDefinitions();
+
+                static::assertArrayNotHasKey('billingAddress', $subs);
+
+                $billingAddressConstraints = $definition->getProperty('billingAddress');
+                static::assertCount(1, $billingAddressConstraints);
+
+                $billingAddressConstraint = $billingAddressConstraints[0];
+                static::assertInstanceOf(Type::class, $billingAddressConstraint);
+                static::assertSame('associative_array', $billingAddressConstraint->type);
+
+                return true;
+            }))
+            ->willReturn($violations);
+
+        $definitionFactory = $this->createMock(DataValidationFactoryInterface::class);
+        $definitionFactory
+            ->method('create')
+            ->willReturn(new DataValidationDefinition());
+
+        $registerRoute = new RegisterRoute(
+            new EventDispatcher(),
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $definitionFactory,
+            $definitionFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $countryRepository,
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+            $definitionFactory,
+        );
+
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        try {
+            $registerRoute->register(new RequestDataBag($data), $salesChannelContext, false);
+            static::fail('Expected ConstraintViolationException to be thrown');
+        } catch (ConstraintViolationException $e) {
+            static::assertCount(1, $e->getViolations());
+            $violation = $e->getViolations()->get(0);
+            static::assertSame('billingAddress', $violation->getPropertyPath());
+            static::assertNotEmpty($violation->getMessage());
+        }
+    }
+
+    #[TestDox('Accepts customer names with the maximum allowed length of 255 characters')]
+    public function testRegisterAcceptsMaximumNameLengths(): void
+    {
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
+
+        $maxLengthFirstName = str_repeat('M', CustomerDefinition::MAX_LENGTH_FIRST_NAME);
+        $maxLengthLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME);
+
+        $data = $this->createRegistrationData([
+            'firstName' => $maxLengthFirstName,
+            'lastName' => $maxLengthLastName,
+            'billingAddress' => [
+                'firstName' => $maxLengthFirstName,
+                'lastName' => $maxLengthLastName,
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]);
+
+        $registerRoute->register(
+            new RequestDataBag($data),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    #[TestDox('Rejects customer names exceeding the maximum allowed length of 255 characters')]
+    public function testRegisterRejectsExcessiveNameLengths(): void
+    {
+        $violations = new ConstraintViolationList();
+        $violations->add(new ConstraintViolation(
+            'This value is too long. It should have 255 characters or less.',
+            null,
+            [],
+            'root',
+            'firstName',
+            str_repeat('T', 256)
+        ));
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn($violations);
+
+        $registerRoute = $this->createRegisterRoute(dataValidator: $dataValidator);
+
+        $tooLongFirstName = str_repeat('T', CustomerDefinition::MAX_LENGTH_FIRST_NAME + 1);
+        $tooLongLastName = str_repeat('L', CustomerDefinition::MAX_LENGTH_LAST_NAME + 1);
+
+        $data = $this->createRegistrationData([
+            'firstName' => $tooLongFirstName,
+            'lastName' => $tooLongLastName,
+            'billingAddress' => [
+                'firstName' => $tooLongFirstName,
+                'lastName' => $tooLongLastName,
+                'countryId' => Uuid::randomHex(),
+            ],
+        ]);
+
+        static::expectException(ConstraintViolationException::class);
+        $registerRoute->register(
+            new RequestDataBag($data),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    public function testRegisterPreservesShippingAddressSalutation(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) {
+                static::assertCount(1, $create);
+                static::assertCount(2, $create[0]['addresses']);
+                $billingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'John'
+                ))[0];
+                $shippingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'Jane'
+                ))[0];
+
+                static::assertSame('billing-salutation', $billingAddress['salutationId']);
+                static::assertSame('shipping-salutation', $shippingAddress['salutationId']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            customerRepository: $customerRepository
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'salutationId' => 'billing-salutation',
+                'shippingAddress' => [
+                    'firstName' => 'Jane',
+                    'lastName' => 'Doe',
+                    'countryId' => Uuid::randomHex(),
+                    'salutationId' => 'shipping-salutation',
+                ],
+            ])),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
+    /**
+     * @return StaticEntityRepository<CustomerCollection>
+     */
+    private function createCustomerRepository(): StaticEntityRepository
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        /** @var StaticEntityRepository<CustomerCollection> $repository */
+        $repository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
+
+        return $repository;
+    }
+
+    /**
+     * @param EntityRepository<SalutationCollection>|null $salutationRepository
+     * @param EntityRepository<CustomerCollection>|StaticEntityRepository<CustomerCollection>|null $customerRepository
+     */
+    private function createRegisterRoute(
+        ?DataValidator $dataValidator = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?DataValidationFactoryInterface $addressValidationFactory = null,
+        ?StoreApiCustomFieldMapper $customFieldMapper = null,
+        ?EntityRepository $salutationRepository = null,
+        ?StaticSystemConfigService $systemConfigService = null,
+        EntityRepository|StaticEntityRepository|null $customerRepository = null
+    ): RegisterRoute {
+        $dataValidator ??= $this->createMock(DataValidator::class);
+        $eventDispatcher ??= new EventDispatcher();
+        $addressValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
+        $customFieldMapper ??= $this->createMock(StoreApiCustomFieldMapper::class);
+        $salutationRepository ??= $this->createMock(EntityRepository::class);
+        $systemConfigService ??= new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+        $customerRepository ??= $this->createCustomerRepository();
+
+        return new RegisterRoute(
+            $eventDispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $dataValidator,
+            $this->createMock(DataValidationFactoryInterface::class),
+            $addressValidationFactory,
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $customFieldMapper,
+            $salutationRepository,
+            $this->createMock(DataValidationFactoryInterface::class),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, mixed>
+     */
+    private function createRegistrationData(array $overrides = []): array
+    {
+        return array_merge([
+            'email' => 'test@example.com',
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'salutationId' => Uuid::randomHex(),
+            'billingAddress' => [
+                'firstName' => 'John',
+                'lastName' => 'Doe',
+                'countryId' => Uuid::randomHex(),
+            ],
+        ], $overrides);
     }
 }

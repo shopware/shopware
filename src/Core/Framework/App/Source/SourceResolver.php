@@ -38,8 +38,8 @@ class SourceResolver implements ResetInterface
      */
     public function __construct(
         private readonly iterable $sources,
-        private EntityRepository $appRepository,
-        private NoDatabaseSourceResolver $noDbSourceResolver
+        private readonly EntityRepository $appRepository,
+        private readonly NoDatabaseSourceResolver $noDbSourceResolver,
     ) {
     }
 
@@ -80,7 +80,7 @@ class SourceResolver implements ResetInterface
             }
 
             return $this->filesystemForApp($app);
-        } catch (DBALException $e) {
+        } catch (DBALException) {
             // if we don't have a db, try to load it from the local filesystem
             return $this->noDbSourceResolver->filesystem($appName);
         }

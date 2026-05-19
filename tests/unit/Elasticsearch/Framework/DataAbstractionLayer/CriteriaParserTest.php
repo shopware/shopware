@@ -3,11 +3,14 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use OpenSearchDSL\Sort\FieldSort;
+use OpenSearchDSL\Sort\NestedSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -37,8 +40,10 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -58,7 +63,8 @@ class CriteriaParserTest extends TestCase
         /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class)
+            $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
@@ -103,6 +109,7 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
@@ -129,6 +136,7 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
@@ -148,6 +156,9 @@ class CriteriaParserTest extends TestCase
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
         );
 
         $context = new Context(
@@ -165,7 +176,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([]));
 
         static::expectException(ElasticsearchException::class);
         static::expectExceptionMessage(\sprintf('Provided filter of class %s is not supported', CustomFilter::class));
@@ -177,7 +188,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -237,17 +248,17 @@ EOT,
                 'stats' => [
                     'script' => [
                         'source' => <<<EOT
-double getPercentage(def accessors, def doc) {
+double getRatio(def accessors, def doc) {
     for (accessor in accessors) {
         def key = accessor['key'];
         if (!doc.containsKey(key) || doc[key].empty) {
             continue;
         }\n
-        return (double) doc[key].value;
+        return 100 - (double) doc[key].value;
     }\n
     return 0;
 }\n
-return getPercentage(params['accessors'], doc);\n
+return getRatio(params['accessors'], doc);\n
 EOT,
                         'lang' => 'painless',
                         'params' => [
@@ -320,13 +331,8 @@ EOT,
                             'bool' => [
                                 'must' => [
                                     [
-                                        'multi_match' => [
-                                            'query' => 'foo',
-                                            'fields' => [
-                                                'name.' . self::SECOND_LANGUAGE,
-                                                'name.' . Defaults::LANGUAGE_SYSTEM,
-                                            ],
-                                            'type' => 'best_fields',
+                                        'term' => [
+                                            'name.' . self::SECOND_LANGUAGE => 'foo',
                                         ],
                                     ],
                                     [
@@ -377,13 +383,8 @@ EOT,
                 'bool' => [
                     'must' => [
                         [
-                            'multi_match' => [
-                                'query' => 'foo',
-                                'fields' => [
-                                    'name.' . self::SECOND_LANGUAGE,
-                                    'name.' . Defaults::LANGUAGE_SYSTEM,
-                                ],
-                                'type' => 'best_fields',
+                            'term' => [
+                                'name.' . self::SECOND_LANGUAGE => 'foo',
                             ],
                         ],
                         [
@@ -400,6 +401,7 @@ EOT,
                 ],
             ],
         ];
+
         yield 'EqualsFilter field' => [
             new EqualsFilter('productNumber', 'bar'),
             [
@@ -408,19 +410,29 @@ EOT,
                 ],
             ],
         ];
-        yield 'EqualsFilter translated field' => [
+        yield 'EqualsFilter name translated field' => [
             new EqualsFilter('name', 'foo'),
+            [
+                'term' => [
+                    'name.' . self::SECOND_LANGUAGE => 'foo',
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter description translated field' => [
+            new EqualsFilter('description', 'foo'),
             [
                 'multi_match' => [
                     'query' => 'foo',
                     'fields' => [
-                        'name.' . self::SECOND_LANGUAGE,
-                        'name.' . Defaults::LANGUAGE_SYSTEM,
+                        'description.' . self::SECOND_LANGUAGE,
+                        'description.' . Defaults::LANGUAGE_SYSTEM,
                     ],
                     'type' => 'best_fields',
                 ],
             ],
         ];
+
         yield 'EqualsAnyFilter field' => [
             new EqualsAnyFilter('productNumber', ['foo', 'bar']),
             [
@@ -429,19 +441,79 @@ EOT,
                 ],
             ],
         ];
-        yield 'EqualsAnyFilter translated field' => [
+
+        yield 'EqualsAnyFilter name translated field' => [
             new EqualsAnyFilter('name', ['foo', 'bar']),
+            [
+                'terms' => [
+                    'name.' . self::SECOND_LANGUAGE => ['foo', 'bar'],
+                ],
+            ],
+        ];
+
+        yield 'EqualsAnyFilter description translated field' => [
+            new EqualsAnyFilter('description', ['foo', 'bar']),
             [
                 'dis_max' => [
                     'queries' => [
+                        [
+                            'terms' => [
+                                'description.' . self::SECOND_LANGUAGE => ['foo', 'bar'],
+                            ],
+                        ],
+                        [
+                            'terms' => [
+                                'description.' . Defaults::LANGUAGE_SYSTEM => ['foo', 'bar'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        yield 'EqualsAnyFilter field with null' => [
+            new EqualsAnyFilter('productNumber', ['foo', 'bar', null]),
+            [
+                'bool' => [
+                    'should' => [
+                        [
+                            'terms' => [
+                                'productNumber' => ['foo', 'bar'],
+                            ],
+                        ],
+                        [
+                            'bool' => [
+                                'must_not' => [
+                                    [
+                                        'exists' => [
+                                            'field' => 'productNumber',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        yield 'EqualsAnyFilter name translated field with null' => [
+            new EqualsAnyFilter('name', ['foo', 'bar', null]),
+            [
+                'bool' => [
+                    'should' => [
                         [
                             'terms' => [
                                 'name.' . self::SECOND_LANGUAGE => ['foo', 'bar'],
                             ],
                         ],
                         [
-                            'terms' => [
-                                'name.' . Defaults::LANGUAGE_SYSTEM => ['foo', 'bar'],
+                            'bool' => [
+                                'must_not' => [
+                                    [
+                                        'exists' => [
+                                            'field' => 'name.' . self::SECOND_LANGUAGE,
+                                        ],
+                                    ],
+                                ],
                             ],
                         ],
                     ],
@@ -458,25 +530,12 @@ EOT,
                 ],
             ],
         ];
-        yield 'ContainsFilter translated field' => [
+        yield 'ContainsFilter name translated field' => [
             new ContainsFilter('name', 'foo'),
             [
-                'dis_max' => [
-                    'queries' => [
-                        [
-                            'wildcard' => [
-                                'name.' . self::SECOND_LANGUAGE => [
-                                    'value' => '*foo*',
-                                ],
-                            ],
-                        ],
-                        [
-                            'wildcard' => [
-                                'name.' . Defaults::LANGUAGE_SYSTEM => [
-                                    'value' => '*foo*',
-                                ],
-                            ],
-                        ],
+                'wildcard' => [
+                    'name.' . self::SECOND_LANGUAGE => [
+                        'value' => '*foo*',
                     ],
                 ],
             ],
@@ -491,25 +550,12 @@ EOT,
                 ],
             ],
         ];
-        yield 'PrefixFilter translated field' => [
+        yield 'PrefixFilter name translated field' => [
             new PrefixFilter('name', 'foo'),
             [
-                'dis_max' => [
-                    'queries' => [
-                        [
-                            'wildcard' => [
-                                'name.' . self::SECOND_LANGUAGE => [
-                                    'value' => 'foo*',
-                                ],
-                            ],
-                        ],
-                        [
-                            'wildcard' => [
-                                'name.' . Defaults::LANGUAGE_SYSTEM => [
-                                    'value' => 'foo*',
-                                ],
-                            ],
-                        ],
+                'prefix' => [
+                    'name.' . self::SECOND_LANGUAGE => [
+                        'value' => 'foo',
                     ],
                 ],
             ],
@@ -524,25 +570,12 @@ EOT,
                 ],
             ],
         ];
-        yield 'SuffixFilter translated field' => [
+        yield 'SuffixFilter name translated field' => [
             new SuffixFilter('name', 'foo'),
             [
-                'dis_max' => [
-                    'queries' => [
-                        [
-                            'wildcard' => [
-                                'name.' . self::SECOND_LANGUAGE => [
-                                    'value' => '*foo',
-                                ],
-                            ],
-                        ],
-                        [
-                            'wildcard' => [
-                                'name.' . Defaults::LANGUAGE_SYSTEM => [
-                                    'value' => '*foo',
-                                ],
-                            ],
-                        ],
+                'wildcard' => [
+                    'name.' . self::SECOND_LANGUAGE => [
+                        'value' => '*foo',
                     ],
                 ],
             ],
@@ -559,26 +592,29 @@ EOT,
                 ],
             ],
         ];
-        yield 'RangeFilter translated field' => [
+        yield 'RangeFilter name translated field' => [
             new RangeFilter('name', [
                 RangeFilter::GT => $now,
             ]),
             [
-                'dis_max' => [
-                    'queries' => [
+                'range' => [
+                    'name.' . self::SECOND_LANGUAGE => [
+                        RangeFilter::GT => $now,
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter translated custom field' => [
+            new EqualsFilter('customFields.foo', null),
+            [
+                'bool' => [
+                    'must_not' => [
                         [
-                            'range' => [
-                                'name.' . self::SECOND_LANGUAGE => [
-                                    RangeFilter::GT => $now,
-                                ],
-                            ],
+                            'exists' => ['field' => 'customFields.' . self::SECOND_LANGUAGE . '.foo'],
                         ],
                         [
-                            'range' => [
-                                'name.' . Defaults::LANGUAGE_SYSTEM => [
-                                    RangeFilter::GT => $now,
-                                ],
-                            ],
+                            'exists' => ['field' => 'customFields.' . Defaults::LANGUAGE_SYSTEM . '.foo'],
                         ],
                     ],
                 ],
@@ -611,6 +647,71 @@ EOT,
                                     'customFields.' . Defaults::LANGUAGE_SYSTEM . '.bar',
                                 ],
                                 'type' => 'best_fields',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter cheapestPrice.percentage field' => [
+            new EqualsFilter('product.cheapestPrice.percentage', 10),
+            [
+                'script' => [
+                    'script' => [
+                        'source' => <<<EOT
+String getPercentageKey(def accessors, def doc) {
+    for (accessor in accessors) {
+        def key = accessor['key'];
+        if (!doc.containsKey(key) || doc[key].empty) {
+            continue;
+        }
+
+        return key;
+    }
+
+    return '';
+}
+
+def percentageKey = getPercentageKey(params['accessors'], doc);
+
+if (percentageKey == '') {
+    if (params.containsKey('eq') && params['eq'] === null) {
+        return true;
+    }
+
+    return false;
+}
+
+def ratio = 100 - (double) doc[percentageKey].value;
+
+def match = true;
+if (params.containsKey('eq')) {
+    match = match && ratio == params['eq'];
+}
+if (params.containsKey('gte')) {
+    match = match && ratio >= params['gte'];
+}
+if (params.containsKey('gt')) {
+    match = match && ratio > params['gt'];
+}
+if (params.containsKey('lte')) {
+    match = match && ratio <= params['lte'];
+}
+if (params.containsKey('lt')) {
+    match = match && ratio < params['lt'];
+}
+
+return match;
+
+EOT,
+                        'params' => [
+                            'eq' => 10.0,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                                    'factor' => 1,
+                                ],
                             ],
                         ],
                     ],
@@ -667,40 +768,38 @@ EOT,
         $this->executeCheapestPriceTest($sorting, $expectedQuery, $context, true);
     }
 
-    /**
-     * @param array<mixed> $expectedQuery
-     */
     #[DataProvider('providerTranslatedField')]
-    public function testTranslatedFieldSorting(FieldSorting $sorting, array $expectedQuery, bool $scriptSorting = true, ?Field $customField = null): void
+    public function testTranslatedFieldSorting(FieldSorting $sorting, FieldSort $expectedFieldSort, ?Field $customField = null): void
     {
-        $definition = $this->getDefinition();
+        $definition = $this->getDefinition(ProductManufacturerDefinition::ENTITY_NAME);
 
         $customFieldService = $this->createMock(CustomFieldService::class);
 
         if ($customField instanceof Field) {
-            $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
+            $customFieldService->method('getCustomField')->willReturn($customField);
         }
+
+        $context = Context::createDefaultContext();
+        $context->assign([
+            'languageIdChain' => [
+                Defaults::LANGUAGE_SYSTEM,
+                self::SECOND_LANGUAGE,
+            ],
+        ]);
 
         $fieldSort = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $customFieldService,
-        ))->parseSorting($sorting, $definition, Context::createDefaultContext());
+            new ArrayKeyValueStorage([
+                ElasticsearchOptimizeSwitch::FLAG => true,
+            ]),
+        ))->parseSorting($sorting, $definition, $context);
 
-        if ($scriptSorting) {
-            static::assertTrue($fieldSort->hasParameter('script'));
-            $script = $fieldSort->getParameter('script');
-            static::assertIsArray($script);
-
-            // Unset the 'source' key before comparison.
-            unset($script['source']);
-            static::assertSame($expectedQuery, $script);
-
-            return;
-        }
-
-        static::assertSame($sorting->getField(), $fieldSort->getField());
-        static::assertSame($sorting->getDirection(), $fieldSort->getOrder());
-        static::assertSame([], $fieldSort->getParameters());
+        static::assertSame($expectedFieldSort->getField(), $fieldSort->getField());
+        static::assertNotNull($expectedFieldSort->getOrder());
+        static::assertNotNull($fieldSort->getOrder());
+        static::assertSame(strtolower($expectedFieldSort->getOrder()), strtolower($fieldSort->getOrder()));
+        static::assertSame($expectedFieldSort->getParameters(), $fieldSort->getParameters());
     }
 
     /**
@@ -836,164 +935,165 @@ EOT,
     }
 
     /**
-     * @return iterable<string, array{FieldSorting, array{lang: string, params: array{field: string, languages: list<string>}}, bool, ?Field}>
+     * @return iterable<string, array{FieldSorting, FieldSort, ?Field}>
      */
     public static function providerTranslatedField(): iterable
     {
         yield 'non translated field' => [
             new FieldSorting('productNumber', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            false,
+            new FieldSort('productNumber', FieldSorting::ASCENDING, null, []),
             null,
         ];
 
         yield 'customFields translated field' => [
-            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSorting('customFields.foo', FieldSorting::DESCENDING),
+            new FieldSort('_script', FieldSorting::DESCENDING, null, [
+                'type' => 'string',
+                'script' => [
+                    'source' => static::getScriptStringSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
+                        'suffix' => 'foo',
                     ],
-                    'suffix' => 'foo',
                 ],
-            ],
-            true,
+            ]),
             new StringField('foo', 'foo'),
         ];
 
         yield 'customFields int translated field' => [
             new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSort('_script', FieldSorting::ASCENDING, null, [
+                'type' => 'number',
+                'script' => [
+                    'source' => static::getScriptIntSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
+                        'suffix' => 'foo',
+                        'order' => FieldSort::ASC,
                     ],
-                    'suffix' => 'foo',
-                    'order' => 'asc',
                 ],
-            ],
-            true,
+            ]),
             new IntField('foo', 'foo'),
         ];
 
         yield 'customFields float translated field' => [
             new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSort('_script', FieldSort::ASC, null, [
+                'type' => 'number',
+                'script' => [
+                    'source' => static::getScriptIntSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
+                        'suffix' => 'foo',
+                        'order' => FieldSort::ASC,
                     ],
-                    'suffix' => 'foo',
-                    'order' => 'asc',
                 ],
-            ],
-            true,
+            ]),
             new FloatField('foo', 'foo'),
         ];
 
         yield 'non nested translated field' => [
-            new FieldSorting('product.name', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSorting('name', FieldSorting::ASCENDING),
+            new FieldSort('_script', FieldSort::ASC, null, [
+                'type' => 'string',
+                'script' => [
+                    'source' => static::getScriptStringSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'name',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
                     ],
                 ],
-            ],
-            true,
+            ]),
             null,
         ];
 
         yield 'non translated field with root prefix' => [
-            new FieldSorting('product.name', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSorting('product_manufacturer.name', FieldSorting::ASCENDING),
+            new FieldSort('_script', FieldSort::ASC, null, [
+                'type' => 'string',
+                'script' => [
+                    'source' => static::getScriptStringSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'name',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
                     ],
                 ],
-            ],
-            true,
+            ]),
             null,
         ];
 
         yield 'nested translated field' => [
-            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'manufacturer.name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
+            new FieldSorting('product_manufacturer.products.name', FieldSorting::ASCENDING),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
         yield 'nested translated field with root prefix' => [
-            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'manufacturer.name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
+            new FieldSorting('products.name', FieldSorting::ASCENDING),
+            new FieldSort('products.name.' . Defaults::LANGUAGE_SYSTEM, FieldSorting::ASCENDING, new NestedSort('products')),
             null,
         ];
 
         yield 'customFields string translated field in descending order' => [
             new FieldSorting('customFields.bar', FieldSorting::DESCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSort('_script', FieldSort::DESC, null, [
+                'type' => 'string',
+                'script' => [
+                    'source' => static::getScriptStringSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
+                        'suffix' => 'bar',
                     ],
-                    'suffix' => 'bar',
                 ],
-            ],
-            true,
+            ]),
             new StringField('bar', 'bar'),
         ];
 
         yield 'customFields bool translated field' => [
             new FieldSorting('customFields.boolField', FieldSorting::DESCENDING),
-            [
-                'lang' => 'painless',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
+            new FieldSort('_script', FieldSort::DESC, null, [
+                'type' => 'string',
+                'script' => [
+                    'source' => static::getScriptStringSortingSource(),
+                    'lang' => 'painless',
+                    'params' => [
+                        'field' => 'customFields',
+                        'languages' => [
+                            Defaults::LANGUAGE_SYSTEM,
+                            self::SECOND_LANGUAGE,
+                        ],
+                        'suffix' => 'boolField',
                     ],
-                    'suffix' => 'boolField',
                 ],
-            ],
-            true,
+            ]),
             new BoolField('boolField', 'boolField'),
         ];
     }
@@ -1010,12 +1110,13 @@ EOT,
         $sortedFilter = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseFilter($filter, $definition, '', $context);
 
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         static::assertEquals($expectedFilter, $sortedFilterArray);
     }
@@ -1188,12 +1289,26 @@ EOT,
                 'nested' => [
                     'path' => 'unit',
                     'query' => [
-                        'multi_match' => [
-                            'query' => 'value',
-                            'fields' => [
-                                'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                        'term' => [
+                            'unit.shortCode.2fbb5fe2e29a4d70aa5854ce7ce3e20b' => 'value',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'EqualsFilter null on nested association field' => [
+            new EqualsFilter('unit.id', null),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'nested' => [
+                                'path' => 'unit',
+                                'query' => [
+                                    'exists' => ['field' => 'unit.id'],
+                                ],
                             ],
-                            'type' => 'best_fields',
                         ],
                     ],
                 ],
@@ -1201,12 +1316,13 @@ EOT,
         ];
     }
 
-    public function getDefinition(): EntityDefinition
+    public function getDefinition(string $entityName = 'product'): EntityDefinition
     {
         $instanceRegistry = new StaticDefinitionInstanceRegistry(
             [
                 ProductDefinition::class,
                 ProductManufacturerDefinition::class,
+                ProductManufacturerTranslationDefinition::class,
                 UnitDefinition::class,
                 ProductTranslationDefinition::class,
                 UnitTranslationDefinition::class,
@@ -1215,7 +1331,7 @@ EOT,
             $this->createMock(EntityWriteGatewayInterface::class)
         );
 
-        return $instanceRegistry->getByEntityName('product');
+        return $instanceRegistry->getByEntityName($entityName);
     }
 
     /**
@@ -1232,6 +1348,7 @@ EOT,
         $sorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
@@ -1373,6 +1490,48 @@ EOT,
         ];
     }
 
+    public static function getScriptStringSortingSource(): string
+    {
+        return 'def languages = params[\'languages\'];
+def suffix = params.containsKey(\'suffix\') ? \'.\' + params[\'suffix\'] : \'\';
+
+for (int i = 0; i < languages.length; i++) {
+    def field_name = params[\'field\'] + \'.\' + languages[i] + suffix;
+
+    if (doc[field_name].size() > 0 && doc[field_name].value != null && doc[field_name].value.toString().length() > 0) {
+        def fieldValue = doc[field_name].value;
+
+        return fieldValue.toString();
+    }
+}
+
+return \'\';
+';
+    }
+
+    public static function getScriptIntSortingSource(): string
+    {
+        return 'def languages = params[\'languages\'];
+def suffix = params.containsKey(\'suffix\') ? \'.\' + params[\'suffix\'] : \'\';
+
+for (int i = 0; i < languages.length; i++) {
+    def field_name = params[\'field\'] + \'.\' + languages[i] + suffix;
+
+    if (doc[field_name].size() > 0 && doc[field_name].value != null && doc[field_name].value.toString().length() > 0) {
+        def fieldValue = doc[field_name].value;
+
+        return fieldValue;
+    }
+}
+
+if (params[\'order\'] == \'asc\') {
+    return Double.MAX_VALUE;
+}
+
+return Double.MIN_VALUE;
+';
+    }
+
     /**
      * @param array<string, mixed> $expectedQuery
      */
@@ -1383,6 +1542,7 @@ EOT,
         $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
+            new ArrayKeyValueStorage([]),
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $parsedSorting->getParameter('script');

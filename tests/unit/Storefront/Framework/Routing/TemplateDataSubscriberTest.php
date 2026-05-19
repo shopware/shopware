@@ -8,15 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\TemplateDataSubscriber;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeRuntimeConfig;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,24 +31,24 @@ class TemplateDataSubscriberTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StorefrontPluginRegistry&MockObject $themeRegistry;
-
     private ActiveAppsLoader&MockObject $activeAppsLoader;
 
     private TemplateDataSubscriber $subscriber;
+
+    private ThemeRuntimeConfigService&MockObject $themeRuntimeConfigService;
 
     protected function setUp(): void
     {
         $this->hreflangLoader = $this->createMock(HreflangLoaderInterface::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
+        $this->themeRuntimeConfigService = $this->createMock(ThemeRuntimeConfigService::class);
 
         $this->subscriber = new TemplateDataSubscriber(
             $this->hreflangLoader,
             $this->shopIdProvider,
-            $this->themeRegistry,
-            $this->activeAppsLoader
+            $this->activeAppsLoader,
+            $this->themeRuntimeConfigService,
         );
     }
 
@@ -63,15 +65,15 @@ class TemplateDataSubscriberTest extends TestCase
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][0]);
         static::assertArrayHasKey('0', $events[StorefrontRenderEvent::class][0]);
-        static::assertEquals('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
+        static::assertSame('addHreflang', $events[StorefrontRenderEvent::class][0][0]);
 
         static::assertArrayHasKey('1', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][1]);
-        static::assertEquals('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
+        static::assertSame('addShopIdParameter', $events[StorefrontRenderEvent::class][1][0]);
 
         static::assertArrayHasKey('2', $events[StorefrontRenderEvent::class]);
         static::assertIsArray($events[StorefrontRenderEvent::class][2]);
-        static::assertEquals('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
+        static::assertSame('addIconSetConfig', $events[StorefrontRenderEvent::class][2][0]);
     }
 
     public function testAddHreflangWithNullRoute(): void
@@ -83,7 +85,7 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->hreflangLoader->expects(static::never())->method('load');
+        $this->hreflangLoader->expects($this->never())->method('load');
 
         $this->subscriber->addHreflang($event);
     }
@@ -103,7 +105,7 @@ class TemplateDataSubscriberTest extends TestCase
         );
 
         $this->hreflangLoader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->willReturn(new HreflangCollection());
 
@@ -126,7 +128,7 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn([]);
 
         $this->shopIdProvider
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getShopId');
 
         $this->subscriber->addShopIdParameter($event);
@@ -146,9 +148,9 @@ class TemplateDataSubscriberTest extends TestCase
             ->willReturn(['someApp']);
 
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('before', 'new', '123'));
+            ->willThrowException(new ShopIdChangeSuggestedException(ShopId::v2('123'), new FingerprintComparisonResult([], [], 75)));
 
         $this->subscriber->addShopIdParameter($event);
     }
@@ -166,14 +168,15 @@ class TemplateDataSubscriberTest extends TestCase
             ->method('getActiveApps')
             ->willReturn(['someApp']);
 
+        $shopId = ShopId::v2('123');
         $this->shopIdProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getShopId')
-            ->willReturn('123');
+            ->willReturn($shopId);
 
         $this->subscriber->addShopIdParameter($event);
 
-        static::assertEquals('123', $event->getParameters()['appShopId']);
+        static::assertSame('123', $event->getParameters()['appShopId']);
     }
 
     public function testAddIconSetConfigWithNoTheme(): void
@@ -185,9 +188,9 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
-            ->expects(static::never())
-            ->method('getByTechnicalName');
+        $this->themeRuntimeConfigService
+            ->expects($this->never())
+            ->method('getRuntimeConfigByName');
 
         $this->subscriber->addIconSetConfig($event);
     }
@@ -204,9 +207,9 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $this->themeRegistry
-            ->expects(static::once())
-            ->method('getByTechnicalName');
+        $this->themeRuntimeConfigService
+            ->expects($this->once())
+            ->method('getRuntimeConfigByName');
 
         $this->subscriber->addIconSetConfig($event);
         static::assertArrayNotHasKey('themeIconConfig', $event->getParameters());
@@ -224,49 +227,21 @@ class TemplateDataSubscriberTest extends TestCase
             Generator::generateSalesChannelContext()
         );
 
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
+        $themeConfig = ThemeRuntimeConfig::fromArray([
+            'themeId' => '123',
+            'technicalName' => 'Storefront',
+            'resolvedConfig' => [],
+            'iconSets' => ['default' => ['path' => '@Storefront/icons/default', 'namespace' => '']],
+            'updatedAt' => new \DateTime(),
+        ]);
 
-        $this->themeRegistry
-            ->method('getByTechnicalName')
+        $this->themeRuntimeConfigService
+            ->method('getRuntimeConfigByName')
             ->willReturn($themeConfig);
 
         $this->subscriber->addIconSetConfig($event);
 
         static::assertArrayHasKey('themeIconConfig', $event->getParameters());
-    }
-
-    public function testAddIconSetConfigWithRegistryWithGetByTechnicalName(): void
-    {
-        $request = new Request();
-        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_NAME, 'Storefront');
-
-        $event = new StorefrontRenderEvent(
-            'test',
-            [],
-            $request,
-            Generator::generateSalesChannelContext()
-        );
-
-        $themeConfig = new StorefrontPluginConfiguration('Storefront');
-        $themeConfig->setIconSets(['default' => '@Storefront/icons/default']);
-
-        $themeRegistry = $this->createMock(StorefrontPluginRegistry::class);
-
-        $themeRegistry
-            ->expects(static::once())
-            ->method('getByTechnicalName')
-            ->willReturn($themeConfig);
-
-        $subscriber = new TemplateDataSubscriber(
-            $this->hreflangLoader,
-            $this->shopIdProvider,
-            $themeRegistry,
-            $this->activeAppsLoader
-        );
-
-        $subscriber->addIconSetConfig($event);
-
-        static::assertArrayHasKey('themeIconConfig', $event->getParameters());
+        static::assertSame($themeConfig->iconSets, $event->getParameters()['themeIconConfig']);
     }
 }

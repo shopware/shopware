@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\LandingPage\Event\LandingPageIndexerEvent;
@@ -12,10 +10,13 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
+ * This listener updates the seo urls for the product, category and landing page routes when the corresponding entities are indexed.
+ * It assumes that for every parent child relation the indexer will take care of fetching the child ids
+ * and dispatching the event for the children as well.
+ *
  * @internal
  */
 #[Package('inventory')]
@@ -30,7 +31,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
      */
     public function __construct(
         private readonly SeoUrlUpdater $seoUrlUpdater,
-        private readonly Connection $connection
     ) {
     }
 
@@ -52,13 +52,7 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return;
         }
 
-        $ids = array_values($event->getIds());
-
-        if (!$event->isFullIndexing) {
-            $ids = array_merge($ids, $this->getCategoryChildren($ids));
-        }
-
-        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
+        $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 
     public function updateProductUrls(ProductIndexerEvent $event): void
@@ -77,40 +71,5 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
         }
 
         $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, array_values($event->getIds()));
-    }
-
-    /**
-     * @param array<string> $ids
-     *
-     * @return array<string>
-     */
-    private function getCategoryChildren(array $ids): array
-    {
-        if (empty($ids)) {
-            return [];
-        }
-
-        $query = $this->connection->createQueryBuilder();
-
-        $query->select('category.id');
-        $query->from('category');
-
-        foreach ($ids as $id) {
-            $key = 'id' . $id;
-            $query->orWhere('category.type != :type AND category.path LIKE :' . $key);
-            $query->setParameter($key, '%' . $id . '%');
-        }
-
-        $query->setParameter('type', CategoryDefinition::TYPE_LINK);
-
-        $children = $query->executeQuery()->fetchFirstColumn();
-
-        if (!$children) {
-            return [];
-        }
-
-        $ids = Uuid::fromBytesToHexList($children);
-
-        return $ids;
     }
 }

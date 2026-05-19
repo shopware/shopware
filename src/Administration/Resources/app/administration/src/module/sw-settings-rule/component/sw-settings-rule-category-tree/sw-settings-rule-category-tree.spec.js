@@ -59,7 +59,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'sw-loader': true,
-                    'sw-icon': true,
                     'sw-tree-input-field': true,
                     'sw-tree-item': true,
                     'sw-field-copyable': true,

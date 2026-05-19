@@ -161,10 +161,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable the save button if no criteria exists', async () => {
         await wrapper.setData({
             productSortingEntity: getProductSortingEntityWithoutCriteria(),

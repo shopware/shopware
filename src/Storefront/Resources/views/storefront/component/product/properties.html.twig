@@ -16,12 +16,7 @@
 
                                         {% block component_product_properties_item_value %}
                                             <td class="properties-value">
-                                                {% apply spaceless %}
-                                                    {% for option in group.options %}
-                                                        {% set i = ( i | default(0) ) + 1 %}
-                                                        <span>{% if i > 1 %}, {% endif %}{{ option.translated.name|e }}</span>
-                                                    {% endfor %}
-                                                {% endapply %}
+                                                <span>{{ group.options|map(option => "#{option.translated.name}")|join(', ') }}</span>
                                             </td>
                                         {% endblock %}
                                     </tr>

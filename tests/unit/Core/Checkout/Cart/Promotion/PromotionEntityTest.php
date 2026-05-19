@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGro
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Rule\Rule;
  * @internal
  */
 #[CoversClass(PromotionEntity::class)]
+#[Package('checkout')]
 class PromotionEntityTest extends TestCase
 {
     /**

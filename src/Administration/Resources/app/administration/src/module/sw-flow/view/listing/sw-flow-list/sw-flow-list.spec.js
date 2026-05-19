@@ -50,12 +50,14 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     </div>
                 `,
                 },
-                'sw-icon': true,
                 'sw-entity-listing': {
-                    props: ['items'],
+                    props: [
+                        'items',
+                        'dataSource',
+                    ],
                     template: `
                     <div class="sw-data-grid">
-                        <div class="sw-data-grid__row" v-for="item in items">
+                        <div class="sw-data-grid__row" v-for="item in (dataSource || items)">
                             <slot name="column-eventName" v-bind="{ item }"></slot>
                             <slot name="actions" v-bind="{ item }"></slot>
                         </div>
@@ -95,7 +97,11 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                     },
                 },
 
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
@@ -104,7 +110,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                         limit: 25,
                     },
                 },
-                $tc: (key) => {
+                $t: (key) => {
                     if (key === 'global.businessEvents.checkout_order_placed' && !hasSnippetFromApp) {
                         return 'Check order place';
                     }
@@ -207,7 +213,6 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('Check order place');
-        expect(item.text()).toContain('checkout.order.placed');
     });
 
     it('should show trigger column correctly with unknown trigger', async () => {
@@ -242,7 +247,6 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');
-        expect(item.text()).toContain('checkout.order.placed');
     });
 
     it('should be show the success message after duplicate flow', async () => {

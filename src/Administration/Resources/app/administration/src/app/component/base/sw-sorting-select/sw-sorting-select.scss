@@ -1,5 +1,21 @@
 .sw-cms-list__actions-sorting {
-    .sw-field.sw-field--select-aside {
+    .mt-select {
         margin-bottom: 0;
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        column-gap: 16px;
+
+        .mt-field__label {
+            margin-bottom: 0;
+        }
+
+        .mt-block-field__block {
+            flex: 1 1 auto;
+        }
+
+        .mt-field__hint-wrapper {
+            width: 100%;
+        }
     }
 }

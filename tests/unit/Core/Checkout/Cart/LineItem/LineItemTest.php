@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -241,7 +242,7 @@ class LineItemTest extends TestCase
         $lineItem = new LineItem('abc', 'type', null, 5);
         $lineItem->setPayloadValue('test', 2);
 
-        static::assertEquals(2, $lineItem->getPayloadValue('test'));
+        static::assertSame(2, $lineItem->getPayloadValue('test'));
     }
 
     public function testReplacePayloadNonRecursively(): void
@@ -261,12 +262,27 @@ class LineItemTest extends TestCase
         static::assertSame(['a'], $lineItem->getPayloadValue('categoryIds'));
     }
 
+    public function testIsProductType(): void
+    {
+        $lineItem = new LineItem('abc', 'product');
+
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        static::assertTrue($lineItem->isProductType(ProductDefinition::TYPE_DIGITAL));
+        static::assertFalse($lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL));
+
+        $lineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
+
+        static::assertFalse($lineItem->isProductType(ProductDefinition::TYPE_DIGITAL));
+        static::assertTrue($lineItem->isProductType(ProductDefinition::TYPE_PHYSICAL));
+    }
+
     #[DataProvider('provideValidIdentifiers')]
     public function testIdentifierValidationForValidIdentifiers(string $identifier): void
     {
         $lineItem = new LineItem($identifier, 'type');
 
-        static::assertEquals($identifier, $lineItem->getId());
+        static::assertSame($identifier, $lineItem->getId());
     }
 
     /**

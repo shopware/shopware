@@ -4,7 +4,7 @@
     <mt-card
         class="sw-order-detail-base__general-info"
         position-identifier="sw-order-detail-general-info"
-        :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
+        :title="$t('sw-order.detailBase.cardTitleGeneralInfo')"
     >
         {% block sw_order_detail_general_info %}
         <sw-order-general-info
@@ -24,7 +24,8 @@
     <mt-card
         class="sw-order-detail-general__line-item-grid-card"
         position-identifier="sw-order-detail-general-line-items"
-        :title="$tc('sw-order.detailBase.cardTitleLineItems')"
+        :is-loading="loading.recalculation"
+        :title="$t('sw-order.detailBase.cardTitleLineItems')"
     >
 
         {% block sw_order_detail_general_line_items_card_rows %}
@@ -55,15 +56,21 @@
 
                         {% block sw_order_detail_general_line_items_summary_entries %}
                         {% block sw_order_detail_general_line_items_summary_amount %}
-                        <dt>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</dt>
+                        <dt>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</dt>
                         <dd>{{ currencyFilter(order.positionPrice, currency.isoCode, order.totalRounding.decimals) }}</dd>
                         {% endblock %}
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
                         <template v-if="delivery">
-                            <dt>{{ $tc('sw-order.detailBase.summaryLabelShippingCosts') }}</dt>
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                            <dt
+                                @click="$refs.editShippingCosts.onClick()"
+                            >
+                                {{ $t('sw-order.detailBase.summaryLabelShippingCosts') }}
+                            </dt>
                             <dd>
                                 <sw-order-saveable-field
+                                    ref="editShippingCosts"
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: shippingCostsDetail,
@@ -71,6 +78,8 @@
                                     }"
                                     type="number"
                                     :editable="acl.can('order.editor')"
+                                    :step="1"
+                                    :min="0"
                                     :value="delivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                     @update:value="onShippingChargeUpdated"
@@ -85,7 +94,7 @@
                             :key="index"
                         >
                             <dt>
-                                {{ $tc('sw-order.detailBase.discountLabelShippingCosts') }}
+                                {{ $t('sw-order.detailBase.discountLabelShippingCosts') }}
                             </dt>
                             <dd>
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
@@ -95,7 +104,7 @@
 
                         {% block sw_order_detail_general_line_items_summary_amount_without_tax %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
                             <dd><strong>{{ currencyFilter(order.amountNet, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
                         </template>
                         {% endblock %}
@@ -107,7 +116,7 @@
                                 :key="index"
                             >
                                 <dt>
-                                    {{ $tc('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
+                                    {{ $t('sw-order.detailBase.summaryLabelTaxes', { taxRate: calculatedTax.taxRate }, 1) }}
                                 </dt>
                                 <dd>
                                     {{ currencyFilter(calculatedTax.tax, currency.isoCode, order.totalRounding.decimals) }}
@@ -118,10 +127,10 @@
 
                         {% block sw_order_detail_general_line_items_summary_amount_total %}
                         <template v-if="taxStatus !== 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
                             <dd><strong>{{ currencyFilter(orderTotal, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
                             <template v-if="displayRounded">
-                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
                                 <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
                             </template>
                         </template>
@@ -129,7 +138,7 @@
 
                         {% block sw_order_detail_general_line_items_summary_amount_free_tax %}
                         <template v-if="taxStatus === 'tax-free'">
-                            <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                            <dt><strong>{{ $t('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                             <dd><strong>{{ currencyFilter(order.price.totalPrice, currency.isoCode, order.totalRounding.decimals) }}</strong></dd>
                         </template>
                         {% endblock %}
@@ -144,6 +153,25 @@
 
     <sw-extension-component-section
         position-identifier="sw-order-detail-base-line-items__after"
+    />
+
+    <mt-card
+        class="sw-order-detail-general__promotions-card"
+        position-identifier="sw-order-detail-general-promotions"
+        :title="$t('sw-order.detailBase.cardTitlePromotions')"
+    >
+        {# @deprecated tag:v6.8.0 - remove `@loading-change` #}
+        <sw-order-promotion-field
+            class="sw-order-detail-general__promotions"
+            @loading-change="updateLoading"
+            @reload-entity-data="reloadEntityData"
+            @save-and-reload="saveAndReload"
+            @error="showError"
+        />
+    </mt-card>
+
+    <sw-extension-component-section
+        position-identifier="sw-order-detail-base-promotions__after"
     />
     {% endblock %}
 </div>

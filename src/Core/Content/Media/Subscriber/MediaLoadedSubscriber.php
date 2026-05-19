@@ -10,12 +10,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('discovery')]
 class MediaLoadedSubscriber
 {
+    /**
+     * @param EntityLoadedEvent<MediaEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaTypeRaw()) {
-                $media->setMediaType(unserialize($media->getMediaTypeRaw()));
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $media->setMediaType(\unserialize($media->getMediaTypeRaw()));
             }
 
             if ($media->getThumbnails() !== null) {
@@ -23,7 +26,8 @@ class MediaLoadedSubscriber
             }
 
             $thumbnails = match (true) {
-                $media->getThumbnailsRo() !== null => unserialize($media->getThumbnailsRo()),
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $media->getThumbnailsRo() !== null => \unserialize($media->getThumbnailsRo()),
                 default => new MediaThumbnailCollection(),
             };
 

@@ -1,9 +1,5 @@
 import OffCanvas, { OffCanvasInstance } from 'src/plugin/offcanvas/offcanvas.plugin';
-import HttpClient from 'src/service/http-client.service';
 import LoadingIndicator from 'src/utility/loading-indicator/loading-indicator.util';
-
-// xhr call storage
-let xhr = null;
 
 /**
  * @sw-package framework
@@ -44,14 +40,11 @@ export default class AjaxOffCanvas extends OffCanvas {
      * @param {number} delay
      */
     static setContent(url, data, callback, closable, delay) {
-        const client = new HttpClient();
-        super.setContent(`<div class="offcanvas-body">${LoadingIndicator.getTemplate()}</div>`, closable, delay);
-
-        // interrupt already running ajax calls
-        if (xhr) xhr.abort();
+        // Do not pass `closable` into setContent; only delay is relevant here
+        super.setContent(`<div class="offcanvas-body">${LoadingIndicator.getTemplate()}</div>`, delay);
 
         const cb = (response) => {
-            super.setContent(response, closable, delay);
+            super.setContent(response, delay);
             // if a callback function is being injected execute it after opening the OffCanvas
             if (typeof callback === 'function') {
                 callback(response);
@@ -59,15 +52,26 @@ export default class AjaxOffCanvas extends OffCanvas {
         };
 
         if (data) {
-            xhr = client.post(url, data, AjaxOffCanvas.executeCallback.bind(this,cb));
+            const processedData = data instanceof FormData ? data : JSON.stringify(data);
+            fetch(url, {
+                method: 'POST',
+                body: processedData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => AjaxOffCanvas.executeCallback(cb, response));
         } else {
-            xhr = client.get(url, AjaxOffCanvas.executeCallback.bind(this,cb));
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+                .then(response => response.text())
+                .then(response => AjaxOffCanvas.executeCallback(cb, response));
         }
     }
 
     /**
      * Executes the given callback
-     * and initializes all plugins
+     * and initializes all plugins within the offcanvas
      *
      * @param {function} cb
      * @param {string} response
@@ -76,6 +80,10 @@ export default class AjaxOffCanvas extends OffCanvas {
         if (typeof cb === 'function') {
             cb(response);
         }
-        window.PluginManager.initializePlugins();
+
+        const offcanvasElements = OffCanvas.getOffCanvas();
+        if (offcanvasElements.length > 0) {
+            window.PluginManager.initializePluginsInParentElement(offcanvasElements[0]);
+        }
     }
 }

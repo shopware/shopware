@@ -21,7 +21,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class MediaUrlLoaderTest extends TestCase
 {
     /**
-     * @param array<string, string> $expected
+     * @param array<string, string|null> $expected
      */
     #[DataProvider('loadedProvider')]
     public function testLoad(IdsCollection $ids, PartialEntity $entity, array $expected): void
@@ -186,7 +186,7 @@ class MediaUrlLoaderTest extends TestCase
             'private' => false,
         ]);
 
-        $remoteThumbnailLoader->expects(static::once())->method('load')->with([$entity]);
+        $remoteThumbnailLoader->expects($this->once())->method('load')->with([$entity]);
 
         $subscriber->loaded([$entity]);
     }

@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[CoversClass(OrderLineItemDownloadCollection::class)]
+#[Package('checkout')]
 class OrderLineItemDownloadCollectionTest extends TestCase
 {
     public function testFilterByOrderLineItemId(): void
@@ -28,10 +30,10 @@ class OrderLineItemDownloadCollectionTest extends TestCase
 
         $collection = new OrderLineItemDownloadCollection([$downloadA, $downloadB]);
 
-        static::assertEquals(0, $collection->filterByOrderLineItemId($filterId)->count());
+        static::assertCount(0, $collection->filterByOrderLineItemId($filterId));
 
         $downloadA->setOrderLineItemId($filterId);
 
-        static::assertEquals(1, $collection->filterByOrderLineItemId($filterId)->count());
+        static::assertCount(1, $collection->filterByOrderLineItemId($filterId));
     }
 }

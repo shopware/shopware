@@ -2,12 +2,11 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Category\SalesChannel;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Content\Category\SalesChannel\fixtures\CategoryRouteInheritanceFixtures;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -34,7 +34,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  */
 #[Group('store-api')]
 #[Package('discovery')]
-#[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -97,13 +96,12 @@ class CategoryRouteTest extends TestCase
         $manufacturers = $listing['aggregations']['manufacturer'];
 
         foreach ($manufacturers['entities'] as $manufacturer) {
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($manufacturer));
+            static::assertSame(['name', 'id', 'apiAlias'], array_keys($manufacturer));
         }
 
-        $products = $listing['elements'];
-        foreach ($products as $product) {
-            static::assertEquals(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
-            static::assertEquals(['name', 'id', 'apiAlias'], array_keys($product['tax']));
+        foreach ($listing['elements'] as $product) {
+            static::assertSame(['name', 'tax', 'manufacturer', 'id', 'apiAlias'], array_keys($product));
+            static::assertSame(['name', 'id', 'apiAlias'], array_keys($product['tax']));
         }
     }
 
@@ -113,8 +111,7 @@ class CategoryRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/category/home',
-            []
+            '/store-api/category/home'
         );
 
         $this->assertListingCmsPage($this->ids->get('home-category'), $this->ids->get('home-cms-page'));
@@ -127,8 +124,7 @@ class CategoryRouteTest extends TestCase
         $id = $this->ids->get('folder');
         $this->browser->request(
             'POST',
-            '/store-api/category/' . $id,
-            []
+            '/store-api/category/' . $id
         );
 
         $this->assertError($id);
@@ -141,18 +137,17 @@ class CategoryRouteTest extends TestCase
         $id = $this->ids->get('link');
         $this->browser->request(
             'POST',
-            '/store-api/category/' . $id,
-            []
+            '/store-api/category/' . $id
         );
 
-        $this->assertError($id);
+        $this->assertLinkCategory($this->ids->get('link'));
     }
 
     public function testHomeWithSalesChannelOverride(): void
     {
         $this->createListingData();
 
-        /** @var EntityRepository $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $salesChannelRepository->upsert([[
             'id' => $this->ids->get('sales-channel'),
@@ -161,8 +156,7 @@ class CategoryRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/category/home',
-            []
+            '/store-api/category/home'
         );
 
         $this->assertListingCmsPage($this->ids->get('home-category'), $this->ids->get('cms-page'));
@@ -185,9 +179,9 @@ class CategoryRouteTest extends TestCase
     /**
      *  Testing CMS slot inheritance with category overrides.
      *  - EN is System Default language
-     *  - DE is parentless
+     *  - DE is without parent
      *  - AT inherits from DE
-     *  Expected hierarchy: Overrides of categories (AT > DE > EN) > Templates of categories (AT > DE > EN)
+     *  Expected hierarchy: Category overrides via explicit parents only (AT > DE), then templates via normal fallback (AT > DE > EN)
      *
      * @param CmsInheritanceDataProviderActual $actual
      */
@@ -202,7 +196,6 @@ class CategoryRouteTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/category/' . $this->ids->get('category'),
-            [],
         );
 
         $this->assertLandingPageCmsPage(
@@ -224,7 +217,7 @@ class CategoryRouteTest extends TestCase
     }
 
     /**
-     *  Testing CMS slot inheritance with category overrides, with multiple EN occurances in language chain.
+     *  Testing CMS slot inheritance with category overrides, with multiple EN occurrences in language chain.
      *  - EN is System Default language
      *  - DE inherits from EN
      *  Expected hierarchy: Overrides of categories (DE > EN) > Templates of categories (DE > EN)
@@ -243,7 +236,6 @@ class CategoryRouteTest extends TestCase
         $this->browser->request(
             'POST',
             '/store-api/category/' . $this->ids->get('category'),
-            [],
         );
 
         $this->assertLandingPageCmsPage(
@@ -291,6 +283,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestGermany',
                 'code' => 'de-DE-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-de'),
         ], [
             'id' => self::LANGUAGE_IDS['at'],
@@ -302,6 +295,7 @@ class CategoryRouteTest extends TestCase
                 'territory' => 'TestAustria',
                 'code' => 'de-AT-test',
             ],
+            'active' => true,
             'translationCodeId' => $this->ids->get('locale-at'),
         ]];
 
@@ -314,6 +308,7 @@ class CategoryRouteTest extends TestCase
             'id' => self::LANGUAGE_IDS['de'],
             'name' => 'TestGerman',
             'parentId' => self::LANGUAGE_IDS['en'],
+            'active' => true,
             'locale' => [
                 'id' => $this->ids->create('locale-de'),
                 'name' => 'TestGerman',
@@ -384,23 +379,23 @@ class CategoryRouteTest extends TestCase
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($categoryId, $response['id'], 'CategoryId does not match');
+        static::assertSame($categoryId, $response['id'], 'CategoryId does not match');
         static::assertIsArray($response['cmsPage']);
-        static::assertEquals('product_list', $response['cmsPage']['type']);
+        static::assertSame('product_list', $response['cmsPage']['type']);
 
-        static::assertEquals($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
-        static::assertEquals($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
+        static::assertSame($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
+        static::assertSame($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
         static::assertCount(1, $response['cmsPage']['sections']);
 
         static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
 
         $block = $response['cmsPage']['sections'][0]['blocks'][0];
 
-        static::assertEquals('product-listing', $block['type']);
+        static::assertSame('product-listing', $block['type']);
         static::assertCount(1, $block['slots']);
 
         $slot = $block['slots'][0];
-        static::assertEquals('product-listing', $slot['type']);
+        static::assertSame('product-listing', $slot['type']);
         static::assertArrayHasKey('listing', $slot['data']);
 
         $listing = $slot['data']['listing'];
@@ -408,32 +403,48 @@ class CategoryRouteTest extends TestCase
         static::assertArrayHasKey('elements', $listing);
     }
 
+    private function assertLinkCategory(string $expectedCategoryId): void
+    {
+        $response = $this->browser->getResponse();
+        static::assertIsString($response->getContent());
+        $response = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($expectedCategoryId, $response['id'], 'CategoryIds do not match');
+        static::assertSame($this->ids->get('linked-category-name'), $response['name']);
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response['type']);
+        static::assertSame(CategoryDefinition::LINK_TYPE_PRODUCT, $response['linkType']);
+        static::assertSame($this->ids->get('linked-product'), $response['internalLink'], 'Internal Link Ids do not match');
+
+        static::assertSame('/detail/' . $this->ids->get('linked-product'), $response['seoUrl'], 'SEO URLs do not match');
+        static::assertTrue($response['linkNewTab']);
+    }
+
     private function assertLandingPageCmsPage(string $categoryId, string $cmsPageId, string $expected): void
     {
         static::assertIsString($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($categoryId, $response['id'], 'CategoryId does not match');
+        static::assertSame($categoryId, $response['id'], 'CategoryId does not match');
         static::assertIsArray($response['cmsPage']);
-        static::assertEquals('landingpage', $response['cmsPage']['type']);
+        static::assertSame('landingpage', $response['cmsPage']['type']);
 
-        static::assertEquals($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
-        static::assertEquals($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
+        static::assertSame($cmsPageId, $response['cmsPage']['id'], 'CmsPage.id does not match');
+        static::assertSame($cmsPageId, $response['cmsPageId'], 'CmsPageId does not match');
         static::assertCount(1, $response['cmsPage']['sections']);
 
         static::assertCount(1, $response['cmsPage']['sections'][0]['blocks']);
 
         $block = $response['cmsPage']['sections'][0]['blocks'][0];
 
-        static::assertEquals('text-teaser', $block['type']);
+        static::assertSame('text-teaser', $block['type']);
         static::assertCount(1, $block['slots']);
 
         $slot = $block['slots'][0];
-        static::assertEquals('text', $slot['type']);
+        static::assertSame('text', $slot['type']);
 
         $config = $slot['config']['content'];
-        static::assertEquals('static', $config['source']);
-        static::assertEquals($expected, $config['value']);
+        static::assertSame('static', $config['source']);
+        static::assertSame($expected, $config['value']);
     }
 
     /**
@@ -501,7 +512,7 @@ class CategoryRouteTest extends TestCase
                     ]],
                 ]],
             ],
-            'slotConfig' => $overrides['en'] ? $overrides['en']['slotConfig'] : null,
+            'slotConfig' => $overrides['en']['slotConfig'] ?? null,
             'translations' => \array_values($overrides) ?: null,
         ];
 
@@ -573,7 +584,11 @@ class CategoryRouteTest extends TestCase
 
         $linkData = $childCategory;
         $linkData['id'] = $this->ids->create('link');
+        $linkData['name'] = $this->ids->create('linked-category-name');
         $linkData['type'] = 'link';
+        $linkData['linkType'] = CategoryDefinition::LINK_TYPE_PRODUCT;
+        $linkData['internalLink'] = $this->ids->create('linked-product');
+        $linkData['linkNewTab'] = true;
         unset($linkData['cmsPage']);
 
         $this->getContainer()->get('category.repository')

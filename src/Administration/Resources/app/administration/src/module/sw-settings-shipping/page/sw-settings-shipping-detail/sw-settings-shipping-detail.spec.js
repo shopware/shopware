@@ -68,7 +68,7 @@ async function createWrapper(privileges = [], props = {}) {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
-                    'sw-number-field': {
+                    'mt-number-field': {
                         props: ['disabled'],
                         template: '<input class="sw-field" :disabled="disabled" />',
                     },
@@ -221,5 +221,10 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         await flushPromises();
         wrapper.vm.loadEntityData();
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('should initialize shipping price with quantityStart=0 after creating component', async () => {
+        const wrapper = await createWrapper([]);
+        expect(wrapper.vm.shippingMethod.quantityStart).toBe(0);
     });
 });

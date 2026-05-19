@@ -1,0 +1,34 @@
+<mt-modal-root>
+    <mt-modal :title="$t('sw-settings-services.revoke-permissions-modal.title')">
+        <div class="sw-settings-services-revoke-permissions-modal__content">
+            <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-1') }}</p>
+
+            <p>{{ $t('sw-settings-services.revoke-permissions-modal.p-2') }}</p>
+        </div>
+
+        <template #footer>
+            <div class="sw-settings-services-revoke-permissions-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.cancel') }}
+                </mt-modal-close>
+
+                <mt-modal-action
+                    as="mt-button"
+                    variant="critical"
+                    :is-loading="isLoading"
+                    @click="revokePermissions"
+                >
+                    {{ $t('sw-settings-services.revoke-permissions-modal.label-button-revoke-permissions') }}
+                </mt-modal-action>
+            </div>
+        </template>
+    </mt-modal>
+
+    <mt-modal-trigger as="button">
+        {{ $t('sw-settings-services.revoke-permissions-modal.label-button-revoke-permissions') }}
+    </mt-modal-trigger>
+</mt-modal-root>
+

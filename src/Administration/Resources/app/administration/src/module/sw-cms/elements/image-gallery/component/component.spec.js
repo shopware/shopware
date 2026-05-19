@@ -39,16 +39,59 @@ async function createWrapper(propsOverride) {
             global: {
                 renderStubDefaultSlot: true,
                 provide: {
-                    cmsService: Shopware.Service('cmsService'),
+                    cmsService: {
+                        getCmsElementRegistry: () => ({
+                            'image-gallery': {
+                                defaultConfig: {
+                                    sliderItems: {
+                                        source: 'static',
+                                        value: [],
+                                    },
+                                    galleryPosition: {
+                                        source: 'static',
+                                        value: 'left',
+                                    },
+                                    verticalAlign: {
+                                        source: 'static',
+                                        value: null,
+                                    },
+                                    displayMode: {
+                                        source: 'static',
+                                        value: 'standard',
+                                    },
+                                    minHeight: {
+                                        source: 'static',
+                                        value: '340px',
+                                    },
+                                    zoom: {
+                                        source: 'static',
+                                        value: false,
+                                    },
+                                    fullScreen: {
+                                        source: 'static',
+                                        value: false,
+                                    },
+                                    navigationArrows: {
+                                        source: 'static',
+                                        value: 'inside',
+                                    },
+                                    navigationDots: {
+                                        source: 'static',
+                                        value: 'none',
+                                    },
+                                },
+                            },
+                        }),
+                    },
                 },
                 stubs: {
                     'sw-cms-el-image-slider': true,
                     'sw-media-list-selection-item-v2': true,
-                    'sw-icon': true,
                 },
             },
             props: {
                 element: {
+                    type: 'image-gallery',
                     config: {},
                     data: {},
                 },
@@ -120,12 +163,14 @@ describe('src/module/sw-cms/elements/image-gallery/component', () => {
     it('should not initially map to product media if the component is sliderItems data exists', async () => {
         const wrapper = await createWrapper({
             element: {
+                type: 'image-gallery',
                 config: {
                     sliderItems: {
                         source: 'static',
                         value: sliderItemsConfigMock,
                     },
                 },
+                data: {},
                 translated: {
                     config: {
                         sliderItems: {

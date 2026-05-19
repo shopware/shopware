@@ -114,7 +114,7 @@ export default {
         },
 
         propertyEntityName() {
-            return this.propertyCollection ? this.propertyCollection.entity : null;
+            return this.propertyCollection?.entity ?? null;
         },
 
         propertyNameKebabCase() {
@@ -139,6 +139,12 @@ export default {
             }
 
             return 'name';
+        },
+
+        showClearableButtonForDefault() {
+            // Hide clear button for languageId to prevent clearing a required field
+            // that gets auto-filled by the backend
+            return this.defaultPropertyName !== 'languageId';
         },
     },
 
@@ -180,7 +186,7 @@ export default {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
                             {
                                 url: domain.url,
@@ -210,7 +216,7 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection.add(defaultEntity);
+                this.propertyCollection = this.propertyCollection.concat([defaultEntity]);
             }
         },
 
@@ -219,7 +225,7 @@ export default {
         },
 
         getActiveIconColor(item) {
-            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
+            return this.isDisabledItem(item) ? 'var(--color-icon-secondary-default)' : 'var(--color-icon-positive-default)';
         },
     },
 };

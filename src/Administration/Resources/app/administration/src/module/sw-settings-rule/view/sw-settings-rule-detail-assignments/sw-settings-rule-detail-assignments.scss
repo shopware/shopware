@@ -1,14 +1,20 @@
-@import "~scss/variables";
-
 .sw-settings-rule-detail-assignments__card-loader {
-    .sw-card__content {
-        min-height: 250px;
+    .mt-card__content {
+        min-height: var(--scale-size-256);
     }
 }
 
 .sw-settings-rule-detail-assignments__empty-state {
     .sw-empty-state .sw-empty-state__title {
-        font-size: $font-size-s;
+        font-size: var(--font-size-s);
         margin-bottom: 0;
+    }
+}
+
+.sw-settings-rule-detail-assignments {
+    .mt-card__toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0;
     }
 }

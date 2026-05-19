@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -20,10 +21,13 @@ class CustomerStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CustomerProvider $customerProvider,
     ) {
     }
 
@@ -67,36 +71,26 @@ class CustomerStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->customerProvider->getCriteria($id, $storableFlow->getContext());
 
-        return $this->loadCustomer($criteria, $storableFlow->getContext(), $id);
-    }
+            $event = new BeforeLoadStorableFlowDataEvent(
+                CustomerDefinition::ENTITY_NAME,
+                $criteria,
+                $storableFlow->getContext(),
+            );
 
-    private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
-    {
-        $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress.country');
-        $criteria->addAssociation('defaultBillingAddress.countryState');
-        $criteria->addAssociation('defaultBillingAddress.salutation');
-        $criteria->addAssociation('defaultShippingAddress.country');
-        $criteria->addAssociation('defaultShippingAddress.countryState');
-        $criteria->addAssociation('defaultShippingAddress.salutation');
+            $this->dispatcher->dispatch($event, $event->getName());
 
-        $event = new BeforeLoadStorableFlowDataEvent(
-            CustomerDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+            $customer = $this->customerRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            if ($customer) {
+                return $customer;
+            }
 
-        $customer = $this->customerRepository->search($criteria, $context)->get($id);
-
-        if ($customer) {
-            /** @var CustomerEntity $customer */
-            return $customer;
+            return null;
         }
 
-        return null;
+        return $this->customerProvider->getData($id, $storableFlow->getContext());
     }
 }

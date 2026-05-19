@@ -5,14 +5,12 @@
 import template from './sw-app-wrong-app-url-modal.html.twig';
 import './sw-app-wrong-app-url-modal.scss';
 
-const { Component } = Shopware;
-
 const STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN = 'sw-app-wrong-app-url-modal-shown';
 
 /**
  * @private
  */
-Component.register('sw-app-wrong-app-url-modal', {
+export default {
     template,
 
     emits: ['modal-close'],
@@ -23,13 +21,12 @@ Component.register('sw-app-wrong-app-url-modal', {
         return {
             wasModalAlreadyShown: !!localStorage.getItem(STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN),
             notification: {
-                title: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.title'),
-                message: `${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.explanation')}<br>
-                     ${this.$tc('sw-app.component.sw-app-wrong-app-url-modal.textGetSupport')}`,
+                title: this.$t('sw-app.component.sw-app-wrong-app-url-modal.title'),
+                message: this.$t('sw-app.component.sw-app-wrong-app-url-modal.explanation'),
                 actions: [
                     {
-                        label: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
-                        route: this.$tc('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
+                        label: this.$t('sw-app.component.sw-app-wrong-app-url-modal.labelLearnMoreButton'),
+                        route: this.$t('sw-app.component.sw-app-wrong-app-url-modal.linkToDocsArticle'),
                     },
                 ],
                 uuid: STORAGE_KEY_WAS_WRONG_APP_MODAL_SHOWN,
@@ -39,11 +36,11 @@ Component.register('sw-app-wrong-app-url-modal', {
 
     computed: {
         isAppUrlReachable() {
-            return Shopware.Store.get('context').app.config.settings.appUrlReachable;
+            return Shopware.Store.get('context').app.config.settings?.appUrlReachable;
         },
 
         hasAppsThatRequireAppUrl() {
-            return Shopware.Store.get('context').app.config.settings.appsRequireAppUrl;
+            return Shopware.Store.get('context').app.config.settings?.appsRequireAppUrl;
         },
 
         display() {
@@ -83,4 +80,4 @@ Component.register('sw-app-wrong-app-url-modal', {
             Shopware.Store.get('notification').removeNotification(this.notification);
         },
     },
-});
+};

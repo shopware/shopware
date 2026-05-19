@@ -7,11 +7,15 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -46,6 +50,8 @@ class OrderService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
      */
     public function __construct(
         private readonly DataValidator $dataValidator,
@@ -64,7 +70,15 @@ class OrderService
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $this->validateOrderData($data, $context, $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD));
+        $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            Feature::callSilentIfInactive('v6.8.0.0', static function () use ($cart, &$isDownloadLineItem): void {
+                $isDownloadLineItem = $isDownloadLineItem || $cart->getLineItems()->hasLineItemWithState(State::IS_DOWNLOAD);
+            });
+        }
+
+        $this->validateOrderData($data, $context, $isDownloadLineItem);
 
         $this->validateCart($cart, $context->getContext());
 
@@ -80,14 +94,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order',
                 $orderId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -95,7 +111,11 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order', $transition);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw StateMachineException::stateMachineStateNotFound('order', $transition); // @phpstan-ignore shopware.domainException
+            }
+            throw OrderException::stateMachineStateNotFound('order', $transition);
         }
 
         return $toPlace;
@@ -110,14 +130,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_transaction',
                 $orderTransactionId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -125,7 +147,11 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition); // @phpstan-ignore shopware.domainException
+            }
+            throw OrderException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -140,14 +166,16 @@ class OrderService
         ParameterBag $data,
         Context $context
     ): StateMachineStateEntity {
-        $stateFieldName = $data->get('stateFieldName', 'stateId');
+        $stateFieldName = $data->getString('stateFieldName', 'stateId');
+        $internalComment = $data->getString('internalComment') ?: null;
 
         $stateMachineStates = $this->stateMachineRegistry->transition(
             new Transition(
                 'order_delivery',
                 $orderDeliveryId,
                 $transition,
-                $stateFieldName
+                $stateFieldName,
+                $internalComment,
             ),
             $context
         );
@@ -155,7 +183,11 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw StateMachineException::stateMachineStateNotFound('order_delivery', $transition);
+            // @deprecated tag:v6.8.0 - remove this if block
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw StateMachineException::stateMachineStateNotFound('order_delivery', $transition); // @phpstan-ignore shopware.domainException
+            }
+            throw OrderException::stateMachineStateNotFound('order_delivery', $transition);
         }
 
         return $toPlace;
@@ -163,16 +195,17 @@ class OrderService
 
     public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
     {
-        $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        $state = $order->getPrimaryOrderTransaction()?->getStateMachineState()?->getTechnicalName();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $state = $order->getTransactions()?->last()?->getStateMachineState()?->getTechnicalName();
+        }
+
         if (!$state) {
             return true;
         }
 
-        if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
-            return true;
-        }
-
-        return false;
+        return \in_array($state, self::ALLOWED_TRANSACTION_STATES, true);
     }
 
     private function validateCart(Cart $cart, Context $context): void
@@ -193,7 +226,11 @@ class OrderService
         if ($paymentMethods->getTotal() !== \count(array_unique($idsOfPaymentMethods))) {
             foreach ($cart->getTransactions() as $paymentMethod) {
                 if (!\in_array($paymentMethod->getPaymentMethodId(), $paymentMethods->getIds(), true)) {
-                    throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId());
+                    // @deprecated tag:v6.8.0 - remove this if block
+                    if (!Feature::isActive('v6.8.0.0')) {
+                        throw new PaymentMethodNotAvailableException($paymentMethod->getPaymentMethodId()); // @phpstan-ignore shopware.domainException
+                    }
+                    throw OrderException::paymentMethodNotAvailable($paymentMethod->getPaymentMethodId());
                 }
             }
         }

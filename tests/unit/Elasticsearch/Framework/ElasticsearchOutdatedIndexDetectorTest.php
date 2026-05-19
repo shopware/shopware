@@ -28,9 +28,9 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('get')
-            ->willReturnCallback(fn () => [
+            ->willReturnCallback(static fn () => [
                 Uuid::randomHex() => [
                     'aliases' => [
                         'test',
@@ -59,7 +59,7 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
         $registry = $this->createMock(ElasticsearchRegistry::class);
         $registry->method('getDefinitions')->willReturn([$definition, $definition]);
 
-        $makeLanguage = fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
+        $makeLanguage = static fn () => (new LanguageEntity())->assign(['id' => Uuid::randomHex()]);
 
         $collection = new EntitySearchResult('test', 1, new LanguageCollection([$makeLanguage(), $makeLanguage(), $makeLanguage()]), null, new Criteria(), Context::createDefaultContext());
 
@@ -81,9 +81,9 @@ class ElasticsearchOutdatedIndexDetectorTest extends TestCase
     {
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::exactly(0))
+            ->expects($this->exactly(0))
             ->method('get')
-            ->willReturnCallback(fn () => []);
+            ->willReturnCallback(static fn () => []);
 
         $client = $this->createMock(Client::class);
         $client->method('indices')->willReturn($indices);

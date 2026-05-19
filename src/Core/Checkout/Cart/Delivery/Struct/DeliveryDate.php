@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -48,7 +49,7 @@ class DeliveryDate extends Struct
                 self::create('P' . $deliveryTime->getMin() . 'Y'),
                 self::create('P' . $deliveryTime->getMax() . 'Y')
             ),
-            default => throw new \RuntimeException(\sprintf('Not supported unit %s', $deliveryTime->getUnit())),
+            default => throw CartException::deliveryDateNotSupportedUnit($deliveryTime->getUnit()),
         };
     }
 

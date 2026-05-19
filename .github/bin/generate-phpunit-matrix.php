@@ -6,24 +6,38 @@ $db = ['mysql:8.0'];
 $nightly = $_SERVER['argv'][1] ?? false;
 
 if ($nightly) {
-    $php = ['8.2', '8.4'];
-    $db = ['mysql:8.0', 'mariadb:lts', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
+    $php = ['8.2', '8.5'];
+    $db = ['mysql:8.0', 'mariadb:11', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
-echo \json_encode([
+$matrix = [
     'fail-fast' => false,
     'matrix' => [
         'test' => [
             ['path' => 'Core/Checkout'],
             ['path' => 'Core/Content'],
-            ['path' => 'Core/Framework'],
+            ['testsuite' => 'core-framework-batch1'],
+            ['testsuite' => 'core-framework-batch2'],
+            ['testsuite' => 'core-framework-batch3'],
             ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
+            ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
             ['testsuite' => 'migration'],
-            ['testsuite' => 'devops']
-            ],
+        ],
         'php' => $php,
         'db' => $db,
+        'opensearch' => ['opensearchproject/opensearch:3'],
+        'include' => [
+            [
+                'test' => ['testsuite' => 'migration'],
+                'php' => '8.2',
+                'db' => 'mariadb:11'
+            ],
+            [
+                'test' => ['testsuite' => 'devops'],
+                'php' => '8.5',
+                'db' => 'mariadb:11'
+            ]
+        ]
     ]
 ], \JSON_THROW_ON_ERROR);

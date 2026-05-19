@@ -4,10 +4,10 @@ test('Shop administrator should be able to create a landing page.', {tag: '@Cate
     ShopAdmin,
     IdProvider,
     TestDataService,
-    AdminCategories, CreateLandingPage, AdminLandingPageDetail, InstanceMeta,
+    AdminCategories,
+    CreateLandingPage,
+    AdminLandingPageDetail,
 }) => {
-
-    test.skip(InstanceMeta.features['V6_7_0_0'], 'This test has a bug: https://shopware.atlassian.net/browse/NEXT-40153');
 
     const layoutUuid = IdProvider.getIdPair().uuid;
     const layoutName = `00_addlandingpage_${layoutUuid}`;
@@ -48,9 +48,15 @@ test('Shop administrator should be able to create a landing page.', {tag: '@Cate
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentCardTitle).toHaveText(layoutName);
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentCardHeadline).toHaveText(layoutName);
         await ShopAdmin.expects(AdminLandingPageDetail.layoutAssignmentContentSection).toBeVisible();
-        await ShopAdmin.expects(AdminLandingPageDetail.layoutResetButton).toBeVisible();
         await ShopAdmin.expects(AdminLandingPageDetail.changeLayoutButton).toBeVisible();
-        await ShopAdmin.expects(AdminLandingPageDetail.editInDesignerButton).toBeVisible();
+
+        await AdminLandingPageDetail.page.locator('.sw-category-layout-card__desc-actions-menu').click();
+
+        const editButton = ShopAdmin.page.locator('.sw-category-detail-layout__open-in-pagebuilder').first()
+        await ShopAdmin.expects(editButton).toBeVisible();
+
+        const deleteButton = ShopAdmin.page.locator('.sw-category-detail-layout__layout-reset').first()
+        await ShopAdmin.expects(deleteButton).toBeVisible();
     });
 
 });

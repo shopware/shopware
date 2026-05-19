@@ -27,17 +27,17 @@ class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, Cus
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        private CustomerEntity $customer,
-        private SalesChannelContext $salesChannelContext,
-        private string $confirmUrl
+        private readonly CustomerEntity $customer,
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly string $confirmUrl,
     ) {
     }
 
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('confirmUrl', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::CONFIRM_URL, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     /**

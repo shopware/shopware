@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -20,6 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(ChangeCustomerGroupAction::class)]
 class ChangeCustomerGroupActionTest extends TestCase
 {
+    /**
+     * @var MockObject&EntityRepository<CustomerCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private ChangeCustomerGroupAction $action;
@@ -53,9 +57,9 @@ class ChangeCustomerGroupActionTest extends TestCase
         ]);
         $flow->setConfig(['customerGroupId' => $groupId]);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $customerId, 'groupId' => $groupId]]);
+            ->with([['id' => $customerId, 'groupId' => $groupId, 'requestedGroupId' => null]]);
 
         $this->action->handleFlow($flow);
     }
@@ -64,7 +68,7 @@ class ChangeCustomerGroupActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -75,7 +79,7 @@ class ChangeCustomerGroupActionTest extends TestCase
             CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

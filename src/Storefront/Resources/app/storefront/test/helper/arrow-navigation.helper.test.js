@@ -4,6 +4,7 @@ import template from './arrow-navigation.helper.template.html';
 const itemContainerSelector = 'ul.itemContainer';
 const itemSelector = 'li';
 
+/** @deprecated tag:v6.8.0 - ArrowNavigationHelper will be removed without replacement. */
 describe('arrow-navigation.helper', () => {
     beforeEach(() => {
         document.body.innerHTML = template;
@@ -159,7 +160,7 @@ describe('arrow-navigation.helper', () => {
         input.dispatchEvent(event);
 
         expect(navigationHelper._iterator).toBe(-1);
-        expect(linkCallback).not.toBeCalled();
+        expect(linkCallback).not.toHaveBeenCalled();
     });
 
     test('it does nothing if no items exists', () => {

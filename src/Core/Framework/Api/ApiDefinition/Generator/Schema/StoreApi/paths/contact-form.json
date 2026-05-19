@@ -1,12 +1,10 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": {
         "/contact-form": {
             "post": {
-                "tags": [
-                    "Content"
-                ],
+                "tags": ["Content"],
                 "summary": "Submit a contact form message",
                 "description": "Used for submitting contact forms. Be aware that there can be more required fields, depending on the system settings.",
                 "operationId": "sendContactMail",
@@ -27,11 +25,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "email",
-                                    "subject",
-                                    "comment"
-                                ],
+                                "required": ["email", "subject", "comment"],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",

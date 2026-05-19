@@ -11,24 +11,30 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@framework')]
 class CurrencyTranslationCollection extends EntityCollection
 {
+    /**
+     * @return array<string, string>
+     */
     public function getCurrencyIds(): array
     {
-        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId());
+        return $this->fmap(static fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId());
     }
 
     public function filterByCurrencyId(string $id): self
     {
-        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId() === $id);
+        return $this->filter(static fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getCurrencyId() === $id);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId());
+        return $this->fmap(static fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (CurrencyTranslationEntity $currencyTranslation) => $currencyTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

@@ -18,6 +18,7 @@ class StateMachineException extends HttpException
     public const STATE_MACHINE_INVALID_STATE_FIELD = 'SYSTEM__STATE_MACHINE_INVALID_STATE_FIELD';
     public const STATE_MACHINE_NOT_FOUND = 'SYSTEM__STATE_MACHINE_NOT_FOUND';
     public const STATE_MACHINE_STATE_NOT_FOUND = 'SYSTEM__STATE_MACHINE_STATE_NOT_FOUND';
+    public const STATE_MACHINE_TRANSITION_LOCKED = 'SYSTEM__STATE_MACHINE_TRANSITION_LOCKED';
     public const STATE_MACHINE_WITHOUT_INITIAL_STATE = 'SYSTEM__STATE_MACHINE_WITHOUT_INITIAL_STATE';
     public const UNNECESSARY_TRANSITION = 'SYSTEM__UNNECESSARY_TRANSITION';
 
@@ -77,6 +78,19 @@ class StateMachineException extends HttpException
         );
     }
 
+    public static function stateMachineTransitionLocked(string $entityName, string $entityId): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::STATE_MACHINE_TRANSITION_LOCKED,
+            'State machine transition for entity "{{ entityName }}" with id "{{ entityId }}" is locked due to concurrent write operation. Please try again later.',
+            [
+                'entityName' => $entityName,
+                'entityId' => $entityId,
+            ]
+        );
+    }
+
     public static function stateMachineWithoutInitialState(string $stateMachineName): self
     {
         return new self(
@@ -93,7 +107,7 @@ class StateMachineException extends HttpException
     }
 
     /**
-     * @param string[] $permissions
+     * @param list<string> $permissions
      */
     public static function missingPrivileges(array $permissions): ShopwareHttpException
     {

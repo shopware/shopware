@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,6 +29,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  */
 #[CoversClass(DeliveryBuilder::class)]
+#[Package('checkout')]
 class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void
@@ -70,7 +72,7 @@ class DeliveryBuilderTest extends TestCase
             ->onlyMethods(['buildByUsingShippingMethod'])
             ->getMock();
 
-        $deliveryBuilder->expects(static::once())
+        $deliveryBuilder->expects($this->once())
             ->method('buildByUsingShippingMethod')
             ->with($cart, $shippingMethod, $salesChannelContext);
 
@@ -143,7 +145,7 @@ class DeliveryBuilderTest extends TestCase
         $deliveryLocation = new ShippingLocation(new CountryEntity(), null, null);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())
+        $salesChannelContext->expects($this->once())
             ->method('getShippingLocation')
             ->willReturn($deliveryLocation);
 

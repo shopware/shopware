@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-config-location-renderer.html.twig';
 import type { ElementDataProp } from '../index';
 
@@ -8,7 +7,7 @@ const { Component, Mixin } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-config-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [
@@ -26,7 +25,6 @@ Component.register('sw-cms-el-config-location-renderer', {
         src(): string {
             // Add this.element.id to the url as a query param
             const url = new URL(this.elementData.appData.baseUrl);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             url.searchParams.set('elementId', this.element.id);
 
             return url.toString();
@@ -53,12 +51,26 @@ Component.register('sw-cms-el-config-location-renderer', {
 
     methods: {
         createdComponent() {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
 
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed
+             */
             Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,
+                deprecated: true,
+                deprecationMessage:
+                    'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
+                showDoubleRegistrationError: false,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: `${this.publishingKey}__${this.element.id}`,
+                path: 'element',
+                scope: this,
+                showDoubleRegistrationError: false,
             });
         },
 

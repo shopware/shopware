@@ -4,6 +4,7 @@
 import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
+import 'src/module/sw-cms/service/cms.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const productSortingRepositoryMock = {
@@ -69,7 +70,6 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-container': true,
                     'sw-tabs-item': true,
 
-                    'sw-empty-state': true,
                     'sw-tabs': {
                         data() {
                             return { active: activeTab };
@@ -84,7 +84,6 @@ async function createWrapper(activeTab = 'sorting') {
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
                     'sw-data-grid-settings': true,
@@ -93,21 +92,36 @@ async function createWrapper(activeTab = 'sorting') {
                     'router-link': true,
                     'sw-data-grid-skeleton': true,
                     'sw-provide': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
                 provide: {
-                    cmsService: {
-                        getCmsElementRegistry: () => {
-                            return [];
-                        },
-                    },
+                    cmsService: Shopware.Service('cmsService'),
                     repositoryFactory: {
                         create: (entity) => repositoryMockFactory(entity),
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
             },
             props: reactive({
                 defaultConfig: {},
                 element: {
+                    type: 'product-listing',
                     config: {
                         boxLayout: {
                             value: {},
@@ -143,11 +157,6 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         Shopware.Store.register({
             id: 'cmsPage',
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain tab items content, sorting and filter', async () => {
@@ -209,7 +218,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should update the config when product sortings changes', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual([]);
+        expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
 
         await wrapper.setData({
             productSortings: [
@@ -225,6 +234,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
                 },
             ],
         });
+
+        await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
             foo_id: 2,
@@ -332,7 +343,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const showPropertySearchField = wrapper.find(
             'sw-simple-search-field-stub.sw-cms-element-product-listing-config-filter-property-search',
         );
-        const showPropertyStatusGrid = wrapper.find('.sw-cms-el-config-product-listing-property-grid');
+        const showPropertyStatusGrid = wrapper.find('.sw-cms-el-config-product-listing__property-grid');
 
         expect(showUseFilterByPropertiesSwitchField.exists()).toBeTruthy();
         expect(showPropertySearchField.exists()).toBeTruthy();

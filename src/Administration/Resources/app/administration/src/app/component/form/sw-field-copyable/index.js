@@ -1,7 +1,7 @@
 import './sw-field-copyable.scss';
 import template from './sw-field-copyable.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const domUtils = Shopware.Utils.dom;
 
 /**
@@ -9,7 +9,7 @@ const domUtils = Shopware.Utils.dom;
  *
  * @private
  */
-Component.register('sw-field-copyable', {
+export default {
     template,
 
     mixins: [
@@ -39,10 +39,10 @@ Component.register('sw-field-copyable', {
     computed: {
         tooltipText() {
             if (this.wasCopied) {
-                return this.$tc('global.sw-field-copyable.tooltip.wasCopied');
+                return this.$t('global.sw-field-copyable.tooltip.wasCopied');
             }
 
-            return this.$tc('global.sw-field-copyable.tooltip.canCopy');
+            return this.$t('global.sw-field-copyable.tooltip.canCopy');
         },
     },
 
@@ -59,10 +59,10 @@ Component.register('sw-field-copyable', {
                 } else {
                     this.notificationSuccess();
                 }
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('global.sw-field.notification.notificationCopyFailureMessage'),
                 });
             }
         },
@@ -73,7 +73,7 @@ Component.register('sw-field-copyable', {
 
         notificationSuccess() {
             this.createNotificationInfo({
-                message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                message: this.$t('global.sw-field.notification.notificationCopySuccessMessage'),
             });
         },
 
@@ -81,4 +81,4 @@ Component.register('sw-field-copyable', {
             this.wasCopied = false;
         },
     },
-});
+};

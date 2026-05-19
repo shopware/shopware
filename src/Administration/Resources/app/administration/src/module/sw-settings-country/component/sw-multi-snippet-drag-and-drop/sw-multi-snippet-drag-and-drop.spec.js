@@ -30,7 +30,6 @@ async function createWrapper(customPropsData = {}) {
                         <slot></slot>
                     </div>`,
                     },
-                    'sw-icon': true,
                     'sw-inheritance-switch': true,
                     'sw-color-badge': true,
                     'sw-loader': true,
@@ -38,7 +37,7 @@ async function createWrapper(customPropsData = {}) {
                     'sw-help-text': true,
                 },
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -66,12 +65,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-drop', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit `open-snippet-modal` when add new snippet', async () => {
         const wrapper = await createWrapper();
 

@@ -1,4 +1,4 @@
-import type { PropType } from 'vue';
+import './sw-order-state-history-modal.scss';
 import type RepositoryType from 'src/core/data/repository.data';
 import type CriteriaType from 'src/core/data/criteria.data';
 import template from './sw-order-state-history-modal.html.twig';
@@ -17,9 +17,14 @@ interface StateMachineHistoryData {
     createdAt: string;
     user?: {
         username: string;
+        email: string;
+    };
+    integration?: {
+        label: string;
     };
     entity: string;
     referencedId?: string;
+    internalComment?: string;
 }
 
 interface CombinedStates {
@@ -46,15 +51,16 @@ export default Component.wrapComponentConfig({
             type: Object as PropType<Entity<'order'>>,
             required: true,
         },
+        /** @deprecated tag:v6.8.0 - will be removed without replacment */
         isLoading: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
     data(): {
         dataSource: StateMachineHistoryData[];
-        statesLoading: boolean;
         limit: number;
         page: number;
         total: number;
@@ -62,7 +68,6 @@ export default Component.wrapComponentConfig({
     } {
         return {
             dataSource: [],
-            statesLoading: true,
             limit: 10,
             page: 1,
             total: 0,
@@ -103,6 +108,7 @@ export default Component.wrapComponentConfig({
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',
@@ -116,33 +122,49 @@ export default Component.wrapComponentConfig({
             return [
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-order.stateHistoryModal.column.createdAt'),
+                    label: this.$t('sw-order.stateHistoryModal.column.createdAt'),
                 },
                 {
                     property: 'entity',
-                    label: this.$tc('sw-order.stateHistoryModal.column.entity'),
+                    label: this.$t('sw-order.stateHistoryModal.column.entity'),
                 },
                 {
                     property: 'user',
-                    label: this.$tc('sw-order.stateHistoryModal.column.user'),
+                    label: this.$t('sw-order.stateHistoryModal.column.user'),
                 },
                 {
                     property: 'transaction',
-                    label: this.$tc('sw-order.stateHistoryModal.column.transaction'),
+                    label: this.$t('sw-order.stateHistoryModal.column.transaction'),
                 },
                 {
                     property: 'delivery',
-                    label: this.$tc('sw-order.stateHistoryModal.column.delivery'),
+                    label: this.$t('sw-order.stateHistoryModal.column.delivery'),
                 },
                 {
                     property: 'order',
-                    label: this.$tc('sw-order.stateHistoryModal.column.order'),
+                    label: this.$t('sw-order.stateHistoryModal.column.order'),
+                },
+                {
+                    property: 'internalComment',
+                    label: this.$t('sw-order.stateHistoryModal.column.internalComment'),
                 },
             ];
         },
 
         hasMultipleTransactions(): boolean {
             return (this.order?.transactions?.filter((v, idx, a) => a.indexOf(v) === idx)?.length ?? 0) > 1;
+        },
+
+        statesLoading: {
+            get(): boolean {
+                return Shopware.Store.get('swOrderDetail').loading.states;
+            },
+            set(value: boolean): void {
+                Shopware.Store.get('swOrderDetail').setLoading([
+                    'states',
+                    value,
+                ]);
+            },
         },
     },
 
@@ -162,7 +184,6 @@ export default Component.wrapComponentConfig({
                 await this.getStateHistoryEntries();
             } catch (error: unknown) {
                 // @ts-expect-error
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 const errorMessage = error?.response?.data?.errors?.[0]?.detail || '';
 
@@ -218,7 +239,8 @@ export default Component.wrapComponentConfig({
                                     // @ts-expect-error - states exists
                                     order_transaction: entry.fromStateMachineState,
                                 },
-                                { ...entry, user: undefined },
+                                entry,
+                                true,
                             ),
                         );
                     }
@@ -226,33 +248,52 @@ export default Component.wrapComponentConfig({
                     knownTransactionIds.push(entry.referencedId);
                 }
 
-                // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
+                // @ts-expect-error - the entityName has to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
                 entries.push(this.createEntry(states, entry));
             });
+
+            const lastTransaction = this.order.transactions?.last();
+            if (
+                !!lastTransaction &&
+                !knownTransactionIds.includes(lastTransaction.id) &&
+                (this.order.transactions?.length ?? 0) > 1
+            ) {
+                entries.push(
+                    this.createEntry(
+                        {
+                            ...states,
+                            // @ts-expect-error - states exists
+                            order_transaction: lastTransaction?.stateMachineState,
+                        },
+                        lastTransaction,
+                    ),
+                );
+            }
 
             return entries;
         },
 
         createEntry(
             states: CombinedStates,
-            entry: Entity<'state_machine_history'> | Entity<'order'>,
+            entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>,
+            hideUser = false,
         ): StateMachineHistoryData {
             return {
                 order: states.order,
                 transaction: states.order_transaction,
                 delivery: states.order_delivery,
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
-                user: 'user' in entry ? entry.user : undefined,
-                entity: 'entityName' in entry ? entry.entityName : 'order',
-                referencedId: 'referencedId' in entry ? entry.referencedId : undefined,
+                user: !hideUser && 'user' in entry ? entry.user : undefined,
+                integration: 'integration' in entry ? entry.integration : undefined,
+                entity: 'entityName' in entry ? entry.entityName : entry.getEntityName(),
+                referencedId: 'referencedId' in entry ? entry.referencedId : entry.id,
+                internalComment: 'internalComment' in entry ? entry.internalComment : undefined,
             };
         },
 
         getVariantState(entity: string, state: Entity<'state_machine_state'>): string {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
             return this.stateStyleDataProviderService.getStyle(`${entity}.state`, state.technicalName).variant;
         },
 
@@ -275,6 +316,18 @@ export default Component.wrapComponentConfig({
             const idx = this.order.transactions?.findIndex((transaction) => transaction.id === item.referencedId) ?? -1;
 
             return String(idx >= 0 ? idx + 1 : '');
+        },
+
+        getStateChangeAuthor(item: StateMachineHistoryData): string {
+            if (item.user) {
+                return item.user.username || item.user.email;
+            }
+            if (item.integration) {
+                const integrationLabel = item.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateHistoryModal.labelIntegration')})`;
+            }
+
+            return this.$t('sw-order.stateHistoryModal.labelSystemUser');
         },
     },
 });

@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('fundamentals@after-sales')]
 class DeleteDefaultProfileException extends ShopwareHttpException
 {
+    /**
+     * @param list<string> $ids
+     */
     public function __construct(array $ids)
     {
         parent::__construct('Cannot delete system default import_export_profile', ['ids' => $ids]);

@@ -72,11 +72,6 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
         };
 
         return mount(grandGrandParent, {
-            global: {
-                stubs: {
-                    'sw-icon': true,
-                },
-            },
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),
@@ -88,7 +83,7 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
     }
 
     beforeAll(async () => {
-        swSelectResult = await Shopware.Component.build('sw-select-result');
+        swSelectResult = await wrapTestComponent('sw-select-result', { sync: true });
         swSelectResult.methods.checkIfSelected = jest.fn();
     });
 

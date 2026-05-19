@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefi
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -55,7 +56,7 @@ class OrderStateChangeEventListenerTest extends TestCase
                 new Transition(
                     OrderTransactionDefinition::ENTITY_NAME,
                     $ids->get('transaction'),
-                    StateMachineTransitionActions::ACTION_DO_PAY,
+                    StateMachineTransitionActions::ACTION_PROCESS,
                     'stateId'
                 ),
                 Context::createDefaultContext()
@@ -109,7 +110,7 @@ class OrderStateChangeEventListenerTest extends TestCase
     private function assertEvent(string $event): void
     {
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $listener->expects(static::once())->method('__invoke');
+        $listener->expects($this->once())->method('__invoke');
 
         static::getContainer()
             ->get('event_dispatcher')
@@ -248,7 +249,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     private function getPrePaymentMethodId(): string
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<PaymentMethodCollection> $repository */
         $repository = static::getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
@@ -256,7 +257,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
 
-        $id = $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
         static::assertIsString($id);
 
         return $id;
@@ -282,6 +283,7 @@ class OrderStateChangeEventListenerTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class RuleValidator extends CallableClass
 {
     public ?OrderStateMachineStateChangeEvent $event;

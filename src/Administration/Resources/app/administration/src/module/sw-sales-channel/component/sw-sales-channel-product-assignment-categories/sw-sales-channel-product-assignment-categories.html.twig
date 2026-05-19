@@ -2,7 +2,7 @@
 <div class="sw-sales-channel-product-assignment-categories">
     {% block sw_sales_channel_product_assignment_categories_info %}
     <mt-banner ref="alert">
-        {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
+        {{ $t('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
     </mt-banner>
     {% endblock %}
 
@@ -23,7 +23,7 @@
                     :value="searchTerm"
                     variant="form"
                     size="small"
-                    :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
+                    :placeholder="$t('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
                     @search-term-change="onSearchTermChange"
                 />
                 {% endblock %}
@@ -106,9 +106,9 @@
                 >
 
                     {% block sw_sales_channel_product_assignment_categories_search_results_item_checkbox %}
-                    <sw-checkbox-field
+                    <mt-checkbox
                         class="sw-sales-channel-product-assignment-categories__search-results-checkbox"
-                        :value="isSearchItemChecked(item.id)"
+                        :checked="isSearchItemChecked(item.id)"
                     />
                     {% endblock %}
 
@@ -118,9 +118,9 @@
                         class="sw-sales-channel-product-assignment-categories__search-results-icon"
                     >
                         {% block sw_sales_channel_product_assignment_categories_search_results_item_folder_icon %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-folder"
-                            small
+                            size="16px"
                         />
                         {% endblock %}
                     </div>
@@ -132,7 +132,7 @@
                         class="sw-sales-channel-product-assignment-categories__search-results-icon"
                     >
                         {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
-                        <sw-icon
+                        <mt-icon
                             name="regular-circle-xxs"
                             size="18"
                         />
@@ -156,12 +156,10 @@
             {% endblock %}
 
             {% block sw_sales_channel_product_assignment_categories_search_results_empty %}
-            <sw-empty-state
+            <mt-empty-state
                 v-else
-                :show-description="false"
-                :absolute="false"
-                :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
-                :icon="'regular-products'"
+                icon="solid-products"
+                :headline="$t('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
                 class="sw-sales-channel-product-assignment-categories__empty-state"
             />
             {% endblock %}

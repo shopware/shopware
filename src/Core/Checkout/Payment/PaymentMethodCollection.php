@@ -3,7 +3,9 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -12,10 +14,18 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('checkout')]
 class PaymentMethodCollection extends EntityCollection
 {
+    /**
+     * @deprecated tag:v6.8.0 use RuleIdMatcher instead
+     */
     public function filterByActiveRules(SalesChannelContext $salesChannelContext): PaymentMethodCollection
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', RuleIdMatcher::class)
+        );
+
         return $this->filter(
-            function (PaymentMethodEntity $paymentMethod) use ($salesChannelContext) {
+            static function (PaymentMethodEntity $paymentMethod) use ($salesChannelContext) {
                 if ($paymentMethod->getAvailabilityRuleId() === null) {
                     return true;
                 }
@@ -30,12 +40,12 @@ class PaymentMethodCollection extends EntityCollection
      */
     public function getPluginIds(): array
     {
-        return $this->fmap(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId());
+        return $this->fmap(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId());
     }
 
     public function filterByPluginId(string $id): self
     {
-        return $this->filter(fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId() === $id);
+        return $this->filter(static fn (PaymentMethodEntity $paymentMethod) => $paymentMethod->getPluginId() === $id);
     }
 
     /**

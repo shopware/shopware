@@ -19,7 +19,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class));
 
@@ -31,7 +31,7 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class));
 
@@ -43,10 +43,10 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class))
-            ->willReturnCallback(function (MaintenanceModeRequestEvent $event) {
+            ->willReturnCallback(static function (MaintenanceModeRequestEvent $event) {
                 static::assertTrue($event->isClientAllowed());
                 $event->disallowClient();
 
@@ -61,10 +61,10 @@ class MaintenanceModeResolverTest extends TestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(MaintenanceModeRequestEvent::class))
-            ->willReturnCallback(function (MaintenanceModeRequestEvent $event) {
+            ->willReturnCallback(static function (MaintenanceModeRequestEvent $event) {
                 static::assertFalse($event->isClientAllowed());
                 $event->allowClient();
 

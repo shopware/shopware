@@ -5,7 +5,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(.5, 0, 0, 0.5);
+    background-color: rgba(0.5, 0, 0, 0.5);
     display: none;
     z-index: 1100;
 
@@ -52,7 +52,7 @@
                 height: auto;
             }
             .icon-ar-icon-phone {
-                position:absolute;
+                position: absolute;
                 bottom: -75px;
                 left: 2px;
                 width: 30px;
@@ -87,11 +87,10 @@
         }
     }
 
-
     .progress {
         bottom: 80px;
         height: 4px;
-        $progress-bar-transition: width .2s ease;
+        $progress-bar-transition: width 0.2s ease;
     }
 
     &.is--visible {
@@ -108,7 +107,8 @@
         }
     }
 
-    &.is--placement-hint, &.is--loading {
+    &.is--placement-hint,
+    &.is--loading {
         .spatial-ar-placement-hint {
             display: block;
         }

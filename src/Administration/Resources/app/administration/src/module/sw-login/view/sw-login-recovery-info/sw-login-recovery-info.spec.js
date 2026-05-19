@@ -20,25 +20,18 @@ async function createWrapper(routeParams) {
     return mount(await wrapTestComponent('sw-login-recovery-info', { sync: true }), {
         global: {
             mocks: {
-                $tc: (...args) => JSON.stringify([...args]),
+                $t: (...args) => JSON.stringify([...args]),
                 $route: { params: routeParams },
             },
             stubs: {
                 'router-view': true,
                 'router-link': true,
-                'sw-icon': true,
             },
         },
     });
 }
 
 describe('module/sw-login/recovery-info.spec.js', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the normal info', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -27,18 +27,18 @@
             :disabled="!acl.can('payment.editor') || undefined"
             hide-icon
         >
-            {{ $tc('sw-settings-payment.overview.editDetails') }}
+            {{ $t('sw-settings-payment.overview.editDetails') }}
         </sw-internal-link>
         {% endblock %}
 
         {% block sw_payment_card_toggle %}
 
         <mt-switch
-            v-tooltip="{ message: $tc('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
-            :checked="paymentMethod.active"
+            v-tooltip="{ message: $t('sw-settings-payment.overview.missingEditorPermission'), disabled: acl.can('payment.editor') }"
+            :model-value="paymentMethod.active"
             :disabled="!acl.can('payment.editor') || undefined"
-            :label="$tc('sw-settings-payment.overview.activeToggle')"
-            @change="setPaymentMethodActive"
+            :label="$t('sw-settings-payment.overview.activeToggle')"
+            @update:model-value="setPaymentMethodActive"
         />
         {% endblock %}
 

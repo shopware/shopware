@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable;
 
 /**
@@ -22,6 +22,11 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTableTest extends 
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736866790, (new Migration1736866790AddDocumentA11yMediaFileIdForDocumentTable())->getCreationTimestamp());
     }
 
     public function testMigration(): void
@@ -48,9 +53,10 @@ class Migration1736866790AddDocumentA11yMediaFileIdForDocumentTableTest extends 
 
     private function hasForeignKey(): bool
     {
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableForeignKeys('document');
+        $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, 'document', 'fk.document.document_a11y_media_file_id');
 
-        return (bool) \array_filter($columns, static fn (ForeignKeyConstraint $column) => $column->getForeignTableName() === 'media' && $column->getLocalColumns() === ['document_a11y_media_file_id'] && $column->getForeignColumns() === ['id']);
+        return $foreignKey->referencedTableName === 'media'
+            && $foreignKey->referencingColumnNames[0] === 'document_a11y_media_file_id'
+            && $foreignKey->referencedColumnNames[0] === 'id';
     }
 }

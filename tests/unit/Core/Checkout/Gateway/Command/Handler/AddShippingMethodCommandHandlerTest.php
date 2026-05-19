@@ -55,7 +55,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with(
                 static::callback(
@@ -109,7 +109,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn($result);
 
@@ -125,7 +125,7 @@ class AddShippingMethodCommandHandlerTest extends TestCase
 
         $logger = $this->createMock(ExceptionLogger::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('logOrThrowException')
             ->with(static::equalTo(CheckoutGatewayException::handlerException('Shipping method "{{ technicalName }}" not found', ['technicalName' => 'test'])));
 

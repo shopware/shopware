@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -27,7 +28,7 @@ class ShippingFreeListingFilterHandler extends AbstractListingFilterHandler
             return null;
         }
 
-        $filtered = (bool) $request->get('shipping-free', false);
+        $filtered = (bool) RequestParamHelper::get($request, 'shipping-free', false);
 
         return new Filter(
             'shipping-free',

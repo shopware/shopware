@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet\Files;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\SnippetException;
+use Shopware\Core\System\Snippet\SnippetPatterns;
 
 /**
  * @extends Collection<AbstractSnippetFile>
@@ -12,6 +13,11 @@ use Shopware\Core\System\Snippet\SnippetException;
 #[Package('discovery')]
 class SnippetFileCollection extends Collection
 {
+    /**
+     * @var array<string, string>
+     */
+    private const CANONICAL_LANGUAGE_MAP = ['en' => 'en-GB'];
+
     /**
      * @var array<string, bool>|null
      */
@@ -69,7 +75,7 @@ class SnippetFileCollection extends Collection
      */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
+        return array_filter($this->toArray(), static fn ($file) => $file['isBase'] === $isBase);
     }
 
     /**
@@ -111,6 +117,42 @@ class SnippetFileCollection extends Collection
         return $list[$iso] ?? [];
     }
 
+    /**
+     * Returns snippet files for the given locale with a canonical-locale fallback.
+     *
+     * Bare-language files (e.g. "de") are intentionally excluded here; they are loaded separately via the
+     * {@see SnippetService::getStorefrontSnippets()} fallback-locale mechanism.
+     *
+     * For locales without a region part (e.g. "de"), the result is identical to {@see getSnippetFilesByIso()}.
+     *
+     * @return list<AbstractSnippetFile>
+     */
+    public function getSnippetFilesWithLocaleFallback(string $locale): array
+    {
+        if (!preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale, $matches) || ($matches['region'] ?? '') === '') {
+            return $this->getSnippetFilesByIso($locale);
+        }
+
+        $agnosticLanguage = $matches['language'];
+        $canonicalIso = self::CANONICAL_LANGUAGE_MAP[$agnosticLanguage] ?? ($agnosticLanguage . '-' . strtoupper($agnosticLanguage));
+
+        $list = $this->getListSortedByIso();
+
+        $result = [];
+
+        if ($canonicalIso !== $locale) {
+            foreach ($list[$canonicalIso] ?? [] as $file) {
+                $result[] = $file;
+            }
+        }
+
+        foreach ($list[$locale] ?? [] as $file) {
+            $result[] = $file;
+        }
+
+        return $result;
+    }
+
     public function getBaseFileByIso(string $iso): AbstractSnippetFile
     {
         foreach ($this->getSnippetFilesByIso($iso) as $file) {
@@ -134,11 +176,19 @@ class SnippetFileCollection extends Collection
         if ($this->mapping === null) {
             $this->mapping = [];
             foreach ($this->elements as $element) {
-                $this->mapping[(string) realpath($element->getPath())] = true;
+                $realPath = realpath($element->getPath());
+                if ($realPath !== false) {
+                    $this->mapping[$realPath] = true;
+                }
             }
         }
 
-        return isset($this->mapping[realpath($filePath)]);
+        $realFilePath = realpath($filePath);
+        if ($realFilePath === false) {
+            return false;
+        }
+
+        return isset($this->mapping[$realFilePath]);
     }
 
     protected function getExpectedClass(): ?string

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Flow\Event\Xml\CustomEvents;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -23,6 +24,9 @@ class FlowEventPersisterTest extends TestCase
 {
     private FlowEventPersister $flowEventPersister;
 
+    /**
+     * @var EntityRepository<AppFlowEventCollection>&MockObject
+     */
     private EntityRepository&MockObject $flowEventsRepositoryMock;
 
     private Connection&MockObject $connectionMock;
@@ -37,7 +41,7 @@ class FlowEventPersisterTest extends TestCase
     public function testUpdateEvents(): void
     {
         $appId = Uuid::randomHex();
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturnCallback(function ($sql, $params) use ($appId): array {
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturnCallback(static function ($sql, $params) use ($appId): array {
             static::assertSame('SELECT name, LOWER(HEX(id)) FROM app_flow_event WHERE app_id = :appId;', $sql);
             static::assertSame([
                 'appId' => Uuid::fromHexToBytes($appId),
@@ -56,7 +60,7 @@ class FlowEventPersisterTest extends TestCase
         $customEventsMock = CustomEvents::fromXml($domElement);
         $flowEventMock->method('getCustomEvents')->willReturn($customEventsMock);
 
-        $this->flowEventsRepositoryMock->expects(static::once())->method('upsert')->willReturnCallback(function ($upserts, $context) use ($appId): EntityWrittenContainerEvent {
+        $this->flowEventsRepositoryMock->expects($this->once())->method('upsert')->willReturnCallback(static function ($upserts, $context) use ($appId): EntityWrittenContainerEvent {
             static::assertSame([
                 [
                     'appId' => $appId,
@@ -68,7 +72,7 @@ class FlowEventPersisterTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->flowEventsRepositoryMock->expects(static::once())->method('delete')->willReturnCallback(function ($ids, $context) use ($appId): EntityWrittenContainerEvent {
+        $this->flowEventsRepositoryMock->expects($this->once())->method('delete')->willReturnCallback(static function ($ids, $context) use ($appId): EntityWrittenContainerEvent {
             static::assertSame([['id' => Uuid::fromHexToBytes($appId)]], $ids);
 
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
@@ -81,7 +85,7 @@ class FlowEventPersisterTest extends TestCase
     public function testUpdateEventsDeleteOldApp(): void
     {
         $appId = Uuid::randomHex();
-        $this->connectionMock->expects(static::once())->method('fetchAllKeyValue')->willReturnCallback(function ($sql, $params) use ($appId): array {
+        $this->connectionMock->expects($this->once())->method('fetchAllKeyValue')->willReturnCallback(static function ($sql, $params) use ($appId): array {
             static::assertSame('SELECT name, LOWER(HEX(id)) FROM app_flow_event WHERE app_id = :appId;', $sql);
             static::assertSame([
                 'appId' => Uuid::fromHexToBytes($appId),
@@ -101,7 +105,7 @@ class FlowEventPersisterTest extends TestCase
         $customEventsMock = CustomEvents::fromXml($domElement);
         $flowEventMock->method('getCustomEvents')->willReturn($customEventsMock);
 
-        $this->flowEventsRepositoryMock->expects(static::once())->method('upsert')->willReturnCallback(function ($upserts, $context) use ($appId): EntityWrittenContainerEvent {
+        $this->flowEventsRepositoryMock->expects($this->once())->method('upsert')->willReturnCallback(static function ($upserts, $context) use ($appId): EntityWrittenContainerEvent {
             static::assertSame([
                 [
                     'appId' => $appId,
@@ -114,7 +118,7 @@ class FlowEventPersisterTest extends TestCase
             return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
         });
 
-        $this->flowEventsRepositoryMock->expects(static::never())->method('delete');
+        $this->flowEventsRepositoryMock->expects($this->never())->method('delete');
 
         $context = Context::createDefaultContext();
         $this->flowEventPersister->updateEvents($flowEventMock, $appId, $context, 'en-GB');
@@ -124,7 +128,7 @@ class FlowEventPersisterTest extends TestCase
     {
         $appId = Uuid::randomHex();
 
-        $this->connectionMock->expects(static::once())->method('executeStatement')->willReturnCallback(function ($sql, $params) use ($appId): int {
+        $this->connectionMock->expects($this->once())->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($appId): int {
             static::assertSame('UPDATE `flow` SET `active` = false WHERE `event_name` IN (SELECT `name` FROM `app_flow_event` WHERE `app_id` = :appId);', $sql);
             static::assertSame([
                 'appId' => Uuid::fromHexToBytes($appId),

@@ -37,7 +37,6 @@ interface SwRouteConfig {
     redirect?: RouteRecordRedirectOption;
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     props?: boolean | object | RouterLinkProps;
@@ -65,7 +64,16 @@ interface Navigation {
 }
 
 interface SettingsItem {
-    group: 'shop' | 'system' | 'plugins';
+    group:
+        | 'general'
+        | 'localization'
+        | 'customer'
+        | 'commerce'
+        | 'content'
+        | 'automation'
+        | 'system'
+        | 'account'
+        | 'plugins';
     to: string;
     icon?: string;
     iconComponent?: unknown;

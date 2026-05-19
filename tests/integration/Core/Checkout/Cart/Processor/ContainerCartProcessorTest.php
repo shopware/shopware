@@ -56,22 +56,22 @@ class ContainerCartProcessorTest extends TestCase
         static::assertTrue($new->has($item->getId()));
 
         static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
-        static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
-        static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
-        static::assertEquals($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());
+        static::assertSame($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
+        static::assertSame($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
+        static::assertSame($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());
 
         foreach ($expected->getCalculatedTaxes() as $tax) {
             $actual = $item->getPrice()->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
 
         foreach ($item->getPrice()->getCalculatedTaxes() as $tax) {
             $actual = $expected->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
             static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
     }
 

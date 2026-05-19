@@ -20,6 +20,12 @@ Shopware.Service().register('loginService', () => {
     };
 });
 
+Shopware.Service().register('systemConfigApiService', () => {
+    return {
+        getValues: () => Promise.resolve({ 'core.search.minSearchTermLength': 2 }),
+    };
+});
+
 describe('app/service/search-ranking.service.js', () => {
     const entity = 'product';
     const defaultModule = {
@@ -501,6 +507,255 @@ describe('app/service/search-ranking.service.js', () => {
         });
     });
 
+    it('Should ignore modules without an entity when current user search preferences exist', async () => {
+        const commonSearchConfigurations = {
+            _searchable: true,
+            name: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        };
+
+        createModules([
+            {
+                ...defaultModule,
+                defaultSearchConfiguration: commonSearchConfigurations,
+            },
+            {
+                name: 'dashboard-module',
+                routes: {
+                    index: {
+                        path: 'index',
+                        component: 'sw-index',
+                    },
+                },
+            },
+        ]);
+        addDataToRegisterUserConfigService([
+            {
+                product: { ...commonSearchConfigurations },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
+        });
+    });
+
+    it('Should remove stale leaf fields from current user search preferences', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+            },
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                product: {
+                    _searchable: true,
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                    },
+                    returnNumber: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        });
+    });
+
+    it('Should keep valid fields when persisted entity preferences miss the root searchable flag', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+            },
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                product: {
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                    },
+                    returnNumber: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        });
+    });
+
+    it('Should remove stale nested fields from current user search preferences', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                manufacturer: {
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                    },
+                },
+            },
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                product: {
+                    _searchable: true,
+                    manufacturer: {
+                        name: {
+                            _searchable: true,
+                            _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        },
+                        customExtension: {
+                            returnNumber: {
+                                _searchable: true,
+                                _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                            },
+                        },
+                    },
+                },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: {
+                'product.manufacturer.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
+        });
+    });
+
+    it('Should ignore stale persisted fields when getting search fields by entity', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+            },
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                product: {
+                    _searchable: true,
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                    },
+                    returnNumber: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getSearchFieldsByEntity('product');
+
+        expect(actual).toEqual({
+            'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+        });
+    });
+
+    it('Should not build global search queries for stale persisted fields', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
+            },
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                product: {
+                    _searchable: true,
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                    },
+                    returnNumber: {
+                        _searchable: true,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
+            },
+        ]);
+
+        const service = new SearchRankingService();
+        const userSearchPreference = await service.getUserSearchPreference();
+        const actual = service.buildGlobalSearchQueries(userSearchPreference, 'order');
+
+        expect(actual).toEqual({
+            product: {
+                page: 1,
+                limit: 25,
+                query: [
+                    {
+                        score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        query: {
+                            type: 'contains',
+                            field: 'product.name',
+                            value: 'order',
+                        },
+                    },
+                ],
+                'total-count-mode': 1,
+            },
+        });
+    });
+
     it("Should remove an entity's search configurations from current user search preferences when entity's module does not have default search configurations", async () => {
         const commonSearchConfigurations = {
             _searchable: true,
@@ -633,5 +888,34 @@ describe('app/service/search-ranking.service.js', () => {
         actual = await newService.getSearchFieldsByEntity('product');
         // expect to get different result
         expect(actual).toEqual({});
+    });
+
+    it('should validate search terms correctly', async () => {
+        const service = new SearchRankingService();
+        await service.getMinSearchTermLength();
+
+        expect(service.isValidTerm('ab')).toBe(true);
+        expect(service.isValidTerm('a')).toBe(false);
+        expect(service.isValidTerm('')).toBe(false);
+    });
+
+    it('should get minSearchTermLength from config', async () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.getValues = jest.fn().mockResolvedValue({ 'core.search.minSearchTermLength': 1 });
+
+        const service = new SearchRankingService();
+        await service.getMinSearchTermLength();
+
+        expect(service.isValidTerm('a')).toBe(true);
+    });
+
+    it('should save minSearchTermLength to config', async () => {
+        const originalService = Shopware.Service('systemConfigApiService');
+        originalService.saveValues = jest.fn();
+
+        const service = new SearchRankingService();
+        await service.saveMinSearchTermLength(3);
+
+        expect(originalService.saveValues).toHaveBeenCalledWith({ 'core.search.minSearchTermLength': 3 });
     });
 });

@@ -1,17 +1,619 @@
+# 6.7.8.2
+
+## Digital product legacy states repair after update
+
+We fixed a bug in the indexer for the `product.states` field, which lead to issues where rules (and flows depending on those rules) with the `line item with product state` condition did not work as expected. This especially affected the flows to deliver digital download products after purchase.
+
+This release repairs digital products with missing legacy `states` via a one-time `UpdatePostFinishEvent` subscriber.
+
+The repair runs automatically once per installation and is marked as completed in `app_config`.
+
+# 6.7.6.0
+
+## Deprecation of video blocks
+
+The inner video blocks of `cms-block-vimeo-video.html.twig` and `cms-block-youtube-video.html.twig` called `block_image_inner` have been deprecated and will be removed in the next major version. Please use specific blocks `block_vimeo_video_inner` and `block_youtube_video_inner` instead.
+
+# 6.7.4.1
+
+The `Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute` now deletes customer recovery links after a customer has changed their email address.
+
+# 6.7.4.0
+
+## Plugin config default values
+
+The default values for plugin config fields are now parsed according to the type of the field.
+This means default values for `checkbox` and `bool` fields are parsed as boolean values, `int` fields are parsed as integer values, and `float` fields are parsed as float values.
+Everything else is parsed as string values. With this the default values are now consistent based on the type of the field and the type does not depend on the actual value.
+This makes it more consistent as otherwise the types could change when they are configured in the Administration.
+
+## Deprecated SystemConfig exceptions
+
+The exceptions
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`,
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`, and
+* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+are now deprecated and will be removed in v6.8.0.0.
+Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
+
+## Deprecated SystemConfigService tracing methods
+
+The methods `\Shopware\Core\System\SystemConfig\SystemConfigService::trace()` and `\Shopware\Core\System\SystemConfig\SystemConfigService::getTrace()` are deprecated and will be removed.
+The tracing is not needed anymore since the cache rework for 6.7.0.0. For now the methods are still available, but they do nothing.
+
+## Add the correct interface to filterable price definitions
+
+If a price definition should be filterable, explicitly implement the `Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface`, which defines the required `getFilter()` method.
+
+## Vimeo and YouTube Cookie Consent Separation
+
+With this change, Vimeo and YouTube videos now use separate cookie consent entries and load immediately when cookies are accepted, improving user experience and GDPR compliance.
+
+## Cookie offcanvas links in dynamically loaded content
+
+Links to open the cookie offcanvas that are loaded dynamically (e.g., within the navigation offcanvas) now work correctly.
+The `CookieConfiguration` plugin now uses event delegation instead of direct event listeners.
+
+If you have extended the `CookieConfiguration` plugin and override `_registerEvents()`, you may need to update your
+implementation to use event delegation as well.
+
+# 6.7.3.1
+## Opensearch 3.x compatibility
+
+OpenSearch 3.x introduced a breaking change that disallows defining index mapping fields with empty array `properties`. For e.g:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": []
+      }
+    }
+  }
+}
+```
+
+So instead of defining a index mapping with empty `properties`, we should omit `properties` entirely or define it with empty object `{}`:
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "customFields": {
+        "type": "object",
+        "properties": {} // or can be omitted entirely
+      }
+    }
+  }
+}
+```
+
+# 6.7.3.0
+## Migration from controller variables to activeRoute
+Replace `controllerName` and `controllerAction` with `activeRoute`:
+* Twig: Use `activeRoute` instead of `controllerName`/`controllerAction`
+* CSS: Use `.is-active-route-*` instead of `.is-ctl-*` and `.is-act-*`
+* JS: Use `window.activeRoute` instead of `window.controllerName`/`window.actionName`
+* Routes use dots, CSS classes use dashes: `activeRoute|replace({'.': '-'})`
+## (Opt-in) Only rules relevant for product prices are considered in the `sw-cache-hash`
+**This functionality will become the default with 6.8, you can opt-in by activating the `CACHE_REWORK` feature flag.**
+
+In the default Shopware setup the `sw-cache-hash` cookie will only contain rule ids which are used to alter product prices, in contrast to previous all active rules, which might only be used for a promotion.
+
+If the Storefront content changes depending on a rule, the corresponding rule ids should be added using the extension `Shopware\Core\Framework\Adapter\Cache\Http\Extension\ResolveCacheRelevantRuleIdsExtension`. In the extension it is either possible to add specific rule ids directly or add them to the `ResolveCacheRelevantRuleIdsExtension::ruleAreas` array directly, i.e.
+
+```php
+class ResolveRuleIds implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ResolveCacheRelevantRuleIdsExtension::NAME . '.pre' => 'onResolveRuleAreas',
+        ];
+    }
+
+    public function onResolveRuleAreas(ResolveCacheRelevantRuleIdsExtension $extension): void
+    {
+        $extension->ruleAreas[] = RuleExtension::MY_CUSTOM_RULE_AREA;
+    }
+}
+```
+
+If some custom entity has a relation to a rule, which might alter the storefront, you should add them to either an existing area, or your own are using the DAL flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas` on the rule association.
+
+## Deprecated unused `RuleAreas` constants
+The constants `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas::{CATEGORY_AREA,LANDING_PAGE_AREA}` are not used anymore and are now deprecated and will therefore be removed in 6.8.
+## Deprecation of properties in `ResolveRemoteThumbnailUrlExtension`
+
+The properties `mediaPath` and `mediaUpdatedAt` from `Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension` are deprecated and will be removed with the next major version. Set the values directly into the newly added `mediaEntity` property.
+
+## Deprecation of `media` and `thumbnail` in `MediaPathChangedEvent`
+
+The method `media` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `mediaWithMimeType` method instead.
+
+The method `thumbnail` from `Shopware\Core\Content\Media\Event\MediaPathChangedEvent` is deprecated and will be removed with the next major version. Use the newly added `thumbnailWithMimeType` method instead.
+## Added caching to the `NavigationRoute`
+
+The navigation route now caches the default category levels for the current sales channel's main navigation.
+This improves performance by reducing the need to repeatedly load and hydrate the same category levels on every page.
+
+When your navigation is dynamic, you need to subscribe to the `CategoryLevelLoaderCacheKeyEvent` to add the necessary information to the cache tag, so your dynamic content is displayed properly.
+## Deprecation of `hasChildren` variable
+
+Make sure to set the `hasChildren` variable in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template in the for loop where the category links are displayed and only display the links if the category is not of type `folder` or if it has children.
+The customer registration endpoint now properly validates billing and shipping address data types. Invalid address data (e.g., string instead of object) will return a 400 status with validation errors instead of 500 Internal Server Error.
+## Customer Address Field Length Changes
+The customer and order address tables have been updated to support longer first and last names (up to 255 characters), matching the customer table field lengths.
+
+### Background
+Previously, customer registration would fail when first names exceeded 50 characters or last names exceeded 60 characters, even though the customer table supported up to 255 characters. This mismatch caused registration failures when customer data was copied to create address records.
+## Use named argument when defining constraints
+
+Previously when using constraints, you can pass an array of options into the constraint's constructor, but it hide the dependency arguments of the constraint as well as validating input arguments.
+Similar with standard Symfony constraints from `symfony/validator~7.3`, we converted from array to named argument syntax
+
+```php
+// Before:
+new CustomerEmailUnique(['salesChannelContext' => $context])
+```
+to
+
+```php
+new CustomerEmailUnique(salesChannelContext: $context)
+```
+
+## Refactor of providing cookies
+
+The providing of cookies has been refactored.
+With this the new route `/store-api/cookie-groups` has been added to retrieve all registered cookie groups and their cookie entries.
+This route is provided by the new `\Shopware\Core\Content\Cookie\SalesChannel\CookieRoute` service.
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` has been deprecated and so all its implementations.
+They will be removed in the next major version.
+
+To register new cookie groups and cookie entries, the new `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` should be used instead.
+The way apps are registering cookies has not changed.
+
+Additionally, the `snippet_name` and `snippet_description` properties on cookies in Twig templates have been deprecated.
+Use `name` and `description` instead; these properties now serve both as snippet keys (before translation) and as translated strings (after translation), depending on the context in which they are accessed.
+
+Adding new cookies before:
+```php
+class CustomCookieProvider implements CookieProviderInterface
+{
+    public function __construct(
+        private readonly CookieProviderInterface $inner,
+    ) {
+    }
+
+    public function getCookieGroups(): array
+    {
+        $cookieGroups = $this->inner->getCookieGroups();
+
+        $cookieGroups[] = [
+            'snippet_name' => 'cookie.group.name',
+            'entries' => [
+                [
+                    'cookie' => 'cookie-name',
+                ],
+            ],
+        ];
+
+        return $cookieGroups;
+    }
+}
+```
+
+Adding new cookies now:
+```php
+use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
+use Shopware\Core\Content\Cookie\Struct\CookieEntry;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+
+class AppCookieCollectListener
+{
+    public function __invoke(CookieGroupCollectEvent $event): void
+    {
+        $cookieGroups = $event->cookieGroupCollection;
+        $newCookieGroup = new CookieGroup('cookie.group.name');
+
+        $newCookieEntry = new CookieEntry('cookie-name')
+        $newCookieGroup->setEntries([$entry]);
+
+        $cookieGroups->add($newCookieGroup);
+    }
+}
+```
+## Deprecated `ZugferdDocument::getPrice()`
+The method `\Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument::getPrice()` is deprecated and will be removed in the next major version. Replace calls to `ZugferdDocument::getPrice()` with `ZugferdDocument::getPriceWithFallback()`.
+### Extension impact
+If a plugin overrides `ZugferdDocument::getPrice()`, that override will not be executed by the core anymore. Replace it with `ZugferdDocument::getPriceWithFallback()` to be able to make customisations.
+## Re-allow setting a custom limit for search Store-API requests
+
+The Store-API search endpoints `/store-api/product-listing/{categoryId}`, `/store-api/search` and `/store-api/search-suggest` now allow the usage of the request or query parameter `limit` to set a custom limit for search requests. The limit is capped to the value of `shopware.api.store.max_limit` (default: 100).
+## Environment Variable for PaaS Deployments
+For deployments on platforms with read-only filesystems (such as Shopware PaaS), you can now set the `SHOPWARE_SKIP_WEBINSTALLER` environment variable to bypass the web installer and install.lock file checks.
+
+Any non-empty value will activate this feature:
+```bash
+SHOPWARE_SKIP_WEBINSTALLER=1
+SHOPWARE_SKIP_WEBINSTALLER=true
+SHOPWARE_SKIP_WEBINSTALLER=enabled
+```
+
+This allows Shopware to run without requiring write access to create the `install.lock` file in the project root or the `.htaccess` file in the public directory.
+
+# Country-agnostic language layer is now implemented
+With this release, we have fully implemented the country-agnostic language layer as described in the [ADR](https://developer.shopware.com/docs/resources/references/adr/2025-09-01-adding-a-country-agnostic-language-layer.html). Therefore, a new best practice has been established for providing translations in Shopware. We recommend to rename your translation files to use the country-agnostic language codes (e.g., `en` instead of `en-GB`). This change will also require to rename the `base_file` column in the `snippet_set` table accordingly. Although its use is not recommended, the old, specific snippet naming (e.g., `en-GB`) will continue to work for backward compatibility.
+
+## Snippet Validation command
+The command `snippets:validate` has been renamed to `translation:validate`. Please refrain from using the old command name as it will be removed in the next major version.
+
+## SnippetValidator
+The class `Shopware\Core\System\Snippet\SnippetValidator` will be marked as internal in the next major version as it is supposed to be used for internal purposes only.
+
+# 6.7.2.0
+
+## New robots meta tag configuration
+
+The new configuration option "Robots Meta Tag" has been added to the administration under Settings > Basic information.
+This allows you to set the content of the robots meta tag rendered in the storefront (`<meta name="robots" ...>`).
+
+## Breadcrumb separator using Bootstrap default
+
+The breadcrumb separator is now using the bootstrap default, i.e. the CSS variable `--bs-breadcrumb-divider`, which is set on the corresponding breadcrumb `nav`-element: https://getbootstrap.com/docs/5.3/components/breadcrumb/#dividers
+
+Therefore the block `layout_breadcrumb_placeholder` has been deprecated and will be removed and the separator can be set using the twig variable `breadcrumbDivider`, i.e.
+```twig
+{% block layout_breadcrumb_container %}
+    {% with {breadcrumbDivider: 'url(data:image/svg+xml,' ~ source('@Storefront/assets/icon/my-custom-separator.svg')|url_encode ~ ')'} %}
+        {{ parent() }}
+    {% endwith %}
+{% endblock %}
+```
+## ProductListing with Variants and sort by price
+
+Grouping with `GROUP BY product.display_group`, which is necessary to process product variants, only works without SQL Mode `only_full_group_by`. When this mode is disabled, it causes rows to be dropped - potentially the one with the cheapest price. This leads to inconsistent sorting of products with variants that differ in price.
+Due to sorting by the lowest price, the `cheapestPrice` accessor was removed from the min/max logic in the `CriteriaQueryBuilder`. To ensure that a product is listed based on its cheapest variant, the accessor was supplemented with the `MIN()` function.
+
+## Deprecation of `EntityDefinition` constructor
+
+The constructor of the `EntityDefinition` will be removed, therefore the call of child classes to it should be removed as well, i.e:
+```diff
+ <?php declare(strict_types=1);
+
+ namespace MyCustomEntity\Content\Entity;
+
+ use Shopware\Core\Content\Media\MediaDefinition;
+ use Shopware\Core\Content\Product\ProductDefinition;
+ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+
+ class MyCustomEntity extends EntityDefinition
+ {
+     // snip
+
+     public function __construct(private readonly array $meta = [])
+     {
+-        parent::__construct();
+         // ...
+     }
+
+     // snip
+ }
+```
+
+## Better support for long-running runtimes
+
+If you are running Shopware in a long-running environment (e.g., FrankenPHP or RoadRunner),
+this change enables Symfony to properly reset services implementing `ResetInterface` between requests.
+No configuration changes are required.
+
+## Deprecate FK delete exception handler
+
+All foreign keys with restrict delete behavior are now handled directly by the DAL.
+This means that the following exceptions are not thrown anymore:
+* `LanguageOfOrderDeleteException`
+* `LanguageOfNewsletterDeleteException`
+* `LanguageForeignKeyDeleteException`
+* `ThemeException::themeMediaStillInUse`
+* `SalesChannelException::salesChannelDomainInUse`
+In the cases that previously those exceptions were thrown, now a `RestrictDeleteViolationException` is thrown as in all other cases.
+
+Additionally, the following exception handlers don't throw any exceptions anymore and are deprecated and will be removed in v6.8.0.0:
+* `OrderExceptionHandler`
+* `NewsletterExceptionHandler`
+* `LanguageExceptionHandler`
+* `SalesChannelExceptionHandler`
+* `ThemeExceptionHandler`
+
+## Symfony components update
+
+All Symfony components have been updated to version 7.3.
+This might lead to deprecation warnings in your extensions or customizations.
+Please check the [Symfony 7.3 upgrade guide](https://github.com/symfony/symfony/blob/v7.3.1/UPGRADE-7.3.md) for more information.
+
+## App System: Unit and NewsletterRecipient support for custom field sets
+
+It is now possible to define custom field sets in your app's `manifest.xml` file for the `unit` and `newsletter_recipient` entities.
+
+## Allow custom route names for Storefront controllers
+
+It is now possible to add custom route names for Storefront controllers in the `storefront.yaml` configuration file.
+This allows the route to be identified as a Storefront route without the usage of the `frontend`, `widgets` or `payment` prefixes.
+Add the following configuration to your `storefront.yaml` file:
+
+```yaml
+storefront:
+    router:
+        allowed_routes:
+            - swag.test.foo-bar
+```
+
+## Deprecation of `CartBehavior::isRecalculation`
+
+`CartBehavior::isRecalculation` is deprecated.
+Please use granular permissions instead, a list of them can be found in `Shopware\Core\Checkout\CheckoutPermissions`.
+Note that a new `CartBehaviour` should be created with the permissions of the `SalesChannelContext`.
+
+## Skip cart persistence with `CheckoutPermissions::SKIP_CART_PERSISTENCE`
+
+Flag the sales channel context or cart behaviour with `CheckoutPermissions::SKIP_CART_PERSISTENCE` to skip persisting the cart. Useful to trigger a memory only cart calculation:
+```php
+$calculatedCart = $updatedContext->withPermissions(
+    [CheckoutPermissions::SKIP_CART_PERSISTENCE => true],
+    fn (SalesChannelContext $context): Cart => $this->cartService->recalculate($originalCart, $context),
+);
+```
+Please ensure you respect this permission when overwriting with `Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent::setShouldPersist`.
+
+## Load all category levels for current path in NavigationRoute
+
+The navigation route now loads all category levels in the path to the currently active category.
+Before it only loaded the configured levels as well as parents and children of the currently active category.
+However the "siblings" of all the parents were missing, which caused the navigation to be incomplete when you wanted to render the tree to the active path.
+As a result now the sidebar navigation in the CMS element now expands to the full path to the currently active category.
+
+## CMS block component name will be used
+
+When rendering CMS block components in the Administration, the `component` property of the block config will be used instead of `sw-cms-block-${block.type}`. If there is no component name defined, `sw-cms-block-${block.type}` will be used as a fallback. Make sure you have set the correct component name in your CMS block configs.
+
+## Return address in documents
+
+The option `Display company` address in the `Company settings` section of the document configuration is now split into `Display return address` and `Display company address`.
+The former toggles the display of the return address above the customer address in the address block.
+The latter toggles the display of the company address below the header on the right-hand side of the document.
+
+## New Elasticsearch enhancement for optimized storefront searching and sorting
+
+This change introduces a new Elasticsearch enhancement that optimizes storefront searching and sorting. It includes the following key features:
+
+- A new boolean property `useForSorting` in `TranslatedField` to indicate if a field can be used for sorting in Elasticsearch queries.
+- Avoid using nested query when searching against Elasticsearch because its performance is not optimal.
+
+These changes require a full re-index, you need to update your Elasticsearch index's mapping by running the following command:
+
+```bash
+bin/console es:index
+```
+
+And the new implementation will be switched and ready to use after the re-indexing is completed.
+
+## Deprecated `NavigationRoute::buildName()`
+
+The method `\Shopware\Core\Content\Category\SalesChannel\NavigationRoute::buildName()` is deprecated and will be removed in the next major version. It was used to build a dynamic tag name for navigation routes, but now all navigation routes are tagged with the same tag `NavigationRoute::ALL_TAG`.
+
+## Configuration of bath size for file writing operations
+
+You can now configure the batch size for S3 file writing operations in your `config/packages/shopware.yaml`:
+
+```yaml
+shopware:
+    filesystem:
+        batch_write_size: 100  # Default is 250
+```
+
+This controls how many files are processed in a single batch when using the AsyncAwsS3WriteBatchAdapter, which helps prevent "Too many open files" errors and allows for performance tuning based on your infrastructure.
+
+# 6.7.1.2
+
+With this change, the minimal search term length is now loaded from the config table instead of being retrieved from the `.env` file.
+This allows for more flexible configuration management and ensures that the search functionality adheres to the settings defined in the database.
+
+## Deprecate method Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get
+
+In some occasions, the method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::get` was used to retrieve a single item based on its entity and identifier. However, this method only returns the first item found, which can lead to inconsistencies when multiple items share the same entity and identifier.
+Because of this, we have introduced a new method `Shopware\Core\Content\Seo\SalesChannel\SeoResolverData::getAll` that retrieves all items with the given entity and identifier. This change ensures that all relevant items are considered, preventing potential seoUrls loss or misrepresentation.
+
+Before
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+// Only a single entity is retrieved
+$entity = $data->get($definition, $url->getForeignKey());
+$seoUrls = $entity->getSeoUrls();
+$seoUrls->add($url);
+```
+
+After
+
+```php
+$url = 'https://example.com/cross-selling/product-123';
+$entities = $data->getAll($definition, $url->getForeignKey());
+
+// Now you have to loop through all entities to add the SEO URL
+foreach ($entities as $entity) {
+    $seoUrls = $entity->getSeoUrls();
+    $seoUrls->add($url);
+}
+```
+
+# 6.7.1.0
+
+## Add primary delivery and primary transaction to order
+
+Currently, there are multiple order deliveries and multiple order transactions per order.
+But normally, there is only one active transaction and one delivery containing all products.
+Now, orders contain a `primaryOrderDelivery` and `primaryOrderTransaction`, which is the easiest and in 6.8 recommended way to access them.
+All existing orders will be updated with a migration so that they also have the primary values.
+
+* Replace delivery accesses like `order.deliveries.first()` or `order.deliveries[0]` with `order.primaryOrderDelivery`
+* Replace transaction accesses like `order.transactions.last()` or `order.transactions[length - 1]` with `order.primaryOrderDelivery`
+
+## Theme configuration changes
+
+* Theme configuration used during storefront rendering is now stored in a `theme_runtime_config` table and regenerated on the refresh stage of theme lifecycle.
+* The `\Shopware\Storefront\Theme\CachedResolvedConfigLoader` is now deprecated and will be removed in the next major version. Please update the code that directly uses it to use the `\Shopware\Storefront\Theme\ResolvedConfigLoader` instead.
+* The `\Shopware\Storefront\Theme\Exception\ThemeAssignmentException` is now deprecated and will be removed in the next major version. Please use `\Shopware\Storefront\Theme\Exception\ThemeException::themeAssignmentException`.
+
+## Translation labels and helpTexts for Themes
+
+A constructed snippet key was introduced in Shopware 6.7 and will be required starting 6.8.
+This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
+To provide translations for theme configuration, [creating administration snippets as usual](https://developer.shopware.com/resources/admin-extension-sdk/faq/#how-can-i-use-snippets-to-translate-my-app)
+will be mandatory.
+
+The snippet keys to be used are constructed as follows.
+The mentioned `themeName` implies the `technicalName` property of the theme in kebab case.
+Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
+
+Examples:
+* Tab: `sw-theme.<technicalName>.<tabName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.label`
+* Block: `sw-theme.<technicalName>.<tabName>.<blockName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.label`
+* Section: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.label`
+* Field:
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.label`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.label`
+  * `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.helpText`
+    * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.helpText`
+* Options: `sw-theme.<technicalName>.<tabName>.<blockName>.<sectionName>.<fieldName>.<index>.label`
+  * e.g.: `sw-theme.swag-shape-theme.colorTab.primaryColorsBlock.homeSection.sw-color-primary-dark.0.label`
+
+## Breadcrumb template functions require the `SalesChannelContext`
+
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e. adjust the default Twig templates as follows
+
+```diff
+- sw_breadcrumb_full(category, context.context)
+- sw_breadcrumb_full_by_id(category, context.context)
++ sw_breadcrumb_full(category, context)
++ sw_breadcrumb_full_by_id(category, context)
+```
+## ThemeConfiguration deprecations
+
+The `label` and `helpText` fields in the `/api/_action/theme/{themeId}/configuration` and in the
+`/api/_action/theme/{themeId}/structured-fields` API endpoints have been deprecated. For translations you should rely on
+the `labelSnippetKey` and `helpTextSnippetKey` fields instead (present only in the structured fields endpoint).
+
+The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields` methods have been
+deprecated in favor of the new `ThemeConfigurationService::getPlainThemeConfiguration` and
+`ThemeConfigurationService::getThemeConfigurationFieldStructure` methods. The new methods return the same data as the old ones,
+excluding the deprecated fields.
+
+
+## Vue i18n Translation Functions
+
+
+* The `$tc` function is deprecated and will be removed in v6.8.0
+* Use `$t` function instead for all translations
+* The `$tc` function now shows a deprecation warning when used with the feature flag `V6_8_0_0` enabled
+
+
+## Measurement system units info are now provided in the store-api
+
+Previously, the store-api did not provide measurement system units info. The product's measurement units were always returned in fixed units (kg/mm).
+
+Now, it provides the measurement system units info in the response of the `context` endpoint and `product` API endpoints depending on the configured measurement system of the sales channel domain.
+
+This allows the clients to render the product's measurement units in the configured measurement units of the sales channel domain instead of fixed units (kg/mm).
+
+_Note: The product's measurement units are still stored in the database in fixed units (kg/mm) and converted to the configured measurement units of the sales channel domain when reading or writing the product's measurement units._
+
+## New Admin API's request headers
+
+We added new request headers `sw-measurement-weight-unit` and `sw-measurement-length-unit` to allow clients to specify the measurement units for length and weight when reading or writing product's measurement units.
+
+This is useful when the user can provide measurement units in the header and get the desired product's measurement units in the response. And also the same when writing the product's measurement units in the desired measurement units without convert the units back and forth
+
+## New twig filter to convert measurement units
+
+For the storefront, we added a new twig filter `sw_convert_unit` to convert measurement units in twig templates. This allows the developers to convert measurement units in the templates without writing custom logic.
+
+It allows the developers to convert measurement units of any value, any variable in the templates without writing custom logic.
+
+Or they can also convert between any measurement units by passing the desired measurement unit as a parameter to the filter.
+
+### Example:
+
+```twig
+{{ product.customFields.fooInCm|sw_convert_unit(from:'cm') }} // Converts the value of custom field `fooInCm` from cm to the configured measurement unit of the sales channel domain
+
+{{ product.customFields.fooInCm|sw_convert_unit(from:'cm', to:'inch') }} // Converts the value of custom field `fooInCm` from cm to inch
+
+{{ product.weight|sw_convert_unit(from: 'kg', to: 'pound', precision: 1) }} // you can also specify the precision of the converted value
+```
+## Primary delivery ordering and read-only cart extensions
+The `OrderConverter` now explicitly moves the **primary order delivery** to the front of the deliveries list. This ensures legacy compatibility for existing usages of `$deliveries->first()`.
+Two new cart extensions are introduced:
+- `ORIGINAL_PRIMARY_ORDER_DELIVERY` – returns the originally determined primary order delivery.
+- `ORIGINAL_PRIMARY_ORDER_TRANSACTION` – returns the originally determined primary order transaction.
+
+These extensions serve as **informational only**: modifying them does **not** change the actual primary delivery or transaction set in the order.
+## Custom field set name is now unique for apps
+
+The `name` element of the `custom-field-set` in the app manifest is now unique per app.
+It should not be the case for your app anyway as it caused problems,
+but you should check your app manifest and ensure that the `name` of the `custom-field-set` is unique.
+## Deprecated configuration of visibility in config array
+
+The visibility of filesystems should no longer be configured in the config array. Instead, it should be set on the same level as `type`. For example, instead of:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    config:
+      visibility: public
+```
+
+You should now use:
+
+```yaml
+filesystems:
+  my_filesystem:
+    type: local
+    visibility: public
+```
+
+# 6.7.0.1
+
+## ESI render errors are not ignored anymore
+When rendering the `/header` and `/footer` ESI tags, errors will now be thrown instead of ignored. This change is intended to help developers identify and fix issues with ESI includes more easily.
+If you want to keep the old behaviour you need to overwrite the template blocks and remove the `ignore_errors: false` option from the `render_esi` function call.
+
 # 6.7.0.0 Upgrade Guide
-**NOTE:** All the breaking changes described here can be already opted in by activating the `v6.7.0.0` [feature flag](https://developer.shopware.com/docs/resources/references/adr/2022-01-20-feature-flags-for-major-versions.html#activating-the-flag) on previous versions.
 
 # Notable Changes
 
 # Webpack to vite migration for the administration
-We are switching the build system for our administration from webpack to vite. 
+We are switching the build system for our administration from webpack to vite.
 This means that when your plugins depends on a custom `webpack.config.js` file, you'll need to migrate it to a `vite.config.js` file.
 **More information about how to upgrade will be available soon.**
 
 Additionally, this means that you will need to distribute a separate plugin version starting for 6.7, when you extend the administration to distribute the correct build files.
 For more information please take a look at the [docs](https://developer.shopware.com/docs/guides/plugins/plugins/administration/system-updates/vite.html).
 
-**Note:** This change can be activated separately with the `ADMIN_VITE` feature flag.
+# Making all administration components async
+We are making all administration components async by default with this PR: https://github.com/shopware/shopware/pull/9129. This means that all components will be loaded asynchronously and not synchronously.
+This can lead to some issues when accessing components directly in the template with a `ref`. If you run into this issue you need to check before accessing the component if it is available. A good pattern for this is to use the `@vue:mounted` event to check if the component is mounted.
+
+Some components are still synchronously loaded, like the `sw-alert` component. This is because they are used in a lot of places and we want to avoid loading them asynchronously everywhere. You can see the full list of components in this file:
+
+`src/Administration/Resources/app/administration/src/app/adapter/view/vue.adapter.ts` (method: `initDependencies`)
 
 # Vue.js Enhancements (full native vue 3 support)
 ## Removal of Vue 2 compatibility layer
@@ -19,8 +621,6 @@ The Vue 2 compatibility layer has been removed from the administration. This mea
 This ensures that our administration stays future-proof and we can make use of the most recent Vue 3 features.
 
 For detailed explanation of what was covered by the compatibility layer and what needs to be updated, please refer to the [Vue docs](https://v3-migration.vuejs.org/migration-build.html).
-
-**Note:** This change can be activated separately with the `DISABLE_VUE_COMPAT` feature flag.
 
 ## Migration from Vuex to Pinia
 For Vue 3 the default state management library has become Pinia, therefore we are migrating from Vuex to Pinia. to stay as close to the default as possible.
@@ -49,7 +649,7 @@ Shopware.State.registerModule('example', {
             // Do some async stuff
             return Promise.resolve(() => {
                 commit('setId', id);
-                
+
                 return id;
             });
         }
@@ -79,10 +679,32 @@ Shopware.Store.register({
 });
 ```
 
+### Vuex Breaking change
+Due to the migration from Vuex to Pinia, the Vuex helper utils have been renamed to avoid conflicts with Pinia helpers.
+If you are still using Vuex, please update your code accordingly:
+
+```
+    mapState -> mapVuexState
+    mapMutations -> mapVuexMutations
+    mapGetters -> mapVuexGetters
+    mapActions -> mapVuexActions
+```
+
 For more information refer to the [docs](https://developer.shopware.com/docs/resources/references/adr/2024-06-17-replace-vuex-with-pinia.html#replace-vuex-with-pinia).
 
+## vue-i18n v10 Update
+We have updated `vue-i18n` to version 10, which introduces a significant change by removing the `tc` function. In Shopware, `$tc` remains available on Vue components, but it now internally references the `t` function from `vue-i18n`.
+
+### Key Considerations
+- While this change works for most use cases, some specific function overloads are no longer supported.
+- For a comprehensive list of deprecated features and migration strategies, refer to the official [vue-i18n migration guide](https://vue-i18n.intlify.dev/guide/migration/breaking10#deprecate-tc-and-tc-for-legacy-api-mode).
+
+### Recommended Actions
+- Review your existing translation calls
+- Test components that heavily rely on translation methods
+- Consider updating to the recommended `t` function where possible
+
 # Cache Rework
-**Note:** Those changes can be activated separately with the `cache_rework` feature flag.
 
 ## Delayed Cache Invalidation
 The cache invalidation will be delayed by default. This means that the cache will be invalidated in regular intervals and not immediately.
@@ -124,6 +746,45 @@ The rendered header and footer are included into the page with the Twig function
 Two new templates `src/Storefront/Resources/views/storefront/layout/header.html.twig` and `src/Storefront/Resources/views/storefront/layout/footer.html.twig` were introduced as new entry points for the header and footer.
 Make sure to adjust your template extensions to be compatible with the new structure.
 The block names are still the same, so it just should be necessary to extend from the new templates.
+New blocks (`base_esi_header` and `base_esi_footer`) were added to the `base.html.twig` template to overwrite header and footer completely.
+This is e.g. used to show minimal header and footer during the checkout process.
+Additionally you can modify the header and footer by adding query parameters to the header and footer ESI requests:
+- Extending the `src/Storefront/Resources/views/storefront/base.html.twig` file:
+```twig
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+{% block base_esi_header %}
+    {% set headerParameters = headerParameters|merge({ 'vendorPrefixPluginName': { 'activeRoute': activeRoute } }) %}
+    {{ parent() }}
+{% endblock %}
+```
+
+- Within a plugin, you can also use the `Shopware\Storefront\Event\StorefrontRenderEvent`
+```php
+class StorefrontSubscriber
+{
+    public function __invoke(StorefrontRenderEvent $event): void
+    {
+        if ($event->getRequest()->attributes->get('_route') !== 'frontend.header') {
+            return;
+        }
+
+        $headerParameters = $event->getParameter('headerParameters') ?? [];
+        $headerParameters['vendorPrefixPluginName']['salesChannelId'] = $event->getSalesChannelContext()->getSalesChannelId();
+
+        $event->setParameter('headerParameters', $headerParameters);
+    }
+}
+```
+
+After that you can use this data to customize the header template:
+```twig
+{% sw_extends '@Storefront/storefront/layout/header.html.twig' %}
+{% block header %}
+    {{ dump(headerParameters.vendorPrefixPluginName.activeRoute) }}
+    {{ dump(headerParameters.vendorPrefixPluginName.salesChannelId) }}
+    {{ parent() }}
+{% endblock %}
+```
 
 # Major Library Updates
 We upgraded the following libraries to their latest versions:
@@ -134,7 +795,6 @@ We upgraded the following libraries to their latest versions:
 
 # Accessibility Compliance
 In alignment with the European Accessibility Act (EAA) we made significant accessibility improvements.
-**Note:** Those changes can be activated separately with the `ACCESSIBILITY_TWEAKS` feature flag.
 
 <details>
   <summary>Detailed Changes</summary>
@@ -347,10 +1007,10 @@ The hidden radio input will no longer be in the HTML. The current page value wil
 
 {# All information that was previously on the radio input, is now also on the anchor link. The id attribute is longer needed. The "disabled" state is now controlled via the parent `<li>` and tabindex. #}
 {% block component_pagination_first_link_element %}
-    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}" 
+    <a href="{{ href ? '?p=1' ~ searchQuery : '#' }}"
        class="page-link some-special-class"
        data-page="1"
-       aria-label="{{ 'general.first'|trans|striptags }}" 
+       aria-label="{{ 'general.first'|trans|striptags }}"
        data-focus-id="first"
        {% if currentPage == 1 %} tabindex="-1" aria-disabled="true"{% endif %}>
         {# Using text instead of icon and add some special CSS class #}
@@ -358,6 +1018,124 @@ The hidden radio input will no longer be in the HTML. The current page value wil
     </a>
 {% endblock %}
 ```
+
+## Use `<button>` elements instead of `<a>` to open modal windows
+
+Modal triggers that were previously using anchor `<a>` elements are now using `<button>` elements.
+Anchor `<a>` elements are recognized as native links by the screen-reader and should not open a dialog/modal window instead of redirecting to a new page.
+A modal window should be opened via `<button>` and is mainly driven by JavaScript. `<a href="#">` elements should only be native hyperlinks and not trigger additional modals. This can confuse screen-reader users.
+
+To maintain the link appearance, the classes `btn btn-link-inline` are used. The "link" looks like a regular link but is semantically a `<button>` when it triggers a modal.
+
+### Ajax modal trigger before:
+```html
+<a data-ajax-modal="true" data-url="/some-route" href="/some-route">Open ajax modal</a>
+```
+
+### Ajax modal trigger after:
+```html
+<button data-ajax-modal="true" data-url="/some-route" class="btn btn-link-inline">Open ajax modal</button>
+```
+
+### New translation keys with button modal triggers
+
+Some modal triggers are inside translation texts. With 6.7 new translation keys are used that have buttons instead of links.
+There are also new translation parameters to avoid too much HTML and modal logic inside the translation strings.
+
+| Old key                             | Old params                   | New key                                  | New params                                                                                   |
+|-------------------------------------|------------------------------|------------------------------------------|----------------------------------------------------------------------------------------------|
+| `general.privacyNoticeText`         | `%privacyUrl%`, `%tosUrl%`   | `general.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`, `%tosModalTagOpen%`, `%tosModalTagClose%` |
+| `contact.privacyNoticeText`         | `%privacyUrl%`, `%prevUrl%`  | `contact.privacyNoticeTextModal`         | `%privacyModalTagOpen%`, `%privacyModalTagClose%`                                            |
+| `checkout.confirmRevocationNotice`  | `%url%`                      | `checkout.confirmRevocationNoticeModal`  | `%revocationModalTagOpen%`, `%revocationModalTagClose%`                                      |
+| `checkout.confirmTermsText`         | `%url%`                      | `checkout.confirmTermsTextModal`         | `%tosModalTagOpen%`, `%tosModalTagClose%`                                                    |
+| `checkout.confirmTermsReminderText` | `%url%`                      | `checkout.confirmTermsReminderTextModal` | `%tosModalTagOpen%`, `'%tosModalTagClose%`                                                   |
+
+### Old translation string structure
+The HTML of the modal trigger was part of the translation.
+
+```twig
+{{ 'checkout.confirmTermsReminderText')|trans({
+    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') }),
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderText": "You have already accepted the <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>."
+}
+```
+
+### New translation string structure
+The HTML of the modal trigger is now inside the twig template instead.
+
+```twig
+{{ 'checkout.confirmTermsReminderTextModal')|trans({
+    '%tosModalTagOpen%': '<button type="button" class="btn btn-link-inline" data-ajax-modal="true" data-url="' ~ path(cmsPath, { id: config('core.basicInformation.tosPage') }) ~ '">',
+    '%tosModalTagClose%': '</button>'
+})|raw }}
+```
+```json
+{
+  "confirmTermsReminderTextModal": "You have already accepted the %tosModalTagOpen%general terms and conditions%tosModalTagClose%."
+}
+```
+
+## Storefront `{% sw_icon %}` are `aria-hidden="true"` by default
+Storefront icons that are rendered via `{% sw_icon 'icon-name' %}` will apply `aria-hidden="true"` by default so they are hidden for screen readers.
+In most scenarios icons are of decorative nature and should therefore not be read as "graphic" by the screen reader. **This change does not affect the actual rendering or appearance of the icons.**
+In many areas the icons were already set to `ariaHidden: true` manually. For things like "icon only" buttons there should always be an alternative text available that describes the action.
+
+It is still possible to disable `aria-hidden` by applying `ariaHidden: false` on the icon:
+```twig
+{% sw_icon 'plus' style { ariaHidden: false } %}
+```
+
+```twig
+{#
+    Icon only button
+    ======================================================
+#}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action" aria-label="Label for icon only button">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+</button>
+
+{#
+    Additional icon button
+    ======================================================
+#}
+<button class="btn btn-primary my-action">
+    {% sw_icon 'plus' %} {# Icon is hidden for screen reader. #}
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{# Will render: #}
+<button class="btn btn-primary my-action">
+    <span class="icon icon-plus" aria-hidden="true">
+        <svg ...></svg>
+    </div>
+    Label for the button {# Button is labelled by the actual text. #}
+</button>
+
+{#
+    Label for icon SVG
+    ======================================================
+#}
+
+{# In rare occasions, you can optionally disable aria-hidden. It is also possible to apply an aria-label to the SVG. #}
+{% sw_icon 'plus' style { ariaHidden: false, ariaLabel: 'My label' } %}
+
+{# Will render: #}
+<span class="icon icon-plus">
+    <svg aria-label="My label"...></svg>
+</div>
+```
+
 </details>
 
 # Further Changes
@@ -395,6 +1173,7 @@ The `technicalName` property will be required for payment and shipping methods i
 The `technical_name` column will be made non-nullable for the `payment_method` and `shipping_method` tables in the database.
 
 Plugin developers will be required to supply a `technicalName` for their payment and shipping methods.
+**If no technical name is specified before the migration is run, a temporary placeholder `temporary_<method-id>` will be used instead.**
 
 Merchants must review their custom created payment and shipping methods for the new `technicalName` property and update their methods through the administration accordingly.
 </details>
@@ -430,7 +1209,6 @@ All PHP class properties now have a native type.
 If you have extended classes with properties, which didn't have a native type before, make sure you now add them as well.
 
 ## Reduced data loaded in Store-API Register Route and Register related events
-
 The customer entity does not have all associations loaded by default anymore.
 This change reduces the amount of data loaded in the Store-API Register Route and Register related events to improve the performance.
 
@@ -473,11 +1251,31 @@ Merchants must review their custom created payment and shipping methods for the 
 * Removed default payment method from customer entity, since it was mostly overriden by old saved contexts
 * Logic is now more consistent to always be the last used payment method
 
+## Removal of Custom Entities for Plugins
+
+Custom Entities for plugins support has been removed. It's no longer possible to create a `Resources/config/entities.xml` file in your plugin to create DAL entities. This has been removed for performance reasons. Our recommandation is to use regular EntityDefinition or an Attribute based entity.
+
+## Bulletproofing Plugin Migrations
+### Creation timestamp is now validated
+The returned timestamp `MigrationStep::getCreationTimestamp()` method is now validated, it needs to be between `1` and `2147483647` (the `max_int` value on 32-bit systems). This ensures that the migration order is always deterministic and prevents common errors when the method returns a higher number,
+that will silently be treated as max_int, leading to multiple migrations having the same creation timestamp, thus the execution order becomes random, which might lead to hard to debug errors while executing migrations.
+### Plugin migrations are now removed before calling `uninstall()`
+When `keepUserData` is set to false during plugin uninstall, the plugin is expected to clean up all DB tables the plugin created in the `install` method.
+Now we are cleaning up the plugin migrations from the migration table before calling the `uninstall` method, so in case of an error, the plugin can be reinstalled and the migrations can be rerun.
+
 ## Required foreign key in mapping definition for many-to-many associations
 If the mapping definition of a many-to-many association does not contain foreign key fields, an exception will be thrown.
 
-## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
+## Change in entity extensions
+If you have extended entities via an implementation of `\Shopware\Core\Framework\DataAbstractionLayer\EntityExtension`, you need to adjust those classes.
+The method `EntityExtension::getEntityName()` is now abstract and required to be implemented.
+Return the entity name of the entity you are extending, e.g. `product_media`.
 
+## Logger is required for ScheduledTaskHandler
+The abstract class `\Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler` now requires an implementation of `Psr\Log\LoggerInterface` as second argument.
+If you have implemented a custom `ScheduledTaskHandler`, you need to adjust the constructor accordingly.
+
+## Elasticsearch: Return type of AbstractElasticsearchDefinition::buildTermQuery changed to BuilderInterface
 The return type of `\Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::buildTermQuery()` and `\Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder::build()` changed from BoolQuery to BuilderInterface.
 It is not necessary to wrap the return value in a BoolQuery anymore.
 Before:
@@ -511,14 +1309,12 @@ public function buildTermQuery(Context $context, Criteria $criteria): BuilderInt
 Changed the return type of the `Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface` from `EntityCollection<PromotionEntity>` to `PromotionCollection`
 
 ## ImportExport signature changes
-
 * Added a new optional parameter `bool $useBatchImport` to `ImportExportFactory::create`. If you extend the `ImportExportFactory` class, you should properly handle the new parameter in your custom implementation.
 * Removed method `ImportExportProfileEntity::getName()` and `ImportExportProfileEntity::setName()`. Use `getTechnicalName()` and `setTechnicalName()` instead.
 * Removed `profile` attribute from `ImportEntityCommand`. Use `--profile-technical-name` instead.
 * Removed `name` field from `ImportExportProfileEntity`.
 
 ## SitemapHandleFactoryInterface::create method signature change
-
 We added a new optional parameter `string $domainId` to `SitemapHandleFactoryInterface::create` and `SitemapHandleFactory::create`.
 If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandleFactory` class, you should properly handle the new parameter in your custom implementation.
 
@@ -526,7 +1322,6 @@ If you implement the `SitemapHandleFactoryInterface` or extend the `SitemapHandl
 Removed `\Core\Framework\Api\Controller\AuthController::authorize` method (API route `/api/oauth/authorize`) without replacement.
 
 ## TreeUpdater::batchUpdate signature change
-
 We added a new optional parameter `bool $recursive` to `TreeUpdater::batchUpdate`.
 If you extend the `TreeUpdater` class, you should properly handle the new parameter in your custom implementation.
 ```php
@@ -540,17 +1335,16 @@ class CustomTreeUpdater extends TreeUpdater
     }
 }
 ```
-## removal of \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand:
-`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
+## Removal of CreateSchemaCommand:
+`\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateSchemaCommand` was removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand` instead.
 
-## Removal of \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator:
-`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` will be removed. You can use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
+## Removal of SchemaGenerator:
+`\Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator` was removed. Use `\Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator` instead.
 
 ## AccountService refactoring
-
 The `Shopware\Core\Checkout\Customer\SalesChannel\AccountService::login` method is removed. Use `AccountService::loginByCredentials` or `AccountService::loginById` instead.
 
-Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` are removed.
+Unused constant `Shopware\Core\Checkout\Customer\CustomerException::CUSTOMER_IS_INACTIVE` and unused method `Shopware\Core\Checkout\Customer\CustomerException::inactiveCustomer` were removed.
 
 ## Removed `CustomFieldRule` comparison methods:
 `floatMatch` and `arrayMatch` methods in `src/Core/Framework/Rule/CustomFieldRule.php` will be removed for Shopware 6.7.0.0
@@ -606,7 +1400,7 @@ The following methods of the `\Shopware\Core\Framework\DataAbstractionLayer\Enti
 </details>
 
 ## Attributes classes made final
-We have made attribute classes final. 
+We have made attribute classes final.
 <details>
   <summary>See the detailed list</summary>
 
@@ -631,7 +1425,19 @@ We have made attribute classes final.
 * `\Shopware\Core\Framework\Event\IsFlowEventAware`
 </details>
 
+## Move notifications from admin to core
+
+The following classes have been moved from the admin bundle to the core:
+
+* `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Core\Framework\Notification\NotificationEntity`
+
+The controller `Shopware\Core\Framework\Notification\Api\NotificationController` has been moved from the admin bundle to the core and made internal.
+
 </details>
+
+
 
 # Administration
 We made some changes in the administration, which might affect your plugins.
@@ -700,6 +1506,8 @@ In short this means we replaced the following components:
 * `sw-number-field` with `mt-number-field`
 * `sw-loader` with `mt-loader`
 * `sw-checkbox-field` with `mt-checkbox`
+
+Note that these new components follow the standard Vue conventions for passing the value to the component. In short, when a two-way binding is needed the `v-model="myValue"` attribute should be used. If only the value should be passed to the component `:model-value=myValue` should be used, but then the `@update:model-value` needs to be implemented. For more information refer to the [Vue documentation](https://vuejs.org/guide/components/v-model.html).
 
 <details>
     <summary>See the detailed list</summary>
@@ -885,8 +1693,8 @@ After:
 <mt-select />
 ```
 
-### "sw-select-field" prop "value" was renamed to "modelValue"
-Replace all occurrences of the prop "value" with "modelValue"
+### "sw-select-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
@@ -895,7 +1703,7 @@ Before:
 
 After:
 ```html
-<mt-select :modelValue="selectedValue" />
+<mt-select :model-value="selectedValue" />
 ```
 
 ### "sw-select-field" the "v-model:value" was renamed to "v-model"
@@ -970,8 +1778,8 @@ After:
 <mt-select label="My Label" />
 ```
 
-### "sw-select-field" the event "update:value" was renamed to "update:modelValue"
-The event "update:value" was renamed to "update:modelValue"
+### "sw-select-field" the event "update:value" was renamed to "update:model-value"
+The event "update:value" was renamed to "update:model-value"
 
 Before:
 ```html
@@ -980,7 +1788,7 @@ Before:
 
 After:
 ```html
-<mt-select @update:modelValue="onUpdateValue" />
+<mt-select @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-textarea-field":
 The old "sw-textarea-field" component will be removed in the next major version. Please use the new "mt-textarea" component instead.
@@ -1003,8 +1811,8 @@ After:
 <mt-textarea />
 ```
 
-### "sw-textarea-field" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-textarea-field" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1012,7 +1820,7 @@ Before:
 ```
 After:
 ```html
-<mt-textarea :modelValue="myValue" />
+<mt-textarea :model-value="myValue" />
 ```
 
 ### "sw-textarea-field" binding "v-model:value" is replaced by "v-model"
@@ -1045,8 +1853,8 @@ After:
 <mt-textarea label="My Label" />
 ```
 
-### "sw-textarea-field" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-textarea-field" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1055,7 +1863,7 @@ Before:
 
 After:
 ```html
-<mt-textarea @update:modelValue="onUpdateValue" />
+<mt-textarea @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-datepicker":
 The old "sw-datepicker" component will be removed in the next major version. Please use the new "mt-datepicker" component instead.
@@ -1078,8 +1886,8 @@ After:
 <mt-datepicker />
 ```
 
-### "sw-datepicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-datepicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1087,7 +1895,7 @@ Before:
 ```
 After:
 ```html
-<mt-datepicker :modelValue="myValue" />
+<mt-datepicker :model-value="myValue" />
 ```
 
 ### "sw-datepicker" binding "v-model:value" is replaced by "v-model"
@@ -1120,8 +1928,8 @@ After:
 <mt-datepicker label="My Label" />
 ```
 
-### "sw-datepicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-datepicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1130,7 +1938,7 @@ Before:
 
 After:
 ```html
-<mt-datepicker @update:modelValue="onUpdateValue" />
+<mt-datepicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-password-field":
 The old "sw-password-field" component will be removed in the next major version. Please use the new "mt-password-field" component instead.
@@ -1154,7 +1962,7 @@ After:
 ```
 
 ### "mt-password-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1162,7 +1970,7 @@ Before:
 ```
 After:
 ```html
-<mt-password-field modelValue="Hello World" />
+<mt-password-field model-value="Hello World" />
 ```
 
 ### "mt-password-field" v-model:value is deprecated
@@ -1202,7 +2010,7 @@ After:
 ```
 
 ### "mt-password-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1211,7 +2019,7 @@ Before:
 
 After:
 ```html
-<mt-password-field @update:modelValue="updateValue" />
+<mt-password-field @update:model-value="updateValue" />
 ```
 
 ### "mt-password-field" has no event "base-field-mounted" anymore
@@ -1281,8 +2089,8 @@ After:
 <mt-colorpicker />
 ```
 
-### "sw-colorpicker" property "value" is replaced by "modelValue"
-Replace all occurrences of the property "value" with "modelValue"
+### "sw-colorpicker" property "value" is replaced by "model-value"
+Replace all occurrences of the property "value" with "model-value"
 
 Before:
 ```html
@@ -1290,7 +2098,7 @@ Before:
 ```
 After:
 ```html
-<mt-colorpicker :modelValue="myValue" />
+<mt-colorpicker :model-value="myValue" />
 ```
 
 ### "sw-colorpicker" binding "v-model:value" is replaced by "v-model"
@@ -1323,8 +2131,8 @@ After:
 <mt-colorpicker label="My Label" />
 ```
 
-### "sw-colorpicker" event "update:value" is replaced by "update:modelValue"
-Replace all occurrences of the event "update:value" with "update:modelValue"
+### "sw-colorpicker" event "update:value" is replaced by "update:model-value"
+Replace all occurrences of the event "update:value" with "update:model-value"
 
 Before:
 ```html
@@ -1333,7 +2141,7 @@ Before:
 
 After:
 ```html
-<mt-colorpicker @update:modelValue="onUpdateValue" />
+<mt-colorpicker @update:model-value="onUpdateValue" />
 ```
 ## Removal of "sw-external-link":
 The old "sw-external-link" component will be removed in the next major version. Please use the new "mt-external-link" component instead.
@@ -1409,7 +2217,7 @@ After:
 ```
 
 ### "mt-email-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1417,7 +2225,7 @@ Before:
 ```
 After:
 ```html
-<mt-email-field modelValue="Hello World" />
+<mt-email-field model-value="Hello World" />
 ```
 
 ### "mt-email-field" v-model:value is deprecated
@@ -1469,7 +2277,7 @@ After:
 ```
 
 ### "mt-email-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1478,7 +2286,7 @@ Before:
 
 After:
 ```html
-<mt-email-field @update:modelValue="updateValue" />
+<mt-email-field @update:model-value="updateValue" />
 ```
 
 ### "mt-email-field" has no event "base-field-mounted" anymore
@@ -1532,7 +2340,7 @@ After:
 ```
 
 ### "mt-url-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1540,7 +2348,7 @@ Before:
 ```
 After:
 ```html
-<mt-url-field modelValue="Hello World" />
+<mt-url-field model-value="Hello World" />
 ```
 
 ### "mt-url-field" v-model:value is deprecated
@@ -1556,7 +2364,7 @@ After:
 ```
 
 ### "mt-url-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1565,7 +2373,7 @@ Before:
 
 After:
 ```html
-<mt-url-field @update:modelValue="updateValue" />
+<mt-url-field @update:model-value="updateValue" />
 ```
 
 ### "mt-url-field" has no slot "label" anymore
@@ -1624,7 +2432,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1632,7 +2440,7 @@ Before:
 ```
 After:
 ```html
-<mt-progress-bar modelValue="5" />
+<mt-progress-bar model-value="5" />
 ```
 
 ### "mt-progress-bar" v-model:value is deprecated
@@ -1648,7 +2456,7 @@ After:
 ```
 
 ### "mt-progress-bar" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1657,7 +2465,7 @@ Before:
 
 After:
 ```html
-<mt-progress-bar @update:modelValue="updateValue" />
+<mt-progress-bar @update:model-value="updateValue" />
 ```
 
 ## Removal of "sw-button":
@@ -1690,7 +2498,7 @@ Before:
 ```
 After:
 ```html
-<mt-button ghost>Save</mt-button>
+<mt-button variant="primary" ghost>Save</mt-button>
 ```
 
 ### "mt-button" has no value "danger" in property "variant" anymore
@@ -1864,7 +2672,7 @@ After:
 ```
 
 ### "mt-text-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+Replace all occurrences of the "value" prop with "model-value"
 
 Before:
 ```html
@@ -1872,7 +2680,7 @@ Before:
 ```
 After:
 ```html
-<mt-text-field modelValue="Hello World" />
+<mt-text-field model-value="Hello World" />
 ```
 
 ### "mt-text-field" v-model:value is deprecated
@@ -1924,7 +2732,7 @@ After:
 ```
 
 ### "mt-text-field" has no event "update:value" anymore
-Replace all occurrences of the "update:value" event with "update:modelValue"
+Replace all occurrences of the "update:value" event with "update:model-value"
 
 Before:
 ```html
@@ -1933,7 +2741,7 @@ Before:
 
 After:
 ```html
-<mt-text-field @update:modelValue="updateValue" />
+<mt-text-field @update:model-value="updateValue" />
 ```
 
 ### "mt-text-field" has no event "base-field-mounted" anymore
@@ -1984,6 +2792,18 @@ Before:
 After:
 ```html
 <mt-switch>Hello World</mt-switch>
+```
+
+### "mt-switch" v-model:value is deprecated
+Replace all occurrences of the "v-model:value" directive with "v-model"
+
+Before:
+```html
+<mt-switch v-model:value="myValue" />
+```
+After:
+```html
+<mt-switch v-model="myValue" />
 ```
 
 ### "mt-switch" has no "noMarginTop" prop anymore
@@ -2133,28 +2953,30 @@ After:
 <mt-number-field />
 ```
 
-### "mt-number-field" has no property "value" anymore
-Replace all occurrences of the "value" prop with "modelValue"
+### "sw-number-field" prop "value" was renamed to "model-value"
+Replace all occurrences of the prop "value" with "model-value"
 
 Before:
 ```html
-<mt-number-field :value="5" />
-```
-After:
-```html
-<mt-number-field :modelValue="5" />
+<sw-number-field value="5" />
 ```
 
-### "mt-number-field" v-model:value is deprecated
-Replace all occurrences of the "v-model:value" directive with the combination of `:modelValue` and `@change`
+After:
+```html
+<mt-number-field model-value="5" />
+```
+
+### "sw-number-field" the "v-model:value" was renamed to "v-model"
+Replace all occurrences of the "v-model:value" directive with "v-model"
 
 Before:
 ```html
-<mt-number-field v-model:value="myValue" />
+<sw-number-field v-model:value="myValue" />
 ```
+
 After:
 ```html
-<mt-number-field :modelValue="myValue" @change="myValue = $event" />
+<mt-number-field v-model="myValue" />
 ```
 
 ### "mt-number-field" label slot is deprecated
@@ -2175,7 +2997,7 @@ After:
 ```
 
 ### "mt-number-field" update:value event is deprecated
-Replace all occurrences of the "update:value" event with the "change" event
+Replace all occurrences of the "update:value" event with the "update:model-value" event
 
 Before:
 ```html
@@ -2183,8 +3005,9 @@ Before:
 ```
 After:
 ```html
-<mt-number-field @change="updateValue" />
+<mt-number-field @update:model-value="updateValue" />
 ```
+
 ## Removal of "sw-loader":
 The old "sw-loader" component will be removed in the next major version. Please use the new "mt-loader" component instead.
 
@@ -2327,7 +3150,59 @@ After:
 ```html
 <mt-checkbox @update:checked="updateValue" />
 ```
+
+## Migration to "mt-tooltip"
+As part of the internal refactor of the Meteor component library, all tooltips are now rendered using the new `mt-tooltip` component.
+
+### `mt-tooltip` no longer supports Vue components inside the tooltip content. Previously, it was possible to render Vue components (such as `RouterLink`) inside the tooltip text. This is no longer supported. The tooltip content must now consist only of plain strings or standard HTML elements.
+
+Before:
+```html
+<mt-switch :help-text="`This is a help text. <RouterLink to="someUrl">Link</RouterLink>`" />
+```
+After:
+```html
+<mt-switch :help-text="`This is a help text. <a href="someUrl">Link</a>`" />
+```
+
 </details>
+
+### Deprecated admin notification entity + related classes
+
+We have moved the notification entity, collection and definition to core. You should update your code to reference the new classes. The old classes are deprecated.
+
+* `Shopware\Administration\Notification\NotificationCollection` -> `Shopware\Core\Framework\Notification\NotificationCollection`
+* `Shopware\Administration\Notification\NotificationDefinition` -> `Shopware\Core\Framework\Notification\NotificationDefinition`
+* `Shopware\Administration\Notification\NotificationEntity` -> `Shopware\Core\Framework\Notification\NotificationEntity`
+
+### Deprecated notification controller
+
+`\Shopware\Administration\Controller\NotificationController` is now moved to core `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please update it. The HTTP route is still the same. The old class is deprecated.
+
+### Mitigate Meteor components migration with deprecated components
+
+To support extension developers and ensure compatibility between Shopware 6.6 and Shopware 6.7, a new prop called `deprecated` has been added to Shopware components.
+
+- **Prop Name**: `deprecated`
+- **Default Value**: `false` (uses the new Meteor Components by default)
+- **Purpose**:
+    - When `deprecated` is set to `true`, the component will render the old (deprecated) version instead of the new Meteor Component.
+    - This allows extension developers to maintain a single codebase compatible with both Shopware 6.6 and 6.7 without being forced to immediately migrate to Meteor Components.
+
+Example:
+
+```html
+<!-- Uses mt-button in 6.7 and sw-button-deprecated in 6.6 -->
+<template>
+  <sw-button />
+</template>
+
+<!-- Uses sw-button-deprecated in 6.6 and 6.7 -->
+<template>
+  <sw-button deprecated />
+</template>
+```
+
 </details>
 
 # Storefront
@@ -2341,6 +3216,11 @@ We made some changes in the Storefront, which might affect your plugins and them
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader` or `\Shopware\Storefront\Pagelet\Footer\FooterPageletLoader` instead.
 * The properties `header`, `footer`, `salesChannelShippingMethods` and `salesChannelPaymentMethods` and their getter and setter Methods in `\Shopware\Storefront\Page\Page` were removed.
   Extend `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` or `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
+  Use the following alternatives in templates instead:
+    * `context.currency` instead of `page.header.activeCurrency`
+    * `shopware.navigation.id` instead of `page.header.navigation.active.id`
+    * `shopware.navigation.pathIdList` instead of `page.header.navigation.active.path`
+    * `context.languageInfo` instead of `page.header.activeLanguage`
 * The property `serviceMenu` and its getter and setter Methods in `\Shopware\Storefront\Pagelet\Header\HeaderPagelet` were removed.
   Extend it via the `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` instead.
 * The `navigationId` request parameter in `\Shopware\Storefront\Pagelet\Header\HeaderPageletLoader::load` was removed.
@@ -2356,7 +3236,8 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The following blocks were moved from `src/Storefront/Resources/views/storefront/base.html.twig` to `src/Storefront/Resources/views/storefront/layout/footer.html.twig`.
   * `base_footer`
   * `base_footer_inner`
-* The template variable `page` in following templates was removed. Provide `header` or `footer` directly.
+* The template variable `page` in following templates was removed. The data is now available in the `header` or `footer` variables.
+  If you need to access custom data in the footer or header, use the `HeaderPageletLoadedEvent` or `FooterPageletLoadedEvent` to extend those variables.
   * `src/Storefront/Resources/views/storefront/layout/footer/footer.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/currency-widget.html.twig`
   * `src/Storefront/Resources/views/storefront/layout/header/actions/language-widget.html.twig`
@@ -2365,6 +3246,11 @@ We made some changes in the Storefront, which might affect your plugins and them
 * The template variables `activeId` and `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/categories.html.twig` were removed.
 * The template variable `activePath` in `src/Storefront/Resources/views/storefront/layout/navbar/navbar.html.twig` was removed.
 * The parameter `activeResult` of `src/Storefront/Resources/views/storefront/layout/sidebar/category-navigation.html.twig` was removed.
+* The global `showStagingBanner` Twig variable was removed. Use `shopware.showStagingBanner` instead.
+
+## FooterPagelet changes
+The former optional parameter `serviceMenu` of type `\Shopware\Core\Content\Category\CategoryCollection` in `\Shopware\Storefront\Pagelet\Footer\FooterPagelet` is now required.
+Make sure to pass it to the constructor.
 
 ## ThemeFileImporterInterface & ThemeFileImporter Removal
 Both `\Shopware\Storefront\Theme\ThemeFileImporterInterface` & `\Shopware\Storefront\Theme\ThemeFileImporter` are removed without replacement. These classes are already not used as of v6.6.5.0 and therefore this extension point is removed with no planned replacement.
@@ -2378,6 +3264,11 @@ foreach($storefrontPluginConfig->getAssetPaths() as $relativePath) {
     $absolutePath = $fs->path('Resources', $relativePath);
 }
 ```
+
+## Removal of `setTwig` method in `StorefrontController`
+The method `Shopware\Storefront\Controller\StorefrontController::setTwig` has been removed.
+Remove the `setTwig` call from the services config files.
+There is no further change required.
 
 ## Removal of deprecated product review loading logic in Storefront
 * The service `\Shopware\Storefront\Page\Product\Review\ProductReviewLoader` was removed. Use `\Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader` instead.
@@ -2431,11 +3322,11 @@ The general usage of `Resources/views/storefront/utilities/alert.html.twig` and 
 Before:
 ```html
 <div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
+    <span class="icon icon-info"><svg></svg></span>
     <div class="alert-content-container">
-        <div class="alert-content">                                                    
+        <div class="alert-content">
             Your shopping cart is empty.
-        </div>                
+        </div>
     </div>
 </div>
 ```
@@ -2443,7 +3334,7 @@ Before:
 After:
 ```html
 <div role="alert" class="alert alert-info d-flex align-items-center">
-    <span class="icon icon-info"><svg></svg></span>                                                    
+    <span class="icon icon-info"><svg></svg></span>
     <div class="alert-content-container">
         Your shopping cart is empty.
     </div>
@@ -2515,8 +3406,8 @@ After:
 const paramsObj = Object.fromEntries(new URLSearchParams(window.location.search).entries());
 ```
 
-## Added new functions and tokens to complete the Twig integration 
-New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`. 
+## Added new functions and tokens to complete the Twig integration
+New functions: `sw_block`, `sw_source`, `sw_include` and new tokens: `sw_use`, `sw_embed`, `sw_from` and `sw_import`.
 
 You can find further details on the use on the documentation page [Shopware's twig functions](https://developer.shopware.com/docs/resources/references/storefront-reference/twig-function-reference.html).
 
@@ -2592,7 +3483,7 @@ $bundles = [
 ];
 ```
 
-When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update. 
+When you use a [symfony flex setup](https://developer.shopware.com/docs/guides/installation/template.html#symfony-flex) it should pick up the change automatically and apply [that change](https://github.com/shopware/recipes/blob/main/shopware/core/6.7/manifest.json#L34) during the shopware update.
 
 ## Search server now provides OpenSearch/Elasticsearch shards and replicas
 
@@ -2630,7 +3521,48 @@ The fine-grained caching mechanism for system-config, snippets and theme config 
 
 ## `SQL_SET_DEFAULT_SESSION_VARIABLE` has no effect anymore
 
-Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore. 
+Removed `SQL_SET_DEFAULT_SESSION_VARIABLES` env variable. It has no effect anymore.
 The previously optional performance tweaks to MySQL are now enforced on connection buildup inside the `\Shopware\Core\Framework\Adapter\Database\MySQLFactory`.
 
+## Removal of RSA JWT secrets
+
+The custom JWT secrets where removed, instead the JWTs will now be signed with the `APP_SECRET`. Therefore, please make sure that the `APP_SECRET` environment variable is at least 32 characters long. You can use the `bin/console system:generate-app-secret` command to generate a valid secret.
+
+This means the `shopware.api.jwt_key.use_app_secret` configuration is no longer available, as that is the only behavior now.
+Additionally, the `system:generate-jwt-secret` command was removed, as it is not needed anymore.
+
+</details>
+
+# Document renderer structure change
+We made some changes in the document renderer structure, which might affect your project setups.
+<details>
+  <summary>Detailed Changes</summary>
+
+## AbstractDocumentRenderer render workflow
+With the next major version, the PDF rendering will be moved from the `\Shopware\Core\Checkout\Document\Service\DocumentGenerator` to each renderer with a PDF document.
+Each implementation of the `\Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer` class needs to set the fully rendered file with `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::setContent()`.
+With this change, the `\Shopware\Core\Checkout\Document\Renderer\RenderedDocument::html` property is not needed anymore and will be removed.
+The content of a PDF document must be rendered within the renderer.
+Before:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $html,
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+```
+After:
+```php
+// e.g. InvoiceRenderer
+$doc = new RenderedDocument(
+    $number,
+    $config->buildName(),
+    $operation->getFileType(),
+    $config->jsonSerialize(),
+);
+$doc->setContent($this->pdfRenderer->render($doc, $html));
+```
 </details>

@@ -1,8 +1,6 @@
 import './sw-error.scss';
 import template from './sw-error.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,7 +14,7 @@ const { Component } = Shopware;
  * </sw-error>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-error', {
+export default {
     template,
 
     props: {
@@ -55,14 +53,14 @@ Component.register('sw-error', {
 
         message() {
             if (!this.error.message) {
-                return this.$tc('sw-error.general.messagePlaceholder');
+                return this.$t('sw-error.general.messagePlaceholder');
             }
             return this.error.message;
         },
 
         statusCode() {
             if (!this.error.response) {
-                return this.$tc('global.default.error');
+                return this.$t('global.default.error');
             }
 
             return this.error.response.status;
@@ -84,9 +82,8 @@ Component.register('sw-error', {
     methods: {
         createdComponent() {
             if (!this.linkText) {
-                // eslint-disable-next-line vue/no-mutating-props
-                this.linkText = this.$tc('sw-error.general.textLink');
+                this.linkText = this.$t('sw-error.general.textLink');
             }
         },
     },
-});
+};

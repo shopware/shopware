@@ -23,8 +23,7 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(Sanitizer.sanitize('<details open ontoggle=confirm()>')).toBe('<details open=""></details>');
 
-        expect(Sanitizer.sanitize(`<script y="><">/*<script* */prompt()</script`)) // eslint-disable-line
-            .toBe('');
+        expect(Sanitizer.sanitize(`<script y="><">/*<script* */prompt()</script`)).toBe('');
 
         expect(Sanitizer.sanitize('<w="/x="y>"/ondblclick=`<`[confir\u006d``]>z')).toBe('z');
 
@@ -108,23 +107,26 @@ describe('core/helper/sanitizer.helper.js', () => {
 
     it('should sanitize untrusted HTML in a component', async () => {
         const $route = {
-            meta: { $module: { icon: null } },
+            meta: { $module: { icon: 'regular-storefront' } },
         };
 
-        const wrapper = mount(await Shopware.Component.build('sw-empty-state'), {
+        const unsanitized = '<x oncut=alert()>x';
+        const sanitized = '<x oncut="alert()">x</x>';
+
+        const wrapper = mount(await wrapTestComponent('sw-empty-state', { sync: true }), {
             global: {
                 plugins: [SanitizePlugin],
-                stubs: ['sw-icon'],
                 mocks: {
                     $route,
                 },
             },
             props: {
                 title: 'Foo bar',
-                subline: '<x oncut=alert()>x',
+                subline: unsanitized,
             },
         });
 
-        expect(wrapper.element).toMatchSnapshot();
+        expect(wrapper.html()).not.toContain(unsanitized);
+        expect(wrapper.html()).toContain(sanitized);
     });
 });

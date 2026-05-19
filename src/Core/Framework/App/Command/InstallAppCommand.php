@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -53,7 +54,7 @@ class InstallAppCommand extends Command
         $manifests = $this->getMatchingManifests($names);
         $success = self::SUCCESS;
 
-        if (\count($manifests) === 0) {
+        if ($manifests === []) {
             $io->info('Could not find any app with this name');
 
             return self::SUCCESS;
@@ -65,7 +66,7 @@ class InstallAppCommand extends Command
                     $this->checkPermissions($manifest, $io);
 
                     $this->appPrinter->checkHosts($manifest, $io);
-                } catch (UserAbortedCommandException $e) {
+                } catch (UserAbortedCommandException) {
                     $io->error('Aborting due to user input.');
 
                     return self::FAILURE;
@@ -85,7 +86,11 @@ class InstallAppCommand extends Command
             }
 
             try {
-                $this->appLifecycle->install($manifest, $input->getOption('activate'), $context);
+                $this->appLifecycle->install(
+                    $manifest,
+                    new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
+                    $context
+                );
             } catch (AppAlreadyInstalledException) {
                 $io->info(\sprintf('App %s is already installed', $name));
 
@@ -95,7 +100,7 @@ class InstallAppCommand extends Command
             $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
-        return (int) $success;
+        return $success;
     }
 
     protected function configure(): void

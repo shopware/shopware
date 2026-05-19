@@ -11,7 +11,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
         global: {
             renderStubDefaultSlot: true,
             mocks: {
-                $tc(translationKey) {
+                $t(translationKey) {
                     return translationKey;
                 },
             },
@@ -124,11 +124,11 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 
                 'sw-custom-field-set-renderer': true,
                 'sw-product-variant-info': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
+                'router-link': true,
             },
         },
     };
@@ -152,13 +152,6 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
 }
 
 describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return identifier', async () => {
         const wrapper = await createWrapper();
 
@@ -258,5 +251,25 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-field__hint').text()).toContain('textIsoCodeIsInUse');
+    });
+
+    it('should load language data again after create new language', async () => {
+        const wrapper = await createWrapper(
+            [
+                'language.editor',
+            ],
+            null,
+            false,
+        );
+        await flushPromises();
+
+        const actionLoadEntitySpy = jest.spyOn(wrapper.vm, 'loadEntityData');
+        expect(actionLoadEntitySpy).not.toHaveBeenCalled();
+
+        await wrapper.setProps({
+            languageId: 'language-id-1',
+        });
+
+        expect(actionLoadEntitySpy).toHaveBeenCalledTimes(1);
     });
 });

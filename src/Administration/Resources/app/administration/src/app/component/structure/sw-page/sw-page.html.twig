@@ -7,7 +7,6 @@
     <div
         v-if="showHeadArea"
         class="sw-page__head-area"
-        :style="headerStyles"
     >
         {% block sw_page_search_bar %}
         <div
@@ -28,10 +27,16 @@
         >
             <sw-app-topbar-button />
             {% block sw_page_notification_center %}
-            <sw-notification-center />
+            <div class="sw-page__sidebar-container">
+                <sw-notification-center />
+            </div>
             {% endblock %}
 
-            <sw-help-center-v2 />
+            <div class="sw-page__sidebar-container">
+                <sw-help-center-v2 />
+            </div>
+
+            <sw-app-topbar-sidebar />
         </div>
         {% endblock %}
         {% endblock %}
@@ -55,19 +60,19 @@
                     <router-link
                         v-if="parentRoute"
                         class="smart-bar__back-btn"
-                        :aria-label="$tc('global.sw-page.backButton')"
-                        :title="$tc('global.sw-page.backButton')"
-                        :to="{ name: parentRoute }"
+                        :aria-label="$t('global.sw-page.backButton')"
+                        :title="$t('global.sw-page.backButton')"
+                        :to="routerBack"
                         :style="{ 'color': pageColor }"
                     >
-                        <sw-icon
+                        <mt-icon
                             name="regular-chevron-left"
-                            small
+                            size="16px"
                         />
-                        <sw-icon
+                        <mt-icon
                             v-if="module && module.icon"
                             :name="module.icon"
-                            small
+                            size="16px"
                         />
                     </router-link>
                     {% endblock %}

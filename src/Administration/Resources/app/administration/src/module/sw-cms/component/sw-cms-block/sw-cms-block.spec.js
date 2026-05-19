@@ -26,7 +26,6 @@ async function createWrapper(blockConfig = {}) {
                     cmsService: Shopware.Service().get('cmsService'),
                 },
                 stubs: {
-                    'sw-icon': true,
                     'sw-cms-visibility-toggle': {
                         template: '<div class="sw-cms-visibility-toggle-wrapper"></div>',
                     },
@@ -38,12 +37,6 @@ async function createWrapper(blockConfig = {}) {
 describe('module/sw-cms/component/sw-cms-block', () => {
     beforeAll(async () => {
         await setupCmsEnvironment();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have the overlay by default', async () => {

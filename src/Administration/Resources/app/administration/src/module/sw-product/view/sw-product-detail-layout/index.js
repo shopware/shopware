@@ -7,7 +7,7 @@ import './sw-product-detail-layout.scss';
 
 const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { cloneDeep, merge, get } = Utils.object;
+const { get } = Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -141,7 +141,7 @@ export default {
             }
 
             this.product.cmsPageId = cmsPageId;
-            this.product.slotConfig = null;
+            this.resetSlotConfig();
             Shopware.Store.get('swProductDetail').product = this.product;
         },
 
@@ -153,21 +153,6 @@ export default {
             this.isConfigLoading = true;
 
             this.cmsPageRepository.get(this.cmsPageId, Context.api, this.cmsPageCriteria).then((cmsPage) => {
-                if (this.product.slotConfig && cmsPage) {
-                    cmsPage.sections.forEach((section) => {
-                        section.blocks.forEach((block) => {
-                            block.slots.forEach((slot) => {
-                                if (!this.product.slotConfig[slot.id]) {
-                                    return;
-                                }
-
-                                slot.config = slot.config || {};
-                                merge(slot.config, cloneDeep(this.product.slotConfig[slot.id]));
-                            });
-                        });
-                    });
-                }
-
                 this.cmsPageState.setCurrentPage(cmsPage);
                 this.updateCmsPageDataMapping();
                 this.isConfigLoading = false;
@@ -189,6 +174,14 @@ export default {
             if (slotContent && slotContent.value) {
                 slotContent.value = element.config.content.value;
             }
+        },
+
+        resetSlotConfig() {
+            this.product.slotConfig = null;
+
+            this.product.translations?.forEach((translation) => {
+                translation.slotConfig = null;
+            });
         },
     },
 };

@@ -30,16 +30,17 @@
                     {% block sw_sales_channel_detail_products_card_section_secondary_button %}
                     <mt-button
                         v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
+                            message: $t('sw-privileges.tooltip.warning'),
                             disabled: acl.can('sales_channel.editor'),
                             showOnDisabledElements: true
                         }"
                         ghost
                         size="small"
                         :disabled="!acl.can('sales_channel.editor')"
+                        variant="secondary"
                         @click="openAddProductsModal"
                     >
-                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
+                        {{ $t('sw-sales-channel.detail.products.buttonAddProducts') }}
                     </mt-button>
                     {% endblock %}
                 </sw-container>
@@ -56,7 +57,6 @@
                     identifier="sw-sales-channel-detail-products-list"
                     detail-route="sw.product.detail"
                     :repository="productRepository"
-                    :items="products"
                     :data-source="products"
                     :columns="productColumns"
                     :plain-appearance="true"
@@ -73,15 +73,15 @@
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                             <div class="sw-data-grid__cell-content">
                                 {% block sw_sales_channel_detail_products_listing_select_item_checkbox %}
-                                <sw-checkbox-field
+                                <mt-checkbox
                                     v-tooltip="{
-                                        message: $tc('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
+                                        message: $t('sw-sales-channel.detail.products.inheritVariantNotRemovableTooltip'),
                                         disabled: isRecordSelectable(item),
                                         showOnDisabledElements: true
                                     }"
                                     :disabled="!isRecordSelectable(item)"
-                                    :value="isSelected(item[itemIdentifierProperty])"
-                                    @update:value="selectItem($event, item)"
+                                    :checked="isSelected(item[itemIdentifierProperty])"
+                                    @update:checked="selectItem($event, item)"
                                 />
                                 {% endblock %}
                             </div>
@@ -103,8 +103,8 @@
 
                     <template #column-active="{ item }">
                         {% block sw_sales_channel_detail_products_listing_column_active %}
-                        <sw-icon
-                            small
+                        <mt-icon
+                            size="16px"
                             :name="item.active === false ? 'regular-times-s' : 'regular-checkmark-xs'"
                             :color="item.active === false ? '#de294c' : '#37d046'"
                         />
@@ -129,7 +129,7 @@
                             :disabled="!isProductRemovable(item)"
                             @click="onDeleteProduct(item)"
                         >
-                            {{ $tc('global.default.remove') }}
+                            {{ $t('global.default.remove') }}
                         </sw-context-menu-item>
                         {% endblock %}
                     </template>
@@ -143,7 +143,7 @@
                             @click="onDeleteProducts"
                             @keydown.enter="onDeleteProducts"
                         >
-                            {{ $tc('global.default.remove') }}
+                            {{ $t('global.default.remove') }}
                         </a>
                         {% endblock %}
                     </template>
@@ -151,20 +151,14 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_products_card_section_primary_empty_state %}
-                <sw-empty-state
+                <mt-empty-state
                     v-else
-                    :show-description="false"
-                    :title="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
-                >
-                    <template #icon>
-                        {% block sw_sales_channel_detail_products_card_section_primary_image %}
-                        <img
-                            :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
-                            :alt="$tc('sw-sales-channel.detail.products.titleEmptyStateTable')"
-                        >
-                        {% endblock %}
-                    </template>
-                </sw-empty-state>
+                    icon="solid-products"
+                    :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
+                />
+
+                {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
+                {% block sw_sales_channel_detail_products_card_section_primary_image %}{% endblock %}
                 {% endblock %}
             </sw-card-section>
             {% endblock %}
@@ -174,38 +168,32 @@
     {% endblock %}
 
     {% block sw_sales_channel_detail_products_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
-        :show-description="false"
-        :absolute="false"
-        :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+        icon="solid-products"
+        :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
     >
-        <template #icon>
-            {% block sw_sales_channel_detail_products_empty_state_image %}
-            <img
-                :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
-                :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
-            >
-            {% endblock %}
-        </template>
-
-        <template #actions>
+        <template #button>
             {% block sw_sales_channel_detail_products_empty_state_button %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('sales_channel.editor'),
                     showOnDisabledElements: true
                 }"
-                ghost
                 :disabled="!acl.can('sales_channel.editor')"
+                ghost
+                variant="secondary"
                 @click="openAddProductsModal"
             >
-                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
+                {{ $t('sw-sales-channel.detail.products.buttonAddProducts') }}
             </mt-button>
             {% endblock %}
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
+
+    {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
+    {% block sw_sales_channel_detail_products_empty_state_image %}{% endblock %}
     {% endblock %}
 
     {% block sw_sales_channel_detail_products_assignment_modal %}

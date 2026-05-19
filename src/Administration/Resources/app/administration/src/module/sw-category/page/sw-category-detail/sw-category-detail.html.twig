@@ -21,7 +21,7 @@
             {{ placeholder(category, 'name') }}
         </h2>
         <h2 v-else>
-            {{ $tc('sw-category.general.headlineCategories') }}
+            {{ $t('sw-category.general.headlineCategories') }}
         </h2>
         {% endblock %}
     </template>
@@ -43,9 +43,11 @@
             <mt-button
                 v-tooltip.bottom="tooltipCancel"
                 :disabled="isLoading"
+                variant="secondary"
+                size="default"
                 @click="cancelEdit"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -63,7 +65,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSave"
             >
-                {{ $tc('sw-category.general.buttonSafeCategory') }}
+                {{ $t('sw-category.general.buttonSafeCategory') }}
             </sw-button-process>
             {% endblock %}
 
@@ -79,7 +81,7 @@
                 @update:process-success="saveFinish"
                 @click.prevent="onSaveLandingPage"
             >
-                {{ $tc('sw-category.general.buttonSafeCategory') }}
+                {{ $t('sw-category.general.buttonSafeCategory') }}
             </sw-button-process>
             {% endblock %}
             {% endblock %}
@@ -101,13 +103,13 @@
                     v-if="categoryCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-category.general.treeHeadSelected`, 0, { count: categoryCheckedItem }) }}:
+                    {{ $t(`sw-category.general.treeHeadSelected`, { count: categoryCheckedItem }) }}:
                 </div>
                 <div
                     v-else
                     class="sw-category-detail__collapse-headline"
                 >
-                    {{ $tc(`sw-category.general.treeHeadline`) }}
+                    {{ $t(`sw-category.general.treeHeadline`) }}
                 </div>
                 {% endblock %}
 
@@ -123,7 +125,7 @@
                         size="small"
                         @click="onCategoryDelete"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                 </div>
                 {% endblock %}
@@ -161,13 +163,13 @@
                     v-if="landingPageCheckedItem > 0"
                     class="sw-category-detail__collapse-selected-count"
                 >
-                    {{ $tc(`sw-landing-page.general.treeHeadSelected`, 0, { count: landingPageCheckedItem }) }}:
+                    {{ $t(`sw-landing-page.general.treeHeadSelected`, { count: landingPageCheckedItem }) }}:
                 </div>
                 <div
                     v-else
                     class="sw-category-detail__collapse-headline"
                 >
-                    {{ $tc(`sw-landing-page.general.treeHeadline`) }}
+                    {{ $t(`sw-landing-page.general.treeHeadline`) }}
                 </div>
                 {% endblock %}
 
@@ -183,7 +185,7 @@
                         size="small"
                         @click="onLandingPageDelete"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </mt-button>
                 </div>
                 {% endblock %}
@@ -219,7 +221,10 @@
             <sw-skeleton />
         </template>
 
-        <template v-else>
+        <div
+            v-else
+            class="sw-category__content"
+        >
             {% block sw_category_content_view %}
             <sw-category-view
                 v-if="category"
@@ -255,20 +260,15 @@
             {% endblock %}
 
             {% block sw_category_content_empty %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="showEmptyState"
-                :title="$tc('sw-category.general.emptyStateHeadline')"
-            >
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
-                        :alt="$tc('sw-category.general.emptyStateHeadline')"
-                    >
-                </template>
-            </sw-empty-state>
-        {% endblock %}
-
-        </template>
+                :centered="true"
+                :icon="$route.meta.$module.icon"
+                :headline="$t('sw-category.general.emptyStateHeadline')"
+                :description="$t($route.meta.$module.description)"
+            />
+            {% endblock %}
+        </div>
     </template>
     {% endblock %}
 

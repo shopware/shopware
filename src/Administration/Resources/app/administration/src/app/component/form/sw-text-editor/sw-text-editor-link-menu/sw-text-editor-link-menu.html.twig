@@ -3,33 +3,13 @@
     {% block sw_text_editor_toolbar_button_link_menu_content %}
     <div class="sw-text-editor-toolbar-button__link-menu-content">
         {% block sw_text_editor_toolbar_button_link_menu_content_type %}
-        <sw-select-field
-            :value="linkCategory"
-            :label="$tc('sw-text-editor-toolbar.link.labelType')"
+        <mt-select
+            :model-value="linkCategory"
+            :label="$t('sw-text-editor-toolbar.link.labelType')"
             require
-            @update:value="onSelectFieldChange"
-        >
-            {% block sw_text_editor_toolbar_button_link_menu_content_type_options %}
-            <option value="link">
-                {{ $tc('sw-text-editor-toolbar.link.labelUrl') }}
-            </option>
-            <option value="detail">
-                {{ $tc('sw-text-editor-toolbar.link.labelProduct') }}
-            </option>
-            <option value="navigation">
-                {{ $tc('sw-text-editor-toolbar.link.labelCategory') }}
-            </option>
-            <option value="media">
-                {{ $tc('sw-text-editor-toolbar.link.labelMedia') }}
-            </option>
-            <option value="email">
-                {{ $tc('sw-text-editor-toolbar.link.labelEmail') }}
-            </option>
-            <option value="phone">
-                {{ $tc('sw-text-editor-toolbar.link.labelPhoneNumber') }}
-            </option>
-            {% endblock %}
-        </sw-select-field>
+            :options="linkCategoryOptions"
+            @update:model-value="onSelectFieldChange"
+        />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs %}
@@ -38,8 +18,8 @@
         <mt-text-field
             v-if="linkCategory === 'link'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholder')"
             name="sw-field--linkTarget"
         />
         {% endblock %}
@@ -49,18 +29,18 @@
         <mt-text-field
             v-else-if="linkCategory === 'phone'"
             v-model="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderPhoneNumber')"
             name="sw-field--linkTarget"
         />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_email %}
-        <sw-email-field
+        <mt-email-field
             v-else-if="linkCategory === 'email'"
-            v-model:value="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderEmail')"
+            v-model="linkTarget"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderEmail')"
             name="sw-field--linkTarget"
         />
         {% endblock %}
@@ -73,8 +53,8 @@
             entity="product"
             should-show-active-state
             :criteria="entityFilter"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderProduct')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderProduct')"
             show-clearable-button
             display-variants
         />
@@ -83,8 +63,8 @@
         {% block sw_text_editor_toolbar_button_link_menu_content_type_inputs_category %}
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
+            :placeholder="$t('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
             single-select
             @selection-add="replaceCategorySelection"
@@ -97,7 +77,7 @@
         <sw-media-field
             v-else-if="linkCategory === 'media'"
             v-model:value="linkTarget"
-            :label="$tc('sw-text-editor-toolbar.link.linkTo')"
+            :label="$t('sw-text-editor-toolbar.link.linkTo')"
             :criteria="entityFilter"
             single-select
         />
@@ -109,7 +89,7 @@
             v-if="!['phone', 'email'].includes(linkCategory)"
             v-model="opensNewTab"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
-            :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
+            :label="$t('sw-text-editor-toolbar.link.openInNewTab')"
             remove-top-margin
         />
         {% endblock %}
@@ -119,17 +99,17 @@
         <mt-switch
             v-model="displayAsButton"
             class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
-            :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
+            :label="$t('sw-text-editor-toolbar.link.displayAsButton')"
             remove-top-margin
         />
         {% endblock %}
 
         {% block sw_text_editor_toolbar_button_link_menu_content_type_button_type %}
-        <sw-select-field
+        <mt-select
             v-if="displayAsButton"
-            v-model:value="buttonVariant"
+            v-model="buttonVariant"
             class="sw-text-editor-link-menu__button-variant"
-            :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
+            :label="$t('sw-text-editor-toolbar.link.buttonVariant')"
             :options="buttonVariantList"
             require
         />
@@ -148,7 +128,7 @@
             :disabled="!linkTarget"
             @click="removeLink"
         >
-            {{ $tc('global.default.remove') }}
+            {{ $t('global.default.remove') }}
         </mt-button>
         {% endblock %}
 
@@ -160,7 +140,7 @@
             :disabled="!linkTarget"
             @click="setLink"
         >
-            {{ $tc('global.default.add') }}
+            {{ $t('global.default.add') }}
         </mt-button>
         {% endblock %}
     </div>

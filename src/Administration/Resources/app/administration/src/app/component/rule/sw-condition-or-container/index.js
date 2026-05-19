@@ -1,7 +1,7 @@
 import template from './sw-condition-or-container.html.twig';
 import './sw-condition-or-container.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @private
@@ -13,7 +13,7 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-condition-or-container :condition="condition" :level="0"></sw-condition-or-container>
  */
-Component.register('sw-condition-or-container', {
+export default {
     template,
 
     inject: ['acl'],
@@ -83,11 +83,11 @@ Component.register('sw-condition-or-container', {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
             };
         },
     },
-});
+};

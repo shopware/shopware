@@ -22,9 +22,11 @@
         {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
         <mt-button
             v-tooltip.bottom="tooltipCancel"
+            variant="secondary"
+            size="default"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -39,7 +41,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-settings-delivery-time.general.buttonSave') }}
+            {{ $t('sw-settings-delivery-time.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -71,7 +73,7 @@
                         <mt-text-field
                             v-model="deliveryTime.name"
                             name="sw-field--deliveryTime-name"
-                            :label="$tc('sw-settings-delivery-time.detail.labelName')"
+                            :label="$t('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"
                             :disabled="!acl.can('delivery_times.editor') || undefined"
                             required
@@ -85,7 +87,7 @@
                             class="sw-delivery-time-detail__field-unit"
                             :options="deliveryTimeUnits"
                             :error="deliveryTimeUnitError"
-                            :label="$tc('sw-settings-delivery-time.detail.labelUnit')"
+                            :label="$t('sw-settings-delivery-time.detail.labelUnit')"
                             :disabled="!acl.can('delivery_times.editor') || undefined"
                             required
                             show-clearable-button
@@ -99,25 +101,29 @@
                         >
 
                             {% block sw_settings_delivery_time_detail_min_field %}
-                            <sw-number-field
-                                v-model:value="deliveryTime.min"
+                            <mt-number-field
+                                v-model="deliveryTime.min"
                                 name="sw-field--deliveryTime-min"
-                                :label="$tc('sw-settings-delivery-time.detail.labelMin')"
+                                :label="$t('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
                                 :min="0"
                                 :max="deliveryTime.max"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />
                             {% endblock %}
 
                             {% block sw_settings_delivery_time_detail_max_field %}
-                            <sw-number-field
-                                v-model:value="deliveryTime.max"
+                            <mt-number-field
+                                v-model="deliveryTime.max"
                                 name="sw-field--deliveryTime-max"
-                                :label="$tc('sw-settings-delivery-time.detail.labelMax')"
+                                :label="$t('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"
                                 :min="deliveryTime.min"
+                                :step="1"
+                                number-type="int"
                                 :disabled="!acl.can('delivery_times.editor') || undefined"
                                 required
                             />
@@ -132,7 +138,7 @@
                 <mt-card
                     v-if="showCustomFields"
                     position-identifier="sw-settings-delivery-time-detail-custom-field-sets"
-                    :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+                    :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
                     :is-loading="isLoading"
                 >
                     <sw-custom-field-set-renderer

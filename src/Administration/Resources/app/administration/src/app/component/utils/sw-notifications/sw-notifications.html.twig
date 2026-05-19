@@ -16,9 +16,8 @@
                 v-for="(notification, index) in notifications"
                 :key="notification.uuid"
                 :class="['sw-notifications__notification--' + index, 'sw-notification__alert']"
-                :title="notification.title"
+                :title="$t(notification.title)"
                 :variant="getNotificationVariant(notification)"
-                :data-theme="notification.system ? 'dark' : undefined"
                 :notification-index="notification.uuid"
                 :closable="true"
                 @close="onClose(notification)"
@@ -27,7 +26,7 @@
                 {% block sw_notifications_item_content %}
                 <div
                     class="sw-notifications__message"
-                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
+                    v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'strong', 'em', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
                 ></div>
                 {% endblock %}
 

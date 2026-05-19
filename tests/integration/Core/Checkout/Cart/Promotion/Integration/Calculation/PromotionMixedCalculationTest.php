@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -32,10 +34,16 @@ class PromotionMixedCalculationTest extends TestCase
     use PromotionSetGroupTestFixtureBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
@@ -78,9 +86,9 @@ class PromotionMixedCalculationTest extends TestCase
         $cart = $this->addPromotionCode('sale', $cart, $this->cartService, $context);
         $cart = $this->addPromotionCode('100off', $cart, $this->cartService, $context);
 
-        static::assertEquals(0.0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(0.0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(0.0, $cart->getPrice()->getNetPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(0.0, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -114,9 +122,9 @@ class PromotionMixedCalculationTest extends TestCase
         // and remove again
         $cart = $this->removePromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(119.0, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(119.0, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(100.0, $cart->getPrice()->getNetPrice());
+        static::assertSame(119.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(119.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(100.0, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -166,8 +174,8 @@ class PromotionMixedCalculationTest extends TestCase
         $tax2 = $discountPrice->getCalculatedTaxes()->getElements()[7]->getTax();
 
         // our correct values are based on a distribution of 2 + 3 instead of 5 + 3
-        static::assertEquals(-24.4, $tax1);
-        static::assertEquals(-13.49, $tax2);
+        static::assertSame(-24.4, $tax1);
+        static::assertSame(-13.49, $tax2);
     }
 
     /**
@@ -227,8 +235,8 @@ class PromotionMixedCalculationTest extends TestCase
 
         static::assertNotNull($group1DiscountPrice);
         static::assertNotNull($group2DiscountPrice);
-        static::assertEquals(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
-        static::assertEquals(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
+        static::assertSame(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
+        static::assertSame(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
     }
 
     /**
@@ -299,11 +307,11 @@ class PromotionMixedCalculationTest extends TestCase
         static::assertNotNull($cart->getLineItems()->get($discountId));
         $group1DiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($group1DiscountPrice);
-        static::assertEquals($expectedDiscount, $group1DiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $group1DiscountPrice->getTotalPrice());
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return iterable<string, array<mixed>>
      *
      * expectedDiscount,
      * applyTo,
@@ -314,297 +322,85 @@ class PromotionMixedCalculationTest extends TestCase
      * groupCount,
      * groupSorting
      */
-    public static function groupPackageAndPickerProvider(): array
+    public static function groupPackageAndPickerProvider(): iterable
     {
-        return [
-            /*
-             * For every 4 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             * groups are built sorted by cheapest items
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #1' => [
-                -8.0, '1', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 second most expensive item
-             * vertical => within each built group of items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             * groups are built sorted by cheapest items
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #2' => [
-                -8.0, '2', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 third most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #3' => [
-                -7.0, '3', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 forth most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #4' => [
-                -7.0, '4', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 first most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #1' => [
-                -10.0, '1', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 second most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #2' => [
-                -10.0, '2', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 third most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #3' => [
-                -5.0, '3', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 forth most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #4' => [
-                -5.0, '4', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 first cheapest item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #1' => [
-                -7.0, '1', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 second cheapest item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #2' => [
-                -7.0, '2', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 third cheapest item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #3' => [
-                -8.0, '3', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 forth cheapest item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #4' => [
-                -8.0, '4', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 first cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #1' => [
-                -5.0, '1', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 second cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #2' => [
-                -5.0, '2', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 third cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #3' => [
-                -10.0, '3', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 4 items, get 1 forth cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #4' => [
-                -10.0, '4', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #5' => [
-                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #5' => [
-                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * all possible items are discounted (up to 4, because only 4 groups may be built)
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #6' => [
-                -6.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first cheapest item
-             * vertical => within each built group of items
-             * groups are built sorted by cheapest items
-             * all possible items are discounted (up to 4, because only 4 groups may be built)
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #6' => [
-                -6.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first most expensive item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * all possible items are discounted (up to 4, because only 4 groups may be built)
-             *
-             * discount: 10% off
-             */
-            'Horizontal, most expensive #6' => [
-                -8.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * For every 5 items, get 1 first cheapest item
-             * horizontal => across all items
-             * groups are built sorted by cheapest items
-             * all possible items are discounted (up to 4, because only 4 groups may be built)
-             *
-             * discount: 10% off
-             */
-            'Horizontal, cheapest #6' => [
-                -4.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
-            ],
-            /*
-             * Edge case for 'Vertical, most expensive #5' (here: group sorting desc)
-             * For every 5 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by most expensive items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Vertical, most expensive #5-1' => [
-                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_DESC',
-            ],
-            /*
-             * Edge case for 'Vertical, cheapest #5-1' (here: group sorting desc)
-             * For every 5 items, get 1 first most expensive item
-             * vertical => within each built group of items
-             * groups are built sorted by most expensive items
-             * max 1 item is discounted
-             *
-             * discount: 10% off
-             */
-            'Vertical, cheapest #5-1' => [
-                -2.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_DESC',
-            ],
+        yield 'vertical picker discounts the first most expensive item in four item groups' => [
+            -8.0, '1', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the second most expensive item in four item groups' => [
+            -8.0, '2', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the third most expensive item in four item groups' => [
+            -7.0, '3', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the fourth most expensive item in four item groups' => [
+            -7.0, '4', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the first most expensive item across four item groups' => [
+            -10.0, '1', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the second most expensive item across four item groups' => [
+            -10.0, '2', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the third most expensive item across four item groups' => [
+            -5.0, '3', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the fourth most expensive item across four item groups' => [
+            -5.0, '4', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the first cheapest item in four item groups' => [
+            -7.0, '1', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the second cheapest item in four item groups' => [
+            -7.0, '2', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the third cheapest item in four item groups' => [
+            -8.0, '3', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts the fourth cheapest item in four item groups' => [
+            -8.0, '4', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the first cheapest item across four item groups' => [
+            -5.0, '1', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the second cheapest item across four item groups' => [
+            -5.0, '2', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the third cheapest item across four item groups' => [
+            -10.0, '3', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts the fourth cheapest item across four item groups' => [
+            -10.0, '4', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts first most expensive item in five item groups with one allowed discount' => [
+            -1.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts first cheapest item in five item groups with one allowed discount' => [
+            -1.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts first most expensive item in five item groups with one allowed discount' => [
+            -2.0, '1', '1', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts first cheapest item in five item groups with one allowed discount' => [
+            -1.0, '1', '1', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts first most expensive item in all possible five item groups' => [
+            -6.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts first cheapest item in all possible five item groups' => [
+            -6.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts first most expensive item in all possible five item groups' => [
+            -8.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield 'horizontal picker discounts first cheapest item in all possible five item groups' => [
+            -4.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+        ];
+        yield 'vertical picker discounts first most expensive item when groups are sorted by price descending' => [
+            -2.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_DESC',
+        ];
+        yield 'vertical picker discounts first cheapest item when groups are sorted by price descending' => [
+            -2.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_DESC',
         ];
     }
 
@@ -678,7 +474,7 @@ class PromotionMixedCalculationTest extends TestCase
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($groupDiscountPrice);
 
-        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
     /**
@@ -762,7 +558,7 @@ class PromotionMixedCalculationTest extends TestCase
         $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
         static::assertNotNull($groupDiscountPrice);
 
-        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+        static::assertSame($expectedDiscount, $groupDiscountPrice->getTotalPrice());
     }
 
     /**

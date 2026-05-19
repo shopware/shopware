@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
@@ -75,5 +76,28 @@ class EntityCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepository $productRepository'));
+    }
+
+    public function testEntityRepositoryAutowiringWithAttributeEntity(): void
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register('test_attribute_entity.definition', AttributeEntityDefinition::class)
+            ->addTag('shopware.entity.definition')
+        ;
+        $container
+            ->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
+            ->addArgument(new Reference('service_container'))
+            ->addArgument([
+                'test_attribute_entity' => 'test_attribute_entity.definition',
+            ])
+            ->addArgument([
+                'test_attribute_entity' => 'test_attribute_entity.repository',
+            ]);
+
+        $entityCompilerPass = new EntityCompilerPass();
+        $entityCompilerPass->process($container);
+
+        static::assertCount(0, $container->getAliases());
     }
 }

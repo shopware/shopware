@@ -5,7 +5,7 @@ import './sw-customer-list.scss';
  * @sw-package checkout
  */
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -27,13 +27,22 @@ export default {
     data() {
         return {
             customers: null,
-            sortBy: 'customerNumber',
-            naturalSorting: true,
+            sortBy: 'createdAt',
+            naturalSorting: false,
             sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             filterLoading: false,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             availableAffiliateCodes: [],
+            /**
+             * @deprecated tag:v6.8.0 - will be removed without replacement
+             */
             availableCampaignCodes: [],
             filterCriteria: [],
             defaultFilters: [
@@ -73,7 +82,6 @@ export default {
 
         defaultCriteria() {
             const defaultCriteria = new Criteria(this.page, this.limit);
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.naturalSorting = this.sortBy === 'customerNumber';
 
             defaultCriteria.setTerm(this.term);
@@ -95,6 +103,9 @@ export default {
             return defaultCriteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
             criteria.addFilter(
@@ -114,68 +125,66 @@ export default {
                 'customer-number-filter': {
                     property: 'customerNumber',
                     type: 'string-filter',
-                    label: this.$tc('sw-customer.filter.customerNumber.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerNumber.placeholder'),
+                    label: this.$t('sw-customer.filter.customerNumber.label'),
+                    placeholder: this.$t('sw-customer.filter.customerNumber.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
                     criteriaFilterType: 'equals',
                 },
                 'affiliate-code-filter': {
                     property: 'affiliateCode',
-                    type: 'multi-select-filter',
-                    label: this.$tc('sw-customer.filter.affiliateCode.label'),
-                    placeholder: this.$tc('sw-customer.filter.affiliateCode.placeholder'),
+                    type: 'string-filter',
+                    label: this.$t('sw-customer.filter.affiliateCode.label'),
+                    placeholder: this.$t('sw-customer.filter.affiliateCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableAffiliateCodes,
                 },
                 'campaign-code-filter': {
                     property: 'campaignCode',
-                    type: 'multi-select-filter',
-                    label: this.$tc('sw-customer.filter.campaignCode.label'),
-                    placeholder: this.$tc('sw-customer.filter.campaignCode.placeholder'),
+                    type: 'string-filter',
+                    label: this.$t('sw-customer.filter.campaignCode.label'),
+                    placeholder: this.$t('sw-customer.filter.campaignCode.placeholder'),
                     valueProperty: 'key',
                     labelProperty: 'key',
-                    options: this.availableCampaignCodes,
                 },
                 'customer-group-request-filter': {
                     property: 'requestedGroupId',
                     type: 'existence-filter',
-                    label: this.$tc('sw-customer.filter.customerGroupRequest.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerGroupRequest.placeholder'),
-                    optionHasCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-customer.filter.customerGroupRequest.textNoCriteria'),
+                    label: this.$t('sw-customer.filter.customerGroupRequest.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroupRequest.placeholder'),
+                    optionHasCriteria: this.$t('sw-customer.filter.customerGroupRequest.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-customer.filter.customerGroupRequest.textNoCriteria'),
                 },
                 'salutation-filter': {
                     property: 'salutation',
-                    label: this.$tc('sw-customer.filter.salutation.label'),
-                    placeholder: this.$tc('sw-customer.filter.salutation.placeholder'),
+                    label: this.$t('sw-customer.filter.salutation.label'),
+                    placeholder: this.$t('sw-customer.filter.salutation.placeholder'),
                     labelProperty: 'displayName',
                 },
                 'account-status-filter': {
                     property: 'active',
-                    label: this.$tc('sw-customer.filter.status.label'),
-                    placeholder: this.$tc('sw-customer.filter.status.placeholder'),
+                    label: this.$t('sw-customer.filter.status.label'),
+                    placeholder: this.$t('sw-customer.filter.status.placeholder'),
                 },
                 'group-filter': {
                     property: 'group',
-                    label: this.$tc('sw-customer.filter.customerGroup.label'),
-                    placeholder: this.$tc('sw-customer.filter.customerGroup.placeholder'),
+                    label: this.$t('sw-customer.filter.customerGroup.label'),
+                    placeholder: this.$t('sw-customer.filter.customerGroup.placeholder'),
                 },
                 'billing-address-country-filter': {
                     property: 'defaultBillingAddress.country',
-                    label: this.$tc('sw-customer.filter.billingCountry.label'),
-                    placeholder: this.$tc('sw-customer.filter.billingCountry.placeholder'),
+                    label: this.$t('sw-customer.filter.billingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.billingCountry.placeholder'),
                 },
                 'shipping-address-country-filter': {
                     property: 'defaultShippingAddress.country',
-                    label: this.$tc('sw-customer.filter.shippingCountry.label'),
-                    placeholder: this.$tc('sw-customer.filter.shippingCountry.placeholder'),
+                    label: this.$t('sw-customer.filter.shippingCountry.label'),
+                    placeholder: this.$t('sw-customer.filter.shippingCountry.placeholder'),
                 },
                 'tags-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-customer.filter.tags.label'),
-                    placeholder: this.$tc('sw-customer.filter.tags.placeholder'),
+                    label: this.$t('sw-customer.filter.tags.label'),
+                    placeholder: this.$t('sw-customer.filter.tags.placeholder'),
                 },
             };
 
@@ -193,14 +202,13 @@ export default {
         emailIdnFilter() {
             return Shopware.Filter.getByName('decode-idn-email');
         },
-    },
 
-    watch: {
-        defaultCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
         },
     },
 
@@ -209,21 +217,24 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         createdComponent() {
-            return this.loadFilterValues();
+            return Promise.resolve();
         },
 
         onInlineEditSave(promise, customer) {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
+                        message: this.$t('sw-customer.detail.messageSaveSuccess', { name: this.salutation(customer) }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                 });
         },
@@ -236,7 +247,13 @@ export default {
                 this.defaultCriteria,
             );
 
-            const newCriteria = await this.addQueryScores(this.term, criteria);
+            let newCriteria;
+            if (this.adminEsEnable) {
+                newCriteria = criteria;
+                newCriteria.setTerm(this.term);
+            } else {
+                newCriteria = await this.addQueryScores(this.term, criteria);
+            }
 
             this.activeFilterNumber = criteria.filters.length;
 
@@ -274,9 +291,28 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.customerRepository.delete(id).then(() => {
-                this.getList();
-            });
+            return this.customerRepository
+                .delete(id)
+                .then(() => {
+                    this.getList();
+                })
+                .catch((errorResponse) => {
+                    const errors = errorResponse?.response?.data?.errors;
+
+                    if (Array.isArray(errors) && errors.length > 0) {
+                        errors.forEach((error) => {
+                            this.createNotificationError({
+                                title: error.title,
+                                message: error.detail,
+                            });
+                        });
+                    } else {
+                        this.createNotificationError({
+                            title: this.$t('global.default.error'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                        });
+                    }
+                });
         },
 
         async onChangeLanguage() {
@@ -335,7 +371,7 @@ export default {
                 },
                 {
                     property: 'group',
-                    dataIndex: 'group',
+                    dataIndex: 'group.name',
                     naturalSorting: true,
                     label: 'sw-customer.list.columnGroup',
                     allowResize: true,
@@ -381,11 +417,19 @@ export default {
                     visible: false,
                     useCustomSort: true,
                 },
+                {
+                    property: 'createdAt',
+                    label: 'sw-customer.list.columnCreatedAt',
+                    allowResize: true,
+                },
             ];
 
             return columns;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         loadFilterValues() {
             this.filterLoading = true;
 
@@ -403,9 +447,12 @@ export default {
                 });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use listing mixin implementation directly
+         */
         updateCriteria(criteria) {
-            this.page = 1;
-            this.filterCriteria = criteria;
+            // Delegate to listing mixin implementation
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, criteria);
         },
 
         async onBulkEditItems() {

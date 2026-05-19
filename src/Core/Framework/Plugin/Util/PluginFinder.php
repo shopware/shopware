@@ -119,6 +119,7 @@ class PluginFinder
         $composer = Factory::createComposer($projectDir, $composerIO);
 
         /** @var CompletePackageInterface[] $composerPackages */
+        // @phpstan-ignore varTag.type (getPackages always returns an array of CompletePackageInterface)
         $composerPackages = $composer
             ->getRepositoryManager()
             ->getLocalRepository()

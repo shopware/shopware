@@ -29,19 +29,17 @@
         <div class="sw-order-general-info__summary-sub">
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
-                {{ $tc('sw-order.generalTab.info.summary.on') }}
-                {{ dateFilter(order.orderDateTime, {
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-                }) }}
-                {{ $tc('sw-order.generalTab.info.summary.with') }}
-                {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
-                <template v-if="order.deliveries.last()">
-                    {{ $tc('sw-order.generalTab.info.summary.and') }}
-                    {{ order.deliveries.last().shippingMethod.translated.name }}
+                <sw-time-ago
+                    :date="order.orderDateTime"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
+                <template v-if="transaction">
+                    {{ $t('sw-order.generalTab.info.summary.with') }}
+                    {{ transaction.paymentMethod.translated.distinguishableName }}
+                </template>
+                <template v-if="delivery">
+                    {{ $t('sw-order.generalTab.info.summary.and') }}
+                    {{ delivery.shippingMethod.translated.name }}
                 </template>
             </div>
             {% endblock %}
@@ -52,14 +50,11 @@
                     v-if="lastChangedDateTime"
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
-                    {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ dateFilter(lastChangedDateTime, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                    }) }}
+                    {{ $t('sw-order.generalTab.info.summary.lastChanged') }}:
+                    <sw-time-ago
+                        :date="lastChangedDateTime"
+                        :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                    />
                 </div>
                 {% endblock %}
                 {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}
@@ -67,7 +62,7 @@
                     v-if="lastChangedUser"
                     class="sw-order-general-info__summary-sub-last-changed-user"
                 >
-                    {{ $tc('sw-order.generalTab.info.summary.by') }}
+                    {{ $t('sw-order.generalTab.info.summary.by') }}
                     {{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}
                 </div>
                 {% endblock %}
@@ -92,10 +87,13 @@
     {% block sw_order_detail_base_general_info_order_states %}
     <div class="sw-order-general-info__order-states">
         {% block sw_order_detail_base_general_info_order_states_payment %}
-        <div class="sw-order-general-info__order-state">
+        <div
+            v-if="transaction"
+            class="sw-order-general-info__order-state"
+        >
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -104,9 +102,9 @@
                 state-type="order_transaction"
                 rounded-style
                 :placeholder="transaction.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineTransactionState')"
+                :label="$t('sw-order.stateCard.headlineTransactionState')"
                 :background-style="backgroundStyle('order_transaction')"
-                :disabled="!acl.can('order.editor')"
+                :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />
         </div>
@@ -118,7 +116,7 @@
         >
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -127,9 +125,9 @@
                 state-type="order_delivery"
                 rounded-style
                 :placeholder="delivery.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineDeliveryState')"
+                :label="$t('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
-                :disabled="!acl.can('order.editor')"
+                :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />
         </div>
@@ -138,7 +136,7 @@
         <div class="sw-order-general-info__order-state">
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
@@ -147,9 +145,9 @@
                 rounded-style
                 state-type="order"
                 :placeholder="order.stateMachineState.translated.name"
-                :label="$tc('sw-order.stateCard.headlineOrderState')"
+                :label="$t('sw-order.stateCard.headlineOrderState')"
                 :background-style="backgroundStyle('order')"
-                :disabled="!acl.can('order.editor')"
+                :disabled="!acl.can('order.editor') || isLoading"
                 @state-select="onStateSelected"
             />
         </div>
@@ -159,11 +157,11 @@
 
     {% block sw_order_detail_base_general_info_order_tags %}
     <sw-entity-tag-select
+        v-model:entity-collection="tagCollection"
         class="sw-order-general-info__order-tags"
         size="small"
-        :entity-collection="tagCollection"
         :disabled="!acl.can('order.editor')"
-        :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
+        :placeholder="$t('sw-order.generalTab.tagSelect.placeholder')"
         :always-show-placeholder="true"
         @item-add="onTagAdd"
         @item-remove="onTagRemove"

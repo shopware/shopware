@@ -103,17 +103,9 @@ async function createWrapper() {
                 },
                 'sw-order-address-selection': true,
                 'sw-entity-single-select': true,
-                'sw-number-field': {
-                    template:
-                        '<input class="sw-number-field" type="number" @input="$emit(\'input\', Number($event.target.value))" />',
-                    props: {
-                        value: 0,
-                    },
-                },
                 'sw-datepicker': true,
                 'sw-multi-tag-select': true,
                 'sw-textarea-field': true,
-                'sw-order-promotion-field': true,
                 'sw-extension-component-section': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-order-state-history-modal': true,
@@ -128,7 +120,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }
@@ -139,12 +130,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled on transaction card', async () => {
@@ -234,13 +219,26 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     });
 
     it('should able to edit shipping cost', async () => {
+        jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
-        await shippingCostField.vm.$emit('update:value', 20);
+        await shippingCostField.setValue(20);
+
+        jest.advanceTimersByTime(1000);
 
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+    });
+
+    it('should be able to edit internal comment', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+        const internalCommentField = wrapper.findComponent('.sw-order-detail-details__internal-comment');
+        await internalCommentField.setValue('This is a longtext');
+
+        expect(wrapper.vm.order.internalComment).toBe('This is a longtext');
+        expect(wrapper.emitted('save-and-recalculate')).toBeFalsy();
     });
 });

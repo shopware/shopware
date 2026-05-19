@@ -234,8 +234,9 @@ class ProductListRouteTest extends TestCase
                     'id' => $this->ids->create('language'),
                     'name' => 'foo',
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

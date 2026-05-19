@@ -3,7 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { MtPopover, MtButton, MtIcon, MtSwitch } from '@shopware-ag/meteor-component-library';
+import { MtPopover, MtButton, MtSwitch } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-extension-teaser-popover', { sync: true }), {
@@ -14,7 +14,6 @@ async function createWrapper(props = {}) {
         global: {
             stubs: {
                 'mt-button': MtButton,
-                'mt-icon': MtIcon,
                 'mt-switch': MtSwitch,
                 'mt-popover': MtPopover,
                 'sw-iframe-renderer': true,
@@ -32,11 +31,6 @@ describe('src/app/component/extension-api/sw-extension-teaser-popover', () => {
     beforeEach(async () => {
         store = Shopware.Store.get('teaserPopover');
         store.identifier = {};
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show button component', async () => {

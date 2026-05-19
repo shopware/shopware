@@ -11,9 +11,14 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -58,19 +63,49 @@ class CustomerTagRuleTest extends TestCase
 
     public function testConstraints(): void
     {
-        $operators = [
-            Rule::OPERATOR_EQ,
-            Rule::OPERATOR_NEQ,
-            Rule::OPERATOR_EMPTY,
-        ];
-
         $constraints = $this->rule->getConstraints();
 
-        static::assertArrayHasKey('identifiers', $constraints, 'identifiers constraint not found');
-        static::assertArrayHasKey('operator', $constraints, 'operator constraints not found');
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+            'identifiers' => RuleConstraints::uuids(),
+        ], $constraints);
+    }
 
-        static::assertEquals(new ArrayOfUuid(), $constraints['identifiers'][1]);
-        static::assertEquals(new Choice($operators), $constraints['operator'][1]);
+    public function testConstraintsForEmptyOperator(): void
+    {
+        $this->rule->assign(['operator' => Rule::OPERATOR_EMPTY]);
+
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+        ], $this->rule->getConstraints());
+    }
+
+    public function testConstraintsRejectEmptyIdentifiers(): void
+    {
+        $violations = $this->validateConstraint('identifiers', []);
+
+        $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
+    }
+
+    public function testConstraintsRejectStringIdentifiers(): void
+    {
+        $violations = $this->validateConstraint('identifiers', 'TAG-ID');
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    public function testConstraintsRejectInvalidIdentifierUuid(): void
+    {
+        $violations = $this->validateConstraint('identifiers', ['TAG-ID']);
+
+        $this->assertViolationCode($violations, ArrayOfUuid::INVALID_TYPE_CODE);
+    }
+
+    public function testConstraintsAcceptValidIdentifiers(): void
+    {
+        $violations = $this->validateConstraint('identifiers', [Uuid::randomHex()]);
+
+        static::assertCount(0, $violations);
     }
 
     /**
@@ -124,5 +159,19 @@ class CustomerTagRuleTest extends TestCase
         $context->method('getCustomer')->willReturn($customer);
 
         return new CheckoutRuleScope($context);
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new CustomerTagRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode, int $expectedCount = 1): void
+    {
+        static::assertCount($expectedCount, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

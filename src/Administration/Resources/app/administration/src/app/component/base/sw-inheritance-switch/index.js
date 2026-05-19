@@ -4,12 +4,10 @@
 import template from './sw-inheritance-switch.html.twig';
 import './sw-inheritance-switch.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-inheritance-switch', {
+export default {
     template,
 
     inject: {
@@ -71,4 +69,4 @@ Component.register('sw-inheritance-switch', {
             }
         },
     },
-});
+};

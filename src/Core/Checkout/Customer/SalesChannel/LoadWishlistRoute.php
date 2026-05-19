@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -25,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
@@ -49,10 +52,18 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/customer/wishlist',
+        name: 'store-api.customer.wishlist.load',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
-        if ($criteria->getTitle() === null) {
+        if (!$criteria->getTitle()) {
             $criteria->setTitle('wishlist::load-products');
         }
 
@@ -68,16 +79,15 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
 
     private function loadWishlist(SalesChannelContext $context, string $customerId): CustomerWishlistEntity
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('customerId', $customerId),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
+            ]));
 
-        $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());
-        $result = $wishlist->first();
-        if (!$result instanceof CustomerWishlistEntity) {
+        $result = $this->wishlistRepository->search($criteria, $context->getContext())->getEntities()->first();
+        if (!$result) {
             throw CustomerException::customerWishlistNotFound();
         }
 
@@ -89,25 +99,16 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      */
     private function loadProducts(string $wishlistId, Criteria $criteria, SalesChannelContext $context, Request $request): EntitySearchResult
     {
-        $criteria->addFilter(
-            new EqualsFilter('wishlists.wishlistId', $wishlistId)
-        );
-
-        $criteria->addSorting(
-            new FieldSorting('wishlists.updatedAt', FieldSorting::DESCENDING)
-        );
-
-        $criteria->addSorting(
-            new FieldSorting('wishlists.createdAt', FieldSorting::DESCENDING)
-        );
+        $criteria
+            ->addFilter(new EqualsFilter('wishlists.wishlistId', $wishlistId))
+            ->addSorting(new FieldSorting('wishlists.updatedAt', FieldSorting::DESCENDING))
+            ->addSorting(new FieldSorting('wishlists.createdAt', FieldSorting::DESCENDING));
 
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
         )) {
-            $criteria->addFilter(
-                $this->productCloseoutFilterFactory->create($context)
-            );
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
         }
 
         $event = new CustomerWishlistLoaderCriteriaEvent($criteria, $context);

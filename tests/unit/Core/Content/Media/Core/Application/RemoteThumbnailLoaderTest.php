@@ -10,11 +10,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\RemoteThumbnailLoader;
+use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -37,10 +39,14 @@ class RemoteThumbnailLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
 
+        $dispatcher = new EventDispatcher();
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
             $prefixFilesystem,
+            $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
@@ -49,14 +55,15 @@ class RemoteThumbnailLoaderTest extends TestCase
         $actual = [$entity->get('id') => $entity->get('url')];
 
         static::assertArrayHasKey($ids->get('media'), $actual);
-        static::assertEquals($expected['media'], $actual[$ids->get('media')]);
+        static::assertSame($expected['media'], $actual[$ids->get('media')]);
 
-        if (\count($thumbnailSizes) > 0) {
+        if ($thumbnailSizes !== []) {
             static::assertIsIterable($entity->get('thumbnails'));
 
             foreach ($entity->get('thumbnails') as $thumbnail) {
                 static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
                 static::assertTrue(\in_array($thumbnail->get('url'), $expected['thumbnails'], true));
+                static::assertSame($ids->get('media'), $thumbnail->getMediaId());
             }
         }
     }
@@ -73,9 +80,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '600', 'height' => '600'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'http://localhost:8000/foo/bar.png',
@@ -97,9 +104,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '600', 'height' => '600'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'http://localhost:8000/foo/bar.png?ts=946684800',
@@ -136,9 +143,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '600', 'height' => '600'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'https://test.com/photo/flower.jpg?ts=946684800',
@@ -157,8 +164,8 @@ class RemoteThumbnailLoaderTest extends TestCase
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
         $thumbnailSizes = [
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '200', 'height' => '200'],
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'width' => '400', 'height' => '400'],
+            ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+            ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
         ];
 
         $connection = $this->createMock(Connection::class);
@@ -171,17 +178,77 @@ class RemoteThumbnailLoaderTest extends TestCase
             'private' => false,
         ]);
 
+        $dispatcher = new EventDispatcher();
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
         $loader = new RemoteThumbnailLoader(
             new MediaUrlGenerator($filesystem),
             $connection,
             $this->createMock(PrefixFilesystem::class),
+            $extensionDispatcher,
             '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
         );
 
         $loader->load([$entity]);
-        static::assertNotEmpty(ReflectionHelper::getPropertyValue($loader, 'mediaFolderThumbnailSizes'));
+        static::assertNotEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
 
         $loader->reset();
-        static::assertEmpty(ReflectionHelper::getPropertyValue($loader, 'mediaFolderThumbnailSizes'));
+        static::assertEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
+    }
+
+    public function testExtensionSkipThumbnail(): void
+    {
+        $ids = new IdsCollection();
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+
+        $thumbnailSizes = [
+            [
+                'media_folder_id' => $ids->get('mediaFolderId'),
+                'width' => '200',
+                'height' => '200',
+                'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
+            ],
+            [
+                'media_folder_id' => $ids->get('mediaFolderId'),
+                'width' => '400',
+                'height' => '400',
+                'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
+            ],
+        ];
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
+
+        $entity = (new PartialEntity())->assign([
+            'id' => $ids->get('media'),
+            'path' => 'foo/bar.png',
+            'mediaFolderId' => $ids->get('mediaFolderId'),
+            'private' => false,
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $extensionDispatcher = new ExtensionDispatcher($dispatcher);
+
+        $loader = new RemoteThumbnailLoader(
+            new MediaUrlGenerator($filesystem),
+            $connection,
+            $this->createMock(PrefixFilesystem::class),
+            $extensionDispatcher,
+            '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}'
+        );
+
+        $dispatcher->addListener(
+            ResolveRemoteThumbnailUrlExtension::NAME . '.pre',
+            static function (ResolveRemoteThumbnailUrlExtension $event): void {
+                if ($event->width === '400') {
+                    $event->result = null;
+                    $event->stopPropagation();
+                }
+            }
+        );
+
+        $loader->load([$entity]);
+
+        static::assertCount(1, $entity->get('thumbnails'));
     }
 }

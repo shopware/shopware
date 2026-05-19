@@ -47,11 +47,11 @@ class DeliveryTimeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of delivery time.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new IntField('min', 'min', 0))->addFlags(new ApiAware(), new Required()),
-            (new IntField('max', 'max', 0))->addFlags(new ApiAware(), new Required()),
-            (new StringField('unit', 'unit'))->addFlags(new ApiAware(), new Required()),
+            (new IntField('min', 'min', 0))->addFlags(new ApiAware(), new Required())->setDescription('Minimum delivery time taken.'),
+            (new IntField('max', 'max', 0))->addFlags(new ApiAware(), new Required())->setDescription('Maximum delivery time taken.'),
+            (new StringField('unit', 'unit'))->addFlags(new ApiAware(), new Required())->setDescription('Unit in which the delivery time is defined. For example, days or hours.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'delivery_time_id'),
             new OneToManyAssociationField('products', ProductDefinition::class, 'delivery_time_id'),

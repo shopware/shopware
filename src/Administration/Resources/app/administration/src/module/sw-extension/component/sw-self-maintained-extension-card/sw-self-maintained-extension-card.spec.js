@@ -16,12 +16,12 @@ async function createWrapper() {
                     'sw-loader': true,
                     'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
                     'sw-extension-icon': true,
-                    'sw-icon': true,
                     'sw-extension-uninstall-modal': true,
                     'sw-extension-removal-modal': true,
                     'sw-extension-permissions-modal': true,
                     'sw-extension-privacy-policy-extensions-modal': true,
                     'sw-tabs': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     repositoryFactory: {

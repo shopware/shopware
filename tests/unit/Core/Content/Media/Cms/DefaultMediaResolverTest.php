@@ -71,7 +71,7 @@ class DefaultMediaResolverTest extends TestCase
             ->willReturn('image/jpeg');
 
         $this->filesystem->method('mimeType')
-            ->willReturnCallback(function ($filePath) {
+            ->willReturnCallback(static function ($filePath) {
                 return $filePath === 'bundles/storefront/assets/default/cms/shopware' ? 'image/jpeg' : null;
             });
 
@@ -93,8 +93,8 @@ class DefaultMediaResolverTest extends TestCase
         $result = $this->mediaResolver->getDefaultCmsMediaEntity('bundles/storefront/assets/default/cms/shopware.jpg');
 
         static::assertInstanceOf(MediaEntity::class, $result);
-        static::assertEquals('shopware', $result->getFileName());
-        static::assertEquals('image/jpeg', $result->getMimeType());
-        static::assertEquals('jpg', $result->getFileExtension());
+        static::assertSame('shopware', $result->getFileName());
+        static::assertSame('image/jpeg', $result->getMimeType());
+        static::assertSame('jpg', $result->getFileExtension());
     }
 }

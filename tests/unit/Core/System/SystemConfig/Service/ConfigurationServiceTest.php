@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
@@ -68,7 +70,8 @@ class ConfigurationServiceTest extends TestCase
             new ConfigReader(),
             $this->createMock(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([])
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         static::assertFalse($configService->checkConfiguration('invalid!', Context::createDefaultContext()));
@@ -85,7 +88,8 @@ class ConfigurationServiceTest extends TestCase
             new ConfigReader(),
             $this->createMock(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([])
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         $this->expectExceptionObject(SystemConfigException::configurationNotFound('missing'));
@@ -106,7 +110,7 @@ class ConfigurationServiceTest extends TestCase
 
         $expectedConfigWithoutValues = $this->getConfigWithoutValues();
 
-        static::assertEquals($expectedConfigWithoutValues, $actualConfig);
+        static::assertSame($expectedConfigWithoutValues, $actualConfig);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][0], $actualConfig[0]['elements'][0]);
         static::assertSame($expectedConfigWithoutValues[0]['elements'][2], $actualConfig[0]['elements'][2]);
     }
@@ -234,7 +238,8 @@ class ConfigurationServiceTest extends TestCase
             $configReader,
             $this->createMock(AppConfigReader::class),
             $appRepository,
-            new StaticSystemConfigService([])
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         $actualConfig = $service->getConfiguration('SwagExampleTest', Context::createDefaultContext());
@@ -280,14 +285,18 @@ class ConfigurationServiceTest extends TestCase
         $configReader = $this->createMock(ConfigReader::class);
         $configReader->method('getConfigFromBundle')->willReturn($config);
 
+        /** @var StaticEntityRepository<AppCollection> */
+        $repository = new StaticEntityRepository([new AppCollection()]);
+
         $service = new ConfigurationService(
             [
                 new SwagExampleTest(true, ''),
             ],
             $configReader,
             $this->createMock(AppConfigReader::class),
-            new StaticEntityRepository([new AppCollection()]),
-            new StaticSystemConfigService(['SwagExampleTest.email' => 'foo'])
+            $repository,
+            new StaticSystemConfigService(['SwagExampleTest.email' => 'foo']),
+            new NullLogger()
         );
 
         $actualConfig = $service->getResolvedConfiguration('SwagExampleTest', Context::createDefaultContext());
@@ -296,6 +305,28 @@ class ConfigurationServiceTest extends TestCase
         static::assertCount(1, $actualConfig[0]['elements']);
         static::assertSame('SwagExampleTest.email', $actualConfig[0]['elements'][0]['name']);
         static::assertSame('foo', $actualConfig[0]['elements'][0]['value']);
+    }
+
+    public function testCheckConfigurationReturnsFalseOnXmlParsingException(): void
+    {
+        $configReader = $this->createMock(ConfigReader::class);
+        $configReader->method('getConfigFromBundle')->willThrowException(
+            UtilException::xmlParsingException('/path/to/config.xml', 'Invalid XML: element name contains underscores')
+        );
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([])]);
+        $configService = new ConfigurationService(
+            [new SwagExampleTest(true, '')],
+            $configReader,
+            $this->createMock(AppConfigReader::class),
+            $appRepository,
+            new StaticSystemConfigService([]),
+            new NullLogger()
+        );
+
+        // checkConfiguration should return false instead of throwing the exception
+        static::assertFalse($configService->checkConfiguration('SwagExampleTest.config', Context::createDefaultContext()));
     }
 
     /**
@@ -320,7 +351,8 @@ class ConfigurationServiceTest extends TestCase
             new ConfigReader(),
             $appConfigReader,
             $appRepository,
-            new StaticSystemConfigService([])
+            new StaticSystemConfigService([]),
+            new NullLogger()
         );
 
         if ($config !== []) {

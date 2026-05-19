@@ -5,9 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -17,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
@@ -36,23 +39,21 @@ class ShippingMethodPersisterTest extends TestCase
     public function testUpdateShippingMethodInstallsTwoNewShippingMethodsWithBasicManifest(): void
     {
         $manifest = $this->getManifest(__DIR__ . '/_fixtures/manifest_basic.xml');
-        $context = Context::createDefaultContext();
 
         $shippingMethodPersister = $this->createShippingMethodPersister();
 
-        $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
+        $shippingMethodPersister->persist($this->buildContext($manifest));
     }
 
     public function testUpdateShippingMethodInstallsOneNewUpdateOneAndDeactivatesOneShippingMethodsWithUpdateManifest(): void
     {
         $manifest = $this->getManifest(__DIR__ . '/_fixtures/update_basic.xml');
-        $context = Context::createDefaultContext();
 
         $appShippingMethodRepositoryMock = $this->createAppShippingMethodRepositoryMockWithExistingAppShippingMethods();
 
         $shippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $shippingMethodRepositoryMock->expects(static::once())->method('upsert');
-        $shippingMethodRepositoryMock->expects(static::once())->method('update');
+        $shippingMethodRepositoryMock->expects($this->once())->method('upsert');
+        $shippingMethodRepositoryMock->expects($this->once())->method('update');
 
         $shippingMethodPersister = $this->createShippingMethodPersister([
             'shippingMethodRepository' => $shippingMethodRepositoryMock,
@@ -60,7 +61,23 @@ class ShippingMethodPersisterTest extends TestCase
             'mediaService' => $this->createMock(MediaService::class),
         ]);
 
-        $shippingMethodPersister->updateShippingMethods($manifest, self::APP_ID, self::DEFAULT_LOCALE_ID, $context);
+        $shippingMethodPersister->persist($this->buildContext($manifest));
+    }
+
+    private function buildContext(Manifest $manifest): AppLifecycleContext
+    {
+        $app = new AppEntity();
+        $app->setId(self::APP_ID);
+        $app->setActive(true);
+
+        return new AppLifecycleContext(
+            manifest: $manifest,
+            app: $app,
+            context: Context::createDefaultContext(),
+            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
+            defaultLocale: self::DEFAULT_LOCALE_ID,
+            isInstall: true,
+        );
     }
 
     /**
@@ -76,17 +93,21 @@ class ShippingMethodPersisterTest extends TestCase
             \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
             \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
             \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
-            \array_key_exists('sourceResolver', $services) ? $services['sourceResolver'] : new StaticSourceResolver([
-                'swagUnitTestShippingMethodPersister' => new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
-            ]),
         );
     }
 
-    private function createShippingMethodRepositoryMock(): EntityRepository
+    /**
+     * @return StaticEntityRepository<ShippingMethodCollection>
+     */
+    private function createShippingMethodRepositoryMock(): StaticEntityRepository
     {
+        /** @var StaticEntityRepository<ShippingMethodCollection> */
         return new StaticEntityRepository([]);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
     private function createAppShippingMethodRepositoryMock(): EntityRepository
     {
         $appShippingMethodMock = $this->createMock(EntityRepository::class);
@@ -104,6 +125,9 @@ class ShippingMethodPersisterTest extends TestCase
         return $appShippingMethodMock;
     }
 
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
     private function createMediaRepositoryMock(): EntityRepository
     {
         $mediaRepositoryMock = $this->createMock(EntityRepository::class);
@@ -122,7 +146,7 @@ class ShippingMethodPersisterTest extends TestCase
     private function createMediaServiceMock(): MediaService&MockObject
     {
         $mediaServiceMock = $this->createMock(MediaService::class);
-        $mediaServiceMock->expects(static::once())->method('saveFile')->willReturn(self::ICON_URL);
+        $mediaServiceMock->expects($this->once())->method('saveFile')->willReturn(self::ICON_URL);
 
         return $mediaServiceMock;
     }
@@ -134,6 +158,9 @@ class ShippingMethodPersisterTest extends TestCase
         return Manifest::createFromXmlFile($file);
     }
 
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
     private function createAppShippingMethodRepositoryMockWithExistingAppShippingMethods(): EntityRepository|MockObject
     {
         $shippingMethodOne = new ShippingMethodEntity();
@@ -162,10 +189,10 @@ class ShippingMethodPersisterTest extends TestCase
         ]);
 
         $entitySearchResultMock = $this->createMock(EntitySearchResult::class);
-        $entitySearchResultMock->expects(static::once())->method('getEntities')->willReturn($entityCollection);
+        $entitySearchResultMock->expects($this->once())->method('getEntities')->willReturn($entityCollection);
 
         $appShippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
-        $appShippingMethodRepositoryMock->expects(static::once())->method('search')->willReturn($entitySearchResultMock);
+        $appShippingMethodRepositoryMock->expects($this->once())->method('search')->willReturn($entitySearchResultMock);
 
         return $appShippingMethodRepositoryMock;
     }

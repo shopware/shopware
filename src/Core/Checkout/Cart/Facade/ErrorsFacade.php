@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class ErrorsFacade implements \IteratorAggregate
 {
-    public function __construct(private ErrorCollection $collection)
+    public function __construct(private readonly ErrorCollection $collection)
     {
     }
 

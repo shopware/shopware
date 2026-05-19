@@ -19,12 +19,14 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
  * @internal
  */
 #[CoversClass(AbsolutePriceCalculator::class)]
+#[Package('checkout')]
 class AbsolutePriceCalculatorTest extends TestCase
 {
     #[DataProvider('provider')]
@@ -50,9 +52,9 @@ class AbsolutePriceCalculatorTest extends TestCase
 
         static::assertEquals($calculation->getExpected()->getCalculatedTaxes(), $calculatedPrice->getCalculatedTaxes());
         static::assertEquals($calculation->getExpected()->getTaxRules(), $calculatedPrice->getTaxRules());
-        static::assertEquals($calculation->getExpected()->getTotalPrice(), $calculatedPrice->getTotalPrice());
-        static::assertEquals($calculation->getExpected()->getUnitPrice(), $calculatedPrice->getUnitPrice());
-        static::assertEquals($calculation->getExpected()->getQuantity(), $calculatedPrice->getQuantity());
+        static::assertSame($calculation->getExpected()->getTotalPrice(), $calculatedPrice->getTotalPrice());
+        static::assertSame($calculation->getExpected()->getUnitPrice(), $calculatedPrice->getUnitPrice());
+        static::assertSame($calculation->getExpected()->getQuantity(), $calculatedPrice->getQuantity());
     }
 
     /**
@@ -132,6 +134,7 @@ class AbsolutePriceCalculatorTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class AbsoluteCalculation
 {
     public function __construct(

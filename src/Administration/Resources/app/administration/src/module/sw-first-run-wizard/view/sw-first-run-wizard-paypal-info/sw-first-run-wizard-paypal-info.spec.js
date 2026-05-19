@@ -21,8 +21,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
-
                     'sw-loader': true,
                 },
                 provide: {
@@ -34,22 +32,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-first-run-wizard-paypal-info', () => {
-    const originalWindowLocation = window.location;
-
-    beforeAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: originalWindowLocation,
-        });
-    });
-
     it('should download and install the PayPal plugin', async () => {
         await createWrapper();
 
@@ -59,6 +41,8 @@ describe('src/module/sw-first-run-wizard-paypal-info', () => {
 
     it('should activate the PayPal plugin', async () => {
         const wrapper = await createWrapper();
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         await wrapper.vm.activatePayPalAndRedirect();
         await flushPromises();

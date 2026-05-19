@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
@@ -7,16 +8,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Snippet\Extension\StorefrontSnippetsExtension;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
-use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Tests\Integration\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -37,13 +39,107 @@ class SnippetServiceTest extends TestCase
         MockSnippetFile::cleanup();
     }
 
+    public function testStorefrontSnippetsExtensionPre(): void
+    {
+        $locale = 'en-GB';
+        $fallbackLocale = 'en';
+
+        $service = $this->getSnippetService(
+            new MockSnippetFile(
+                $locale,
+                $locale,
+                (string) json_encode([
+                    'foo' => [
+                        'baz' => 'foo_baz_default0',
+                        'bas' => 'foo_bas_default1',
+                    ],
+                    'bar' => 'bar_default2',
+                ], \JSON_THROW_ON_ERROR)
+            )
+        );
+
+        $snippetSetId = $this->getSnippetSetIdForLocale($locale);
+        static::assertNotNull($snippetSetId);
+
+        $snippetRepository = static::getContainer()->get('snippet.repository');
+        $snippetRepository->create([
+            [
+                'translationKey' => 'foo.bas',
+                'value' => 'foo_bas_override_db',
+                'author' => 'test',
+                'setId' => $snippetSetId,
+            ],
+        ], Context::createDefaultContext());
+
+        $listener = static function (StorefrontSnippetsExtension $event): void {
+            $event->snippets['foo.baz'] = 'foo_baz_override0';
+            $event->snippets['foo.bas'] = 'foo_bas_override1';
+        };
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $eventDispatcher->addListener(ExtensionDispatcher::pre(StorefrontSnippetsExtension::NAME), $listener);
+
+        $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
+
+        static::assertSame([
+            'foo.baz' => 'foo_baz_override0',
+            'foo.bas' => 'foo_bas_override_db',
+            'bar' => 'bar_default2',
+        ], $snippets);
+
+        $eventDispatcher->removeListener(ExtensionDispatcher::pre(StorefrontSnippetsExtension::NAME), $listener);
+
+        $snippetRepository->delete([
+            ['setId' => $snippetSetId],
+        ], Context::createDefaultContext());
+    }
+
+    public function testStorefrontSnippetsExtensionPost(): void
+    {
+        $locale = 'en-GB';
+        $fallbackLocale = 'en';
+
+        $service = $this->getSnippetService(
+            new MockSnippetFile(
+                $locale,
+                $locale,
+                (string) json_encode([
+                    'foo' => [
+                        'bar' => 'foo_baz_default0',
+                        'bas' => 'foo_bas_default1',
+                    ],
+                    'baz' => ['bar' => 'baz_bar_default2'],
+                ], \JSON_THROW_ON_ERROR)
+            )
+        );
+        $snippetSetId = $this->getSnippetSetIdForLocale($locale);
+        static::assertNotNull($snippetSetId);
+        $listener = static function (StorefrontSnippetsExtension $event): void {
+            $event->result['foo.bar'] = 'foo_bar_override';
+        };
+
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $eventDispatcher->addListener(ExtensionDispatcher::post(StorefrontSnippetsExtension::NAME), $listener);
+
+        $snippets = $service->getStorefrontSnippets($this->getCatalogue([], $fallbackLocale), $snippetSetId);
+
+        static::assertSame([
+            'foo.bar' => 'foo_bar_override',
+            'foo.bas' => 'foo_bas_default1',
+            'baz.bar' => 'baz_bar_default2',
+        ], $snippets);
+
+        $eventDispatcher->removeListener(ExtensionDispatcher::post(StorefrontSnippetsExtension::NAME), $listener);
+    }
+
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void
     {
         $snippetSetId = Uuid::randomHex();
         $this->expectException(SnippetException::class);
         $this->expectExceptionMessage(\sprintf('Snippet set with ID "%s" not found.', $snippetSetId));
 
-        $this->getSnippetService()->getStorefrontSnippets($this->getCatalog([], 'en-GB'), $snippetSetId);
+        $this->getSnippetService()->getStorefrontSnippets($this->getCatalogue([], 'en'), $snippetSetId);
     }
 
     public function testGetRegionFilterItems(): void
@@ -52,16 +148,16 @@ class SnippetServiceTest extends TestCase
             'foo',
             'foo',
             <<<json
-{
-    "foo": {
-        "baz": "foo_baz",
-        "bas": "foo_bas"
-    },
-    "bar": {
-        "zz": "bar_zz"
-    }
-}
-json
+            {
+                "foo": {
+                    "baz": "foo_baz",
+                    "bas": "foo_bas"
+                },
+                "bar": {
+                    "zz": "bar_zz"
+                }
+            }
+            json
         );
 
         $fooId = Uuid::randomBytes();
@@ -87,7 +183,7 @@ json
         $service = $this->getSnippetService($snippetFile);
         $result = $service->getRegionFilterItems(Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             'bar',
             'foo',
             'test',
@@ -139,12 +235,12 @@ json
     }
 
     /**
-     * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
+     * @param array<string, string> $expectedResult
      */
-    #[DataProvider('dataProviderForTestGetStoreFrontSnippets')]
-    public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
+    #[DataProvider('dataProviderForTestGetStorefrontSnippets')]
+    public function testGetStorefrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
-        $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
+        $service = $this->getSnippetService(new MockSnippetFile('de'), new MockSnippetFile('en'));
 
         static::assertNotNull($this->getSnippetSetIdForLocale('en-GB'));
         $result = $service->getStorefrontSnippets($catalog, $this->getSnippetSetIdForLocale('en-GB'));
@@ -152,9 +248,9 @@ json
         static::assertSame($expectedResult, $result);
     }
 
-    public function testGetStoreFrontSnippetsOverriddenFromDB(): void
+    public function testGetStorefrontSnippetsOverriddenFromDB(): void
     {
-        $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
+        $service = $this->getSnippetService(new MockSnippetFile('de'), new MockSnippetFile('en'));
 
         $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
         static::assertNotNull($snippetSetId);
@@ -186,7 +282,7 @@ json
     public function testStorefrontSnippetFallback(): void
     {
         $service = $this->getSnippetService(
-            new MockSnippetFile('test-fallback-en', 'en-GB', (string) json_encode([
+            new MockSnippetFile('test-fallback-en', 'en', (string) json_encode([
                 'foo' => 'en-foo',
                 'not-exists' => 'en-bar',
                 'storefront' => [
@@ -197,21 +293,21 @@ json
                         'item' => 'Item',
                     ],
                 ],
-            ])),
-            new MockSnippetFile('test-fallback-de', 'de-DE', (string) json_encode([
+            ], \JSON_THROW_ON_ERROR)),
+            new MockSnippetFile('test-fallback-en-gb', 'en-GB', (string) json_encode([
                 'storefront' => [
                     'account' => [
-                        'overview' => 'Übersicht',
+                        'overview' => 'Override en-GB',
                     ],
                     'home' => [
-                        'title' => 'Home',
+                        'title' => 'en-GB only',
                     ],
                 ],
-            ]))
+            ], \JSON_THROW_ON_ERROR))
         );
 
         $catalog = new MessageCatalogue(
-            'en-GB',
+            'en',
             [
                 'messages' => [
                     'foo' => 'catalog',
@@ -220,33 +316,42 @@ json
             ]
         );
 
-        $snippetSetId = $this->getSnippetSetIdForLocale('de-DE');
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
 
         static::assertNotNull($snippetSetId);
-        $result = $service->getStorefrontSnippets($catalog, $snippetSetId, 'en-GB');
+        $result = $service->getStorefrontSnippets($catalog, $snippetSetId, 'en');
 
         static::assertEquals(
             [
                 'foo' => 'catalog',
                 'bar' => 'catalog',
                 'not-exists' => 'en-bar',
-                'storefront.account.overview' => 'Übersicht',
+                'storefront.account.overview' => 'Override en-GB',
                 'storefront.checkout.item' => 'Item',
-                'storefront.home.title' => 'Home',
+                'storefront.home.title' => 'en-GB only',
             ],
             $result
         );
     }
 
     /**
-     * @return array<int, array<int, MessageCatalogue|array<int|string, string>>>
+     * @return list<array{MessageCatalogue, array<string, string>}>
      */
-    public static function dataProviderForTestGetStoreFrontSnippets(): array
+    public static function dataProviderForTestGetStorefrontSnippets(): array
     {
         return [
-            [new MessageCatalogue('en-GB', []), []],
-            [new MessageCatalogue('en-GB', ['messages' => ['a' => 'a']]), ['a' => 'a']],
-            [new MessageCatalogue('en-GB', ['messages' => ['a' => 'a', 'b' => 'b']]), ['a' => 'a', 'b' => 'b']],
+            [
+                new MessageCatalogue('en', []),
+                [],
+            ],
+            [
+                new MessageCatalogue('en', ['messages' => ['a' => 'a']]),
+                ['a' => 'a'],
+            ],
+            [
+                new MessageCatalogue('en', ['messages' => ['a' => 'a', 'b' => 'b']]),
+                ['a' => 'a', 'b' => 'b'],
+            ],
         ];
     }
 
@@ -982,11 +1087,11 @@ json
     }
 
     /**
-     * @param array<string> $messages
+     * @param array<array<string>> $messages
      */
-    private function getCatalog(array $messages, string $local): MessageCatalogueInterface
+    private function getCatalogue(array $messages, string $locale): MessageCatalogueInterface
     {
-        return new MessageCatalogue($local, $messages);
+        return new MessageCatalogue($locale, $messages);
     }
 
     /**
@@ -1024,8 +1129,10 @@ json
             static::getContainer()->get('snippet.repository'),
             static::getContainer()->get('snippet_set.repository'),
             static::getContainer()->get(SnippetFilterFactory::class),
-            static::getContainer(),
-            static::getContainer()->has(DatabaseSalesChannelThemeLoader::class) ? static::getContainer()->get(DatabaseSalesChannelThemeLoader::class) : null
+            static::getContainer()->get(ExtensionDispatcher::class),
+            static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get('filesystem'),
         );
     }
 

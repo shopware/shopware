@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
 export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
@@ -12,13 +11,29 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     };
 
     init() {
-        super.init();
-
         this.grecaptchaContainer = this.el.querySelector(this.options.checkboxContainer);
         this.grecaptchaContainerIframe = null;
         this.grecaptchaWidgetId = null;
+        this.currentToken = null;
 
-        this._renderV2Captcha();
+        super.init();
+    }
+
+    _executeGoogleReCaptchaInitialization() {
+        super._executeGoogleReCaptchaInitialization();
+
+        if (this.grecaptcha) {
+            this._renderV2Captcha();
+        } else {
+            console.error('GoogleReCaptchaV2Plugin: Cannot render V2 captcha.');
+        }
+    }
+
+    /**
+     * @private
+     */
+    _renderV2Captcha() {
+        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     getGreCaptchaInfo() {
@@ -36,27 +51,31 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
 
             this.grecaptcha.execute(this.grecaptchaWidgetId).then(() => {
                 this._formSubmitting = false;
+
+                /**
+                 * If the form was not valid on a first submit because of other fields the captcha callback won't be called again by reCaptcha.
+                 * So if a valid token is already present we can proceed with submitting the form.
+                 * Otherwise, the form submit will be called by the captcha callback.
+                 */
+                if (this.currentToken !== null && this.grecaptchaInput.value === this.currentToken) {
+                    this._submitInvisibleForm();
+                }
             });
         } else {
-            if (!this.grecaptchaInput.value) {
-                this.grecaptchaContainerIframe = DomAccess.querySelector(this.el, 'iframe');
-                this.grecaptchaContainerIframe.classList.add(this.options.grecaptchaIframeHasErrorClassSelector);
-            }
-
-            this._formSubmitting = false;
 
             this.$emitter.publish('beforeGreCaptchaFormSubmit', {
                 info: this.getGreCaptchaInfo(),
                 token: this.grecaptchaInput.value,
             });
-        }
-    }
 
-    /**
-     * @private
-     */
-    _renderV2Captcha() {
-        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
+            if (!this.grecaptchaInput.value) {
+                this._formSubmitting = false;
+                this.grecaptchaContainerIframe = this.el.querySelector('iframe');
+                this.grecaptchaContainerIframe.classList.add(this.options.grecaptchaIframeHasErrorClassSelector);
+            } else {
+                this._submitInvisibleForm();
+            }
+        }
     }
 
     /**
@@ -68,15 +87,15 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             token,
         });
 
-        this._formSubmitting = false;
+        this.currentToken = token;
         this.grecaptchaInput.value = token;
 
         if (!this.options.invisible) {
             this.grecaptchaContainerIframe.classList.remove(this.options.grecaptchaIframeHasErrorClassSelector);
-            return;
+        } else {
+            // If the captcha is invisible it is validated on submit and therefore the callback has to trigger the submit.
+            this._submitInvisibleForm();
         }
-
-        this._submitInvisibleForm();
     }
 
     /**
@@ -91,7 +110,7 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             'error-callback': this._onGreCaptchaError.bind(this),
         });
 
-        this.grecaptchaContainerIframe = DomAccess.querySelector(this.el, 'iframe');
+        this.grecaptchaContainerIframe = this.el.querySelector('iframe');
     }
 
     /**

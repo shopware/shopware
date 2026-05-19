@@ -19,7 +19,7 @@ class ElasticsearchAdminUpdateMappingCommandTest extends TestCase
     {
         $registry = $this->createMock(AdminSearchRegistry::class);
         $registry
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('updateMappings');
 
         $command = new ElasticsearchAdminUpdateMappingCommand($registry);

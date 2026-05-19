@@ -9,7 +9,6 @@ async function createWrapper(userConfig = {}) {
     const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
@@ -18,7 +17,6 @@ async function createWrapper(userConfig = {}) {
                 'sw-field-error': true,
                 'sw-modal': {
                     props: ['title'],
-                    // eslint-disable-next-line max-len
                     template:
                         '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                 },
@@ -206,7 +204,6 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         // return an error from the upload
         uploadSpy.mockImplementationOnce(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {

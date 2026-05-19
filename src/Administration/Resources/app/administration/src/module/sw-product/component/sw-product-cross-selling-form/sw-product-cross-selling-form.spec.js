@@ -26,11 +26,8 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-text-field': true,
                     'sw-context-menu-item': true,
-
                     'sw-select-field': true,
-                    'sw-number-field': true,
                     'sw-entity-single-select': true,
-                    'sw-icon': true,
                     'sw-product-cross-selling-assignment': true,
                     'sw-product-stream-modal-preview': true,
                     'sw-modal': true,

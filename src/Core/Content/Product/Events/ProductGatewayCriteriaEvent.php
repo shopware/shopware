@@ -13,25 +13,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class ProductGatewayCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var array<string>
-     */
-    protected array $ids;
-
-    protected Criteria $criteria;
-
-    protected SalesChannelContext $context;
-
-    /**
      * @param array<string> $ids
      */
     public function __construct(
-        array $ids,
-        Criteria $criteria,
-        SalesChannelContext $context
+        protected array $ids,
+        protected Criteria $criteria,
+        protected SalesChannelContext $context,
     ) {
-        $this->ids = $ids;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     /**

@@ -2,7 +2,7 @@
 <mt-card
     class="sw-users-permissions-detailed-additional-permissions"
     position-identifier="sw-users-permissions-detailed-additional-permissions"
-    :title="$tc('sw-users-permissions.roles.detailed-additional-permissions.title')"
+    :title="$t('sw-users-permissions.roles.detailed-additional-permissions.title')"
 >
     {% block sw_users_permissions_detailed_additional_permissions_additional_privileges %}
     <template
@@ -15,7 +15,7 @@
         >
             {% block sw_users_permissions_detailed_additional_permissions_additional_privileges_headline_content %}
             <strong>
-                {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
+                {{ $t('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
             </strong>
             {% endblock %}
         </h4>
@@ -34,11 +34,11 @@
 
                 <mt-switch
                     :class="'sw_users_permissions_detailed_additional_permissions_' + privilege.key + '_' + roleName"
-                    :checked="isEntitySelected(roleName)"
+                    :model-value="isEntitySelected(roleName)"
                     :disabled="isEntityDisabled(roleName) || disabled"
                     :label="roleName"
                     :bordered="true"
-                    @change="changePermissionForEntity(roleName)"
+                    @update:model-value="changePermissionForEntity(roleName)"
                 />
                 {% endblock %}
             </template>

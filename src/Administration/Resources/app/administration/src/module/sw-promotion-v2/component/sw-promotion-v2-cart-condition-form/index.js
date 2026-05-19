@@ -42,6 +42,9 @@ export default {
             return this.repositoryFactory.create('promotion_setgroup');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -56,7 +59,7 @@ export default {
             this.packagerKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.setgroups.packager.${keyValue}`),
                 });
             });
             return result;
@@ -68,7 +71,7 @@ export default {
             this.sorterKeys.forEach((keyValue) => {
                 result.push({
                     key: keyValue,
-                    name: this.$tc(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
+                    name: this.$t(`sw-promotion-v2.detail.conditions.setgroups.sorter.${keyValue}`),
                 });
             });
 
@@ -78,11 +81,35 @@ export default {
         isEditingDisabled() {
             return this.promotion === null || !this.acl.can('promotion.editor');
         },
-    },
 
-    watch: {
-        promotion() {
-            this.loadSetGroups();
+        packagerOptions() {
+            return this.packagers.map((packager) => {
+                return {
+                    id: packager.key,
+                    value: packager.key,
+                    label: packager.name,
+                };
+            });
+        },
+
+        sorterOptions() {
+            return this.sorters.map((sorter) => {
+                return {
+                    id: sorter.key,
+                    value: sorter.key,
+                    label: sorter.name,
+                };
+            });
+        },
+
+        setGroupCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('setGroupRules');
+
+            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
+
+            return criteria;
         },
     },
 
@@ -92,25 +119,12 @@ export default {
 
     methods: {
         createdComponent() {
-            if (this.promotion) {
-                this.loadSetGroups();
-            }
-
             this.promotionSyncService.loadPackagers().then((keys) => {
                 this.packagerKeys = keys;
             });
 
             this.promotionSyncService.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
-            });
-        },
-
-        loadSetGroups() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
-
-            this.promotionGroupRepository.search(criteria).then((groups) => {
-                this.promotion.setgroups = groups;
             });
         },
 

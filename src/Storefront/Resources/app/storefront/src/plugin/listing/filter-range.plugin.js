@@ -3,7 +3,6 @@
  */
 
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
-import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
 export default class FilterRangePlugin extends FilterBasePlugin {
@@ -28,9 +27,9 @@ export default class FilterRangePlugin extends FilterBasePlugin {
     });
 
     init() {
-        this._container = DomAccess.querySelector(this.el, this.options.containerSelector);
-        this._inputMin = DomAccess.querySelector(this.el, this.options.inputMinSelector);
-        this._inputMax = DomAccess.querySelector(this.el, this.options.inputMaxSelector);
+        this._container = this.el.querySelector(this.options.containerSelector);
+        this._inputMin = this.el.querySelector(this.options.inputMinSelector);
+        this._inputMax = this.el.querySelector(this.options.inputMaxSelector);
         this._timeout = null;
         this._hasError = false;
 
@@ -126,7 +125,7 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         this._inputMin.classList.remove(this.options.inputInvalidCLass);
         this._inputMax.classList.remove(this.options.inputInvalidCLass);
 
-        const error = DomAccess.querySelector(this.el, `.${this.options.errorContainerClass}`, false);
+        const error = this.el.querySelector(`.${this.options.errorContainerClass}`);
 
         if (error) {
             error.remove();

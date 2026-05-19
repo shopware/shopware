@@ -92,6 +92,8 @@ function getSnippets() {
     return data;
 }
 
+const saveMock = jest.fn(() => Promise.resolve());
+
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     async function createWrapper(privileges = []) {
         return mount(
@@ -123,7 +125,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                             create: () => ({
                                 search: () => Promise.resolve(getSnippetSets()),
                                 create: () => Promise.resolve(),
-                                save: () => Promise.resolve(),
+                                save: saveMock,
                             }),
                         },
                         acl: {
@@ -163,14 +165,15 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         'sw-button-process': await wrapTestComponent('sw-button-process'),
                         'sw-skeleton': true,
                         'sw-search-bar': true,
-                        'sw-icon': true,
                         'router-link': true,
                         'sw-app-actions': true,
                         'sw-loader': true,
                         'sw-error-summary': true,
                         'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
                         'sw-notification-center': true,
                         'sw-help-center-v2': true,
+                        'sw-context-menu-item': true,
                         'sw-context-button': true,
                         'sw-extension-component-section': true,
                         'sw-ai-copilot-badge': true,
@@ -185,12 +188,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
     beforeEach(() => {
         Shopware.Store.get('session').setCurrentUser({ username: 'admin' });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it.each([
@@ -281,5 +278,31 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 page: 1,
             }),
         );
+    });
+
+    it('should skip non-saveable snippets', async () => {
+        const wrapper = await createWrapper('snippet.viewer');
+        wrapper.vm.snippets = [
+            {
+                value: 'foo',
+                origin: null,
+            },
+            {
+                value: null,
+                origin: null,
+            },
+            {
+                value: null,
+                origin: 'bar',
+            },
+            {
+                value: ' ',
+                origin: null,
+            },
+        ];
+
+        wrapper.vm.onSave();
+
+        expect(saveMock).toHaveBeenCalledTimes(3);
     });
 });

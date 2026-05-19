@@ -1,50 +1,46 @@
 {% block sw_promotion_discount_component %}
 <mt-card
+    :id="'promotion-discount-' + discount.id"
     class="sw-promotion-discount-component"
     position-identifier="sw-promotion-discount-component"
-    :title="$tc('sw-promotion.detail.main.discounts.card')"
+    :title="$t('sw-promotion.detail.main.discounts.card')"
 >
-    <sw-context-button class="sw-promotion-discount-component__context-button">
-        {% block sw_promotion_detail_discounts_item_context_button_delete %}
-        <sw-context-menu-item
-            v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('promotion.editor'),
-                showOnDisabledElements: true
-            }"
-            variant="danger"
-            class="sw-promotion-context-item__delete-action"
-            :disabled="isEditingDisabled"
-            @click="onShowDeleteModal"
-        >
-            {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
-        </sw-context-menu-item>
-        {% endblock %}
-    </sw-context-button>
+    <template #headerRight>
+        <sw-context-button class="sw-promotion-discount-component__context-button">
+            {% block sw_promotion_detail_discounts_item_context_button_delete %}
+            <sw-context-menu-item
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('promotion.editor'),
+                    showOnDisabledElements: true
+                }"
+                variant="danger"
+                class="sw-promotion-context-item__delete-action"
+                :disabled="isEditingDisabled"
+                @click="onShowDeleteModal"
+            >
+                {{ $t('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+    </template>
 
     <sw-container
         columns="1fr 1fr"
         gap="0px 30px"
     >
         {% block sw_promotion_discount_component_scope %}
-        <sw-select-field
+        <mt-select
             ref="selectFieldScope"
-            v-model:value="discount.scope"
+            v-model="discount.scope"
             required
             validation="required"
-            :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
+            :label="$t('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
             :is-loading="isLoading"
-            @update:value="onDiscountScopeChanged"
-        >
-            <option
-                v-for="scope in scopes"
-                :key="scope.key"
-                :value="scope.key"
-            >
-                {{ scope.name }}
-            </option>
-        </sw-select-field>
+            :options="fieldScopeOptions"
+            @update:model-value="onDiscountScopeChanged"
+        />
         {% endblock %}
 
         {% block sw_promotion_discount_condition_consider_product_rules_field %}
@@ -53,7 +49,7 @@
             <mt-switch
                 v-model="discount.considerAdvancedRules"
                 bordered
-                :label="$tc('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
+                :label="$t('sw-promotion.detail.main.discounts.flagProductScopeLabel')"
                 :disabled="isEditingDisabled"
             />
         </template>
@@ -62,56 +58,42 @@
 
     {% block sw_promotion_discount_condition_rules_form %}
     <template v-if="!shippingScope && discount.considerAdvancedRules === true">
-        <div v-if="!isSetGroup">
-            <sw-promotion-v2-rule-select
-                v-model:collection="discount.discountRules"
+        <template v-if="!isSetGroup">
+            <sw-select-rule-create
+                v-model:rules="discount.discountRules"
                 class="sw-promotion-discount-component__select-discount-rules"
                 :local-mode="discount.isNew()"
-                :criteria="ruleFilter"
-                :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                :rule-filter="ruleFilter"
+                :label="$t('sw-promotion.detail.main.discounts.labelRules')"
+                :placeholder="$t('sw-promotion.detail.main.discounts.placeholder')"
                 :disabled="isEditingDisabled"
                 :restricted-rules="restrictedRules"
                 :restriction-snippet="promotionDiscountSnippet"
                 rule-aware-group-key="promotionDiscounts"
             />
-        </div>
+        </template>
 
         <sw-container
             columns="1fr 1fr"
             gap="0px 30px"
         >
             {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
-            <sw-select-field
+            <mt-select
                 v-if="!isSet"
-                v-model:value="discount.applierKey"
-                :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
+                v-model="discount.applierKey"
+                :label="$t('sw-promotion.detail.main.discounts.labelApplyCount')"
                 :disabled="isEditingDisabled"
-            >
-                <option
-                    v-for="applier in graduationAppliers"
-                    :key="applier.key"
-                    :value="applier.key"
-                >
-                    {{ applier.name }}
-                </option>
-            </sw-select-field>
+                :options="applyCountOptions"
+            />
             {% endblock %}
             {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
-            <sw-select-field
+            <mt-select
                 v-if="isMaxUsageVisible"
-                v-model:value="discount.usageKey"
-                :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
+                v-model="discount.usageKey"
+                :label="$t('sw-promotion.detail.main.discounts.labelMaxCount')"
                 :disabled="isEditingDisabled"
-            >
-                <option
-                    v-for="count in graduationCounts"
-                    :key="count.key"
-                    :value="count.key"
-                >
-                    {{ count.name }}
-                </option>
-            </sw-select-field>
+                :options="maxCountOptions"
+            />
             {% endblock %}
 
         </sw-container>
@@ -122,35 +104,21 @@
                 gap="0px 30px"
             >
                 {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
-                <sw-select-field
-                    v-model:value="discount.sorterKey"
-                    :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
+                <mt-select
+                    v-model="discount.sorterKey"
+                    :label="$t('sw-promotion.detail.main.discounts.labelSorting')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="sorter in graduationSorters"
-                        :key="sorter.key"
-                        :value="sorter.key"
-                    >
-                        {{ sorter.name }}
-                    </option>
-                </sw-select-field>
+                    :options="sorterOptions"
+                />
                 {% endblock %}
                 {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
-                <sw-select-field
+                <mt-select
                     v-if="isPickingModeVisible"
-                    v-model:value="discount.pickerKey"
-                    :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
+                    v-model="discount.pickerKey"
+                    :label="$t('sw-promotion.detail.main.discounts.labelPicking')"
                     :disabled="isEditingDisabled"
-                >
-                    <option
-                        v-for="picker in graduationPickers"
-                        :key="picker.key"
-                        :value="picker.key"
-                    >
-                        {{ picker.name }}
-                    </option>
-                </sw-select-field>
+                    :options="pickerOptions"
+                />
                 {% endblock %}
             </sw-container>
         </template>
@@ -163,38 +131,30 @@
         gap="0px 30px"
     >
         {% block sw_promotion_discount_component_type %}
-        <sw-select-field
-            v-model:value="discount.type"
+        <mt-select
+            v-model="discount.type"
             class="sw-promotion-discount-component__type-select"
-            :label="$tc('sw-promotion.detail.main.discounts.labelType')"
+            :label="$t('sw-promotion.detail.main.discounts.labelType')"
             :disabled="isEditingDisabled"
-            @update:value="onDiscountTypeChanged"
-        >
-            <option
-                v-for="type in types"
-                :key="type.key"
-                :value="type.key"
-            >
-                {{ type.name }}
-            </option>
-        </sw-select-field>
+            :options="discountTypeOptions"
+            @update:model-value="onDiscountTypeChanged"
+        />
         {% endblock %}
         {% block sw_promotion_discount_component_value %}
-        <sw-number-field
+        <mt-number-field
             class="sw-promotion-discount-component__discount-value"
             validation="required"
             required
-            :digits="50"
-            :value="discount.value"
-            :label="$tc('sw-promotion.detail.main.discounts.labelValue')"
-            :placeholder="$tc('sw-promotion.detail.main.discounts.placeholderValue')"
+            :model-value="discount.value"
+            :label="$t('sw-promotion.detail.main.discounts.labelValue')"
+            :placeholder="$t('sw-promotion.detail.main.discounts.placeholderValue')"
             :disabled="isEditingDisabled"
-            @update:value="onDiscountValueChanged"
+            @update:model-value="onDiscountValueChanged"
         >
             <template #suffix>
                 {{ valueSuffix }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
     </sw-container>
 
@@ -206,17 +166,17 @@
         justify="end"
     >
         {% block sw_promotion_discount_max_value_field %}
-        <sw-number-field
-            v-model:value="discount.maxValue"
-            :label="$tc('sw-promotion.detail.main.discounts.labelMaxValue')"
-            :help-text="maxValueAdvancedPricesTooltip"
+        <mt-number-field
+            v-model="discount.maxValue"
+            :label="$t('sw-promotion.detail.main.discounts.labelMaxValue')"
+            :help-text="$t('sw-promotion.detail.main.discounts.helpTextMaxValueAdvancedPrices')"
             :disabled="isEditingDisabled"
-            @update:value="onMaxValueChanged"
+            @update:model-value="onMaxValueChanged"
         >
             <template #suffix>
                 {{ maxValueSuffix }}
             </template>
-        </sw-number-field>
+        </mt-number-field>
         {% endblock %}
         {% block sw_promotion_discount_max_value_advanced_prices %}
         <a
@@ -227,10 +187,10 @@
             @click="onClickAdvancedPrices"
             @keydown.enter="onClickAdvancedPrices"
         >
-            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
-            <sw-icon
+            {{ $t('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
         {% endblock %}
@@ -251,10 +211,10 @@
             @click="onClickAdvancedPrices"
             @keydown.enter="onClickAdvancedPrices"
         >
-            {{ $tc('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
-            <sw-icon
+            {{ $t('sw-promotion.detail.main.discounts.linkAdvancedPrices') }}
+            <mt-icon
                 name="regular-long-arrow-right"
-                small
+                size="16px"
             />
         </a>
     </sw-container>
@@ -263,7 +223,7 @@
     {% block sw_promotion_discount_advanced_prices_modal %}
     <sw-modal
         v-if="displayAdvancedPrices"
-        :title="$tc('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
+        :title="$t('sw-promotion.detail.main.discounts.pricesModal.advancedPricesHeader')"
         class="sw-promotion-discount-form__advanced-prices-modal"
         @modal-close="onCloseAdvancedPricesModal"
     >
@@ -282,8 +242,8 @@
             </template>
 
             <template #column-price="{ item }">
-                <sw-number-field
-                    v-model:value="item.price"
+                <mt-number-field
+                    v-model="item.price"
                     type="text"
                     size="small"
                     :disabled="isEditingDisabled"
@@ -291,7 +251,7 @@
                     <template #suffix>
                         {{ item.currency.symbol }}
                     </template>
-                </sw-number-field>
+                </mt-number-field>
             </template>
         </sw-one-to-many-grid>
 
@@ -301,7 +261,7 @@
                 size="small"
                 @click="onCloseAdvancedPricesModal"
             >
-                {{ $tc('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
+                {{ $t('sw-promotion.detail.main.discounts.pricesModal.closeModal') }}
             </mt-button>
         </template>
     </sw-modal>
@@ -311,13 +271,13 @@
     <sw-modal
         v-if="showDeleteModal"
         variant="small"
-        :title="$tc('sw-promotion.detail.main.discounts.delete.confirmTitle')"
+        :title="$t('sw-promotion.detail.main.discounts.delete.confirmTitle')"
         class="sw-promotion-detail-discounts-modal"
         @modal-close="onCloseDeleteModal"
     >
         {% block sw_promotion_detail_discounts_modal_delete_text %}
         <p>
-            {{ $tc('sw-promotion.detail.main.discounts.delete.confirmText') }}
+            {{ $t('sw-promotion.detail.main.discounts.delete.confirmText') }}
         </p>
         {% endblock %}
 
@@ -326,9 +286,10 @@
             {% block sw_promotion_detail_discounts_modal_delete_action_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -339,7 +300,7 @@
                 class="sw-promotion-discount-delete-button"
                 @click="onConfirmDelete"
             >
-                {{ $tc('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
+                {{ $t('sw-promotion.detail.main.discounts.delete.buttonDelete') }}
             </mt-button>
             {% endblock %}
         </template>

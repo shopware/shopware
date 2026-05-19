@@ -22,17 +22,19 @@
         <mt-button
             class="sw-flow-sequence-selector__add-condition"
             :disabled="disabled"
+            variant="secondary"
             @click="addIfCondition"
         >
+            <template #iconFront>
+                {% block sw_flow_sequence_selector_then_action_icon_rule %}
+                <mt-icon
+                    size="14px"
+                    name="regular-rule-s"
+                />
+                {% endblock %}
+            </template>
 
-            {% block sw_flow_sequence_selector_then_action_icon_rule %}
-            <sw-icon
-                size="16"
-                name="regular-rule-s"
-            />
-            {% endblock %}
-
-            {{ $tc('sw-flow.detail.sequence.selectorIfCondition') }}
+            {{ $t('sw-flow.detail.sequence.selectorIfCondition') }}
         </mt-button>
         {% endblock %}
 
@@ -40,17 +42,19 @@
         <mt-button
             class="sw-flow-sequence-selector__add-action"
             :disabled="disabled"
+            variant="secondary"
             @click="addThenAction"
         >
+            <template #iconFront>
+                {% block sw_flow_sequence_selector_then_action_icon_file %}
+                <mt-icon
+                    size="14px"
+                    name="regular-file-edit-s"
+                />
+                {% endblock %}
+            </template>
 
-            {% block sw_flow_sequence_selector_then_action_icon_file %}
-            <sw-icon
-                size="16"
-                name="regular-file-edit-s"
-            />
-            {% endblock %}
-
-            {{ $tc('sw-flow.detail.sequence.selectorThenAction') }}
+            {{ $t('sw-flow.detail.sequence.selectorThenAction') }}
         </mt-button>
         {% endblock %}
 

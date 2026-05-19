@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+/** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
 import HttpClient from 'src/service/http-client.service';
 import Storage from 'src/helper/storage/storage.helper';
 
@@ -10,7 +11,7 @@ export default class CartWidgetPlugin extends Plugin {
     };
 
     init() {
-
+        /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
 
         this.insertStoredContent();
@@ -40,27 +41,33 @@ export default class CartWidgetPlugin extends Plugin {
      * and persist the response to the browser's session storage
      */
     fetch() {
-        this._client.get(window.router['frontend.checkout.info'], (content, response) => {
-            if (response.status >= 500) {
-                return;
-            }
-
-            if (response.status === 204) {
-                Storage.removeItem(this.options.cartWidgetStorageKey);
-                const emptyCartWidget = Storage.getItem(this.options.emptyCartWidgetStorageKey);
-                if (emptyCartWidget) {
-                    this.el.innerHTML = emptyCartWidget;
+        fetch(window.router['frontend.checkout.info'], {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then(response => {
+                if (response.status >= 500) {
+                    return;
                 }
 
-                return;
-            }
+                if (response.status === 204) {
+                    Storage.removeItem(this.options.cartWidgetStorageKey);
+                    const emptyCartWidget = Storage.getItem(this.options.emptyCartWidgetStorageKey);
+                    if (emptyCartWidget) {
+                        this.el.innerHTML = emptyCartWidget;
+                    }
 
-            Storage.setItem(this.options.cartWidgetStorageKey, content);
-            if (content.length) {
-                this.el.innerHTML = content;
-            }
+                    return response.text();
+                }
 
-            this.$emitter.publish('fetch', { content });
-        });
+                return response.text();
+            })
+            .then((content) => {
+                Storage.setItem(this.options.cartWidgetStorageKey, content);
+                if (content.length) {
+                    this.el.innerHTML = content;
+                }
+
+                this.$emitter.publish('fetch', { content });
+            });
     }
 }

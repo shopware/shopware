@@ -32,11 +32,11 @@ class MailAttachmentsConfigTest extends TestCase
             $orderId
         );
 
-        static::assertEquals($context, $attachmentsConfig->getContext());
-        static::assertEquals($mailTemplate, $attachmentsConfig->getMailTemplate());
-        static::assertEquals($extension, $attachmentsConfig->getExtension());
-        static::assertEquals($evenConfig, $attachmentsConfig->getEventConfig());
-        static::assertEquals($orderId, $attachmentsConfig->getOrderId());
+        static::assertSame($context, $attachmentsConfig->getContext());
+        static::assertSame($mailTemplate, $attachmentsConfig->getMailTemplate());
+        static::assertSame($extension, $attachmentsConfig->getExtension());
+        static::assertSame($evenConfig, $attachmentsConfig->getEventConfig());
+        static::assertSame($orderId, $attachmentsConfig->getOrderId());
 
         $attachmentsConfig = $this->getMockBuilder(MailAttachmentsConfig::class)
             ->disableOriginalConstructor()
@@ -49,10 +49,10 @@ class MailAttachmentsConfigTest extends TestCase
         $attachmentsConfig->setEventConfig($evenConfig);
         $attachmentsConfig->setOrderId($orderId);
 
-        static::assertEquals($context, $attachmentsConfig->getContext());
-        static::assertEquals($mailTemplate, $attachmentsConfig->getMailTemplate());
-        static::assertEquals($extension, $attachmentsConfig->getExtension());
-        static::assertEquals($evenConfig, $attachmentsConfig->getEventConfig());
-        static::assertEquals($orderId, $attachmentsConfig->getOrderId());
+        static::assertSame($context, $attachmentsConfig->getContext());
+        static::assertSame($mailTemplate, $attachmentsConfig->getMailTemplate());
+        static::assertSame($extension, $attachmentsConfig->getExtension());
+        static::assertSame($evenConfig, $attachmentsConfig->getEventConfig());
+        static::assertSame($orderId, $attachmentsConfig->getOrderId());
     }
 }

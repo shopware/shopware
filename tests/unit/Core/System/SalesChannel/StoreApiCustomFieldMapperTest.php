@@ -5,11 +5,12 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
@@ -47,13 +48,15 @@ class StoreApiCustomFieldMapperTest extends TestCase
             'int' => '1',
             'float' => '1.1',
             'bool' => 'true',
-            'json' => new ParameterBag(['foo' => 'bar']),
+            'json' => new DataBag(['foo' => 'bar']),
             'singleSelect' => 'foo',
-            'multiSelect' => new ParameterBag(['foo', 'bar']),
+            'multiSelect' => new DataBag(['foo', 'bar']),
             'date' => '2020-01-01T00:00:00+00:00',
         ]));
 
-        static::assertEquals(new \DateTimeImmutable('2020-01-01T00:00:00+00:00'), $mappedValues['date']);
+        $date = $mappedValues['date'];
+        static::assertInstanceOf(\DateTimeInterface::class, $date);
+        static::assertSame((new \DateTimeImmutable('2020-01-01T00:00:00+00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT), $date->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         unset($mappedValues['date']);
 
         static::assertSame(
@@ -74,7 +77,7 @@ class StoreApiCustomFieldMapperTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         $connection
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('fetchAllAssociative')
             ->willReturn([]);
 

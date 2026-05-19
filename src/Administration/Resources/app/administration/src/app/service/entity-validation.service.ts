@@ -67,9 +67,11 @@ export default class EntityValidationService {
      *
      * A CustomValidator callback can be provided to modify or add to the found errors.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public validate(entity: Entity<any>, customValidator: CustomValidator | undefined): boolean {
-        // eslint-disable-next-line max-len
+    public validate(
+        entity: Entity<any>,
+        customValidator: CustomValidator | undefined,
+        ignoreFields: string[] = [],
+    ): boolean {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
         const entityName = entity.getEntityName();
         const definition = this.entityDefinitionFactory.get(entityName);
@@ -78,7 +80,12 @@ export default class EntityValidationService {
         let errors: ValidationError[] = [];
 
         // check for required fields
-        const requiredFields = definition.getRequiredFields() as Record<string, never>;
+        const requiredFields = Object.fromEntries(
+            Object.entries(definition.getRequiredFields() as Record<string, never>).filter(
+                ([key]) => !ignoreFields.includes(key),
+            ),
+        ) as Omit<Record<string, any>, (typeof ignoreFields)[number]>;
+
         errors.push(...this.getRequiredErrors(entity, requiredFields));
 
         // run custom validator
@@ -99,17 +106,14 @@ export default class EntityValidationService {
      *
      * @private
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private getRequiredErrors(entity: Entity<any>, requiredFields: Record<string, never>): ValidationError[] {
         const errors: ValidationError[] = [];
 
         Object.keys(requiredFields).forEach((field) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-assignment
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const fieldDefinition = requiredFields[field] as any;
-            // eslint-disable-next-line max-len
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
             const value = entity[field];
-            // eslint-disable-next-line prefer-regex-literals
             const fieldFilterRegex = new RegExp('version|createdAt|translations', 'i');
 
             if (fieldFilterRegex.test(field)) {

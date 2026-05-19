@@ -3,37 +3,43 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token;
 
 use Doctrine\DBAL\Connection;
-use Lcobucci\Clock\FrozenClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
  */
 #[CoversClass(JWTFactoryV2::class)]
+#[Package('checkout')]
+#[DisabledFeatures(['v6.8.0.0'])]
 class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
+
+    private Connection&MockObject $connection;
 
     protected function setUp(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
-        $connection = $this->createMock(Connection::class);
-        $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
+        $this->connection = $this->createMock(Connection::class);
+        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection);
     }
 
     #[DataProvider('dataProviderExpiration')]
@@ -41,14 +47,25 @@ class JWTFactoryV2Test extends TestCase
     {
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, $expiration);
+        $time = time();
         $token = $this->tokenFactory->generateToken($tokenStruct);
         static::assertNotEmpty($token);
+
+        if ($expired) {
+            $this->expectException(PaymentException::class);
+        } else {
+            $this->connection
+                ->expects($this->once())
+                ->method('fetchOne')
+                ->willReturn([1]);
+        }
+
         $tokenStruct = $this->tokenFactory->parseToken($token);
 
-        static::assertEquals($transaction->getId(), $tokenStruct->getTransactionId());
-        static::assertEquals($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
-        static::assertEquals($token, $tokenStruct->getToken());
-        static::assertEqualsWithDelta(time() + $expiration, $tokenStruct->getExpires(), 1);
+        static::assertSame($transaction->getId(), $tokenStruct->getTransactionId());
+        static::assertSame($transaction->getPaymentMethodId(), $tokenStruct->getPaymentMethodId());
+        static::assertSame($token, $tokenStruct->getToken());
+        static::assertEqualsWithDelta($time + $expiration, $tokenStruct->getExpires(), 1);
         static::assertSame($expired, $tokenStruct->isExpired());
     }
 
@@ -64,10 +81,6 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory->parseToken($token);
     }
 
-    /**
-     * NEXT-21735 - Sometimes produces invalid base64 and returns early (but same exception)
-     */
-    #[Group('not-deterministic')]
     public function testGetTokenWithInvalidSignature(): void
     {
         $transaction = self::createTransaction();
@@ -94,7 +107,7 @@ class JWTFactoryV2Test extends TestCase
     public function testExpiredToken(): void
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
-        $configuration = $configuration->withValidationConstraints(new StrictValidAt(new FrozenClock(new \DateTimeImmutable('now - 1 day'))));
+        $configuration = $configuration->withValidationConstraints(new StrictValidAt(new MockClock(new \DateTimeImmutable('now - 1 day'))));
         $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
 
         $transaction = self::createTransaction();
@@ -113,12 +126,11 @@ class JWTFactoryV2Test extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
-        $connection = $this->createMock(Connection::class);
-        $connection
+        $this->connection
             ->method('fetchOne')
             ->willReturn(false);
 
-        $tokenFactory = new JWTFactoryV2($configuration, $connection);
+        $tokenFactory = new JWTFactoryV2($configuration, $this->connection);
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
@@ -156,6 +168,7 @@ class JWTFactoryV2Test extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class NoopConstraint implements Constraint
 {
     public function assert(Token $token): void

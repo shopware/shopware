@@ -1,22 +1,18 @@
 .account-address {
-    .address-action-create .icon {
-        margin-top: 2px;
-        margin-right: $spacer-sm;
-    }
-
-    .row {
-        margin-left: 0;
-        margin-right: 0;
+    @if not feature('V6_8_0_0') {
+        .address-action-create .icon {
+            margin-top: 2px;
+            margin-right: $spacer-sm;
+        }
     }
 
     .btn > .icon {
         vertical-align: top;
     }
-}
 
-.account-address {
     .account-address-back {
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
             span.icon {
                 color: $white;
             }
@@ -26,4 +22,12 @@
 
 .address-manager-select-address {
     min-height: 200px;
+}
+
+.address-manager-modal-address-form .icon {
+    color: currentColor;
+
+    svg {
+        top: 0.25em;
+    }
 }

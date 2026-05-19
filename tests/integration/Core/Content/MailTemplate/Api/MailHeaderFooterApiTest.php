@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -20,6 +22,9 @@ class MailHeaderFooterApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -51,7 +56,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // do API calls
         foreach ($data as $entry) {
-            $this->getBrowser()->request('POST', $this->prepareRoute(), [], [], [], json_encode($entry, \JSON_THROW_ON_ERROR));
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
             static::assertIsString($response->getContent());
             static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
@@ -69,13 +74,13 @@ class MailHeaderFooterApiTest extends TestCase
         static::assertCount($num, $records);
         foreach ($records as $record) {
             $expect = $data[$record['id']];
-            static::assertEquals($expect['systemDefault'], (bool) $record['system_default']);
-            static::assertEquals($expect['name'], $record['name']);
-            static::assertEquals($expect['description'], $record['description']);
-            static::assertEquals($expect['headerHtml'], $record['header_html']);
-            static::assertEquals($expect['headerPlain'], $record['header_plain']);
-            static::assertEquals($expect['footerHtml'], $record['footer_html']);
-            static::assertEquals($expect['footerPlain'], $record['footer_plain']);
+            static::assertSame($expect['systemDefault'], (bool) $record['system_default']);
+            static::assertSame($expect['name'], $record['name']);
+            static::assertSame($expect['description'], $record['description']);
+            static::assertSame($expect['headerHtml'], $record['header_html']);
+            static::assertSame($expect['headerPlain'], $record['header_plain']);
+            static::assertSame($expect['footerHtml'], $record['footer_html']);
+            static::assertSame($expect['footerPlain'], $record['footer_plain']);
             unset($data[$record['id']]);
         }
     }
@@ -91,13 +96,13 @@ class MailHeaderFooterApiTest extends TestCase
         $data = $this->prepareHeaderFooterTestData($num);
         $this->repository->create(array_values($data), $this->context);
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertIsString($response->getContent());
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
@@ -108,17 +113,17 @@ class MailHeaderFooterApiTest extends TestCase
         }
 
         // compare expected and resulting data
-        static::assertEquals($num, $content['total']);
+        static::assertSame($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
             $mailHeaderFooter = $content['data'][$i];
             $expect = $expectData[$mailHeaderFooter['_uniqueIdentifier']];
-            static::assertEquals($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
-            static::assertEquals($expect['name'], $mailHeaderFooter['name']);
-            static::assertEquals($expect['description'], $mailHeaderFooter['description']);
-            static::assertEquals($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
-            static::assertEquals($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
-            static::assertEquals($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
-            static::assertEquals($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
+            static::assertSame($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
+            static::assertSame($expect['name'], $mailHeaderFooter['name']);
+            static::assertSame($expect['description'], $mailHeaderFooter['description']);
+            static::assertSame($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
+            static::assertSame($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
+            static::assertSame($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
+            static::assertSame($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
         }
     }
 
@@ -140,34 +145,34 @@ class MailHeaderFooterApiTest extends TestCase
             $expectData[$id] = $data[$idx];
             unset($data[$idx]['id']);
 
-            $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, [], [], [
+            $this->getBrowser()->jsonRequest('PATCH', $this->prepareRoute() . $id, $data[$idx], [
                 'HTTP_ACCEPT' => 'application/json',
-            ], json_encode($data[$idx], \JSON_THROW_ON_ERROR));
+            ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+            static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         }
 
-        $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute(), [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         static::assertIsString($response->getContent());
         $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         // Compare expected and received data.
-        static::assertEquals($num, $content['total']);
+        static::assertSame($num, $content['total']);
         for ($i = 0; $i < $num; ++$i) {
             $mailHeaderFooter = $content['data'][$i];
             $expect = $expectData[$mailHeaderFooter['_uniqueIdentifier']];
-            static::assertEquals($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
-            static::assertEquals($expect['name'], $mailHeaderFooter['name']);
-            static::assertEquals($expect['description'], $mailHeaderFooter['description']);
-            static::assertEquals($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
-            static::assertEquals($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
-            static::assertEquals($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
-            static::assertEquals($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
+            static::assertSame($expect['systemDefault'], $mailHeaderFooter['systemDefault']);
+            static::assertSame($expect['name'], $mailHeaderFooter['name']);
+            static::assertSame($expect['description'], $mailHeaderFooter['description']);
+            static::assertSame($expect['headerHtml'], $mailHeaderFooter['headerHtml']);
+            static::assertSame($expect['headerPlain'], $mailHeaderFooter['headerPlain']);
+            static::assertSame($expect['footerHtml'], $mailHeaderFooter['footerHtml']);
+            static::assertSame($expect['footerPlain'], $mailHeaderFooter['footerPlain']);
         }
     }
 
@@ -183,21 +188,21 @@ class MailHeaderFooterApiTest extends TestCase
 
         foreach ($data as $expect) {
             // Request details
-            $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
+            $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $expect['id'], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals($expect['systemDefault'], $content['data']['systemDefault']);
-            static::assertEquals($expect['name'], $content['data']['name']);
-            static::assertEquals($expect['description'], $content['data']['description']);
-            static::assertEquals($expect['headerHtml'], $content['data']['headerHtml']);
-            static::assertEquals($expect['headerPlain'], $content['data']['headerPlain']);
-            static::assertEquals($expect['footerHtml'], $content['data']['footerHtml']);
-            static::assertEquals($expect['footerPlain'], $content['data']['footerPlain']);
+            static::assertSame($expect['systemDefault'], $content['data']['systemDefault']);
+            static::assertSame($expect['name'], $content['data']['name']);
+            static::assertSame($expect['description'], $content['data']['description']);
+            static::assertSame($expect['headerHtml'], $content['data']['headerHtml']);
+            static::assertSame($expect['headerPlain'], $content['data']['headerPlain']);
+            static::assertSame($expect['footerHtml'], $content['data']['footerHtml']);
+            static::assertSame($expect['footerPlain'], $content['data']['footerPlain']);
         }
     }
 
@@ -217,14 +222,14 @@ class MailHeaderFooterApiTest extends TestCase
         foreach ($searchData as $key => $value) {
             // Search call
             $filter['filter'][$key] = $value;
-            $this->getBrowser()->request('POST', $this->prepareRoute(true), $filter, [], [
+            $this->getBrowser()->jsonRequest('POST', $this->prepareRoute(true), $filter, [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
             static::assertIsString($response->getContent());
             $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(1, $content['total']);
+            static::assertSame(1, $content['total']);
         }
     }
 
@@ -239,18 +244,18 @@ class MailHeaderFooterApiTest extends TestCase
         $deleteId = array_column($data, 'id')[0];
 
         // Test request
-        $this->getBrowser()->request('GET', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('GET', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         // Delete call
-        $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
+        $this->getBrowser()->jsonRequest('DELETE', $this->prepareRoute() . $deleteId, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     protected function prepareRoute(bool $search = false): string

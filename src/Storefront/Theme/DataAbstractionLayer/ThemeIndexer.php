@@ -46,7 +46,7 @@ class ThemeIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -57,7 +57,7 @@ class ThemeIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeysWithPropertyChange(ThemeDefinition::ENTITY_NAME, ['parentThemeId']);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -72,7 +72,7 @@ class ThemeIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 

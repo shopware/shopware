@@ -41,7 +41,7 @@ class CriteriaFieldsResolverTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed> $expected
+     * @param array<string, array{}|array<string, array{}>> $expected
      */
     #[DataProvider('resolveFieldsProvider')]
     public function testResolveFields(Criteria $criteria, array $expected): void
@@ -50,7 +50,7 @@ class CriteriaFieldsResolverTest extends TestCase
 
         $result = $resolver->resolve($criteria, $this->registry->get(TestDefinition::class));
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public static function resolveFieldsProvider(): \Generator

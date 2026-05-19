@@ -16,7 +16,6 @@
         :class="swFieldClasses"
         variant="regular"
         :upload-tag="`downloads-${product.id}`"
-        :scroll-target="$parent.$el"
         :private-filesystem="true"
         :extension-accept="fileAccept"
         default-folder="product_download"
@@ -66,7 +65,7 @@
                     :disabled="isLoading || !acl.can('product.editor')"
                     @click="onRemoveDownload(download)"
                 >
-                    {{ $tc('global.default.remove') }}
+                    {{ $t('global.default.remove') }}
                 </sw-context-menu-item>
             </sw-context-button>
 

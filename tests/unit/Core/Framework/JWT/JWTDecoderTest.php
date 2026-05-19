@@ -40,7 +40,7 @@ class JWTDecoderTest extends TestCase
     public function testValidateWithValidToken(): void
     {
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
+        $systemConfigService->expects($this->once())
             ->method('get')
             ->with(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN)
             ->willReturn('example.com');
@@ -63,7 +63,7 @@ class JWTDecoderTest extends TestCase
         $this->expectExceptionMessage($expectedExceptionMessage);
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::atMost(1))
+        $systemConfigService->expects($this->atMost(1))
             ->method('get')
             ->with(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN)
             ->willReturn('example.com');

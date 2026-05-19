@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem;
 
-use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\DirectoryListing;
-use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
+use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -21,8 +21,13 @@ class PrefixFilesystem implements FilesystemOperator
         protected FilesystemOperator $filesystem,
         string $prefix
     ) {
-        if (empty($prefix)) {
-            throw new \InvalidArgumentException('The prefix must not be empty.');
+        if ($prefix === '') {
+            if (!Feature::isActive('v6.8.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new \InvalidArgumentException('The prefix must not be empty.');
+            }
+
+            throw AdapterException::invalidArgument('The prefix must not be empty.');
         }
         $this->prefix = trim($prefix, '/') . '/';
     }
@@ -52,34 +57,11 @@ class PrefixFilesystem implements FilesystemOperator
     {
         $location = $this->preparePath($location);
 
-        return new DirectoryListing(array_map(
+        return $this->filesystem->listContents($location, $deep)->map(
             function (StorageAttributes $info) {
-                if ($info instanceof DirectoryAttributes) {
-                    return new DirectoryAttributes(
-                        $this->stripPath($info->path()),
-                        $info->visibility(),
-                        $info->lastModified(),
-                        $info->extraMetadata()
-                    );
-                }
-
-                if ($info instanceof FileAttributes) {
-                    return new FileAttributes(
-                        $this->stripPath($info->path()),
-                        $info->fileSize(),
-                        $info->visibility(),
-                        $info->lastModified(),
-                        $info->mimeType(),
-                        $info->extraMetadata()
-                    );
-                }
-
-                // @codeCoverageIgnoreStart
-                return $info;
-                // @codeCoverageIgnoreEnd
-            },
-            $this->filesystem->listContents($location, $deep)->toArray()
-        ));
+                return $info->withPath($this->stripPath($info->path()));
+            }
+        );
     }
 
     public function fileExists(string $location): bool

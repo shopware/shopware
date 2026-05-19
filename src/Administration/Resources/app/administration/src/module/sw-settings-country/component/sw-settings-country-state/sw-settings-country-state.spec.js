@@ -40,10 +40,15 @@ async function createWrapper(privileges = []) {
 
             global: {
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
+                        },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
                         },
                     },
                     $device: {
@@ -74,7 +79,6 @@ async function createWrapper(privileges = []) {
                 stubs: {
                     'sw-ignore-class': true,
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
@@ -93,14 +97,14 @@ async function createWrapper(privileges = []) {
                                 variant="danger"
                                 :disabled="!allowDelete || undefined"
                                 @click="deleteItem(item.id)">
-                                {{ $tc('global.default.delete') }}
+                                {{ $t('global.default.delete') }}
                             </sw-context-menu-item>
                         </slot>
                     </template>
                     </div>
                 `,
                     },
-                    'sw-empty-state': true,
+                    'mt-empty-state': true,
                     'sw-country-state-detail': true,
                     'sw-context-button': true,
                     'sw-ai-copilot-badge': true,
@@ -112,16 +116,9 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-state', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show empty state', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('mt-empty-state-stub').exists()).toBeTruthy();
     });
 
     it('should be able to create a new country state', async () => {
@@ -164,7 +161,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
             },
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
+        expect(wrapper.find('mt-empty-state-sub').exists()).toBeFalsy();
 
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -189,7 +186,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
             },
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
+        expect(wrapper.find('mt-empty-state-sub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-settings-country-state__edit-country-state-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
@@ -215,7 +212,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
             },
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
+        expect(wrapper.find('mt-empty-state-sub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
@@ -239,7 +236,7 @@ describe('module/sw-settings-country/component/sw-settings-country-state', () =>
             },
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeFalsy();
+        expect(wrapper.find('mt-empty-state-sub').exists()).toBeFalsy();
         const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });

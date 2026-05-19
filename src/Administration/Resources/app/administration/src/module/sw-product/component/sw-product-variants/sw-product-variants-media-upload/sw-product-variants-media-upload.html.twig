@@ -66,13 +66,13 @@
                                 v-if="!isCover(item)"
                                 @click="markMediaAsCover(item)"
                             >
-                                {{ $tc('global.sw-product-image.context.buttonAsCover') }}
+                                {{ $t('global.sw-product-image.context.buttonAsCover') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_product_variants_media_upload_context_preview_action %}
                             <sw-context-menu-item @click="previewMedia(item)">
-                                {{ $tc('global.sw-product-image.context.buttonPreviewImage') }}
+                                {{ $t('global.sw-product-image.context.buttonPreviewImage') }}
                             </sw-context-menu-item>
                             {% endblock %}
 
@@ -81,7 +81,7 @@
                                 variant="danger"
                                 @click="removeMedia(item)"
                             >
-                                {{ $tc('global.sw-product-image.context.buttonRemove') }}
+                                {{ $t('global.sw-product-image.context.buttonRemove') }}
                             </sw-context-menu-item>
                             {% endblock %}
                             {% endblock %}
@@ -104,9 +104,10 @@
                         :disabled="disabled"
                         ghost
                         size="small"
+                        variant="secondary"
                         @click="onClickUpload"
                     >
-                        {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
+                        {{ $t('global.sw-media-upload-v2.buttonFilesUpload') }}
                     </mt-button>
                     {% endblock %}
 
@@ -117,7 +118,7 @@
                         class="sw-product-variants-media-upload__browse-button"
                         @click="showMediaModal = true"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-image"
                         />
@@ -134,11 +135,15 @@
                     <mt-button
                         variant="primary"
                         :disabled="disabled"
+                        square
+                        ghost
+                        size="small"
                         class="sw-product-variants-media-upload__browse-button"
                     >
-                        <sw-icon
+                        <mt-icon
                             class="sw-product-variants-media-upload__browse-icon"
                             name="regular-plus"
+                            size="var(--scale-size-12)"
                         />
                     </mt-button>
                     <sw-context-button
@@ -148,13 +153,13 @@
                         {% block sw_product_variants_media_upload_actions_compact_button_context %}
                         {% block sw_product_variants_media_upload_actions_compact_button_context_upload_action %}
                         <sw-context-menu-item @click="onClickUpload">
-                            {{ $tc('global.sw-media-upload-v2.buttonFilesUpload') }}
+                            {{ $t('global.sw-media-upload-v2.buttonFilesUpload') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_product_variants_media_upload_actions_compact_button_context_open_action %}
                         <sw-context-menu-item @click="showMediaModal = true">
-                            {{ $tc('global.sw-media-upload-v2.buttonOpenMedia') }}
+                            {{ $t('global.sw-media-upload-v2.buttonOpenMedia') }}
                         </sw-context-menu-item>
                         {% endblock %}
                         {% endblock %}

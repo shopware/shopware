@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyValueRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[CoversClass(LineItemPropertyValueRule::class)]
 #[Group('rules')]
+#[Package('checkout')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
     private LineItemPropertyValueRule $rule;
@@ -124,24 +126,22 @@ class LineItemPropertyValueRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         $operators = RuleConfig::OPERATOR_SET_STRING;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);
     }
 
     /**
-     * @return array<string, array{bool, list<string>, list<string>, string}>
+     * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */
-    public static function getMatchValues(): iterable
+    public static function getMatchValues(): \Generator
     {
         $id = Uuid::randomHex();
 
-        return [
-            yield 'should match when property id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should not match when property id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should match when property id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ],
-            yield 'should not match when property id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ],
-        ];
+        yield 'should match when property id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should not match when property id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should match when property id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
+        yield 'should not match when property id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
     }
 }

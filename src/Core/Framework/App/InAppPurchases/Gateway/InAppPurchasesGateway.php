@@ -18,8 +18,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class InAppPurchasesGateway
 {
     public function __construct(
-        readonly private InAppPurchasesPayloadService $payloadService,
-        readonly private EventDispatcherInterface $eventDispatcher,
+        private readonly InAppPurchasesPayloadService $payloadService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 

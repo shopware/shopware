@@ -26,11 +26,9 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-category-detail-products', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
-
                 'sw-single-select': true,
                 'sw-many-to-many-assignment-card': {
                     template: `
@@ -142,5 +140,22 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
             'bar',
         ]);
         expect(wrapper.vm.productStreamInvalid).toBe(false);
+    });
+
+    it('should empty the product stream id when changing the assignment type to product', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            category: {
+                productStreamId: 'some_product_stream_id',
+            },
+        });
+
+        await wrapper
+            .getComponent('.sw-category-detail-products__product-assignment-type-select')
+            .vm.$emit('update:value', 'product');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.category.productStreamId).toBeNull();
     });
 });

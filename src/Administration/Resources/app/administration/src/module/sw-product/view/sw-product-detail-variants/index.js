@@ -30,7 +30,7 @@ export default {
             showAddPropertiesModal: false,
             defaultTab: 'all',
             activeTab: 'all',
-            configSettingGroups: [],
+            limit: 500,
         };
     },
 
@@ -69,12 +69,46 @@ export default {
                 : this.product.properties;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `currentProductType` instead.
+         * @returns {string[]}
+         */
         currentProductStates() {
             return this.activeTab.split(',');
         },
 
+        currentProductType() {
+            return this.activeTab.split(',')[0] ?? 'all';
+        },
+
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        groupCriteria() {
+            const criteria = new Criteria(1, this.limit);
+
+            criteria.addFields('name');
+
+            return criteria;
+        },
+
+        /**
+         * @returns {Object[]}
+         */
+        configSettingGroups() {
+            const settings = this.productEntity?.configuratorSettings ?? [];
+            const groupIds = uniqBy(settings, 'option.groupId').map((item) => item.option.groupId);
+            if (groupIds.length === 0) {
+                return [];
+            }
+            const groupMap = new Map(
+                this.groups.map((group) => [
+                    group.id,
+                    group,
+                ]),
+            );
+            return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
     },
 
@@ -116,28 +150,16 @@ export default {
         },
 
         loadData() {
-            if (!this.isStoreLoading) {
-                this.loadOptions()
-                    .then(() => {
-                        return this.loadGroups();
-                    })
-                    .then(() => {
-                        return this.loadConfigSettingGroups();
-                    });
+            if (!this.isStoreLoading && this.product?.id) {
+                this.loadOptions().then(() => this.loadGroups());
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         async loadConfigSettingGroups() {
-            const groupIds = uniqBy(this.productEntity.configuratorSettings, 'option.groupId').map(
-                (group) => group.option.groupId,
-            );
-
-            const criteria = new Criteria(1, null);
-            if (groupIds.length) {
-                criteria.addFilter(Criteria.equalsAny('id', groupIds));
-            }
-
-            this.configSettingGroups = await this.groupRepository.search(criteria);
+            // No-op: configSettingGroups is computed from productEntity.configuratorSettings and groups.
         },
 
         loadOptions() {
@@ -158,13 +180,9 @@ export default {
 
         loadGroups() {
             return new Promise((resolve) => {
-                this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria(1, null);
-
-                    this.groupRepository.search(groupCriteria).then((searchResult) => {
-                        this.groups = searchResult;
-                        resolve();
-                    });
+                this.$nextTick().then(async () => {
+                    this.groups = await this.loadAllPropertyGroups(this.groupCriteria);
+                    resolve();
                 });
             });
         },
@@ -247,6 +265,27 @@ export default {
             }
 
             this.productProperties.splice(0, this.productProperties.length, ...newProperties);
+        },
+
+        async loadAllPropertyGroups(criteria) {
+            const initialResult = await this.groupRepository.search(criteria);
+            const totalGroups = initialResult.total ?? initialResult.length ?? 0;
+            const limit = initialResult.length || criteria.limit || 25;
+
+            const totalPages = Math.ceil(totalGroups / limit);
+
+            const promises = [];
+            for (let page = 2; page <= totalPages; page++) {
+                const nextCriteria = Criteria.fromCriteria(criteria).setPage(page).setLimit(limit);
+                promises.push(this.groupRepository.search(nextCriteria));
+            }
+
+            const results = await Promise.all(promises);
+
+            return [
+                initialResult,
+                ...results,
+            ].flatMap((result) => result);
         },
     },
 };

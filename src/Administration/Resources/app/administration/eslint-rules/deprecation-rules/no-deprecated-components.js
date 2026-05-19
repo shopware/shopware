@@ -4,7 +4,7 @@ const path = require('path');
 /* eslint-disable max-len */
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * This rule checks if deprecated components are used and can convert them to the new components.
  * It also adds a comment to the converted component to make it easier to track the changes.
@@ -38,7 +38,7 @@ module.exports = {
     },
     /** @param {RuleContext} context */
     create(context) {
-        return context.parserServices.defineTemplateBodyVisitor(
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags
             {
                 VElement(node) {

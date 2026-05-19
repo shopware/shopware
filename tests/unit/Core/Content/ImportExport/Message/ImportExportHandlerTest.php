@@ -143,7 +143,7 @@ class ImportExportHandlerTest extends TestCase
 
         $eventDispatcher->addListener(
             ImportExportExceptionImportExportHandlerEvent::class,
-            function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
+            static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
                 static::assertInstanceOf(ImportExportException::class, $event->getException());
                 static::assertSame('The activity "unknown_activity" could not be processed.', $event->getException()->getMessage());
                 static::assertSame($importExportMessage, $event->getMessage());
@@ -198,16 +198,16 @@ class ImportExportHandlerTest extends TestCase
 
         $progress = new Progress($logEntity->getId(), $logEntity->getState());
 
-        $factory->expects(static::once())
+        $factory->expects($this->once())
             ->method('create')
             ->willReturn($importExport);
 
-        $importExport->expects(static::once())
+        $importExport->expects($this->once())
             ->method('getLogEntity')
             ->willReturn($logEntity);
 
         if ($processState !== Progress::STATE_ABORTED) {
-            $importExport->expects(static::once())
+            $importExport->expects($this->once())
                 ->method($method)
                 ->willReturn($progress);
         }
@@ -217,7 +217,7 @@ class ImportExportHandlerTest extends TestCase
         $dispatchedEvent = null;
         $eventDispatcher->addListener(
             ImportExportAfterProcessFinishedEvent::class,
-            function (ImportExportAfterProcessFinishedEvent $event) use (&$dispatchedEvent): void {
+            static function (ImportExportAfterProcessFinishedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             }
         );

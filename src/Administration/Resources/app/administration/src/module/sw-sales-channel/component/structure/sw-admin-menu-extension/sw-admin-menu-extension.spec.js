@@ -22,7 +22,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-version': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-avatar': true,
                 'sw-shortcut-overview': true,

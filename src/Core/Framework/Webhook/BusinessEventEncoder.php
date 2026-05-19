@@ -48,7 +48,7 @@ class BusinessEventEncoder
     {
         foreach ($data as $key => $property) {
             if (!$property instanceof Entity) {
-                $data[$key] = $stored[$key];
+                $data[$key] = $stored[$key] ?? $property;
 
                 continue;
             }
@@ -72,11 +72,11 @@ class BusinessEventEncoder
 
     /**
      * @param array<string, mixed> $dataTypes
-     * @param object|array<string, mixed> $object
+     * @param FlowEventAware|array<string, mixed> $object
      *
      * @return array<string, mixed>
      */
-    private function encodeType(array $dataTypes, $object): array
+    private function encodeType(array $dataTypes, FlowEventAware|array $object): array
     {
         $data = [];
         foreach ($dataTypes as $name => $dataType) {
@@ -91,7 +91,7 @@ class BusinessEventEncoder
      *
      * @return array<string, mixed>|mixed
      */
-    private function encodeProperty(array $dataType, mixed $property)
+    private function encodeProperty(array $dataType, mixed $property): mixed
     {
         switch ($dataType['type']) {
             case ScalarValueType::TYPE_BOOL:
@@ -103,24 +103,23 @@ class BusinessEventEncoder
             case EntityCollectionType::TYPE:
                 return $this->encodeEntity($dataType, $property);
             case ObjectType::TYPE:
-                if (\is_array($dataType['data']) && !empty($dataType['data'])) {
-                    return $this->encodeType($dataType['data'], $property);
+                $data = $dataType['data'];
+                if (\is_array($data) && $data !== []) {
+                    return $this->encodeType($data, $property);
                 }
 
                 return $property;
             case ArrayType::TYPE:
                 return $this->encodeArray($dataType, $property);
             default:
-                throw new \RuntimeException('Unknown EventDataType: ' . $dataType['type']);
+                throw WebhookException::unknownEventDataType($dataType['type']);
         }
     }
 
     /**
-     * @param object|array<string, mixed> $object
-     *
-     * @return mixed
+     * @param FlowEventAware|array<string, mixed> $object
      */
-    private function getProperty(string $propertyName, $object)
+    private function getProperty(string $propertyName, FlowEventAware|array $object): mixed
     {
         if (\is_object($object)) {
             $getter = 'get' . $propertyName;
@@ -138,13 +137,7 @@ class BusinessEventEncoder
             return $object[$propertyName];
         }
 
-        throw new \RuntimeException(
-            \sprintf(
-                'Invalid available DataMapping, could not get property "%s" on instance of %s',
-                $propertyName,
-                \is_object($object) ? $object::class : 'array'
-            )
-        );
+        throw WebhookException::invalidDataMapping($propertyName, \is_object($object) ? $object::class : 'array');
     }
 
     /**
@@ -169,7 +162,7 @@ class BusinessEventEncoder
      * @param array<string, mixed> $dataType
      * @param array<string, mixed> $property
      *
-     * @return array<int, mixed>
+     * @return list<mixed>
      */
     private function encodeArray(array $dataType, array $property): array
     {

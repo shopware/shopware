@@ -1,8 +1,6 @@
 import template from './sw-sidebar.html.twig';
 import './sw-sidebar.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,7 +13,7 @@ const { Component } = Shopware;
  * </sw-sidebar>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sidebar', {
+export default {
     template,
 
     provide() {
@@ -43,7 +41,7 @@ Component.register('sw-sidebar', {
         return {
             items: [],
             isOpened: false,
-            // eslint-disable-next-line vue/no-reserved-keys
+            resizeNavigationKey: 0,
             _parent: this.$parent,
         };
     },
@@ -95,14 +93,19 @@ Component.register('sw-sidebar', {
         },
 
         mountedComponent() {
-            if (this.propagateWidth) {
-                const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation').offsetWidth;
+            this.$device.onResize({
+                listener: this.onResize,
+                component: this,
+            });
 
-                this.setSwPageSidebarOffset(sidebarWidth);
+            if (this.propagateWidth) {
+                this.updateSidebarOffset();
             }
         },
 
         destroyedComponent() {
+            this.$device.removeResizeListener(this);
+
             if (!this.propagateWidth) {
                 return;
             }
@@ -126,6 +129,24 @@ Component.register('sw-sidebar', {
 
         closeSidebar() {
             this.isOpened = false;
+        },
+
+        onResize() {
+            this.resizeNavigationKey += 1;
+
+            if (this.propagateWidth) {
+                this.updateSidebarOffset();
+            }
+        },
+
+        updateSidebarOffset() {
+            const sidebarWidth = this.$el.querySelector('.sw-sidebar__navigation')?.offsetWidth;
+
+            if (!sidebarWidth) {
+                return;
+            }
+
+            this.setSwPageSidebarOffset(sidebarWidth);
         },
 
         registerSidebarItem(item) {
@@ -153,4 +174,4 @@ Component.register('sw-sidebar', {
             }
         },
     },
-});
+};

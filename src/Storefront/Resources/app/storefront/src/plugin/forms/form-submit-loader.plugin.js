@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 import Plugin from 'src/plugin-system/plugin.class';
 import {INDICATOR_POSITION} from 'src/utility/loading-indicator/loading-indicator.util';
@@ -21,13 +20,18 @@ export default class FormSubmitLoaderPlugin extends Plugin {
         /**
          * Possible values: before|after|inner
          */
-        indicatorPosition: INDICATOR_POSITION.BEFORE,
+        indicatorPosition: INDICATOR_POSITION.INNER,
 
         /**
          * If true, the loading indicator will not show
          */
         skipLoadingIndicator: false,
     };
+
+    /**
+     * List of submitted button with loading indicators
+     */
+    _submittedButtonLoaders = [];
 
     init() {
         if (!this._getForm() || !this._getSubmitButtons()) {
@@ -36,6 +40,9 @@ export default class FormSubmitLoaderPlugin extends Plugin {
 
         // check if validation plugin is active for this form
         this._validationPluginActive = !!window.PluginManager.getPluginInstanceFromElement(this._form, 'FormValidation');
+
+        // Will hold the instances of loading indicators for each submit button.
+        this._submittedButtonLoaders = [];
 
         this._registerEvents();
     }
@@ -65,16 +72,12 @@ export default class FormSubmitLoaderPlugin extends Plugin {
      * @private
      */
     _getSubmitButtons() {
-        this._submitButtons = Array.from(DomAccess.querySelectorAll(this._form, 'button[type=submit]', false));
+        this._submitButtons = Array.from(this._form.querySelectorAll('button[type=submit]'));
 
         const formId = this._form.id;
         if (formId) {
             this._submitButtons = this._submitButtons.concat(Array.from(
-                DomAccess.querySelectorAll(
-                    this._form.closest(this.options.formWrapperSelector),
-                    `:not(form) > button[type=submit][form="${formId}"]`,
-                    false
-                )
+                this._form.closest(this.options.formWrapperSelector).querySelectorAll(`:not(form) > button[type=submit][form="${formId}"]`),
             ));
         }
 
@@ -88,6 +91,7 @@ export default class FormSubmitLoaderPlugin extends Plugin {
     _registerEvents() {
         // the submit event will be triggered only if the HTML5 validation has been successful
         this._form.addEventListener('submit', this._onFormSubmit.bind(this));
+        this._form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
     }
 
     /**
@@ -113,8 +117,18 @@ export default class FormSubmitLoaderPlugin extends Plugin {
 
             const loader = new ButtonLoadingIndicator(submitButton, this.options.indicatorPosition);
             loader.create();
+            this._submittedButtonLoaders.push(loader);
         });
 
         this.$emitter.publish('beforeSubmit');
+    }
+
+    /**
+     * Will remove existing loading indicators from submit buttons
+     */
+    removeLoadingIndicator() {
+        this._submittedButtonLoaders.forEach(loader => loader.remove());
+
+        this._submittedButtonLoaders = [];
     }
 }

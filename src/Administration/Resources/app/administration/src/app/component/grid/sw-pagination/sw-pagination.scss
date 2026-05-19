@@ -1,10 +1,10 @@
 @import "~scss/variables";
 
-$sw-pagination-color-background: $color-white;
-$sw-pagination-controls-color-border: $color-gray-300;
-$sw-pagination-controls-color-hover: $color-shopware-brand-500;
-$sw-pagination-controls-color-text: $color-darkgray-200;
-$sw-pagination-border-radius: $border-radius-default;
+$sw-pagination-color-background: var(--color-elevation-surface-raised);
+$sw-pagination-controls-color-border: var(--color-border-primary-default);
+$sw-pagination-controls-color-hover: var(--color-interaction-primary-default);
+$sw-pagination-controls-color-text: var(--color-text-primary-default);
+$sw-pagination-border-radius: var(--border-radius-xs);
 
 .sw-pagination {
     min-height: 64px;
@@ -23,11 +23,12 @@ $sw-pagination-border-radius: $border-radius-default;
         display: inline-block;
         list-style: none;
         margin: 0;
+        font-size: var(--font-size-xs);
     }
 
     .sw-pagination__page-button {
         &-prev {
-            .sw-icon {
+            .mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 3px;
@@ -38,7 +39,7 @@ $sw-pagination-border-radius: $border-radius-default;
         }
 
         &-next {
-            .sw-icon {
+            .mt-icon {
                 width: 16px;
                 height: 16px;
                 padding-top: 3px;
@@ -90,15 +91,46 @@ $sw-pagination-border-radius: $border-radius-default;
     }
 
     .sw-pagination__per-page {
-        display: inline-block;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
         line-height: 16px;
         position: absolute;
         right: 0;
+        top: calc(50% - 18px);
         margin: 0 20px;
 
         @media screen and (max-width: 900px) {
             display: none;
+        }
+
+        .mt-select {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .mt-field__label {
+                margin: 0;
+            }
+
+            .mt-block-field__block {
+                max-width: 96px;
+                max-height: 36px;
+                min-height: auto;
+            }
+
+            .mt-select-selection-list--single {
+                margin: 0;
+            }
+
+            .mt-select-selection-list__input {
+                min-height: 0;
+                padding-bottom: 8px;
+            }
+
+            .mt-label--dismissable {
+                margin: 0;
+                padding-top: 6px;
+                padding-left: 0;
+            }
         }
     }
 }

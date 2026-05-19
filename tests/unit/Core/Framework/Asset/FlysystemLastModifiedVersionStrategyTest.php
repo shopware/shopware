@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Asset;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FlysystemLastModifiedVersionStrategy;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -28,7 +28,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fs = new Filesystem(new MemoryFilesystemAdapter());
+        $this->fs = new Filesystem(new InMemoryFilesystemAdapter());
         $this->strategy = new FlysystemLastModifiedVersionStrategy('test', $this->fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
         $this->asset = new UrlPackage(['http://shopware.com'], $this->strategy);
     }
@@ -64,7 +64,7 @@ class FlysystemLastModifiedVersionStrategyTest extends TestCase
     public function testWithEmptyString(): void
     {
         $fs = $this->createMock(FilesystemOperator::class);
-        $fs->expects(static::never())->method('lastModified');
+        $fs->expects($this->never())->method('lastModified');
 
         $strategy = new FlysystemLastModifiedVersionStrategy('test', $fs, new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()));
 

@@ -1,15 +1,13 @@
 import './sw-select-option.scss';
 import template from './sw-select-option.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status deprecated 6.1
  */
-Component.register('sw-select-option', {
+export default {
     template,
 
     props: {
@@ -125,4 +123,4 @@ Component.register('sw-select-option', {
             this.isActive = true;
         },
     },
-});
+};

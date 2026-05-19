@@ -12,13 +12,18 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal not intended for decoration or replacement
+ *
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface, ResetInterface
 {
     final public const KEY = 'flow-loader';
 
-    private array $flows = [];
+    /**
+     * @var EventGroupedFlowHolders
+     */
+    private ?array $flows = null;
 
     public function __construct(
         private readonly AbstractFlowLoader $decorated,
@@ -38,7 +43,7 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
 
     public function load(): array
     {
-        if (!empty($this->flows)) {
+        if ($this->flows !== null) {
             return $this->flows;
         }
 
@@ -59,6 +64,6 @@ class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInte
 
     public function reset(): void
     {
-        $this->flows = [];
+        $this->flows = null;
     }
 }

@@ -8,7 +8,7 @@ import './sw-license-violation.scss';
 /**
  * @private
  */
-Shopware.Component.register('sw-license-violation', {
+export default {
     template,
 
     inject: [
@@ -159,7 +159,7 @@ Shopware.Component.register('sw-license-violation', {
                 .forceDeletePlugin(matchingPlugin)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-license-violation.successfullyDeleted'),
+                        message: this.$t('sw-license-violation.successfullyDeleted'),
                     });
 
                     return this.reloadViolations();
@@ -189,4 +189,4 @@ Shopware.Component.register('sw-license-violation', {
             this.loading = this.loading.filter((value) => value !== key);
         },
     },
-});
+};

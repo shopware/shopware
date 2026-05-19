@@ -80,11 +80,11 @@ const handleMtPasswordField = (context, node) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -92,7 +92,7 @@ const handleMtPasswordField = (context, node) => {
     if (vModelValue) {
         context.report({
             node: vModelValue,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
@@ -104,11 +104,11 @@ const handleMtPasswordField = (context, node) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -152,11 +152,11 @@ const handleMtPasswordField = (context, node) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -237,7 +237,7 @@ const mtPasswordFieldValidTests = [
 
 const mtPasswordFieldInvalidTests = [
     {
-        name: '"mt-password-field" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-password-field" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -245,14 +245,14 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field modelValue="Hello World" />
+                <mt-password-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-password-field" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-password-field" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -260,11 +260,11 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-password-field" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-password-field" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -272,14 +272,14 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field :modelValue="myValue" />
+                <mt-password-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-password-field" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-password-field" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -287,7 +287,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -302,7 +302,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -314,7 +314,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-password-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -399,7 +399,7 @@ const mtPasswordFieldInvalidTests = [
         }]
     },
     {
-        name: '"mt-password-field" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-password-field" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -407,14 +407,14 @@ const mtPasswordFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-password-field @update:modelValue="updateValue" />
+                <mt-password-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-password-field" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-password-field" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -422,7 +422,7 @@ const mtPasswordFieldInvalidTests = [
                 <mt-password-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-password-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

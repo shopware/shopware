@@ -44,7 +44,7 @@ class MediaEntityTest extends TestCase
         $media = $result->getEntities()->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals($media->getId(), $media->getId());
+        static::assertSame($media->getId(), $media->getId());
     }
 
     public function testThumbnailsAreConvertedToStructWhenFetchedFromDb(): void
@@ -61,8 +61,8 @@ class MediaEntityTest extends TestCase
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
         static::assertInstanceOf(MediaThumbnailEntity::class, $persistedThumbnail);
-        static::assertEquals(200, $persistedThumbnail->getWidth());
-        static::assertEquals(200, $persistedThumbnail->getHeight());
+        static::assertSame(200, $persistedThumbnail->getWidth());
+        static::assertSame(200, $persistedThumbnail->getHeight());
     }
 
     public function testDeleteMediaWithTags(): void

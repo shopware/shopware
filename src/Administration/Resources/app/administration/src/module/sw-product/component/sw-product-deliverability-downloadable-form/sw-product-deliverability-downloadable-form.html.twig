@@ -13,39 +13,43 @@
                 class="product-deliverability-downloadable-form__manage-stock-switch"
                 name="sw-field--product-is-closeout"
                 :error="productIsCloseoutError"
-                :map-inheritance="props"
-                :label="$tc('sw-product.detailBase.manageStockLabel')"
-                :help-text="$tc('sw-product.detailBase.manageStockTooltip')"
+                :is-inheritance-field="props.isInheritField"
+                :is-inherited="props.isInherited"
+                :inherited-value="parentProduct.isCloseout"
+                :label="$t('sw-product.detailBase.manageStockLabel')"
+                :help-text="$t('sw-product.detailBase.manageStockTooltip')"
                 :disabled="props.isInherited || disabled"
-                :checked="props.currentValue"
-                @change="props.updateCurrentValue"
+                :model-value="props.currentValue"
+                @update:model-value="props.updateCurrentValue"
+                @inheritance-restore="props.restoreInheritance"
+                @inheritance-remove="props.removeInheritance"
             />
 
         </template>
     </sw-inherit-wrapper>
 
     <sw-container
-        v-show="product.isCloseout"
+        v-show="showStockSetting"
         columns="1fr 1fr"
-        gap="0px 30px"
+        gap="0 var(--scale-size-30)"
     >
 
-        <sw-number-field
-            v-model:value="product.stock"
+        <mt-number-field
+            v-model="product.stock"
             name="sw-field--product-stock"
             number-type="int"
             :disabled="disabled"
-            :label="$tc('sw-product.settingsForm.labelStock')"
-            :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
+            :label="$t('sw-product.settingsForm.labelStock')"
+            :placeholder="$t('sw-product.settingsForm.placeholderStock')"
             :error="productStockError"
         />
 
-        <sw-number-field
-            v-model:value="product.availableStock"
+        <mt-number-field
+            v-model="product.availableStock"
             name="sw-field--product-available-stock"
             number-type="int"
             :disabled="true"
-            :label="$tc('sw-product.settingsForm.labelAvailableStock')"
+            :label="$t('sw-product.settingsForm.labelAvailableStock')"
         />
 
     </sw-container>
@@ -55,7 +59,7 @@
         v-model:value="product.deliveryTimeId"
         :inherited-value="parentProduct.deliveryTimeId"
         :has-parent="!!parentProduct.id"
-        :label="$tc('sw-product.settingsForm.labelDeliveryTime')"
+        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
     >
         <template #content="{ currentValue, updateCurrentValue, isInherited }">
 
@@ -67,7 +71,7 @@
                 :disabled="isInherited || disabled"
                 class="product-deliverability-downloadable-form__delivery-time"
                 :error="productDeliveryTimeIdError"
-                :placeholder="$tc('sw-product.settingsForm.placeholderDeliveryTime')"
+                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
                 show-clearable-button
                 @update:value="updateCurrentValue"
             />

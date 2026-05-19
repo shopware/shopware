@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,12 +23,12 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        $entityNotExists = new EntityNotExists([
-            'entity' => 'product_review',
-            'context' => $context,
-            'criteria' => $criteria,
-            'primaryProperty' => 'customerId',
-        ]);
+        $entityNotExists = new EntityNotExists(
+            entity: 'product_review',
+            context: $context,
+            criteria: $criteria,
+            primaryProperty: 'customerId',
+        );
 
         static::assertSame('product_review', $entityNotExists->getEntity());
         static::assertSame($context, $entityNotExists->getContext());
@@ -37,13 +38,14 @@ class EntityNotExistsTest extends TestCase
 
     public function testConstructorWithoutCriteria(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $context = Context::createDefaultContext();
 
-        $entityNotExists = new EntityNotExists([
-            'entity' => 'product_review',
-            'context' => $context,
-            'primaryProperty' => 'customerId',
-        ]);
+        $entityNotExists = new EntityNotExists(
+            entity: 'product_review',
+            context: $context,
+            primaryProperty: 'customerId',
+        );
 
         static::assertSame('product_review', $entityNotExists->getEntity());
         static::assertSame($context, $entityNotExists->getContext());
@@ -55,11 +57,11 @@ class EntityNotExistsTest extends TestCase
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
-        $entityNotExists = new EntityNotExists([
-            'entity' => 'product_review',
-            'context' => $context,
-            'criteria' => $criteria,
-        ]);
+        $entityNotExists = new EntityNotExists(
+            entity: 'product_review',
+            context: $context,
+            criteria: $criteria,
+        );
 
         static::assertSame('product_review', $entityNotExists->getEntity());
         static::assertSame($context, $entityNotExists->getContext());
@@ -71,10 +73,10 @@ class EntityNotExistsTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $entityNotExists = new EntityNotExists([
-            'entity' => 'product_review',
-            'context' => $context,
-        ]);
+        $entityNotExists = new EntityNotExists(
+            entity: 'product_review',
+            context: $context,
+        );
 
         static::assertSame('product_review', $entityNotExists->getEntity());
         static::assertSame($context, $entityNotExists->getContext());
@@ -83,26 +85,28 @@ class EntityNotExistsTest extends TestCase
 
     public function testConstructorWithoutEntity(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
-        new EntityNotExists([
-            'context' => $context,
-            'criteria' => $criteria,
-            'primaryProperty' => 'customerId',
-        ]);
+        new EntityNotExists(
+            context: $context,
+            criteria: $criteria,
+            primaryProperty: 'customerId',
+        );
     }
 
     public function testConstructorWithoutContext(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $criteria = new Criteria();
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'criteria' => $criteria,
@@ -112,11 +116,12 @@ class EntityNotExistsTest extends TestCase
 
     public function testConstructorWithInvalidCriteria(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
         $context = Context::createDefaultContext();
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,
@@ -127,12 +132,14 @@ class EntityNotExistsTest extends TestCase
 
     public function testConstructorWithInvalidPrimaryProperty(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
 
         static::expectException(FrameworkException::class);
 
-        /** @phpstan-ignore-next-line push wrong data to test */
+        /** @phpstan-ignore argument.type (for test purpose) */
         new EntityNotExists([
             'entity' => 'product_review',
             'context' => $context,

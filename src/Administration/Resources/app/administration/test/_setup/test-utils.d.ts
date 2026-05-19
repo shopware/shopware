@@ -9,5 +9,7 @@ declare module '@vue/test-utils' {
     interface VueWrapper<T> {
         findByText(selector: string, text: string): VueWrapper<T> | null;
         findByAriaLabel(selector: string, text: string): VueWrapper<T> | null;
+        findByLabel(text: string): VueWrapper<T> | null;
+        findByPlaceholder(text: string): VueWrapper<T> | null;
     }
 }

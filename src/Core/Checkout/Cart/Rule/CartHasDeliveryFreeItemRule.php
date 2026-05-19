@@ -11,13 +11,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CartHasDeliveryFreeItemRule extends Rule
 {
     final public const RULE_NAME = 'cartHasDeliveryFreeItem';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $allowed = true)
     {
         parent::__construct();

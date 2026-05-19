@@ -7,7 +7,7 @@ const { Component } = Shopware;
  * @sw-package framework
  * @private
  */
-Component.register('sw-inactivity-login', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -42,8 +42,8 @@ Component.register('sw-inactivity-login', {
 
     computed: {
         title(): string {
-            const moduleName = this.$tc('sw-inactivity-login.general.mainMenuItemIndex');
-            const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
+            const moduleName = this.$t('global.sw-inactivity-login.general.mainMenuItemIndex');
+            const adminName = this.$t('global.sw-admin-menu.textShopwareAdmin');
 
             return `${moduleName} | ${adminName}`;
         },
@@ -100,6 +100,11 @@ Component.register('sw-inactivity-login', {
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         loginUserWithPassword() {
             this.isLoading = true;
 
@@ -115,7 +120,7 @@ Component.register('sw-inactivity-login', {
                     this.password = '';
 
                     this.passwordError = {
-                        detail: this.$tc('sw-inactivity-login.modal.errors.password'),
+                        detail: this.$t('global.sw-inactivity-login.modal.errors.password'),
                     };
 
                     this.isLoading = false;
@@ -140,10 +145,12 @@ Component.register('sw-inactivity-login', {
 
             if (previousRoute?.fullPath) {
                 void this.$router.push(previousRoute.fullPath);
-                return;
+            } else {
+                void this.$router.push({ name: 'core' });
             }
 
-            void this.$router.push({ name: 'core' });
+            // Reload the page to ensure all non-login initializers are executed
+            this._reloadPage();
         },
 
         onBackToLogin() {

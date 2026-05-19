@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
@@ -20,6 +21,7 @@ class StorefrontRoutingTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
+    use RequestStackTestBehaviour;
     use SessionTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -28,7 +30,7 @@ class StorefrontRoutingTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $skippedViews = [
                     '@Storefront/storefront/layout/header.html.twig',
                     '@Storefront/storefront/layout/footer.html.twig',

@@ -24,7 +24,6 @@ async function createWrapper() {
                 'sw-entity-single-select': true,
                 'sw-text-field': true,
                 'sw-email-field': true,
-                'sw-password-field': true,
                 'sw-datepicker': true,
                 'sw-entity-tag-select': true,
                 'sw-single-select': true,

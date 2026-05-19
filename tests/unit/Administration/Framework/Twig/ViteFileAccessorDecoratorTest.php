@@ -2,14 +2,19 @@
 
 namespace Shopware\Tests\Unit\Administration\Framework\Twig;
 
-use League\Flysystem\FilesystemOperator;
+use Pentatrion\ViteBundle\Service\FileAccessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Log\Package;
-use Symfony\Component\Asset\Packages;
+use Shopware\Core\Test\Stub\Framework\BundleFixture;
+use Shopware\Core\Test\Stub\Symfony\StubKernel;
+use Symfony\Component\Asset\Package as AssetPackage;
+use Symfony\Component\Asset\UrlPackage;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 
 /**
  * @internal
@@ -18,8 +23,6 @@ use Symfony\Component\Asset\Packages;
 #[CoversClass(ViteFileAccessorDecorator::class)]
 class ViteFileAccessorDecoratorTest extends TestCase
 {
-    private MockObject $filesystemMock;
-
     /**
      * @var array<string, array<string, string>>
      */
@@ -29,105 +32,173 @@ class ViteFileAccessorDecoratorTest extends TestCase
         ],
     ];
 
-    private MockObject $packagesMock;
+    private MockObject&AssetPackage $packageMock;
 
     private ViteFileAccessorDecorator $decorator;
 
     protected function setUp(): void
     {
-        $this->filesystemMock = $this->createMock(FilesystemOperator::class);
-        $this->packagesMock = $this->createMock(Packages::class);
-        $this->packagesMock->method('getUrl')
-            ->willReturn('https:://shopware.com/bundles/administration/');
+        $kernel = new StubKernel([
+            new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration'),
+            new BundleFixture('TestBundle', __DIR__ . '/Fixtures/TestBundle'),
+        ]);
+
+        $this->packageMock = $this->createMock(UrlPackage::class);
+        $this->packageMock->method('getUrl')
+            ->willReturn('https:://shopware.com');
 
         $this->decorator = new ViteFileAccessorDecorator(
             $this->configs,
-            $this->filesystemMock,
-            $this->packagesMock,
+            $this->packageMock,
+            $kernel,
+            new Filesystem(),
         );
     }
 
     #[DataProvider('hasFileProvider')]
-    public function testHasFile(string $configName, string $fileType, string $filePath, bool $fileExists): void
+    public function testHasFile(string $configName, string $fileType, bool $fileExists): void
     {
-        $this->filesystemMock->expects(static::once())
-            ->method('has')
-            ->with($filePath)
-            ->willReturn($fileExists);
-
-        $result = $this->decorator->hasFile($configName, $fileType);
-        static::assertEquals($fileExists, $result);
+        static::assertSame($fileExists, $this->decorator->hasFile($configName, $fileType));
     }
 
     #[DataProvider('getDataProvider')]
-    public function testGetData(bool $pullFromCache): void
+    public function testGetData(bool $pullFromCache, string $configName, string $bundleName, string $expectedAssetUrl): void
     {
-        $this->filesystemMock->expects(static::once())
-            ->method('read')
-            ->with('bundles/administration/.vite/entrypoints.json')
-            ->willReturn('{"entryPoints":{"administration":{"app":["app.js"]}}}');
-
         if ($pullFromCache) {
-            $this->decorator->getData('_default', ViteFileAccessorDecorator::ENTRYPOINTS);
+            $this->decorator->getData($configName, FileAccessor::ENTRYPOINTS);
         }
-        $result = $this->decorator->getData('_default', ViteFileAccessorDecorator::ENTRYPOINTS);
+
+        $result = $this->decorator->getData($configName, FileAccessor::ENTRYPOINTS);
+
+        static::assertSame($expectedAssetUrl, $result['entryPoints'][$bundleName]['js'][0]);
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function hasFileProvider(): iterable
+    {
+        yield 'has file default file accessor entrypoints true' => [
+            '_default',
+            FileAccessor::ENTRYPOINTS,
+            true,
+        ];
+        yield 'has file default file accessor manifest true' => [
+            '_default',
+            FileAccessor::MANIFEST,
+            true,
+        ];
+        yield 'has file test bundle file accessor entrypoints true' => [
+            'TestBundle',
+            FileAccessor::ENTRYPOINTS,
+            true,
+        ];
+        yield 'has file test bundle file accessor manifest true' => [
+            'TestBundle',
+            FileAccessor::MANIFEST,
+            true,
+        ];
+        yield 'has file invalid file accessor manifest false' => [
+            'invalid',
+            FileAccessor::MANIFEST,
+            false,
+        ];
+        yield 'has file invalid file accessor entrypoints false' => [
+            'invalid',
+            FileAccessor::ENTRYPOINTS,
+            false,
+        ];
+        yield 'has file invalid false' => [
+            'invalid',
+            '',
+            false,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{bool, string, string, string}>
+     */
+    public static function getDataProvider(): iterable
+    {
+        yield 'provider false default administration https shopware com bundles administration' => [
+            false,
+            '_default',
+            'administration',
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+        ];
+        yield 'provider true default administration https shopware com bundles administration' => [
+            true,
+            '_default',
+            'administration',
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+        ];
+        yield 'provider false test bundle test bundle https shopware com bundles test' => [
+            false,
+            'TestBundle',
+            'test-bundle',
+            'https:://shopware.com/bundles/test/administration/assets/app.js',
+        ];
+        yield 'provider true test bundle test bundle https shopware com bundles test' => [
+            true,
+            'TestBundle',
+            'test-bundle',
+            'https:://shopware.com/bundles/test/administration/assets/app.js',
+        ];
+    }
+
+    public function testGetBundleDataReturnsEntrypoints(): void
+    {
+        $bundle = new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration');
+
+        $result = $this->decorator->getBundleData($bundle);
+
         static::assertArrayHasKey('entryPoints', $result);
-        static::assertArrayHasKey('administration', $result['entryPoints']);
-        static::assertArrayHasKey('app', $result['entryPoints']['administration']);
-        static::assertEquals('https:://shopware.com/bundles/administration/app.js', $result['entryPoints']['administration']['app'][0]);
     }
 
-    /**
-     * @return array<int, array<int, string|bool>>
-     */
-    public static function hasFileProvider(): array
+    public function testGetDataReturnsEmptyArrayForPlainSymfonyBundle(): void
     {
-        return [
-            [
-                '_default',
-                ViteFileAccessorDecorator::ENTRYPOINTS,
-                'bundles/administration/.vite/entrypoints.json',
-                true,
-            ],
-            [
-                '_default',
-                ViteFileAccessorDecorator::MANIFEST,
-                'bundles/administration/.vite/manifest.json',
-                true,
-            ],
-            [
-                'invalid',
-                ViteFileAccessorDecorator::MANIFEST,
-                '.vite/manifest.json',
-                false,
-            ],
-            [
-                'invalid',
-                ViteFileAccessorDecorator::ENTRYPOINTS,
-                '.vite/entrypoints.json',
-                false,
-            ],
-            [
-                'invalid',
-                'no_file_path',
-                '',
-                false,
-            ],
-        ];
+        // plain Symfony bundle (not ShopwareBundle) always returns []
+        $kernel = new StubKernel([
+            new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration'),
+            new PlainSymfonyBundle('PlainBundle', __DIR__ . '/Fixtures/Administration'),
+        ]);
+
+        $decorator = new ViteFileAccessorDecorator(
+            $this->configs,
+            $this->packageMock,
+            $kernel,
+            new Filesystem(),
+        );
+
+        static::assertSame([], $decorator->getData('PlainBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
     }
 
-    /**
-     * @return array<int, array<int, bool>>
-     */
-    public static function getDataProvider(): array
+    public function testGetDataReturnsEmptyArrayWhenViteFileIsMissing(): void
     {
-        return [
-            [
-                false,
-            ],
-            [
-                true,
-            ],
-        ];
+        // ShopwareBundle with no vite file returns []
+        $kernel = new StubKernel([
+            new BundleFixture('NoViteBundle', __DIR__ . '/Fixtures'),
+        ]);
+
+        $decorator = new ViteFileAccessorDecorator(
+            $this->configs,
+            $this->packageMock,
+            $kernel,
+            new Filesystem(),
+        );
+
+        static::assertSame([], $decorator->getData('NoViteBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
+    }
+}
+
+/**
+ * @internal
+ */
+class PlainSymfonyBundle extends SymfonyBundle
+{
+    public function __construct(string $name, string $path)
+    {
+        $this->name = $name;
+        $this->path = $path;
     }
 }

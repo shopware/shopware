@@ -1,6 +1,5 @@
-import camelCase from 'lodash/camelCase';
+import camelCase from 'lodash-es/camelCase';
 import type CriteriaType from 'src/core/data/criteria.data';
-import type { PropType } from 'vue';
 import type { DragConfig } from 'src/app/directive/dragdrop.directive';
 import template from './sw-settings-country-address-handling.html.twig';
 import './sw-settings-country-address-handling.scss';
@@ -44,7 +43,7 @@ const DefaultAddressFormat = [
  *
  * @private
  */
-Component.register('sw-settings-country-address-handling', {
+export default Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -365,7 +364,6 @@ Component.register('sw-settings-country-address-handling', {
                             name: this.getLabelProperty(snippet),
                         };
                     });
-                    // eslint-disable-next-line @typescript-eslint/no-empty-function
                 })
                 .catch(() => {});
         },
@@ -394,7 +392,7 @@ Component.register('sw-settings-country-address-handling', {
                 .map((item: string) => camelCase(item))
                 .join('.');
 
-            return this.$te(`sw-custom-snippet.${string}`) ? this.$tc(`sw-custom-snippet.${string}`) : value;
+            return this.$te(`sw-custom-snippet.${string}`) ? this.$t(`sw-custom-snippet.${string}`) : value;
         },
 
         updateCountry(path: string, value: unknown): void {

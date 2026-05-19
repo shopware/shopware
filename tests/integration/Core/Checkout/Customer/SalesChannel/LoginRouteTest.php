@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -128,7 +128,7 @@ class LoginRouteTest extends TestCase
                 ],
             );
 
-        static::assertEquals(
+        static::assertSame(
             $this->getDeDeLanguageId(),
             $this->customerRepository->search(
                 new Criteria([$customerId]),
@@ -163,7 +163,7 @@ class LoginRouteTest extends TestCase
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
-        static::expectException(CustomerNotFoundException::class);
+        static::expectException(BadCredentialsException::class);
 
         $email = Uuid::randomHex() . '@example.com';
         $salesChannel = $this->createSalesChannel([
@@ -202,21 +202,21 @@ class LoginRouteTest extends TestCase
         $response = $loginRoute->login($request, $salesChannelContext);
 
         // Token is replace as there're no customer token in the database
-        static::assertNotEquals($contextToken, $oldToken = $response->getToken());
+        static::assertNotSame($contextToken, $oldToken = $response->getToken());
 
         $salesChannelContext = $this->createSalesChannelContext('123456789', [], $customerId);
 
         $response = $loginRoute->login($request, $salesChannelContext);
 
         // Previous token is restored
-        static::assertEquals($oldToken, $response->getToken());
+        static::assertSame($oldToken, $response->getToken());
 
         // Previous Cart is restored
         $salesChannelContext = $this->createSalesChannelContext($oldToken, [], $customerId);
         $oldCartExists = static::getContainer()->get(CartService::class)->getCart($oldToken, $salesChannelContext);
 
         static::assertInstanceOf(Cart::class, $oldCartExists);
-        static::assertEquals($oldToken, $oldCartExists->getToken());
+        static::assertSame($oldToken, $oldCartExists->getToken());
     }
 
     public function testCustomerHaveDifferentCartsOnEachSalesChannel(): void
@@ -264,14 +264,14 @@ class LoginRouteTest extends TestCase
 
         $responseSalesChannel2 = $loginRoute->login($request, $salesChannelContext2);
 
-        static::assertNotEquals($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
+        static::assertNotSame($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
 
         $cartService = static::getContainer()->get(CartService::class);
 
         $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, false);
         $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, false);
 
-        static::assertNotEquals($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
+        static::assertNotSame($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
     }
 
     private function createCart(string $contextToken, SalesChannelContext $context): void

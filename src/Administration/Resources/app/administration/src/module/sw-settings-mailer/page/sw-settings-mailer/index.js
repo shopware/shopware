@@ -14,6 +14,7 @@ const defaultMailerSettings = {
     'core.mailerSettings.senderAddress': null,
     'core.mailerSettings.deliveryAddress': null,
     'core.mailerSettings.disableDelivery': false,
+    'core.mailerSettings.sendMailOptions': null,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -46,11 +47,11 @@ export default {
             return [
                 {
                     value: '-bs',
-                    name: this.$tc('sw-settings-mailer.sendmail.sync'),
+                    name: this.$t('sw-settings-mailer.sendmail.sync'),
                 },
                 {
                     value: '-t -i',
-                    name: this.$tc('sw-settings-mailer.sendmail.async'),
+                    name: this.$t('sw-settings-mailer.sendmail.async'),
                 },
             ];
         },
@@ -60,6 +61,31 @@ export default {
                 'smtp',
                 'smtp+oauth',
             ].includes(this.mailerSettings['core.mailerSettings.emailAgent']);
+        },
+
+        emailAgentOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'local',
+                    label: this.$t('sw-settings-mailer.mailer-configuration.local-agent'),
+                },
+                {
+                    id: 2,
+                    value: 'smtp',
+                    label: this.$t('sw-settings-mailer.mailer-configuration.smtp-server'),
+                },
+                {
+                    id: 3,
+                    value: 'smtp+oauth',
+                    label: this.$t('sw-settings-mailer.mailer-configuration.smtp-server-oauth'),
+                },
+                {
+                    id: 3,
+                    value: '',
+                    label: this.$t('sw-settings-mailer.mailer-configuration.env-file'),
+                },
+            ];
         },
     },
 
@@ -95,11 +121,6 @@ export default {
         async saveMailerSettings() {
             this.isLoading = true;
 
-            // Inputs cannot return null
-            if (this.mailerSettings['core.mailerSettings.emailAgent'] === '') {
-                this.mailerSettings['core.mailerSettings.emailAgent'] = null;
-            }
-
             // Validate smtp configuration
             if (this.isSmtpMode) {
                 this.validateSmtpConfiguration();
@@ -108,8 +129,8 @@ export default {
             // SMTP configuration invalid stop save and propagate error notification
             if (this.smtpHostError !== null || this.smtpPortError !== null) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-mailer.card-smtp.error.notificationMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-mailer.card-smtp.error.notificationMessage'),
                 });
 
                 this.isLoading = false;
@@ -122,6 +143,8 @@ export default {
                 this.mailerSettings = {
                     ...defaultMailerSettings,
                     'core.mailerSettings.emailAgent': 'local',
+                    'core.mailerSettings.disableDelivery': this.mailerSettings['core.mailerSettings.disableDelivery'],
+                    'core.mailerSettings.sendMailOptions': this.mailerSettings['core.mailerSettings.sendMailOptions'],
                 };
             }
 
@@ -140,14 +163,14 @@ export default {
         validateSmtpConfiguration() {
             this.smtpHostError = !this.mailerSettings['core.mailerSettings.host']
                 ? {
-                      detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                      detail: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                   }
                 : null;
 
             this.smtpPortError =
                 typeof this.mailerSettings['core.mailerSettings.port'] !== 'number'
                     ? {
-                          detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
+                          detail: this.$t('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3'),
                       }
                     : null;
         },

@@ -4,6 +4,7 @@
 
 import './store';
 import template from './sw-seo-url.html.twig';
+import './sw-seo-url.scss';
 
 const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
@@ -42,7 +43,6 @@ export default {
         hasDefaultTemplate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -109,7 +109,7 @@ export default {
         },
 
         seoUrlHelptext() {
-            return this.isHeadlessSalesChannel ? this.$tc('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
+            return this.isHeadlessSalesChannel ? this.$t('sw-seo-url.textSeoUrlsDisallowedForHeadless') : null;
         },
 
         hasAdditionalSeoSlot() {

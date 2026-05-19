@@ -1,6 +1,6 @@
 {% block sw_property_option_detail %}
 <sw-modal
-    :title="currentOption.name ? currentOption.name : $tc('sw-property.detail.textOptionHeadline')"
+    :title="modalTitle"
     @modal-close="onCancel"
 >
     {% block sw_property_option_detail_name %}
@@ -9,33 +9,32 @@
         v-model="currentOption.name"
         name="sw-field--currentOption-name"
         validation="required"
-        :label="$tc('sw-property.detail.labelOptionName')"
+        :label="$t('sw-property.detail.labelOptionName')"
         :disabled="!allowEdit"
-        :placeholder="$tc('sw-property.detail.placeholderOptionName')"
+        :placeholder="placeholder(currentOption, 'name', $t('sw-property.detail.placeholderOptionName'))"
         :error="currentOptionNameError"
         required
     />
     {% endblock %}
 
     {% block sw_property_option_detail_position %}
-    <sw-number-field
-        v-model:value="currentOption.position"
+    <mt-number-field
+        v-model="currentOption.position"
         name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"
         :disabled="!allowEdit"
-        :label="$tc('sw-property.detail.labelOptionPosition')"
-        :placeholder="$tc('sw-property.detail.placeholderOptionPosition')"
+        :label="$t('sw-property.detail.labelOptionPosition')"
+        :placeholder="$t('sw-property.detail.placeholderOptionPosition')"
     />
     {% endblock %}
 
     {% block sw_property_option_detail_color %}
-    <sw-colorpicker
-        v-model:value="currentOption.colorHexCode"
+    <mt-colorpicker
+        v-model="colorHexCode"
         name="sw-field--currentOption-colorHexCode"
-        color-output="hex"
         :disabled="!allowEdit"
-        :label="$tc('sw-property.detail.labelOptionColor')"
+        :label="$t('sw-property.detail.labelOptionColor')"
         :z-index="1000"
     />
     {% endblock %}
@@ -48,7 +47,7 @@
     />
     <sw-media-compact-upload-v2
         default-folder="product"
-        :label="$tc('sw-property.detail.labelMediaUpload')"
+        :label="$t('sw-property.detail.labelMediaUpload')"
         :source="currentOption.mediaId"
         :upload-tag="currentOption.id"
         :disabled="!allowEdit"
@@ -57,21 +56,29 @@
     />
     {% endblock %}
 
+    <sw-custom-field-set-renderer
+        v-if="showCustomFields"
+        :entity="currentOption"
+        :sets="customFieldSets"
+        :disabled="!allowEdit"
+    />
+
     {% block sw_property_option_detail_footer %}
     <template #modal-footer>
         {% block sw_property_option_detail_footer_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
         {% block sw_property_option_detail_footer_save %}
         <mt-button
             v-tooltip.bottom="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('property.editor'),
                 showOnDisabledElements: true
             }"
@@ -80,7 +87,7 @@
             :disabled="!allowEdit"
             @click="onSave"
         >
-            {{ $tc('global.default.apply') }}
+            {{ $t('global.default.apply') }}
         </mt-button>
         {% endblock %}
     </template>

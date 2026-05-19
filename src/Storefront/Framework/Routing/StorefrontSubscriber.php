@@ -15,15 +15,19 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -38,7 +42,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         private readonly RequestStack $requestStack,
         private readonly RouterInterface $router,
         private readonly MaintenanceModeResolver $maintenanceModeResolver,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -70,46 +75,58 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function startSession(): void
     {
-        $master = $this->requestStack->getMainRequest();
-
-        if (!$master) {
+        $mainRequest = $this->requestStack->getMainRequest();
+        if (!$mainRequest) {
             return;
         }
-        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        if (!$master->hasSession()) {
+        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
-        $session = $master->getSession();
+        if (!$mainRequest->hasSession()) {
+            return;
+        }
+
+        $session = $mainRequest->getSession();
 
         if (!$session->isStarted()) {
-            $session->setName('session-');
             $session->start();
             $session->set('sessionId', $session->getId());
         }
 
-        $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
         if ($salesChannelId === null) {
-            /** @var SalesChannelContext|null $salesChannelContext */
-            $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-            if ($salesChannelContext !== null) {
+            $salesChannelContext = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+            if ($salesChannelContext instanceof SalesChannelContext) {
                 $salesChannelId = $salesChannelContext->getSalesChannelId();
             }
         }
 
-        if ($this->shouldRenewToken($session, $salesChannelId)) {
+        // When customer binding is enabled, store tokens per sales channel to prevent
+        // bound customers from being logged out when visiting other channels
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $tokenKey = $bindingEnabled
+            ? PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId
+            : PlatformRequest::HEADER_CONTEXT_TOKEN;
+
+        if ($this->shouldRenewToken($session, $salesChannelId, $tokenKey)) {
             $token = Random::getAlphanumericString(32);
-            $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+            $session->set($tokenKey, $token);
             $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
 
-        $master->headers->set(
-            PlatformRequest::HEADER_CONTEXT_TOKEN,
-            $session->get(PlatformRequest::HEADER_CONTEXT_TOKEN)
-        );
+        $contextToken = $session->get($tokenKey);
+
+        // Always keep the default key in sync with the current token for backward compatibility
+        // This ensures code that relies on the default key (e.g., anonymous users) still works
+        $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
+        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        if ($currentRequest && $mainRequest !== $currentRequest) {
+            $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);
+        }
     }
 
     public function updateSessionAfterLogin(CustomerLoginEvent $event): void
@@ -128,24 +145,35 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSession(string $token, bool $destroyOldSession = false): void
     {
-        $master = $this->requestStack->getMainRequest();
-        if (!$master) {
+        $mainRequest = $this->requestStack->getMainRequest();
+        if (!$mainRequest) {
             return;
         }
-        if (!$master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return;
-        }
-
-        if (!$master->hasSession()) {
+        if (!$mainRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
             return;
         }
 
-        $session = $master->getSession();
+        if (!$mainRequest->hasSession()) {
+            return;
+        }
+
+        $session = $mainRequest->getSession();
         $session->migrate($destroyOldSession);
         $session->set('sessionId', $session->getId());
 
+        // When customer binding is enabled, store tokens per sales channel
+        $bindingEnabled = $this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        if ($bindingEnabled) {
+            $salesChannelId = $mainRequest->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+            if ($salesChannelId) {
+                $tokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+                $session->set($tokenKey, $token);
+            }
+        }
+
+        // Always set the default key for backward compatibility
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
-        $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        $mainRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
@@ -172,36 +200,53 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function maintenanceResolver(RequestEvent $event): void
     {
-        if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
+        $request = $event->getRequest();
+
+        if ($this->maintenanceModeResolver->shouldRedirect($request)) {
+            $parameters = [];
+            $route = $request->attributes->get('_route');
+            if ($route !== null) {
+                $parameters['redirectTo'] = $route;
+                $requestParameters = $this->getRequestParameters($request);
+
+                if ($requestParameters !== []) {
+                    $parameters['redirectParameters'] = json_encode($requestParameters, \JSON_THROW_ON_ERROR);
+                }
+            }
+
+            $redirectEvent = new MaintenanceRedirectEvent('frontend.maintenance.page', $parameters, Response::HTTP_TEMPORARY_REDIRECT);
+            $this->eventDispatcher->dispatch($redirectEvent);
+
             $event->setResponse(
-                new RedirectResponse(
-                    $this->router->generate('frontend.maintenance.page'),
-                    RedirectResponse::HTTP_TEMPORARY_REDIRECT
-                )
+                new RedirectResponse($this->router->generate($redirectEvent->getRoute(), $redirectEvent->getParameters()), $redirectEvent->getStatus())
             );
         }
     }
 
     public function preventPageLoadingFromXmlHttpRequest(ControllerEvent $event): void
     {
-        if (!$event->getRequest()->isXmlHttpRequest()) {
+        $request = $event->getRequest();
+
+        if (!$request->isXmlHttpRequest()) {
             return;
         }
 
-        /** @var list<string> $scope */
-        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
+        $scope = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []);
 
         if (!\in_array(StorefrontRouteScope::ID, $scope, true)) {
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
-
+        $isAllowed = $request->attributes->getBoolean('XmlHttpRequest');
         if ($isAllowed) {
             return;
         }
 
-        throw RoutingException::accessDeniedForXmlHttpRequest();
+        $route = $request->attributes->get('_route');
+        $url = $request->getUri();
+        $referer = $request->headers->get('referer');
+
+        throw RoutingException::accessDeniedForXmlHttpRequest($route, $url, $referer);
     }
 
     // used to switch session token - when the context token expired
@@ -217,13 +262,26 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->updateSession($context->getToken());
     }
 
-    private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null): bool
+    private function shouldRenewToken(SessionInterface $session, ?string $salesChannelId = null, ?string $tokenKey = null): bool
     {
-        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $salesChannelId === null) {
+        $keyToCheck = $tokenKey ?? PlatformRequest::HEADER_CONTEXT_TOKEN;
+
+        if (!$session->has($keyToCheck) || $salesChannelId === null) {
             return true;
         }
 
-        if ($this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+        // When using per-channel tokens (binding enabled), we don't renew based on channel change
+        // because each channel has its own token. We only renew if token doesn't exist for this key.
+        if ($this->systemConfigService->getBool('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel')) {
+            // If we're checking a channel-specific key, token existence was already checked above
+            if ($tokenKey !== null && $tokenKey !== PlatformRequest::HEADER_CONTEXT_TOKEN) {
+                $expectedTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $salesChannelId;
+
+                // Don't renew if the token key matches the current channel (token already exists for this channel)
+                return $tokenKey !== $expectedTokenKey;
+            }
+
+            // For backward compatibility with default key, check if channel changed
             return $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId;
         }
 
@@ -241,5 +299,27 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         return false;
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private function getRequestParameters(Request $request): array
+    {
+        $requestParameters = $request->query->all();
+        $routeParams = $request->attributes->get('_route_params');
+
+        if (\is_array($routeParams)) {
+            foreach ($routeParams as $key => $value) {
+                // we don't want any default route parameter, e.g. _httpCache or _store
+                if (\in_array($key, PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS, true)) {
+                    continue;
+                }
+
+                $requestParameters[$key] = $value;
+            }
+        }
+
+        return $requestParameters;
     }
 }

@@ -7,13 +7,20 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenLifecycle;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
+use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -40,10 +47,19 @@ class PaymentControllerTest extends TestCase
 
     private JWTFactoryV2 $tokenFactory;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
+    /**
+     * @var EntityRepository<OrderTransactionCollection>
+     */
     private EntityRepository $orderTransactionRepository;
 
+    /**
+     * @var EntityRepository<PaymentMethodCollection>
+     */
     private EntityRepository $paymentMethodRepository;
 
     private PaymentProcessor $paymentProcessor;
@@ -67,7 +83,12 @@ class PaymentControllerTest extends TestCase
         static::assertIsString($client->getResponse()->getContent());
         $response = json_decode($client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        } else {
+            static::assertSame('CHECKOUT__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
+        }
     }
 
     public function testCallWithInvalidToken(): void
@@ -86,8 +107,19 @@ class PaymentControllerTest extends TestCase
     {
         $client = $this->getBrowser();
 
-        $tokenStruct = new TokenStruct(null, null, Uuid::randomHex(), Uuid::randomHex(), 'testFinishUrl');
-        $token = $this->tokenFactory->generateToken($tokenStruct);
+        if (Feature::isActive('v6.8.0.0')) {
+            $paymentToken = new PaymentToken();
+            $paymentToken->jti = Uuid::randomHex();
+            $paymentToken->paymentMethodId = Uuid::randomHex();
+            $paymentToken->transactionId = Uuid::randomHex();
+            $paymentToken->salesChannelId = TestDefaults::SALES_CHANNEL;
+            $paymentToken->finishUrl = 'testFinishUrl';
+            $token = static::getContainer()->get(PaymentTokenGenerator::class)->encode($paymentToken);
+            static::getContainer()->get(PaymentTokenLifecycle::class)->addToken($paymentToken->jti, $paymentToken->exp ?? new \DateTimeImmutable());
+        } else {
+            $tokenStruct = new TokenStruct(null, null, Uuid::randomHex(), Uuid::randomHex(), 'testFinishUrl');
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+        }
 
         $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
 
@@ -101,8 +133,19 @@ class PaymentControllerTest extends TestCase
     {
         $transaction = $this->createValidOrderTransaction();
 
-        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
-        $token = $this->tokenFactory->generateToken($tokenStruct);
+        if (Feature::isActive('v6.8.0.0')) {
+            $paymentToken = new PaymentToken();
+            $paymentToken->jti = Uuid::randomHex();
+            $paymentToken->paymentMethodId = $transaction->getPaymentMethodId();
+            $paymentToken->transactionId = $transaction->getId();
+            $paymentToken->salesChannelId = TestDefaults::SALES_CHANNEL;
+            $paymentToken->finishUrl = 'testFinishUrl';
+            $token = static::getContainer()->get(PaymentTokenGenerator::class)->encode($paymentToken);
+            static::getContainer()->get(PaymentTokenLifecycle::class)->addToken($paymentToken->jti, $paymentToken->exp ?? new \DateTimeImmutable());
+        } else {
+            $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl');
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+        }
 
         $client = $this->getBrowser();
 
@@ -118,8 +161,20 @@ class PaymentControllerTest extends TestCase
     {
         $transaction = $this->createValidOrderTransaction();
 
-        $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl', null, 'testErrorUrl');
-        $token = $this->tokenFactory->generateToken($tokenStruct);
+        if (Feature::isActive('v6.8.0.0')) {
+            $paymentToken = new PaymentToken();
+            $paymentToken->jti = Uuid::randomHex();
+            $paymentToken->paymentMethodId = $transaction->getPaymentMethodId();
+            $paymentToken->transactionId = $transaction->getId();
+            $paymentToken->salesChannelId = TestDefaults::SALES_CHANNEL;
+            $paymentToken->finishUrl = 'testFinishUrl';
+            $paymentToken->errorUrl = 'testErrorUrl';
+            $token = static::getContainer()->get(PaymentTokenGenerator::class)->encode($paymentToken);
+            static::getContainer()->get(PaymentTokenLifecycle::class)->addToken($paymentToken->jti, $paymentToken->exp ?? new \DateTimeImmutable());
+        } else {
+            $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl', null, 'testErrorUrl');
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+        }
 
         $client = $this->getBrowser();
 
@@ -128,6 +183,36 @@ class PaymentControllerTest extends TestCase
         $response = $client->getResponse();
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertStringContainsString('testErrorUrl', $response->getTargetUrl());
+        static::assertTrue($response->isRedirection());
+    }
+
+    public function testCallTwice(): void
+    {
+        Feature::skipTestIfInActive('REPEATED_PAYMENT_FINALIZE', $this);
+
+        $transaction = $this->createValidOrderTransaction();
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $paymentToken = new PaymentToken();
+            $paymentToken->jti = Uuid::randomHex();
+            $paymentToken->paymentMethodId = $transaction->getPaymentMethodId();
+            $paymentToken->transactionId = $transaction->getId();
+            $paymentToken->salesChannelId = TestDefaults::SALES_CHANNEL;
+            $paymentToken->finishUrl = 'testFinishUrl';
+            $token = static::getContainer()->get(PaymentTokenGenerator::class)->encode($paymentToken);
+            static::getContainer()->get(PaymentTokenLifecycle::class)->addToken($paymentToken->jti, $paymentToken->exp ?? new \DateTimeImmutable());
+        } else {
+            $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), 'testFinishUrl', null, 'testErrorUrl');
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+        }
+
+        $client = $this->getBrowser();
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+        $client->request('GET', '/payment/finalize-transaction?_sw_payment_token=' . $token);
+
+        $response = $client->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertStringContainsString('testFinishUrl', $response->getTargetUrl());
         static::assertTrue($response->isRedirection());
     }
 
@@ -206,7 +291,7 @@ class PaymentControllerTest extends TestCase
         $response = $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
 
         static::assertNotNull($response);
-        static::assertEquals(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
+        static::assertSame(TestPaymentHandler::REDIRECT_URL, $response->getTargetUrl());
 
         $transaction = new OrderTransactionEntity();
         $transaction->setId($transactionId);

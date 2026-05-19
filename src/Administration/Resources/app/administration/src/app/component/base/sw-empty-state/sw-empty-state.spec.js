@@ -10,14 +10,11 @@ describe('components/base/sw-empty-state', () => {
     beforeEach(async () => {
         wrapper = mount(await wrapTestComponent('sw-empty-state'), {
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 mocks: {
                     $route: {
                         meta: {
                             $module: {
-                                icon: 'default-symbol-content',
+                                icon: 'regular-content',
                                 description: 'Foo bar',
                             },
                         },
@@ -31,10 +28,6 @@ describe('components/base/sw-empty-state', () => {
                 actions: '<button class="button">Primary action</button>',
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render a title', async () => {

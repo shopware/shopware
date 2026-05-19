@@ -52,7 +52,7 @@ class ConsumeMessagesControllerTest extends TestCase
             ->willReturn($lock);
 
         $controller = new ConsumeMessagesController(
-            new ServiceLocator(['async' => function (): \ArrayObject {
+            new ServiceLocator(['async' => static function (): \ArrayObject {
                 return new \ArrayObject();
             }]),
             $this->createMock(MessageBusInterface::class),
@@ -69,7 +69,7 @@ class ConsumeMessagesControllerTest extends TestCase
         static::expectExceptionMessage('Another worker is already running for receiver: "async"');
 
         $request = new Request();
-        $request->query->set('receiver', 'async');
+        $request->request->set('receiver', 'async');
         $controller->consumeMessages($request);
     }
 }

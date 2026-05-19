@@ -63,6 +63,10 @@ export default class ChangesetGenerator {
                 return;
             }
 
+            if (field.flags.immutable && !entity.isNew()) {
+                return;
+            }
+
             let draftValue = castValueToNullIfNecessary(draft[fieldName]);
             let originValue = castValueToNullIfNecessary(origin[fieldName]);
 

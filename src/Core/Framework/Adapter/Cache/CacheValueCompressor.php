@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -27,13 +28,13 @@ class CacheValueCompressor
         if (self::$compressMethod === 'zstd') {
             $compressed = \zstd_compress(\serialize($content));
         } elseif (self::$compressMethod === 'gzip') {
-            $compressed = \gzcompress(\serialize($content), 9);
+            $compressed = \gzcompress(\serialize($content));
         } else {
             throw FrameworkException::invalidCompressionMethod(self::$compressMethod);
         }
 
         if ($compressed === false) {
-            throw new \RuntimeException('Failed to compress cache value');
+            throw AdapterException::cacheCompressionError('Failed to compress cache value');
         }
 
         return $compressed;
@@ -51,6 +52,7 @@ class CacheValueCompressor
         }
 
         if (!self::$compress) {
+            /** @phpstan-ignore shopware.unserializeUsage */
             return \unserialize($value);
         }
 
@@ -63,9 +65,10 @@ class CacheValueCompressor
         }
 
         if ($uncompressed === false) {
-            throw new \RuntimeException(\sprintf('Could not uncompress "%s"', $value));
+            throw AdapterException::cacheCompressionError('Could not uncompress value');
         }
 
-        return unserialize($uncompressed);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        return \unserialize($uncompressed);
     }
 }

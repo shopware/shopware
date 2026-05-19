@@ -26,12 +26,35 @@ class MediaSelectionFieldTest extends TestCase
 
         $mediaSelectionField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(MediaSelectionField::class, $mediaSelectionField);
-        static::assertEquals('test_media_selection_field', $mediaSelectionField->getName());
-        static::assertEquals([
+        static::assertSame('test_media_selection_field', $mediaSelectionField->getName());
+        static::assertSame([
             'en-GB' => 'Test media-selection field',
         ], $mediaSelectionField->getLabel());
-        static::assertEquals([], $mediaSelectionField->getHelpText());
-        static::assertEquals(1, $mediaSelectionField->getPosition());
+        static::assertSame([], $mediaSelectionField->getHelpText());
+        static::assertSame(1, $mediaSelectionField->getPosition());
         static::assertFalse($mediaSelectionField->getRequired());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/media-selection-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $mediaSelectionField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(MediaSelectionField::class, $mediaSelectionField);
+
+        static::assertEquals([
+            'name' => 'test_media_selection_field',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test media-selection field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'componentName' => 'sw-media-field',
+                'customFieldType' => 'media',
+            ],
+        ], $mediaSelectionField->toEntityPayload());
     }
 }

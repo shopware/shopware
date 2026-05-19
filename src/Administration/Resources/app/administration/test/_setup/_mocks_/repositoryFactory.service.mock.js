@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import colors from 'picocolors';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import EntityHydrator from 'src/core/data/entity-hydrator.data';
@@ -10,9 +9,7 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
-// eslint-disable-next-line import/no-unresolved
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
 // Add all entities from entity-schema
@@ -90,11 +87,16 @@ class ResponseRegistry {
 // create a mock for the httpClient for creating custom responses
 function clientMockFactory() {
     const client = createHTTPClient();
-    const clientMock = new MockAdapter(client);
+
+    // The client is now a dispatcher that routes to axiosV0 or axiosV1
+    // We need to mock both underlying axios instances
+    const clientMockV0 = new MockAdapter(client.axiosV0);
+    const clientMockV1 = new MockAdapter(client.axiosV1);
 
     const responses = new ResponseRegistry();
 
-    clientMock.onAny().reply(config => {
+    // Create a shared reply handler for both mock adapters
+    const replyHandler = (config) => {
         const customResponse = responses.getResponse({
             url: config.url,
             method: config.method,
@@ -110,7 +112,76 @@ function clientMockFactory() {
 
         throwMissingImplementationError(config);
         return [500, {}];
-    });
+    };
+
+    // Apply the same reply handler to both axios versions
+    clientMockV0.onAny().reply(replyHandler);
+    clientMockV1.onAny().reply(replyHandler);
+
+    // Create proxy arrays that combine both mock histories dynamically
+    const createCombinedHistoryArray = (method) => {
+        const combinedArray = [];
+        // Make it behave like an array by setting up the prototype
+        Object.setPrototypeOf(combinedArray, Array.prototype);
+
+        // Override array methods to combine both histories
+        return new Proxy(combinedArray, {
+            get(target, prop) {
+                // For numeric indices and length, combine both histories
+                if (prop === 'length') {
+                    return clientMockV0.history[method].length + clientMockV1.history[method].length;
+                }
+
+                // For numeric indices, access combined arrays
+                const index = Number(prop);
+                if (Number.isInteger(index) && index >= 0) {
+                    const v0Length = clientMockV0.history[method].length;
+                    if (index < v0Length) {
+                        return clientMockV0.history[method][index];
+                    }
+                    return clientMockV1.history[method][index - v0Length];
+                }
+
+                // For array methods, operate on combined array
+                if (typeof Array.prototype[prop] === 'function') {
+                    return function(...args) {
+                        const combined = [...clientMockV0.history[method], ...clientMockV1.history[method]];
+                        return combined[prop](...args);
+                    };
+                }
+
+                return target[prop];
+            },
+        });
+    };
+
+    // Create a unified clientMock interface that manages both versions
+    const clientMock = {
+        // Expose both mock instances for advanced use cases
+        v0: clientMockV0,
+        v1: clientMockV1,
+        // Create history object with proxy arrays that dynamically combine both versions
+        history: {
+            get: createCombinedHistoryArray('get'),
+            post: createCombinedHistoryArray('post'),
+            put: createCombinedHistoryArray('put'),
+            patch: createCombinedHistoryArray('patch'),
+            delete: createCombinedHistoryArray('delete'),
+        },
+        // Unified reset that resets both versions
+        resetHistory() {
+            clientMockV0.resetHistory();
+            clientMockV1.resetHistory();
+        },
+        reset() {
+            clientMockV0.reset();
+            clientMockV1.reset();
+        },
+        restore() {
+            clientMockV0.restore();
+            clientMockV1.restore();
+        },
+    };
 
     // Add default responses
     responses.addResponse({

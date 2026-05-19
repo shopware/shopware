@@ -16,6 +16,7 @@ export default {
         'repositoryFactory',
         'conditionDataProviderService',
         'productCustomFields',
+        'productTypes',
         'acl',
         'feature',
     ],
@@ -53,7 +54,7 @@ export default {
     data() {
         return {
             value: null,
-            childComponents: null,
+            childComponentsCount: null,
             searchTerm: '',
         };
     },
@@ -75,11 +76,7 @@ export default {
         },
 
         growthClass() {
-            if (this.childComponents === null) {
-                return 'sw-product-stream-value--grow-0';
-            }
-
-            return `sw-product-stream-value--grow-${this.childComponents.length}`;
+            return `sw-product-stream-value--grow-${this.childComponentsCount}`;
         },
 
         disabledClass() {
@@ -145,7 +142,7 @@ export default {
             }
             return this.conditionDataProviderService.getOperatorSet(this.fieldType).map((operator) => {
                 return {
-                    label: this.$tc(operator.label),
+                    label: this.$t(operator.label),
                     value: operator.identifier,
                 };
             });
@@ -158,23 +155,45 @@ export default {
                 const secondLevelOperator = this.conditionDataProviderService.getOperator(operator);
 
                 return {
-                    label: this.$tc(secondLevelOperator.label),
+                    label: this.$t(secondLevelOperator.label),
                     value: secondLevelOperator.identifier,
                 };
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, product.states will be replaced by productType
+         */
         productStateOptions() {
             return [
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.physical'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.physical'),
                     value: 'is-physical',
                 },
                 {
-                    label: this.$tc('sw-product-stream.filter.values.productStates.digital'),
+                    label: this.$t('sw-product-stream.filter.values.productStates.digital'),
                     value: 'is-download',
                 },
             ];
+        },
+
+        productTypeOptions() {
+            const providedTypes = this.productTypes?.value ?? this.productTypes;
+            const defaultTypes = [
+                'digital',
+                'physical',
+            ];
+            const types = Array.isArray(providedTypes) && providedTypes.length > 0 ? providedTypes : defaultTypes;
+
+            return types.map((type) => {
+                const snippetKey = `sw-product.type.${type}`;
+                const label = this.$te(snippetKey) ? this.$t(snippetKey) : type;
+
+                return {
+                    label,
+                    value: type,
+                };
+            });
         },
 
         fieldType() {
@@ -182,8 +201,16 @@ export default {
                 return null;
             }
 
-            if (this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+            if (
+                !Shopware.Feature.isActive('v6.8.0.0') &&
+                this.fieldDefinition.type === 'json_list' &&
+                this.fieldName === 'states'
+            ) {
                 return 'product_state_list';
+            }
+
+            if (this.fieldName === 'type' && this.fieldDefinition.type === 'string') {
+                return 'product_type';
             }
 
             if (this.definition.isJsonField(this.fieldDefinition)) {
@@ -208,15 +235,15 @@ export default {
 
         booleanOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: '1' },
-                { label: this.$tc('global.default.no'), value: '0' },
+                { label: this.$t('global.default.yes'), value: '1' },
+                { label: this.$t('global.default.no'), value: '0' },
             ];
         },
 
         reversedEmptyOptions() {
             return [
-                { label: this.$tc('global.default.yes'), value: false },
-                { label: this.$tc('global.default.no'), value: true },
+                { label: this.$t('global.default.yes'), value: false },
+                { label: this.$t('global.default.no'), value: true },
             ];
         },
 
@@ -413,7 +440,10 @@ export default {
     },
 
     mounted() {
-        this.childComponents = this.$refs;
+        // Wait for all child components to be mounted. $nextTick is not enough here.
+        setTimeout(() => {
+            this.childComponentsCount = Object.keys(this.$refs ?? {}).length;
+        });
     },
 
     methods: {

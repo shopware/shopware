@@ -11,10 +11,8 @@ async function createWrapper() {
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-extension-store-landing-page': true,
-                'sw-icon': true,
                 'sw-loader': true,
                 'sw-label': true,
-                'sw-icon-deprecated': true,
             },
             provide: {
                 shortcutService: {
@@ -36,10 +34,6 @@ describe('src/app/component/structure/sw-in-app-purchase-checkout', () => {
 
     afterEach(() => {
         wrapper.vm.closeModal();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render the modal when modal data is set', async () => {

@@ -70,8 +70,8 @@
 
                 <sw-category-tree-field
                     v-if="linkType === 'navigation'"
-                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
-                    :placeholder="$tc('sw-text-editor-toolbar-button-link.categoryPlaceholder')"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkTo')"
+                    :placeholder="$t('sw-text-editor-toolbar-button-link.categoryPlaceholder')"
                     :categories-collection="categoryCollection"
                     single-select
                     @selection-add="replaceCategorySelection"
@@ -81,7 +81,7 @@
                 <sw-media-field
                     v-if="linkType === 'media'"
                     v-model:value="linkHref"
-                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkTo')"
                     :criteria="entityFilter"
                     single-select
                 />
@@ -89,10 +89,10 @@
                 <mt-switch
                     v-if="showOpenInNewTabToggle"
                     :label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
-                    :checked="linkTarget === '_blank'"
+                    :model-value="linkTarget === '_blank'"
                     :aria-label="$t('sw-text-editor-toolbar-button-link.openInNewTab')"
                     class="sw-text-editor-toolbar-button-link__open-in-new-tab-switch"
-                    @change="
+                    @update:model-value="
                         (checked) => {
                             linkTarget = checked ? '_blank' : null;
                         }
@@ -100,10 +100,9 @@
                 />
 
                 <mt-switch
-                    :checked="displayAsButton"
-                    :label="$tc('sw-text-editor-toolbar-button-link.displayAsButton')"
+                    v-model="displayAsButton"
+                    :label="$t('sw-text-editor-toolbar-button-link.displayAsButton')"
                     class="sw-text-editor-toolbar-button-link__display-as-button-switch"
-                    @change="displayAsButton = !displayAsButton"
                 />
 
                 <mt-select

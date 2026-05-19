@@ -5,7 +5,6 @@
 import template from './sw-error-summary.html.twig';
 import './sw-error-summary.scss';
 
-const { Component } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 type error = {
@@ -17,12 +16,11 @@ type error = {
 /**
  * @private
  */
-Component.register('sw-error-summary', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     computed: {
         errors(): { [key: string]: number } {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             const allErrors = (Shopware.Store.get('error').getAllApiErrors() || []) as Array<unknown>;
 
             // Helper function to recursively get all error objects
@@ -53,7 +51,7 @@ Component.register('sw-error-summary', {
                 let message = error._detail;
 
                 if (this.$te(`global.error-codes.${error._code}`)) {
-                    message = this.$tc(`global.error-codes.${error._code}`);
+                    message = this.$t(`global.error-codes.${error._code}`);
                 }
 
                 return {

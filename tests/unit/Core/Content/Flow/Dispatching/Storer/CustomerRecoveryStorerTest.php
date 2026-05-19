@@ -11,10 +11,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\CustomerRecoveryAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\CustomerRecoveryStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,15 +26,17 @@ class CustomerRecoveryStorerTest extends TestCase
 {
     private CustomerRecoveryStorer $storer;
 
-    private MockObject&EntityRepository $repository;
-
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private CustomerRecoveryProvider&MockObject $customerRecoveryProvider;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->storer = new CustomerRecoveryStorer($this->repository, $this->dispatcher);
+        $this->customerRecoveryProvider = $this->createMock(CustomerRecoveryProvider::class);
+
+        $this->storer = new CustomerRecoveryStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->customerRecoveryProvider
+        );
     }
 
     public function testStoreWithAware(): void
@@ -77,27 +78,23 @@ class CustomerRecoveryStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id']);
         $this->storer->restore($storable);
         $entity = new CustomerRecoveryEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $entity->setId('id');
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->customerRecoveryProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('customerRecovery');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id']);
         $this->storer->restore($storable);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->customerRecoveryProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('customerRecovery');
 
-        static::assertEquals($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void
@@ -107,20 +104,5 @@ class CustomerRecoveryStorerTest extends TestCase
         $customerGroup = $storable->getData('customerRecovery');
 
         static::assertNull($customerGroup);
-    }
-
-    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
-    {
-        $this->dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.customer_recovery.criteria.event'
-            );
-
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['customerRecoveryId' => 'id'], []);
-        $this->storer->restore($storable);
-        $storable->getData('customerRecovery');
     }
 }

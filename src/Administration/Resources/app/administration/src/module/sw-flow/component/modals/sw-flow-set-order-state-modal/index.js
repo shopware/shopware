@@ -106,7 +106,8 @@ export default {
             return entries.map((state) => {
                 return {
                     id: state.technicalName,
-                    name: state.translated.name,
+                    value: state.technicalName,
+                    label: state.translated.name,
                 };
             });
         },
@@ -118,7 +119,7 @@ export default {
         onAddAction() {
             if (!this.config.order && !this.config.order_delivery && !this.config.order_transaction) {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.modals.status.messageNoStatusError'),
+                    message: this.$t('sw-flow.modals.status.messageNoStatusError'),
                 });
                 return;
             }

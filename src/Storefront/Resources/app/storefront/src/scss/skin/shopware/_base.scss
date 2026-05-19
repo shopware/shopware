@@ -52,7 +52,6 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'layout/navigation-flyout';
 @import 'layout/navigation-offcanvas';
 @import 'layout/offcanvas-cart';
-@import 'layout/search-suggest';
 
 /*
  * Page-specific styles
@@ -64,6 +63,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 
 @import 'page/account/aside';
 @import 'page/account/register';
+// @deprecated tag:v6.8.0 - The components have been removed and the SCSS is not used anymore, remove the import `page/account/address`
 @import 'page/account/address';
 @import 'page/account/profile';
 @import 'page/account/order';

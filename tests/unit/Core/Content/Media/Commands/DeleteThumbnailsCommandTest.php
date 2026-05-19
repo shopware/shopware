@@ -47,16 +47,16 @@ class DeleteThumbnailsCommandTest extends TestCase
             ['id' => Uuid::randomHex()],
             ['id' => Uuid::randomHex()],
         ];
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllAssociative')
             ->with('SELECT LOWER(HEX(`id`)) as id FROM `media_thumbnail`')
             ->willReturn($thumbnailIds);
 
-        $thumbnailRepository->expects(static::once())
+        $thumbnailRepository->expects($this->once())
             ->method('delete')
             ->with($thumbnailIds, static::isInstanceOf(Context::class));
 
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('executeStatement')
             ->with('UPDATE `media` SET `thumbnails_ro` = NULL;');
         $commandTester->execute([]);

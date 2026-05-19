@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
+use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -13,9 +14,9 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -50,9 +51,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/delivery_note.html.twig';
 
-        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
+        $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -60,15 +61,20 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode, self::TYPE);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode, self::TYPE);
             $context = $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
             ]);
 
-            // TODO: future implementation (only fetch required data and associations)
+            $this->eventDispatcher->dispatch(new DocumentOrderCriteriaEvent(
+                $criteria,
+                $context,
+                $operations,
+                $rendererConfig,
+                self::TYPE,
+            ));
 
-            /** @var OrderCollection $orders */
             $orders = $this->orderRepository->search($criteria, $context)->getEntities();
 
             $this->eventDispatcher->dispatch(new DeliveryNoteOrdersEvent($orders, $context, $operations));
@@ -108,6 +114,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         ],
                     ]);
 
+                    // create version of order to ensure the document stays the same even if the order changes
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
+
                     if ($operation->isStatic()) {
                         $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
@@ -115,15 +124,17 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         continue;
                     }
 
-                    $deliveries = null;
+                    $deliveries = $order->getPrimaryOrderDelivery();
+
                     if ($order->getDeliveries()) {
-                        $deliveries = $order->getDeliveries()->first();
+                        if (!Feature::isActive('v6.8.0.0')) {
+                            $deliveries = $order->getDeliveries()->first();
+                        }
                     }
 
-                    /** @var LanguageEntity|null $language */
                     $language = $order->getLanguage();
                     if ($language === null) {
-                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                        throw DocumentException::generationError('Can not generate delivery note document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
                     $doc = new RenderedDocument(

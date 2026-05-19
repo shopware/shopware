@@ -20,7 +20,7 @@ class SeedingThemePathBuilderTest extends TestCase
 
         $path = $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme');
 
-        static::assertEquals($path, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
+        static::assertSame($path, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
     }
 
     public function testAssembledPathAfterSavingIsTheSameAsPreviouslyGenerated(): void
@@ -30,11 +30,11 @@ class SeedingThemePathBuilderTest extends TestCase
         $generatedPath = $pathBuilder->generateNewPath(TestDefaults::SALES_CHANNEL, 'theme', 'foo');
 
         // assert seeding is taking into account when generating a new path
-        static::assertNotEquals($generatedPath, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
+        static::assertNotSame($generatedPath, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
 
         $pathBuilder->saveSeed(TestDefaults::SALES_CHANNEL, 'theme', 'foo');
 
         // assert that the path is the same after saving
-        static::assertEquals($generatedPath, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
+        static::assertSame($generatedPath, $pathBuilder->assemblePath(TestDefaults::SALES_CHANNEL, 'theme'));
     }
 }

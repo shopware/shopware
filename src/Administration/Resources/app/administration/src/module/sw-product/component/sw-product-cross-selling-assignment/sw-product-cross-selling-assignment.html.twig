@@ -3,9 +3,10 @@
     <div class="sw-product-cross-selling-assignment__select-container">
         {% block sw_product_cross_selling_assignment_select %}
         <sw-entity-single-select
-            :label="$tc('sw-product.crossselling.inputCrossSellingProductList')"
+            :label="$t('sw-product.crossselling.inputCrossSellingProductList')"
             entity="product"
             value=""
+            :placeholder="$t('sw-product.crossselling.inputCrossSellingProductListPlaceholder')"
             :criteria="searchCriteria"
             :context="searchContext"
             disable-auto-close
@@ -54,7 +55,7 @@
                     variant="danger"
                     @click="removeItem(item)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
             </template>
 
@@ -81,20 +82,12 @@
         </sw-data-grid>
         {% endblock %}
         {% block sw_product_cross_selling_assignment_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total && !isLoadingGrid"
             class="sw-product-cross-selling-assignment__option-list-empty-state"
-            title=""
-            :absolute="false"
-            :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')"
-        >
-            <template #icon>
-                <img
-                    :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
-                    alt=""
-                >
-            </template>
-        </sw-empty-state>
+            :icon="$route.meta.$module.icon"
+            :headline="$t('sw-product.crossselling.assignEmptyStateTitle')"
+        />
         {% endblock %}
     </div>
     {% endblock %}

@@ -1,8 +1,8 @@
-import template from './sw-order-document-settings-storno-modal.html.twig';
-
 /**
- * @sw-package checkout
+ * @sw-package after-sales
  */
+import template from './sw-order-document-settings-storno-modal.html.twig';
+import { DOCUMENT_TYPES } from '../../order.types';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -31,7 +31,7 @@ export default {
                     stornoNumber: '',
                     invoiceNumber: '',
                 },
-                documentNumber: 0,
+                documentNumber: '',
                 documentComment: '',
                 documentDate: '',
             },
@@ -45,7 +45,11 @@ export default {
 
         invoices() {
             return this.order.documents.filter((document) => {
-                return document.documentType.technicalName === 'invoice';
+                return (
+                    document.documentType.technicalName === DOCUMENT_TYPES.INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_INVOICE ||
+                    document.documentType.technicalName === DOCUMENT_TYPES.ZUGFERD_EMBEDDED_INVOICE
+                );
             });
         },
 
@@ -54,8 +58,18 @@ export default {
                 return String(this.documentConfig.documentNumber);
             },
             set(value) {
-                this.documentConfig.documentNumber = Number(value);
+                this.documentConfig.documentNumber = value;
             },
+        },
+
+        invoiceOptions() {
+            return this.invoices.map((item, index) => {
+                return {
+                    id: index,
+                    value: item.config.custom.invoiceNumber,
+                    label: `${item.config.custom.invoiceNumber}`,
+                };
+            });
         },
     },
 
@@ -66,7 +80,7 @@ export default {
     methods: {
         createdComponent() {
             this.numberRangeService
-                .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, true)
+                .reserve(`document_${DOCUMENT_TYPES.CANCELLATION_INVOICE}`, this.order.salesChannelId, true)
                 .then((response) => {
                     this.documentConfig.documentNumber = response.number;
                     this.documentNumberPreview = this.documentConfig.documentNumber;
@@ -83,12 +97,12 @@ export default {
 
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService
-                    .reserve(`document_${this.currentDocumentType.technicalName}`, this.order.salesChannelId, false)
+                    .reserve(`document_${DOCUMENT_TYPES.CANCELLATION_INVOICE}`, this.order.salesChannelId, false)
                     .then((response) => {
                         this.documentConfig.custom.stornoNumber = response.number;
                         if (response.number !== this.documentConfig.documentNumber) {
                             this.createNotificationInfo({
-                                message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                                message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                             });
                         }
                         this.documentConfig.documentNumber = response.number;

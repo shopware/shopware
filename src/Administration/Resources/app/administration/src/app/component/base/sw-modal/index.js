@@ -1,7 +1,6 @@
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -16,7 +15,7 @@ const utils = Shopware.Utils;
  *     Lorem Ipsum
  * </sw-modal>
  */
-Component.register('sw-modal', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -80,21 +79,18 @@ Component.register('sw-modal', {
         showHeader: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         showFooter: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         closable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -201,4 +197,4 @@ Component.register('sw-modal', {
             }
         },
     },
-});
+};

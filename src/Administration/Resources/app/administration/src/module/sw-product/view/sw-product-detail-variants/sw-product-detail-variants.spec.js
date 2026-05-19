@@ -4,10 +4,8 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-loader';
 import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-empty-state';
 import 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
-import Criteria from 'src/core/data/criteria.data';
 
 async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-product-detail-variants', { sync: true }), {
@@ -50,7 +48,14 @@ async function createWrapper(privileges = []) {
                 },
             },
             mocks: {
-                $tc: (key) => key,
+                $t: (key) => key,
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
             stubs: {
                 'mt-card': {
@@ -71,9 +76,8 @@ async function createWrapper(privileges = []) {
                   </div>
                 `,
                 },
-                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
                 'sw-context-menu-item': true,
-                'sw-loader': await Shopware.Component.build('sw-loader'),
+                'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-modal': true,
                 'sw-skeleton': true,
                 'sw-product-variants-overview': true,
@@ -82,7 +86,6 @@ async function createWrapper(privileges = []) {
                 'sw-product-modal-variant-generation': true,
                 'sw-product-modal-delivery': true,
                 'sw-product-add-properties-modal': true,
-                'sw-icon': true,
             },
         },
     });
@@ -109,6 +112,7 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
             ],
         };
         store.product = {
+            id: 'test-product-id',
             isNew: () => false,
             getEntityName: () => 'product',
             media: [],
@@ -188,18 +192,10 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        expect(wrapper.vm).toBeTruthy();
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
     });
 
     it('should display a customized empty state if there are neither variants nor properties', async () => {
@@ -214,10 +210,35 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state__title').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
-        expect(wrapper.find('.sw-empty-state__description-content').text()).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.variations.emptyStatePropertyTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe(
             'sw-product.variations.emptyStatePropertyDescription',
         );
+    });
+
+    it('should not load data when product.id is missing', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        const originalProduct = store.product;
+
+        // Set product without id
+        store.product = {
+            isNew: () => false,
+            getEntityName: () => 'product',
+            media: [],
+            configuratorSettings: [],
+            children: [],
+        };
+
+        const wrapper = await createWrapper();
+        const loadOptionsSpy = jest.spyOn(wrapper.vm, 'loadOptions');
+
+        await flushPromises();
+
+        // loadOptions should not be called when product.id is missing
+        expect(loadOptionsSpy).not.toHaveBeenCalled();
+
+        // Restore original product
+        store.product = originalProduct;
     });
 
     it('should split the product states string into an array', async () => {
@@ -233,36 +254,140 @@ describe('src/module/sw-product/view/sw-product-detail-variants', () => {
         ]);
     });
 
-    it('should be able to load configuration setting with group ids', async () => {
+    it('should compute configSettingGroups from productEntity.configuratorSettings and groups', async () => {
         const wrapper = await createWrapper();
-        await wrapper.setData({
-            groups: [
-                {
-                    id: 'group-1',
-                },
+        wrapper.vm.groups = [
+            { id: 'id-1', name: 'group-1' },
+            { id: 'id-2', name: 'group-2' },
+            { id: 'other', name: 'other' },
+        ];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [
+                { option: { groupId: 'id-1' } },
+                { option: { groupId: 'id-2' } },
             ],
-            productEntity: {
-                configuratorSettings: [
-                    { option: { groupId: 'id-1' } },
-                    { option: { groupId: 'id-2' } },
-                ],
-            },
-        });
-        await flushPromises();
-        const criteria = new Criteria(1, null);
-        criteria.addFilter(
-            Criteria.equalsAny('id', [
-                'id-1',
-                'id-2',
-            ]),
-        );
+        };
 
-        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledWith(criteria);
         expect(wrapper.vm.configSettingGroups).toEqual([
-            {
-                id: '1',
-                name: 'group-1',
-            },
+            { id: 'id-1', name: 'group-1' },
+            { id: 'id-2', name: 'group-2' },
         ]);
+    });
+
+    it('should return empty configSettingGroups when product has no configurator settings', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
+        wrapper.vm.productEntity = { configuratorSettings: [] };
+
+        expect(wrapper.vm.configSettingGroups).toEqual([]);
+    });
+
+    it('should filter out missing groups in configSettingGroups when id not in groups', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: 'id-1', name: 'group-1' }];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [
+                { option: { groupId: 'id-1' } },
+                { option: { groupId: 'id-missing' } },
+            ],
+        };
+
+        expect(wrapper.vm.configSettingGroups).toEqual([{ id: 'id-1', name: 'group-1' }]);
+    });
+
+    it('should not call loadConfigSettingGroups in loadData (deprecated, now computed)', async () => {
+        const wrapper = await createWrapper();
+        const loadConfigSettingGroupsSpy = jest.spyOn(wrapper.vm, 'loadConfigSettingGroups');
+
+        wrapper.vm.loadData();
+        await flushPromises();
+
+        expect(loadConfigSettingGroupsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should have loadConfigSettingGroups as no-op when called directly (deprecated)', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.groups = [{ id: '1', name: 'g1' }];
+        wrapper.vm.productEntity = {
+            configuratorSettings: [{ option: { groupId: '1' } }],
+        };
+
+        expect(() => wrapper.vm.loadConfigSettingGroups()).not.toThrow();
+        expect(wrapper.vm.configSettingGroups).toEqual([{ id: '1', name: 'g1' }]);
+    });
+
+    it('should correctly load and merge paginated results', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        // Mock repository to return paginated data
+        wrapper.vm.groupRepository.search = jest
+            .fn()
+            .mockResolvedValueOnce({
+                total: 12,
+                length: 5,
+                map: (fn) =>
+                    [
+                        { id: '1', name: 'group-1' },
+                        { id: '2', name: 'group-2' },
+                        { id: '3', name: 'group-3' },
+                        { id: '4', name: 'group-4' },
+                        { id: '5', name: 'group-5' },
+                    ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 7,
+                length: 5,
+                map: (fn) =>
+                    [
+                        { id: '6', name: 'group-6' },
+                        { id: '7', name: 'group-7' },
+                        { id: '8', name: 'group-8' },
+                        { id: '9', name: 'group-9' },
+                        { id: '10', name: 'group-10' },
+                    ].map(fn),
+            })
+            .mockResolvedValueOnce({
+                total: 2,
+                length: 2,
+                map: (fn) =>
+                    [
+                        { id: '11', name: 'group-11' },
+                        { id: '12', name: 'group-12' },
+                    ].map(fn),
+            });
+
+        await flushPromises();
+
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(3);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle cases where total items are less than limit', async () => {
+        const wrapper = await createWrapper();
+        const loadGroupsSpy = jest.spyOn(wrapper.vm, 'loadGroups');
+
+        await wrapper.setData({ limit: 5 });
+
+        wrapper.vm.groupRepository.search = jest.fn().mockResolvedValueOnce({
+            total: 3,
+            length: 3,
+            map: (fn) =>
+                [
+                    { id: '1', name: 'group-1' },
+                    { id: '2', name: 'group-2' },
+                    { id: '3', name: 'group-3' },
+                ].map(fn),
+        });
+
+        wrapper.vm.loadGroups = jest.fn();
+
+        await flushPromises();
+
+        // Expect only one API call since everything fits in the first page
+        expect(wrapper.vm.groupRepository.search).toHaveBeenCalledTimes(1);
+        expect(loadGroupsSpy).toHaveBeenCalledTimes(1);
     });
 });

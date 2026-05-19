@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-ai-copilot-badge {
+    display: inline-flex;
+    height: 24px;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background-color: var(--color-background-brand-default);
+    border-radius: $border-radius-default;
+
+    .mt-icon {
+        color: var(--color-icon-brand-default);
+    }
+
+    .sw-ai-copilot-badge__label {
+        color: var(--color-text-brand-default);
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        line-height: $line-height-sm;
+    }
+}

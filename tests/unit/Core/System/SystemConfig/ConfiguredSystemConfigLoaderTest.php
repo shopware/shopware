@@ -22,7 +22,7 @@ class ConfiguredSystemConfigLoaderTest extends TestCase
 
         $decorator = new ConfiguredSystemConfigLoader($configLoader, $config);
 
-        $configLoader->expects(static::once())
+        $configLoader->expects($this->once())
             ->method('load')
             ->willReturn(['test' => ['key' => 'false']]);
 

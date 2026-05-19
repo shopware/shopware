@@ -5,10 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Config\Definition\Processor;
 
 /**
  * @internal
@@ -164,7 +167,98 @@ class ConfigurationTest extends TestCase
 
         $nodes = $nodes['system_config']->getChildNodeDefinitions();
 
-        static::assertArrayHasKey('default', $nodes);
-        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['default']);
+        static::assertArrayHasKey('', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['']);
+    }
+
+    public function testUsageDataSection(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('usage_data', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['usage_data']);
+
+        $nodes = $nodes['usage_data']->getChildNodeDefinitions();
+        static::assertArrayHasKey('collection_enabled', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['collection_enabled']);
+
+        static::assertArrayHasKey('gateway', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['gateway']);
+
+        $nodes = $nodes['gateway']->getChildNodeDefinitions();
+        static::assertArrayHasKey('dispatch_enabled', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['dispatch_enabled']);
+
+        static::assertArrayHasKey('base_uri', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['base_uri']);
+
+        static::assertArrayHasKey('batch_size', $nodes);
+        static::assertInstanceOf(ScalarNodeDefinition::class, $nodes['batch_size']);
+    }
+
+    public function testProductAllowedTypesNode(): void
+    {
+        $configuration = new Configuration();
+
+        $rootNode = $configuration->getConfigTreeBuilder()->getRootNode();
+
+        static::assertInstanceOf(ArrayNodeDefinition::class, $rootNode);
+        $nodes = $rootNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('product', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $searchNode = $nodes['product']);
+
+        $nodes = $searchNode->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('allowed_types', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['allowed_types']);
+    }
+
+    public function testValidSystemConfigKeys(): void
+    {
+        $configuration = new Configuration();
+        $salesChannelId = Uuid::randomHex();
+
+        $systemConfigs = (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => [
+                        'core.listing.allowBuyInListing' => true,
+                    ],
+                    $salesChannelId => [
+                        'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertTrue($systemConfigs['system_config']['default']['core.listing.allowBuyInListing']);
+        static::assertFalse($systemConfigs['system_config'][$salesChannelId]['core.listing.allowBuyInListing']);
+    }
+
+    public function testInvalidSystemConfigKeys(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+        static::expectExceptionMessage('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID');
+
+        $configuration = new Configuration();
+
+        (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => [
+                        'core.listing.allowBuyInListing' => true,
+                    ],
+                    'foobar' => [
+                        'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
     }
 }

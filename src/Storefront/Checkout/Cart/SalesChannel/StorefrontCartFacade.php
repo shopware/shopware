@@ -70,7 +70,7 @@ class StorefrontCartFacade
         // Recalculated cart successfully unblocked
         if (!$this->cartContainsBlockedMethods($newCart->getErrors())) {
             $this->cartPersister->save($newCart, $updatedContext);
-            $this->updateSalesChannelContext($updatedContext);
+            $this->updateSalesChannelContext($updatedContext, $originalContext);
 
             return $newCart;
         }
@@ -92,15 +92,24 @@ class StorefrontCartFacade
         return false;
     }
 
-    private function updateSalesChannelContext(SalesChannelContext $salesChannelContext): void
+    private function updateSalesChannelContext(SalesChannelContext $updatedContext, SalesChannelContext $originalContext): void
     {
         $this->contextSwitchRoute->switchContext(
             new RequestDataBag([
-                SalesChannelContextService::SHIPPING_METHOD_ID => $salesChannelContext->getShippingMethod()->getId(),
-                SalesChannelContextService::PAYMENT_METHOD_ID => $salesChannelContext->getPaymentMethod()->getId(),
+                SalesChannelContextService::SHIPPING_METHOD_ID => $updatedContext->getShippingMethod()->getId(),
+                SalesChannelContextService::PAYMENT_METHOD_ID => $updatedContext->getPaymentMethod()->getId(),
             ]),
-            $salesChannelContext
+            $updatedContext,
         );
+
+        $originalContext->assign([
+            'shippingMethod' => $updatedContext->getShippingMethod(),
+            'paymentMethod' => $updatedContext->getPaymentMethod(),
+        ]);
+
+        // inherit rule changes done by CartRuleLoader
+        $originalContext->setRuleIds($updatedContext->getRuleIds());
+        $originalContext->setAreaRuleIds($updatedContext->getAreaRuleIds());
     }
 
     /**
@@ -114,11 +123,19 @@ class StorefrontCartFacade
             }
 
             if ($error instanceof ShippingMethodChangedError) {
-                $cartErrors->add(new ShippingMethodBlockedError($error->getOldShippingMethodName()));
+                $cartErrors->add(new ShippingMethodBlockedError(
+                    id: $error->getOldShippingMethodId(),
+                    name: $error->getOldShippingMethodName(),
+                    reason: $error->getReason(),
+                ));
             }
 
             if ($error instanceof PaymentMethodChangedError) {
-                $cartErrors->add(new PaymentMethodBlockedError($error->getOldPaymentMethodName()));
+                $cartErrors->add(new PaymentMethodBlockedError(
+                    id: $error->getOldPaymentMethodId(),
+                    name: $error->getOldPaymentMethodName(),
+                    reason: $error->getReason(),
+                ));
             }
 
             $cartErrors->remove($error->getId());

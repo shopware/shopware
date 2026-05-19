@@ -26,6 +26,13 @@ export type Snippets = {
 };
 
 /**
+ * @private
+ */
+export type SnippetRegistry = {
+    [locale: string]: Snippets;
+};
+
+/**
  * Registry which holds all locales including the interface translations
  */
 const localeRegistry = new Map<string, Snippets>();
@@ -106,6 +113,17 @@ function extend(localeName: string, localeMessages: Snippets = {}): boolean | st
 
     const originalMessages = localeRegistry.get(localeName);
     localeRegistry.set(localeName, object.merge(originalMessages, localeMessages));
+
+    // Adding snippets to current i18n instance
+    // when already instantiated
+    if (Shopware.Snippet?.setLocaleMessage) {
+        // Get the merged new messages from the locale registry
+        const mergedMessages = localeRegistry.get(localeName);
+
+        // Set empty messages first to trigger reactivity update
+        Shopware.Snippet.setLocaleMessage?.(localeName, {});
+        Shopware.Snippet.setLocaleMessage?.(localeName, mergedMessages!);
+    }
 
     return localeName;
 }

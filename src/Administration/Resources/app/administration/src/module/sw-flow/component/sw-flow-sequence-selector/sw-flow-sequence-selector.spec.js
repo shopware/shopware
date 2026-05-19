@@ -45,7 +45,6 @@ async function createWrapper() {
 
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'router-link': true,
                     'sw-loader': true,
                 },

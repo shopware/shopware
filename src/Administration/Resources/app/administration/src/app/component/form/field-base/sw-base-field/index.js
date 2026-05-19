@@ -4,19 +4,22 @@
 import template from './sw-base-field.html.twig';
 import './sw-base-field.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-base-field', {
+export default {
     template,
     inheritAttrs: false,
 
     inject: ['feature'],
 
-    emits: ['base-field-mounted'],
+    emits: [
+        'base-field-mounted',
+        'inheritance-restore',
+        'inheritance-remove',
+    ],
 
     props: {
         name: {
@@ -144,4 +147,4 @@ Component.register('sw-base-field', {
     mounted() {
         this.$emit('base-field-mounted');
     },
-});
+};

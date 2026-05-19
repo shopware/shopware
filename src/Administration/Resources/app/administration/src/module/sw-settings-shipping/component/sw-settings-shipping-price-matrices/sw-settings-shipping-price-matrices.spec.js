@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @sw-package checkout
@@ -18,11 +19,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'mt-card': true,
+                        'mt-card': {
+                            template: '<div><slot /><slot name="grid" /></div>',
+                        },
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
-                        'sw-icon': true,
                         'sw-popover': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
@@ -30,10 +32,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             sync: true,
                         }),
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'sw-number-field': {
-                            template: '<input type="number" v-model="value" />',
+                        'mt-number-field': {
+                            template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
                             props: [
-                                'value',
+                                'modelValue',
                                 'size',
                             ],
                         },
@@ -153,12 +155,6 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         shippingMethod.prices.remove = (id) => {
             shippingMethod.prices = shippingMethod.prices.filter((price) => price.id !== id);
         };
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render one shipping price matrix', async () => {
@@ -342,6 +338,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         wrapper.vm.onAddNewPriceGroup();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
+    });
+
+    it('should set quantityStart to 0 when creating a new price group', async () => {
+        const wrapper = await createWrapper();
+        const shippingMethod = {
+            prices: new EntityCollection(),
+        };
+        wrapper.vm.$data.shippingMethod = shippingMethod;
+
+        wrapper.vm.onAddNewPriceGroup();
+        expect(shippingMethod.prices[0].quantityStart).toBe(0);
     });
 
     it('should show all rules with matching prices', async () => {

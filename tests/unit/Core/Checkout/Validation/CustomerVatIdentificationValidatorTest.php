@@ -43,25 +43,25 @@ class CustomerVatIdentificationValidatorTest extends TestCase
 
         $builder = $this->createMock(ConstraintViolationBuilderInterface::class);
         $builder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setParameter')
             ->willReturnSelf();
 
         $builder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('setCode')
             ->willReturnSelf();
 
         $builder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addViolation');
 
         $this->context
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('buildViolation')
             ->willReturn($builder);
 
-        $constraint = new CustomerVatIdentification(['countryId' => Uuid::randomHex(), 'shouldCheck' => true]);
+        $constraint = new CustomerVatIdentification(countryId: Uuid::randomHex(), shouldCheck: true);
 
         $this->validator->validate(['abc'], $constraint);
     }

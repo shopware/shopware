@@ -82,7 +82,6 @@ async function createWrapper() {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-highlight-text': true,
                     'sw-text-field': await wrapTestComponent('sw-text-field'),

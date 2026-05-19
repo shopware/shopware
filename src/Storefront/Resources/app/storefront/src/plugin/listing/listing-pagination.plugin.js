@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 
-import DomAccess from 'src/helper/dom-access.helper';
 import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import deepmerge from 'deepmerge';
 
@@ -21,7 +20,7 @@ export default class ListingPaginationPlugin extends FilterBasePlugin {
     }
 
     _initButtons() {
-        this.buttons = DomAccess.querySelectorAll(this.el,  this.options.paginationItemSelector, false);
+        this.buttons = this.el.querySelectorAll(this.options.paginationItemSelector);
 
         if (this.buttons) {
             this._registerButtonEvents();

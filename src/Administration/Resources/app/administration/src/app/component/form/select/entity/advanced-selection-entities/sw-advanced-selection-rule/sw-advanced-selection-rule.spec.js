@@ -42,9 +42,6 @@ async function createWrapper() {
                     'sw-context-button': {
                         template: '<div></div>',
                     },
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'router-link': true,
                     'sw-checkbox-field': {
                         template: '<div></div>',
@@ -58,9 +55,9 @@ async function createWrapper() {
                     'sw-context-menu': true,
                     'sw-card-filter': true,
                     'sw-entity-advanced-selection-modal-grid': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'sw-ai-copilot-badge': true,
+                    'sw-time-ago': true,
                 },
                 provide: {
                     ruleConditionDataProviderService: {
@@ -181,6 +178,9 @@ describe('components/sw-advanced-selection-rule', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 });

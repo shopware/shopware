@@ -57,7 +57,7 @@ class PropertyNativeTypeRule implements Rule
 
             $errors[] = RuleErrorBuilder::message(\sprintf('Native type for property "%s" is missing', $property->props[0]->name->name))
                 ->identifier('shopware.propertyNativeType')
-                ->line($property->getLine())
+                ->line($property->getStartLine())
                 ->build();
         }
 
@@ -98,7 +98,7 @@ class PropertyNativeTypeRule implements Rule
 
             $errors[] = RuleErrorBuilder::message(\sprintf('Native type for property "%s" is missing', $name))
                 ->identifier('shopware.propertyNativeType')
-                ->line($param->getLine())
+                ->line($param->getStartLine())
                 ->build();
         }
 

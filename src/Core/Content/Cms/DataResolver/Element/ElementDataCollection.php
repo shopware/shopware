@@ -2,23 +2,24 @@
 
 namespace Shopware\Core\Content\Cms\DataResolver\Element;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @implements \IteratorAggregate<array-key, EntitySearchResult<EntityCollection>>
+ * @implements \IteratorAggregate<array-key, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
  */
 #[Package('discovery')]
 class ElementDataCollection implements \IteratorAggregate, \Countable
 {
     /**
-     * @var array<string, EntitySearchResult<EntityCollection>>
+     * @var array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
     protected array $searchResults = [];
 
     /**
-     * @param EntitySearchResult<EntityCollection> $entitySearchResult
+     * @param EntitySearchResult<covariant EntityCollection<covariant Entity>> $entitySearchResult
      */
     public function add(string $key, EntitySearchResult $entitySearchResult): void
     {
@@ -26,7 +27,7 @@ class ElementDataCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @return EntitySearchResult<EntityCollection>|null
+     * @return EntitySearchResult<covariant EntityCollection<covariant Entity>>|null
      */
     public function get(string $key): ?EntitySearchResult
     {
@@ -34,7 +35,7 @@ class ElementDataCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @return \Traversable<string, EntitySearchResult<EntityCollection>>
+     * @return \Traversable<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
     public function getIterator(): \Traversable
     {

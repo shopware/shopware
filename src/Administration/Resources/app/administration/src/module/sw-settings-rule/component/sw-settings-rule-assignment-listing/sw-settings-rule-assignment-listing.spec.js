@@ -62,7 +62,6 @@ async function createWrapper(props = defaultProps) {
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-bulk-edit-modal': true,
-                    'sw-icon': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
                     'sw-data-grid-settings': true,

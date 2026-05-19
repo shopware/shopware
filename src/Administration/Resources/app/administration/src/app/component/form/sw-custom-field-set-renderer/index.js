@@ -1,7 +1,11 @@
+import { computed } from 'vue';
+
+import { mapInheritanceSlotPropsToMeteorProps } from 'src/core/service/utils/meteor-inheritance.utils';
+
 import template from './sw-custom-field-set-renderer.html.twig';
 import './sw-custom-field-set-renderer.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +18,7 @@ const { Criteria } = Shopware.Data;
  * @example-type code-only
  * @component-example
  */
-Component.register('sw-custom-field-set-renderer', {
+export default {
     template,
 
     inject: [
@@ -25,10 +29,10 @@ Component.register('sw-custom-field-set-renderer', {
     // Grant access to some variables to the child form render components
     provide() {
         return {
-            getEntity: this.entity,
-            getParentEntity: this.parentEntity,
-            getCustomFieldSet: this.set,
-            getCustomFieldSetVariant: this.variant,
+            getEntity: computed(() => this.entity),
+            getParentEntity: computed(() => this.parentEntity),
+            getCustomFieldSet: computed(() => this.set),
+            getCustomFieldSetVariant: computed(() => this.variant),
         };
     },
 
@@ -100,16 +104,31 @@ Component.register('sw-custom-field-set-renderer', {
     data() {
         return {
             customFields: {},
+            indirectInheritedCustomFields: null,
             loadingFields: [],
             tabWaitMaxAttempts: 10,
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
+            translatedInheritanceLoadKey: null,
         };
     },
 
     computed: {
         hasParent() {
-            return this.parentEntity ? !!this.parentEntity.id : false;
+            return this.hasExplicitParentEntity || this.usesTranslatedInheritance;
+        },
+
+        hasExplicitParentEntity() {
+            return !!this.parentEntity?.id;
+        },
+
+        usesTranslatedInheritance() {
+            return (
+                !this.hasExplicitParentEntity &&
+                !!this.entity?.id &&
+                typeof this.entity?.getEntityName === 'function' &&
+                !!this.translatedInheritanceSourceLanguageId
+            );
         },
 
         visibleCustomFieldSets() {
@@ -145,10 +164,12 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-number-field',
                 'sw-datepicker',
                 'sw-email-field',
+                'mt-email-field',
                 'sw-url-field',
                 'sw-password-field',
                 'sw-radio-field',
                 'sw-colorpicker',
+                'mt-colorpicker',
                 'sw-compact-colorpicker',
                 'sw-price-field',
                 'sw-tagged-field',
@@ -156,9 +177,35 @@ Component.register('sw-custom-field-set-renderer', {
                 'sw-field',
             ];
         },
+
+        translatedInheritanceSourceLanguageId() {
+            const language = Shopware.Store.get('context')?.api?.language;
+            const parentLanguageId = language?.parentId;
+
+            if (parentLanguageId) {
+                return parentLanguageId;
+            }
+
+            if (Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId) {
+                return null;
+            }
+
+            return Shopware.Context.api.systemLanguageId;
+        },
     },
 
     watch: {
+        translatedInheritanceSourceLanguageId() {
+            this.loadInheritedCustomFields();
+        },
+
+        sets: {
+            handler() {
+                this.loadInheritedCustomFields();
+            },
+            deep: true,
+        },
+
         'entity.customFieldSetSelectionActive': {
             handler(value) {
                 this.onChangeCustomFieldSetSelectionActive(value);
@@ -175,13 +222,13 @@ Component.register('sw-custom-field-set-renderer', {
         entity: {
             handler() {
                 this.initializeCustomFields();
+                this.loadInheritedCustomFields();
             },
             deep: true,
         },
 
         customFields: {
             handler(customFields) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFields = customFields;
             },
             deep: true,
@@ -195,6 +242,7 @@ Component.register('sw-custom-field-set-renderer', {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
+            this.loadInheritedCustomFields();
             this.onChangeCustomFieldSets();
         },
 
@@ -206,13 +254,73 @@ Component.register('sw-custom-field-set-renderer', {
             this.customFields = this.entity.customFields;
         },
 
-        getInheritedCustomField(customFieldName) {
-            const value = this.parentEntity?.translated?.customFields?.[customFieldName] ?? null;
+        hasOverriddenTranslatedCustomFields() {
+            return Object.values(this.customFields ?? {}).some((value) => value !== null && value !== undefined);
+        },
 
-            if (value) {
-                return value;
+        hasInheritedTranslatedCustomFields() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => this.isInheritedTranslatedCustomField(customField.name));
+            });
+        },
+
+        hasInheritedTranslatedCustomFieldsWithoutFallback() {
+            return this.sets.some((set) => {
+                return set.customFields?.some((customField) => {
+                    if (!this.isInheritedTranslatedCustomField(customField.name)) {
+                        return false;
+                    }
+
+                    const translatedValue = this.entity?.translated?.customFields?.[customField.name];
+
+                    return translatedValue === null || translatedValue === undefined;
+                });
+            });
+        },
+
+        resetTranslatedInheritanceState() {
+            this.indirectInheritedCustomFields = null;
+            this.translatedInheritanceLoadKey = null;
+        },
+
+        getTranslatedInheritanceLoadKey() {
+            return [
+                this.entity.getEntityName(),
+                this.entity.id,
+                this.translatedInheritanceSourceLanguageId,
+            ].join(':');
+        },
+
+        getTranslatedInheritanceContext() {
+            return {
+                ...Shopware.Context.api,
+                languageId: this.translatedInheritanceSourceLanguageId,
+            };
+        },
+
+        isInheritedTranslatedCustomField(customFieldName) {
+            return this.customFields?.[customFieldName] === null || this.customFields?.[customFieldName] === undefined;
+        },
+
+        getInheritedCustomFields(customFieldName) {
+            const parentCustomFields = this.parentEntity?.translated?.customFields;
+
+            if (parentCustomFields) {
+                return parentCustomFields?.[customFieldName];
             }
 
+            if (!this.usesTranslatedInheritance || !this.isInheritedTranslatedCustomField(customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
+            }
+
+            if (Object.hasOwn(this.indirectInheritedCustomFields ?? {}, customFieldName)) {
+                return this.indirectInheritedCustomFields?.[customFieldName];
+            }
+
+            return this.entity?.translated?.customFields?.[customFieldName];
+        },
+
+        getDefaultInheritedCustomFieldValue(customFieldName) {
             const customFieldInformation = this.getCustomFieldInformation(customFieldName);
             const customFieldType = customFieldInformation.type;
 
@@ -240,6 +348,58 @@ Component.register('sw-custom-field-set-renderer', {
                     return null;
                 }
             }
+        },
+
+        async loadInheritedCustomFields() {
+            if (!this.usesTranslatedInheritance) {
+                this.resetTranslatedInheritanceState();
+
+                return;
+            }
+
+            const loadKey = this.getTranslatedInheritanceLoadKey();
+
+            if (!this.hasOverriddenTranslatedCustomFields() && !this.hasInheritedTranslatedCustomFields()) {
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    this.resetTranslatedInheritanceState();
+                }
+
+                return;
+            }
+
+            if (this.translatedInheritanceLoadKey === loadKey) {
+                return;
+            }
+
+            this.translatedInheritanceLoadKey = loadKey;
+
+            try {
+                const inheritedEntity = await this.repositoryFactory
+                    .create(this.entity.getEntityName())
+                    .get(this.entity.id, this.getTranslatedInheritanceContext());
+
+                if (this.translatedInheritanceLoadKey !== loadKey) {
+                    return;
+                }
+
+                this.indirectInheritedCustomFields = inheritedEntity?.customFields ?? null;
+            } catch (error) {
+                console.error(error);
+
+                if (this.translatedInheritanceLoadKey === loadKey) {
+                    this.resetTranslatedInheritanceState();
+                }
+            }
+        },
+
+        getInheritedCustomField(customFieldName) {
+            const value = this.getInheritedCustomFields(customFieldName);
+
+            if (value !== null && value !== undefined) {
+                return value;
+            }
+
+            return this.getDefaultInheritedCustomFieldValue(customFieldName);
         },
 
         getCustomFieldInformation(customFieldName) {
@@ -285,22 +445,25 @@ Component.register('sw-custom-field-set-renderer', {
         supportsMapInheritance(customField) {
             const componentName = customField.config.componentName;
 
-            if (customField.config.customFieldType === 'date') {
-                return false;
-            }
-
             return this.componentsWithMapInheritanceSupport.includes(componentName);
+        },
+
+        isMeteorComponent(customField) {
+            return [
+                'bool',
+                'text',
+                'number',
+                'float',
+                'int',
+                'datetime',
+            ].includes(customField.type);
         },
 
         getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
 
-            const isMeteorComponent = [
-                // Disabled for now, enable once Inheritance is aligned on all meteor components
-                // 'bool',
-                // 'switch',
-                // 'text',
-            ].includes(customField.type);
+            const isMeteorComponent = this.isMeteorComponent(customField);
+            const inheritedCustomFieldValue = props.isInheritField ? this.getInheritedCustomField(customField.name) : null;
 
             if (customFieldClone.type === 'bool') {
                 customFieldClone.config.bordered = true;
@@ -311,18 +474,15 @@ Component.register('sw-custom-field-set-renderer', {
 
                 // Special case for meteor components
                 if (isMeteorComponent) {
-                    customFieldClone.isInheritanceField = props.isInheritField;
-                    customFieldClone.isInherited = props.isInherited;
-                    customFieldClone.inheritanceRemove = props.removeInheritance;
-                    customFieldClone.inheritanceRestore = props.restoreInheritance;
-                    customFieldClone.inheritedValue = props.currentValue;
+                    Object.assign(customFieldClone, mapInheritanceSlotPropsToMeteorProps(props, inheritedCustomFieldValue));
+                    customFieldClone.disabled = this.disabled || props.isInherited;
                 }
 
                 return customFieldClone;
             }
 
             if (customFieldClone.config.customFieldType === 'entity' && customFieldClone.config.entity === 'product') {
-                const criteria = new Criteria(1, 25);
+                const criteria = new Criteria(1, 25).setTotalCountMode(0);
                 criteria.addAssociation('options.group');
 
                 customFieldClone.config.criteria = criteria;
@@ -333,6 +493,18 @@ Component.register('sw-custom-field-set-renderer', {
             delete customFieldClone.config.helpText;
 
             return customFieldClone;
+        },
+
+        getElementEventListeners(customField, props) {
+            const isMeteorComponent = this.isMeteorComponent(customField);
+            const eventHandler = {};
+
+            if (isMeteorComponent) {
+                eventHandler['inheritance-remove'] = props.removeInheritance;
+                eventHandler['inheritance-restore'] = props.restoreInheritance;
+            }
+
+            return eventHandler;
         },
 
         getInheritWrapperBind(customField) {
@@ -378,7 +550,6 @@ Component.register('sw-custom-field-set-renderer', {
                     // replace the fully fetched set
                     this.sets.forEach((originalSet, index) => {
                         if (originalSet.id === newSet.id) {
-                            // eslint-disable-next-line vue/no-mutating-props
                             this.sets[index] = newSet;
                         }
                     });
@@ -407,7 +578,6 @@ Component.register('sw-custom-field-set-renderer', {
             if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
                 return this.resetTabs();
             }
-            // eslint-disable-next-line vue/valid-next-tick
             return this.$nextTick(() => {
                 this.tabWaitsAttempts += 1;
                 this.waitForTabComponent();
@@ -442,7 +612,6 @@ Component.register('sw-custom-field-set-renderer', {
                     this.initializeCustomFields();
                     return;
                 }
-                // eslint-disable-next-line vue/no-mutating-props
                 this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
                     return false;
                 });
@@ -460,4 +629,4 @@ Component.register('sw-custom-field-set-renderer', {
             this.$emit('change-active-selection', value);
         },
     },
-});
+};

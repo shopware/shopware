@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
@@ -51,21 +50,31 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadResults;
     let spyLoadTypeSearchResults;
     let spyLoadTypeSearchResultsByService;
+    let userActivityApiServiceMock;
 
-    async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+    async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = [], customProviders = {}) {
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
 
+        const defaultProviders = {
+            recentlySearchService: {
+                get: () => [],
+            },
+            userActivityApiService: {
+                getIncrement: jest.fn(() => Promise.resolve({})),
+                deleteActivityKeys: jest.fn(() => Promise.resolve({})),
+            },
+        };
+
         return mount(swSearchBarComponent, {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-version': true,
                     'sw-loader': true,
                     'sw-search-more-results': true,
-                    'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                    'sw-search-bar-item': await wrapTestComponent('sw-search-bar-item', { sync: true }),
                     'sw-search-preferences-modal': true,
                     'router-link': true,
                     'sw-highlight-text': true,
@@ -263,27 +272,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 },
                             };
                         },
-                    },
-                    userActivityApiService: {
-                        getIncrement: () =>
-                            Promise.resolve({
-                                'dashboard@sw.dashboard.index': {
-                                    key: 'dashboard@sw.dashboard.index',
-                                    count: '1',
-                                },
-                            }),
-                    },
-                    recentlySearchService: {
-                        get: () => {
-                            return [
-                                {
-                                    entity: 'product',
-                                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                    timestamp: 1633605899167,
-                                },
-                            ];
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
                         },
                     },
+                    recentlySearchService: customProviders.recentlySearchService || defaultProviders.recentlySearchService,
+                    userActivityApiService:
+                        customProviders.userActivityApiService || defaultProviders.userActivityApiService,
                 },
             },
             props,
@@ -292,7 +287,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
     }
 
     beforeAll(async () => {
-        swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
+        swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
@@ -314,15 +309,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
         Shopware.Store.get('session').setCurrentUser({
             id: 'id',
         });
+
+        userActivityApiServiceMock = {
+            getIncrement: jest.fn(() => Promise.resolve({})),
+            deleteActivityKeys: jest.fn(() => Promise.resolve({})),
+        };
+
         Module.getModuleRegistry().clear();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper({
-            initialSearchType: 'product',
-        });
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the tag overlay on click and not the search results', async () => {
@@ -457,6 +450,31 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.searchTerm).toBe('Foo product');
     });
 
+    it('should keep the current search term in $route watcher when the new route has no term', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+            initialSearch: 'shirt',
+        });
+
+        const route = {
+            query: {},
+        };
+
+        wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+    });
+
+    it('should update off-canvas state when admin menu toggles it', async () => {
+        wrapper = await createWrapper();
+
+        wrapper.vm.isOffCanvasShown = true;
+
+        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {
@@ -587,6 +605,62 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(moduleFilterSelect.text()).toBe('global.entities.product');
     });
 
+    it('should change search bar type when activating module filters with keyboard', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(1).trigger('keydown.enter');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    it('should keep the search term when switching module filters', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: '',
+                },
+                ...searchTypeServiceTypes,
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.setValue('shirt');
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll(
+            '.sw-search-bar__types_module-filters-container .sw-search-bar__type-item',
+        );
+        await moduleFilterItems.at(2).trigger('click');
+
+        expect(wrapper.vm.searchTerm).toBe('shirt');
+        expect(searchInput.element.value).toBe('shirt');
+    });
+
     it('should search with repository after selecting module filter', async () => {
         wrapper = await createWrapper(
             {
@@ -677,8 +751,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search for module and action with a default module', async () => {
         register('sw-order', {
             title: 'Orders',
-            color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            color: 'var(--color-purple-500)',
+            icon: 'regular-shopping-bag',
             entity: 'order',
 
             routes: {
@@ -739,7 +813,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-category', {
             title: 'Categories',
             color: '#57D9A3',
-            icon: 'default-symbol-products',
+            icon: 'regular-products',
             entity: 'category',
 
             searchMatcher: (regex, labelType, manifest) => {
@@ -867,8 +941,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -925,8 +999,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
-                color: '#A092F0',
-                icon: 'default-shopping-paper-bag',
+                color: 'var(--color-purple-500)',
+                icon: 'regular-shopping-bag',
                 entity: term,
 
                 routes: {
@@ -976,8 +1050,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.entity).toBe('module');
             expect(module.total).toBe(1);
 
-            expect(module.entities[0].icon).toBe('default-shopping-paper-bag');
-            expect(module.entities[0].color).toBe('#A092F0');
+            expect(module.entities[0].icon).toBe('regular-shopping-bag');
+            expect(module.entities[0].color).toBe('var(--color-purple-500)');
             expect(module.entities[0].label).toBe(`${term}s`);
             expect(module.entities[0].entity).toBe(term);
             expect(module.entities[0].route.name).toBe(`sw.${term}.index`);
@@ -1240,7 +1314,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         register('sw-dashboard', {
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             name: 'dashboard',
 
             routes: {
@@ -1253,7 +1327,25 @@ describe('src/app/component/structure/sw-search-bar', () => {
             },
         });
 
-        wrapper = await createWrapper();
+        const customUserActivityApiMock = {
+            getIncrement: jest.fn(() => Promise.resolve({ 'dashboard@sw.dashboard.index': { count: '1' } })),
+            deleteActivityKeys: jest.fn(() => Promise.resolve({})),
+        };
+
+        const customRecentlySearchMock = {
+            get: jest.fn(() => [
+                {
+                    entity: 'product',
+                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                    timestamp: Date.now(),
+                },
+            ]),
+        };
+
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: customUserActivityApiMock,
+            recentlySearchService: customRecentlySearchMock,
+        });
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1280,7 +1372,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const { route, ...frequently } = frequentlyUsed.entities[0];
         expect(frequently).toEqual({
             color: '#6AD6F0',
-            icon: 'default-device-dashboard',
+            icon: 'regular-dashboard',
             title: 'sw-dashboard.general.mainMenuItemGeneral',
             name: 'dashboard',
             privilege: undefined,
@@ -1298,9 +1390,48 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should always show recently searches correctly', async () => {
-        wrapper = await createWrapper({}, searchTypeServiceTypes, [
-            'product:read',
-        ]);
+        register('sw-dashboard', {
+            title: 'sw-dashboard.general.mainMenuItemGeneral',
+            color: '#6AD6F0',
+            icon: 'regular-dashboard',
+            name: 'dashboard',
+            routes: {
+                index: {
+                    name: 'sw.dashboard.index',
+                    components: {
+                        default: 'sw-dashboard-index',
+                    },
+                    path: 'index',
+                },
+            },
+        });
+
+        const customUserActivityApiMock = {
+            getIncrement: jest.fn(() => Promise.resolve({ 'dashboard@sw.dashboard.index': { count: '1' } })),
+            deleteActivityKeys: jest.fn(() => Promise.resolve({})),
+        };
+
+        const customRecentlySearchMock = {
+            get: jest.fn(() => [
+                {
+                    entity: 'product',
+                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                    timestamp: Date.now(),
+                },
+            ]),
+        };
+
+        wrapper = await createWrapper(
+            {},
+            searchTypeServiceTypes,
+            [
+                'product:read',
+            ],
+            {
+                userActivityApiService: customUserActivityApiMock,
+                recentlySearchService: customRecentlySearchMock,
+            },
+        );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 
@@ -1469,8 +1600,40 @@ describe('src/app/component/structure/sw-search-bar', () => {
     });
 
     it('should render the correct fallback icon when no entity icon exists', async () => {
-        wrapper = await createWrapper({
-            initialSearchType: 'product',
+        register('sw-dashboard', {
+            title: 'sw-dashboard.general.mainMenuItemGeneral',
+            color: '#6AD6F0',
+            icon: 'regular-dashboard',
+            name: 'dashboard',
+
+            routes: {
+                index: {
+                    components: {
+                        default: 'sw-dashboard-index',
+                    },
+                    path: 'index',
+                },
+            },
+        });
+
+        const customUserActivityApiMock = {
+            getIncrement: jest.fn(() => Promise.resolve({ 'dashboard@sw.dashboard.index': { count: '1' } })),
+            deleteActivityKeys: jest.fn(() => Promise.resolve({})),
+        };
+
+        const customRecentlySearchMock = {
+            get: jest.fn(() => [
+                {
+                    entity: 'product',
+                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                    timestamp: Date.now(),
+                },
+            ]),
+        };
+
+        wrapper = await createWrapper({ initialSearchType: 'product' }, searchTypeServiceTypes, [], {
+            userActivityApiService: customUserActivityApiMock,
+            recentlySearchService: customRecentlySearchMock,
         });
 
         // open search
@@ -1496,8 +1659,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const term = 'customer';
         register(`sw-${term}`, {
             title: `${term}s`,
-            color: '#A092F0',
-            icon: 'default-shopping-paper-bag',
+            color: 'var(--color-purple-500)',
+            icon: 'regular-shopping-bag',
             entity: term,
 
             routes: {
@@ -1529,8 +1692,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // should use correct icon
-        const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
-        expect(shoppingBagIcon.exists()).toBe(true);
+        expect(wrapper.find('.sw-search-bar__type-item .mt-icon.icon--regular-shopping-bag')).toBeDefined();
     });
 
     it('should not call the search service when the search term reaches the maximum length', async () => {
@@ -1547,5 +1709,186 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         expect(spyLoadResults).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return empty list if getIncrement fails initially', async () => {
+        userActivityApiServiceMock.getIncrement.mockRejectedValue(new Error('API Error'));
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
+
+        const result = await wrapper.vm.getFrequentlyUsedModules();
+
+        expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(1);
+        expect(result).toEqual({
+            entity: 'frequently_used',
+            total: 0,
+            entities: [],
+        });
+        expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
+    });
+
+    it('should process modules correctly if all exist and getIncrement succeeds', async () => {
+        const mockInitialResponse = {
+            'moduleA@route1': { count: 5 },
+            'moduleB@route2': { count: 3 },
+        };
+        userActivityApiServiceMock.getIncrement.mockResolvedValue(mockInitialResponse);
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
+
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
+            if (key === 'moduleA@route1') return { name: 'Module A', route: 'route1', key };
+            if (key === 'moduleB@route2') return { name: 'Module B', route: 'route2', key };
+            return {};
+        });
+
+        const result = await wrapper.vm.getFrequentlyUsedModules();
+
+        expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleA@route1');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleB@route2');
+        expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
+        expect(result.entities).toHaveLength(2);
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module A', route: 'route1', key: 'moduleA@route1' },
+                { name: 'Module B', route: 'route2', key: 'moduleB@route2' },
+            ]),
+        );
+    });
+
+    it('should delete non-existent keys, re-fetch, and process if delete succeeds', async () => {
+        const mockInitialResponse = {
+            'moduleValid@route1': { count: 5 },
+            'moduleInvalid@routeNonExistent': { count: 3 },
+            'moduleValid2@route2': { count: 2 },
+        };
+        const mockFreshResponse = {
+            'moduleValid@route1': { count: 6 },
+            'moduleValid2@route2': { count: 3 },
+            'newModule@routeNew': { count: 1 },
+        };
+
+        userActivityApiServiceMock.getIncrement
+            .mockResolvedValueOnce(mockInitialResponse)
+            .mockResolvedValueOnce(mockFreshResponse);
+        userActivityApiServiceMock.deleteActivityKeys.mockResolvedValue({});
+
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
+
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
+            if (key === 'moduleValid@route1') return { name: 'Module Valid', route: 'route1', key };
+            if (key === 'moduleValid2@route2') return { name: 'Module Valid 2', route: 'route2', key };
+            if (key === 'newModule@routeNew') return { name: 'New Module', route: 'routeNew', key };
+            if (key === 'moduleInvalid@routeNonExistent') return {};
+            return { name: `Fallback for ${key}`, key };
+        });
+
+        const result = await wrapper.vm.getFrequentlyUsedModules();
+
+        expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(2);
+        expect(userActivityApiServiceMock.deleteActivityKeys).toHaveBeenCalledTimes(1);
+        expect(userActivityApiServiceMock.deleteActivityKeys).toHaveBeenCalledWith({
+            keys: ['moduleInvalid@routeNonExistent'],
+            cluster: wrapper.vm.currentUser.id,
+        });
+        expect(result.entities).toHaveLength(3);
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+                { name: 'New Module', route: 'routeNew', key: 'newModule@routeNew' },
+            ]),
+        );
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid2@route2');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('newModule@routeNew');
+    });
+
+    it('should fallback to initially valid modules if deleteActivityKeys fails', async () => {
+        const mockInitialResponse = {
+            'moduleValid@route1': { count: 5 },
+            'moduleInvalid@routeNonExistent': { count: 3 },
+            'moduleValid2@route2': { count: 2 },
+        };
+
+        userActivityApiServiceMock.getIncrement.mockResolvedValueOnce(mockInitialResponse);
+        userActivityApiServiceMock.deleteActivityKeys.mockRejectedValue(new Error('Deletion API Error'));
+
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
+
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
+            if (key === 'moduleValid@route1') return { name: 'Module Valid', route: 'route1', key };
+            if (key === 'moduleValid2@route2') return { name: 'Module Valid 2', route: 'route2', key };
+            if (key === 'moduleInvalid@routeNonExistent') return {};
+            return {};
+        });
+
+        const result = await wrapper.vm.getFrequentlyUsedModules();
+
+        expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(1);
+        expect(userActivityApiServiceMock.deleteActivityKeys).toHaveBeenCalledTimes(1);
+        expect(userActivityApiServiceMock.deleteActivityKeys).toHaveBeenCalledWith({
+            keys: ['moduleInvalid@routeNonExistent'],
+            cluster: wrapper.vm.currentUser.id,
+        });
+        expect(result.entities).toHaveLength(2);
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+            ]),
+        );
+    });
+
+    it('should NOT delete non-existent keys if checkAndDelete flag is false', async () => {
+        const mockInitialResponse = {
+            'moduleValid@route1': { count: 5 },
+            'moduleInvalid@routeNonExistent': { count: 3 },
+            'moduleValid2@route2': { count: 2 },
+        };
+
+        userActivityApiServiceMock.getIncrement.mockResolvedValueOnce(mockInitialResponse);
+        userActivityApiServiceMock.deleteActivityKeys.mockResolvedValue({});
+
+        wrapper = await createWrapper({}, searchTypeServiceTypes, [], {
+            userActivityApiService: userActivityApiServiceMock,
+        });
+
+        wrapper.vm.getInfoModuleFrequentlyUsed = jest.fn((key) => {
+            if (key === 'moduleValid@route1') {
+                return { name: 'Module Valid', route: 'route1', key };
+            }
+
+            if (key === 'moduleValid2@route2') {
+                return { name: 'Module Valid 2', route: 'route2', key };
+            }
+
+            return {};
+        });
+
+        const result = await wrapper.vm.getFrequentlyUsedModules(false);
+
+        expect(userActivityApiServiceMock.getIncrement).toHaveBeenCalledTimes(1);
+        expect(userActivityApiServiceMock.deleteActivityKeys).not.toHaveBeenCalled();
+
+        expect(result.entities).toHaveLength(2);
+        expect(result.entities).toEqual(
+            expect.arrayContaining([
+                { name: 'Module Valid', route: 'route1', key: 'moduleValid@route1' },
+                { name: 'Module Valid 2', route: 'route2', key: 'moduleValid2@route2' },
+            ]),
+        );
+
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid@route1');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleInvalid@routeNonExistent');
+        expect(wrapper.vm.getInfoModuleFrequentlyUsed).toHaveBeenCalledWith('moduleValid2@route2');
     });
 });

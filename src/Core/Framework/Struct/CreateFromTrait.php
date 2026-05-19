@@ -17,6 +17,7 @@ trait CreateFromTrait
         }
 
         foreach (get_object_vars($object) as $property => $value) {
+            // @phpstan-ignore property.dynamicName (We have to allow dynamic properties here to copy all variables)
             $self->$property = $value;
         }
 

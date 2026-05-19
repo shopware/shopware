@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1639139581AddPriorityToPromotions extends MigrationStep
@@ -21,10 +20,7 @@ class Migration1639139581AddPriorityToPromotions extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM promotion'), 'Field');
-
-        // Column already exist?
-        if (\in_array('priority', $columns, true)) {
+        if (TableHelper::columnExists($connection, 'promotion', 'priority')) {
             return;
         }
 
@@ -33,9 +29,5 @@ ALTER TABLE `promotion` ADD COLUMN `priority` INT(11) NOT NULL DEFAULT 1 AFTER `
 SQL;
 
         $connection->executeStatement($sql);
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

@@ -54,7 +54,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                         'sw-field-error': true,
                         'sw-highlight-text': true,
-                        'sw-icon': true,
                         'sw-label': true,
                         'sw-loader': true,
                         'sw-modal': true,
@@ -94,10 +93,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render data correctly at Default Sales Channel card when there is no default sales channel data', async () => {

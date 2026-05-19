@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Update\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
 use Shopware\Core\Framework\Update\Checkers\WriteableCheck;
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivateExtensionsStep;
-use Shopware\Core\Kernel;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +28,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * @internal
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class UpdateController extends AbstractController
 {
@@ -49,7 +50,12 @@ class UpdateController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/update/check', name: 'api.custom.updateapi.check', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/update/check',
+        name: 'api.custom.updateapi.check',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
+        methods: [Request::METHOD_GET]
+    )]
     public function updateApiCheck(): JsonResponse
     {
         if ($this->disableUpdateCheck) {
@@ -65,7 +71,12 @@ class UpdateController extends AbstractController
         return new JsonResponse($updates);
     }
 
-    #[Route(path: '/api/_action/update/check-requirements', name: 'api.custom.update.check_requirements', defaults: ['_acl' => ['system:core:update']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/update/check-requirements',
+        name: 'api.custom.update.check_requirements',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update']],
+        methods: [Request::METHOD_GET]
+    )]
     public function checkRequirements(): JsonResponse
     {
         return new JsonResponse([
@@ -74,7 +85,12 @@ class UpdateController extends AbstractController
         ]);
     }
 
-    #[Route('/api/_action/update/extension-compatibility', name: 'api.custom.updateapi.extension_compatibility', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    #[Route(
+        '/api/_action/update/extension-compatibility',
+        name: 'api.custom.updateapi.extension_compatibility',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update', 'system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function extensionCompatibility(Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates();
@@ -82,7 +98,12 @@ class UpdateController extends AbstractController
         return new JsonResponse($this->extensionCompatibility->getExtensionCompatibilities($update, $context));
     }
 
-    #[Route(path: '/api/_action/update/download-recovery', name: 'api.custom.updateapi.download-recovery', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/update/download-recovery',
+        name: 'api.custom.updateapi.download-recovery',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update', 'system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function downloadLatestRecovery(): Response
     {
         $this->apiClient->downloadRecoveryTool();
@@ -90,7 +111,12 @@ class UpdateController extends AbstractController
         return new NoContentResponse();
     }
 
-    #[Route(path: '/api/_action/update/deactivate-plugins', name: 'api.custom.updateapi.deactivate-plugins', defaults: ['_acl' => ['system:core:update', 'system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/update/deactivate-plugins',
+        name: 'api.custom.updateapi.deactivate-plugins',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:core:update', 'system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
         $update = $this->apiClient->checkForUpdates();
@@ -138,7 +164,6 @@ class UpdateController extends AbstractController
 
     private function rebootKernelWithoutPlugins(): ContainerInterface
     {
-        /** @var Kernel $kernel */
         $kernel = $this->container->get('kernel');
 
         $classLoad = $kernel->getPluginLoader()->getClassLoader();

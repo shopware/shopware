@@ -50,9 +50,6 @@ async function createWrapper() {
                 'sw-product-media-form': true,
                 'sw-entity-single-select': true,
                 'sw-help-text': true,
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
                 'sw-text-field': true,
                 'sw-select-field': true,
                 'router-link': true,
@@ -188,12 +185,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
     });
 
     it('should not show files card when product states not includes is-download', async () => {
@@ -563,7 +558,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media).toHaveLength(0);
 
-        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .sw-icon');
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .mt-icon');
         expect(inheritanceSwitch.exists()).toBe(true);
 
         await inheritanceSwitch.trigger('click');
@@ -613,7 +608,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(wrapper.vm.product.media.first()).toEqual(media1);
 
-        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .sw-icon');
+        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .mt-icon');
         expect(notInheritanceSwitch.exists()).toBe(true);
 
         await notInheritanceSwitch.trigger('click');

@@ -1,6 +1,6 @@
 import template from './sw-form-field-renderer.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
 /**
  * @sw-package framework
@@ -67,7 +67,7 @@ const { types } = Shopware.Utils;
  *     }">
  * </sw-form-field-renderer>
  */
-Component.register('sw-form-field-renderer', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -94,7 +94,6 @@ Component.register('sw-form-field-renderer', {
             required: false,
             default: null,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -110,7 +109,17 @@ Component.register('sw-form-field-renderer', {
             currency: { id: Shopware.Context.app.systemCurrencyId, factor: 1 },
             currentComponentName: '',
             swFieldConfig: {},
-            currentValue: this.value,
+            currentValue:
+                this.type === 'price' && !this.value && !Array.isArray(this.value)
+                    ? [
+                          {
+                              currencyId: Shopware.Context.app.systemCurrencyId,
+                              gross: null,
+                              net: null,
+                              linked: true,
+                          },
+                      ]
+                    : this.value,
         };
     },
 
@@ -210,6 +219,7 @@ Component.register('sw-form-field-renderer', {
                 [
                     'sw-single-select',
                     'sw-multi-select',
+                    'mt-select',
                 ].includes(this.componentName)
             ) {
                 if (!this.config.hasOwnProperty('options')) {
@@ -241,31 +251,31 @@ Component.register('sw-form-field-renderer', {
         },
 
         componentPropName() {
-            switch (this.componentName) {
-                case 'mt-textarea':
-                    return 'modelValue';
-                case 'mt-switch':
-                    return 'modelValue';
-                default:
-                    return 'value';
+            if (this.componentName.startsWith('mt-')) {
+                return 'modelValue';
             }
+
+            return 'value';
         },
     },
 
     watch: {
-        currentValue(value) {
-            if (
-                Array.isArray(value) &&
-                Array.isArray(this.value) &&
-                value.length === this.value.length &&
-                value.every((val, index) => val === this.value[index])
-            ) {
-                return;
-            }
+        currentValue: {
+            handler(value) {
+                if (
+                    Array.isArray(value) &&
+                    Array.isArray(this.value) &&
+                    value.length === this.value.length &&
+                    value.every((val, index) => val === this.value[index])
+                ) {
+                    return;
+                }
 
-            if (value !== this.value) {
-                this.$emit('update:value', value);
-            }
+                if (value !== this.value) {
+                    this.$emit('update:value', value);
+                }
+            },
+            deep: true,
         },
         value() {
             this.currentValue = this.value;
@@ -279,17 +289,6 @@ Component.register('sw-form-field-renderer', {
     methods: {
         createdComponent() {
             this.fetchSystemCurrency();
-
-            if (this.type === 'price' && !Array.isArray(this.currentValue)) {
-                this.currentValue = [
-                    {
-                        currencyId: Shopware.Context.app.systemCurrencyId,
-                        gross: null,
-                        net: null,
-                        linked: true,
-                    },
-                ];
-            }
         },
 
         emitUpdate(data) {
@@ -323,33 +322,33 @@ Component.register('sw-form-field-renderer', {
             const type = customType ?? this.type;
 
             const components = {
-                bool: 'sw-switch-field-deprecated',
-                switch: 'sw-switch-field-deprecated',
-                textarea: 'sw-textarea-field-deprecated',
-                checkbox: 'sw-checkbox-field-deprecated',
-                colorpicker: 'sw-colorpicker-deprecated',
+                bool: 'mt-switch',
+                switch: 'mt-switch',
+                textarea: 'mt-textarea',
+                checkbox: 'mt-checkbox',
+                colorpicker: 'mt-colorpicker',
                 compactColorpicker: 'sw-compact-colorpicker',
-                date: 'sw-datepicker-deprecated',
-                datetime: 'sw-datepicker-deprecated',
-                time: 'sw-datepicker-deprecated',
-                email: 'sw-email-field-deprecated',
-                float: 'sw-number-field-deprecated',
-                int: 'sw-number-field-deprecated',
-                number: 'sw-number-field-deprecated',
+                date: 'mt-datepicker',
+                datetime: 'mt-datepicker',
+                time: 'mt-datepicker',
+                email: 'mt-email-field',
+                float: 'mt-number-field',
+                int: 'mt-number-field',
+                number: 'mt-number-field',
                 'multi-entity-id-select': 'sw-entity-multi-id-select',
-                'multi-select': 'sw-multi-select',
-                password: 'sw-password-field-deprecated',
+                'multi-select': 'mt-select',
+                password: 'mt-password-field',
                 price: 'sw-price-field',
                 radio: 'sw-radio-field',
                 'single-entity-id-select': 'sw-entity-single-select',
-                'single-select': 'sw-single-select',
-                string: 'sw-text-field-deprecated',
-                text: 'sw-text-field-deprecated',
+                'single-select': 'mt-select',
+                string: 'mt-text-field',
+                text: 'mt-text-field',
                 tagged: 'sw-tagged-field',
-                url: 'sw-url-field-deprecated',
+                url: 'mt-url-field',
             };
 
-            return components[type] ?? 'sw-text-field-deprecated';
+            return components[type] ?? 'mt-text-field';
         },
 
         createRepository(entity) {
@@ -374,4 +373,4 @@ Component.register('sw-form-field-renderer', {
             return this.$slots;
         },
     },
-});
+};

@@ -65,8 +65,7 @@ async function createWrapper() {
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
                     },
-
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
@@ -77,7 +76,7 @@ async function createWrapper() {
                     'sw-container': true,
                     'sw-language-info': true,
                     'sw-help-text': true,
-                    'sw-multi-select': true,
+                    'sw-entity-multi-select': true,
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],

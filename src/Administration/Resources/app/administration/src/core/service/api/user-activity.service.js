@@ -48,6 +48,25 @@ class UserActivityApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * @param additionalParams
+     * @param additionalHeaders
+     * @returns {Promise<T>}
+     */
+    deleteActivityKeys(additionalParams = {}, additionalHeaders = {}) {
+        const params = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .delete('/_action/delete-increment/user_activity', {
+                params,
+                headers,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

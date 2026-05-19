@@ -121,8 +121,8 @@ class PriceFacade
 
     /**
      * `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
-     * The provided price is interpreted as a unit price and will be added to the current unit price. The total price
-     * is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+     * The provided price is interpreted as a unit price and will be added to the current unit price.
+     * The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
      *
      * @example pricing-cases/product-pricing.twig 14 5 Plus a static defined price to the existing calculated price
      *
@@ -143,8 +143,8 @@ class PriceFacade
 
     /**
      * `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
-     * The provided price is interpreted as a unit price and will reduce to the current unit price. The total price
-     * is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+     * The provided price is interpreted as a unit price and will reduce to the current unit price.
+     * The total price is calculated afterwards considering quantity, tax rule and cash rounding configurations.
      *
      * @example pricing-cases/product-pricing.twig 22 5 Minus a static defined price to the existing calculated price
      *

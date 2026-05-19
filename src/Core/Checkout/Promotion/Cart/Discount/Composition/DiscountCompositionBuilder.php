@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 class DiscountCompositionBuilder
 {
     /**
-     * @param DiscountCompositionItem[] $items
+     * @param list<DiscountCompositionItem> $items
+     *
+     * @return array<array{id: string, quantity: int, discount: float}>
      */
     public function buildCompositionPayload(array $items): array
     {
@@ -30,12 +32,15 @@ class DiscountCompositionBuilder
      * If our discount price is greater than our actual cart price, we have to
      * adjust the calculated discount price.
      * Due to that, we also have to adjust our composition data to match the new target price.
+     *
+     * @param list<DiscountCompositionItem> $targetItems
+     *
+     * @return list<DiscountCompositionItem>
      */
     public function adjustCompositionItemValues(CalculatedPrice $targetPrice, array $targetItems): array
     {
         $compositionItems = [];
 
-        /** @var DiscountCompositionItem $item */
         foreach ($targetItems as $item) {
             $itemTotal = $item->getDiscountValue();
 
@@ -59,12 +64,15 @@ class DiscountCompositionBuilder
      * Iterates through all composition items and removes redundant
      * occurrences by merging items into single items and
      * aggregating their values.
+     *
+     * @param list<DiscountCompositionItem> $items
+     *
+     * @return list<DiscountCompositionItem>
      */
     public function aggregateCompositionItems(array $items): array
     {
         $aggregated = [];
 
-        /** @var DiscountCompositionItem $item */
         foreach ($items as $item) {
             if (!\array_key_exists($item->getId(), $aggregated)) {
                 $aggregated[$item->getId()] = $item;

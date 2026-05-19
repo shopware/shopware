@@ -127,7 +127,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     'sw-select-field': true,
                     'sw-internal-link': true,
                     'router-link': true,
-                    'sw-icon': true,
                     'sw-maintain-currencies-modal': true,
                 },
                 // eslint-enable max-len
@@ -138,7 +137,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     /** @type Wrapper */
     let wrapper;
 
-    // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -192,7 +190,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     });
 
-    // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -219,7 +216,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(wrapper.vm.prices.price[0].regulationPrice.gross).toBe(100);
     });
 
-    // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button (using empty purchasePrices)', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -247,7 +243,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     });
 
-    // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on when user clicks on restore inheritance button', async () => {
         wrapper = await createWrapper({
             price: [

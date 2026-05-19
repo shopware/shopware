@@ -24,7 +24,7 @@ class EntityIndexingSubscriberTest extends TestCase
     public function testRefresh(): void
     {
         $registry = $this->createMock(EntityIndexerRegistry::class);
-        $registry->expects(static::once())->method('refresh');
+        $registry->expects($this->once())->method('refresh');
 
         $subscriber = new EntityIndexingSubscriber($registry);
         $subscriber->refreshIndex(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []));

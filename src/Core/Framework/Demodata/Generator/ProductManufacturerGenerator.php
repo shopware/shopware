@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -40,6 +41,7 @@ class ProductManufacturerGenerator implements DemodataGeneratorInterface
                 'id' => Uuid::randomHex(),
                 'name' => $context->getFaker()->format('company'),
                 'link' => $context->getFaker()->format('url'),
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
             ];
         }
 

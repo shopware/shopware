@@ -43,7 +43,7 @@ class AdminModuleGeneratorTest extends TestCase
         (new AdminModuleGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(AdminModuleGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(AdminModuleGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator
@@ -108,8 +108,8 @@ class AdminModuleGeneratorTest extends TestCase
             'expected' => [
                 'src/Resources/app/administration/src/module/swag-example/index.js',
                 'src/Resources/app/administration/src/main.js',
-                'src/Resources/app/administration/src/snippet/en-GB.json',
-                'src/Resources/app/administration/src/snippet/de-DE.json',
+                'src/Resources/app/administration/src/snippet/en.json',
+                'src/Resources/app/administration/src/snippet/de.json',
             ],
         ];
     }

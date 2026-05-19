@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-dynamic-url-field';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';
 
@@ -30,10 +31,11 @@ const linkDataProvider = [
     },
     {
         URL: 'mailto:test@shopware.com',
-        value: 'test@shopware.com',
+        modelValue: 'test@shopware.com',
         type: 'email',
         prefix: 'mailto:',
-        selector: '.sw-email-field',
+        selector: '.mt-email-field',
+        inputSelector: '.mt-email-field input',
         label: 'sw-text-editor-toolbar.link.linkTo',
         placeholder: 'sw-text-editor-toolbar.link.placeholderEmail',
     },
@@ -205,9 +207,9 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
         expect(associations[0].criteria.associations).toHaveLength(1);
         expect(associations[0].criteria.associations[0].association).toBe('group');
 
-        expect(props.criteria.filters).toStrictEqual(
-            expect.objectContaining([
-                {
+        expect(props.criteria.filters).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
                     operator: 'OR',
                     queries: [
                         {
@@ -222,7 +224,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
                         },
                     ],
                     type: 'multi',
-                },
+                }),
             ]),
         );
 
@@ -252,8 +254,7 @@ describe('components/form/sw-text-editor/sw-dynamic-url-field', () => {
 
         expect(wrapper.vm.linkCategory).toBe('link');
 
-        const options = wrapper.findComponent('select').findAll('option');
-        await options.at(3).setSelected();
+        await selectMtSelectOptionByText(wrapper, 'sw-text-editor-toolbar.link.labelMedia');
 
         expect(wrapper.vm.linkCategory).toBe('media');
 

@@ -109,9 +109,6 @@ async function createWrapper(privileges = []) {
         global: {
             plugins: [pinia],
             stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon"></div>',
-                },
                 'sw-flow-sequence': await wrapTestComponent('sw-flow-sequence'),
                 'sw-flow-sequence-selector': true,
                 'sw-flow-sequence-action': true,
@@ -289,7 +286,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         ]);
         await flushPromises();
 
-        const addButton = wrapper.find('.sw-flow-detail-flow__position-plus .sw-icon');
+        const addButton = wrapper.find('.sw-flow-detail-flow__position-plus .mt-icon');
         await addButton.trigger('click');
 
         const sequences = wrapper.findAll('.sw-flow-sequence');

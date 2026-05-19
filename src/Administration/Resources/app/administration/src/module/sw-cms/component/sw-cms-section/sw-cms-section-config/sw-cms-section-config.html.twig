@@ -14,11 +14,11 @@
             @click="onSectionDuplicate(section)"
             @keydown.enter="onSectionDuplicate(section)"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-duplicate"
                 size="16"
             />
-            {{ $tc('global.default.duplicate') }}
+            {{ $t('global.default.duplicate') }}
         </li>
         {% endblock %}
 
@@ -30,11 +30,11 @@
             @click="onSectionDelete(section.id)"
             @keydown.enter="onSectionDelete(section.id)"
         >
-            <sw-icon
+            <mt-icon
                 name="regular-trash"
                 size="16"
             />
-            {{ $tc('sw-cms.general.buttonDelete') }}
+            {{ $t('global.default.delete') }}
         </li>
         {% endblock %}
     </ul>
@@ -47,8 +47,8 @@
 
         <mt-text-field
             v-model="section.name"
-            :label="$tc('sw-cms.detail.label.sectionNameField')"
-            :help-text="$tc('sw-cms.detail.tooltip.sectionNameField')"
+            :label="$t('sw-cms.detail.label.sectionNameField')"
+            :help-text="$t('sw-cms.detail.tooltip.sectionNameField')"
         />
         {% endblock %}
 
@@ -56,45 +56,33 @@
 
         <mt-text-field
             v-model="section.cssClass"
-            :label="$tc('sw-cms.detail.label.cssClassField')"
-            :help-text="$tc('sw-cms.detail.helpText.cssClassField')"
+            :label="$t('sw-cms.detail.label.cssClassField')"
+            :help-text="$t('sw-cms.detail.helpText.cssClassField')"
         />
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_sizing_field %}
-        <sw-select-field
-            v-model:value="section.sizingMode"
-            :label="$tc('sw-cms.detail.label.sizingField')"
-        >
-            <option value="boxed">
-                {{ $tc('sw-cms.detail.label.sizingOptionBoxed') }}
-            </option>
-            <option value="full_width">
-                {{ $tc('sw-cms.detail.label.sizingOptionFull') }}
-            </option>
-        </sw-select-field>
+        <mt-select
+            v-model="section.sizingMode"
+            :label="$t('sw-cms.detail.label.sizingField')"
+            :options="sizingModeOptions"
+        />
         {% endblock %}
 
         {% block sw_cms_sidebar_section_config_sidebar_mobile %}
-        <sw-select-field
+        <mt-select
             v-if="section.type === 'sidebar'"
-            v-model:value="section.mobileBehavior"
-            :label="$tc('sw-cms.detail.sidebar.mobile')"
-        >
-            <option value="hidden">
-                {{ $tc('sw-cms.detail.sidebar.mobileOptionHidden') }}
-            </option>
-            <option value="wrap">
-                {{ $tc('sw-cms.detail.sidebar.mobileOptionWrap') }}
-            </option>
-        </sw-select-field>
+            v-model="section.mobileBehavior"
+            :label="$t('sw-cms.detail.sidebar.mobile')"
+            :options="mobileBehaviorOptions"
+        />
         {% endblock %}
 
         {% block sw_cms_section_config_background_color_field %}
-        <sw-colorpicker
-            v-model:value="section.backgroundColor"
-            :label="$tc('sw-cms.detail.label.backgroundColorLabel')"
-            :placeholder="$tc('sw-cms.detail.label.backgroundColorField')"
+        <mt-colorpicker
+            v-model="section.backgroundColor"
+            :label="$t('sw-cms.detail.label.backgroundColorLabel')"
+            :placeholder="$t('sw-cms.detail.label.backgroundColorField')"
         />
         {% endblock %}
 
@@ -102,7 +90,7 @@
         <sw-media-compact-upload-v2
             :source="section && section.backgroundMedia && section.backgroundMedia.id ? section.backgroundMedia : null"
             :upload-tag="uploadTag"
-            :label="$tc('sw-cms.detail.label.backgroundMediaLabel')"
+            :label="$t('sw-cms.detail.label.backgroundMediaLabel')"
             :default-folder="cmsPageState.pageEntityName"
             :allow-multi-select="false"
             @media-upload-remove-image="removeMedia"
@@ -115,21 +103,12 @@
         />
 
         {% block sw_cms_section_config_background_image_position_field %}
-        <sw-select-field
-            v-model:value="section.backgroundMediaMode"
-            :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
+        <mt-select
+            v-model="section.backgroundMediaMode"
+            :label="$t('sw-cms.detail.label.backgroundMediaMode')"
             :disabled="!section.backgroundMediaId"
-        >
-            <option value="auto">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}
-            </option>
-            <option value="contain">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}
-            </option>
-            <option value="cover">
-                {{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}
-            </option>
-        </sw-select-field>
+            :options="backgroundMediaModeOptions"
+        />
         {% endblock %}
         {% endblock %}
     </div>

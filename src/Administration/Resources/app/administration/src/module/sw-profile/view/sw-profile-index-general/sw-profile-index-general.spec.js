@@ -3,20 +3,13 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSso = false) {
     return mount(await wrapTestComponent('sw-profile-index-general', { sync: true }), {
         global: {
             stubs: {
                 'sw-container': await wrapTestComponent('sw-container'),
                 'sw-text-field': true,
                 'sw-select-field': true,
-                'sw-password-field': {
-                    template:
-                        '<input class="sw-password-field" :value="value" @input="$emit(\'update:value\', $event.target.value)">',
-                    props: {
-                        value: '',
-                    },
-                },
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -57,7 +50,6 @@ async function createWrapper(privileges = []) {
                 'sw-ai-copilot-badge': true,
                 'sw-context-button': true,
                 'sw-loader': true,
-                'sw-icon': true,
                 'sw-inheritance-switch': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
@@ -70,6 +62,11 @@ async function createWrapper(privileges = []) {
                         }
 
                         return privileges.includes(key);
+                    },
+                },
+                ssoSettingsService: {
+                    isSso: () => {
+                        return Promise.resolve({ isSso: isSso });
                     },
                 },
             },
@@ -103,7 +100,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
-        const changeNewPasswordField = wrapper.find('.sw-password-field:nth-of-type(1)');
+        const changeNewPasswordField = wrapper.findByLabel('sw-profile.index.labelNewPassword');
         await changeNewPasswordField.setValue('Shopware');
         await changeNewPasswordField.trigger('input');
         await flushPromises();
@@ -115,7 +112,7 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
-        const changeNewPasswordConfirmField = wrapper.find('.sw-password-field:nth-of-type(2)');
+        const changeNewPasswordConfirmField = wrapper.findByLabel('sw-profile.index.labelNewPasswordConfirm');
         await changeNewPasswordConfirmField.setValue('Shopware');
         await changeNewPasswordConfirmField.trigger('input');
         await flushPromises();
@@ -170,5 +167,16 @@ describe('src/module/sw-profile/view/sw-profile-index-general', () => {
         const resultNames = results.map((result) => result.text());
 
         expect(resultNames).toContain('UTC');
+    });
+
+    it('should hiding password fields', async () => {
+        const wrapper = await createWrapper(['user.update_profile'], true);
+        await flushPromises();
+
+        const changeNewPasswordField = wrapper.findByLabel('sw-profile.index.labelNewPassword');
+        const changeNewPasswordConfirmField = wrapper.findByLabel('sw-profile.index.labelNewPasswordConfirm');
+
+        expect(changeNewPasswordField).toBeNull();
+        expect(changeNewPasswordConfirmField).toBeNull();
     });
 });

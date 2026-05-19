@@ -1,9 +1,10 @@
 /**
  * @sw-package framework
  */
-
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
-import { get, debounce, cloneDeepWith } from 'lodash';
+import get from 'lodash-es/get';
+import debounce from 'lodash-es/debounce';
+import cloneDeepWith from 'lodash-es/cloneDeepWith';
 import type { App } from 'vue';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges/missing-privileges-error';
@@ -24,6 +25,7 @@ interface publishOptions {
     scope: scopeInterface;
     deprecated?: boolean;
     deprecationMessage?: string;
+    showDoubleRegistrationError?: boolean;
 }
 
 type dataset = {
@@ -117,7 +119,6 @@ export function deepCloneWithEntity(data: any): any {
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 handleGet((data, additionalOptions) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const origin = additionalOptions?._event_?.origin;
     const registeredDataSet = publishedDataSets.find((s) => s.id === data.id);
 
@@ -136,11 +137,9 @@ handleGet((data, additionalOptions) => {
 
         const debugArgs = [
             'CORE',
-            // eslint-disable-next-line max-len
             `The extension "${extension.name}" uses a deprecated data set "${data.id}". ${registeredDataSet.deprecationMessage}`,
         ];
-        // @ts-expect-error
-        if (process.env !== 'prod') {
+        if (process.env.NODE_ENV !== 'production') {
             Shopware.Utils.debug.error(...debugArgs);
         } else {
             Shopware.Utils.debug.warn(...debugArgs);
@@ -189,7 +188,14 @@ function parsePath(path: string): ParsedPath | null {
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export function publishData({ id, path, scope, deprecated, deprecationMessage }: publishOptions): () => void {
+export function publishData({
+    id,
+    path,
+    scope,
+    deprecated,
+    deprecationMessage,
+    showDoubleRegistrationError = true,
+}: publishOptions): () => void {
     if (unregisterPublishDataIds.includes(id)) {
         unregisterPublishDataIds = unregisterPublishDataIds.filter((value) => value !== id);
     }
@@ -197,14 +203,15 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
 
     // Dataset registered from different scope? Prevent update.
     if (registeredDataSet && registeredDataSet.scope !== scope?.$?.uid) {
-        console.error(`The dataset id "${id}" you tried to publish is already registered.`);
+        if (showDoubleRegistrationError) {
+            console.error(`The dataset id "${id}" you tried to publish is already registered.`);
+        }
 
         return () => {};
     }
 
     // Dataset registered from same scope? Update.
     if (registeredDataSet && registeredDataSet.scope === scope?.$?.uid) {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         register({ id: id, data: get(scope, path) }).catch(() => {});
 
         return () => {};
@@ -260,7 +267,7 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
                     return;
                 }
 
-                // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment)[parsedPath.lastSegment] =
                     transferObject[property];
             });
@@ -320,7 +327,6 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const clonedValue = deepCloneWithEntity(value);
 
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             register({ id: id, data: clonedValue }).catch(() => {});
 
             const dataSet = publishedDataSets.find((set) => set.id === id);
@@ -353,7 +359,6 @@ export function publishData({ id, path, scope, deprecated, deprecationMessage }:
         unwatch();
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     register({ id: id, data: get(scope, path) }).catch(() => {});
 
     // Return method to manually deregister the dataset

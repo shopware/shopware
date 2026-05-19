@@ -50,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -121,15 +122,24 @@ class EntityAggregator implements EntityAggregatorInterface
         }
     }
 
+    private function validateAggregation(Aggregation $aggregation): void
+    {
+        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
+            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
+        }
+
+        if ($aggregation instanceof BucketAggregation && $aggregation->getAggregation()) {
+            $this->validateAggregation($aggregation->getAggregation());
+        }
+    }
+
     private function fetchAggregation(
         Aggregation $aggregation,
         EntityDefinition $definition,
         Criteria $criteria,
         Context $context
     ): AggregationResult {
-        if (str_contains($aggregation->getName(), '?') || str_contains($aggregation->getName(), ':')) {
-            throw DataAbstractionLayerException::invalidAggregationName($aggregation->getName());
-        }
+        $this->validateAggregation($aggregation);
 
         $clone = clone $criteria;
         $clone->resetAggregations();
@@ -167,12 +177,13 @@ class EntityAggregator implements EntityAggregatorInterface
 
         $table = $definition->getEntityName();
 
-        if (\count($scoreCriteria->getQueries()) > 0) {
+        if ($scoreCriteria->getQueries() !== []) {
             $escapedTable = EntityDefinitionQueryHelper::escape($table);
             $scoreQuery = new QueryBuilder($this->connection);
 
             $scoreQuery = $this->criteriaQueryBuilder->build($scoreQuery, $definition, $scoreCriteria, $context, $paths);
-            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->map(fn (StorageAware $f) => $f->getStorageName());
+            // @phpstan-ignore argument.type (Phpstan can't correctly infer the type in the map function, as the StorageAware is an interface not directly implemented by the Field class)
+            $pks = $definition->getFields()->filterByFlag(PrimaryKey::class)->filterInstance(StorageAware::class)->map(static fn (StorageAware $f) => $f->getStorageName());
 
             $join = '';
             foreach ($pks as $pk) {
@@ -216,7 +227,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $aggregation->getField(), false);
 
-        if (\count($fields) === 0) {
+        if ($fields === []) {
             return null;
         }
 
@@ -226,7 +237,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $found = false;
 
         foreach ($fields as $field) {
-            if (!($field instanceof AssociationField)) {
+            if (!$field instanceof AssociationField) {
                 break;
             }
 
@@ -273,7 +284,7 @@ class EntityAggregator implements EntityAggregatorInterface
         EntityDefinition $definition,
         Context $context
     ): void {
-        if (!empty($aggregation->getFilter())) {
+        if ($aggregation->getFilter() !== []) {
             $this->criteriaQueryBuilder->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
         }
 
@@ -291,7 +302,8 @@ class EntityAggregator implements EntityAggregatorInterface
     ): void {
         $accessor = $this->queryHelper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        if ($this->timeZoneSupportEnabled && $aggregation->getTimeZone()) {
+        // @deprecated tag:v6.8.0 - time zone support always enabled, remove if, but keep content
+        if (($this->timeZoneSupportEnabled || Feature::isActive('v6.8.0.0')) && $aggregation->getTimeZone()) {
             $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
         }
 
@@ -303,7 +315,7 @@ class EntityAggregator implements EntityAggregatorInterface
             DateHistogramAggregation::PER_MONTH => 'DATE_FORMAT(' . $accessor . ', \'%Y-%m\')',
             DateHistogramAggregation::PER_QUARTER => 'CONCAT(DATE_FORMAT(' . $accessor . ', \'%Y\'), \'-\', QUARTER(' . $accessor . '))',
             DateHistogramAggregation::PER_YEAR => 'DATE_FORMAT(' . $accessor . ', \'%Y\')',
-            default => throw new \RuntimeException('Provided date format is not supported'),
+            default => throw throw DataAbstractionLayerException::invalidDateFormat($aggregation->getInterval(), DateHistogramAggregation::ALLOWED_INTERVALS),
         };
         $query->addGroupBy($groupBy);
 
@@ -458,10 +470,10 @@ class EntityAggregator implements EntityAggregatorInterface
             $id = $range['key'] ?? (($range['from'] ?? '*') . '-' . ($range['to'] ?? '*'));
             $sum = '1';
             if (isset($range['from'])) {
-                $sum .= \sprintf(' AND %s >= %f', $accessor, $range['from']);
+                $sum .= \sprintf(' AND %s >= %s', $accessor, (string) $range['from']);
             }
             if (isset($range['to'])) {
-                $sum .= \sprintf(' AND %s < %f', $accessor, $range['to']);
+                $sum .= \sprintf(' AND %s < %s', $accessor, (string) $range['to']);
             }
 
             $query->addSelect(\sprintf('SUM(%s) as %s', $sum, EntityDefinitionQueryHelper::escape($aggregation->getName() . '.' . $id)));
@@ -531,7 +543,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return new CountResult($aggregation->getName(), (int) $value);
 
             case $aggregation instanceof StatsAggregation:
-                if (empty($rows)) {
+                if ($rows === []) {
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
@@ -561,7 +573,7 @@ class EntityAggregator implements EntityAggregatorInterface
     ): EntityResult {
         $ids = array_filter(array_column($rows, $aggregation->getName()));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return new EntityResult($aggregation->getName(), new EntityCollection());
         }
 
@@ -584,7 +596,7 @@ class EntityAggregator implements EntityAggregatorInterface
         array $rows,
         Context $context
     ): DateHistogramResult {
-        if (empty($rows)) {
+        if ($rows === []) {
             return new DateHistogramResult($aggregation->getName(), []);
         }
 
@@ -701,7 +713,7 @@ class EntityAggregator implements EntityAggregatorInterface
         $row = array_shift($rows);
         if ($row) {
             foreach ($aggregation->getRanges() as $range) {
-                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), $range['key'])];
+                $ranges[(string) $range['key']] = (int) $row[\sprintf('%s.%s', $aggregation->getName(), (string) $range['key'])];
             }
         }
 

@@ -17,7 +17,7 @@ class FetchModeHelper
     public static function keyPair(array $result): array
     {
         $firstRow = current($result);
-        if (empty($firstRow)) {
+        if ($firstRow === false || $firstRow === [] || $firstRow === null) {
             return [];
         }
 
@@ -42,7 +42,7 @@ class FetchModeHelper
     public static function group(array $result, ?callable $mapper = null): array
     {
         $firstRow = current($result);
-        if (empty($firstRow)) {
+        if ($firstRow === false || $firstRow === [] || $firstRow === null) {
             return [];
         }
 
@@ -53,6 +53,9 @@ class FetchModeHelper
         foreach ($result as $row) {
             $index = $row[$groupKey];
             unset($row[$groupKey]);
+            if ($index === null) {
+                continue;
+            }
 
             $rows[$index][] = $mapper ? $mapper($row) : $row;
         }
@@ -70,7 +73,7 @@ class FetchModeHelper
     public static function groupUnique(array $result): array
     {
         $firstRow = current($result);
-        if (empty($firstRow)) {
+        if ($firstRow === false || $firstRow === [] || $firstRow === null) {
             return [];
         }
 
@@ -81,6 +84,9 @@ class FetchModeHelper
         foreach ($result as $row) {
             $index = $row[$groupKey];
             unset($row[$groupKey]);
+            if ($index === null) {
+                continue;
+            }
 
             $rows[$index] = $row;
         }

@@ -5,7 +5,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 
@@ -28,7 +28,7 @@ const IFRAME_KEY = 'app.action_button.iframe';
 /**
  * @private
  */
-Component.register('sw-app-actions', {
+export default {
     template,
 
     extensionApiDevtoolInformation: {
@@ -124,15 +124,6 @@ Component.register('sw-app-actions', {
         },
     },
 
-    created() {
-        // Reset the selectedIds when the component is created to avoid
-        // that the actions are executed on the wrong entities.
-        // Only reset when a entity exists
-        if (this.entity) {
-            Shopware.Store.get('shopwareApps').selectedIds = [];
-        }
-    },
-
     methods: {
         async runAction(action) {
             const entityIdList = { ids: this.params };
@@ -161,7 +152,7 @@ Component.register('sw-app-actions', {
                     });
                     break;
                 case actionTypeConstants.ACTION_RELOAD_DATA:
-                    window.location.reload();
+                    this._reloadPage();
                     break;
                 case actionTypeConstants.ACTION_OPEN_MODAL:
                     await this.getUserConfig();
@@ -189,7 +180,7 @@ Component.register('sw-app-actions', {
                 }
 
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
+                    message: this.$t('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
                 });
             }
         },
@@ -241,6 +232,11 @@ Component.register('sw-app-actions', {
             });
         },
 
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         saveConfig(value) {
             this.iframeUserConfig.value = {
                 isShowModalConfirm: value,
@@ -251,4 +247,4 @@ Component.register('sw-app-actions', {
             });
         },
     },
-});
+};

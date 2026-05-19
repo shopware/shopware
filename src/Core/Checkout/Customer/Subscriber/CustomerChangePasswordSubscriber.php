@@ -34,9 +34,9 @@ class CustomerChangePasswordSubscriber implements EventSubscriberInterface
 
     public function onCustomerWritten(EntityWrittenEvent $event): void
     {
-        $payloads = $event->getPayloads();
-        foreach ($payloads as $payload) {
-            if (!empty($payload['password'])) {
+        foreach ($event->getPayloads() as $payload) {
+            $password = $payload['password'] ?? null;
+            if ($password !== null && $password !== '') {
                 $this->clearLegacyPassword($payload['id']);
             }
         }

@@ -27,7 +27,7 @@ class BanMediaUrlTest extends TestCase
 
         $generator = $this->createMock(MediaUrlGenerator::class);
 
-        $generator->expects(static::never())
+        $generator->expects($this->never())
             ->method('generate');
 
         $banMediaUrl = new BanMediaUrl($gateway, $generator);
@@ -42,10 +42,10 @@ class BanMediaUrlTest extends TestCase
     {
         $gateway = $this->createMock(MediaReverseProxy::class);
         $gateway->method('enabled')->willReturn(true);
-        $gateway->expects(static::never())->method('ban');
+        $gateway->expects($this->never())->method('ban');
 
         $generator = $this->createMock(MediaUrlGenerator::class);
-        $generator->expects(static::never())->method('generate');
+        $generator->expects($this->never())->method('generate');
 
         $banMediaUrl = new BanMediaUrl($gateway, $generator);
 
@@ -57,7 +57,7 @@ class BanMediaUrlTest extends TestCase
     {
         $gateway = $this->createMock(MediaReverseProxy::class);
         $gateway->method('enabled')->willReturn(true);
-        $gateway->expects(static::never())->method('ban');
+        $gateway->expects($this->never())->method('ban');
 
         $generator = $this->createMock(MediaUrlGenerator::class);
         $generator->method('generate')->willReturn([]);
@@ -81,11 +81,49 @@ class BanMediaUrlTest extends TestCase
         $event = new MediaPathChangedEvent(Context::createDefaultContext());
         $ids = new IdsCollection();
 
-        $event->media(mediaId: $ids->get('media'), path: 'media.png');
-        $event->thumbnail(
+        $event->mediaWithMimeType(
+            mediaId: $ids->get('media'),
+            path: 'media.png'
+        );
+        $event->thumbnailWithMimeType(
             mediaId: $ids->get('media'),
             thumbnailId: $ids->get('thumbnail'),
             path: 'thumbnail.png'
+        );
+
+        $banMediaUrl->changed($event);
+
+        $expected = [
+            'http://localhost:8000/media.png',
+            'http://localhost:8000/thumbnail.png',
+        ];
+
+        static::assertSame($expected, $gateway->urls);
+    }
+
+    public function testCalledWithMediaUrlsAndWithMimeType(): void
+    {
+        $gateway = new Gateway(true);
+
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000'])
+        );
+
+        $banMediaUrl = new BanMediaUrl($gateway, $generator);
+
+        $event = new MediaPathChangedEvent(Context::createDefaultContext());
+        $ids = new IdsCollection();
+
+        $event->mediaWithMimeType(
+            mediaId: $ids->get('media'),
+            path: 'media.png',
+            mimeType: 'image/png'
+        );
+        $event->thumbnailWithMimeType(
+            mediaId: $ids->get('media'),
+            thumbnailId: $ids->get('thumbnail'),
+            path: 'thumbnail.png',
+            mimeType: 'image/png'
         );
 
         $banMediaUrl->changed($event);

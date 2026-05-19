@@ -87,11 +87,11 @@ class SyncServiceTest extends TestCase
 
         $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        static::assertEquals([], $result->getDeleted());
+        static::assertSame([], $result->getDeleted());
 
         $expected = ['product_price' => [$ids->get('not-existing-price')]];
 
-        static::assertEquals($expected, $result->getNotFound());
+        static::assertSame($expected, $result->getNotFound());
     }
 
     public function testDeleteProductMediaAndUpdateProduct(): void
@@ -113,6 +113,12 @@ class SyncServiceTest extends TestCase
         ];
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT id FROM product_media WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertEmpty($exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -173,14 +179,14 @@ class SyncServiceTest extends TestCase
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $createListener->expects(static::once())
+        $createListener->expects($this->once())
             ->method('__invoke');
 
         $deleteListener = $this
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $deleteListener->expects(static::exactly(3))
+        $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
@@ -237,7 +243,7 @@ class SyncServiceTest extends TestCase
             ->getMockBuilder(CallableClass::class)
             ->getMock();
 
-        $listener->expects(static::once())
+        $listener->expects($this->once())
             ->method('__invoke');
 
         $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
@@ -444,6 +450,6 @@ class SyncServiceTest extends TestCase
         static::assertIsString($productPrice);
         $productPrice = json_decode($productPrice, true);
         $productPrice = array_shift($productPrice);
-        static::assertEquals(300, $productPrice['gross']);
+        static::assertSame(300.0, $productPrice['gross']);
     }
 }

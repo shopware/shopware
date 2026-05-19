@@ -22,7 +22,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @final
  */
 #[Package('checkout')]
-class ContainerFacade extends ItemFacade
+class ContainerFacade extends ItemFacade implements \Countable
 {
     use DiscountTrait;
     use ItemsCountTrait;
@@ -32,24 +32,19 @@ class ContainerFacade extends ItemFacade
     use ItemsRemoveTrait;
     use SurchargeTrait;
 
-    private LineItem $item;
-
-    private ScriptPriceStubs $priceStubs;
-
     /**
      * @internal
      */
     public function __construct(
-        LineItem $item,
-        ScriptPriceStubs $priceStubs,
+        private LineItem $item,
+        private ScriptPriceStubs $priceStubs,
         CartFacadeHelper $helper,
         SalesChannelContext $context
     ) {
         parent::__construct($item, $priceStubs, $helper, $context);
 
-        $this->item = $item;
+        // Setting the properties of ItemsGetTrait and ItemsIteratorTrait
         $this->helper = $helper;
-        $this->priceStubs = $priceStubs;
         $this->context = $context;
     }
 
@@ -76,9 +71,6 @@ class ContainerFacade extends ItemFacade
     public function add(ItemFacade $item): ItemFacade
     {
         $this->item->getChildren()->add($item->getItem());
-
-        /** @var ItemFacade $item */
-        $item = $this->get($item->getId());
 
         return $item;
     }

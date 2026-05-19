@@ -18,6 +18,31 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(ProductSearchBuilder::class)]
 class ProductSearchBuilderTest extends TestCase
 {
+    public function testFallbackToCriteriaTermWhenSearchKeywordIndexingIsDisabled(): void
+    {
+        $termInterpreter = $this->createMock(ProductSearchTermInterpreterInterface::class);
+        $logger = $this->createMock(LoggerInterface::class);
+        $searchBuilder = new ProductSearchBuilder(
+            $termInterpreter,
+            $logger,
+            20,
+            false
+        );
+
+        $mockSalesChannelContext = $this->createMock(SalesChannelContext::class);
+        $mockSalesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $request = new Request();
+        $request->query->set('search', 'ring saphir');
+
+        $termInterpreter->expects($this->never())->method('interpret');
+
+        $searchBuilder->build($request, $criteria, $mockSalesChannelContext);
+
+        static::assertSame('ring saphir', $criteria->getTerm());
+    }
+
     public function testSearchTermMaxLengthReached(): void
     {
         $termInterpreter = $this->createMock(ProductSearchTermInterpreterInterface::class);
@@ -37,7 +62,7 @@ class ProductSearchBuilderTest extends TestCase
         $request->query->set('search', 'This search term\'s length is over 20 characters');
 
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('notice')
             ->with(
                 'The search term "{term}" was trimmed because it exceeded the maximum length of {maxLength} characters.',
@@ -46,7 +71,7 @@ class ProductSearchBuilderTest extends TestCase
                     'maxLength' => 20,
                 ]
             );
-        $termInterpreter->expects(static::once())
+        $termInterpreter->expects($this->once())
             ->method('interpret')
             ->with('This search term\'s l', static::isInstanceOf(Context::class));
         $searchBuilder->build($request, $criteria, $mockSalesChannelContext);

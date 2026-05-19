@@ -3,11 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Plugin;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AsyncAwsS3WriteBatchAdapter;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\WriteBatchInterface;
@@ -20,7 +20,7 @@ class CopyBatchTest extends TestCase
 {
     public function testCopy(): void
     {
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
 
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
         file_put_contents($tmpFile, 'test');
@@ -40,7 +40,7 @@ class CopyBatchTest extends TestCase
     public function testCopyWithBatchCopyInterface(): void
     {
         $adapter = $this->createMock(AsyncAwsS3WriteBatchAdapter::class);
-        $adapter->expects(static::once())->method('writeBatch');
+        $adapter->expects($this->once())->method('writeBatch');
 
         static::assertInstanceOf(WriteBatchInterface::class, $adapter);
 
@@ -59,7 +59,7 @@ class CopyBatchTest extends TestCase
     public function testConstructorThrowsAnExceptionWithNoResource(): void
     {
         static::expectException(AdapterException::class);
-        // @phpstan-ignore-next-line - sourceFile is supposed to be a resource or a string only from doctag param
+        /** @phpstan-ignore argument.type (for test purpose) */
         new CopyBatchInput(null, []);
     }
 }

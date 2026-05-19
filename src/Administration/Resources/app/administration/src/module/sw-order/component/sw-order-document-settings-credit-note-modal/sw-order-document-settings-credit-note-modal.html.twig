@@ -6,36 +6,33 @@
     {% block sw_order_document_settings_modal_form_credit_document_number %}
     <mt-text-field
         v-model="documentNumber"
-        :label="$tc('sw-order.documentModal.labelDocumentNumber')"
+        class="sw-order-document-settings-credit-note-modal__document-number"
+        :label="$t('sw-order.documentModal.labelDocumentNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
-    <sw-select-field
-        v-model:value="documentConfig.custom.invoiceNumber"
+    <mt-select
+        v-model="documentConfig.custom.invoiceNumber"
         class="sw-order-document-settings-credit-note-modal__invoice-select"
+        :label="$t('sw-order.documentModal.labelInvoiceNumber')"
+        :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
+        :options="invoiceNumberOptions"
         required
-        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
-    >
-        <option
-            v-for="number in invoiceNumbers"
-            :key="number"
-            :value="number"
-        >
-            {{ number }}
-        </option>
-    </sw-select-field>
+    />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_date %}
-    <sw-datepicker
-        v-model:value="documentConfig.documentDate"
+    <mt-datepicker
+        v-model="documentConfig.documentDate"
+        class="sw-order-document-settings-credit-note-modal__document-date"
         date-type="date"
         required
         hide-hint
-        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 </sw-container>

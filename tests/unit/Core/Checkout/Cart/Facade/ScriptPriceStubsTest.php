@@ -12,18 +12,20 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(ScriptPriceStubs::class)]
+#[Package('checkout')]
 class ScriptPriceStubsTest extends TestCase
 {
     // fake some static id for the iso
     private const USD_ID = Defaults::LANGUAGE_SYSTEM;
 
     /**
-     * @param array<string, array{gross:float, net:float}> $prices
+     * @param array<array-key, array{gross:float, net:float, linked?: bool, currencyId?: string}> $prices
      */
     #[DataProvider('priceCases')]
     public function testPriceFactory(array $prices, PriceCollection $expected): void
@@ -41,9 +43,9 @@ class ScriptPriceStubsTest extends TestCase
             $actualPrice = $actual->getCurrencyPrice($expectedPrice->getCurrencyId());
 
             static::assertInstanceOf(Price::class, $actualPrice);
-            static::assertEquals($expectedPrice->getNet(), $actualPrice->getNet());
-            static::assertEquals($expectedPrice->getGross(), $actualPrice->getGross());
-            static::assertEquals($expectedPrice->getLinked(), $actualPrice->getLinked());
+            static::assertSame($expectedPrice->getNet(), $actualPrice->getNet());
+            static::assertSame($expectedPrice->getGross(), $actualPrice->getGross());
+            static::assertSame($expectedPrice->getLinked(), $actualPrice->getLinked());
         }
     }
 

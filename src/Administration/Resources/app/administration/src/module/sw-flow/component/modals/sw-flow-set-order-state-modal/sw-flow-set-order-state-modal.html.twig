@@ -1,51 +1,60 @@
 {% block sw_flow_set_order_state_modal %}
 <sw-modal
     class="sw-flow-set-order-state-modal"
-    :title="$tc('sw-flow.modals.status.titleSetStatus')"
+    :title="$t('sw-flow.modals.status.titleSetStatus')"
     :closable="false"
     @modal-close="onClose"
 >
+    <mt-banner
+        v-if="!config?.force_transition"
+        class="sw-flow-set-order-state-modal__warning-banner"
+        :title="$t('global.default.warning')"
+        variant="attention"
+    >
+        {{ $t('sw-flow.modals.status.transitionWarning.message') }}
+    </mt-banner>
+
     {% block sw_flow_set_order_state_modal_content %}
     {% block sw_flow_set_order_state_modal_payment_status %}
-    <sw-select-field
-        v-model:value="config.order_transaction"
+    <mt-select
+        v-model="config.order_transaction"
         name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
-        :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderPaymentStatus')"
+        :label="$t('sw-flow.modals.status.labelPaymentStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderPaymentStatus')"
     />
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_delivery_status %}
-    <sw-select-field
-        v-model:value="config.order_delivery"
+    <mt-select
+        v-model="config.order_delivery"
         name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
-        :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderDeliveryStatus')"
+        :label="$t('sw-flow.modals.status.labelDeliveryStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderDeliveryStatus')"
     />
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_order_status %}
-    <sw-select-field
-        v-model:value="config.order"
+    <mt-select
+        v-model="config.order"
         name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
-        :label="$tc('sw-flow.modals.status.labelOrderStatus')"
-        :placeholder="$tc('sw-flow.modals.status.placeholderOrderStatus')"
+        :label="$t('sw-flow.modals.status.labelOrderStatus')"
+        :placeholder="$t('sw-flow.modals.status.placeholderOrderStatus')"
     />
     {% endblock %}
 
     {% block sw_flow_set_order_state_modal_force_transition %}
-    <sw-checkbox-field
-        v-model:value="config.force_transition"
+    <mt-checkbox
+        v-model:checked="config.force_transition"
         name="sw-field--config-force_transition"
         class="sw-flow-set-order-state-modal__force-transition"
-        :label="$tc('sw-flow.modals.status.forceTransition')"
-        :help-text="$tc('sw-flow.modals.status.forceTransitionHelpText')"
+        :label="$t('sw-flow.modals.status.forceTransition')"
+        :help-text="$t('sw-flow.modals.status.forceTransitionHelpText')"
     />
     {% endblock %}
     {% endblock %}
@@ -56,9 +65,10 @@
         <mt-button
             class="sw-flow-set-order-state-modal__cancel-button"
             size="small"
+            variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -69,7 +79,7 @@
             size="small"
             @click="onAddAction"
         >
-            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+            {{ sequence.id ? $t('sw-flow.modals.buttonSaveAction') : $t('sw-flow.modals.buttonAddAction') }}
         </mt-button>
         {% endblock %}
     </template>

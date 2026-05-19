@@ -22,7 +22,7 @@ class MemorySizeCalculatorTest extends TestCase
     #[DataProvider('memorySizeDataProvider')]
     public function testBytesConversion(string $limit, int $bytes): void
     {
-        static::assertEquals($bytes, MemorySizeCalculator::convertToBytes($limit));
+        static::assertSame($bytes, MemorySizeCalculator::convertToBytes($limit));
     }
 
     /**
@@ -32,49 +32,45 @@ class MemorySizeCalculatorTest extends TestCase
      * See also:
      * https://github.com/symfony/symfony/blob/3a96e4cde6aa0c9e138bdfcce60564a2f396c070/src/Symfony/Component/HttpKernel/Tests/DataCollector/MemoryDataCollectorTest.php
      *
-     * @return array{0: string, 1: int}[]
+     * @return iterable<string, array{0: string, 1: int}>
      */
-    public static function memorySizeDataProvider(): array
+    public static function memorySizeDataProvider(): iterable
     {
-        return [
-            ['2k', 2048],
-            ['2 k', 2048],
-            ['8m', 8 * 1024 * 1024],
-            ['+2 k', 2048],
-            ['+2???k', 2048],
-            ['0x10', 16],
-            ['0xf', 15],
-            ['010', 8],
-            ['+0x10 k', 16 * 1024],
-            ['1g', 1024 * 1024 * 1024],
-            ['1G', 1024 * 1024 * 1024],
-            ['-1', -1],
-            ['0', 0],
-            ['2mk', 2048], // the unit must be the last char, so in this case 'k', not 'm'
-        ];
+        yield 'compact kilobyte value is parsed as bytes' => ['2k', 2048];
+        yield 'spaced kilobyte value is parsed as bytes' => ['2 k', 2048];
+        yield 'megabyte value is parsed as bytes' => ['8m', 8 * 1024 * 1024];
+        yield 'signed kilobyte value is parsed as bytes' => ['+2 k', 2048];
+        yield 'unit after invalid characters is still parsed as kilobytes' => ['+2???k', 2048];
+        yield 'hexadecimal value is parsed as bytes' => ['0x10', 16];
+        yield 'lower hexadecimal value is parsed as bytes' => ['0xf', 15];
+        yield 'octal value is parsed as bytes' => ['010', 8];
+        yield 'signed hexadecimal kilobyte value is parsed as bytes' => ['+0x10 k', 16 * 1024];
+        yield 'compact gigabyte value is parsed as bytes' => ['1g', 1024 * 1024 * 1024];
+        yield 'uppercase gigabyte value is parsed as bytes' => ['1G', 1024 * 1024 * 1024];
+        yield 'unlimited memory value is kept as negative one' => ['-1', -1];
+        yield 'zero memory value is parsed as zero bytes' => ['0', 0];
+        yield 'memory size uses the last unit character' => ['2mk', 2048];
     }
 
     #[DataProvider('bytesProvider')]
     public function testFormatBytes(int $bytes, string $formatted): void
     {
-        static::assertEquals($formatted, MemorySizeCalculator::formatToBytes($bytes));
+        static::assertSame($formatted, MemorySizeCalculator::formatToBytes($bytes));
     }
 
     /**
-     * @return array<array{0: int, 1: string}>
+     * @return iterable<array{0: int, 1: string}>
      */
-    public static function bytesProvider(): array
+    public static function bytesProvider(): iterable
     {
-        return [
-            [0, '0 B'],
-            [100, '100 B'],
-            [1024, '1 KB'],
-            [2024, '1.98 KB'],
-            [20240, '19.77 KB'],
-            [15768749, '15.04 MB'],
-            [7415768749, '6.91 GB'],
-            [7369137415768749, '6702.19 TB'],
-        ];
+        yield 'zero bytes are formatted as bytes' => [0, '0 B'];
+        yield 'small value is formatted as bytes' => [100, '100 B'];
+        yield 'one kilobyte is formatted without decimals' => [1024, '1 KB'];
+        yield 'kilobyte value is formatted with decimals' => [2024, '1.98 KB'];
+        yield 'larger kilobyte value is formatted with decimals' => [20240, '19.77 KB'];
+        yield 'megabyte value is formatted with decimals' => [15768749, '15.04 MB'];
+        yield 'gigabyte value is formatted with decimals' => [7415768749, '6.91 GB'];
+        yield 'terabyte value is formatted with decimals' => [7369137415768749, '6702.19 TB'];
     }
 
     #[DataProvider('maxUploadSizeProvider')]
@@ -91,7 +87,7 @@ class MemorySizeCalculatorTest extends TestCase
 
         $maxUploadSize = MemorySizeCalculator::getMaxUploadSize($maxSize);
 
-        static::assertEquals($expected, $maxUploadSize);
+        static::assertSame($expected, $maxUploadSize);
 
         IniMock::withIniMock([]);
     }

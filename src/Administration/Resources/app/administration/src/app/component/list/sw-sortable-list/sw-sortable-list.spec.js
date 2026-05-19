@@ -37,14 +37,14 @@ async function createWrapper(userConfig = {}) {
                 },
             },
             mocks: {
-                $tc: (v) => v,
+                $t: (v) => v,
             },
             sync: true,
         },
     };
 
     const wrapper = shallowMount(
-        await Shopware.Component.build('sw-sortable-list'),
+        await wrapTestComponent('sw-sortable-list', { sync: true }),
         deepMergeObject(defaultConfig, userConfig),
     );
 
@@ -56,11 +56,6 @@ async function createWrapper(userConfig = {}) {
 describe('src/component/list/sw-sortable-list', () => {
     /** @type Wrapper */
     let wrapper;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should have a list of items', async () => {
         wrapper = await createWrapper();

@@ -39,7 +39,7 @@ class IconCacheTwigFilter extends AbstractExtension
         }
 
         preg_match('#id="(.*?)"#', $icon, $iconId);
-        if (\count($iconId) === 2 && !empty($iconId[1])) {
+        if (\count($iconId) === 2 && $iconId[1] !== '') {
             if (isset(self::$iconCache[$iconId[1]])) {
                 return self::$iconCache[$iconId[1]];
             }

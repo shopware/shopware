@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\Increment\Controller;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class IncrementApiController
 {
@@ -92,9 +95,26 @@ class IncrementApiController
         return new JsonResponse(['success' => true]);
     }
 
+    #[Route(path: '/api/_action/delete-increment/{pool}', name: 'api.increment.delete', methods: ['DELETE'])]
+    public function delete(string $pool, Request $request): Response
+    {
+        $keys = RequestParamHelper::get($request, 'keys', []);
+
+        if (!\is_array($keys)) {
+            throw IncrementException::invalidKeysParameter();
+        }
+
+        $cluster = $this->getCluster($request);
+        $poolGateway = $this->gatewayRegistry->get($pool);
+
+        $poolGateway->delete($cluster, $keys);
+
+        return new Response(status: Response::HTTP_NO_CONTENT);
+    }
+
     private function getCluster(Request $request): string
     {
-        $cluster = $request->get('cluster');
+        $cluster = RequestParamHelper::get($request, 'cluster');
 
         if ($cluster && \is_string($cluster)) {
             return $cluster;

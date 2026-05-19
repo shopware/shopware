@@ -82,7 +82,11 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     tagApiService: {
                         filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
                     },
@@ -118,10 +122,13 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
@@ -129,7 +136,6 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-modal': true,
                     'sw-empty-state': true,
@@ -149,13 +155,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new tag', async () => {
         const wrapper = await createWrapper([
             'tag.creator',

@@ -34,7 +34,6 @@ async function createWrapper(privileges = []) {
                         template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                     },
                     'sw-container': true,
-                    'sw-number-field': true,
                     'sw-empty-state': true,
                 },
             },
@@ -43,13 +42,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-country/component/sw-country-state-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new country state', async () => {
         const wrapper = await createWrapper([
             'country.editor',
@@ -80,9 +72,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
         const countryStateNameField = wrapper.find('[aria-label="sw-country-state-detail.labelName"]');
         const countryStateShortCodeField = wrapper.find('[aria-label="sw-country-state-detail.labelShortCode"]');
-        const countryStatePositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
-        );
+        const countryStatePositionField = wrapper.findByLabel('sw-country-state-detail.labelPosition');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
         expect(countryStateNameField.attributes('disabled')).toBeUndefined();
@@ -97,9 +87,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         const saveButton = wrapper.find('.sw-country-state-detail__save-button');
         const countryStateNameField = wrapper.find('[aria-label="sw-country-state-detail.labelName"]');
         const countryStateShortCodeField = wrapper.find('[aria-label="sw-country-state-detail.labelShortCode"]');
-        const countryStatePositionField = wrapper.find(
-            'sw-number-field-stub[label="sw-country-state-detail.labelPosition"]',
-        );
+        const countryStatePositionField = wrapper.findByLabel('sw-country-state-detail.labelPosition');
 
         expect(saveButton.attributes('disabled')).toBeDefined();
         expect(countryStateNameField.attributes('disabled')).toBeDefined();

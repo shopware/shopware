@@ -98,7 +98,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -131,10 +131,10 @@ export default {
 
         inheritanceTooltipText() {
             if (this.isSystemDefaultLanguageId) {
-                return this.$tc('sw-settings-language.detail.tooltipInheritanceNotPossible');
+                return this.$t('sw-settings-language.detail.tooltipInheritanceNotPossible');
             }
 
-            return this.$tc('sw-settings-language.detail.tooltipLanguageNotChoosable');
+            return this.$t('sw-settings-language.detail.tooltipLanguageNotChoosable');
         },
 
         showCustomFields() {
@@ -157,6 +157,10 @@ export default {
     },
 
     created() {
+        this.createdComponent();
+    },
+
+    updated() {
         this.createdComponent();
     },
 
@@ -240,6 +244,7 @@ export default {
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
+
                     if (!this.languageId) {
                         this.$router.push({
                             name: 'sw.settings.language.detail',

@@ -56,13 +56,7 @@ describe('components/data-grid/sw-data-grid', () => {
         }
 
         stubs = {
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
-                sync: true,
-            }),
-            'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
-            'sw-icon': await wrapTestComponent('sw-icon', { sync: true }),
-            'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
             }),
@@ -82,8 +76,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-data-grid-inline-edit': true,
             'router-link': true,
             'sw-data-grid-skeleton': true,
-            'mt-checkbox': true,
-            'mt-icon': true,
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
@@ -127,12 +119,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
-                sync: true,
-            }),
-            'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
-            'sw-icon': true,
             'sw-context-button': await wrapTestComponent('sw-context-button', {
                 sync: true,
             }),
@@ -152,7 +139,6 @@ describe('components/data-grid/sw-data-grid', () => {
             'router-link': true,
             'sw-data-grid-skeleton': true,
             'mt-checkbox': true,
-            'mt-icon': true,
             'sw-inheritance-switch': true,
             'sw-ai-copilot-badge': true,
             'sw-help-text': true,
@@ -164,11 +150,6 @@ describe('components/data-grid/sw-data-grid', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be in compact mode by default', async () => {
@@ -699,7 +680,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
     });
@@ -718,7 +699,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
     });
@@ -728,7 +709,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         await checkbox.setChecked(true);
         await wrapper.vm.$nextTick();
@@ -752,7 +733,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         expect(checkbox.element.checked).toBe(true);
 
@@ -769,7 +750,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         expect(selectionAll.element.checked).toBe(false);
         await selectionAll.setChecked(true);
@@ -800,7 +783,9 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         await selectionAll.setChecked(false);
         await wrapper.vm.$nextTick();
@@ -837,7 +822,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(rows).toHaveLength(5);
 
-        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+        const checkbox = rows.at(0).find('.mt-field--checkbox__container input');
 
         await checkbox.setChecked(true);
 
@@ -855,7 +840,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(newRows).toHaveLength(4);
 
-        const newCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+        const newCheckbox = newRows.at(0).find('.mt-field--checkbox__container input');
 
         await newCheckbox.setChecked(true);
 
@@ -870,7 +855,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const previousRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(previousRows).toHaveLength(1);
 
-        const previousCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+        const previousCheckbox = newRows.at(0).find('.mt-field--checkbox__container input');
         expect(previousCheckbox.element.checked).toBe(true);
     });
 
@@ -945,11 +930,11 @@ describe('components/data-grid/sw-data-grid', () => {
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
         // selected items are de-selectable
-        const checkedBox = rows.at(0).find('.sw-field__checkbox input');
+        const checkedBox = rows.at(0).find('.mt-field--checkbox__container input');
         expect(checkedBox.attributes().disabled).toBeUndefined();
 
         // unselected items are selectable
-        const uncheckedBox = rows.at(4).find('.sw-field__checkbox input');
+        const uncheckedBox = rows.at(4).find('.mt-field--checkbox__container input');
 
         expect(uncheckedBox.attributes().disabled).toBe('');
 
@@ -967,12 +952,14 @@ describe('components/data-grid/sw-data-grid', () => {
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
         newRows.forEach((row) => {
-            const checkbox = row.find('.sw-field__checkbox input');
+            const checkbox = row.find('.mt-field--checkbox__container input');
             expect(checkbox.attributes().disabled).toBe('');
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+        const selectionAll = header.find(
+            '.sw-data-grid__header .mt-field--checkbox__container.sw-data-grid__select-all input',
+        );
 
         expect(selectionAll.attributes().disabled).toBe('');
     });
@@ -992,8 +979,10 @@ describe('components/data-grid/sw-data-grid', () => {
             ],
         });
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes()).not.toContain('data-tooltip-message');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes()).not.toHaveProperty(
+            'data-tooltip-message',
+        );
     });
 
     it('should render icon column header with tooltip', async () => {
@@ -1013,8 +1002,8 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
-        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe(
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .mt-icon').attributes('data-tooltip-message')).toBe(
             'tooltip message',
         );
     });
@@ -1034,5 +1023,147 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.props().contextButtonMenuWidth).toBe(220);
+    });
+
+    describe('rows-clickable feature', () => {
+        it('should not have is--clickable class when rowsClickable is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: false,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+            rows.forEach((row) => {
+                expect(row.classes()).not.toContain('is--clickable');
+            });
+        });
+
+        it('should have is--clickable class when rowsClickable is true', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+            rows.forEach((row) => {
+                expect(row.classes()).toContain('is--clickable');
+            });
+        });
+
+        it('should emit row-click event when rowsClickable is true', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeDefined();
+            expect(wrapper.emitted('row-click')).toHaveLength(1);
+            expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[0]);
+        });
+
+        it('should select item when clicking row with rowsClickable and showSelection enabled', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: true,
+            });
+
+            expect(wrapper.vm.selection).toEqual({});
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).toHaveProperty('uuid1');
+            expect(wrapper.vm.selection.uuid1).toEqual(defaultProps.dataSource[0]);
+        });
+
+        it('should deselect item when clicking an already selected row', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: true,
+                preSelection: {
+                    uuid1: defaultProps.dataSource[0],
+                },
+            });
+
+            expect(wrapper.vm.selection).toHaveProperty('uuid1');
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).not.toHaveProperty('uuid1');
+            expect(wrapper.vm.selection).toEqual({});
+        });
+
+        it('should not select item when showSelection is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                showSelection: false,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.vm.selection).toEqual({});
+            expect(wrapper.emitted('row-click')).toBeDefined();
+        });
+
+        it('should not emit row-click event when rowsClickable is false', async () => {
+            const wrapper = await createWrapper({
+                rowsClickable: false,
+            });
+
+            await wrapper.find('.sw-data-grid__body .sw-data-grid__row').trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'selection checkbox', selector: '.sw-data-grid__cell--selection input', additionalProps: {} },
+            { name: 'actions cell', selector: '.sw-data-grid__cell--actions', additionalProps: { showActions: true } },
+            { name: 'context button', selector: '.sw-context-button', additionalProps: { showActions: true } },
+        ])('should not emit row-click event when clicking on $name', async ({ selector, additionalProps }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+                ...additionalProps,
+            });
+
+            await wrapper.find(selector).trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'button', tagName: 'button' },
+            { name: 'link', tagName: 'a' },
+            { name: 'input', tagName: 'input' },
+        ])('should not emit row-click event when clicking on a $name element', async ({ tagName }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row');
+
+            const element = document.createElement(tagName);
+            firstRow.element.appendChild(element);
+
+            await element.dispatchEvent(new Event('click', { bubbles: true }));
+            await flushPromises();
+
+            expect(wrapper.emitted('row-click')).toBeUndefined();
+        });
+
+        it.each([
+            { name: 'first', rowIndex: 0 },
+            { name: 'third', rowIndex: 2 },
+            { name: 'fifth', rowIndex: 4 },
+        ])('should emit row-click event with correct item when clicking $name row', async ({ rowIndex }) => {
+            const wrapper = await createWrapper({
+                rowsClickable: true,
+            });
+
+            const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+            await rows.at(rowIndex).trigger('click');
+
+            expect(wrapper.emitted('row-click')).toBeDefined();
+            expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[rowIndex]);
+        });
     });
 });

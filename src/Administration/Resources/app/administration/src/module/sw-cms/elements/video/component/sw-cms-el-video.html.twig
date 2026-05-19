@@ -1,0 +1,41 @@
+{% block sw_cms_element_video %}
+<div
+    class="sw-cms-el-video"
+    :style="wrapperStyles"
+>
+    <div
+        class="sw-cms-el-video__content"
+        :class="contentClasses"
+        :style="styles"
+    >
+        {% block sw_cms_element_video_content %}
+        {% block sw_cms_element_video_content_placeholder %}
+        <div
+            v-if="!mediaUrl"
+            class="sw-cms-el-video__content-placeholder"
+            :style="placeholderStyles"
+        >
+            <img
+                class="sw-cms-el-video__placeholder-icon"
+                :src="assetFilter('/administration/administration/static/img/cms/video-icon.webp')"
+                alt=""
+            >
+        </div>
+        {% endblock %}
+
+        {% block sw_cms_element_video_content_media %}
+        <video
+            v-else
+            class="sw-cms-el-video__content-video"
+            :src="mediaUrl"
+            :controls="element.config.showControls.value"
+            :poster="element.config.showCover.value ? coverUrl : null"
+            :loop="element.config.loop.value"
+            :muted="element.config.muted.value"
+            :playsinline="element.config.playsInline.value"
+        ></video>
+        {% endblock %}
+        {% endblock %}
+    </div>
+</div>
+{% endblock %}

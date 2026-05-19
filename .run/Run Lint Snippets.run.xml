@@ -2,7 +2,7 @@
   <configuration default="false" name="Run Lint Snippets" type="ComposerRunConfigurationType" factoryName="Composer Script">
     <option name="commandLineParameters" value="" />
     <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
-    <option name="script" value="lint:snippets" />
+    <option name="script" value="translation:lint" />
     <method v="2" />
   </configuration>
 </component>

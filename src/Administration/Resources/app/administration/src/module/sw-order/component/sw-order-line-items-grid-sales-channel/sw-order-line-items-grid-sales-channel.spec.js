@@ -161,7 +161,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -174,16 +173,17 @@ async function createWrapper() {
                     },
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
-                    'sw-number-field': {
-                        // eslint-disable-next-line max-len
+                    'mt-number-field': {
                         template:
-                            '<input class="sw-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
+                            '<input class="mt-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                         props: {
                             value: 0,
                             size: 'default',
                         },
                     },
-                    'sw-card-filter': true,
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
@@ -203,8 +203,6 @@ async function createWrapper() {
                         template: '<a class="router-link" href="#"><slot></slot></a>',
                         props: ['to'],
                     },
-                    'sw-empty-state': true,
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
@@ -216,7 +214,7 @@ async function createWrapper() {
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 mocks: {
-                    $tc: (t, value) => {
+                    $t: (t, value) => {
                         if (t === 'sw-order.createBase.taxDetail') {
                             return `${value.taxRate}%: ${value.tax}`;
                         }
@@ -233,8 +231,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = await createWrapper({});
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {
@@ -467,7 +464,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const quantityField = firstRow.findComponent('.sw-data-grid__cell--quantity input');
 
-        await quantityField.vm.$emit('update:value', 3);
+        await quantityField.vm.$emit('update:modelValue', 3);
 
         const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
         await buttonInlineSave.trigger('click');
@@ -617,7 +614,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await labelField.trigger('input');
 
         const unitPriceField = firstRow.findComponent('.sw-data-grid__cell--unitPrice input');
-        await unitPriceField.vm.$emit('update:value', 100);
+        await unitPriceField.vm.$emit('update:modelValue', 100);
 
         const buttonInlineSave = wrapper.find('.sw-data-grid__inline-edit-save');
         await buttonInlineSave.trigger('click');

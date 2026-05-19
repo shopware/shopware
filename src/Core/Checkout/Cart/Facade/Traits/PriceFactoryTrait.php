@@ -11,12 +11,10 @@ trait PriceFactoryTrait
 {
     protected ScriptPriceStubs $priceStubs;
 
-    // @param array<string, array{gross:float, net:float, linked?:bool}> $price The prices for the new collection, indexed by the currency-id or iso-code of the currency.
-
     /**
      * `create()` creates a new `PriceCollection` based on an array of prices.
      *
-     * @param array<string, mixed> $price The prices for the new collection, indexed by the currency-id or iso-code of the currency.
+     * @param array<string, array{gross:float, net:float, linked?:bool}> $price The prices for the new collection, indexed by the currency-id or iso-code of the currency.
      *
      * @return PriceCollection Returns the newly created `PriceCollection`.
      *

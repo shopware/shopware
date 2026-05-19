@@ -1,5 +1,953 @@
 # Changelog
-This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
+
+> [!WARNING]
+> **Note on changelog structure (Shopware 6.7.5 and newer)**  
+>  
+> Starting with **Shopware 6.7.5**, this file is no longer updated with the recent changes.
+>  
+>
+> - **Curated, developer-facing release information** can be found in the versioned [release info files](./RELEASE_INFO-6.7.md).  
+>   https://github.com/shopware/shopware/blob/trunk/RELEASE_INFO-6.7.md  
+>  
+> - **The complete, raw changelog (all merged PRs)** is generated automatically and published with each release:  
+>   https://github.com/shopware/shopware/releases  
+>  
+> This file is kept for historical reference and existing links.
+
+
+## 6.7.4.2
+*  [#13416 - Improve shop id verification when used with atomic deployments](./changelog/release-6-7-4-2/2025-11-05-improve-shop-id-verification.md)
+*  [https://github.com/shopware/shopware/issues/13305 - Fix positioning of partial review stars](https://github.com/shopware/shopware/issues/13305)
+*  [https://github.com/shopware/shopware/issues/13387 - Add missing system services (Storefront Analytics / Google Analytics)](https://github.com/shopware/shopware/issues/13387)
+*  [https://github.com/shopware/shopware/issues/13434 - Fix: blocked shipping method not switched](https://github.com/shopware/shopware/issues/13434)
+*  [https://github.com/shopware/shopware/issues/13321 - Fix: changing the default address during guest checkout results in a 403 Forbidden error](https://github.com/shopware/shopware/issues/13321)
+
+## 6.7.4.1
+* [GHSA-2w46-vq8h-98vh](https://github.com/shopware/shopware/security/advisories/GHSA-2w46-vq8h-98vh) - fix: password recovery not expiring on email change
+
+## 6.7.4.0
+*  [#12145 - Add custom action in media sidebar](./changelog/release-6-7-4-0/2025-09-03-add-custom-action-in-media-sidebar.md)
+*  [#12165 - Fix vite bundling for Symfony bundles](./changelog/release-6-7-4-0/2025-10-22-fix-vite-bundling-for-symfony-bundles.md)
+*  [#12233 - Allow granular inheritance for slot_config overrides](./changelog/release-6-7-4-0/2025-09-17-allow-granular-inheritance-for-slot_config-overrides.md)
+*  [#12349 - Fix plugin config default values](./changelog/release-6-7-4-0/2025-10-08-fix-plugin-config-default-values.md)
+*  [#12498 - Update health check API](./changelog/release-6-7-4-0/2025-10-15-update-health-check-api.md)
+*  [#12672 - Improve error output of app loader in CI environment](./changelog/release-6-7-4-0/2025-09-24-improve-error-output-of-app-loader.md)
+*  [#12723 - Remove not needed shipping detail admin SCSS](./changelog/release-6-7-4-0/2025-09-27-remove-not-needed-shipping-detail-admin-scss.md) @aragon999
+*  [#12724 - Properly define the padding of the admin modal](./changelog/release-6-7-4-0/2025-09-27-properly-define-the-padding-of-the-admin-modal.md) @aragon999
+*  [#12755 - Do not use the Symfony validator to validate the honeypot captcha](./changelog/release-6-7-4-0/2025-10-14-do-not-use-the-symfony-validator-to-validate-the-honeypot-captcha.md) @aragon999
+*  [#12756 - Fix Cache Cookie Handling to prevent cache poisoning](./changelog/release-6-7-4-0/2025-10-14-fix-cache-cookie-handling.md)
+*  [#12808 - Add gitignore when creating a plugin](./changelog/release-6-7-4-0/2025-10-02-add-gitignore-when-creating-plugin.md) @wannevancamp
+*  [#12832 - Fix deletion and sorting of log events listing in the administration](./changelog/release-6-7-4-0/2025-10-06-fix-log-event-listing.md)
+*  [#12833 - Fix proper display of the administrator switch in the user create](./changelog/release-6-7-4-0/2025-10-04-fix-proper-display-of-the-administrator-switch-in-the-user-create.md) @wannevancamp
+*  [#12834 - Fix media search navigation](./changelog/release-6-7-4-0/2025-08-20-fix-media-search-navigation.md)
+*  [#12835 - Replace latest sw-switch-field component with bool input](./changelog/release-6-7-4-0/2025-10-04-replace-latest-sw-switch-field-component-with-bool-input.md) @wannevancamp
+*  [#12836 - Fix SalesChannelContext::state to reset to previous state](./changelog/release-6-7-4-0/2025-10-05-fix-sales-channel-context-stateful-change.md) @JoshuaBehrens
+*  [#12837 - Add more Twig blocks to product box to reduce amount of code to be copied over](./changelog/release-6-7-4-0/2025-10-05-add-blocks-to-reduce-code-you-need-to-copy.md) @JoshuaBehrens
+*  [#12839 - Add option for FormAutoSubmit to trigger form validation](./changelog/release-6-7-4-0/2025-10-05-form-auto-submit-with-validation.md) @JoshuaBehrens
+*  [#12865 - Add aria-label to CMS image link](./changelog/release-6-7-4-0/2025-10-06-add-aria-label-to-cms-image-link.md) @lacknere
+*  [#12869 - Improve shipping and payment cart blocking errors](./changelog/release-6-7-4-0/2025-10-06-improve-shipping-and-payment-cart-blocking-errors.md) @gecolay
+*  [#12892 - Improved error handling when a sales channel cannot be deleted because it is still assigned to other entities](./changelog/release-6-7-4-0/2025-10-08-improved-error-handling-when-a-sales-channel-cannot-be-deleted-because-it-is-still-assigned-to-other-entities.md)
+*  [#12925 - Add product available sorting criteria option](./changelog/release-6-7-4-0/2025-10-08-add-product-available-sorting-criteria-option.md) @lacknere
+*  [#12932 - Only consider filterable discount packages](./changelog/release-6-7-4-0/2025-10-08-only-consider-filterable-discount-packages.md) @aragon999
+*  [#12947 - Improve SCSS color validation](./changelog/release-6-7-4-0/2025-10-14-improve-scss-color-validation.md)
+*  [#12986 - Fix sidebar width persistence issue when collapsed through button](./changelog/release-6-7-4-0/2025-10-13-fix-sidebar-width-persistence.md)
+*  [#13007 - Add message queue message size limit config option](./changelog/release-6-7-4-0/2025-10-14-add-message-queue-message-size-limit-config-option.md) @gecolay
+*  [#13011 - Add admin notification transformers](./changelog/release-6-7-4-0/2025-10-15-add-admin-notification-transformers.md)
+*  [#13070 - Add possibility to set `fetchpriority="high"` on cms image elements](./changelog/release-6-7-4-0/2025-10-17-add-possibility-to-set-fetchpriority-high-on-cms-image-elements.md) @aragon999
+*  [#13082 - Add events when fetching entities for the sitemap](./changelog/release-6-7-4-0/2025-10-20-add-events-when-fetching-entities-for-the-sitemap.md) @aragon999
+*  [#13087 - Fix IAP decoding with old OpenSSL versions](./changelog/release-6-7-4-0/2025-10-20-fix-iap-decoding-with-old-openssl-versions.md)
+*  [#13091 - Replace `$result` type with native `CmsPageCollection` type in the `CmsPageLoadedEvent`](./changelog/release-6-7-4-0/2025-10-20-replace-result-type-with-native-cmspagecollection-type-in-the-cmspageloadedevent.md) @aragon999
+*  [#13094 - Fixed 3D light intensity](./changelog/release-6-7-4-0/2025-10-22-fixed-3d-light-intensity.md)
+*  [#13146 - Fix webhook cleanup for queued webhook event logs](./changelog/release-6-7-4-0/2025-10-23-fix-webhook-cleanup-for-queued-messages.md)
+*  [#13156 - Fix flaky storefront test for active route parameters](./changelog/release-6-7-4-0/2025-01-31-fix-flaky-storefront-test-active-route-parameters.md)
+*  [#13161 - Respect the `COMPOSER_PLUGIN_LOADER` environment variable in the `bin/shopware` cli command](./changelog/release-6-7-4-0/2025-10-23-respect-the-composer_plugin_loader-environment-variable-in-the-bin-shopware-cli-command.md) @aragon999
+*  [#13177 - Only display last search index date](./changelog/release-6-7-4-0/2025-10-24-only-display-last-search-index-date.md)
+*  [12292 - Fix issue with loading seo url preview](./changelog/release-6-7-4-0/2025-10-09-fix-issue-with-loading-seo-url-preview.md)
+*  [12411 - Load product streams over opensearch](./changelog/release-6-7-4-0/2025-09-15-load-product-streams-over-opensearch.md)
+*  [12783 - Search result should include products when parent product number matches](./changelog/release-6-7-4-0/2025-10-01-search-result-should-include-products-when-parent-product-number-matches.md)
+*  [12805 - Clearance sale (stock handling) is ignored as soon as a product is in the cart](./changelog/release-6-7-4-0/2025-10-09-clearance-sale-stock-handling-is-ignored-as-soon-as-a-product-is-in-the-cart.md)
+*  [13127 - Fix cookie offcanvas link not working when opened from navigation offcanvas](./changelog/release-6-7-4-0/2025-10-23-fix-cookie-offcanvas-link-from-navigation.md)
+*  [4307 - Fix Google Consent Mode v2 default and update implementation](./changelog/release-6-7-4-0/2025-10-23-fix-google-consent-mode-v2-default-update.md)
+*  [9451 - Google reCAPTCHA loading only if cookie accepted](./changelog/release-6-7-4-0/2025-05-26-google-recaptcha-loading-only-if-cookie-accepted.md)
+*  [9451 - Interactive offcanvas cookies](./changelog/release-6-7-4-0/2025-09-25-interactive-offcanvas-cookies.md)
+*  [https://github.com/shopware/shopware/issues/12823 - Fix session locking during kernel reboot on plugin state change](./changelog/release-6-7-4-0/2025-10-21-fix-session-locking-during-kernel-reboot-on-plugin-state-change.md)
+*  [https://github.com/shopware/shopware/issues/6409 - Separate Vimeo and YouTube cookie consent](./changelog/release-6-7-4-0/2025-10-21-separate-vimeo-youtube-cookies.md)
+*  [https://github.com/shopware/shopware/pull/13079 - Fix CacheClearer global locking](./changelog/release-6-7-4-0/2025-10-21-fix-cacheclearer-global-locking.md)
+
+## 6.7.3.1
+*  [GHSA-m895-2hj3-8cg9](https://github.com/shopware/shopware/security/advisories/GHSA-m895-2hj3-8cg9) - fix: Reading media entities by aggregating fields individually bypasses MediaVisibilityRestrictionSubscriber
+*  [GHSA-27c9-vp3w-6ww8](https://github.com/shopware/shopware/security/advisories/GHSA-27c9-vp3w-6ww8) - fix: Exposure of sensitive user information via CSV export mapping
+*  [GHSA-3cpp-fv95-mpr5](https://github.com/shopware/shopware/security/advisories/GHSA-3cpp-fv95-mpr5) - fix: Server-Side Request Forgery (SSRF) - order invoice
+*  [GHSA-6wh5-mw9h-5c3w](https://github.com/shopware/shopware/security/advisories/GHSA-6wh5-mw9h-5c3w) - fix: Path traversal via Plugin upload
+*  [GHSA-r2vg-hvjm-fg38](https://github.com/shopware/shopware/security/advisories/GHSA-r2vg-hvjm-fg38) - fix: Customer Orders can be canceled, even if refunds are disabled
+*  [shopware/shopware#12576 - getAllCodes returns only string array](https://github.com/shopware/shopware/pull/12576)
+*  [shopware/shopware#12075 - Admin es search for "document number" doesn't return any results](https://github.com/shopware/shopware/pull/12075)
+*  [shopware/shopware#12363 - missing product rule filter](https://github.com/shopware/shopware/pull/12363)
+*  [shopware/shopware#12472 - cast XML config values for Length constraint to int to prevent type errors](https://github.com/shopware/shopware/pull/12472)
+*  [shopware/shopware#12489 - deletion of active customer address](https://github.com/shopware/shopware/pull/12489)
+*  [shopware/shopware#12979 - compatibility with OpenSearch 3.x](./changelog/release-6-7-3-1/2025-10-13-compatibility-with-opensearch-3-x.md)
+
+## 6.7.3.0
+*  [#10220 - Only consider product rule ids in HTTP cache key generation](./changelog/release-6-7-3-0/2025-06-03-only-consider-product-rule-ids-in-http-cache-key-generation.md) @aragon999
+*  [#10529 - Simplify personal company fields](./changelog/release-6-7-3-0/2025-06-14-simplify-personal-company-fields.md) @aragon999
+*  [#10737 - Serialization cart size check](./changelog/release-6-7-3-0/2025-08-12-serialization-cart-size-check.md)
+*  [#10935 - Check all form attributes in js form plugins](./changelog/release-6-7-3-0/2025-07-02-check-all-form-attributes-in-js-form-plugins.md) @gecolay
+*  [#11055 - Add global styling for blockquotes](./changelog/release-6-7-3-0/2025-09-25-storefront-blockquote-styling.md)
+*  [#11163 - Cache default category levels](./changelog/release-6-7-3-0/2025-08-07-cache-default-category-levels.md)
+*  [#11414 - Improved language settings UI](./changelog/release-6-7-3-0/2025-09-03-improved-language-settings-ui.md)
+*  [#11459 - Add constants to global Shopware object](./changelog/release-6-7-3-0/2025-07-23-add-constants-to-global-shopware-object.md) @lacknere
+*  [#11526 - Fix SCSS Valiator to save original color functions](./changelog/release-6-7-3-0/2025-09-24-fix-scss-validaor-to-save-color-functions.md)
+*  [#11543 - Fix cart error message translation in store api](./changelog/release-6-7-3-0/2025-07-28-fix-cart-error-message-translation-in-store-api.md) @gecolay
+*  [#11557 - Add MediaEntity to ResolveRemoteThumbnailUrlExtension](./changelog/release-6-7-3-0/2025-07-31-add-mediaEntity-to-resolveremotethumbnailurlextension.md) @scarbous
+*  [#11646 - fix price calculation runs twice](./changelog/release-6-7-3-0/2025-08-07-fix-price-calculation-runs-twice.md)
+*  [#11721 - Deleting properties fails without error popup when property values are still in use](./changelog/release-6-7-3-0/2025-08-08-deleting-properties-fails-without-error-popup-when-property-values-are-still-in-use.md) @nguyenquocdaile
+*  [#11766 - Fix boolean fields in theme config](./changelog/release-6-7-3-0/2025-09-11-fixed-boolean-fields-in-theme-config.md)
+*  [#11855 - Fix removal of composer plugins](./changelog/release-6-7-3-0/2025-09-01-fix-remove-of-composer-plugins.md)
+*  [#11872 - Compatbile with symfony/validator 7.3](./changelog/release-6-7-3-0/2025-08-25-compatbile-with-symfony-validator-7-3.md)
+*  [#11911 - remove media data when sync product](./changelog/release-6-7-3-0/2025-08-28-remove-media-data-when-sync-product.md)
+*  [#11945 - Only show folder categories if they have children](./changelog/release-6-7-3-0/2025-08-17-only-show-folder-categories-if-they-have-children.md) @aragon999
+*  [#11962 - Fix promotion discount entity property initialization error in shopping cart](./changelog/release-6-7-3-0/2025-09-15-fix-promotion-discount-entity-property-initialization-error.md)
+*  [#11984 - Add Design Tokens to the Review module](./changelog/release-6-7-3-0/2025-08-19-add-design-tokens-to-the-review-module.md)
+*  [#11984 - Fix alignment of review stars](./changelog/release-6-7-3-0/2025-08-19-fix-alignment-of-review-stars.md)
+*  [#11999 - Update OpenSearch in tests](./changelog/release-6-7-3-0/2025-08-20-update-opensearch-in-tests.md) @tinect
+*  [#12029 - Fix custom fields with same names as foreign keys](./changelog/release-6-7-3-0/2025-09-08-fix-custom-fields-with-fk-names.md)
+*  [#12034 - Make product of OrderLineItem api aware](./changelog/release-6-7-3-0/2025-08-21-make-product-of-orderlineitem-api-aware.md) @aragon999
+*  [#12105 - Add natural sorting for property option list](./changelog/release-6-7-3-0/2025-08-26-add-natural-sorting-for-property-option-list.md) @nguyenquocdaile
+*  [#12116 - Add a crud permission shortcut to manifest](./changelog/release-6-7-3-0/2025-08-27-add-a-crud-permission-shortcut-to-manifest.md)
+*  [#12124 - Optimize navbar focus and toggle](./changelog/release-6-7-3-0/2025-08-27-optimize-navbar-focus-and-toggle.md) @lacknere
+*  [#12128 - fix order entities in search preferences](./changelog/release-6-7-3-0/2025-08-28-fix-order-entities-in-search-preferences.md)
+*  [#12129 - Fix app user id admin privileges](./changelog/release-6-7-3-0/2025-08-27-fix-app-user-id-admin-privileges.md)
+*  [#12133 - Update sales channel context after switching](./changelog/release-6-7-3-0/2025-08-27-update-sales-channel-context-after-switching.md)
+*  [#12142 - Consider landing page assignments in CMS page list](./changelog/release-6-7-3-0/2025-08-27-consider-landing-page-assignments-in-cms-page-list.md) @lacknere
+*  [#12173 - Allow docx file extension](./changelog/release-6-7-3-0/2025-08-28-allow-docx-extension.md)
+*  [#12187 - Remove load expensive administration order sorting](./changelog/release-6-7-3-0/2025-08-29-remove-load-expensive-administration-order-sorting.md) @gecolay
+*  [#12192 - Remove unused and unnecessary associations from administration order list](./changelog/release-6-7-3-0/2025-08-29-remove-unused-and-unnecessary-associations-from-administration-order-list.md) @gecolay
+*  [#12193 - Add `skipConfigurator` & `skipCmsPage` query parameter to ProductDetailRoute](./changelog/release-6-7-3-0/2025-08-29-add-skip-query-parameter-to-product-detail-route.md) @gecolay
+*  [#12198 - Add criteria `excludes` property](./changelog/release-6-7-3-0/2025-08-29-add-criteria-excludes-property.md) @gecolay
+*  [#12219 - Added missing 30 days period for export cleanup](./changelog/release-6-7-3-0/2025-09-01-fix-export-cleanup.md) @lx-wnk
+*  [#12224 - Fix media thumbnail generation with null media thumbnail size](./changelog/release-6-7-3-0/2025-09-02-fix-media-thumbnail-generation-check-with-null-size.md) @gecolay
+*  [#12252 - Fix order creation page reload during confirmation dialog when clicking save order button](./changelog/release-6-7-3-0/2025-09-09-fix-order-creation-page-reload-during-confirmation-dialog.md)
+*  [#12262 - Recover stuck scheduled tasks](./changelog/release-6-7-3-0/2025-09-03-recover-stuck-scheduled-tasks.md)
+*  [#12314 - Add ScheduledTaskMessageInterface](./changelog/release-6-7-3-0/2025-09-04-add-scheduled-task-message-interface.md) @gecolay
+*  [#12319 - Add extension API handler to retrive the current view router path](./changelog/release-6-7-3-0/2025-09-04-add-handler-to-retrieve-path.md)
+*  [#12326 - Add guest login functionality to OrderRoute](./changelog/release-6-7-3-0/2025-09-05-add-guest-login-functionality-to-orderroute.md)
+*  [#12334 - Change CMS to show element type](./changelog/release-6-7-3-0/2025-09-04-add-block-type-in-cms.md) @amenk
+*  [#12351 - Fix customer profile account type forced to commercial with company signup form](./changelog/release-6-7-3-0/2025-09-09-fix-customer-profile-account-type-with-company-signup.md)
+*  [#12361 - Fix missing promotion product rule select](./changelog/release-6-7-3-0/2025-09-08-fix-missing-promotion-rule-select.md)
+*  [#12394 - Adjust line height of sw-label to match the mt-label line height](./changelog/release-6-7-3-0/2025-09-08-adjust-line-height-of-sw-label-to-match-the-mt-label-line-height.md) @aragon999
+*  [#12418 - Fix initialization of DiscountCampaignStruct and add additional properties](./changelog/release-6-7-3-0/2025-09-10-fix-initialization-of-discount-campaign-struct-and-add-additional-properties.md)
+*  [#12436 - Fix inherited switch value](./changelog/release-6-7-3-0/2025-09-10-fix-inherited-switch-value.md) @lacknere
+*  [#12577 - Fix install lock creation on failure](./changelog/release-6-7-3-0/2025-09-17-fix-install-lock-creation-on-failure.md)
+*  [#12610 - Clarify integration documentation](./changelog/release-6-7-3-0/2025-09-19-improve-integration-docs.md) @amenk
+*  [#12639 - Add missing refreshTokenTtl context field to administration template](./changelog/release-6-7-3-0/2025-09-23-add-missing-refresh-token-ttl-to-admin-template.md) @gecolay
+*  [#12642 - Optimized performance on 3D viewer canvases](./changelog/release-6-7-3-0/2025-09-23-optimized-performance-on-3d-viewer-canvases.md)
+*  [#12654 - Fixed model placement in 3D Viewer](./changelog/release-6-7-3-0/2025-09-23-fixed-model-placement-in-3d-viewer.md)
+*  [#12655 - Decreased camera's near clipping distance in 3D viewer](./changelog/release-6-7-3-0/2025-09-25-decreased-near-clipping-distance-of-camera-in-3d-viewer.md)
+*  [#12757 - Implemented mt-empty-stage component](./changelog/release-6-7-3-0/2025-05-22-implemented-mt-empty-stage-component.md)
+*  [#6749 - Shop ID change suggestion modal](./changelog/release-6-7-3-0/2025-08-25-shop-id-change-suggestion-modal.md)
+*  [#7156 - Fix API aware flag for proxied requests](./changelog/release-6-7-3-0/2025-08-28-fix-api-aware-flag-for-proxy.md)
+*  [#9387 - Added shared indexes to the order tables](./changelog/release-6-7-3-0/2025-07-17-added-indexes-to-the-order-tables.md)
+*  [#11097 - Fix wrong customer context on login if entry from sales_channel_api_context is expired](./changelog/release-6-7-3-0/2025-07-09-fix-wrong-customer-context-on-login.md)
+*  [#11842 - Fix customer registration address validation](./changelog/release-6-7-3-0/2025-08-22-fix-customer-registration-address-validation.md)
+*  [#12074 - Apply search score as fallback sort criteria on searching](./changelog/release-6-7-3-0/2025-08-26-apply-search-score-as-fallback-sort-criteria-on-searching.md)
+*  [#12159 - Fix promotion exclusion for fixed delivery discounts](./changelog/release-6-7-3-0/2025-09-19-fix-promotion-exclusion-for-fixed-delivery-discounts.md)
+*  [#12182 - Fix intra community electronic invoice](./changelog/release-6-7-3-0/2025-09-03-fix-intra-community-electronic-invoice.md)
+*  [#12296 - Improve RuntimeException for getSchema on store API](./changelog/release-6-7-3-0/2025-09-04-improve-runtimeexception-for-getschema-on-store-api.md)
+*  [#12354 - Warn in rules when DPG indexing is disabled](./changelog/release-6-7-3-0/2025-09-19-warn-in-rules-when-dpg-indexing-is-disabled.md)
+*  [#12398 - Add env var for readonly filesystem support](./changelog/release-6-7-3-0/2025-09-12-add-shopware-skip-webinstaller-environment-variable.md)
+*  [#12430 - Fix cart price initialization in shipping method price matrix settings](./changelog/release-6-7-3-0/2025-09-17-fix-cart-price-initialization-in-shipping-method-price-matrix.md)
+*  [#12433 - Fix ES index language inheritance issue](./changelog/release-6-7-3-0/2025-09-11-fix-es-index-language-inheritance-issue.md)
+*  [#12573 - Extract url encoder utility](./changelog/release-6-7-3-0/2025-09-25-extract-url-encoder-utility.md)
+*  [#12600 - Fix default shipping and billing address reset on cart deletion](./changelog/release-6-7-3-0/2025-09-25-fix-default-shipping-billing-address-reset-on-cart-deletion.md)
+*  [#5882 - Fix customer address name field length mismatch](./changelog/release-6-7-3-0/2025-08-24-fix-customer-address-name-field-lengths.md)
+*  [#6652 - Allow Store-API search endpoints to set a limit again](./changelog/release-6-7-3-0/2025-09-08-allow-search-store-api-to-set-a-limit.md)
+*  [#7422 - Remove global controllerName and controllerAction variables from templates](./changelog/release-6-7-3-0/2025-05-07-remove-global-controller-name-and-controller-action-from-template.md)
+*  [#9451 - Add cookie hash to cookie groups API response](./changelog/release-6-7-3-0/2025-09-18-add-cookie-hash-to-cookie-groups-response.md)
+*  [#9451 - Add request to cookie event](./changelog/release-6-7-3-0/2025-09-22-add-request-to-cookie-event.md)
+*  [#9451 - Refactor providing of cookies](./changelog/release-6-7-3-0/2025-09-02-refactor-cookie-controller-introduce-cookie-groups-store-api.md)
+*  [#9835 - Remove unnecessary default rules](./changelog/release-6-7-3-0/2025-09-15-remove-unnecessary-default-rules.md)
+*  [Ocarthon - Interpret checkbox custom fields values as booleans](./changelog/release-6-7-3-0/2025-09-02-interpret-checkbox-custom-field-values-as-bool.md) @Ocarthon
+*  [#12154 - fix: expose one port for admin watcher, fixes #12154 (#12161)](https://github.com/shopware/shopware/issues/12154)
+*  [#12188 - Implement lint translation files command](./changelog/release-6-7-3-0/2025-09-25-implement-lint-translation-files-command.md)
+
+## 6.7.2.2
+*  [#12503 - fix: disable profiler in production](https://github.com/shopware/shopware/pull/12503)
+*  [#12434 - Fix deletion of active customer address](./changelog/release-6-7-2-2/2025-09-11-fix-deletion-of-active-customer-address.md)
+*  [#12472 - Fix type error when using named arguments in the Length validation constraint](./changelog/release-6-7-2-2/2025-09-10-fix-type-cast-system-config-validation.md) @grzegorzrolka
+
+## 6.7.2.1
+*  [GHSA-9v82-vcjx-m76j - Properly escape active route params](./changelog/release-6-7-2-1/2025-09-04-properly-escape-active-route-params.md)
+*  [#12363 - Fix missing promotion product rule select](./changelog/release-6-7-2-1/2025-09-08-fix-missing-promotion-rule-select.md)
+
+## 6.7.2.0
+*  [#10491 - Implemented a command to download and install translation](./changelog/release-6-7-2-0/2025-07-18-implemented-a-command-to-download-and-install-translation.md)
+*  [#10528 - Remove superfluous vat-id block from `address-form.html.twig`](./changelog/release-6-7-2-0/2025-06-14-remove-superfluous-vat-id-block-from-address-form-html-twig.md) @aragon999
+*  [#10530 - Allow admininistration scripts being provided by bundles](./changelog/release-6-7-2-0/2025-06-13-allow-admin-scripts-provided-by-bundles.md) @JoshuaBehrens
+*  [#10556 - min search term is now configurable](./changelog/release-6-7-2-0/2025-07-21-min-search-term-is-now-configurable.md)
+*  [#10721 - Properly align logout link with icon](./changelog/release-6-7-2-0/2025-06-19-properly-align-logout-link-with-icon.md) @aragon999
+*  [#10751 - Add search sorting for live search](./changelog/release-6-7-2-0/2025-06-23-add-search-sorting-for-live-search.md)
+*  [#10866 - Allow Storefront routes without prefix](./changelog/release-6-7-2-0/2025-08-04-allow-storefront-routes-without-prefix.md)
+*  [#10870 - Improve basic captcha accessibility](./changelog/release-6-7-2-0/2025-07-10-improve-basic-captcha-a11y.md)
+*  [#10878 - Fix order version for determining credit notes when creating credit notes](./changelog/release-6-7-2-0/2025-06-28-fix-credit-note-order-version.md) @jgeramb
+*  [#10959 - Use createdAt column as default for product list sort](./changelog/release-6-7-2-0/2025-07-03-use-created-at-for-product-list-sort.md) @gecolay
+*  [#11083 - Reduce event bus usage for AddCacheTagEvent](./changelog/release-6-7-2-0/2025-07-08-reduce-event-bus-usage-for-add-cache-tag-event.md) @gecolay
+*  [#11108 - AR Placement](./changelog/release-6-7-2-0/2025-07-10-ar-placement.md)
+*  [#11139 - refresh measurement units](./changelog/release-6-7-2-0/2025-07-11-refresh-measurement-units.md)
+*  [#11167 - category path does not display](./changelog/release-6-7-2-0/2025-07-14-category-path-does-not-display.md)
+*  [#11188 - Reset UpdatedByField for updates via API](./changelog/release-6-7-2-0/2025-07-18-write-updated-by-for-api-changes.md)
+*  [#11191 - Implement soft purge HTTP cache functionality](./changelog/release-6-7-2-0/2025-07-12-implement-soft-purge-http-cache.md)
+*  [#11202 - Change class constants to self classes](./changelog/release-6-7-2-0/2025-07-14-change-class-constants-to-self-classes.md) @M-arcus
+*  [#11205 - Deprecated EntityDefinition constructor](./changelog/release-6-7-2-0/2025-07-14-deprecated-entitydefinition-constructor.md) @aragon999
+*  [#11215 - Restore ResetInterface support in long-running runtimes](./changelog/release-6-7-2-0/2025-07-14-restore-kernel-handle-resetinterface.md) @mateuszfl
+*  [#11222 - Update DBAL to 4.3.1](./changelog/release-6-7-2-0/2025-07-22-update-dbal.md)
+*  [#11223 - Copy app snippets after system language change](./changelog/release-6-7-2-0/2025-07-16-copy-app-snippets-after-system-language-change.md)
+*  [#11282 - add cart rule loader extension event](./changelog/release-6-7-2-0/2025-08-04-add-cart-rule-loader-extension-event.md)
+*  [#11297 - Replace AddCacheTagEvent's with CacheTagCollector addTag](./changelog/release-6-7-2-0/2025-07-16-replace-add-cache-tag-event-with-cache-tag-collector-add-tag.md) @gecolay
+*  [#11314 - config endpoints cached indefinitely](./changelog/release-6-7-2-0/2025-07-31-config-endpoints-cached-indefinitely.md)
+*  [#11327 - Add missing context config setting access optional chaining](./changelog/release-6-7-2-0/2025-07-17-add-missing-context-setting-optional-chaining.md) @gecolay
+*  [#11341 - Correctly delete bearerAuth cookie from base path in administration](./changelog/release-6-7-2-0/2025-07-17-correctly-delete-bearer-auth-cookie-from-base-path.md) @gecolay
+*  [#11373 - Fix sidebar SDK handlers in Meteor page](./changelog/release-6-7-2-0/2025-07-21-fix-sidebar-sdk-handlers-sw-meteor-page.md)
+*  [#11391 - Add missing ApiAware flag to CmsBlock & CmsSection id's](./changelog/release-6-7-2-0/2025-07-22-add-missing-cms-block-and-section-id-api-aware.md) @gecolay
+*  [#11409 - Add missing timezone option for TimeRangeRule](./changelog/release-6-7-2-0/2025-07-22-add-missing-timezone-option-for-time-range-rule.md) @gecolay
+*  [#11410 - Allow child classes for getting extension of type](./changelog/release-6-7-2-0/2025-07-22-allow-child-classes-for-getting-extension-of-type.md)
+*  [#11417 - Fix media thumbnail sizes with mediaThumbnailSizeId](./changelog/release-6-7-2-0/2025-07-22-fix-media-thumbnail-sizes-with-media-thumbnail-size-id.md) @gecolay
+*  [#11466 - Allow for LineItemFactoryHandler decoration](./changelog/release-6-7-2-0/2025-07-24-allow-for-lineitemfactoryhandler-decoration.md)
+*  [#11485 - Skip persisting admin snippets for non-existing locales](./changelog/release-6-7-2-0/2025-07-24-skip-persisting-admin-snippets-for-non-existing-locales.md)
+*  [#11491 - Remove FK delete exception handler](./changelog/release-6-7-2-0/2025-07-28-remove-fk-delete-exception-handler.md)
+*  [#11492 - Fix ThemeCompiler side effects](./changelog/release-6-7-2-0/2025-07-24-fix-theme-compiler-side-effects.md) @gecolay
+*  [#11510 - allow configuring the minimum search term length](./changelog/release-6-7-2-0/2025-08-15-allow-configuring-the-minimum-search-term-length.md)
+*  [#11515 - Fix reset active apps after app deactivation](./changelog/release-6-7-2-0/2025-07-29-reset-active-apps-after-service-update.md)
+*  [#11521 - fix: improve check for visibility parameter check, fixes #11521 (#11565)](https://github.com/shopware/shopware/issues/11521)
+*  [#11551 - Increased minimum required version of MySQL database](./changelog/release-6-7-2-0/2025-07-28-increased-minimum-required-version-of-mysql-database.md)
+*  [#11551 - Symfony components updated](./changelog/release-6-7-2-0/2025-07-28-symfony-components-updated.md)
+*  [#11566 - Add Design Tokens to the Smart Bar](./changelog/release-6-7-2-0/2025-07-29-add-design-tokens-to-the-smart-bar.md)
+*  [#11578 - Add dark mode support to sidebar](./changelog/release-6-7-2-0/2025-07-29-add-dark-mode-support-to-sidebar.md)
+*  [#11582 - Added dark mode support to select components](./changelog/release-6-7-2-0/2025-07-29-added-dark-mode-support-to-select-components.md)
+*  [#11583 - Fix state machine history FK constraint to integration](./changelog/release-6-7-2-0/2025-07-29-fix-state-machine-history-fk-constraint.md)
+*  [#11599 - Change createdComponent back to being sync](./changelog/release-6-7-2-0/2025-07-30-change-createdcomponent-back-to-being-sync.md)
+*  [#11604 - Copy context rules to ESI request context](./changelog/release-6-7-2-0/2025-07-30-copy-context-rules-to-esi-request-context.md)
+*  [#11608 - Add app user ID header and fix domain exception patterns](./changelog/release-6-7-2-0/2025-08-06-add-app-user-id-header.md)
+*  [#11633 - Fix mediaThumbnailSizeId not null in MediaThumbnailEntity](./changelog/release-6-7-2-0/2025-07-31-fix-media-thumbnail-size-id-not-null.md) @gecolay
+*  [#11636 - Fix service menu wrap](./changelog/release-6-7-2-0/2025-07-31-fix-service-menu-wrap.md) @lacknere
+*  [#11650 - Fix ScriptLoader loading invalid cache paths](./changelog/release-6-7-2-0/2025-07-31-fix-script-loader-loading-invalid-cache-paths.md) @gecolay
+*  [#11653 - Add aria-label to image slider links](./changelog/release-6-7-2-0/2025-07-31-add-aria-label-to-image-slider-links.md) @M-arcus
+*  [#11670 - Add commands to schedule and disable scheduled tasks](./changelog/release-6-7-2-0/2025-07-31-add-commands-to-schedule-and-disable-scheduled-tasks.md) @M-arcus
+*  [#11702 - sorting of properties](./changelog/release-6-7-2-0/2025-08-04-sorting-of-properties.md)
+*  [#11725 - Fix guest logout manipulation possibility](./changelog/release-6-7-2-0/2025-08-04-add-guest-logout-manipulation-possibility.md)
+*  [#11726 - Add cart data to the symfony profiler](./changelog/release-6-7-2-0/2025-08-04-add-cart-data-to-the-symfony-profiler.md) @aragon999
+*  [#11730 - Fix CMS block slot config error highlighting](./changelog/release-6-7-2-0/2025-08-04-fix-cms-block-slot-config-error-highlighting.md) @lacknere
+*  [#11731 - Fix login page redirect parameters](./changelog/release-6-7-2-0/2025-08-20-fix-login-page-redirect-parameters.md) @lacknere
+*  [#11739 - Stale cache over queue](./changelog/release-6-7-2-0/2025-08-12-stale-cache-over-queue.md)
+*  [#11748 - Improve property group loading performance](./changelog/release-6-7-2-0/2025-08-08-improve-property-group-loading-performance.md)
+*  [#11759 - Add Dark Mode support to modals](./changelog/release-6-7-2-0/2025-07-30-add-dark-mode-support-to-modals.md)
+*  [#11768 - Fix CMS content slot overrides for modules and languages](./changelog/release-6-7-2-0/2025-08-06-fix-cms-content-slot-overrides-for-modules-and-languages.md)
+*  [#11769 - Input quantity for extended prices incorrect](./changelog/release-6-7-2-0/2025-08-06-input-quantity-for-extended-prices-incorrect.md) @nguyenquocdaile
+*  [#11773 - Cart persistence behaviour](./changelog/release-6-7-2-0/2025-08-06-cart-persistance-behaviour.md)
+*  [#11778 - Opimize CMS create wizard page type selection spacing](./changelog/release-6-7-2-0/2025-08-06-optimize-cms-create-wizard-page-type-selection-spacing.md) @lacknere
+*  [#11781 - Load all category levels for current path](./changelog/release-6-7-2-0/2025-08-06-load-all-category-levels-for-current-path.md)
+*  [#11782 - Fix advanced prices for fixed item price discount](./changelog/release-6-7-2-0/2025-08-06-fix-advanced-prices-for-fixed-item-price-discount.md)
+*  [#11783 - Adjust MatrixElement extends Struct for StoreApi](./changelog/release-6-7-2-0/2025-08-06-adjust-matrix-element-extends-struct-for-store-api.md) @gecolay
+*  [#11785 - Remove assign override of MediaThumbnailEntity](./changelog/release-6-7-2-0/2025-08-06-remove-assign-override-of-media-thumbnail-entity.md) @gecolay
+*  [#11788 - Fix advanced prices for fixed item price discount](./changelog/release-6-7-2-0/2025-08-06-fix-recursive-usage-of-cartitemremoveroute.md)
+*  [#11792 - Event interfaces for extension events](./changelog/release-6-7-2-0/2025-08-06-event-interfaces-for-extension-events.md)
+*  [#11798 - Download translations to private filesystem](./changelog/release-6-7-2-0/2025-08-07-download-translations-to-private-filesystem.md)
+*  [#11804 - Fix display of line item taxes with tax provider](./changelog/release-6-7-2-0/2025-08-07-fix-display-of-line-item-taxes-with-tax-provider.md)
+*  [#11806 - Fix duplicate address display in sw-order-detail](./changelog/release-6-7-2-0/2025-08-07-fix-duplicate-address-display-in-order-detail.md)
+*  [#11822 - Fix CMS block component rendering](./changelog/release-6-7-2-0/2025-08-07-fix-cms-block-component-rendering.md) @lacknere
+*  [#11823 - optimize fetching product properties](./changelog/release-6-7-2-0/2025-08-12-optimize-fetching-product-properties.md)
+*  [#11828 - Fix recursive cart lock usage](./changelog/release-6-7-2-0/2025-08-08-fix-recursive-cart-lock-usage.md)
+*  [#11832 - Added Design Tokens to the dashboard](./changelog/release-6-7-2-0/2025-08-11-added-design-tokens-to-the-dashboard.md)
+*  [#11852 - Remove superfluous overrides of id methods in entities](./changelog/release-6-7-2-0/2025-08-11-remove-superfluous-overrides-of-id-methods-in-entities.md) @gecolay
+*  [#11866 - Load all hookable entities dynamically by checking shopware.entity.hookable tag](./changelog/release-6-7-2-0/2025-08-15-load-all-hookable-entities-by-checking-shopware-entity-hookable-tag.md)
+*  [#11867 - Fix webhook deactivation on failure](./changelog/release-6-7-2-0/2025-08-12-fix-webhook-deactivation-on-failure.md)
+*  [#11874 - Enable sidebar apps in cms detail page](./changelog/release-6-7-2-0/2025-08-13-enable-sidebar-apps-in-cms-detail.md)
+*  [#11906 - Fix forwarding after login](./changelog/release-6-7-2-0/2025-08-20-fix-forwarding-after-login.md)
+*  [#11915 - Allow autoconfigure attribute on attribute entities](./changelog/release-6-7-2-0/2025-08-15-allow-autoconfigure-attribute-on-attribute-entities.md)
+*  [#11916 - Fix zoom functionality to prevent a large window](./changelog/release-6-7-2-0/2025-08-15-fix-the-zoom-functionality-to-prevent-a-large-window.md)
+*  [#11944 - Make navbar template extendable](./changelog/release-6-7-2-0/2025-08-17-make-navbar-template-extendable.md) @aragon999
+*  [#11955 - Fix sidebar renderer width reset on close](./changelog/release-6-7-2-0/2025-08-18-fix-sidebar-renderer-width-update.md)
+*  [#11956 - Add Design Tokens to sw-switch](./changelog/release-6-7-2-0/2025-08-18-add-design-tokens-to-sw-switch.md)
+*  [#11974 - Add Design Tokens to grid related components](./changelog/release-6-7-2-0/2025-07-30-add-design-tokens-to-grid-related-components.md)
+*  [#11974 - Add Design Tokens to the Tabs Component](./changelog/release-6-7-2-0/2025-07-30-add-dark-mode-support-to-tabs.md)
+*  [#11986 - Add Design Tokens to help center and shortcut overview](./changelog/release-6-7-2-0/2025-08-19-add-design-tokens-to-help-center-and-shortcut-overview.md)
+*  [#11986 - Add Design Tokens to the tooltip](./changelog/release-6-7-2-0/2025-08-19-add-design-tokens-to-the-tooltip.md)
+*  [#11987 - Fix storage names of category runtime fields](./changelog/release-6-7-2-0/2025-08-19-fix-storage-names-of-category-runtime-fields.md) @aragon999
+*  [#12023 - Add loading of active category in category tree on change](./changelog/release-6-7-2-0/2025-08-21-add-loading-of-active-category-in-category-tree-on-change.md) @lacknere
+*  [#12037 - Make AsyncAwsS3WriteBatchAdapter batch size configurable](./changelog/release-6-7-2-0/2025-08-21-make-asyncawss3writebatchadapter-batch-size-configurable.md)
+*  [#12040 - Fix confusing error on user create in admin](./changelog/release-6-7-2-0/2025-08-22-fix-confusing-error-on-user-create.md)
+*  [#12046 - Remove usage of imagedestroy](./changelog/release-6-7-2-0/2025-08-22-remove-usage-of-imagedestroy.md) @tinect
+*  [#12047 - Use bootstrap gutter variables for product-listing grid](./changelog/release-6-7-2-0/2025-08-22-use-bootstrap-gutter-variables-for-product-listing-grid.md)
+*  [#2938 - Fix tax rounding errors for percentage price calculation](./changelog/release-6-7-2-0/2025-07-30-fix-tax-rounding-errors-for-percentage-price-calculation.md)
+*  [#4053 - Adds MIN() Function to cheapestPrice Accessor](./changelog/release-6-7-2-0/2025-07-11-fix-correctly-sort-product-variants-with-different-prices.md) @ulloe
+*  [#5418 - Add configuration for meta tag "robots"](./changelog/release-6-7-2-0/2024-11-08-add-configuration-for-meta-tag-robots.md) @dallyger
+*  [#9614 - Replace breadcrumb separator by the bootstrap default solution](./changelog/release-6-7-2-0/2025-05-20-replace-breadcrumb-separator-by-the-bootstrap-default-solution.md) @aragon999
+*  [#9635 - Add custom field entities (unit and newsletter_recipient) to apps](./changelog/release-6-7-2-0/2025-07-30-add-custom-field-entities-to-apps.md)
+*  [#10707 - Fix Elasticsearch Datetime format](./changelog/release-6-7-2-0/2025-07-30-fix-elasticsearch-datetime-format.md)
+*  [#10720 - Update MatchAllLineItemsRule to support multiple item types](./changelog/release-6-7-2-0/2025-08-05-update-matchalllineitemsrule-to-support-multiple-item-types.md)
+*  [#11001 - Show relevant products without previews when searching](./changelog/release-6-7-2-0/2025-07-09-show-relevant-variant-without-previews-when-searching.md) @tinect
+*  [#11074 - Fix admin es search for document number does not return any result](./changelog/release-6-7-2-0/2025-08-20-fix-admin-es-search-for-document-number-does-not-return-any-result.md)
+*  [#11128 - Improve admin search on searching for numeric tokens](./changelog/release-6-7-2-0/2025-07-16-improve-admin-search-on-searching-for-numeric-tokens.md)
+*  [#11130 - Optimize storefront elasticsearch](./changelog/release-6-7-2-0/2025-08-12-optimize-storefront-elasticsearch.md)
+*  [#11204 - Change main category seo url of a variant leads to an empty for its parent](./changelog/release-6-7-2-0/2025-07-14-change-main-category-seo-url-of-a-variant-leads-to-an-empty-for-its-parent.md) @nguyenquocdaile
+*  [#11420 - Fix navigation cache invalidation](./changelog/release-6-7-2-0/2025-08-20-navigation-cache-invalidation.md)
+*  [#11528 - Show correct exception when updating an entity with a foreign key constraint fails](./changelog/release-6-7-2-0/2025-08-13-show-correct-exception-when-updating-an-entity-with-a-foreign-key-constraint-fails.md)
+*  [#11534 - Added document return address display option](./changelog/release-6-7-2-0/2025-08-12-added-return-address-display-option.md)
+*  [#11568 - Remove language switch from import/export](./changelog/release-6-7-2-0/2025-08-01-remove-language-switch-from-import-export.md)
+*  [#11619 - Fix SeoUrl generate database-error when the url changes](./changelog/release-6-7-2-0/2025-07-31-fix-seourl-generate-database-error-when-the-url-changes.md)
+*  [#11654 - Fixing document squished line item listing](./changelog/release-6-7-2-0/2025-08-01-document-styling.md)
+*  [#11800 - fix overwrite slot config](./changelog/release-6-7-2-0/2025-08-18-fix-overwrite-slot-config.md)
+*  [#11895 - Improve admin search indexing event handling and iterator versioning](./changelog/release-6-7-2-0/2025-08-15-reduce-admin-es-indexing-and-iterator-versioning.md)
+*  [#11899 - Updated ignored URL parameters for http cache](./changelog/release-6-7-2-0/2025-08-14-updated-ignored-url-parameters-for-http-cache.md) @tinect
+*  [#12011 - Fix issue with theme config update if fields got removed](./changelog/release-6-7-2-0/2025-08-22-fix-theme-config-issue-with-removed-fields.md)
+*  [#5868 - fix product media import with whitespace in url](./changelog/release-6-7-2-0/2025-04-04-fix-product-media-import-with-whitespace-in-url.md)
+*  [#5913 - Disallow usage of file_exists](./changelog/release-6-7-2-0/2025-06-29-disallow-usage-of-file_exists.md) @tinect
+*  [#8584 - Error when trying to remove "Main category" for product](./changelog/release-6-7-2-0/2025-07-11-error-when-trying-to-remove-main-category-for-product.md)
+*  [#10897 - Include GET methods to store API schema where POST and GET supported](./changelog/release-6-7-2-0/2025-07-22-include-get-methods-to-store-api-schema-where-post-and-get-supported.md)
+*  [#11085 - Fix primary connection is not working when replica configured](./changelog/release-6-7-2-0/2025-07-29-fix-primary-connection-is-not-working-when-replica-configured.md)
+*  [#11106 - Fix Quote counts up the order number range](./changelog/release-6-7-2-0/2025-07-14-fix-quote-counts-up-the-order-number-range.md)
+*  [#11110 - Fix SystemConfigService::deleteExtensionConfiguration removes only global configuration](./changelog/release-6-7-2-0/2025-07-28-fix-systemconfigservice-deleteextensionconfiguration-removes-only-global-configuration.md)
+*  [#11194 - Add fetchpriority attribute to first image slider and image gallery item](./changelog/release-6-7-2-0/2025-08-03-add-fetchpriority-attribute-to-first-image-slider-item.md) @M-arcus
+*  [#11397 - Make sidebar expandable by dragging](./changelog/release-6-7-2-0/2025-07-21-make-sidebar-expandable-by-dragging.md)
+*  [#7881 - Add headers to vary Storefront API caches based on context vars](./changelog/release-6-7-2-0/2025-07-14-add-headers-to-vary-storefront-api-caches-based-on-context-vars.md)
+
+## 6.7.1.2
+*  [#11371 - fix sorting order when search property values](./changelog/release-6-7-1-2/2025-07-24-fix-sorting-order-when-search-property-values.md)
+*  [#11377 - Use sw-text-editor instead of mt-text-editor](./changelog/release-6-7-1-2/2025-07-25-use-sw-text-editor-instead-of-mt-text-editor.md)
+*  [#11515 - Fix reset active apps after app deactivation](./changelog/release-6-7-1-2/2025-07-29-reset-active-apps-after-service-update.md)
+*  [#11521 - fix: improve check for visibility parameter check, fixes #11521 (backport: 6.7.1.0) (#11575)](https://github.com/shopware/shopware/issues/11521)
+*  [#11599 - Change createdComponent back to being sync](./changelog/release-6-7-1-2/2025-07-30-change-createdcomponent-back-to-being-sync.md)
+*  [10040 - Fix backward compatibility of MediaThumbnailEntity](./changelog/release-6-7-1-2/2025-07-29-fix-backward-compatibility-of-mediathumbnailentity.md)
+*  [11155 - Fix cart deserialization type error](./changelog/release-6-7-1-2/2025-07-29-fix-cart-deserialization-type-error.md)
+*  [11550 - Fix inconsistent seoUrls for cross-selling products](./changelog/release-6-7-1-2/2025-07-29-fix-inconsistent-seourls-for-cross-selling-products.md)
+*  [8018 - Move Search config loader class to Core bundle](./changelog/release-6-7-1-2/2025-07-28-move-search-config-loader-class-to-core-bundle.md)
+*  [8018 - Use minimal search term length in config tables](./changelog/release-6-7-1-2/2025-07-07-use-minimal-search-term-length-in-config-tables.md)
+*  [https://github.com/shopware/shopware/issues/11085 - Fix primary connection is not working when replica configured](./changelog/release-6-7-1-2/2025-07-29-fix-primary-connection-is-not-working-when-replica-configured.md)
+
+## 6.7.1.1
+*  [#11483 - Don't check for canonical SEO Urls when no path info given during SEO URL creation](./changelog/release-6-7-1-1/2025-07-23-don-t-check-for-canonical-seo-urls-when-no-path-info-given.md) ([Marcus Müller](https://github.com/M-arcus))
+*  [#11513 - Fix ThemeLifecycleService refreshThemes being executed without plugin configurations](./changelog/release-6-7-1-1/2025-07-24-fix-theme-lifecycle-service-refresh-themes-without-plugins.md) ([Benjamin Wittwer](https://github.com/gecolay))
+*  [#11518 - Fix corruption of ThemeRuntimeConfig by theme:compile](./changelog/release-6-7-1-1/2025-07-25-fix-corruption-of-themeruntimeconfig-by-theme-compile.md)
+
+## 6.7.1.0
+      
+*  [#11157 - Scope RenamePaidTransitionActions migration to order transaction state transitions](./changelog/release-6-7-1-1/2025-07-15-scope-renamepaidtransitionactions-migration-to-ordertransactions.md)
+*  [#11386 - Fix CMS element loading when reviews are not activated](./changelog/release-6-7-1-1/2025-07-21-fix-reviews-not-activated.md)
+*  [#8724 - Added locking to cart mutating routes](./changelog/release-6-7-1-1/2025-07-15-added-locking-to-cart-mutating-routes.md)
+*  [Improve CMS slot selection and prevent misclicks](./changelog/release-6-7-1-0/2025-07-09-improve-cms-slot-selection.md) @marvn-r3
+*  [#10030 - Align error styles of form components](./changelog/release-6-7-1-0/2025-06-30-align-error-styles-of-form-components.md)
+*  [#10051 - Added namespaces option for dal:validate command](./changelog/release-6-7-1-0/2025-06-02-added-namespaces-parameter-for-dal-validate.md) @OliverSkroblin
+*  [#10056 - Added shorthands for not equals filter](./changelog/release-6-7-1-0/2025-06-02-added-not-filter-shorthands.md) @OliverSkroblin
+*  [#10130 - Added Elasticsearch response to ElasticsearchEntitySearcherSearchedEvent](./changelog/release-6-7-1-0/2025-06-02-added-es-response-to-searched-event.md) @OliverSkroblin
+*  [#10146 - Filter cart success error messages](./changelog/release-6-7-1-0/2025-06-11-filter-cart-success-error-messages.md)
+*  [#10191 - Fix tooltip of the `sw-product-variant-info` component](./changelog/release-6-7-1-0/2025-06-03-fix-tooltip-of-the-sw-product-variant-info-component.md) @aragon999
+*  [#10234 - Removed global Vue2 event emitter from the `sw-order-detail` component](./changelog/release-6-7-1-0/2025-06-03-removed-global-vue2-event-emitter-from-the-sw-order-detail-component.md) @aragon999
+*  [#10243 - Fix password field autocomplete with the `new-password` type](./changelog/release-6-7-1-0/2025-06-04-fix-password-field-autocomplete-new-password.md) @akf-bw
+*  [#10244 - Fix wrong variant of mt-banner-on-sales-channel-detail-page](./changelog/release-6-7-1-0/2025-06-10-fix-wrong-variant-of-mt-banner-on-sales-channel-detail-page.md)
+*  [#10312 - Improve error handling of Storefront JS plugin manager](./changelog/release-6-7-1-0/2025-06-05-improve-error-handling-of-storefront-plugin-manager.md)
+*  [#10341 - Skip MediaIndexing when remote thumbnails are enabled](./changelog/release-6-7-1-0/2025-06-06-skip-media-indexing-when-remote-thumbnails-are-enabled.md)
+*  [#10358 - Added price calculation extension](./changelog/release-6-7-1-0/2025-06-06-added-price-calculation-extension.md) @OliverSkroblin
+*  [#10368 - Fix spelling and typos in core packages](./changelog/release-6-7-1-0/2025-06-07-spelling-fixes-in-core-package.md) @wannevancamp
+*  [#10438 - Improve ES search scoring for numeric tokens](./changelog/release-6-7-1-0/2025-06-11-improve-es-search-scoring-for-numeric-tokens.md) @thuong-le
+*  [#10495 - Spatial Asset Caching](./changelog/release-6-7-1-0/2025-06-12-spatial-asset-caching.md)
+*  [#10498 - Installer supports presets based on the language selection](./changelog/release-6-7-1-0/2025-07-07-installer-supports-presets-based-on-the-language-selection.md)
+*  [#10520 - Remove unused `url` specification from app metadata](./changelog/release-6-7-1-0/2025-06-13-remove-unused-url-specification-from-app-metadata.md) @aragon999
+*  [#10531 - Add modifyFields method to EntityExtension](./changelog/release-6-7-1-0/2025-06-02-add-modify-fields-method-to-entity-extension.md) @gecolay
+*  [#10534 - Fix authentication for document downloads via the Store API](./changelog/release-6-7-1-0/2025-06-15-fix-document-route-authentication.md) @jgeramb
+*  [#10679 - Add validation for theme configuration](./changelog/release-6-7-1-0/2025-06-27-add-theme-config-validation.md)
+*  [#10688 - "CountryStateController: Support GET for /country/country-state-data and deprecate POST"](./changelog/release-6-7-1-0/2025-04-15-country-state-controller-get-support.md)
+*  [#10688 - New Media Upload API v2](./changelog/release-6-7-1-0/2025-06-23-media-upload-api-v2.md)
+*  [#10696 - Respect missing shipping method currency prices](./changelog/release-6-7-1-0/2025-06-20-respect-missing-shipping-method-currency-prices.md)
+*  [#10697 - Fix Vimeo video element iframe title](./changelog/release-6-7-1-0/2025-06-18-fix-vimeo-video-element-iframe-title.md) @lacknere
+*  [#10711 - Use global Vue PropType](./changelog/release-6-7-1-0/2025-06-19-use-global-vue-prop-type.md) @gecolay
+*  [#10712 - Fix session usage and session start behaviour](./changelog/release-6-7-1-0/2025-06-19-fix-session-usage-and-session-start-behaviour.md) @gecolay
+*  [#10718 - Properly display product slider element with border in the administration](./changelog/release-6-7-1-0/2025-06-19-properly-display-product-slider-element-with-border-in-the-administration.md) @aragon999
+*  [#10738 - Custom field set name is now unique for apps](./changelog/release-6-7-1-0/2025-06-24-custom-field-set-name-is-now-unique-for-apps.md)
+*  [#10738 - Fix apps with duplicated custom field sets](./changelog/release-6-7-1-0/2025-06-24-fix-apps-with-duplicated-custom-field-sets.md)
+*  [#10744 - Fix duplicate grid settings space](./changelog/release-6-7-1-0/2025-06-23-fix-duplicate-grid-settings-space.md) @gecolay
+*  [#10749 - Fix product search SQL scoring](./changelog/release-6-7-1-0/2025-06-23-fix-product-search-sql-scoring.md) @lacknere
+*  [#10754 - fix: find correct admin root without explict env, fixes #10754 (#10925)](https://github.com/shopware/shopware/issues/10754)
+*  [#10764 - Unify margins of admin dashboard](./changelog/release-6-7-1-0/2025-06-24-unify-margins-of-admin-dashboard.md) @aragon999
+*  [#10767 - Added twig block to mt-text-editor component template](./changelog/release-6-7-1-0/2025-06-24-added-twig-block-for-text-editor.md) @acris-lf
+*  [#10774 - Multiple promotions order count fix](./changelog/release-6-7-1-0/2025-07-02-multiple-promotions-order-count-fix.md)
+*  [#10853 - Skip In-App Purchases update task on missing authentication headers](./changelog/release-6-7-1-0/2025-06-27-skip-in-app-purchases-update-task-on-missing-authentication.md)
+*  [#10855 - Fix duplicate checkout gateway filter](./changelog/release-6-7-1-0/2025-06-27-fix-duplicate-checkout-gateway-filter.md) @gecolay
+*  [#10874 - Fix invoice creation with a custom number](./changelog/release-6-7-1-0/2025-06-27-fix-document-number-customization.md) @jgeramb
+*  [#10876 - Fix invoice number selection for credit notes and storno invoices](./changelog/release-6-7-1-0/2025-06-27-fix-invoice-number-selection.md) @jgeramb
+*  [#10877 - Cleanup styles of the `sw-category` module](./changelog/release-6-7-1-0/2025-06-27-cleanup-styles-of-the-sw-category-module.md) @aragon999
+*  [#10880 - Use display index to get active slide element](./changelog/release-6-7-1-0/2025-06-28-use-display-index-to-get-active-slide-element.md)
+*  [#10885 - Prevent line item price editing in admin if price definition is missing](./changelog/release-6-7-1-0/2025-06-30-prevent-line-item-price-editing-in-admin-if-price-definition-is-missing.md) @aragon999
+*  [#10919 - Delete correct expired store session](./changelog/release-6-7-1-0/2025-07-04-delete-correct-expired-store-session.md)
+*  [#10947 - Add createdAt column to customer list in administration](./changelog/release-6-7-1-0/2025-07-02-add-customer-list-created-at-column.md) @gecolay
+*  [#10948 - Add administration product number filter](./changelog/release-6-7-1-0/2025-07-02-add-admin-product-number-filter.md) @gecolay
+*  [#10949 - Fix tooltip formatting](./changelog/release-6-7-1-0/2025-07-02-fix-tooltip-formatting.md) @lacknere
+*  [#10955 - Add missing dateTimeFormat property for sw-time-ago](./changelog/release-6-7-1-0/2025-07-03-add-missing-date-time-format-prop-for-sw-time-ago.md) @gecolay
+*  [#10956 - Improved initial camera position of 3D viewer](./changelog/release-6-7-1-0/2025-07-03-improved-initial-camera-position-of-3d-viewer.md)
+*  [#10958 - Use single shared interval for sw-time-ago component](./changelog/release-6-7-1-0/2025-07-03-use-single-shared-interval-for-sw-time-ago.md) @gecolay
+*  [#10965 - Add staging config to SetupStagingEvent](./changelog/release-6-7-1-0/2025-07-03-add-staging-config-to-event.md)
+*  [#10969 - Add CanonicalRedirectExtension to CanonicalRedirectService](./changelog/release-6-7-1-0/2025-07-03-add-canonical-redirect-extension.md) @gecolay
+*  [#10971 - Removed EntityHydrator internal class tag](./changelog/release-6-7-1-0/2025-07-03-removed-entity-hydrator-internal-class-tag.md) @gecolay
+*  [#10974 - Deprecate filesystem visibility in config array](./changelog/release-6-7-1-0/2025-07-03-deprecate-filesystem-visibility-in-config-array.md)
+*  [#10978 - Add remove loader function to form submit loader plugin](./changelog/release-6-7-1-0/2025-07-03-add-remove-function-to-form-submit-loader-plugin.md)
+*  [#10981 - Improved XmlHttpRequest denied exception information](./changelog/release-6-7-1-0/2025-07-03-improved-xml-http-request-denied-exception-info.md) @gecolay
+*  [#10983 - Use sw-time-ago for past date times](./changelog/release-6-7-1-0/2025-07-03-use-sw-time-ago-for-past-date-times.md) @gecolay
+*  [#10988 - Change URL generation for ESI includes to avoid HTTPS issues with Varnish](./changelog/release-6-7-1-0/2025-07-03-esi-url-instead-of-path.md) @stefanpoensgen
+*  [#10998 - Fix order line items label display & add type column](./changelog/release-6-7-1-0/2025-07-04-fix-order-line-items-label-display-and-add-type-column.md) @gecolay
+*  [#10999 - Fix variant listing config when cloning products or deleting variants](./changelog/release-6-7-1-0/2024-07-26-fix-variant-listing-config-when-cloning-products-or-deleting-variants.md) @schneider-felix
+*  [#11008 - Add product creation date sorting criteria option](./changelog/release-6-7-1-0/2025-07-04-add-product-creation-date-sorting-criteria-option.md) @lacknere
+*  [#11010 - Change deprecated `&&` in sql accessor builder](./changelog/release-6-7-1-0/2025-07-04-change-deprecated-and-in-sql-accessor-builder.md) @gecolay
+*  [#11033 - Change ApiAware visibility for externalUser field in ProductReview](./changelog/release-6-7-1-0/2025-07-07-change-api-aware-visibility-external-user-product-review.md) @gecolay
+*  [#11035 - Change ApiAware visibility for products association in CustomerWishlist](./changelog/release-6-7-1-0/2025-07-07-change-api-aware-visibility-products-customer-wishlist.md) @gecolay
+*  [#11043 - Generate routes based on current request](./changelog/release-6-7-1-0/2025-07-07-generate-routes-base-on-current-request.md)
+*  [#11079 - Optimize product slider CMS element](./changelog/release-6-7-1-0/2025-07-08-optimize-product-slider-cms-element.md) @lacknere
+*  [#11113 - Add error handling to YouTube CMS element link parsing](./changelog/release-6-7-1-0/2025-07-10-add-error-handling-to-youtube-cms-element-link-parsing.md) @LukasVoeller
+*  [#3784 - Fix SEO URLs for landing pages in footer navigation](./changelog/release-6-7-1-0/2025-04-08-fix-seo-urls-for-landing-pages-in-footer-navigation.md)
+*  [#4728 - Deprecate force option from es:index:cleanup command](./changelog/release-6-7-1-0/2024-09-13-deprecate-force-option-from-es-index-cleanup-command.md) @M-arcus
+*  [#6001 - Add an explicit configurable robots.txt](./changelog/release-6-7-1-0/2025-01-04-add-an-explicit-configurable-robots-txt.md) @aragon999
+*  [#6032 - Unify constraint option structure and checks](./changelog/release-6-7-1-0/2025-01-07-unify-constraint-option-structure-and-checks.md) @akf-bw
+*  [#6038 - Fix Gallery Thumbnail Slider](./changelog/release-6-7-1-0/2025-01-07-fix-gallery-thumbnail-slider.md)
+*  [#6418 - Fix negative zero when calculating price](./changelog/release-6-7-1-0/2025-01-24-fix-negative-zero-when-calculating-price.md) @JasperP98
+*  [#6486 - Change redirect path for wishlist after login](./changelog/release-6-7-1-0/2025-01-29-change-redirect-path-for-wishlist-after-login.md) @tinect
+*  [#7346 - feat: Fixes #7346 - Allow variable icon names in sw_icon (#8369)](https://github.com/shopware/shopware/issues/7346)
+*  [#7457 - Add acl hook service](./changelog/release-6-7-1-0/2025-03-14-add-acl-hook-service.md)
+*  [#7494 - Preserve administration sidebar state](./changelog/release-6-7-1-0/2025-03-13-preserve-administration-sidebar-state.md) @akf-bw
+*  [#7716 - Improve fetching of language information for SalesChannelContext](./changelog/release-6-7-1-0/2025-06-11-improve-fetching-of-language-information-for-saleschannelcontext.md)
+*  [#7719 - add nl2br filter to customer review content variable](./changelog/release-6-7-1-0/2025-03-19-add-nl2br-filter-to-review-content.md) @marvn-r3
+*  [#7770 - Move review active check into store api routes](./changelog/release-6-7-1-0/2025-03-20-move-review-active-check-into-store-api-routes.md) @aragon999
+*  [#7840 - Fix CmsDataResolver same Criteria different Entities](./changelog/release-6-7-1-0/2025-03-24-fix-cmsdataresolver-same-criteria-different-entities.md) @Fayti1703
+*  [#7852 - Add storefront snippet events](./changelog/release-6-7-1-0/2025-03-24-add-storefront-snippet-events.md) @scarbous
+*  [#7932 - Remove non-existing imports from admin module stub](./changelog/release-6-7-1-0/2025-03-26-remove-non-existing-imports-from-admin-module-stub.md) @M-arcus
+*  [#7938 - fix cms block removable check](./changelog/release-6-7-1-0/2025-03-25-fix-show-product-name-for-variants-in-admin-category-products.md) @schneider-felix
+*  [#7993 - Removed write protection flag from fileExtension field in the MediaDefinition](./changelog/release-6-7-1-0/2025-06-10-removed-write-protection-flag-from-fileextension-field-in-the-mediadefinition.md)
+*  [#8027 - Deprecated theme translations to use admin snippets](./changelog/release-6-7-1-0/2025-05-07-deprecated-theme-translations-to-use-admin-snippets.md)
+*  [#8041 - save fileHash if it is available](./changelog/release-6-7-1-0/2025-03-28-save-file-hash-if-it-is-available.md) @scarbous
+*  [#8055 - Deprecated payment method DebitPayment](./changelog/release-6-7-1-0/2025-03-29-remove-debit-payment-method.md)
+*  [#8209 - Spatial AR viewer checks](./changelog/release-6-7-1-0/2025-04-01-ar-viewer-bug.md)
+*  [#8226 - Add renaming scales unit banner in Settings overview](./changelog/release-6-7-1-0/2025-04-04-add-renaming-scales-unit-alert-in-settings-overview.md) @nguyenquocdaile
+*  [#8228 - Allow empty alt with sw_thumbnails](./changelog/release-6-7-1-0/2025-06-16-allow-empty-alt-with-sw_thumbnails.md)
+*  [#8390 - Fix invoice empty pages](./changelog/release-6-7-1-0/2025-04-08-fix-invoice-empty-pages.md) @lacknere
+*  [#8393 - Add support for extended definition of attribute entity](./changelog/release-6-7-1-0/2025-04-10-add-support-for-extended-definition-of-attribute-entity.md)
+*  [#8478 - Add remote thumbnail url extension](./changelog/release-6-7-1-0/2025-04-10-add-remote-thumbnail-url-extension.md) @TheBreaken
+*  [#8531 - Truncate long custom field descriptions in rulebuilder](./changelog/release-6-7-1-0/2025-04-14-truncate-long-custom-field-descriptions-in-rulebuilder.md) @lacknere
+*  [#8538 - Add measurement settings into sales channel configuration](./changelog/release-6-7-1-0/2025-04-25-add-measurement-settings-into-sales-channel-configuration.md)
+*  [#8539 - Add measurement settings into sales channel domain configuration](./changelog/release-6-7-1-0/2025-05-05-add-measurement-settings-into-sales-channel-domain-configuration.md)
+*  [#8540 - Update domain listing to show measurement information](./changelog/release-6-7-1-0/2025-05-05-update-domain-listing-to-show-measurement-information.md)
+*  [#8558 - Skip cart recalculation on ESI sub requests](./changelog/release-6-7-1-0/2025-07-03-skip-cart-recalculation-on-esi-sub-requests.md)
+*  [#8574 - Deprecate account order detail page](./changelog/release-6-7-1-0/2025-04-15-deprecate-account-order-detail-page.md)
+*  [#8591 - Fixed theme config inheritance for database child themes](./changelog/release-6-7-1-0/2025-07-07-fixed-theme-config-inheritance.md)
+*  [#8670 - Implement media component with Admin SDK](./changelog/release-6-7-1-0/2025-04-21-implement-media-component-with-admin-sdk.md)
+*  [#8698 - Message queue statistics](./changelog/release-6-7-1-0/2025-05-05-message-queues-statistics.md)
+*  [#8763 - Add recalculated custom line-items to delivery](./changelog/release-6-7-1-0/2025-05-28-add-recalculated-custom-line-items-to-delivery.md)
+*  [#8873 - Fix unprepared statements breaking profiler](./changelog/release-6-7-1-0/2025-04-28-fix-unprepared-statements-breaking-profiler.md) @MelvinAchterhuis
+*  [#8900 - Deprecated carts-alerts](./changelog/release-6-7-1-0/2025-04-29-deprecated-carts-alerts.md)
+*  [#8903 - Added DIVE as a 3D Viewer for Storefront](./changelog/release-6-7-1-0/2025-05-06-added-dive-as-a-3d-viewer-for-storefront.md)
+*  [#8981 - Remove specific color on icon-wishlist](./changelog/release-6-7-1-0/2025-05-02-remove-specific-color-on-icon-wishlist.md) @tinect
+*  [#8989 - Track status changes performed by integrations](./changelog/release-6-7-1-0/2025-05-02-track-status-changes-performed-by-integrations.md) @schneider-felix
+*  [#9028 - Remove obsolete `requiredMessage` variable declarations](./changelog/release-6-7-1-0/2025-05-05-remove-obsolete-requiredmessage-variable-declarations.md) @aragon999
+*  [#9031 - ci: reenable 6.6.0.0 update (fixes #9031) (#9245)](https://github.com/shopware/shopware/issues/9031)
+*  [#9068 - Fix app uninstalls with custom entities](./changelog/release-6-7-1-0/2025-06-18-improve-app-uninstalls-with-custom-entities.md)
+*  [#9101 - Deprecate active language and currency from header pagelet](./changelog/release-6-7-1-0/2025-05-06-deprecate-active-language-and-currency-from-header-pagelet.md) @aragon999
+*  [#9229 - Fix the reading of the cart widget by screen readers](./changelog/release-6-7-1-0/2025-07-04-fix-the-reading-of-the-cart-widget-by-screen-readers.md)
+*  [#9254 - Load `SalesChannelCategoryEntity` when loading the breadcrumb](./changelog/release-6-7-1-0/2025-05-10-load-saleschannelcategoryentity-when-loading-the-breadcrumb.md)
+*  [#9397 - chore: add cleanup-needs-triage (fixes: #9397) (#9527)](https://github.com/shopware/shopware/issues/9397)
+*  [#9477 - Add guest conversion route to Store API](./changelog/release-6-7-1-0/2025-05-28-add-convert-guest-route.md)
+*  [#9555 - A11y-Compliant alt tag for decorative images](./changelog/release-6-7-1-0/2025-05-19-bsfg-compliant-alt-tag-for-decorative-images.md) @wbm-sbasler
+*  [#9739 - Fix paging listing page parameter usage in post requests](./changelog/release-6-7-1-0/2025-05-22-fix-paging-listing-page-parameter-post.md) @akf-bw
+*  [#9826 - Added new API to delete unused increment keys or cluster](./changelog/release-6-7-1-0/2025-05-23-add-new-increment-api-to-delete-unused-keys-or-cluster.md)
+*  [#9828 - Register mt-modal componants globally](./changelog/release-6-7-1-0/2025-05-23-register-mt-modal-componants-globally.md)
+*  [#9850 - Add deprecations to the theme configuration APIs](./changelog/release-6-7-1-0/2025-05-28-add-deprecations-to-the-theme-configuration-apis.md)
+*  [#9851 - feat: implement event on Sitemap Generation, closes #9851 (#9853)](https://github.com/shopware/shopware/issues/9851)
+*  [#9887 - Improved AR Error feeback](./changelog/release-6-7-1-0/2025-06-03-improved-ar-error-feeback.md)
+*  [#9928 - Primary order and transaction deliveries during recalculation](./changelog/release-6-7-1-0/2025-06-12-primary-order-and-transaction-deliveries-during-recalculation.md)
+*  [#9980 - Silence and log exceptions of In-App purchases](./changelog/release-6-7-1-0/2025-05-30-silence-and-log-exceptions-of-in-app-purchases.md)
+*  [Remove first level app snippet restriction](./changelog/release-6-7-1-0/2025-05-09-remove-first-level-app-snippet-restriction.md)
+*  [#10297 - Products with variants should return the variant that match the search term in the product detail page](./changelog/release-6-7-1-0/2025-06-05-products-with-variants-should-return-the-variant-that-match-the-search-term-in-the-product-detail-page.md)
+*  [#10507 - Fix media item quickinfo update after save](./changelog/release-6-7-1-0/2025-06-26-fix-media-item-quickinfo-update-after-save.md) @bschulzebaek
+*  [#10513 - Fix issue SEO url not generating anymore](./changelog/release-6-7-1-0/2025-06-23-fix-issue-seo-url-not-generating-anymore.md)
+*  [#10706 - Add lock for CacheClearer](./changelog/release-6-7-1-0/2025-07-01-add-lock-for-cache-clearer.md)
+*  [#10906 - Change path of header and footer routes](./changelog/release-6-7-1-0/2025-07-01-change-path-of-header-and-footer-routes.md)
+*  [#11131 - add env variables for Opensearch min_ngram and max_ngram](./changelog/release-6-7-1-0/2025-07-10-add-env-variables-for-opensearch-min_ngram-and-max_ngram.md)
+*  [#5913 - Remove usage of file_exists](./changelog/release-6-7-1-0/2025-06-26-changed-file_exists-to-suitable-is_dir-is_file.md) @tinect
+*  [#5913 - Remove usage of file_exists](./changelog/release-6-7-1-0/2025-06-26-remove-usage-of-file_exists-in-admin.md) @tinect
+*  [#5913 - Remove usage of file_exists](./changelog/release-6-7-1-0/2025-06-26-remove-usage-of-file_exists-in-tests.md) @tinect
+*  [#5913 - Remove usage of file_exists](./changelog/release-6-7-1-0/2025-06-26-remove-usage-of-file_exists.md) @tinect
+*  [#7225 - Add measurement system](./changelog/release-6-7-1-0/2025-06-10-add-measurement-system.md)
+*  [#7730 - Create migration and DAL for measurement system](./changelog/release-6-7-1-0/2025-04-02-create-migration-and-dal-for-scale-unit.md)
+*  [#7732 - add sw-settings-measurement module](./changelog/release-6-7-1-0/2025-05-08-add-sw-settings-measurement-module.md)
+*  [#7792 - Implement app:list command](./changelog/release-6-7-1-0/2025-04-04-implement-app-list-command.md) @devin-ai-integration
+*  [#8471 - ES should work correctly with ScoreQuery](./changelog/release-6-7-1-0/2025-06-17-es-should-work-correctly-with-scorequery.md)
+*  [#8541 - add selling packaging card](./changelog/release-6-7-1-0/2025-04-22-add-selling-packaging-card.md)
+*  [#8542 - add sw-product-measurement-form component](./changelog/release-6-7-1-0/2025-05-14-add-sw-product-measurement-form-component.md)
+*  [#8543 - Apply last chosen measurement settings as user preferred settings](./changelog/release-6-7-1-0/2025-05-20-apply-last-chosen-measurement-settings-as-user-preferred-settings.md)
+*  [#8545 - adjust bulk editing products with new product measurements](./changelog/release-6-7-1-0/2025-05-19-adjust-bulk-editing-products-with-new-product-measurements.md)
+*  [#9175 - Add ACL](./changelog/release-6-7-1-0/2025-06-17-add-acl.md)
+*  [#9909 - Fix unable to fall back to parent language on product entity](./changelog/release-6-7-1-0/2025-06-27-fix-unable-to-fall-back-to-parent-language-on-product-entity.md)
+*  [#9931 - deprecate i18n $tc function](./changelog/release-6-7-1-0/2025-06-06-deprecate-i18n-tc-function.md)
+*  [Add twig block around filter columns](./changelog/release-6-7-1-0/2025-03-17-add-twig-block-around-filter-columns.md)
+*  [Ocarthon - fix AfterSort with multiple null values](./changelog/release-6-7-1-0/2025-06-25-fix-after-sort-with-multiple-null-values.md) @PhilipStandt
+*  [https://github.com/shopware/service-enablement/issues/17 - Changed Admin-SDK handler for context.can](./changelog/release-6-7-1-0/2025-06-19-changed-admin-sdk-handler-for-context-can.md)
+*  [#10248 - Added DeduplicatableMessageInterface](./changelog/release-6-7-1-0/2025-07-04-added-deduplicatablemessageinterface.md)
+*  [#11053 - Delete Admin snippet cache after app install](./changelog/release-6-7-1-0/2025-07-11-delete-admin-snippet-cache-after-app-install.md)
+*  [#11085 - Fix mysql replica parameters parsing](./changelog/release-6-7-1-0/2025-07-09-fix-mysql-replica-parameters-parsing.md)
+*  [#3712 - Meta information in landing pages is not inherited](./changelog/release-6-7-1-0/2025-03-27-meta-information-in-landing-pages-is-not-inherited.md) @Songworks
+*  [#4936 - Add primary order delivery and primary order transaction reference](./changelog/release-6-7-1-0/2024-10-04-add-primary-order-delivery-and-transaction-reference.md) @hanneswernery
+*  [#5913 - Change file_exists to is_dir](./changelog/release-6-7-1-0/2025-05-18-change-file_exists-to-is_dir.md) @tinect
+*  [#7480 - New config to toggle salutation field on registration](./changelog/release-6-7-1-0/2025-03-25-new-config-to-toogle-salutaion-field-on-registration.md)
+*  [#7482 - Added new configs for changing cart columns](./changelog/release-6-7-1-0/2025-03-27-added-new-configs-for-changing-cart-columns.md)
+*  [#7766 - Optimizing theme config loading](./changelog/release-6-7-1-0/2025-04-09-optimizing-theme-config-loading.md)
+*  [#9851 - Add Event to modify SalesChannelContext](./changelog/release-6-7-1-0/2025-05-24-add-event-to-modify-saleschannelcontext.md) @wrongspot
+
+
+## 6.7.0.1
+*  [#10518 - Press ESC key in the modal will go back listing page](./changelog/release-6-7-0-1/2025-06-17-press-esc-key-in-the-modal-will-go-back-listing-page.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#10667 - Fix stacking line items does not recalculate advanced prices](./changelog/release-6-7-0-1/2025-06-26-fix-stacking-line-items-does-not-recalculate-advanced-prices.md)
+*  [#10682 - Live search page broken if the data is empty](./changelog/release-6-7-0-1/2025-06-18-live-search-page-broken-if-the-data-is-empty.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#10868 - Don't ignore ESI render errors](./changelog/release-6-7-0-1/2025-06-27-dont-ignore-esi-render-errors.md)
+*  [10394 - manufacturer replace media sidebar to media modal](./changelog/release-6-7-0-1/2025-06-11-manufacturer-replace-media-sidebar-to-media-modal.md) ([Le Nguyen](https://github.com/Le Nguyen))
+
+## 6.7.0.0
+*  [#10006 - Product variants empty state list position doesn't correct](./changelog/release-6-7-0-0/2025-06-05-product-variants-empty-state-list-position-doesn-t-correct.md)
+*  [#10192 - Improve listing of customerGroup registration form SEO URLs](./changelog/release-6-7-0-0/2025-06-06-improve-listing-of-customergroup-registration-form-seo-urls.md)
+*  [#10274 - Pass through extensions from IdSearchResult to EntitySearchResult in ProductListingLoader](./changelog/release-6-7-0-0/2025-06-02-bypass-extensions-from-id-result-to-search-result.md) @OliverSkroblin
+*  [#10275 - Translated custom field value accessor](./changelog/release-6-7-0-0/2025-06-02-translated-custom-field-value-accessor.md) @OliverSkroblin
+*  [#10286 - Unwrap messages when routing](./changelog/release-6-7-0-0/2025-05-29-unwrap-messages-when-routing.md)
+*  [#10293 - Fix inconsistency between login & register page for guest customers](./changelog/release-6-7-0-0/2025-06-03-fix-inconsistency-between-login-and-register.md)
+*  [#10299 - Fix StoreAPI criteria endpoints schema](./changelog/release-6-7-0-0/2025-05-22-fix-store-api-criteria-endpoints-schema.md) @akf-bw
+*  [#10422 - Vue3 compatibility for template refs in cross-selling component](./changelog/release-6-7-0-0/2025-06-09-vue3-compatibility-for-template-refs-in-cross-selling-component.md) @aragon999
+*  [#9310 - E-invoice vertical tax calculation](./changelog/release-6-7-0-0/2025-05-22-e-invoice-vertical-tax-calculation.md)
+*  [#10120 - Fix generating variants shows NaN%](./changelog/release-6-7-0-0/2025-06-05-fix-generating-variants-shows-nan.md)
+*  [#10190 - Fix essential characteristics create template with more than 2 values does not work](./changelog/release-6-7-0-0/2025-06-09-fix-essential-characteristics-create-template-with-more-than-2-values-does-not-work.md)
+*  [#9367 - Fix alignment logo manufacturer media field not correct](./changelog/release-6-7-0-0/2025-05-26-fix-alignment-logo-manufacture-media-field.md)
+*  [#9715 - Set Limit when loading options in property group detail page](./changelog/release-6-7-0-0/2025-05-22-set-limit-when-loading-options-in-property-group-detail-page.md)
+*  [#9855 - Elasticsearch custom fields dynamic product groups not working](./changelog/release-6-7-0-0/2025-05-27-elasticsearch-custom-fields-dynamic-product-groups-not-working.md)
+
+## 6.7.0.0-rc5
+*  [#8388 - Replace old data protection info the our current standard](./changelog/release-6-7-0-0/2025-05-27-replace-old-data-protection-info-the-our-current-standard.md)
+*  [#9433 - Adjust styling label created by admin on customer detail page](./changelog/release-6-7-0-0/2025-05-21-adjust-styling-label-created-by-admin.md)
+*  [#9461 - Transmit correct shipping costs to Google Analytics](./changelog/release-6-7-0-0/2025-05-15-transmit-correct-shipping-costs-to-google-analytics.md) ([Max](https://github.com/aragon999))
+*  [#9510 - Add `skip-theme-compile` option for app uninstall](./changelog/release-6-7-0-0/2025-05-16-add-skip-theme-compile-option-for-app-uninstall.md)
+*  [#9518 - Provide context token to current request](./changelog/release-6-7-0-0/2025-05-15-provide-context-token-to-current-request.md)
+*  [#9532 - Refactored snippet set list](./changelog/release-6-7-0-0/2025-05-20-refactored-snippet-set-list.md)
+*  [#9572 - Fix theme settings getting lost when navigating quickly](./changelog/release-6-7-0-0/2025-05-20-added-reset-parameter-to-update-theme.md) ([Alexander Menk](https://github.com/amenk))
+*  [#9579 - Account design adjustments](./changelog/release-6-7-0-0/2025-05-20-account-design-adjustments.md)
+*  [#9600 - Show rendered type of tax rule restrictions](./changelog/release-6-7-0-0/2025-05-02-show-rendered-type-of-tax-rule-restrictions.md) ([Max](https://github.com/aragon999))
+*  [#9615 - Changed manufacturer wrapper from `<a>` to `<div>` when link is missing](./changelog/release-6-7-0-0/2025-05-21-refactor-manufacturer-wrapper-on-product-detail-page.md)
+*  [#9623 - Adjusted the styling of the tooltip dot marker](./changelog/release-6-7-0-0/2025-05-26-adjust-styling-chart-count-tooltip.md)
+*  [#9713 - Display Promotion rule correctly as line item rule in Administration](./changelog/release-6-7-0-0/2025-05-20-display-promotion-rule-as-line-item-rule.md)
+*  [#9729 - Fix search term custom find weird icons](./changelog/release-6-7-0-0/2025-05-22-fix-search-term-custom-find-weird-icons.md) ([Le Nguyen](https://github.com/Le Nguyen))
+*  [#9845 - Fix incorrect overwrite of deepLinkCode on order recalculation](./changelog/release-6-7-0-0/2025-05-20-fix-deeplinkcode-overwrite.md)
+*  [#9868 - Replaced `sw-checkbox-field` component by `mt-checkbox` in theme assignment](./changelog/release-6-7-0-0/2025-03-28-replaced-sw-checkbox-field-component-by-mt-checkbox-in-theme-assignment.md) ([Max](https://github.com/aragon999))
+*  [#9955 - Update Meteor to 4.12.1](./changelog/release-6-7-0-0/2025-05-28-update-meteor-to-4-12-1.md)
+*  [#5413 - Fix sorting of countries in Storefront](./changelog/release-6-7-0-0/2025-05-27-fix-sorting-of-countries.md)
+*  [#5899 - Elasticsearch list/price percentage ratio dynamic product groups not working](./changelog/release-6-7-0-0/2025-05-21-elasticsearch-list-price-percentage-ratio-dynamic-product-groups-not-working.md)
+*  [#7447 - Variant indicator missing in product listing](./changelog/release-6-7-0-0/2025-03-12-variant-indicator-missing-in-product-listing.md)
+*  [#8790 - Fix inline media upload preview image option is broken](./changelog/release-6-7-0-0/2025-05-23-fix-inline-media-upload-preview-image-option-is-broken.md)
+*  [#9055 - Replace theme media sidebar with media modal](./changelog/release-6-7-0-0/2025-05-20-replace-theme-media-sidebar-with-media-modal.md) ([Benedikt Schulze Baek](https://github.com/bschulzebaek))
+*  [#9384 - Fix search result order in preview search in mysql](./changelog/release-6-7-0-0/2025-05-15-fix-search-result-order-in-preview-search-in-mysql.md)
+*  [#9557 - Fix first level nav bar links](./changelog/release-6-7-0-0/2025-05-19-fix-first-level-nav-bar-links.md)
+*  [#9612 - Remove overwrite of CreatedByField with non-live version](./changelog/release-6-7-0-0/2025-05-21-remove-write-of-createdbyfield-for-nonlive-versions.md)
+*  [#7768 - Reduce downtime while theme change](./changelog/release-6-7-0-0/2025-05-19-reduce-downtime-while-theme-change.md)
+*  [#9426 - Fix Change in new generated language get an error](./changelog/release-6-7-0-0/2025-05-26-fix-change-in-new-generated-language-get-an-error.md)
+
+## 6.7.0.0-rc4
+*  [#7346 - feat: Fixes #7346 - Allow variable icon names in sw_icon [6.7.0.0] (#8477)](https://github.com/shopware/shopware/issues/7346)
+*  [#7476 - fix no new line for placeholder](./changelog/release-6-7-0-0/2025-04-30-fix-no-new-line-for-placeholder.md)
+*  [#7652 - Rename `order_transaction` transition action `pay` and `pay_partially`](./changelog/release-6-7-0-0/2024-12-19-rename-transaction-transition-action-pay-and-pay-partially.md)
+*  [#8002 - Show customer default addresses in available listing](./changelog/release-6-7-0-0/2025-04-30-show-customer-default-addresses-in-listing.md)
+*  [#8412 - fix broken snippets in rule builder conditions](./changelog/release-6-7-0-0/2025-04-17-fix-broken-snippets-in-rule-builder-conditions.md)
+*  [#8499 - Improve basic captcha form validation compatibility](./changelog/release-6-7-0-0/2025-04-28-improve-basic-captcha-compatibility.md)
+*  [#8649 - Solve admin promotion issues](./changelog/release-6-7-0-0/2025-05-09-solve-admin-promotion-issues.md)
+*  [#8686 - Case insensitive guest order e-mail and postal code check](./changelog/release-6-7-0-0/2025-04-28-case-insensitive-guest-order-check.md)
+*  [#8739 - Imitate customer active sales channel check](./changelog/release-6-7-0-0/2025-04-22-fix-imitate-customer-active-sales-channel-check.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#8896 - Fix local mode of `sw-one-to-many-grid`](./changelog/release-6-7-0-0/2025-04-24-fix-local-mode-of-sw-one-to-many-grid.md) ([Max](https://github.com/aragon999))
+*  [#8937 - Fix multi select filter for translated entities](./changelog/release-6-7-0-0/2025-02-21-fix-multi-select-filter-for-translated-entities.md) ([Nicky Gerritsen](https://github.com/nickygerritsen))
+*  [#8964 - Allow small size of `sw-simple-search-field`](./changelog/release-6-7-0-0/2025-04-24-allow-small-size-of-sw-simple-search-field.md) ([Max](https://github.com/aragon999))
+*  [#9012 - export createTextEditorDataMappingButton through global Shopware component helper](./changelog/release-6-7-0-0/2025-05-09-export-createtexteditordatamappingbutton-through-global-shopware-component-helper.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#9037 - Allow small size of `sw-select-rule-create`](./changelog/release-6-7-0-0/2025-04-30-allow-small-size-of-sw-select-rule-create.md) ([Max](https://github.com/aragon999))
+*  [#9051 - Changed text when editing locked CMS page in table view](./changelog/release-6-7-0-0/2025-09-05-changed-text-when-edit-locked-cms-page.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#9060 - Remove extra closing curly brace](./changelog/release-6-7-0-0/2025-05-06-fix-remove-extra-closing-curly-brace.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#9075 - Add active styling class to main navigation](./changelog/release-6-7-0-0/2025-05-13-add-active-styling-class-to-main-navigation.md)
+*  [#9102 - Fix admin password recovery submit](./changelog/release-6-7-0-0/2025-05-06-fixed-admin-password-recovery.md) ([Wanne Van Camp](https://github.com/wannevancamp))
+*  [#9112 - Fix height of search field in `sw-card-filter` component](./changelog/release-6-7-0-0/2025-05-02-fix-height-of-search-field-in-sw-card-filter-component.md) ([Max](https://github.com/aragon999))
+*  [#9118 - Allow enriching seoUrls for search results's extensions](./changelog/release-6-7-0-0/2025-04-28-inclue-seourls-for-suggestsearch-and-search-entities.md)
+*  [#9137 - Fix admin ui when staging mode enabled](./changelog/release-6-7-0-0/2025-05-07-fix-admin-ui-when-staging-mode-enabled.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#9160 - Revert "Silently ignore admin ES errors (NEXT-37382)"](./changelog/release-6-7-0-0/2025-04-30-revert-silently-ignoring-admin-es-errors.md) ([Paul von Allwörden](https://github.com/paulvonallwoerden))
+*  [#9180 - Elasticsearch index's mapping should be updated post update](./changelog/release-6-7-0-0/2025-05-08-elasticsearch-index-s-mapping-should-be-updated-post-update.md)
+*  [#9199 - Fix StructEncoder custom field visibility](./changelog/release-6-7-0-0/2025-04-08-fix-struct-encoder-custom-field-visibility.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#9210 - Do not include empty subcategory navigation lists](./changelog/release-6-7-0-0/2025-04-14-do-not-include-empty-subcategory-navigation-list.md) ([Max](https://github.com/aragon999))
+*  [#9215 - "Fix admin watcher Vite origin host for DDEV"](./changelog/release-6-7-0-0/2025-05-07-Fix-admin-watcher-vite-origin-host-for-ddev.md) (["Benny Poensgen"](https://github.com/"vanWittlaer"))
+*  [#9252 - Change PropertyGroupOption `combinable` visibility](./changelog/release-6-7-0-0/2025-05-09-change-property-group-option-combinable-visibility.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#9290 - Improve sw-page back button linking](./changelog/release-6-7-0-0/2024-12-04-improve-sw-page-back-button-linking.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#9313 - Add blocks for inputs for address and register form](./changelog/release-6-7-0-0/2025-05-05-add-blocks-for-inputs-for-address-and-register-form.md) ([Max](https://github.com/aragon999))
+*  [#9334 - Added locking mechanism to CartOrderRoute](./changelog/release-6-7-0-0/2025-05-07-added-cart-order-lock.md)
+*  [#9357 - Fixed accessibility issue of collapse button of orders](./changelog/release-6-7-0-0/2025-05-12-fixed-accessibility-issue-of-collapse-button-of-orders.md) ([Max](https://github.com/aragon999))
+*  [#9390 - Cleanup cancel order modal](./changelog/release-6-7-0-0/2025-05-12-cleanup-cancel-order-modal.md) ([Max](https://github.com/aragon999))
+*  [#8265 - Changed form validation to check for custom error message](./changelog/release-6-7-0-0/2025-04-29-changed-form-validation-to-check-for-custom-error-message.md)
+*  [#8285 - Fixed promotion deletion cart error](./changelog/release-6-7-0-0/2025-05-05-fixed-promotion-deletion-cart-error.md)
+*  [#8828 - Fix category search results not scrollable](./changelog/release-6-7-0-0/2025-05-05-fix-category-search-results-not-scrollable.md)
+*  [#8859 - Add deprecated prop to facilitate the migration to meteor components](./changelog/release-6-7-0-0/2025-04-30-add-deprecated-prop-to-facilitate-the-migration-to-meteor-components.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#8922 - Fix allowFullscreen attribute in CmsGdprVideoElement](./changelog/release-6-7-0-0/2025-04-30-allowfullscreen-video-element.md)
+*  [#8925 - Fix faulty modal behavior in Advanced Pricing "Create New Rule"](./changelog/release-6-7-0-0/2025-05-04-fix-faulty-modal-behavior-in-advanced-pricing-create-new-rule.md) ([Mahesh Bohara](https://github.com/maheshbohara))
+*  [#8976 - Fix admin assets with underscores in plugin names](./changelog/release-6-7-0-0/2025-05-05-fix-admin-assets-with-underscores.md)
+*  [#8978 - Fix incorrect proportions of tags in orders](./changelog/release-6-7-0-0/2025-05-02-fix-incorrect-proportions-of-tags-in-orders.md) ([Mahesh Bohara](https://github.com/maheshbohara))
+*  [#9207 - Fixed misalignment of 'Add tags...' placeholder in order edit view](./changelog/release-6-7-0-0/2025-05-09-fixed-misalignment-of-add-tags-placeholder-in-order-edit-view.md) ([Mahesh Bohara](https://github.com/maheshbohara))
+*  [#8136 - Improve extensibility ESI templates](./changelog/release-6-7-0-0/2025-04-30-improve-extensibility-of-header-and-footer-esi-templates.md)
+*  [#9024 - Fix RetryableTransaction missing savepoint error](./changelog/release-6-7-0-0/2025-05-09-fix-retryabletransaction-missing-savepoint-error.md)
+*  [#9389 - Fix search result order](./changelog/release-6-7-0-0/2025-05-13-fix-search-result-order.md)
+
+## 6.7.0.0-rc3
+*  [#4450 - OffCanvasSingleton does not remove hard-coded offcanvas from DOM](./changelog/release-6-7-0-0/2025-04-04-offcanvassingleton-does-not-remove-hard-coded-offcanvas-from-dom.md)
+*  [#5263 - Improve variants can be assigned to a category](./changelog/release-6-7-0-0/2025-04-04-improve-variants-can-t-be-assigned-to-a-category.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+*  [#7056 - Fix adjacent form fields on narrow viewports](./changelog/release-6-7-0-0/2025-04-08-fix-mobile-form-field-layouts.md)
+*  [#7346 - sw_icon variable icon name](./changelog/release-6-7-0-0/2025-04-08-sw-icon-variable-icon-name.md) ([Rune Laenen](https://github.com/runelaenen))
+*  [#7925 - Remove DeleteThemeFilesMessage usage in ThemeCompiler](./changelog/release-6-7-0-0/2025-04-16-remove-deletethemefilesmessage.md)
+*  [#8190 - Fix missing currency text in offcanvas currency selection](./changelog/release-6-7-0-0/2025-04-07-fix-currency-sleection-in-offcanvas.md)
+*  [#8318 - Prevent imitating as customer when not possible](./changelog/release-6-7-0-0/2025-02-15-prevent-imitating-when-not-possible.md) ([Melvin Achterhuis](https://github.com/MelvinAchterhuis))
+*  [#8321 - Fix nested line items](./changelog/release-6-7-0-0/2025-04-07-fix-nested-line-items.md)
+*  [#8333 - Fixed calls to update extensions](./changelog/release-6-7-0-0/2025-04-11-fix-calls-to-update-store.md)
+*  [#8399 - Show navigation arrows of product cross selling sliders (again)](./changelog/release-6-7-0-0/2025-04-04-show-navigation-arrows-of-product-cross-selling-sliders-again.md) ([Max](https://github.com/aragon999))
+*  [#8423 - Fix override paging listing page parameter](./changelog/release-6-7-0-0/2025-04-07-fix-override-paging-listing-page-parameter.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#8675 - New event for fetched category ids](./changelog/release-6-7-0-0/2025-04-11-new-event-for-fetched-category-ids.md)
+*  [#8782 - Disable Prefix Search for Synonyms to Prevent Irrelevant Results](./changelog/release-6-7-0-0/2025-03-13-disable-prefix-search-for-synonyms-to-prevent-irrelevant-results.md)
+*  [#8840 - fix: Added missing class 'js-search-form' header search input element](./changelog/release-6-7-0-0/2025-04-03-add-missing-js-class-to-header-search.md) ([Marvin Rewer](https://github.com/marvn-r3))
+*  [#5328 - Fix DAL inherited to-many field reads with limits](./changelog/release-6-7-0-0/2025-04-17-fix-dal-inherited-to-many.md)
+*  [#7858 - Fix webhook dispatching for not versioned events](./changelog/release-6-7-0-0/2025-04-17-fix-webhook-dispatching-for-not-versioned-events.md)
+*  [#8293 - Make search parameter optional in search api](./changelog/release-6-7-0-0/2025-04-15-make-search-parameter-optional-in-search-api.md)
+*  [#7958 - Fix admin order shipping cost input behaviour](./changelog/release-6-7-0-0/2025-04-02-fix-admin-order-shipping-cost-input-behaviour.md)
+*  [#8494 - Changed ThemeConfigField::$type property type](./changelog/release-6-7-0-0/2025-04-25-changed-themeconfigfield-type-property-type.md)
+
+## 6.7.0.0-rc2
+*  [#4654 - Fix HTML quirks mode in the Storefront](./changelog/release-6-7-0-0/2025-03-25-Fix-html-quirks-mode.md)
+*  [#5900 - Only add gtag consent mode if Google Analytics is enabled](./changelog/release-6-7-0-0/2024-12-18-only-add-gtag-consent-mode-if-google-analytics-is-enabled.md) ([Max](https://github.com/aragon999))
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6963)](https://github.com/shopware/shopware/issues/6960)
+*  [#7070 - ci: only execute downstream with valid token (fixes: #7070) (#7118)](https://github.com/shopware/shopware/issues/7070)
+*  [#7108 - Add title attribute to filter remove button](./changelog/release-6-7-0-0/2025-03-27-add-title-to-filter-remove-button.md)
+*  [#7259 - ci: Move reopened GitHub issues back to WIP (fixes: #7259) (#7381)](https://github.com/shopware/shopware/issues/7259)
+*  [#7624 - Improve cookie settings accessibility](./changelog/release-6-7-0-0/2025-03-26-cookie-constent-keyboard-nav.md)
+*  [#7843 - Update storefront Inter font and remove non-variable fonts](./changelog/release-6-7-0-0/2024-11-29-update-storefront-inter-font-and-remove-non-variable-fonts.md) ([Max](https://github.com/aragon999))
+*  [#7867 - Add login scripts to window](./changelog/release-6-7-0-0/2025-03-25-add-login-scripts-to-window.md)
+*  [#7877 - Improve search widget accessibility](./changelog/release-6-7-0-0/2025-04-02-search-widget-accessibility.md)
+*  [#7888 - Cleanup storefront stylelint integration](./changelog/release-6-7-0-0/2024-11-23-cleanup-storefront-stylelint-integration.md) ([Max](https://github.com/aragon999))
+*  [#7965 - Raise version in composer.stub](./changelog/release-6-7-0-0/2025-03-26-raise-version-in-composer-stub.md) ([Marcus Müller](https://github.com/M-arcus))
+*  [#8009 - Correctly reset promotion duplication fields](./changelog/release-6-7-0-0/2025-03-26-fix-correctly-reset-promotion-duplication-fields.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#8021 - Pin promotions for admin orders](./changelog/release-6-7-0-0/2025-03-25-pin-promotions-for-admin-orders.md)
+*  [#8235 - Fix loading of to one associations with partial data loading](./changelog/release-6-7-0-0/2025-04-03-fix-loading-of-to-one-associations-with-partial-data-loading.md) ([Pascal Paul](https://github.com/pascalniklaspaul))
+*  [#8280 - Fix the issue where a criteria limit of 500 prevents loading admin modules](./changelog/release-6-7-0-0/2025-03-31-fix-issue-where-criteria-limit-of-500-prevents-loading-admin-modules.md)
+*  [#7093 - a11y insufficient accessibility of the search form field for screen readers](./changelog/release-6-7-0-0/2025-03-27-a11y-insufficient-accessibility-of-the-search-form-field-for-screen-readers.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+
+## 6.7.0.0-rc1
+*  [!4345 - fix-media-folder-thumbnail-settings](./changelog/release-6-7-0-0/2025-03-16-fix-media-folder-thumbnail-settings.md) ([Felix Schneider](https://github.com/schneider-felix))
+*  [#4980 - Add Twig functions and tokens with their alternatives with inheritance](./changelog/release-6-7-0-0/2024-10-04-add-twig-functions-and-tokens-with-their-alternatives-with-inheritance.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
+*  [#5237 - Improve product box accessibility](./changelog/release-6-7-0-0/2025-03-12-improve-product-box-accessibility.md)
+*  [#5634 - Add state machine settings module](./changelog/release-6-7-0-0/2024-11-21-add-state-machine-settings-module.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#5678 - Add events for order loading when creating documents](./changelog/release-6-7-0-0/2024-11-25-add-events-for-order-loading-when-creating-documents.md) ([Max](https://github.com/aragon999))
+*  [#5726 - Refactored internals of the MailService](./changelog/release-6-7-0-0/2024-11-29-refactored-internals-of-the-mailservice.md) ([Max](https://github.com/aragon999))
+*  [#5781 - Improve product export performance by reducing seo-url replacement calls](./changelog/release-6-7-0-0/2024-12-07-improve-product-export-performance-by-reducing-seo-url-replacement-calls.md) ([Felix Schneider](https://github.com/schneider-felix))
+*  [#5840 - Migrate Action Buttons Store to Pinia](./changelog/release-6-7-0-0/2024-10-04-migrate-action-buttons-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Migrate Context Store to Pinia](./changelog/release-6-7-0-0/2024-10-10-migrate-context-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Migrate Error Store to Pinia](./changelog/release-6-7-0-0/2024-10-09-migrate-error-store-to-pinia.md)
+*  [#5840 - Migrate Help Center Store to Pinia](./changelog/release-6-7-0-0/2024-10-07-migrate-help-center-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Migrate paymentOverviewCard store to Pinia](./changelog/release-6-7-0-0/2024-12-19-migrate-paymentoverviewcard-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Migrate rule-conditions-config store to pinia](./changelog/release-6-7-0-0/2024-11-13-migrate-rule-conditions-config-store-to-pinia.md)
+*  [#5840 - Migrate session store to Pinia](./changelog/release-6-7-0-0/2024-11-22-migrate-session-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Migrate showpwareExtensions store to Pinia](./changelog/release-6-7-0-0/2024-12-10-migrate-showpwareextensions-store-to-pinia.md)
+*  [#5840 - Migrate sw-seo-url store to Pinia](./changelog/release-6-7-0-0/2024-12-09-migrate-sw-seo-url-store-to-pinia.md)
+*  [#5840 - Migrate swCategoryDetail store to Pinia](./changelog/release-6-7-0-0/2024-12-05-migrate-swcategorydetail-store-to-pinia.md)
+*  [#5840 - Migrate swOrder store to Pinia](./changelog/release-6-7-0-0/2024-12-12-migrate-sworder-store-to-pinia.md)
+*  [#5840 - Migrate swOrderDetail store to Pinia](./changelog/release-6-7-0-0/2024-12-11-migrate-sworderdetail-store-to-pinia.md)
+*  [#5840 - Migrate swProductDetail store to Pinia](./changelog/release-6-7-0-0/2024-12-17-migrate-swproductdetail-store-to-pinia.md)
+*  [#5840 - Migrate swShippingDetail store to Pinia](./changelog/release-6-7-0-0/2024-12-18-migrate-swshippingdetail-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Replace "extensionEntryRoutes" vuex store with Pinia](./changelog/release-6-7-0-0/2024-10-16-replace-extension-entry-routes-vuex-store-with-pinia.md)
+*  [#5840 - Replace "extensionMainModules" vuex store with Pinia](./changelog/release-6-7-0-0/2024-10-22-replace-extensionmainmodules-vuex-store-with-pinia.md)
+*  [#5840 - Replace "marketing" Vuex store with Pinia store](./changelog/release-6-7-0-0/2024-10-22-replace-marketing-vuex-store-with-pinia-store.md)
+*  [#5840 - Replace "menuItem" Vuex store with Pinia store](./changelog/release-6-7-0-0/2024-11-11-replace-menuitem-vuex-store-with-pinia-store.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Replace "modals" Vuex store with Pinia store](./changelog/release-6-7-0-0/2024-11-11-replace-modals-vuex-store-with-pinia-store.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - Replace extension-component-section store with Pinia store](./changelog/release-6-7-0-0/2024-10-10-replace-extension-component-section-store-with-pinia-store.md)
+*  [#5840 - Replace licenseViolation store with Pinia store](./changelog/release-6-7-0-0/2024-10-22-replace-license-violation-store-with-pinia-store.md)
+*  [#5840 - Transition extension sdk module vuex store to pinia store](./changelog/release-6-7-0-0/2024-10-16-transition-extension-sdk-module-vuex-store-to-pinia-store.md)
+*  [#5840 - Transition extension store to Pinia](./changelog/release-6-7-0-0/2024-10-17-transition-extension-store-to-pinia.md)
+*  [#5840 - Transition shopwareApps store to pinia](./changelog/release-6-7-0-0/2024-11-14-transition-shopwareapps-store-to-pinia.md)
+*  [#5840 - migrate swFlow store to Pinia](./changelog/release-6-7-0-0/2025-01-21-migrate-swflow-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5840 - migrate-notification-store-to-pinia](./changelog/release-6-7-0-0/2024-11-14-migrate-notification-store-to-pinia.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#5847 - Product Slider Refactoring](./changelog/release-6-7-0-0/2025-02-06-product-slider-refactoring.md)
+*  [#5861 - Update to doctrine/dbal:4.2](./changelog/release-6-7-0-0/2024-12-12-update-to-doctrine-dbal-4-2.md)
+*  [#5866 - Fix can't create customer with different addresses](./changelog/release-6-7-0-0/2024-12-04-fix-can-t-create-customer-with-different-addresses.md)
+*  [#5867 - Replace sw-text-editor with mt-text-editor](./changelog/release-6-7-0-0/2025-01-15-replace-sw-text-editor-with-mt-text-editor.md)
+*  [#5987 - Add AllowHtml Attribute support](./changelog/release-6-7-0-0/2025-01-02-add-allow-html-entity-attribute.md) ([Raffaele Carelle](https://github.com/raffaelecarelle))
+*  [#6075 - Improve core checkout domain search usage](./changelog/release-6-7-0-0/2025-01-09-improve-core-checkout-domain-search-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6194 - Increase account main content width on XL viewport](./changelog/release-6-7-0-0/2025-01-11-increase-account-main-content-width-on-xl-viewport.md) ([Max](https://github.com/aragon999))
+*  [#6195 - Make accountOrderDropdown button id unique](./changelog/release-6-7-0-0/2025-01-11-make-accountorderdropdown-button-id-unique.md) ([Max](https://github.com/aragon999))
+*  [#6293 - Improve core checkout domain performance](./changelog/release-6-7-0-0/2025-01-17-improve-core-checkout-domain-performance.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6311 - Increase contrast for slider UI](./changelog/release-6-7-0-0/2025-03-05-increase-contrast-for-slider-ui.md)
+*  [#6347 - Make product variation accessible in seo url templates](./changelog/release-6-7-0-0/2025-01-22-make-product-variation-accessible-in-seo-url-templates.md)
+*  [#6367 - Get rid of the files card on the product creation page](./changelog/release-6-7-0-0/2025-01-23-get-rid-the-files-card-on-the-product-creation-page.md)
+*  [#6425 - Update polyfills and cleanup JS](./changelog/release-6-7-0-0/2025-01-24-update-polyfills-and-cleanup-js.md)
+*  [#6469 - Use native iteration instead of iterator helper](./changelog/release-6-7-0-0/2025-01-28-use-native-iteration-instead-of-iterator-helper.md)
+*  [#6491 - Fix elasticsearch indexing performance for orders in administration](./changelog/release-6-7-0-0/2025-01-30-fix-order-elasticsearch-indexing-performance-for-administration.md) ([Niklas Wolf](https://github.com/niklaswolf))
+*  [#6500 - Add admin vite poc](./changelog/release-6-7-0-0/2024-05-17-add-admin-vite-poc.md)
+*  [#6500 - Improve vite logs](./changelog/release-6-7-0-0/2025-01-30-improve-vite-logs.md)
+*  [#6565 - Replace Storefront modal links with page links](./changelog/release-6-7-0-0/2025-01-24-replace-storefront-modal-links-with-page-links.md)
+*  [#6577 - Added mapping property to the ManyToMany entity attribute](./changelog/release-6-7-0-0/2025-02-04-added-mapping-property.md) ([Oliver Skroblin](https://github.com/OliverSkroblin))
+*  [#6598 - Fix slot config inheritance for CMS layout overrides via category](./changelog/release-6-7-0-0/2025-02-14-fix-slot-config-inheritance-for-cms-layout-overrides-via-category.md)
+*  [#6605 - Remove Accessibility Feature Flag and Storefront Deprecations](./changelog/release-6-7-0-0/2025-02-04-remove-accessibility-feature-flag.md)
+*  [#6633 - Upgrade Storefront deps and jest](./changelog/release-6-7-0-0/2025-02-06-upgrade-storefront-deps-and-jest.md)
+*  [#6637 - Add AllowEmptyString Attribute support](./changelog/release-6-7-0-0/2025-02-06-add-allowEmptyString-attribute-support.md) ([Raffaele Carelle](https://github.com/raffaelecarelle))
+*  [#6661 - Improve ResetInterface usage with array data](./changelog/release-6-7-0-0/2025-02-07-improve-reset-interface-usage-with-array-data.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6673 - Add possibility to use the Google Tag Manager](./changelog/release-6-7-0-0/2025-02-08-add-possibility-to-use-the-google-tag-manager.md) ([Max](https://github.com/aragon999))
+*  [#6678 - Reorganized menu items on the settings page](./changelog/release-6-7-0-0/2024-12-03-reorganized-menu-items-on-the-settings-page.md)
+*  [#6681 - Improve db queries on media files](./changelog/release-6-7-0-0/2025-02-07-improve-db-queries-on-media-files.md)
+*  [#6686 - Deprecated incorrect non-nullable return types to align with nullable properties](./changelog/release-6-7-0-0/2025-02-12-deprecated-incorrect-non-nullable-return-types-to-align-with-nullable-properties.md)
+*  [#6688 - Fix order delivery state machine name](./changelog/release-6-7-0-0/2025-02-10-fix-order-delivery-state-machine-name.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6694 - Remove language switch from settings > documents](./changelog/release-6-7-0-0/2025-02-11-remove-laguage-switch-from-document-settings.md)
+*  [#6716 - Changed the default CMS block margin for default listing pages to be aligned](./changelog/release-6-7-0-0/2025-02-10-change-cms-block-default-margin.md)
+*  [#6719 - Restore customer address from order for context](./changelog/release-6-7-0-0/2025-02-11-restore-customer-address-from-order-for-context.md)
+*  [#6730 - Removed SQL_SET_DEFAULT_SESSION_VARIABLES and enforce MySQL performance tweaks](./changelog/release-6-7-0-0/2025-02-13-removed-sql_set_default_session_variables-and-enforce-mysql-performance-tweaks.md)
+*  [#6747 - Fix the number slops to find numbers between non-digits](./changelog/release-6-7-0-0/2025-02-12-fix-the-number-slops-to-find-numbers-between-non-digits.md)
+*  [#6756 - Ask for save order before proceeding](./changelog/release-6-7-0-0/2025-02-12-ask-for-save-order-before-proceeding.md)
+*  [#6801 - Update Bootstrap to 5.3.3](./changelog/release-6-7-0-0/2025-02-14-update-bootstrap-to-5-3-3.md)
+*  [#6817 - Fix ProductStreamUpdater performance issues](./changelog/release-6-7-0-0/2025-02-14-fix-product-stream-updater-performance-issues.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6834 - Deprecate DomAccess Helper for 6.8](./changelog/release-6-7-0-0/2025-02-17-deprecate-dom-access-helper.md)
+*  [#6835 - Introduce oauth api client confidential flag](./changelog/release-6-7-0-0/2025-02-17-api-client-confidential-flag.md)
+*  [#6847 - iOS Quick Look Chrome](./changelog/release-6-7-0-0/2025-02-17-ios-quick-look-chrome.md)
+*  [#6863 - Sorted conditions alphabetically](./changelog/release-6-7-0-0/2025-02-18-sorted-conditions-alphabetically.md)
+*  [#6874 - Adjust card component position name in order detail](./changelog/release-6-7-0-0/2025-02-27-adjust-card-component-position-name-in-order-detail.md)
+*  [#6916 - Marked entity attributes classes final](./changelog/release-6-7-0-0/2025-02-19-marked-entity-attributes-classes-final.md)
+*  [#6938 - Move sw-progress-bar to mt-progress-bar](./changelog/release-6-7-0-0/2025-02-20-move-progress-bar-to-meteor-component.md)
+*  [#6953 - Only show style attribute if blockBgColor variable isset](./changelog/release-6-7-0-0/2025-02-20-fix-cms-block-bg-color-condition.md) ([Jan Matthiesen](https://github.com/jmatthiesen81))
+*  [#6958 - Added phpstan rule ensuring that all attribute classes are final](./changelog/release-6-7-0-0/2025-02-21-added-phpstan-rule-ensuring-that-all-attribute-classes-are-final.md)
+*  [#6960 - ci: skip downstreams in case of no write perms (fixes: #6960) (#6963)](https://github.com/shopware/shopware/issues/6960)
+*  [#7001 - Fix missing CMS product slider animation and re-enable CMS sliders speed configuration](./changelog/release-6-7-0-0/2025-02-23-fix-missing-cms-product-slider-animation-and-re-enable-cms-sliders-speed-configuration.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#7002 - Support og:video meta tag](./changelog/release-6-7-0-0/2025-02-23-support-og-video-meta-tag.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#7008 - Fix accessibility issues in address manager](./changelog/release-6-7-0-0/2025-02-24-fix-accessibility-issues-in-address-manager.md)
+*  [#7035 - Removed deprecated Twig filter "spaceless".](./changelog/release-6-7-0-0/2025-02-24-remove-spaceless-twig-filter.md)
+*  [#7040 - Fix essential characteristics settings cannot save](./changelog/release-6-7-0-0/2025-02-26-fix-essential-characteristics-settings-cannot-save.md)
+*  [#7050 - Eliminate errors when clicking product rating](./changelog/release-6-7-0-0/2025-02-25-eliminate-errors-when-clicking-product-rating.md)
+*  [#7070 - ci: only execute downstream with valid token (fixes: #7070) (#7118)](https://github.com/shopware/shopware/issues/7070)
+*  [#7071 - Add generic type to entity loaded events](./changelog/release-6-7-0-0/2025-02-26-add-generic-type-to-entity-loaded-events.md) ([Max](https://github.com/aragon999))
+*  [#7073 - Fix translation scope issue in i18n-t component](./changelog/release-6-7-0-0/2025-02-26-fix-translation-scope-issue-in-i18n-t-component.md)
+*  [#7076 - Use current order data in mail preview](./changelog/release-6-7-0-0/2025-02-26-use-current-order-data-in-mail-preview.md)
+*  [#7091 - Use the correct Opensearch client for es:admin:reset command](./changelog/release-6-7-0-0/2025-02-26-use-correct-opensearch-client-for-es-admin-reset.md) ([John Sorial](https://github.com/John98Zakaria))
+*  [#7098 - Add div wrapper support for extensions api](./changelog/release-6-7-0-0/2025-03-06-add-div-wrapper-support-to-component-sections.md)
+*  [#7104 - Implement windowGetId message from meteor Admin SDK](./changelog/release-6-7-0-0/2025-02-26-implement-windowgetid-message-from-meteor-admin-sdk.md)
+*  [#7112 - Fix $set for sw-list-price-field component](./changelog/release-6-7-0-0/2025-02-27-fix-set-for-sw-list-price-field-component.md)
+*  [#7131 - Fixed bulk edit custom fields](./changelog/release-6-7-0-0/2025-03-03-fix-bulk-edit-custom-fields.md)
+*  [#7167 - Add aria-labels to product slider controls](./changelog/release-6-7-0-0/2025-02-28-add-aria-labels-to-product-slider-controls.md) ([Max](https://github.com/aragon999))
+*  [#7203 - Bulk editing products stock fails](./changelog/release-6-7-0-0/2025-03-03-bulk-editing-products-stock-fails.md)
+*  [#7231 - Accessibility of keyboard navigation on mobile](./changelog/release-6-7-0-0/2025-03-04-accessibility-via-mobile-keyboard-navigation.md)
+*  [#7237 - Digital products contain the Measures & packaging card](./changelog/release-6-7-0-0/2025-03-04-digital-products-contain-the-measures-packaging-card.md)
+*  [#7238 - Update SwitchContextEvent](./changelog/release-6-7-0-0/2025-03-05-update-switch-context-event.md) ([Ioannis Pourliotis](https://github.com/PheysX))
+*  [#7253 - Set aria-current page for activateNavigationId in navbar](./changelog/release-6-7-0-0/2025-03-04-set-aria-current-page-for-activatenavigationid-in-navbar.md)
+*  [#7259 - ci: Move reopened GitHub issues back to WIP (fixes: #7259) (#7381)](https://github.com/shopware/shopware/issues/7259)
+*  [#7279 - Add new data id to set off-canvas aria-labelledby](./changelog/release-6-7-0-0/2025-03-05-add-new-data-id-to-set-off-canvas-aria-labelledby.md)
+*  [#7286 - Add internal comment to orders](./changelog/release-6-7-0-0/2025-03-05-order-internal-comment.md)
+*  [#7359 - Make off-canvas navigation accessible](./changelog/release-6-7-0-0/2025-03-07-make-offcanvas-navigation-accessible.md)
+*  [#7362 - Add twig blocks to cms-element-image-gallery.html.twig](./changelog/release-6-7-0-0/2025-03-07-add-new-blocks-for-cms-element-image-gallery.md)
+*  [#7366 - Delete cart immediately after order is created](./changelog/release-6-7-0-0/2025-03-07-delete-cart-immediately-after-order-is-created.md)
+*  [#7369 - Make sw_icons aria-hidden by default](./changelog/release-6-7-0-0/2025-03-14-make-sw_icons-aria-hidden-by-default.md)
+*  [#7377 - Fix currency and language switch in OffCanvas](./changelog/release-6-7-0-0/2025-03-07-fix-currency-and-language-switch-in-offcanvas.md)
+*  [#7451 - Fix progress bar showing NaN](./changelog/release-6-7-0-0/2025-03-12-fix-progress-bar-showing-nan.md)
+*  [#7507 - Add missing dependency field of URL runtime field to media definition](./changelog/release-6-7-0-0/2025-03-11-add-missing-dependency-field-of-url-runtime-field-to-media-defintion.md) ([Pascal Paul](https://github.com/pascalniklaspaul))
+*  [#7521 - Set WishlistPage to noindex](./changelog/release-6-7-0-0/2025-03-14-set-wishlistpage-to-noindex.md) ([tinect](https://github.com/tinect))
+*  [#7544 - Improve tag selection in the administration](./changelog/release-6-7-0-0/2025-03-19-improve-tag-selection-in-admin.md)
+*  [#7614 - Close search suggests when focus of input is lost](./changelog/release-6-7-0-0/2025-03-17-close-search-suggests-when-focus-of-input-is-lost.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+*  [#7622 - Fix text decoration for search suggestion product link and remove a search suggestion file](./changelog/release-6-7-0-0/2025-03-17-fix-text-decoration-for-search-suggestion-product-link-and-remove-a-search-suggestion-file.md) ([Le Nguyen](https://github.com/nguyenquocdaile))
+*  [#7646 - Corrected the property type of `MediaEntity::cmsPages`](./changelog/release-6-7-0-0/2025-03-18-corrected-the-property-type-of-mediaentity-cmspages.md) ([Max](https://github.com/aragon999))
+*  [#7702 - Use modern fetch API instead of XMLHttpRequest](./changelog/release-6-7-0-0/2025-03-19-fetch-api.md)
+*  [#7743 - fix cms block removable check](./changelog/release-6-7-0-0/2025-03-20-fix-cms-block-removable-check.md) ([Felix Schneider](https://github.com/schneider-felix))
+*  [#3925 - Support for empty filter values for Equals and EqualsAny filters](./changelog/release-6-7-0-0/2025-03-05-support-for-empty-filter-values-for-equals-and-equalsany-filters.md)
+*  [#40777 - Improve accessibility of footer collapse sections on mobile.](./changelog/release-6-7-0-0/2025-03-03-Accessibility-of-footer-collapse.md)
+*  [#5615 - Allowed nulls in SystemConfigValidator for required values in child-configs](./changelog/release-6-7-0-0/2025-02-24-allowed-nulls-in-systemconfigvalidator-for-required-values-in-child-configs.md)
+*  [ANA-217 - Add shopware.usage_data.collection_enabled config to improve usage of shopware.usage_data.gateway.dispatch_enabled](./changelog/release-6-7-0-0/2025-02-28-add-shopware-usage-data-collection-enabled-config-to-improve-usage-of-shopware-usage-data-gateway-dispatch-enabled.md)
+*  [NEXT-36116 - Accessibility improvements for the main navigation](./changelog/release-6-7-0-0/2024-05-14-accessibility-improvements-for-the-main-navigation.md)
+*  [#6672 - Use CheckoutGateway for SetPaymentOrderRoute payment validation](./changelog/release-6-7-0-0/2025-02-25-use-checkoutgateway-for-setpaymentorderroute.md)
+*  [#6872 - Rearrange CartSavedEvent in RedisCartPersister](./changelog/release-6-7-0-0/2025-02-27-rearrange-cartsavedevent-in-rediscartpersister.md)
+*  [#6969 - Add file type to download and open e-invoices](./changelog/release-6-7-0-0/2025-02-24-fix-add-file-type-to-download-open-e-invoice.md)
+*  [#7020 - Added cart errors after recalculation](./changelog/release-6-7-0-0/2025-03-06-added-cart-errors-after-recalculation.md)
+*  [#7228 - Added missing rule filter for shipping price matrix](./changelog/release-6-7-0-0/2025-03-11-added-missing-rule-filter-for-shipping-price-matrix.md)
+*  [#7350 - Show new customer address after saving admin modal](./changelog/release-6-7-0-0/2025-03-14-fix-show-new-customer-address-after-saving-modal.md)
+*  [#7454 - Reset customer on cancel order create modal](./changelog/release-6-7-0-0/2025-03-13-reset-customer-on-cancel-order-create-modal.md)
+*  [https://shopware.atlassian.net/browse/NEXT-40802 - Single element for v-show condition](./changelog/release-6-7-0-0/2025-03-03-single-element-for-v-show-condition.md)
+
+## 6.6.10.2
+*  [#6964 - Fix updates for Composer plugins](./changelog/release-6-6-10-2/2025-03-03-fix-updates-for-composer-plugins.md)
+*  [#7153 - Put ajax modal buttons behind accessibility flag](./changelog/release-6-6-10-2/2025-03-03-put-ajax-modal-buttons-behind-accessibility-flag.md)
+*  [#7132 - fix: Only change mailer transport definition if it is present in container](https://github.com/shopware/shopware/issues/7087)
+*  [#7121 - fix(form-validator): Escape snippets to prevent symbols like apostrophes to break the storefront](https://github.com/shopware/shopware/issues/7102)
+*  [#7190 - Fixed double form submit with reCaptcha plugin](./changelog/release-6-6-10-2/2025-02-28-fix-google-recaptcha-with-guest-orders.md)
+
+## 6.6.10.1
+*  [#6911 - Fix MessengerMiddlewareCompilerPass](./changelog/release-6-6-10-1/2025-02-19-fix-messenger-middleware-compiler-path.md)
+*  [#6912 - fix: require with minimum-stability stable (fixes: #6912) (#6929)](https://github.com/shopware/shopware/issues/6912)
+*  [#6919 - Fix Commercial Update](./changelog/release-6-6-10-1/2025-02-19-fix-commercial-update.md)
+*  [#6936 - fix: Class SwTwigFunction not found exception](https://github.com/shopware/shopware/issues/6936)
+*  [#6949 - fix: Bulk edit for variants](https://github.com/shopware/shopware/issues/6949)
+
+## 6.6.10.0
+*  [#3661 - Add supports to GoogleAnalytics BeginCheckoutEvent](./changelog/release-6-6-10-0/2024-11-29-add-supports-to-ga-begincheckoutevent.md) ([Sascha Heilmeier](https://github.com/scarbous))
+*  [#4921 - Fix assert `bin/console state-machine:dump`](./changelog/release-6-6-10-0/2024-12-06-fix-assert-in-state-machine-dump.md) ([Alexander Menk](https://github.com/amenk))
+*  [#4942 - Add missing twig blocks to admin components as private API](./changelog/release-6-6-10-0/2023-06-14-add-missing-admin-component-twig-blocks.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
+*  [#4968 - NEXT-40034 - #4800 Add field for meta author and use it in frontend](https://github.com/shopware/shopware/issues/4968) ([@Schrank](https://github.com/Schrank))
+*  [#4971 - smaller documents sender addresses in documents](./changelog/release-6-6-10-0/2024-10-04-smaller-documents-sender-address.md) ([Felix Hoffmann](https://github.com/nextflex))
+*  [#4999 - Improve admin last activity behavior](./changelog/release-6-6-10-0/2024-10-07-improve-admin-last-activity-behavior.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#5020 - Fix admin refresh token](./changelog/release-6-6-10-0/2024-10-08-fix-admin-refresh-token.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#5193 - Improve accessibility of product variant switch](./changelog/release-6-6-10-0/2024-12-27-improve-accessibility-of-product-variant-switch.md)
+*  [#5259 - Refactor form handling for better accessibility](./changelog/release-6-6-10-0/2024-12-17-refactor-form-handling.md)
+*  [#5319 - Change autocomplete to new-password in Honeypot](./changelog/release-6-6-10-0/2024-10-28-change-autocomplete-to-new-password-in-honeypot.md) ([tinect](https://github.com/tinect))
+*  [#5363 - Bulk entity extension](./changelog/release-6-6-10-0/2024-10-31-bulk-entity-extension.md)
+*  [#5366 - Fix issue with defaulting release date to current day in product schema](./changelog/release-6-6-10-0/2024-11-03-fix-release-date-schema-issue.md) ([Stefan Pilz](https://github.com/StefanPilzLtd))
+*  [#5396 - Add extension point for ProductListingLoader loadPreviews](./changelog/release-6-6-10-0/2024-11-06-add-extension-point-for-productlistingloader-loadpreviews.md) ([Rune Laenen](https://github.com/runelaenen))
+*  [#5419 - Change outdated language property to inLanguage on Review schema](./changelog/release-6-6-10-0/2024-11-09-review-schema-preoprty-change.md) ([Alex Jank](https://github.com/jankal))
+*  [#5453 - Use global entity & entity collection types](./changelog/release-6-6-10-0/2024-11-12-use-global-entity-and-entity-collection-types.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#5467 - Fix exception thrown by the logic of the ElasticsearchIndexer](./changelog/release-6-6-10-0/2024-11-13-fix-exception-in-elasticsearch-indexer.md)
+*  [#5490 - Improve mail sender by using the private file system over message queue](./changelog/release-6-6-10-0/2024-11-14-improve-mail-sender-fs.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#5632 - Prevent license violation from loopback address](./changelog/release-6-6-10-0/2024-11-20-prevent-license-violation-from-loopback-address.md) ([Felix Schneider](https://github.com/schneider-felix))
+*  [#5662 - NEXT-39796 - chore: Remove unused storefront lighthouse scripts](https://github.com/shopware/shopware/issues/5662) ([@aragon999](https://github.com/aragon999))
+*  [#5664 - Cleanup internals of ProductSliderCmsElementResolver](./changelog/release-6-6-10-0/2024-11-23-cleanup-internals-of-productslidercmselementresolver.md) ([Max](https://github.com/aragon999))
+*  [#5668 - fix: dont emit deprecations for production environments, fixes #5668 (#5914)](https://github.com/shopware/shopware/issues/5668)
+*  [#5680 - NEXT-39781 - fix: schema for the customer accountType distinction](https://github.com/shopware/shopware/issues/5680)
+*  [#5683 - Improve CheckoutOrderPlacedEvent with SalesChannelContext](./changelog/release-6-6-10-0/2024-11-26-improve-checkout-order-placed-event.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#5686 - NEXT-39788 - chore: adjust bug issue template](https://github.com/shopware/shopware/issues/5686) ([@niklaswolf](https://github.com/niklaswolf))
+*  [#5689 - Unify cache state and cookie constants](./changelog/release-6-6-10-0/2024-11-26-unify-cache-state-and-cookie-constants.md) ([Max](https://github.com/aragon999))
+*  [#5690 - NEXT-39801 - Fix payment method active toggle](https://github.com/shopware/shopware/issues/5690) ([@lacknere](https://github.com/lacknere))
+*  [#5705 - NEXT-39820 - refactor: Various code simplifications](https://github.com/shopware/shopware/issues/5705) ([@aragon999](https://github.com/aragon999))
+*  [#5739 - Fixed Elasticsearch Filter parsing of translated fields in product-related entities](./changelog/release-6-6-10-0/2024-12-03-fixed-elasticsearch-filter-parsing-of-translated-fields-in-product-related-entities.md) ([Martin Bens](https://github.com/spigandromeda))
+*  [#5761 - Identify themes installed via plugin by technical name](./changelog/release-6-6-10-0/2024-12-04-identify-themes-installed-via-plugin-by-technical-name.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#5780 - Move mail variable update to system scope](./changelog/release-6-6-10-0/2024-12-06-move-mail-variable-update-to-system-scope.md) ([Felix Schneider](https://github.com/schneider-felix))
+*  [#5792 - Show generation date for coupon codes](./changelog/release-6-6-10-0/2024-12-11-add-created-at-column-to-coupon-codes.md) ([Alexander Menk](https://github.com/amenk))
+*  [#5806 - Remove unneeded uppercasing of PHP methods](./changelog/release-6-6-10-0/2024-12-11-remove-unneeded-uppercasing-of-php-methods.md) ([Max](https://github.com/aragon999))
+*  [#5820 - Added new .encode event for store api routes](./changelog/release-6-6-10-0/2024-12-13-added-new-encode-event-for-store-api-routes.md) ([Oliver Skroblin](https://github.com/OliverSkroblin))
+*  [#5834 - [A11y-HTML] Offer HTML alternative to our pdf standard documents](./changelog/release-6-6-10-0/2024-12-17-a11y-html-implement-logic-for-customize-document-template-to-support-html-accessibility.md)
+*  [#5839 - Add promo code input placeholder](./changelog/release-6-6-10-0/2024-12-13-add-promo-code-input-placeholder.md)
+*  [#5844 - Ability to add modal root content](./changelog/release-6-6-10-0/2024-12-12-ability-to-add-modal-root.md)
+*  [#5874 - New adresse manager modal](./changelog/release-6-6-10-0/2024-11-28-new-adresse-selection-modal.md)
+*  [#5877 - Add SystemLanguageChangeEvent to ShopConfigurator](./changelog/release-6-6-10-0/2024-12-13-add-systemlanguagechangeevent-to-shopconfigurator.md)
+*  [#5881 - Unify focus outlines for better accessibility](./changelog/release-6-6-10-0/2024-12-16-unify-focus-outlines-for-better-accessibility.md)
+*  [#5902 - improve-scheduled-task-recovery](./changelog/release-6-6-10-0/2024-12-18-improve-scheduled-task-recovery.md) ([Julian Drauz](https://github.com/DrauzJu))
+*  [#5925 - Immediately invalidate critical caches](./changelog/release-6-6-10-0/2024-12-19-immedietly-invalidate-critical-caches.md)
+*  [#5927 - Additional header for http, replace escaped URLs](./changelog/release-6-6-10-0/2024-12-19-additional-header-for-http-replace-escaped-urls.md)
+*  [#5939 - Validate migration timestamps](./changelog/release-6-6-10-0/2024-12-20-validate-migration-timestamps.md)
+*  [#5950 - Consistent JavaScript filename in Storefront](./changelog/release-6-6-10-0/2024-12-23-consistent-javascript-filename-in-storefront.md)
+*  [#5966 - Set default search result sorting](./changelog/release-6-6-10-0/2024-12-27-set-default-search-result-sorting.md)
+*  [#5988 - Add product slider release date sorting](./changelog/release-6-6-10-0/2025-01-02-add-product-slider-release-date-sorting.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6002 - Select initial hreflang localisation when creating a new sales channel domain](./changelog/release-6-6-10-0/2025-01-05-select-initial-hreflang-localisation-when-creating-a-new-sales-channel-domain.md) ([Max](https://github.com/aragon999))
+*  [#6007 - Fix sw-promotion module position](./changelog/release-6-6-10-0/2025-01-06-fix-sw-promotion-module-position.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6010 - Fix Cyprus vatId pattern](./changelog/release-6-6-10-0/2025-01-06-fix-cyprus-vatid-pattern.md)
+*  [#6013 - Fix deletion of extensions with cancelled licenses](./changelog/release-6-6-10-0/2025-01-06-fix-removal-of-cancelled-extensions.md)
+*  [#6015 - Fix Display of Expiration Date of Extensions](./changelog/release-6-6-10-0/2025-01-06-fix-display-of-expiration-date-of-extensions.md)
+*  [#6026 - Fix app-action visibility behavior](./changelog/release-6-6-10-0/2025-01-07-fix-app-action-visibility-behavior.md)
+*  [#6035 - Improve PaymentMethodIndexer context state usage](./changelog/release-6-6-10-0/2025-01-07-improve-payment-method-indexer-context-state-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6036 - Improve SalesChannel id & context usage](./changelog/release-6-6-10-0/2025-01-07-improve-sales-channel-id-and-context-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6040 - Remove message queue error notification in admin](./changelog/release-6-6-10-0/2025-01-07-remove-message-queue-error-notification-in-admin.md)
+*  [#6042 - Add enum field to DAL](./changelog/release-6-6-10-0/2024-12-12-add-enum-field.md)
+*  [#6043 - Improve test generator `generateSalesChannelContext`](./changelog/release-6-6-10-0/2025-01-07-improve-test-generator-generate-sales-channel-context.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6046 - Update context languageIdChain types](./changelog/release-6-6-10-0/2025-01-07-update-context-language-id-chain-types.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6048 - Allow custom pagination parameters](./changelog/release-6-6-10-0/2025-01-07-allow-custom-pagination-parameters.md) ([Max](https://github.com/aragon999))
+*  [#6049 - Replace custom CSS declarations from the `_header.scss` file by bootstrap helper classes](./changelog/release-6-6-10-0/2025-01-14-replace-custom-css-declarations-from-the-header-scss-file-by-bootstrap-helper-classes.md) ([Max](https://github.com/aragon999))
+*  [#6058 - Fix memory leak in tooltip directive](./changelog/release-6-6-10-0/2025-01-08-fix-memory-leak-in-tooltip-directive.md)
+*  [#6059 - Add mysql cache invalidator storage](./changelog/release-6-6-10-0/2024-12-09-add-mysql-cache-invalidator-storage.md)
+*  [#6061 - Add force cache invalidate header](./changelog/release-6-6-10-0/2025-01-08-add-force-cache-invalidate-header.md)
+*  [#6062 - Deprecate cache id loading](./changelog/release-6-6-10-0/2025-01-10-deprecate-cache-id-loading.md)
+*  [#6068 - Introduce Hydrator class on Attribute Entity](./changelog/release-6-6-10-0/2025-01-08-introduce-hydrator-class-attribute-entity.md)
+*  [#6069 - [A11y-HTML] Mark image as decorative](./changelog/release-6-6-10-0/2025-01-08-a11y-html-mark-image-as-decorative.md)
+*  [#6074 - Improve method call usage](./changelog/release-6-6-10-0/2025-01-09-improve-method-call-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6076 - Improve administration area search usage](./changelog/release-6-6-10-0/2025-01-09-improve-administration-area-search-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6077 - Improve elasticsearch area search usage](./changelog/release-6-6-10-0/2025-01-09-improve-elasticsearch-area-search-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6176 - Fix b2b package phpstan-type](./changelog/release-6-6-10-0/2025-01-10-fix-b2b-package-phpstan-type.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6187 - Clean entity schema cache key on framework schema generation](./changelog/release-6-6-10-0/2025-01-10-clean-entity-schema-cache-key-on-framework-schema-generation.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6196 - Make JIRA issue in changelog create command optional](./changelog/release-6-6-10-0/2025-01-11-make-jira-issue-in-changelog-create-command-optional.md) ([Max](https://github.com/aragon999))
+*  [#6197 - Fix foreign key definition](./changelog/release-6-6-10-0/2025-01-12-fix-foreign-key-definition.md) ([Oliver Skroblin](https://github.com/OliverSkroblin))
+*  [#6205 - TWIG Update to 3.18.0](./changelog/release-6-6-10-0/2025-01-21-twig-update-to-3-18-0.md)
+*  [#6218 - Updated child order line item quantity on parent quantity change](./changelog/release-6-6-10-0/2025-01-13-updated-child-order-line-item-quantity-on-parent-quantity-change.md)
+*  [#6236 - Change the stable version of experimental spatial features to 6.8](./changelog/release-6-6-10-0/2025-01-14-increase-stable-version-spatial-features.md)
+*  [#6240 - Disabled autoplay to legal advice on accessibility](./changelog/release-6-6-10-0/2025-01-14-disabled-autoplay-to-legal-advice-on-accessibility.md)
+*  [#6251 - Inject aria-label from data grid component to the form controles in a column](./changelog/release-6-6-10-0/2025-01-15-inject-aria-label-from-data-grid-component-to-the-form-controles-in-a-column.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#6256 - CMS sections changed to HTML sections](./changelog/release-6-6-10-0/2025-01-15-cms-sections-changed-to-html-sections.md)
+*  [#6262 - Fix message deserialization](./changelog/release-6-6-10-0/2025-01-15-fix-message-deserialization.md) ([Christian Schiffler](https://github.com/discordier))
+*  [#6282 - Deprecations related to the update to doctrine/dbal:4 in shopware 6.7](./changelog/release-6-6-10-0/2025-01-16-deprecations-related-to-the-update-of-doctrine-dbal-to-v4-in-shopware-6-7.md)
+*  [#6288 - SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS flag is now only working in production builds](./changelog/release-6-6-10-0/2025-01-17-shopware_admin_build_only_extensions-flag-is-now-only-working-in-production-builds.md)
+*  [#6289 - Fix `totalReviewCount` with matrix total](./changelog/release-6-6-10-0/2025-01-17-fix-product-review-total.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6292 - Introduce ESI for header and footer](./changelog/release-6-6-10-0/2025-01-22-introduce-esi-for-header-and-footer.md)
+*  [#6292 - Introduce global template data for language and navigation](./changelog/release-6-6-10-0/2025-01-07-introduce-global-template-data-for-language-and-navigation.md)
+*  [#6295 - Improve storefront area search usage](./changelog/release-6-6-10-0/2025-01-17-improve-storefront-area-search-usage.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6298 - Remove the asterisk next to every price](./changelog/release-6-6-10-0/2025-01-16-remove-the-asterisk-next-to-every-price.md)
+*  [#6301 - Fix image gallery navigation 'none' configurations](./changelog/release-6-6-10-0/2025-01-19-fix-image-gallery-navigation-none-configurations.md) ([Elias Lackner](https://github.com/lacknere))
+*  [#6314 - Improve cart line item prices for screen readers](./changelog/release-6-6-10-0/2025-01-28-improve-cart-line-item-prices-for-screen-readers.md)
+*  [#6327 - Use plugin upgrade version, if available, to check for plugin conflicts](./changelog/release-6-6-10-0/2025-01-20-use-plugin-upgrade-version-to-check-conflicts.md) ([Julian Drauz](https://github.com/DrauzJu))
+*  [#6328 - Added theme-name option to theme:dump command](./changelog/release-6-6-10-0/2025-01-21-added-theme-name-option.md) ([Oliver Skroblin](https://github.com/OliverSkroblin))
+*  [#6337 - Fix address editor modal udpate multiple state selects](./changelog/release-6-6-10-0/2025-01-21-fix-address-editor-update-multiple-state-selects.md) ([Yanneck Bülow](https://github.com/yanneckb))
+*  [#6355 - Send small mail object directly without filesystem access](./changelog/release-6-6-10-0/2025-01-22-send-small-mail-object-directly.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6360 - Change sidebar support link styles](./changelog/release-6-6-10-0/2025-01-22-change-sidebar-support-link-styles.md)
+*  [#6368 - Fix `EntitySearchResult` entity types](./changelog/release-6-6-10-0/2025-01-23-fix-entity-search-result-entity-types.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#6402 - Added live updates for cart changes in the Storefront](./changelog/release-6-6-10-0/2025-01-23-assertive-cart-live-updates.md)
+*  [#6448 - Make Rule classes final](./changelog/release-6-6-10-0/2025-01-29-make-rule-classes-final.md)
+*  [#6462 - Fixed the listing when using the browser back button and filters](./changelog/release-6-6-10-0/2025-01-28-fix-history-back-for-listing-filters.md)
+*  [#6474 - Fix data grid inline edit](./changelog/release-6-6-10-0/2025-01-29-fix-data-grid-inline-edit.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#6490 - Add addTrailingSlash option to url field](./changelog/release-6-6-10-0/2025-01-30-add-addtrailingslash-option-to-url-field.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [#6493 - Allow empty fields in theme config](./changelog/release-6-6-10-0/2025-01-30-allow-empty-theme-config-fields.md)
+*  [#6496 - Fix webpack plugin config order](./changelog/release-6-6-10-0/2024-12-11-fix-webpack-plugin-config-order.md)
+*  [#6496 - Update Twig to 3.19.0](./changelog/release-6-6-10-0/2025-01-30-update-twig-to-3-19-0.md)
+*  [#6498 - Added skip button to image gallery element for better accessibility.](./changelog/release-6-6-10-0/2025-01-30-add-skip-image-gallery-button.md)
+*  [#6514 - Deprecate fine-grained caching](./changelog/release-6-6-10-0/2025-01-30-deprecate-fine-grained-caching.md)
+*  [#6524 - Remove unneeded tax info in order item](./changelog/release-6-6-10-0/2025-01-31-remove-unneeded-tax-info-in-order-item.md)
+*  [#6592 - Adjust VAT, TOS and tax links to show modal depending on the context](./changelog/release-6-6-10-0/2025-02-04-adjust-vat-tos-and-tax-links-to-show-modal-depending-on-the-context.md)
+*  [#6647 - Mark parts of the Import/Export functionality as internal](./changelog/release-6-6-10-0/2025-01-29-mark-import-export-internal.md)
+*  [#6658 - Fix CMS-Section background](./changelog/release-6-6-10-0/2025-01-28-fix-cms-section-background.md) ([Rune Laenen](https://github.com/runelaenen))
+*  [NEXT-00000 - Add technicalName of Payment Method to allow list](./changelog/release-6-6-10-0/2024-12-04-add-technical-name-to-allow-list.md)
+*  [NEXT-00000 - Fix loading data for one to many grid component](./changelog/release-6-6-10-0/2024-12-16-fix-loading-data-for-one-to-many-grid-component.md)
+*  [NEXT-18106 - Added Oauth support for mail authentication](./changelog/release-6-6-10-0/2024-12-11-added-oauth-support-for-mail-authentication.md)
+*  [NEXT-25333 - Remove deprecated autoload === true associations](./changelog/release-6-6-10-0/2024-11-23-remove-deprecated-autoload-true-associations.md)
+*  [NEXT-32135 - Set-Group promotions cause a timeout if too many products are in cart](./changelog/release-6-6-10-0/2024-11-05-set-group-promotions-cause-a-timeout-if-too-many-products-are-in-cart.md)
+*  [NEXT-36185 - Fix navbar category image overlap](./changelog/release-6-6-10-0/2024-11-19-fix-navbar-category-image-width.md)
+*  [NEXT-37481 - Add h1 to listing layouts](./changelog/release-6-6-10-0/2024-12-02-add-h1-to-listing-layouts.md)
+*  [NEXT-37585 - Don't consider user given limits in storefront](./changelog/release-6-6-10-0/2024-12-05-don-t-consider-user-given-limits-in-storefront.md)
+*  [NEXT-37992 - Shopping cart is emptied after login of a B2B employee](./changelog/release-6-6-10-0/2024-11-28-shopping-cart-is-emptied-after-login-of-a-b2b-employee.md)
+*  [NEXT-37992 - Shopping cart is not moved to new token](./changelog/release-6-6-10-0/2024-12-17-shopping-cart-is-not-moved-to-new-token.md)
+*  [NEXT-38322 - Services stability improvements](./changelog/release-6-6-10-0/2024-12-11-services-stability-improvements.md)
+*  [NEXT-38513 - Improved Checkout accessibility](./changelog/release-6-6-10-0/2024-11-28-improved-checkout-for-a11y.md)
+*  [NEXT-38535 - Adding the sort when searching the properties](./changelog/release-6-6-10-0/2024-11-26-adding-the-sort-when-searching-the-properties.md)
+*  [NEXT-38710 - A11y promotion discounts are not read as negative amounts](./changelog/release-6-6-10-0/2024-11-20-a11y-promotion-discounts-are-not-read-as-negative-amounts.md)
+*  [NEXT-38716 - A11y convey how the promotion information when submit](./changelog/release-6-6-10-0/2024-11-22-a11y-convey-how-the-promotion-information-when-submit.md)
+*  [NEXT-38805 - Improved A11y for 3D Viewer](./changelog/release-6-6-10-0/2024-11-27-improved-a11y-for-3d-viewer.md)
+*  [NEXT-38812 - Improve open AR button for VoiceOver](./changelog/release-6-6-10-0/2024-11-25-improve-open-ar-btn-for-voiceover.md)
+*  [NEXT-38845 - Added mail template test language not assigned to sales channel warning](./changelog/release-6-6-10-0/2024-11-19-added-mail-template-test-language-not-assigned-to-sales-channel-warning.md)
+*  [NEXT-38975 - Fix forms labels conflict](./changelog/release-6-6-10-0/2024-11-26-fix-forms-labels-conflict.md)
+*  [NEXT-39088 - add accessibility to embeded videos](./changelog/release-6-6-10-0/2024-12-04-add-accessibility-to-embeded-videos.md)
+*  [NEXT-39173 - Remain original Admin API sales channel source](./changelog/release-6-6-10-0/2024-11-06-remain-original-admin-api-sales-channel-source.md)
+*  [NEXT-39173 - create rule for check rule order creation by admin](./changelog/release-6-6-10-0/2024-10-22-create-rule-for-check-rule-order-creation-by-admin.md)
+*  [NEXT-39193 - Changed login and register h1 into h2](./changelog/release-6-6-10-0/2024-11-25-changed-login-and-register-h1-into-h2.md)
+*  [NEXT-39211 - Improve modal accessibility in the Storefront](./changelog/release-6-6-10-0/2024-11-25-improve-modal-accessibility.md)
+*  [NEXT-39214 - Display remove from wishlist title on remove button hover](./changelog/release-6-6-10-0/2024-11-28-a11y-display-remove-from-wishlist-on-hover.md)
+*  [NEXT-39231 - A11y change display property for checkout aside](./changelog/release-6-6-10-0/2024-11-25-a11y-change-display-property-for-checkout-aside.md)
+*  [NEXT-39251 - General accessibility warning hint for admin options](./changelog/release-6-6-10-0/2024-12-12-general-a11y-warning-hint-for-admin-options.md)
+*  [NEXT-39344 - Update to Symfony 7.2](./changelog/release-6-6-10-0/2024-10-30-update-to-symfony-7-2.md)
+*  [NEXT-39388 - Using external URL for media's path without storing physical files](./changelog/release-6-6-10-0/2024-11-26-using-external-url-for-media-s-path-without-storing-physical-files.md)
+*  [NEXT-39546 - Fix an issue where the product available is set to 0 if the isCloseout is null](./changelog/release-6-6-10-0/2024-11-26-fix-product-availabel-set-to-0-if-is-closeout-is-null.md)
+*  [NEXT-39630 - A11y changed link styling in checkout](./changelog/release-6-6-10-0/2024-11-25-a11y-changed-link-styling-in-checkout.md)
+*  [NEXT-39635 - Refactor navigation options of product slider](./changelog/release-6-6-10-0/2024-11-26-refactor-navigation-options-of-product-slider.md)
+*  [NEXT-39641 - datepicker shows date and time in the format depending on the locale](./changelog/release-6-6-10-0/2024-11-20-datepicker-shows-date-and-time-in-the-format-depending-on-the-locale.md) ([Iván Tajes Vidal](https://github.com/Iván Tajes Vidal))
+*  [NEXT-39671 - Deprecate implicit HTTP cache clearing from cache:clear command and introduce explicit cache:clear:http command](./changelog/release-6-6-10-0/2024-12-04-deprecate-implicit-http-cache-clear-from-cache-clear-command-introduce-explicit-cache-clear-http-command.md)
+*  [NEXT-39736 - Add aggregate admin api](./changelog/release-6-6-10-0/2024-11-21-add-aggregate-admin-api.md)
+*  [NEXT-39740 - A11y date picker must have label](./changelog/release-6-6-10-0/2024-11-22-a11y-date-picker-must-have-label.md)
+*  [NEXT-39755 - Deprecate messenger.bus.shopware service](./changelog/release-6-6-10-0/2024-11-28-deprecate-messenger-bus-shopware-service.md)
+*  [NEXT-39764 - Set limit for generating promotion code](./changelog/release-6-6-10-0/2024-12-02-set-limit-for-generating-promotion-code.md)
+*  [NEXT-39781 - Add flag to ignore certain fields in openapi Schema](./changelog/release-6-6-10-0/2024-11-28-add-flag-to-ignore-certain-fields-in-openapi-schema.md)
+*  [NEXT-39782 - Deprecate setTwig in Storefront Controller](./changelog/release-6-6-10-0/2024-11-26-deprecate-settwig-in-storefront-controller.md)
+*  [NEXT-39790 - Add aria label to price field currency link](./changelog/release-6-6-10-0/2024-11-26-add-aria-label-to-price-field-currency-link.md)
+*  [NEXT-39803 - Fix draco encoders path](./changelog/release-6-6-10-0/2024-11-28-fix-draco-encoders-path.md)
+*  [NEXT-39855 - A11y mobile filter panel](./changelog/release-6-6-10-0/2024-12-03-a11y-mobile-filter-panel.md)
+*  [NEXT-39885 - Allow duplicate promotion](./changelog/release-6-6-10-0/2024-12-05-allow-duplicate-promotion.md)
+*  [NEXT-39910 - Allow disable product stream indexer](./changelog/release-6-6-10-0/2024-12-04-allow-disable-product-stream-indexer.md)
+*  [NEXT-39921 - Speculation Rules for the Storefront](./changelog/release-6-6-10-0/2024-12-05-speculation-rules-for-the-storefront.md)
+*  [NEXT-39965 - Fix upgrade symfony7.2 broken behind proxy configuration](./changelog/release-6-6-10-0/2024-12-06-fix-upgrade-symfony7-2-broken-behind-proxy.md)
+*  [NEXT-39986 - Reduce duplicated requests in media module](./changelog/release-6-6-10-0/2024-12-03-reduce-duplicated-requests-in-media-module.md)
+*  [NEXT-40007 - Deprecate custom entities for plugins](./changelog/release-6-6-10-0/2024-12-11-deprecate-custom-entities-for-plugins.md)
+*  [NEXT-40008 - Add flag for persistent database connection](./changelog/release-6-6-10-0/2024-12-11-add-flag-for-persistent-database-connection.md)
+*  [NEXT-40014 - Deprecate DISABLE_EXTENSIONS and add PERFORMANCE_TWEAKS flag](./changelog/release-6-6-10-0/2024-12-11-cleanup-env.md)
+*  [NEXT-40034 - Add meta author configuration and use it in frontend](./changelog/release-6-6-10-0/2024-10-04-add-meta-author-configuration-and-use-it-in-frontend.md)
+*  [NEXT-40037 - Add mysql compression flag](./changelog/release-6-6-10-0/2024-12-13-add-mysql-compression-flag.md)
+*  [NEXT-40042 - Changed invalid access key exception returned status code](./changelog/release-6-6-10-0/2024-12-17-changed-invalid-access-key-exception-returned-status-code.md)
+*  [NEXT-40175 - Removed the total count mode when selecting products during order creation in the administration.](./changelog/release-6-6-10-0/2024-12-26-removed-the-total-count-mode-when-selecting-products-during-order-creation-in-the-administration.md)
+*  [#6763 - Add custom_field storeApiAware field](./changelog/release-6-6-10-0/2025-01-02-add-custom-field-store-api-aware.md) ([Benjamin Wittwer](https://github.com/akf-bw))
+*  [#4666 - Do not show skip to content when clicking scroll up button](./changelog/release-6-6-10-0/2025-02-12-dont-show-skip-to-content-when-clicking-scroll-up-button.md)
 
 ## 6.6.9.0
 *  [#3513 - Allow rate limiter usage twice without breaking memoized rate limit configuration](./changelog/release-6-6-9-0/2024-01-15-allow-rate-limiter-usage-twice-without-breaking-memoized-configuration.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))

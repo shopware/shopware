@@ -6,7 +6,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import template from './sw-product-list.html.twig';
 import './sw-product-list.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
@@ -28,12 +28,12 @@ export default {
     ],
 
     data() {
-        return {
+        const data = {
             products: null,
             currencies: [],
-            sortBy: 'productNumber',
+            sortBy: 'createdAt',
             sortDirection: 'DESC',
-            naturalSorting: false,
+            naturalSorting: true,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -41,7 +41,19 @@ export default {
             cloning: false,
             productEntityVariantModal: false,
             filterCriteria: [],
+            // @deprecated tag:v6.8.0 - Will be removed
+            productTypeOptions: [
+                {
+                    label: this.$t('sw-product.type.physical'),
+                    value: 'physical',
+                },
+                {
+                    label: this.$t('sw-product.type.digital'),
+                    value: 'digital',
+                },
+            ],
             defaultFilters: [
+                'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
                 'release-date-filter',
@@ -53,12 +65,19 @@ export default {
                 'sales-filter',
                 'tags-filter',
                 'product-states-filter',
+                'product-type-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
             showBulkEditModal: false,
             searchConfigEntity: 'product',
         };
+
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            data.defaultFilters = data.defaultFilters.filter((filter) => filter !== 'product-states-filter');
+        }
+
+        return data;
     },
 
     metaInfo() {
@@ -102,9 +121,15 @@ export default {
 
         productCriteria() {
             const productCriteria = new Criteria(this.page, this.limit);
+            const sorting = Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting);
 
             productCriteria.setTerm(this.term);
-            productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            productCriteria.addSorting(sorting);
+
+            if (!productCriteria.sortings.some((existing) => existing.field === 'id')) {
+                productCriteria.addSorting(Criteria.sort('id'));
+            }
+
             productCriteria.addAssociation('cover.media');
             productCriteria.addAssociation('manufacturer');
             productCriteria.addAssociation('tax');
@@ -120,95 +145,127 @@ export default {
             return new Criteria(1, 500);
         },
 
+        salesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+            criteria.addSorting(Criteria.sort('name'));
+
+            return criteria;
+        },
+
         showVariantModal() {
             return !!this.productEntityVariantModal;
         },
 
         listFilterOptions() {
-            return {
+            const filters = {
+                'product-number-filter': {
+                    property: 'productNumber',
+                    type: 'string-filter',
+                    label: this.$t('sw-product.filters.productNumberFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productNumberFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    criteriaFilterType: this.adminEsEnable ? 'equals' : 'contains',
+                },
                 'active-filter': {
                     property: 'active',
-                    label: this.$tc('sw-product.filters.activeFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder'),
+                    label: this.$t('sw-product.filters.activeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.activeFilter.placeholder'),
                 },
                 'stock-filter': {
                     property: 'stock',
-                    label: this.$tc('sw-product.filters.stockFilter.label'),
+                    label: this.$t('sw-product.filters.stockFilter.label'),
                     numberType: 'int',
                     step: 1,
-                    min: 0,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'product-without-images-filter': {
                     property: 'media',
-                    label: this.$tc('sw-product.filters.imagesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder'),
-                    optionHasCriteria: this.$tc('sw-product.filters.imagesFilter.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-product.filters.imagesFilter.textNoCriteria'),
+                    label: this.$t('sw-product.filters.imagesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.imagesFilter.placeholder'),
+                    optionHasCriteria: this.$t('sw-product.filters.imagesFilter.textHasCriteria'),
+                    optionNoCriteria: this.$t('sw-product.filters.imagesFilter.textNoCriteria'),
                 },
                 'manufacturer-filter': {
                     property: 'manufacturer',
-                    label: this.$tc('sw-product.filters.manufacturerFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.manufacturerFilter.placeholder'),
+                    label: this.$t('sw-product.filters.manufacturerFilter.label'),
+                    placeholder: this.$t('sw-product.filters.manufacturerFilter.placeholder'),
                 },
                 'visibilities-filter': {
                     property: 'visibilities.salesChannel',
-                    label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
+                    label: this.$t('sw-product.filters.salesChannelsFilter.label'),
+                    placeholder: this.$t('sw-product.filters.salesChannelsFilter.placeholder'),
+                    criteria: this.salesChannelCriteria,
                 },
                 'categories-filter': {
                     property: 'categories',
-                    label: this.$tc('sw-product.filters.categoriesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
+                    label: this.$t('sw-product.filters.categoriesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
                 },
                 'sales-filter': {
                     property: 'sales',
-                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    label: this.$t('sw-product.filters.salesFilter.label'),
                     digits: 20,
                     min: 0,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'price-filter': {
                     property: 'price',
-                    label: this.$tc('sw-product.filters.priceFilter.label'),
+                    label: this.$t('sw-product.filters.priceFilter.label'),
                     digits: 20,
                     min: 0,
-                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                    fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
                 'tags-filter': {
                     property: 'tags',
-                    label: this.$tc('sw-product.filters.tagsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
+                    label: this.$t('sw-product.filters.tagsFilter.label'),
+                    placeholder: this.$t('sw-product.filters.tagsFilter.placeholder'),
                 },
                 'product-states-filter': {
                     property: 'states',
-                    label: this.$tc('sw-product.filters.productStatesFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.productStatesFilter.placeholder'),
+                    label: this.$t('sw-product.filters.productStatesFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productStatesFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: [
                         {
-                            label: this.$tc('sw-product.filters.productStatesFilter.options.physical'),
+                            label: this.$t('sw-product.filters.productStatesFilter.options.physical'),
                             value: 'is-physical',
                         },
                         {
-                            label: this.$tc('sw-product.filters.productStatesFilter.options.digital'),
+                            label: this.$t('sw-product.filters.productStatesFilter.options.digital'),
                             value: 'is-download',
                         },
                     ],
                 },
+                'product-type-filter': {
+                    property: 'type',
+                    label: this.$t('sw-product.filters.productTypeFilter.label'),
+                    placeholder: this.$t('sw-product.filters.productTypeFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: this.productTypes.map((type) => ({
+                        label: this.$t(`sw-product.type.${type}`),
+                        value: type,
+                    })),
+                },
                 'release-date-filter': {
                     property: 'releaseDate',
-                    label: this.$tc('sw-product.filters.releaseDateFilter.label'),
+                    label: this.$t('sw-product.filters.releaseDateFilter.label'),
                     dateType: 'datetime-local',
                     fromFieldLabel: null,
                     toFieldLabel: null,
                     showTimeframe: true,
                 },
             };
+
+            if (Shopware.Feature.isActive('v6.8.0.0')) {
+                delete filters['product-states-filter'];
+            }
+
+            return filters;
         },
 
         listFilters() {
@@ -230,6 +287,9 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -237,14 +297,20 @@ export default {
         stockColorVariantFilter() {
             return Shopware.Filter.getByName('stockColorVariant');
         },
-    },
 
-    watch: {
-        productCriteria: {
-            handler() {
-                this.getList();
-            },
-            deep: true,
+        adminEsEnable() {
+            if (!Shopware.Feature.isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+                return false;
+            }
+
+            return Context.app.adminEsEnable ?? false;
+        },
+
+        productTypes() {
+            return [
+                'physical',
+                'digital',
+            ];
         },
     },
 
@@ -268,8 +334,17 @@ export default {
                 this.storeKey,
                 this.productCriteria,
             );
+            criteria.filters = this.normalizeCategoryFilters(criteria.filters);
 
-            criteria = await this.addQueryScores(this.term, criteria);
+            if (!criteria.filters.some((filter) => filter.field === 'type')) {
+                criteria.addPostFilter(Criteria.equalsAny('type', this.productTypes));
+            }
+
+            if (this.adminEsEnable) {
+                criteria.setTerm(this.term);
+            } else {
+                criteria = await this.addQueryScores(this.term, criteria);
+            }
 
             // Clone product query to its variant
             const variantCriteria = cloneDeep(criteria);
@@ -295,7 +370,10 @@ export default {
 
             try {
                 if (this.term) {
-                    const variants = await this.productRepository.search(variantCriteria);
+                    const variants = await this.productRepository.search(variantCriteria, {
+                        ...Context.api,
+                        inheritance: true,
+                    });
                     if (variants.length > 0) {
                         const parentIds = [];
 
@@ -333,13 +411,13 @@ export default {
             return promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-product.list.messageSaveSuccess', { name: productName }, 0),
+                        message: this.$t('sw-product.list.messageSaveSuccess', { name: productName }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                        message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                     });
                 });
         },
@@ -358,9 +436,25 @@ export default {
         },
 
         updateCriteria(criteria) {
-            this.page = 1;
+            return Mixin.getByName('listing').methods.updateCriteria.call(this, this.normalizeCategoryFilters(criteria));
+        },
 
-            this.filterCriteria = criteria;
+        normalizeCategoryFilters(filters) {
+            return filters.map((filter) => {
+                if (filter.field !== 'categories.id') {
+                    return filter;
+                }
+
+                const categoryIds = Array.isArray(filter.value) ? filter.value : filter.value.split('|');
+                if (categoryIds.length === 0) {
+                    return filter;
+                }
+
+                return Criteria.multi('OR', [
+                    filter,
+                    Criteria.equalsAny('product.streams.categories.id', categoryIds),
+                ]);
+            });
         },
 
         getCurrencyPriceByCurrencyId(currencyId, prices) {
@@ -382,7 +476,7 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.list.columnName'),
+                    label: this.$t('sw-product.list.columnName'),
                     routerLink: 'sw.product.detail',
                     inlineEdit: 'string',
                     allowResize: true,
@@ -390,52 +484,51 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: true,
-                    label: this.$tc('sw-product.list.columnProductNumber'),
+                    naturalSorting: this.naturalSorting,
+                    label: this.$t('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product.list.columnManufacturer'),
+                    label: this.$t('sw-product.list.columnManufacturer'),
                     allowResize: true,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product.list.columnActive'),
+                    label: this.$t('sw-product.list.columnActive'),
                     inlineEdit: 'boolean',
                     allowResize: true,
                     align: 'center',
                 },
                 {
                     property: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
                 ...this.currenciesColumns,
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product.list.columnInStock'),
+                    label: this.$t('sw-product.list.columnInStock'),
                     inlineEdit: 'number',
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'availableStock',
-                    label: this.$tc('sw-product.list.columnAvailableStock'),
+                    label: this.$t('sw-product.list.columnAvailableStock'),
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-product.list.columnCreatedAt'),
+                    label: this.$t('sw-product.list.columnCreatedAt'),
                     allowResize: true,
-                    visible: false,
                 },
                 {
                     property: 'updatedAt',
-                    label: this.$tc('sw-product.list.columnUpdatedAt'),
+                    label: this.$t('sw-product.list.columnUpdatedAt'),
                     allowResize: true,
                     visible: false,
                 },
@@ -470,7 +563,7 @@ export default {
         },
 
         productIsDigital(productEntity) {
-            return productEntity.states && productEntity.states.includes('is-download');
+            return productEntity.type && productEntity.type === 'digital';
         },
 
         openVariantModal(item) {
@@ -483,7 +576,7 @@ export default {
 
         onBulkEditItems() {
             let includesDigital = '0';
-            const digital = Object.values(this.selection).filter((product) => product.states.includes('is-download'));
+            const digital = Object.values(this.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }

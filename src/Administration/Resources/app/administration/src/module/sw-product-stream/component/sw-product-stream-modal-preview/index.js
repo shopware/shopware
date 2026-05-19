@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 
+import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
@@ -73,11 +74,15 @@ export default {
             const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
 
             if (this.sorting) {
-                const [
-                    field,
-                    direction,
-                ] = this.sorting.split(':');
-                criteria.addSorting(Criteria.sort(field, direction));
+                if (this.sorting === 'random') {
+                    this.addRandomSort(criteria);
+                } else {
+                    const [
+                        field,
+                        direction,
+                    ] = this.sorting.split(':');
+                    criteria.addSorting(Criteria.sort(field, direction));
+                }
             }
 
             return criteria;
@@ -97,27 +102,27 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturerId'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -274,6 +279,27 @@ export default {
 
         isNotEqualToAnyType(type, parentType) {
             return type === 'equalsAny' && parentType === 'not';
+        },
+
+        addRandomSort(criteria) {
+            let fields = [
+                'name',
+                'createdAt',
+                'cheapestPrice',
+                'releaseDate',
+            ];
+
+            fields = shuffle(fields);
+            const selectedFields = fields.slice(0, 2);
+            const directions = [
+                'ASC',
+                'DESC',
+            ];
+            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+            selectedFields.forEach((field) => {
+                criteria.addSorting(Criteria.sort(field, randomDirection));
+            });
         },
     },
 };

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
-use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -46,9 +45,7 @@ class RulePayloadSubscriberTest extends TestCase
 
         $this->rulePayloadSubscriber = new RulePayloadSubscriber(
             $this->updater,
-            static::getContainer()->get(ScriptTraces::class),
-            static::getContainer()->getParameter('kernel.cache_dir'),
-            static::getContainer()->getParameter('kernel.debug')
+            static::getContainer()->get('service_container'),
         );
 
         $this->ruleDefinition = static::getContainer()->get(RuleDefinition::class);
@@ -63,7 +60,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id])
             ->willReturn([$id => ['payload' => serialize(new AndRule()), 'invalid' => false]]);
@@ -84,7 +81,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertTrue($rule->isInvalid());
 
         $this->updater
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
 
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
@@ -102,7 +99,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNotNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('update');
         $this->rulePayloadSubscriber->unserialize($loadedEvent);
 
@@ -121,7 +118,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id, $id2])
                 ->willReturn(
@@ -150,7 +147,7 @@ class RulePayloadSubscriberTest extends TestCase
         static::assertNull($rule->getPayload());
 
         $this->updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([$id])
             ->willReturn(

@@ -37,10 +37,14 @@ The sliding direction can be left or right.
         }
     }
 
-    .offcanvas-footer {
-        @extend .sticky-top;
-        bottom: 0;
-        top: auto;
+    // @deprecated tag:v6.8.0 - Styling for offcanvas footer is deprecated because it is not used.
+    @if not feature('V6_8_0_0') {
+        .offcanvas-footer {
+            // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
+            @extend .sticky-top;
+            bottom: 0;
+            top: auto;
+        }
     }
 
     .offcanvas-close {
@@ -50,13 +54,8 @@ The sliding direction can be left or right.
         padding: $spacer-sm $spacer;
         text-align: left;
 
-        &:focus {
-            box-shadow: none;
-        }
-
-        &,
-        .icon {
-            color: $gray-600;
+        &:focus-visible {
+            box-shadow: $focus-ring-box-shadow-inset;
         }
     }
 
@@ -68,6 +67,10 @@ The sliding direction can be left or right.
             top: 50%;
             margin-left: -$spacer;
             margin-top: -$spacer;
+        }
+
+        .line-item-total-price-value {
+            text-align: left;
         }
     }
 

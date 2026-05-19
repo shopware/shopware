@@ -213,10 +213,19 @@ export default {
 
             this.isSaveable = this.checkIsSaveable();
 
+            if (!isNaN(this.translationKey)) {
+                this.isLoading = false;
+                this.createNotificationError({
+                    message: this.$t('sw-settings-snippet.detail.messageSaveErrorNumericKey'),
+                });
+
+                return;
+            }
+
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0),
+                    message: this.$t('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }),
                 });
 
                 return;
@@ -228,6 +237,9 @@ export default {
                 }
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
+                    if (snippet.origin === null) {
+                        return;
+                    }
                     // If you clear the input-box, reset it to its origin value
                     snippet.value = snippet.origin;
                 }
@@ -251,21 +263,25 @@ export default {
             Promise.all(responses)
                 .then(() => {
                     this.onNewKeyRedirect(true);
-                    this.prepareContent();
-                    this.isLoading = false;
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    let errormsg = '';
-                    this.isLoading = false;
-                    if (error.response.data.errors.length > 0) {
-                        errormsg = `<br/>Error Message: "${error.response.data.errors[0].detail}"`;
-                    }
-                    this.createNotificationError({
-                        message:
-                            this.$tc('sw-settings-snippet.detail.messageSaveError', { key: this.translationKey }, 0) +
-                            errormsg,
+                    const errorSnippet = this.$t('sw-settings-snippet.detail.messageSaveError', {
+                        key: this.translationKey,
                     });
+
+                    let errorMessage = '';
+                    if (error.response.data.errors.length > 0) {
+                        errorMessage = `<br/>Error Message: "${error.response.data.errors[0].detail}"`;
+                    }
+
+                    this.createNotificationError({
+                        message: errorSnippet + errorMessage,
+                    });
+                })
+                .finally(() => {
+                    this.prepareContent();
+                    this.isLoading = false;
                 });
         },
 
@@ -275,8 +291,8 @@ export default {
                 this.isInvalidKey = true;
                 return;
             }
-            this.isInvalidKey = false;
 
+            this.isInvalidKey = false;
             this.doChange();
         },
 
@@ -346,7 +362,7 @@ export default {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
     },

@@ -6,17 +6,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemStockRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -31,7 +34,7 @@ class LineItemStockRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
     {
-        static::assertEquals('cartLineItemStock', (new LineItemStockRule())->getName());
+        static::assertSame('cartLineItemStock', (new LineItemStockRule())->getName());
     }
 
     public function testRulesDoesNotMatchIfScopeNoLineItemScopeNorCartRuleScope(): void
@@ -46,12 +49,32 @@ class LineItemStockRuleTest extends TestCase
         $rule = new LineItemStockRule();
 
         $ruleScope = $this->createMock(LineItemScope::class);
-        $ruleScope->expects(static::once())
+        $ruleScope->expects($this->once())
             ->method('getLineItem')
             ->willReturn(static::createMock(LineItem::class));
 
-        static::expectException(UnsupportedValueException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
         $rule->match($ruleScope);
+    }
+
+    public function testMatchThrowsException(): void
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(UnsupportedValueException::class);
+        } else {
+            $this->expectException(CartException::class);
+        }
+
+        (new LineItemStockRule())->match(
+            new LineItemScope(
+                new LineItem(Uuid::randomHex(), 'product'),
+                $this->createMock(SalesChannelContext::class)
+            )
+        );
     }
 
     public static function provideLineItemTestCases(): \Generator
@@ -90,7 +113,7 @@ class LineItemStockRuleTest extends TestCase
 
         $rule = new LineItemStockRule($operator, 5);
 
-        static::assertEquals($matches, $rule->match($ruleScope));
+        static::assertSame($matches, $rule->match($ruleScope));
     }
 
     #[DataProvider('provideLineItemTestCases')]
@@ -105,7 +128,7 @@ class LineItemStockRuleTest extends TestCase
 
         $rule = new LineItemStockRule($operator, 5);
 
-        static::assertEquals($matches, $rule->match($ruleScope));
+        static::assertSame($matches, $rule->match($ruleScope));
     }
 
     public function testNoMatchWithEmptyCartRuleScope(): void
@@ -191,7 +214,7 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertEquals([
             'operator' => [new NotBlank(),
-                new Choice([
+                new Choice(choices: [
                     Rule::OPERATOR_EQ,
                     Rule::OPERATOR_LTE,
                     Rule::OPERATOR_GTE,
@@ -213,7 +236,7 @@ class LineItemStockRuleTest extends TestCase
         $configData = $config->getData();
 
         static::assertArrayHasKey('operatorSet', $configData);
-        static::assertEquals([
+        static::assertSame([
             'operators' => RuleConfig::OPERATOR_SET_NUMBER,
             'isMatchAny' => false,
         ], $configData['operatorSet']);
@@ -226,7 +249,7 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(1, $configData['fields']);
-        static::assertEquals([
+        static::assertSame([
             'name' => 'stock',
             'type' => 'int',
             'config' => [],

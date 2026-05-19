@@ -43,12 +43,14 @@ async function createWrapper(additionalProps = {}) {
         global: {
             stubs: {
                 'mt-card': {
-                    template: '<div class="mt-card"><slot /><slot name="title"></slot></div>',
-                    props: ['helpText'],
+                    template: '<div class="mt-card" :is-loading="isLoading"><slot /><slot name="title"></slot></div>',
+                    props: [
+                        'helpText',
+                        'isLoading',
+                    ],
                 },
-                'sw-select-field': true,
+                'sw-select-field-deprecated': true,
                 'sw-chart': true,
-                'sw-icon': true,
             },
         },
     });
@@ -83,7 +85,6 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(wrapper.emitted()[expectedEvent][0][0]).toBe(expectedValue);
     });
 
-    // eslint-disable-next-line max-len
     it('should emit "sw-chart-card-range-update" with current value of selectedRange property with non-default availableRanges', async () => {
         const expectedEvent = 'sw-chart-card-range-update';
         const expectedRange = extendedRanges[2];
@@ -116,19 +117,27 @@ describe('src/app/component/base/sw-chart-card', () => {
         expect(swCard.attributes('position-identifier')).toBe('sw-dashboard-statistics__statistics-sum');
     });
 
+    it('should pass the loading state to the card', async () => {
+        const wrapper = await createWrapper({
+            isLoading: true,
+        });
+
+        expect(wrapper.find('.mt-card').attributes('is-loading')).toBe('true');
+    });
+
     it('should show a help text to be accessible, when set', async () => {
         const expectedHelpText = 'Hello, I am help text';
         const wrapper = await createWrapper({ helpText: expectedHelpText });
 
-        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
-        expect(swIcon.exists()).toBe(true);
+        const icon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(icon.exists()).toBe(true);
         expect(wrapper.vm.helpText).toBe(expectedHelpText);
     });
 
     it('should not show a help text to be accessible, when not set', async () => {
         const wrapper = await createWrapper();
 
-        const swIcon = wrapper.find('.sw-chart-card__title-help-text');
-        expect(swIcon.exists()).toBeFalsy();
+        const icon = wrapper.find('.sw-chart-card__title-help-text');
+        expect(icon.exists()).toBeFalsy();
     });
 });

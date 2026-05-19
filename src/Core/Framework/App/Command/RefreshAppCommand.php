@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
@@ -92,7 +93,11 @@ class RefreshAppCommand extends Command
             }
         }
 
-        $fails = $this->appService->doRefreshApps($input->getOption('activate'), $context, $refreshableApps->getAppNames());
+        $fails = $this->appService->doRefreshApps(
+            new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
+            $context,
+            $refreshableApps->getAppNames()
+        );
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
@@ -117,7 +122,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -133,7 +138,7 @@ class RefreshAppCommand extends Command
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
     {
         $default = true;
-        if (!empty($refreshableApps->getToBeDeleted())) {
+        if ($refreshableApps->getToBeDeleted() !== []) {
             $default = false;
         }
 

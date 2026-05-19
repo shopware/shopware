@@ -79,9 +79,9 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
         static::assertArrayHasKey('displayGroup', $data['sequences'][0]);
         static::assertArrayHasKey('trueCase', $data['sequences'][0]);
 
-        static::assertEquals(1, $data['sequences'][0]['position']);
-        static::assertEquals(1, $data['sequences'][0]['displayGroup']);
-        static::assertEquals(0, $data['sequences'][0]['trueCase']);
+        static::assertSame(1, $data['sequences'][0]['position']);
+        static::assertSame(1, $data['sequences'][0]['displayGroup']);
+        static::assertSame(0, $data['sequences'][0]['trueCase']);
     }
 
     public function testFieldArgumentNotInstanceOfFlowTemplateConfigField(): void

@@ -26,8 +26,8 @@
         dt,
         dd {
             line-height: 40px;
-            border-bottom: 1px solid $color-gray-300;
-            color: $color-darkgray-200;
+            border-bottom: 1px solid var(--color-border-primary-default);
+            color: var(--color-text-secondary-default);
             font-size: $font-size-xs;
             font-weight: normal;
             text-align: right;
@@ -37,13 +37,23 @@
         dd {
             width: 160px;
             padding-right: 40px;
+        }
+    }
 
-            .sw-order-saveable-field {
-                transform: translateY(-50%);
-                position: relative;
-                left: 80px;
-                top: 50%;
+    .sw-order-detail__summary:has(.sw-order-saveable-field) {
+        dd {
+            width: 200px;
+
+            &:has(.sw-order-saveable-field) {
+                display: flex;
+                align-items: center;
+                padding-right: 0;
             }
+        }
+
+        .sw-order-saveable-field {
+            padding-left: 20px;
+            line-height: 1;
         }
     }
 
@@ -61,7 +71,7 @@
     }
 
     .sw-order-detail__tab-warning-badge {
-        color: $color-pumpkin-spice-500;
+        color: var(--color-icon-attention-default);
         transform: translateY(-9%);
         margin-left: 4px;
     }
@@ -69,17 +79,17 @@
     .sw-order-detail__tabs {
         &.has-warning {
             .sw-tabs__slider {
-                background-color: $color-pumpkin-spice-500;
+                background-color: var(--color-border-attention-default);
             }
         }
     }
 
     .sw-order-detail__tabs-tab-documents {
         &.has-warning {
-            color: $color-pumpkin-spice-500;
+            color: var(--color-text-attention-default);
 
             &.sw-tabs-item--active {
-                color: $color-pumpkin-spice-500;
+                color: var(--color-text-attention-default);
             }
         }
     }

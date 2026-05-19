@@ -112,12 +112,11 @@ async function createWrapper() {
                     'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-loader-deprecated': true,
                     'router-link': true,
                 },
                 mocks: {
-                    $tc: (snippet) => snippet,
+                    $t: (snippet) => snippet,
                 },
             },
         },

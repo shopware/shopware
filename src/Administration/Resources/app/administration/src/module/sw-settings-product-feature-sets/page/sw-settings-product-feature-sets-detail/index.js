@@ -60,7 +60,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('product_feature_sets.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('product_feature_sets.editor'),
                     showOnDisabledElements: true,
                 };
@@ -121,7 +121,7 @@ export default {
         },
 
         loadEntityData() {
-            this.productFeatureSetsRepository.get(this.productFeatureSetId).then((productFeatureSet) => {
+            this.productFeatureSetsRepository.get(this.productFeatureSet.id).then((productFeatureSet) => {
                 if (productFeatureSet.features && !productFeatureSet.features.length) {
                     productFeatureSet.features = [];
                 }
@@ -154,7 +154,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage'),
+                        message: this.$t('sw-settings-product-feature-sets.detail.notificationErrorMessage'),
                     });
                 })
                 .finally(() => {

@@ -7,16 +7,21 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class LogoutRoute extends AbstractLogoutRoute
 {
@@ -27,7 +32,8 @@ class LogoutRoute extends AbstractLogoutRoute
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
-        private readonly CartService $cartService
+        private readonly CartService $cartService,
+        private readonly SalesChannelContextServiceInterface $contextService,
     ) {
     }
 
@@ -36,7 +42,15 @@ class LogoutRoute extends AbstractLogoutRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/logout', name: 'store-api.account.logout', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
+    #[Route(
+        path: '/store-api/account/logout',
+        name: 'store-api.account.logout',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function logout(SalesChannelContext $context, RequestDataBag $data): ContextTokenResponse
     {
         /** @var CustomerEntity $customer */
@@ -48,9 +62,13 @@ class LogoutRoute extends AbstractLogoutRoute
             $this->contextPersister->replace($context->getToken(), $context);
         }
 
-        $context->assign([
-            'token' => Random::getAlphanumericString(32),
-        ]);
+        // Update the context for the remainder of the request
+        $context = $this->contextService->get(
+            new SalesChannelContextServiceParameters(
+                $context->getSalesChannelId(),
+                Random::getAlphanumericString(32),
+            )
+        );
 
         $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);

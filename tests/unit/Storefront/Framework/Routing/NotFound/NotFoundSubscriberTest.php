@@ -11,6 +11,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Storefront\Framework\Routing\Exception\ErrorRedirectRequestEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -59,7 +60,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
 
@@ -96,9 +97,9 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $response = new Response();
         $response->headers->setCookie(new Cookie('extension-cookie', '1'));
-        $response->headers->setCookie(new Cookie('session-', '1'));
+        $response->headers->setCookie(new Cookie(PlatformRequest::FALLBACK_SESSION_NAME, '1'));
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn($response);
 
@@ -132,8 +133,7 @@ class NotFoundSubscriberTest extends TestCase
 
         static::assertArrayHasKey(0, $writtenCaches);
 
-        $cacheItem = unserialize($writtenCaches[0]);
-        static::assertInstanceOf(Response::class, $cacheItem);
+        $cacheItem = Serialization::assertUnserializedInstanceOf(Response::class, $writtenCaches[0]);
 
         $cookies = $cacheItem->headers->getCookies();
         static::assertCount(1, $cookies);
@@ -145,7 +145,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
             ->willReturn(new Response());
 
@@ -181,9 +181,9 @@ class NotFoundSubscriberTest extends TestCase
     {
         $httpKernel = $this->createMock(HttpKernelInterface::class);
         $httpKernel
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('handle')
-            ->with(static::callback(function (Request $request) {
+            ->with(static::callback(static function (Request $request) {
                 return $request->attributes->get(PlatformRequest::ATTRIBUTE_CAPTCHA) === false;
             }))
             ->willReturn(new Response());
@@ -193,7 +193,7 @@ class NotFoundSubscriberTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::isInstanceOf(ErrorRedirectRequestEvent::class));
 
@@ -225,7 +225,7 @@ class NotFoundSubscriberTest extends TestCase
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator
-            ->expects($shouldInvalidate ? static::once() : static::never())
+            ->expects($shouldInvalidate ? $this->once() : $this->never())
             ->method('invalidate');
 
         $subscriber = new NotFoundSubscriber(

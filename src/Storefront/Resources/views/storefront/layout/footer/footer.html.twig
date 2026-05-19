@@ -10,27 +10,27 @@
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
-                            <div class="footer-column-headline footer-headline js-footer-column-headline js-collapse-footer-column-trigger"
+                            <div class="footer-column-headline footer-headline js-footer-column-headline"
                                  id="collapseFooterHotlineTitle"
-                                 data-bs-target="#collapseFooterHotline"
-                                 aria-expanded="true"
-                                 aria-controls="collapseFooterHotline"
                                  role="listitem">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                 {% block layout_footer_navigation_hotline_icons %}
-                                    <div class="footer-column-toggle">
-                                        <span class="footer-plus-icon">
-                                            {% sw_icon 'plus' style {
-                                                ariaLabel: 'general.expand'|trans
-                                            } %}
-                                        </span>
-                                        <span class="footer-minus-icon">
-                                            {% sw_icon 'minus' style {
-                                                ariaLabel: 'general.collapse'|trans
-                                            } %}
-                                        </span>
-                                    </div>
+                                    <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
+                                            data-bs-target="#collapseFooterHotline"
+                                            data-bs-toggle="collapse"
+                                            aria-controls="collapseFooterHotline"
+                                            aria-labelledby="collapseFooterHotlineTitle"
+                                            aria-expanded="true">
+
+                                        {% sw_icon 'plus' style {
+                                            class: 'footer-plus'
+                                        } %}
+
+                                        {% sw_icon 'minus' style {
+                                            class: 'footer-minus'
+                                        } %}
+                                    </button>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -39,21 +39,73 @@
                             {% set cmsPath = 'frontend.cms.page.full' %}
 
                             <div id="collapseFooterHotline"
-                                 class="footer-column-content collapse js-footer-column-content footer-contact"
+                                 class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
                                  aria-labelledby="collapseFooterHotlineTitle"
                                  role="listitem">
+
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
                                         {{ 'footer.serviceHotline'|trans|sw_sanitize }}
                                     </p>
                                 </div>
+
                                 <div class="footer-contact-form">
                                     {% set contactSnippetKey = 'footer.serviceContactTextPage' %}
+                                    {% set contactCmsPageId = config('core.basicInformation.contactPage') %}
+                                    {% set contactUrl = contactCmsPageId ? path(cmsPath, { id: contactCmsPageId }) : '#' %}
+
+                                    {# Check for seoUrl and use it if present #}
+                                    {% for serviceMenuItem in footer.serviceMenu %}
+                                        {% if serviceMenuItem.cmsPageId == contactCmsPageId and serviceMenuItem.seoUrl %}
+                                            {% set contactUrl = serviceMenuItem.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {# Check footer navigation #}
+                                    {% if footer.navigation and footer.navigation.tree %}
+                                        {% for footerItem in footer.navigation.tree %}
+                                            {% if footerItem.category.cmsPageId == contactCmsPageId and footerItem.category.seoUrl %}
+                                                {% set contactUrl = footerItem.category.seoUrl %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
 
                                     {{ contactSnippetKey|trans({
-                                        '%url%': path(cmsPath, { id: config('core.basicInformation.contactPage') })
+                                        '%url%': contactUrl
                                     })|raw }}
                                 </div>
+
+                                {% block layout_footer_navigation_revocation_button %}
+                                    {% set revocationRequestSnippetKey = 'footer.serviceRevocationRequestTextPage' %}
+                                    {% set revocationRequestCmsPageId = config('core.basicInformation.revocationRequestPage') %}
+                                    {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
+
+                                    {% if revocationRequestCmsPageId and showRevocationButton %}
+                                        {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
+
+                                        {# Check for seoUrl and use it if present #}
+                                        {% for serviceMenuItem in footer.serviceMenu %}
+                                            {% if serviceMenuItem.cmsPageId == revocationRequestCmsPageId and serviceMenuItem.seoUrl %}
+                                                {% set revocationRequestUrl = serviceMenuItem.seoUrl %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {# Check footer navigation #}
+                                        {% if footer.navigation and footer.navigation.tree %}
+                                            {% for footerItem in footer.navigation.tree %}
+                                                {% if footerItem.category.cmsPageId == revocationRequestCmsPageId and footerItem.category.seoUrl %}
+                                                    {% set revocationRequestUrl = footerItem.category.seoUrl %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+
+                                        <div class="footer-revocation-button mt-4">
+                                            {{ revocationRequestSnippetKey|trans({
+                                                '%url%': revocationRequestUrl
+                                            })|raw }}
+                                        </div>
+                                    {% endif %}
+                                {% endblock %}
                             </div>
                         {% endblock %}
                     </div>
@@ -64,34 +116,38 @@
                         {% block layout_footer_navigation_column %}
                             <div class="col-md-4 footer-column js-footer-column">
                                 {% block layout_footer_navigation_information_headline %}
-                                    <div class="footer-column-headline footer-headline js-collapse-footer-column-trigger"
-                                         data-bs-target="#collapseFooterTitle{{ loop.index }}"
-                                         aria-expanded="true"
-                                         aria-controls="collapseFooter{{ loop.index }}">
+                                    <div class="footer-column-headline footer-headline js-footer-column-headline"
+                                         id="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
                                         {% else %}
-                                            <a href="{{ category_url(root.category) }}"
-                                               {% if category_linknewtab(root.category) %}target="_blank"{% endif %}
+                                            <a href="{{ root.category.seoUrl }}"
+                                               {% if root.category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                title="{{ root.category.translated.name }}">
                                                 {{ root.category.translated.name }}
                                             </a>
                                         {% endif %}
 
                                         {% block layout_footer_navigation_information_icons %}
-                                            <div class="footer-column-toggle">
-                                                <span class="footer-plus-icon">
+                                            {% if root.children|length > 0 %}
+                                                <button class="footer-column-toggle btn btn-link btn-link-inline js-collapse-footer-column-trigger"
+                                                        data-bs-target="#collapseFooter{{ loop.index }}"
+                                                        data-bs-toggle="collapse"
+                                                        aria-controls="collapseFooter{{ loop.index }}"
+                                                        aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                                        aria-expanded="true">
+
                                                     {% sw_icon 'plus' style {
-                                                        ariaLabel: 'general.expand'|trans
+                                                        class: 'footer-plus'
                                                     } %}
-                                                </span>
-                                                <span class="footer-minus-icon">
+
                                                     {% sw_icon 'minus' style {
-                                                        ariaLabel: 'general.collapse'|trans
+                                                        class: 'footer-minus'
                                                     } %}
-                                                </span>
-                                            </div>
+                                                </button>
+                                            {% endif %}
                                         {% endblock %}
                                     </div>
                                 {% endblock %}
@@ -99,7 +155,9 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
+                                         role="listitem">
+
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}
                                                 <ul class="list-unstyled">
@@ -114,8 +172,8 @@
                                                                         <div>{{ name }}</div>
                                                                     {% else %}
                                                                         <a class="footer-link"
-                                                                           href="{{ category_url(category) }}"
-                                                                           {% if category_linknewtab(category) %}target="_blank"{% endif %}
+                                                                           href="{{ category.seoUrl }}"
+                                                                           {% if category.shouldOpenInNewTab %}target="_blank"{% endif %}
                                                                            title="{{ name }}">
                                                                             {{ name }}
                                                                         </a>
@@ -190,22 +248,20 @@
             {% block layout_footer_service_menu %}
                 <div class="container">
                     {% block layout_footer_service_menu_content %}
-                        {% apply spaceless %}
-                            <ul class="footer-service-menu-list list-unstyled">
-                                {% for serviceMenuItem in footer.serviceMenu %}
-                                    {% block layout_footer_service_menu_item %}
-                                        <li class="footer-service-menu-item">
-                                            <a class="footer-service-menu-link"
-                                               href="{{ category_url(serviceMenuItem) }}"
-                                               {% if category_linknewtab(serviceMenuItem) %}target="_blank"{% endif %}
-                                               title="{{ serviceMenuItem.translated.name }}">
-                                                {{ serviceMenuItem.translated.name }}
-                                            </a>
-                                        </li>
-                                    {% endblock %}
-                                {% endfor %}
-                            </ul>
-                        {% endapply %}
+                        <ul class="footer-service-menu-list list-unstyled d-flex flex-wrap justify-content-center">
+                            {%- for serviceMenuItem in footer.serviceMenu -%}
+                                {% block layout_footer_service_menu_item %}
+                                    <li class="footer-service-menu-item">
+                                        <a class="footer-service-menu-link"
+                                           href="{{ serviceMenuItem.seoUrl }}"
+                                           {% if serviceMenuItem.shouldOpenInNewTab %}target="_blank"{% endif %}
+                                           title="{{ serviceMenuItem.translated.name }}">
+                                            {{ serviceMenuItem.translated.name }}
+                                        </a>
+                                    </li>
+                                {% endblock %}
+                            {%- endfor -%}
+                        </ul>
                     {% endblock %}
                 </div>
             {% endblock %}
@@ -217,9 +273,28 @@
                     <div class="footer-vat">
                         {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 
+                        {% set shippingCmsPageId = config('core.basicInformation.shippingPaymentInfoPage') %}
+                        {% set shippingUrl = shippingCmsPageId ? path(cmsPath, { id: shippingCmsPageId }) : '#' %}
+
+                        {# Check for seoUrl and use it if present #}
+                        {% for serviceMenuItem in footer.serviceMenu %}
+                            {% if serviceMenuItem.cmsPageId == shippingCmsPageId and serviceMenuItem.seoUrl %}
+                                {% set shippingUrl = serviceMenuItem.seoUrl %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {# Check footer navigation #}
+                        {% if footer.navigation and footer.navigation.tree %}
+                            {% for footerItem in footer.navigation.tree %}
+                                {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
+                                    {% set shippingUrl = footerItem.category.seoUrl %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
                         <p>
                             {{ shippingSnippetKey|trans({
-                                '%url%': path(cmsPath, { id: config('core.basicInformation.shippingPaymentInfoPage') }),
+                                '%url%': shippingUrl,
                                 '%star%': ''
                             })|raw }}
                         </p>

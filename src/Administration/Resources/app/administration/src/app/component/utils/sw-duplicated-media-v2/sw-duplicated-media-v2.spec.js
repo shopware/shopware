@@ -43,6 +43,11 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                             };
                         },
                     },
+                    mediaPresignedUploadService: {
+                        prepareUpload: jest.fn(),
+                        uploadToPresignedUrl: jest.fn(),
+                        finalizeUpload: jest.fn(),
+                    },
                     mediaService: {
                         addDefaultListener: jest.fn(),
                         removeDefaultListener: jest.fn(),
@@ -75,7 +80,6 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     },
                     'sw-container': true,
                     'sw-media-preview-v2': true,
-                    'sw-icon': true,
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': true,
@@ -89,10 +93,6 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should upload the renamed file', async () => {

@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\DiscountFacade;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(DiscountFacade::class)]
+#[Package('checkout')]
 class DiscountFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void
@@ -19,7 +21,7 @@ class DiscountFacadeTest extends TestCase
         $item->setLabel('foo');
         $facade = new DiscountFacade($item);
 
-        static::assertEquals('foo', $facade->getId());
-        static::assertEquals('foo', $facade->getLabel());
+        static::assertSame('foo', $facade->getId());
+        static::assertSame('foo', $facade->getLabel());
     }
 }

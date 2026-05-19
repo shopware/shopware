@@ -2,11 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
-use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,7 +20,6 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 /**
  * @internal
  */
-#[CoversClass(TimeBackoffLimiter::class)]
 class TimeBackoffLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -113,19 +110,19 @@ class TimeBackoffLimiterTest extends TestCase
     {
         $backoff = new TimeBackoff($this->id, $this->config['limits']);
 
-        static::assertEquals(0, $backoff->getAttempts());
-        static::assertEquals($this->config['limits'][0]['limit'], $backoff->getAvailableAttempts(time()));
+        static::assertSame(0, $backoff->getAttempts());
+        static::assertSame($this->config['limits'][0]['limit'], $backoff->getAvailableAttempts(time()));
 
         $backoff->setTimer(time());
         $backoff->setAttempts(3);
 
-        static::assertEquals(3, $backoff->getAttempts());
+        static::assertSame(3, $backoff->getAttempts());
 
         foreach ($this->config['limits'] as $limit) {
             for ($i = 0; $i < 2; ++$i) {
                 // request should be thorttled for new request
                 static::assertTrue($backoff->shouldThrottle($backoff->getAttempts() + 1, time()));
-                static::assertEquals(0, $backoff->getAvailableAttempts(time()));
+                static::assertSame(0, $backoff->getAvailableAttempts(time()));
 
                 // after wait time, request could be send again
                 static::assertFalse($backoff->shouldThrottle($backoff->getAttempts() + 1, time() + $this->intervalToSeconds($limit['interval'])));
@@ -136,12 +133,12 @@ class TimeBackoffLimiterTest extends TestCase
 
                 // request should be thorttled again
                 static::assertTrue($backoff->shouldThrottle($backoff->getAttempts(), time()));
-                static::assertEquals(0, $backoff->getAvailableAttempts(time()));
+                static::assertSame(0, $backoff->getAvailableAttempts(time()));
 
                 // after wait time, request could be send again
                 $time = time() + $this->intervalToSeconds($limit['interval']);
                 static::assertFalse($backoff->shouldThrottle($backoff->getAttempts(), $time));
-                static::assertEquals(1, $backoff->getAvailableAttempts($time));
+                static::assertSame(1, $backoff->getAvailableAttempts($time));
             }
         }
     }

@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { dom, types } = Shopware.Utils;
 
 /**
@@ -9,7 +9,7 @@ const { dom, types } = Shopware.Utils;
  *
  * @private
  */
-Component.register('sw-admin-menu', {
+export default {
     template,
 
     inject: [
@@ -72,7 +72,7 @@ Component.register('sw-admin-menu', {
 
         userTitle() {
             if (this.currentUser && this.currentUser.admin) {
-                return this.$tc('global.sw-admin-menu.administrator');
+                return this.$t('global.sw-admin-menu.administrator');
             }
 
             if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
@@ -104,11 +104,9 @@ Component.register('sw-admin-menu', {
             // Throw an console error if navigation entry is on level 4 or higher. Also remove the navigation entry from menu
             return adminModuleNavigationEntries.filter((entry) => {
                 const levelOneParent = adminModuleNavigationEntries.find((e) => entry.parent && e.id === entry.parent);
-                // eslint-disable-next-line max-len
                 const levelTwoParent = adminModuleNavigationEntries.find(
                     (e) => levelOneParent?.parent && e.id === levelOneParent?.parent,
                 );
-                // eslint-disable-next-line max-len
                 const levelThreeParent = adminModuleNavigationEntries.find(
                     (e) => levelTwoParent?.parent && e.id === levelTwoParent?.parent,
                 );
@@ -225,6 +223,12 @@ The admin menu only supports up to three levels of nesting.`,
         isExpanded() {
             this.toggleSidebar();
         },
+
+        $route() {
+            if (this.isMobileViewport()) {
+                this.closeOffCanvas();
+            }
+        },
     },
 
     created() {
@@ -234,25 +238,44 @@ The admin menu only supports up to three levels of nesting.`,
     mounted() {
         this.mountedComponent();
         document.addEventListener('mouseleave', this.onFlyoutLeave);
+        document.addEventListener('click', this.onClickOutsideOffCanvas, true);
     },
 
     beforeUnmount() {
         document.removeEventListener('mousemove', this.onMouseMoveDocument);
         document.removeEventListener('mouseleave', this.onFlyoutLeave);
+        document.removeEventListener('click', this.onClickOutsideOffCanvas, true);
+
+        this.beforeUnmountedComponent();
     },
 
     methods: {
         createdComponent() {
             this.loginService.notifyOnLoginListener();
 
-            this.collapseMenuOnSmallViewports();
+            this.adjustMenuForViewport();
             this.getUser();
 
-            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', (state) => {
-                this.isOffCanvasShown = state;
-            });
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
 
             this.initNavigation();
+        },
+
+        beforeUnmountedComponent() {
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onToggleCanvas);
+        },
+
+        onToggleCanvas(state) {
+            this.isOffCanvasShown = state;
+        },
+
+        closeOffCanvas() {
+            if (!this.isOffCanvasShown) {
+                return;
+            }
+
+            this.onToggleCanvas(false);
+            Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
         },
 
         initNavigation() {
@@ -280,12 +303,12 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.$device.onResize({
                 listener() {
-                    that.collapseMenuOnSmallViewports();
+                    that.adjustMenuForViewport();
                 },
                 component: this,
             });
 
-            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
+            document.addEventListener('mousemove', this.onMouseMoveDocument);
 
             this.addScrollbarOffset();
         },
@@ -303,14 +326,20 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
-        collapseMenuOnSmallViewports() {
-            if (this.$device.getViewportWidth() <= 1200 && this.$device.getViewportWidth() >= 500) {
-                this.collapseAdminMenu();
+        adjustMenuForViewport() {
+            if (this.isMobileViewport()) {
+                // Always render the menu expanded on mobile, as it is used as off-canvas. Otherwise the menu inside off-canvas would be collapsed and only show icon entries.
+                this.expandAdminMenu();
+                return;
             }
 
-            if (this.$device.getViewportWidth() <= 500) {
-                this.expandAdminMenu();
+            if (this.$device.getViewportWidth() <= 1200) {
+                this.collapseAdminMenu();
             }
+        },
+
+        isMobileViewport() {
+            return this.$device.getViewportWidth() <= 500;
         },
 
         isActiveItem(menuItem) {
@@ -387,15 +416,13 @@ The admin menu only supports up to three levels of nesting.`,
             this.isUserActionsActive = false;
         },
 
-        onLogoutUser() {
-            this.loginService.logout();
+        async onLogoutUser() {
+            await this.loginService.logoutSso();
+
             this.adminMenuStore.clearExpandedMenuEntries();
             Shopware.Store.get('session').removeCurrentUser();
             Shopware.Store.get('notification').clearGrowlNotificationsForCurrentUser();
             Shopware.Store.get('notification').clearNotificationsForCurrentUser();
-            this.$router.push({
-                name: 'sw.login.index',
-            });
         },
 
         addScrollbarOffset() {
@@ -423,6 +450,14 @@ The admin menu only supports up to three levels of nesting.`,
             // Clear previous delay of the menu
             if (this.subMenuTimer) {
                 window.clearTimeout(this.subMenuTimer);
+            }
+
+            if (!target) {
+                return;
+            }
+
+            if (this.shouldCloseOffCanvasOnMenuItemClick(target)) {
+                this.closeOffCanvas();
             }
 
             if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
@@ -467,6 +502,26 @@ The admin menu only supports up to three levels of nesting.`,
             // Clear flyout entries if clicked
             if (this.flyoutEntries.length) {
                 this.flyoutEntries = [];
+            }
+        },
+
+        shouldCloseOffCanvasOnMenuItemClick(target) {
+            if (this.isMobileViewport() && this.isOffCanvasShown && target) {
+                return !target.classList.contains('navigation-list-item__has-children');
+            }
+
+            return false;
+        },
+
+        onClickOutsideOffCanvas({ target }) {
+            if (
+                this.isMobileViewport() &&
+                this.isOffCanvasShown &&
+                target instanceof Element &&
+                !this.$el.contains(target) &&
+                !target.closest('.sw-search-bar')
+            ) {
+                this.closeOffCanvas();
             }
         },
 
@@ -523,8 +578,11 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             target.classList.add('is--flyout-enabled');
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             this.flyoutEntries = this.getChildren(entry);
@@ -554,7 +612,6 @@ The admin menu only supports up to three levels of nesting.`,
             // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
             let inside = false;
 
-            // eslint-disable-next-line no-plusplus
             for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
                 const xi = polygon[i][0];
                 const yi = polygon[i][1];
@@ -587,8 +644,11 @@ The admin menu only supports up to three levels of nesting.`,
                 this.flyoutEntries = this.getChildren(entry);
             }
 
+            const targetTop = target.getBoundingClientRect().top;
+            const appTop = document.getElementById('app').getBoundingClientRect().top;
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
+                top: `${targetTop - appTop}px`,
+                'max-height': `${window.innerHeight - targetTop}px`,
             };
 
             // Remove previous flyout enabled
@@ -738,4 +798,4 @@ The admin menu only supports up to three levels of nesting.`,
             return types.isEqual(entry, firstPluginEntry);
         },
     },
-});
+};

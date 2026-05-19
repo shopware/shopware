@@ -3,11 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
@@ -29,7 +30,6 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[CoversClass(ProductListingRoute::class)]
 #[Group('store-api')]
 class ProductListingRouteTest extends TestCase
 {
@@ -57,8 +57,14 @@ class ProductListingRouteTest extends TestCase
      */
     private array $variantIds;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -66,11 +72,11 @@ class ProductListingRouteTest extends TestCase
         $this->ids = new IdsCollection();
         $this->createSalesChannelContext(['id' => $this->ids->create('sales-channel')]);
 
-        /** @var EntityRepository $categoryRepository */
+        /** @var EntityRepository<CategoryCollection> */
         $categoryRepository = static::getContainer()->get('category.repository');
         $this->categoryRepository = $categoryRepository;
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
     }
@@ -89,6 +95,59 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(6, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
+    public function testReturnsHttpNotFoundWhenRequestedPageExceedsLastPage(): void
+    {
+        $this->createData();
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=99'
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(404, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $payload);
+        static::assertSame('PRODUCT__LISTING_PAGE_OUT_OF_RANGE', $payload['errors'][0]['code']);
+    }
+
+    public function testReturnsHttpOkWhenRequestedPageEqualsLastPage(): void
+    {
+        $this->createData(); // 6 products
+
+        // limit=2 → lastPage = ceil(6/2) = 3. p=3 must succeed.
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=3&limit=2'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertSame(3, $payload['page']);
+    }
+
+    public function testReturnsHttpOkOnFirstPageEvenWhenOnlyOnePageOfResults(): void
+    {
+        $this->createData(); // 6 products, default limit 24 → lastPage = 1
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category') . '?p=1'
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('product_listing', $payload['apiAlias']);
+        static::assertCount(6, $payload['elements']);
     }
 
     public function testLoadProductsUsingDynamicGroupWithEmptyProductStreamId(): void

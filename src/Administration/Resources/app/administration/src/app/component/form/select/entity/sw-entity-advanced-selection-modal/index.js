@@ -5,7 +5,7 @@
 import template from './sw-entity-advanced-selection-modal.html.twig';
 import './sw-entity-advanced-selection-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce } = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
@@ -17,7 +17,7 @@ const { Criteria } = Shopware.Data;
  * Also have a look for already existing wrapper components for your entity.
  * @status prototype
  */
-Component.register('sw-entity-advanced-selection-modal', {
+export default {
     template,
 
     inject: [
@@ -68,9 +68,16 @@ Component.register('sw-entity-advanced-selection-modal', {
         },
         // Path to an image that is used as an Icon for the empty state.
         // This depends on what entity is used for the modal and where it is found in the administration.
+        // @deprecated tag:v6.8.0 - Will be removed. Use emptyIcon instead
         emptyImagePath: {
             type: String,
-            required: true,
+            required: false,
+        },
+        // Meteor icon name that is used as an Icon for the empty state.
+        emptyIcon: {
+            type: String,
+            required: false,
+            default: 'solid-content',
         },
         // Additional associations which can't be inferred from the entityColumns or entityFilters.
         // This is most likely needed if the column slots are used for custom rendering and usage of associations.
@@ -155,7 +162,7 @@ Component.register('sw-entity-advanced-selection-modal', {
 
     computed: {
         modalTitle() {
-            return this.$tc(
+            return this.$t(
                 'global.sw-entity-advanced-selection-modal.title',
                 {
                     entity: this.entityDisplayText,
@@ -344,4 +351,4 @@ Component.register('sw-entity-advanced-selection-modal', {
             this.$refs.filterPanel.resetAll();
         },
     },
-});
+};

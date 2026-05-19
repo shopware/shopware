@@ -16,16 +16,24 @@ class Gateways extends XmlElement
      */
     private const GATEWAYS = [
         'checkout' => CheckoutGateway::class,
+        'context' => ContextGateway::class,
         'inAppPurchases' => InAppPurchasesGateway::class,
     ];
 
     protected ?CheckoutGateway $checkout = null;
+
+    protected ?ContextGateway $context = null;
 
     protected ?InAppPurchasesGateway $inAppPurchases = null;
 
     public function getCheckout(): ?CheckoutGateway
     {
         return $this->checkout;
+    }
+
+    public function getContext(): ?ContextGateway
+    {
+        return $this->context;
     }
 
     public function getInAppPurchasesGateway(): ?InAppPurchasesGateway

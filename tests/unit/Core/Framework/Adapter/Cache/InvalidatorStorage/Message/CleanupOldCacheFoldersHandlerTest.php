@@ -17,7 +17,7 @@ class CleanupOldCacheFoldersHandlerTest extends TestCase
     public function testInvoke(): void
     {
         $cacheClearer = $this->createMock(CacheClearer::class);
-        $cacheClearer->expects(static::once())->method('cleanupOldContainerCacheDirectories');
+        $cacheClearer->expects($this->once())->method('cleanupOldContainerCacheDirectories');
 
         $handler = new CleanupOldCacheFoldersHandler($cacheClearer);
         $handler(new CleanupOldCacheFolders());

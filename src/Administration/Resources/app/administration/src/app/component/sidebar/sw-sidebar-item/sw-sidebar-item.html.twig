@@ -18,10 +18,10 @@
         {% block sw_sidebar_item_close_button %}
         <button
             class="sw-sidebar-item__close-button"
-            aria-label="closeContent"
+            :aria-label="$t('sw-sidebar.ariaLabelButtonClose')"
             @click="closeContent"
         >
-            <sw-icon name="regular-times-xs" />
+            <mt-icon name="regular-times-xs" />
         </button>
         {% endblock %}
     </div>

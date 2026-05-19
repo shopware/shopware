@@ -19,7 +19,7 @@ class PermissionsTest extends TestCase
 
         static::assertNotNull($manifest->getPermissions());
         static::assertCount(7, $manifest->getPermissions()->getPermissions());
-        static::assertEquals([
+        static::assertSame([
             'product' => ['create', 'update', 'delete'],
             'category' => ['delete'],
             'product_manufacturer' => ['create', 'delete'],
@@ -29,7 +29,7 @@ class PermissionsTest extends TestCase
             'order' => ['read'],
         ], $manifest->getPermissions()->getPermissions());
 
-        static::assertEquals(['user_change_me'], $manifest->getPermissions()->getAdditionalPrivileges());
+        static::assertSame(['user_change_me'], $manifest->getPermissions()->getAdditionalPrivileges());
     }
 
     public function testAsParsedPrivileges(): void
@@ -38,7 +38,7 @@ class PermissionsTest extends TestCase
 
         static::assertNotNull($manifest->getPermissions());
         static::assertCount(16, $manifest->getPermissions()->asParsedPrivileges());
-        static::assertEquals([
+        static::assertSame([
             'product:create',
             'product:read',
             'product:update',
@@ -55,6 +55,24 @@ class PermissionsTest extends TestCase
             'custom_field_set:read',
             'order:read',
             'user_change_me',
+        ], $manifest->getPermissions()->asParsedPrivileges());
+    }
+
+    public function testCrudPermission(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../_fixtures/test/manifest_crud.xml');
+
+        static::assertNotNull($manifest->getPermissions());
+        static::assertCount(8, $manifest->getPermissions()->asParsedPrivileges());
+        static::assertSame([
+            'product:create',
+            'product:read',
+            'product:update',
+            'product:delete',
+            'category:read',
+            'category:create',
+            'category:update',
+            'category:delete',
         ], $manifest->getPermissions()->asParsedPrivileges());
     }
 }

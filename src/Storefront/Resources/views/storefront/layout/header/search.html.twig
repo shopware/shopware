@@ -10,20 +10,23 @@
                       data-search-widget="true"
                       data-search-widget-options="{{ searchWidgetOptions|json_encode }}"
                       data-url="{{ path('frontend.search.suggest') }}?search="
-                      class="header-search-form">
+                      class="header-search-form js-search-form">
                     {% block layout_header_search_input_group %}
                         <div class="input-group">
                             {% block layout_header_search_input %}
-                                <input type="search"
-                                       id="header-main-search-input"
-                                       name="search"
-                                       class="form-control header-search-input"
-                                       autocomplete="off"
-                                       autocapitalize="off"
-                                       placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
-                                       aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
-                                       value="{{ page.searchTerm }}"
-                                >
+                                <input
+                                    type="search"
+                                    id="header-main-search-input"
+                                    name="search"
+                                    class="form-control header-search-input"
+                                    autocomplete="off"
+                                    autocapitalize="off"
+                                    placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
+                                    role="combobox"
+                                    aria-autocomplete="list"
+                                    aria-expanded="false"
+                                    value="{{ page.searchTerm }}">
                             {% endblock %}
 
                             {% block layout_header_search_button %}
@@ -37,7 +40,7 @@
                             {% endblock %}
 
                             {% block layout_header_close_button %}
-                                <button class="btn header-close-btn js-search-close-btn d-none"
+                                <button class="btn header-close-btn js-search-close-btn"
                                         type="button"
                                         aria-label="{{ 'header.searchCloseButton'|trans|striptags }}">
                                     <span class="header-close-icon">

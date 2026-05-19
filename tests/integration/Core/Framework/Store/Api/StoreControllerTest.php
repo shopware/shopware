@@ -13,13 +13,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Api\StoreController;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
-use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -34,6 +35,9 @@ class StoreControllerTest extends TestCase
 
     private Context $defaultContext;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     protected function setUp(): void
@@ -70,7 +74,7 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->with('j.doe@shopware.com', 'v3rys3cr3t');
 
@@ -98,7 +102,7 @@ class StoreControllerTest extends TestCase
             ->willReturn(new Response());
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::once())
+        $storeClientMock->expects($this->once())
             ->method('loginWithShopwareId')
             ->willThrowException($clientExceptionMock);
 
@@ -121,12 +125,12 @@ class StoreControllerTest extends TestCase
         $context = new Context(new AdminApiSource($adminUser->getId()));
 
         $storeClientMock = $this->createMock(StoreClient::class);
-        $storeClientMock->expects(static::never())
+        $storeClientMock->expects($this->never())
             ->method('loginWithShopwareId');
 
         $storeController = $this->getStoreController($storeClientMock);
 
-        static::expectException(StoreInvalidCredentialsException::class);
+        static::expectExceptionObject(StoreException::invalidCredentials());
         $storeController->login($request, $context);
     }
 
@@ -147,7 +151,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);
@@ -182,7 +186,7 @@ class StoreControllerTest extends TestCase
         static::assertIsString($response);
 
         $response = json_decode($response, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals($response['userInfo'], [
+        static::assertSame($response['userInfo'], [
             'name' => 'John Doe',
             'email' => 'john.doe@shopware.com',
         ]);

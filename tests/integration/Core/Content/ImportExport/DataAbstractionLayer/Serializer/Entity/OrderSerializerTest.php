@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport\DataAbstractionLa
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer;
@@ -32,6 +33,9 @@ class OrderSerializerTest extends TestCase
 
     private OrderSerializer $serializer;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private Context $context;
@@ -65,6 +69,7 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['id'], $order->getId());
         static::assertSame($serialized['orderNumber'], $order->getOrderNumber());
         static::assertSame($serialized['salesChannelId'], $order->getSalesChannelId());
+        static::assertSame($serialized['shippingCosts'], $order->getShippingCosts()->getTotalPrice());
 
         static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer = $serialized['orderCustomer']);
         static::assertSame($orderCustomer->getFirstName(), $order->getOrderCustomer()->getFirstName());
@@ -87,6 +92,7 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['deliveries']['trackingCodes'], implode('|', $delivery->getTrackingCodes()));
         static::assertSame($serialized['deliveries']['shippingOrderAddress'], $delivery->getShippingOrderAddress());
         static::assertSame($serialized['deliveries']['stateMachineState'], $delivery->getStateMachineState());
+        static::assertSame($serialized['deliveries']['shippingCosts'], $delivery->getShippingCosts()->getTotalPrice());
 
         static::assertNotNull($transactions = $order->getTransactions());
         static::assertNotNull($transaction = $transactions->first());
@@ -97,7 +103,7 @@ class OrderSerializerTest extends TestCase
         static::assertSame($serialized['transactions']['orderId'], $transaction->getOrderId());
         static::assertSame($serialized['transactions']['orderVersionId'], $transaction->getOrderVersionId());
         static::assertSame($serialized['transactions']['paymentMethodId'], $transaction->getPaymentMethodId());
-        static::assertSame($serialized['transactions']['amount'], $transaction->getAmount());
+        static::assertSame($serialized['transactions']['amount'], $transaction->getAmount()->getTotalPrice());
         static::assertSame($serialized['transactions']['stateId'], $transaction->getStateId());
         static::assertSame($serialized['transactions']['stateMachineState'], $transaction->getStateMachineState()?->jsonSerialize());
 

@@ -8,12 +8,23 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
+use Shopware\Core\Framework\Rule\RuleConstraints;
+use Shopware\Core\Framework\Rule\RuleException;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -105,6 +116,8 @@ class ShippingCountryRuleTest extends TestCase
     #[DataProvider('unsupportedOperators')]
     public function testUnsupportedOperators(string $operator): void
     {
+        $this->expectExceptionObject(RuleException::unsupportedOperator($operator, RuleComparison::class));
+
         $rule = (new ShippingCountryRule())
             ->assign([
                 'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
@@ -122,11 +135,38 @@ class ShippingCountryRuleTest extends TestCase
             ->method('getShippingLocation')
             ->willReturn(ShippingLocation::createFromCountry($country));
 
-        $this->expectException(UnsupportedOperatorException::class);
         $rule->match(new CartRuleScope($cart, $context));
     }
 
     public function testUnsupportedOperatorMessage(): void
+    {
+        $rule = (new ShippingCountryRule())
+            ->assign([
+                'countryIds' => ['SWAG-AREA-COUNTRY-ID-1', 'SWAG-AREA-COUNTRY-ID-2', 'SWAG-AREA-COUNTRY-ID-3'],
+                'operator' => ShippingCountryRule::OPERATOR_GTE,
+            ]);
+
+        $cart = new Cart('test');
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $country = new CountryEntity();
+        $country->setId('SWAG-AREA-COUNTRY-ID-2');
+
+        $context
+            ->method('getShippingLocation')
+            ->willReturn(ShippingLocation::createFromCountry($country));
+
+        try {
+            $rule->match(new CartRuleScope($cart, $context));
+        } catch (RuleException $e) {
+            static::assertSame(ShippingCountryRule::OPERATOR_GTE, $e->getParameter('operator'));
+            static::assertSame(RuleComparison::class, $e->getParameter('class'));
+        }
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperatorMessageDeprecated(): void
     {
         $rule = (new ShippingCountryRule())
             ->assign([
@@ -163,5 +203,130 @@ class ShippingCountryRuleTest extends TestCase
             [ShippingCountryRule::OPERATOR_GTE],
             [ShippingCountryRule::OPERATOR_LTE],
         ];
+    }
+
+    public function testConstraints(): void
+    {
+        $ruleConstraints = (new ShippingCountryRule())->getConstraints();
+
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+            'countryIds' => RuleConstraints::uuids(),
+        ], $ruleConstraints);
+    }
+
+    public function testConstraintsForEmptyOperator(): void
+    {
+        $rule = (new ShippingCountryRule())->assign(['operator' => Rule::OPERATOR_EMPTY]);
+
+        static::assertEquals([
+            'operator' => RuleConstraints::uuidOperators(),
+        ], $rule->getConstraints());
+    }
+
+    public function testConstraintsRejectEmptyCountryIds(): void
+    {
+        $violations = $this->validateConstraint('countryIds', []);
+
+        $this->assertViolationCode($violations, NotBlank::IS_BLANK_ERROR);
+    }
+
+    public function testConstraintsRejectInvalidCountryIdsUuid(): void
+    {
+        $violations = $this->validateConstraint('countryIds', ['INVALID-UUID', true, 3]);
+
+        $this->assertViolationCode($violations, ArrayOfUuid::INVALID_TYPE_CODE, 3);
+    }
+
+    public function testConstraintsAcceptValidCountryIds(): void
+    {
+        $violations = $this->validateConstraint('countryIds', [Uuid::randomHex(), Uuid::randomHex()]);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('validUuidOperators')]
+    public function testConstraintsAcceptAvailableOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('invalidUuidOperators')]
+    public function testConstraintsRejectInvalidOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        $this->assertViolationCode($violations, Choice::NO_SUCH_CHOICE_ERROR);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function validUuidOperators(): \Generator
+    {
+        yield 'equals' => [Rule::OPERATOR_EQ];
+        yield 'not equals' => [Rule::OPERATOR_NEQ];
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidUuidOperators(): \Generator
+    {
+        yield 'less than or equals' => [Rule::OPERATOR_LTE];
+        yield 'greater than or equals' => [Rule::OPERATOR_GTE];
+        yield 'unknown operator' => ['Invalid'];
+    }
+
+    #[DataProvider('getMatchValues')]
+    public function testRuleMatching(string $operator, bool $isMatching, string $countryId): void
+    {
+        $countryIds = ['kyln123', 'kyln456'];
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+
+        $country = new CountryEntity();
+        $country->setId($countryId);
+        $location = new ShippingLocation($country, null, null);
+        $salesChannelContext->method('getShippingLocation')->willReturn($location);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $rule = (new ShippingCountryRule())->assign(['countryIds' => $countryIds, 'operator' => $operator]);
+
+        $match = $rule->match($scope);
+        if ($isMatching) {
+            static::assertTrue($match);
+        } else {
+            static::assertFalse($match);
+        }
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: bool, 2: string}>
+     */
+    public static function getMatchValues(): array
+    {
+        return [
+            'operator_oq / not match / country id' => [Rule::OPERATOR_EQ, false, Uuid::randomHex()],
+            'operator_oq / match / country id' => [Rule::OPERATOR_EQ, true, 'kyln123'],
+            'operator_neq / match / country id' => [Rule::OPERATOR_NEQ, true,  Uuid::randomHex()],
+            'operator_neq / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / not match / country id' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / match / country id' => [Rule::OPERATOR_EMPTY, true, ''],
+        ];
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new ShippingCountryRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode, int $expectedCount = 1): void
+    {
+        static::assertCount($expectedCount, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

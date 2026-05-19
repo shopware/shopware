@@ -354,4 +354,55 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
 
         expect(mappedFilters).toEqual(expected);
     });
+
+    it('should compute previewCriteria with random sorting applied', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ sorting: 'random' });
+        const criteria = wrapper.vm.previewCriteria;
+        const sortings = criteria.sortings;
+        expect(sortings).toHaveLength(2);
+
+        const allowedFields = [
+            'name',
+            'createdAt',
+            'cheapestPrice',
+            'releaseDate',
+        ];
+        const validDirections = [
+            'ASC',
+            'DESC',
+        ];
+
+        sortings.forEach((sorting) => {
+            expect(allowedFields).toContain(sorting.field);
+            expect(validDirections).toContain(sorting.order);
+        });
+    });
+
+    it('should add two random sortings when sorting is "random"', async () => {
+        const wrapper = await createWrapper();
+        const criteria = new Shopware.Data.Criteria(1, 10);
+
+        wrapper.vm.addRandomSort(criteria);
+
+        const sortings = criteria.sortings;
+        expect(sortings).toHaveLength(2);
+
+        const allowedFields = [
+            'name',
+            'createdAt',
+            'cheapestPrice',
+            'releaseDate',
+        ];
+        const validDirections = [
+            'ASC',
+            'DESC',
+        ];
+
+        sortings.forEach((sorting) => {
+            expect(allowedFields).toContain(sorting.field);
+            expect(validDirections).toContain(sorting.order);
+        });
+    });
 });

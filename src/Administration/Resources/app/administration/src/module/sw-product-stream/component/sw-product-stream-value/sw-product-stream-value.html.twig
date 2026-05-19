@@ -55,18 +55,27 @@
                 name="sw-field--filterType"
                 size="medium"
                 :options="operators"
-                :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
+                :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
                 :disabled="disabled"
                 show-clearable-button
             />
         </sw-arrow-field>
         {% endblock %}
 
-        <template v-if="fieldType === 'product_state_list'">
+        <template v-if="!feature.isActive('v6.8.0.0') && fieldType === 'product_state_list'">
             <sw-single-select
                 ref="product-stream-state-options"
                 v-model:value="actualCondition.value"
                 :options="productStateOptions"
+                :disabled="disabled"
+            />
+        </template>
+
+        <template v-else-if="fieldType === 'product_type'">
+            <sw-single-select
+                ref="product-stream-type-options"
+                v-model:value="actualCondition.value"
+                :options="productTypeOptions"
                 :disabled="disabled"
             />
         </template>
@@ -101,6 +110,7 @@
             {% block sw_product_stream_value_entity_multi_value_custom_field %}
             <sw-entity-multi-id-select
                 v-else-if="isMultiSelectValue"
+                ref="product-stream-value-select-entity-multi-id-select"
                 v-model:value="multiValue"
                 size="medium"
                 :repository="entityCustomFieldRepository"
@@ -423,6 +433,7 @@
                         v-model:value="gte"
                         size="medium"
                         :disabled="disabled"
+                        :step="1"
                     />
                 </sw-arrow-field>
                 {% endblock %}
@@ -434,6 +445,7 @@
                     v-model:value="lte"
                     size="medium"
                     :disabled="disabled"
+                    :step="1"
                 />
                 {% endblock %}
             </template>
@@ -446,6 +458,7 @@
                     v-model:value="currentParameter"
                     size="medium"
                     :disabled="disabled"
+                    :step="1"
                 />
                 {% endblock %}
             </template>
@@ -473,16 +486,16 @@
                     v-model:value="operator"
                     size="medium"
                     :options="relativeTimeOperators"
-                    :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
+                    :placeholder="$t('sw-product-stream.filter.placeholderOperatorSelect')"
                     :disabled="disabled"
                 />
             </sw-arrow-field>
             {% endblock %}
 
             {% block sw_product_stream_value_relative_time_value %}
-            <sw-number-field
+            <mt-number-field
                 ref="product-stream-value-relative-time-number-field"
-                v-model:value="stringValue"
+                v-model="stringValue"
                 class="sw-product-stream-value__time-input"
                 size="medium"
                 number-type="int"
@@ -491,9 +504,9 @@
                 :disabled="disabled"
             >
                 <template #suffix>
-                    <span>{{ $tc('sw-product-stream.filter.timeUnits.days') }}</span>
+                    <span>{{ $t('sw-product-stream.filter.timeUnits.days') }}</span>
                 </template>
-            </sw-number-field>
+            </mt-number-field>
             {% endblock %}
         </template>
 
@@ -505,6 +518,7 @@
                 v-model:value="stringValue"
                 size="medium"
                 :disabled="disabled"
+                :step="1"
             />
             {% endblock %}
         </template>

@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\AssignArrayInterface;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 #[Package('checkout')]
-abstract class Error extends \Exception implements \JsonSerializable
+abstract class Error extends \Exception implements \JsonSerializable, AssignArrayInterface
 {
     // allows to assign array data to this object
     use AssignArrayTrait;
@@ -24,6 +26,27 @@ abstract class Error extends \Exception implements \JsonSerializable
     final public const LEVEL_WARNING = 10;
 
     final public const LEVEL_ERROR = 20;
+
+    private ?string $translatedMessage = null;
+
+    /**
+     * The trace has to be cleaned up to remove service references that are not serializable.
+     *
+     * @return array<string, mixed>
+     */
+    public function __serialize(): array
+    {
+        $ref = new \ReflectionClass($this);
+
+        $data = [];
+        foreach ($ref->getProperties() as $property) {
+            $data[$property->getName()] = $property->getValue($this);
+        }
+
+        unset($data['trace']);
+
+        return $data;
+    }
 
     abstract public function getId(): string;
 
@@ -43,8 +66,13 @@ abstract class Error extends \Exception implements \JsonSerializable
      */
     abstract public function getParameters(): array;
 
+    /**
+     * @deprecated tag:v6.8.0 - will be removed without replacement
+     */
     public function getRoute(): ?ErrorRoute
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, 'getRoute', 'v6.8.0.0'));
+
         return null;
     }
 
@@ -62,6 +90,16 @@ abstract class Error extends \Exception implements \JsonSerializable
         return true;
     }
 
+    public function getTranslatedMessage(): ?string
+    {
+        return $this->translatedMessage;
+    }
+
+    public function setTranslatedMessage(string $translatedMessage): void
+    {
+        $this->translatedMessage = $translatedMessage;
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -71,17 +109,20 @@ abstract class Error extends \Exception implements \JsonSerializable
         $data['key'] = $this->getId();
         $data['level'] = $this->getLevel();
         $data['message'] = $this->getMessage();
+        $data['translatedMessage'] = $this->getTranslatedMessage();
         $data['messageKey'] = $this->getMessageKey();
         $data['parameters'] = $this->getParameters();
         $data['block'] = $this->blockOrder();
         $data['blockResubmit'] = $this->blockResubmit();
 
-        if ($route = $this->getRoute()) {
-            $data['route'] = [
-                'key' => $route->getKey(),
-                'params' => $route->getParams(),
-            ];
-        }
+        Feature::callSilentIfInactive('v6.8.0.0', function () use (&$data): void {
+            if ($route = $this->getRoute()) {
+                $data['route'] = [
+                    'key' => $route->getKey(),
+                    'params' => $route->getParams(),
+                ];
+            }
+        });
 
         unset($data['file'], $data['line']);
 

@@ -7,6 +7,15 @@
         {% set attributes = attributes|merge({ title: media.translated.title }) %}
     {% endif %}
 
+    {% set videoCoverMedia = media.extensions.videoCoverMedia ?? null %}
+
+    {% if videoCoverMedia and (attributes.poster is not defined or attributes.poster == '') %}
+        {% set attributes = attributes|merge({
+            poster: videoCoverMedia|sw_encode_media_url,
+            preload: 'none'
+        }) %}
+    {% endif %}
+
     {% if attributes.autoplay is defined and attributes.autoplay is same as(true) %}
         {% set attributes = attributes|merge({
             muted: true,

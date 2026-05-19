@@ -132,9 +132,8 @@ export default Component.wrapComponentConfig({
                     return this.loadTaxProvider();
                 })
                 .catch(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
                     });
 
                     this.isLoading = false;

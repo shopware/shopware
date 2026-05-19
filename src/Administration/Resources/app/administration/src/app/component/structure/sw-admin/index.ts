@@ -1,4 +1,5 @@
-import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/components/feedback-indicator/mt-toast/mt-toast';
+import type { Toast } from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
+import { useSnackbar } from '@shopware-ag/meteor-component-library';
 import template from './sw-admin.html.twig';
 
 const { Component } = Shopware;
@@ -8,7 +9,7 @@ const { Component } = Shopware;
  *
  * @private
  */
-Component.register('sw-admin', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     inject: [
@@ -19,7 +20,7 @@ Component.register('sw-admin', {
 
     metaInfo() {
         return {
-            title: this.$tc('global.sw-admin-menu.textShopwareAdmin'),
+            title: this.$t('global.sw-admin-menu.textShopwareAdmin'),
         };
     },
 
@@ -44,6 +45,10 @@ Component.register('sw-admin', {
         overrideComponents() {
             return Component.getOverrideComponents();
         },
+
+        snackbar() {
+            return useSnackbar();
+        },
     },
 
     created() {
@@ -65,7 +70,6 @@ Component.register('sw-admin', {
                 return;
             }
 
-            // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
             const currentRouteName = this.$router.currentRoute.value.name as string;
             const routeBlocklist = [
                 'sw.inactivity.login.index',

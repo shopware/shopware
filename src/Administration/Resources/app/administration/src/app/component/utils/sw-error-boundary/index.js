@@ -11,7 +11,7 @@
  *     <!-- Your components -->
  * </sw-error-boundary>
  */
-Shopware.Component.register('sw-error-boundary', {
+export default {
     render() {
         if (typeof this.$slots.default === 'function') {
             return this.$slots.default();
@@ -45,6 +45,11 @@ Shopware.Component.register('sw-error-boundary', {
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _getLocationHref() {
+            return window.location.href;
+        },
+
         logErrorInEntries(err, vm) {
             if (!err) {
                 return;
@@ -58,10 +63,10 @@ Shopware.Component.register('sw-error-boundary', {
             newLogEntry.context = {
                 component: vm?._name ?? 'Unknown component',
                 stack: err.stack ?? 'Unknown stack',
-                url: window.location.href,
+                url: this._getLocationHref(),
             };
 
             this.logEntryRepository.save(newLogEntry).catch((e) => Shopware.Utils.debug.error(e));
         },
     },
-});
+};

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -40,6 +41,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      */
     private EntityRepository $productSearchConfigRepository;
 
+    /**
+     * @var EntityRepository<CustomFieldSetCollection>
+     */
+    private EntityRepository $customFieldSetRepository;
+
     private Connection $connection;
 
     private Context $context;
@@ -53,6 +59,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     protected function setUp(): void
     {
         $this->productRepository = static::getContainer()->get('product.repository');
+        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
         $this->productSearchConfigRepository = static::getContainer()->get('product_search_config.repository');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
@@ -129,16 +136,16 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $result = $analyzer->analyze($product, Context::createDefaultContext(), $config);
 
-        $words = $result->map(fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        $words = $result->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
 
-        static::assertEquals(
+        static::assertSame(
             ['searchable', 'match', 'array', '10000000', '10.99999', 'nested'],
             array_values($words)
         );
     }
 
     #[DataProvider('casesSearchBaseOnConfigField')]
-    public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, int $ranking): void
+    public function testInsertIntoSearchKeywordForEn(bool $searchable, bool $tokenize, float $ranking): void
     {
         $this->updateProductSearchConfigField($this->enSearchConfigId, $searchable, $tokenize, $ranking);
 
@@ -172,10 +179,21 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'customfield',
                 123456,
                 123456789,
+                'product description',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -202,7 +220,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -212,11 +230,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         sort($expected);
 
-        static::assertEquals($expected, $analyzerResult);
+        static::assertSame($expected, $analyzerResult);
     }
 
     #[DataProvider('casesSearchBaseOnConfigField')]
-    public function testInsertIntoSearchKeywordForDe(bool $searchable, bool $tokenize, int $ranking): void
+    public function testInsertIntoSearchKeywordForDe(bool $searchable, bool $tokenize, float $ranking): void
     {
         $this->updateProductSearchConfigField($this->deSearchConfigId, $searchable, $tokenize, $ranking);
 
@@ -250,10 +268,21 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 123456,
                 123456789,
                 'manufacturer',
+                '123456789 category customfield',
+                '123456789 manufacturer customfield',
+                'metadescription test',
+                'metatitle test',
+                'product description',
+                'search keyword update',
+                'tag1 tag2',
+                'test category',
+                'test ean',
+                'test product',
+                'tet customfield',
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -280,7 +309,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
             ];
 
             foreach ($analyzer->getElements() as $keyword) {
-                static::assertEquals($ranking, $keyword->getRanking());
+                static::assertSame($ranking, $keyword->getRanking());
             }
         }
 
@@ -290,23 +319,23 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         sort($expected);
 
-        static::assertEquals($expected, $analyzerResult);
+        static::assertSame($expected, $analyzerResult);
     }
 
     /**
-     * @return array<string, array<int, bool|int>>
+     * @return array<string, array{bool, bool, float}>
      */
     public static function casesSearchBaseOnConfigField(): array
     {
         return [
-            'searchable is true, tokenize is true, ranking is 500' => [true, true, 500],
-            'searchable is true, tokenize is true, ranking is 600' => [true, true, 600],
-            'searchable is true, tokenize is true, ranking is 700' => [true, true, 700],
-            'searchable is false, tokenize is true, ranking is 500' => [false, true, 500],
-            'searchable is true, tokenize is false, ranking is 500' => [true, false, 500],
-            'searchable is true, tokenize is false, ranking is 1000' => [true, false, 1000],
-            'searchable is true, tokenize is false, ranking is 1500' => [true, false, 1500],
-            'searchable is false, tokenize is false, ranking is 500' => [false, false, 500],
+            'searchable is true, tokenize is true, ranking is 500' => [true, true, 500.0],
+            'searchable is true, tokenize is true, ranking is 600' => [true, true, 600.0],
+            'searchable is true, tokenize is true, ranking is 700' => [true, true, 700.0],
+            'searchable is false, tokenize is true, ranking is 500' => [false, true, 500.0],
+            'searchable is true, tokenize is false, ranking is 500' => [true, false, 500.0],
+            'searchable is true, tokenize is false, ranking is 1000' => [true, false, 1000.0],
+            'searchable is true, tokenize is false, ranking is 1500' => [true, false, 1500.0],
+            'searchable is false, tokenize is false, ranking is 500' => [false, false, 500.0],
         ];
     }
 
@@ -346,107 +375,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $this->enSearchConfigId = $this->getEnSearchConfig()->getId();
         $this->deSearchConfigId = $this->getDeSearchConfig()->getId();
 
-        $customFieldSetData = [
-            'id' => $this->ids->create('custom_field_set_id'),
-            'name' => 'custom_Test',
-            'config' => [
-                'label' => [
-                    'de-DE' => 'DE Test',
-                    'en-GB' => 'EN Test',
-                ],
-            ],
-            'customFields' => [
-                [
-                    'id' => $this->ids->create('custom_field_id1'),
-                    'name' => 'custom_test_field_1',
-                    'type' => 'text',
-                    'config' => [
-                        'type' => 'text',
-                        'label' => [
-                            'en-GB' => 'Text',
-                        ],
-                        'helpText' => [
-                            'en-GB' => 'Text',
-                        ],
-                        'placeholder' => [
-                            'en-GB' => 'Text',
-                        ],
-                        'componentName' => 'sw-field',
-                        'customFieldType' => 'text',
-                        'customFieldPosition' => 1,
-                    ],
-                    'active' => true,
-                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
-                    'productSearchConfigFields' => [
-                        [
-                            'id' => Uuid::randomHex(),
-                            'searchConfigId' => $this->enSearchConfigId,
-                            'customFieldId' => $this->ids->get('custom_field_id1'),
-                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_1',
-                            'tokenize' => false,
-                            'searchable' => false,
-                            'ranking' => 500,
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'searchConfigId' => $this->deSearchConfigId,
-                            'customFieldId' => $this->ids->get('custom_field_id1'),
-                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_1',
-                            'tokenize' => false,
-                            'searchable' => false,
-                            'ranking' => 500,
-                        ],
-                    ],
-                ],
-                [
-                    'id' => $this->ids->create('custom_field_id2'),
-                    'name' => 'custom_test_field_2',
-                    'type' => 'int',
-                    'config' => [
-                        'type' => 'number',
-                        'label' => [
-                            'en-GB' => 'Test',
-                        ],
-                        'numberType' => 'int',
-                        'placeholder' => [
-                            'en-GB' => 'Type a number...',
-                        ],
-                        'componentName' => 'sw-field',
-                        'customFieldType' => 'number',
-                        'customFieldPosition' => 1,
-                    ],
-                    'active' => true,
-                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
-                    'productSearchConfigFields' => [
-                        [
-                            'id' => Uuid::randomHex(),
-                            'searchConfigId' => $this->enSearchConfigId,
-                            'customFieldId' => $this->ids->get('custom_field_id2'),
-                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_2',
-                            'tokenize' => false,
-                            'searchable' => false,
-                            'ranking' => 500,
-                        ],
-                        [
-                            'id' => Uuid::randomHex(),
-                            'searchConfigId' => $this->deSearchConfigId,
-                            'customFieldId' => $this->ids->get('custom_field_id2'),
-                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_2',
-                            'tokenize' => false,
-                            'searchable' => false,
-                            'ranking' => 500,
-                        ],
-                    ],
-                ],
-            ],
-            'relations' => [
-                [
-                    'id' => Uuid::randomHex(),
-                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
-                    'entityName' => 'product',
-                ],
-            ],
-        ];
+        $this->createCustomFieldSet();
 
         $products = [
             [
@@ -497,7 +426,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                     ['id' => $this->ids->create('tag1'), 'name' => 'tag1'],
                     ['id' => $this->ids->create('tag2'), 'name' => 'tag2'],
                 ],
-                'customFieldSets' => [$customFieldSetData],
+                'customFieldSet' => [
+                    'id' => $this->ids->get('custom_field_set_id'),
+                ],
             ],
             [
                 'id' => $this->ids->create('product_id_2'),
@@ -543,11 +474,122 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                     ['id' => $this->ids->get('tag1'), 'name' => 'tag1'],
                     ['id' => $this->ids->get('tag2'), 'name' => 'tag2'],
                 ],
-                'customFieldSets' => [$customFieldSetData],
+                'customFieldSet' => [
+                    'id' => $this->ids->get('custom_field_set_id'),
+                ],
             ],
         ];
 
         $this->productRepository->create($products, $this->context);
+    }
+
+    private function createCustomFieldSet(): void
+    {
+        $customFieldSetData = [
+            'id' => $this->ids->create('custom_field_set_id'),
+            'name' => 'custom_Test',
+            'config' => [
+                'label' => [
+                    'de-DE' => 'DE Test',
+                    'en-GB' => 'EN Test',
+                ],
+            ],
+            'customFields' => [
+                [
+                    'id' => $this->ids->create('custom_field_id1'),
+                    'name' => 'custom_test_field_1',
+                    'type' => 'text',
+                    'config' => [
+                        'type' => 'text',
+                        'label' => [
+                            'en-GB' => 'Text',
+                        ],
+                        'helpText' => [
+                            'en-GB' => 'Text',
+                        ],
+                        'placeholder' => [
+                            'en-GB' => 'Text',
+                        ],
+                        'componentName' => 'sw-field',
+                        'customFieldType' => 'text',
+                        'customFieldPosition' => 1,
+                    ],
+                    'active' => true,
+                    'includeInSearch' => true,
+                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
+                    'productSearchConfigFields' => [
+                        [
+                            'id' => Uuid::randomHex(),
+                            'searchConfigId' => $this->enSearchConfigId,
+                            'customFieldId' => $this->ids->get('custom_field_id1'),
+                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_1',
+                            'tokenize' => false,
+                            'searchable' => false,
+                            'ranking' => 500,
+                        ],
+                        [
+                            'id' => Uuid::randomHex(),
+                            'searchConfigId' => $this->deSearchConfigId,
+                            'customFieldId' => $this->ids->get('custom_field_id1'),
+                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_1',
+                            'tokenize' => false,
+                            'searchable' => false,
+                            'ranking' => 500,
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $this->ids->create('custom_field_id2'),
+                    'name' => 'custom_test_field_2',
+                    'type' => 'int',
+                    'config' => [
+                        'type' => 'number',
+                        'label' => [
+                            'en-GB' => 'Test',
+                        ],
+                        'numberType' => 'int',
+                        'placeholder' => [
+                            'en-GB' => 'Type a number...',
+                        ],
+                        'componentName' => 'sw-field',
+                        'customFieldType' => 'number',
+                        'customFieldPosition' => 1,
+                    ],
+                    'active' => true,
+                    'includeInSearch' => true,
+                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
+                    'productSearchConfigFields' => [
+                        [
+                            'id' => Uuid::randomHex(),
+                            'searchConfigId' => $this->enSearchConfigId,
+                            'customFieldId' => $this->ids->get('custom_field_id2'),
+                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_2',
+                            'tokenize' => false,
+                            'searchable' => false,
+                            'ranking' => 500,
+                        ],
+                        [
+                            'id' => Uuid::randomHex(),
+                            'searchConfigId' => $this->deSearchConfigId,
+                            'customFieldId' => $this->ids->get('custom_field_id2'),
+                            'field' => self::CUSTOM_FIELDS . '.custom_test_field_2',
+                            'tokenize' => false,
+                            'searchable' => false,
+                            'ranking' => 500,
+                        ],
+                    ],
+                ],
+            ],
+            'relations' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'customFieldSetId' => $this->ids->get('custom_field_set_id'),
+                    'entityName' => 'product',
+                ],
+            ],
+        ];
+
+        $this->customFieldSetRepository->upsert([$customFieldSetData], $this->context);
     }
 
     private function getEnSearchConfig(): ProductSearchConfigEntity
@@ -579,7 +621,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         string $searchConfigId,
         bool $searchable,
         bool $tokenize,
-        int $ranking
+        float $ranking
     ): void {
         $this->connection->executeStatement(
             'UPDATE `product_search_config_field`

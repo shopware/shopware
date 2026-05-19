@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Country\CountryEntity;
@@ -22,10 +23,7 @@ class DocumentConfiguration extends Struct
 
     protected ?bool $displayPrices = null;
 
-    /**
-     * @var array<string, mixed>|null
-     */
-    protected ?array $logo = null;
+    protected ?MediaEntity $logo = null;
 
     protected ?string $filenamePrefix = null;
 
@@ -117,6 +115,7 @@ class DocumentConfiguration extends Struct
      */
     public function __set($name, $value): void
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         $this->$name = $value;
     }
 
@@ -127,6 +126,7 @@ class DocumentConfiguration extends Struct
      */
     public function __get($name)
     {
+        // @phpstan-ignore property.dynamicName (We allow all dynamic properties in the document configuration)
         return $this->$name;
     }
 
@@ -307,7 +307,7 @@ class DocumentConfiguration extends Struct
             $this->getCompanyCountry()?->getTranslation('name') ?? '',
         ];
 
-        return array_filter($parts, static fn ($part) => !empty(\trim($part)));
+        return array_filter($parts, static fn (string $part): bool => \trim($part) !== '');
     }
 
     public function getId(): string
@@ -432,5 +432,20 @@ class DocumentConfiguration extends Struct
     public function setFileTypes(array $types): void
     {
         $this->fileTypes = $types;
+    }
+
+    public function getLogo(): ?MediaEntity
+    {
+        return $this->logo;
+    }
+
+    public function setLogo(?MediaEntity $logo): void
+    {
+        $this->logo = $logo;
+    }
+
+    public function setItemsPerPage(string|int|null $itemsPerPage): void
+    {
+        $this->itemsPerPage = (int) $itemsPerPage;
     }
 }

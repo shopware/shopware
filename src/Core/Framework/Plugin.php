@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Kernel;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 #[Package('framework')]
@@ -117,14 +118,6 @@ abstract class Plugin extends Bundle
         return [];
     }
 
-    /**
-     * Used to configure the BaseUrl for the Admin Extension API
-     */
-    public function getAdminBaseUrl(): ?string
-    {
-        return null;
-    }
-
     private function computePluginClassPath(): string
     {
         $canonicalizedPluginClassPath = $this->getPath();
@@ -133,7 +126,7 @@ abstract class Plugin extends Bundle
         if ($canonicalizedPluginPath !== false && mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
             $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
 
-            return $this->basePath . $relativePluginClassPath;
+            return Path::join($this->basePath, $relativePluginClassPath);
         }
 
         return $canonicalizedPluginClassPath;

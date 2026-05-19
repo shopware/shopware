@@ -27,7 +27,7 @@ class ExcludeFlowEventHandlerTest extends TestCase
     public function testHandler(LogRecord $record, array $excludeList, bool $shouldBePassed): void
     {
         $innerHandler = $this->createMock(FingersCrossedHandler::class);
-        $innerHandler->expects($shouldBePassed ? static::once() : static::never())->method('handle')->willReturn(true);
+        $innerHandler->expects($shouldBePassed ? $this->once() : $this->never())->method('handle')->willReturn(true);
 
         $handler = new ExcludeFlowEventHandler(
             $innerHandler,

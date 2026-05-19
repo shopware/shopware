@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CustomerLoggedInRule extends Rule
 {
     final public const RULE_NAME = 'customerLoggedIn';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $isLoggedIn = false)
     {
         parent::__construct();

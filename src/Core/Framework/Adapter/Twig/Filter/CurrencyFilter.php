@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +11,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+/**
+ * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
+ */
 #[Package('framework')]
 class CurrencyFilter extends AbstractExtension
 {
@@ -31,7 +35,16 @@ class CurrencyFilter extends AbstractExtension
     }
 
     /**
+     * @deprecated tag:v6.8.0 - arguments will be type-hinted - reason:becomes-internal
+     *
+     * @param array<string, mixed> $twigContext
+     * @param float $price
+     * @param string|null $currencyIsoCode
+     * @param string|null $languageId
+     *
      * @throws InconsistentCriteriaIdsException
+     *
+     * @return float|string
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {
@@ -45,7 +58,7 @@ class CurrencyFilter extends AbstractExtension
                 return $price;
             }
 
-            throw new \InvalidArgumentException('Error while processing Twig currency filter. No context or locale given.');
+            throw AdapterException::currencyFilterMissingContext();
         }
 
         if (!$currencyIsoCode && $twigContext['context'] instanceof SalesChannelContext) {
@@ -57,7 +70,7 @@ class CurrencyFilter extends AbstractExtension
                 return $price;
             }
 
-            throw new \InvalidArgumentException('Error while processing Twig currency filter. Could not resolve currencyIsoCode.');
+            throw AdapterException::currencyFilterMissingIsoCode();
         }
 
         if ($twigContext['context'] instanceof Context) {

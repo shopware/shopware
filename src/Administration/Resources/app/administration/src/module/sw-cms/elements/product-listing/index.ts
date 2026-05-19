@@ -39,6 +39,10 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: 'standard',
         },
+        boxHeadlineLevel: {
+            source: 'static',
+            value: 2,
+        },
         showSorting: {
             source: 'static',
             value: true,
@@ -49,7 +53,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         availableSortings: {
             source: 'static',
-            value: [],
+            value: {},
         },
         defaultSorting: {
             source: 'static',

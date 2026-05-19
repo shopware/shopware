@@ -15,14 +15,14 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
  * @internal
  */
 #[Package('framework')]
-final class PluginLifecycleSubscriber implements EventSubscriberInterface
+final readonly class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly TaskRegistry $registry,
-        private readonly CacheItemPoolInterface $restartSignalCachePool
+        private TaskRegistry $registry,
+        private CacheItemPoolInterface $restartSignalCachePool,
     ) {
     }
 

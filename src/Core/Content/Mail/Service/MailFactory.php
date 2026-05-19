@@ -30,7 +30,7 @@ class MailFactory extends AbstractMailFactory
         array $additionalData,
         ?array $binAttachments = null
     ): Email {
-        $this->assertValidAddresses(array_keys($recipients));
+        $this->assertValidAddresses(\array_keys($recipients));
 
         $mail = (new Mail())
             ->subject($subject)
@@ -38,12 +38,12 @@ class MailFactory extends AbstractMailFactory
             ->to(...$this->formatMailAddresses($recipients))
             ->setMailAttachmentsConfig($additionalData['attachmentsConfig'] ?? null);
 
-        foreach ($contents as $contentType => $data) {
-            if ($contentType === 'text/html') {
-                $mail->html($data);
-            } else {
-                $mail->text($data);
-            }
+        if (isset($contents['text/html'])) {
+            $mail->html($contents['text/html']);
+        }
+
+        if (isset($contents['text/plain'])) {
+            $mail->text($contents['text/plain']);
         }
 
         foreach ($attachments as $url) {
@@ -68,7 +68,7 @@ class MailFactory extends AbstractMailFactory
                 continue;
             }
             $mailAddresses = \is_array($value) ? $value : [$value => $value];
-            $this->assertValidAddresses(array_keys($mailAddresses));
+            $this->assertValidAddresses(\array_keys($mailAddresses));
             match ($key) {
                 'recipientsCc' => $mail->addCc(...$this->formatMailAddresses($mailAddresses)),
                 'recipientsBcc' => $mail->addBcc(...$this->formatMailAddresses($mailAddresses)),

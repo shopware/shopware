@@ -59,7 +59,7 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     }
 
     /**
-     * @return array<string, Constraint[]>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(): array
     {

@@ -57,7 +57,6 @@ async function createWrapper() {
                         template: '<div class="sw-cms-page-form"></div>',
                         props: ['page'],
                     },
-                    'sw-icon': true,
                 },
                 provide: {
                     cmsPageTypeService: {

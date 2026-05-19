@@ -28,8 +28,21 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleCriteria() {
             return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
+        },
+
+        triggerOptions() {
+            return this.getTriggerSelection().map((trigger) => {
+                return {
+                    id: trigger.value,
+                    value: trigger.value,
+                    label: trigger.display,
+                };
+            });
         },
     },
 
@@ -45,12 +58,12 @@ export default {
             return [
                 {
                     value: 'single',
-                    display: this.$tc(`${prefix}.displaySingleTrigger`),
+                    display: this.$t(`${prefix}.displaySingleTrigger`),
                     disabled: false,
                 },
                 {
                     value: 'multi',
-                    display: this.$tc(`${prefix}.displayMultiTrigger`),
+                    display: this.$t(`${prefix}.displayMultiTrigger`),
                     disabled: true,
                 },
             ];

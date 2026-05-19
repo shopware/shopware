@@ -17,15 +17,15 @@ class PluginLoadedSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PluginEvents::PLUGIN_LOADED_EVENT => [
-                ['unserialize'],
-            ],
+            PluginEvents::PLUGIN_LOADED_EVENT => 'unserialize',
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<PluginEntity> $event
+     */
     public function unserialize(EntityLoadedEvent $event): void
     {
-        /** @var PluginEntity $plugin */
         foreach ($event->getEntities() as $plugin) {
             if ($plugin->getIconRaw()) {
                 $plugin->setIcon(base64_encode($plugin->getIconRaw()));

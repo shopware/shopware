@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Address\Error\AddressErrorInterface;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -26,6 +28,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
@@ -118,10 +121,10 @@ abstract class StorefrontController extends AbstractController
 
     protected function createActionResponse(Request $request): Response
     {
-        if ($request->get('redirectTo') || $request->get('redirectTo') === '') {
+        if (RequestParamHelper::get($request, 'redirectTo') || RequestParamHelper::get($request, 'redirectTo') === '') {
             $params = $this->decodeParam($request, 'redirectParameters');
 
-            $redirectTo = $request->get('redirectTo');
+            $redirectTo = RequestParamHelper::get($request, 'redirectTo');
 
             if ($redirectTo && \is_string($redirectTo)) {
                 return $this->redirectToRoute($redirectTo, $params);
@@ -130,10 +133,10 @@ abstract class StorefrontController extends AbstractController
             return $this->redirectToRoute('frontend.home.page', $params);
         }
 
-        if ($request->get('forwardTo')) {
+        if (RequestParamHelper::get($request, 'forwardTo')) {
             $params = $this->decodeParam($request, 'forwardParameters');
 
-            return $this->forwardToRoute($request->get('forwardTo'), [], $params);
+            return $this->forwardToRoute(RequestParamHelper::get($request, 'forwardTo'), [], $params);
         }
 
         return new Response();
@@ -147,7 +150,11 @@ abstract class StorefrontController extends AbstractController
     {
         $router = $this->container->get('router');
 
-        $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
+        try {
+            $url = $this->generateUrl($routeName, $routeParameters, Router::PATH_INFO);
+        } catch (RouteNotFoundException $e) {
+            throw StorefrontException::routeNotFound($routeName, $e);
+        }
 
         // for the route matching the request method is set to "GET" because
         // this method is not ought to be used as a post passthrough
@@ -181,13 +188,17 @@ abstract class StorefrontController extends AbstractController
      */
     protected function decodeParam(Request $request, string $param): array
     {
-        $params = $request->get($param);
+        $params = RequestParamHelper::get($request, $param);
 
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            try {
+                $params = json_decode($params, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $params = [];
+            }
         }
 
-        if (empty($params) || \is_numeric($params)) {
+        if ($params === null || \is_numeric($params)) {
             $params = [];
         }
 
@@ -219,29 +230,38 @@ abstract class StorefrontController extends AbstractController
             $flat = array_merge($flat, $messages);
         }
 
-        /** @var array<string, Error[]> $groups */
-        foreach ($groups as $type => $errors) {
-            foreach ($errors as $error) {
+        foreach ($groups as $type => $errorGroup) {
+            foreach ($errorGroup as $error) {
                 $parameters = [];
 
                 foreach ($error->getParameters() as $key => $value) {
                     $parameters['%' . $key . '%'] = $value;
                 }
 
-                if ($error->getRoute() instanceof ErrorRoute) {
-                    $parameters['%url%'] = $this->generateUrl(
-                        $error->getRoute()->getKey(),
-                        $error->getRoute()->getParams()
-                    );
+                Feature::callSilentIfInactive('v6.8.0.0', function () use (&$parameters, $error): void {
+                    if ($error->getRoute() instanceof ErrorRoute) {
+                        $parameters['%url%'] = $this->generateUrl(
+                            $error->getRoute()->getKey(),
+                            $error->getRoute()->getParams()
+                        );
+                    }
+                });
+
+                if ($error instanceof AddressErrorInterface && $error->getAddressId() !== null) {
+                    $parameters['%url%'] = $this->generateUrl('frontend.account.address.edit.page', [
+                        'addressId' => $error->getAddressId(),
+                        'redirectTo' => $request?->attributes->get('_route'),
+                    ]);
                 }
 
-                $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+                $translatedMessage = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+                $error->setTranslatedMessage($translatedMessage);
 
-                if (\in_array($message, $flat, true)) {
+                if (\in_array($translatedMessage, $flat, true)) {
                     continue;
                 }
 
-                $this->addFlash($type, $message);
+                $this->addFlash($type, $translatedMessage);
             }
         }
     }
@@ -254,7 +274,11 @@ abstract class StorefrontController extends AbstractController
         $event = new StorefrontRedirectEvent($route, $parameters, $status);
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
+        try {
+            return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
+        } catch (RouteNotFoundException $e) {
+            throw StorefrontException::routeNotFound($route, $e);
+        }
     }
 
     /**
@@ -298,5 +322,20 @@ abstract class StorefrontController extends AbstractController
     protected function getSystemConfigService(): SystemConfigService
     {
         return $this->container->get(SystemConfigService::class);
+    }
+
+    /**
+     * Because some email-clients try to fetch previews for links in mails,
+     * they send a HEAD-request. But because Symfony is routing HEAD-requests
+     * as GET-requests, a subscriber would be confirmed without clicking the link,
+     * only by the HEAD-request.
+     * To determine if the current request is a "HEAD" request or a "GET" request, this
+     * helper method exists.
+     *
+     * Beware: $request->getMethod() or $request->getRealMethod() will both return "GET".
+     */
+    protected function isHeadRequest(): bool
+    {
+        return isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'HEAD';
     }
 }

@@ -5,7 +5,6 @@
 export default function initializeSettingItems(): void {
     Shopware.ExtensionAPI.handle('settingsItemAdd', async (settingsItemConfig, additionalInformation) => {
         const allowedTabs = [
-            'shop',
             'general',
             'localization',
             'customer',
@@ -40,6 +39,7 @@ export default function initializeSettingItems(): void {
                 heading: settingsItemConfig.label,
                 locationId: settingsItemConfig.locationId,
                 displaySearchBar: settingsItemConfig.displaySearchBar!,
+                displaySmartBar: settingsItemConfig.displaySmartBar!,
                 baseUrl: extension.baseUrl,
             })
             .then((moduleId) => {
@@ -48,7 +48,16 @@ export default function initializeSettingItems(): void {
                 }
 
                 Shopware.Store.get('settingsItems').addItem({
-                    group: group as 'shop' | 'system' | 'plugins',
+                    group: group as
+                        | 'general'
+                        | 'localization'
+                        | 'customer'
+                        | 'commerce'
+                        | 'content'
+                        | 'automation'
+                        | 'system'
+                        | 'account'
+                        | 'plugins',
                     icon: settingsItemConfig.icon,
                     id: settingsItemConfig.locationId,
                     label: settingsItemConfig.label,

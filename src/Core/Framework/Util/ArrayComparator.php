@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Util;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Exception\ComparatorException;
 
 #[Package('framework')]
 class ArrayComparator
@@ -17,7 +16,7 @@ class ArrayComparator
         return match ($operator) {
             '!=' => self::notEquals($a, $b),
             '=' => self::equals($a, $b),
-            default => throw ComparatorException::operatorNotSupported($operator),
+            default => throw UtilException::operatorNotSupported($operator),
         };
     }
 
@@ -27,7 +26,7 @@ class ArrayComparator
      */
     public static function equals(array $a, array $b): bool
     {
-        return \count(array_intersect($a, $b)) > 0;
+        return array_intersect($a, $b) !== [];
     }
 
     /**
@@ -36,6 +35,6 @@ class ArrayComparator
      */
     public static function notEquals(array $a, array $b): bool
     {
-        return \count(array_intersect($a, $b)) === 0;
+        return array_intersect($a, $b) === [];
     }
 }

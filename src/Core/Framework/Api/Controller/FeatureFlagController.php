@@ -6,11 +6,14 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class FeatureFlagController
 {
@@ -23,7 +26,15 @@ class FeatureFlagController
     ) {
     }
 
-    #[Route(path: '/api/_action/feature-flag/enable/{feature}', name: 'api.action.feature-flag.enable', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/feature-flag/enable/{feature}',
+        name: 'api.action.feature-flag.enable',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function enable(string $feature): JsonResponse
     {
         $this->featureFlagService->enable($feature);
@@ -33,7 +44,15 @@ class FeatureFlagController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/feature-flag/disable/{feature}', name: 'api.action.feature-flag.disable', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/feature-flag/disable/{feature}',
+        name: 'api.action.feature-flag.disable',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle'],
+        ],
+        methods: [Request::METHOD_POST]
+    )]
     public function disable(string $feature): JsonResponse
     {
         $this->featureFlagService->disable($feature);
@@ -43,7 +62,15 @@ class FeatureFlagController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/feature-flag', name: 'api.action.feature-flag.load', defaults: ['auth_required' => true, '_acl' => ['api_feature_flag_toggle']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/feature-flag',
+        name: 'api.action.feature-flag.load',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['api_feature_flag_toggle'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function load(): JsonResponse
     {
         $featureFlags = Feature::getRegisteredFeatures();

@@ -3,14 +3,15 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,9 @@ class PromotionCodeService
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionCollection> $promotionRepository
+     * @param EntityRepository<PromotionIndividualCodeCollection> $individualCodesRepository
      */
     public function __construct(
         private readonly EntityRepository $promotionRepository,
@@ -91,15 +95,14 @@ class PromotionCodeService
         $criteria = (new Criteria([$promotionId]))
             ->addAssociation('individualCodes');
 
-        $promotion = $this->promotionRepository->search($criteria, $context)->first();
-
-        if (!$promotion instanceof PromotionEntity) {
+        $promotion = $this->promotionRepository->search($criteria, $context)->getEntities()->first();
+        if (!$promotion) {
             throw PromotionException::promotionsNotFound([$promotionId]);
         }
 
         $pattern = $promotion->getIndividualCodePattern();
 
-        if (empty($pattern)) {
+        if ($pattern === null || $pattern === '') {
             throw PromotionException::patternNotComplexEnough();
         }
 
@@ -161,7 +164,7 @@ class PromotionCodeService
     public function isCodePatternAlreadyInUse(string $pattern, string $promotionId, Context $context): bool
     {
         $criteria = (new Criteria())
-            ->addFilter(new NotFilter('AND', [new EqualsFilter('id', $promotionId)]))
+            ->addFilter(new NotEqualsFilter('id', $promotionId))
             ->addFilter(new EqualsFilter('individualCodePattern', $pattern));
 
         return $this->promotionRepository->searchIds($criteria, $context)->getTotal() > 0;
@@ -213,7 +216,6 @@ class PromotionCodeService
             'd' => 10,
             's' => 26,
         ];
-        /** @var array<int, int> $counts */
         $counts = count_chars($pattern, 1);
 
         $result = 1;

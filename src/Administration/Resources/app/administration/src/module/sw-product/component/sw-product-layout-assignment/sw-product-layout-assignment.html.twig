@@ -19,7 +19,7 @@
     {% endblock %}
 
     {% block sw_product_layout_assignment_description %}
-    <div>
+    <div class="sw-product-layout-assignment__info">
         {% block sw_product_layout_assignment_heading %}
         <div
             class="sw-product-layout-assignment__heading"
@@ -27,13 +27,13 @@
         >
             {% block sw_product_layout_assignment_heading_title %}
             <p class="sw-product-layout-assignment__title">
-                {{ cmsPage ? cmsPage.name : $tc('sw-product.layoutAssignment.title') }}
+                {{ pageName }}
             </p>
             {% endblock %}
 
             {% block sw_product_layout_assignment_heading_subtitle %}
             <span class="sw-product-layout-assignment__subtitle">
-                {{ $tc('sw-product.layoutAssignment.subtitle') }}
+                {{ $t('sw-product.layoutAssignment.subtitle') }}
             </span>
             {% endblock %}
         </div>
@@ -46,9 +46,10 @@
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openLayoutModal"
             >
-                {{ cmsPage ? $tc('sw-product.layoutAssignment.textChangeLayout') : $tc('sw-product.layoutAssignment.textAssignLayout') }}
+                {{ cmsPage ? $t('sw-product.layoutAssignment.textChangeLayout') : $t('sw-product.layoutAssignment.textAssignLayout') }}
             </mt-button>
             {% endblock %}
 
@@ -57,9 +58,10 @@
                 class="sw-product-layout-assignment__button"
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="openInPageBuilder"
             >
-                {{ cmsPage ? $tc('sw-product.layoutAssignment.textEditInDesigner') : $tc('sw-product.layoutAssignment.textCreateNewLayout') }}
+                {{ cmsPage ? $t('sw-product.layoutAssignment.textEditInDesigner') : $t('sw-product.layoutAssignment.textCreateNewLayout') }}
             </mt-button>
             {% endblock %}
 
@@ -70,15 +72,18 @@
                 square
                 size="small"
                 :disabled="!acl.can('product.editor') || undefined"
+                variant="secondary"
                 @click="onLayoutReset"
             >
-                <sw-icon
+                <mt-icon
                     name="regular-trash"
-                    small
+                    size="var(--scale-size-16)"
                 />
             </mt-button>
             {% endblock %}
         </div>
+
+        <sw-cms-reset-inheritance v-if="product" />
         {% endblock %}
     </div>
     {% endblock %}

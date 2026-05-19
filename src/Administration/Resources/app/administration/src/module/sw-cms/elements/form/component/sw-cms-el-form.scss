@@ -17,7 +17,7 @@
     }
 
     .sw-cms-el-form-headline {
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
         padding-bottom: 10px;
     }
 
@@ -28,11 +28,24 @@
     .sw-cms-el-form__action {
         float: right;
         padding: 3px 15px;
-        background: $color-gray-300;
-        color: $color-darkgray-200;
+        background: var(--color-background-tertiary-default);
+        color: var(--color-text-primary-default);
         text-align: center;
         line-height: 26px;
         border-radius: 3px;
+    }
+
+    .sw-cms-el-form-contact,
+    .sw-cms-el-form-newsletter, {
+        &__privacy,
+        &__note {
+            font-size: 16px;
+            margin: 16px 0;
+
+            > a {
+                font-size: 16px;
+            }
+        }
     }
 
     .sw-cms-el-form-contact-form-group {
@@ -42,6 +55,15 @@
         &.three-items > * {
             width: calc(33% - 15px);
         }
+
+        &.two-items > * {
+            width: calc(50% - 15px);
+        }
+    }
+
+    .sw-cms-el-form-revocation-request__form-group {
+        display: flex;
+        justify-content: space-between;
 
         &.two-items > * {
             width: calc(50% - 15px);

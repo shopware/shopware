@@ -1,6 +1,4 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-sidebar.html.twig';
-import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-sidebar.scss';
 import { type PageType } from '../../service/cms-page-type.service';
 import type MediaUploadResult from '../../shared/MediaUploadResult';
@@ -10,6 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
+const { CMS } = Shopware.Constants;
 
 type DraggableBlock = Entity<'cms_block'> & {
     isDragging?: boolean;
@@ -123,6 +122,17 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getTypes();
         },
 
+        pageTypesOptions() {
+            return this.pageTypes.map((pageType) => {
+                return {
+                    id: pageType.name,
+                    label: this.$t(pageType.title),
+                    value: pageType.name,
+                    disabled: this.isDisabledPageType(pageType) || undefined,
+                };
+            });
+        },
+
         blockRepository() {
             return this.repositoryFactory.create('cms_block');
         },
@@ -221,16 +231,25 @@ export default Shopware.Component.wrapComponentConfig({
             return defaultCategories;
         },
 
+        cmsBlockCategoriesOptions() {
+            return this.cmsBlockCategories.map((category) => {
+                return {
+                    value: category.value,
+                    label: this.$t(category.label),
+                };
+            });
+        },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
 
         addBlockTitle() {
             if (!this.isSystemDefaultLanguage) {
-                return this.$tc('sw-cms.general.disabledAddingBlocksToolTip');
+                return this.$t('sw-cms.general.disabledAddingBlocksToolTip');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleBlockOverview');
+            return this.$t('sw-cms.detail.sidebar.titleBlockOverview');
         },
 
         pageSections() {
@@ -239,15 +258,15 @@ export default Shopware.Component.wrapComponentConfig({
 
         sidebarItemSettings() {
             if (this.selectedBlock !== null) {
-                return this.$tc('sw-cms.detail.sidebar.titleBlockSettings');
+                return this.$t('sw-cms.detail.sidebar.titleBlockSettings');
             }
 
-            return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
+            return this.$t('sw-cms.detail.sidebar.titleSectionSettings');
         },
 
         tooltipDisabled() {
             return {
-                message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
+                message: this.$t('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
                 disabled: this.page.type !== 'product_detail',
             };
         },
@@ -310,6 +329,10 @@ export default Shopware.Component.wrapComponentConfig({
             return result.filter((block) => block && block.category === this.currentBlockCategory);
         },
 
+        isLayoutAssignmentDisabled() {
+            return this.disabled || this.page.locked;
+        },
+
         ...mapPropertyErrors('page', ['name']),
     },
 
@@ -361,7 +384,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         blockIsRemovable(block: Entity<'cms_block'>) {
             const cmsBlocks = this.cmsService.getCmsBlockRegistry();
-            return cmsBlocks[block.type]?.removable && this.isSystemDefaultLanguage;
+            return cmsBlocks[block.type]?.removable !== false && this.isSystemDefaultLanguage;
         },
 
         blockIsUnique(block: Entity<'cms_block'>) {
@@ -547,6 +570,8 @@ export default Shopware.Component.wrapComponentConfig({
             if (!dragSectionHasBlock && !dropSectionHasBlock) {
                 this.page.sections![dragSectionIndex].blocks!.add(dragData.block);
             }
+
+            this.$emit('page-save');
         },
 
         onBlockStageDrop(dragData: DragData, dropData: DropData) {

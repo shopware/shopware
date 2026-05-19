@@ -39,7 +39,7 @@ class InAppPurchaseUpdaterTest extends TestCase
 
         $client = $this->createMock(ClientInterface::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('request')
             ->with('GET', 'https://test.com', ['query' => ['a'], 'headers' => ['b']])
             ->willReturn(new Response(200, [], $jwt));
@@ -51,10 +51,10 @@ class InAppPurchaseUpdaterTest extends TestCase
         ]);
 
         $optionsProvider = $this->createMock(AbstractStoreRequestOptionsProvider::class);
-        $optionsProvider->expects(static::once())
+        $optionsProvider->expects($this->once())
             ->method('getDefaultQueryParameters')
             ->willReturn(['a']);
-        $optionsProvider->expects(static::once())
+        $optionsProvider->expects($this->once())
             ->method('getAuthenticationHeader')
             ->willReturn(['b']);
 
@@ -62,12 +62,12 @@ class InAppPurchaseUpdaterTest extends TestCase
         $appId = Uuid::randomHex();
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->with(static::equalTo(new InAppPurchaseChangedEvent('TestApp', '["test","test2"]', $appId, $context)));
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects(static::once())
+        $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->willReturn(['TestApp' => $appId]);
 
@@ -80,7 +80,72 @@ class InAppPurchaseUpdaterTest extends TestCase
                     $this->createMock(StoreRequestOptionsProvider::class),
                     $systemConfig,
                     $this->createMock(LoggerInterface::class)
-                )
+                ),
+                $this->createMock(LoggerInterface::class)
+            )
+        );
+
+        $service = new InAppPurchaseUpdater(
+            $client,
+            $systemConfig,
+            'https://test.com',
+            $optionsProvider,
+            $iap,
+            $eventDispatcher,
+            $connection,
+            $this->createMock(LoggerInterface::class)
+        );
+        $service->update($context);
+
+        static::assertSame($jwt, $systemConfig->get('core.store.iapKey'));
+    }
+
+    public function testUpdateActiveInAppPurchasesWithoutAuthentication(): void
+    {
+        $jwt = file_get_contents(__DIR__ . '../../../_fixtures/jwt.json');
+        static::assertIsString($jwt);
+
+        $jwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/valid-jwks.json');
+        static::assertIsString($jwks);
+
+        $client = $this->createMock(ClientInterface::class);
+
+        $client->expects($this->never())
+            ->method('request');
+
+        $systemConfig = new StaticSystemConfigService([
+            'core.store.licenseHost' => 'example.com',
+            InAppPurchaseProvider::CONFIG_STORE_IAP_KEY => $jwt,
+            KeyFetcher::CORE_STORE_JWKS => $jwks,
+        ]);
+
+        $optionsProvider = $this->createMock(AbstractStoreRequestOptionsProvider::class);
+        $optionsProvider->expects($this->never())
+            ->method('getDefaultQueryParameters');
+        $optionsProvider->expects($this->once())
+            ->method('getAuthenticationHeader')
+            ->willReturn([]);
+
+        $context = Context::createDefaultContext();
+        $appId = Uuid::randomHex();
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn(['TestApp' => $appId]);
+
+        $iap = new InAppPurchase(
+            new InAppPurchaseProvider(
+                $systemConfig,
+                new JWTDecoder(),
+                new KeyFetcher(
+                    $this->createMock(ClientInterface::class),
+                    $this->createMock(StoreRequestOptionsProvider::class),
+                    $systemConfig,
+                    $this->createMock(LoggerInterface::class)
+                ),
+                $this->createMock(LoggerInterface::class)
             )
         );
 

@@ -19,7 +19,6 @@ async function createWrapper(propsData = {}, provide = {}) {
                     name: 'sw-context-menu-item',
                     template: '<div class="sw-context-menu-item"><slot></slot></div>',
                 },
-                'sw-icon': true,
                 'sw-context-button': {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
@@ -33,6 +32,7 @@ async function createWrapper(propsData = {}, provide = {}) {
                     template: '<div><slot></slot></div>',
                 },
                 'router-link': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago'),
             },
         },
         props: {
@@ -105,7 +105,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             },
         });
 
-        expect(wrapper.vm.image).toBe('administration/static/img/theme/default_theme_preview.jpg');
+        expect(wrapper.vm.image).toBe('administration/administration/static/img/theme/default_theme_preview.webp');
     });
 
     it('should be installed', async () => {

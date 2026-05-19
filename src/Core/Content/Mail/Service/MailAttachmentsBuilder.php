@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -68,13 +69,13 @@ class MailAttachmentsBuilder
             $documentIds = array_unique(array_merge($documentIds, $latestDocuments));
         }
 
-        if (!empty($documentIds)) {
+        if ($documentIds !== []) {
             $extensions->setDocumentIds($documentIds);
             $attachments = $this->mappingAttachments($documentIds, $attachments, $context);
         }
 
-        if (empty($extensions->getMediaIds())) {
-            return $attachments;
+        if ($extensions->getMediaIds() === []) {
+            return $this->deduplicateAttachments($attachments);
         }
 
         $criteria = new Criteria($extensions->getMediaIds());
@@ -85,7 +86,7 @@ class MailAttachmentsBuilder
             $attachments[] = $this->mediaService->getAttachment($media, $context);
         }
 
-        return $attachments;
+        return $this->deduplicateAttachments($attachments);
     }
 
     /**
@@ -93,7 +94,7 @@ class MailAttachmentsBuilder
      *
      * @return array<string>
      */
-    private function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
+    public function getLatestDocumentsOfTypes(string $orderId, array $documentTypeIds): array
     {
         $documents = $this->connection->fetchAllAssociative(
             'SELECT
@@ -127,7 +128,7 @@ class MailAttachmentsBuilder
     private function mappingAttachments(array $documentIds, array $attachments, Context $context): array
     {
         foreach ($documentIds as $documentId) {
-            $document = $this->documentGenerator->readDocument($documentId, $context);
+            $document = $this->documentGenerator->readDocument($documentId, $context, fileType: null);
 
             if ($document === null) {
                 continue;
@@ -142,5 +143,36 @@ class MailAttachmentsBuilder
         }
 
         return $attachments;
+    }
+
+    /**
+     * @param MailAttachments $attachments
+     *
+     * @return MailAttachments
+     */
+    private function deduplicateAttachments(array $attachments): array
+    {
+        $seen = [];
+        $deduplicated = [];
+
+        foreach ($attachments as $attachment) {
+            $key = $attachment['id'] ?? Hasher::hash(
+                json_encode([
+                    $attachment['fileName'],
+                    $attachment['mimeType'] ?? '',
+                    Hasher::hash($attachment['content'], 'sha1'),
+                ], \JSON_THROW_ON_ERROR),
+                'sha1'
+            );
+
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $deduplicated[] = $attachment;
+        }
+
+        return $deduplicated;
     }
 }

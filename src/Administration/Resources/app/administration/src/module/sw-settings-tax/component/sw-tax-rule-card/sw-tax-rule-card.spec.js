@@ -76,7 +76,7 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -115,10 +115,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('tax.editor', [{}])).wrapper;
         });
 
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('should be able to add a new country from data grid', async () => {
             const addButton = wrapper.find('.sw-tax-rule-grid-button');
 
@@ -143,10 +139,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         beforeEach(async () => {
             wrapper = await (await init('', [{}])).wrapper;
-        });
-
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should not be able to add a new country from data grid', async () => {
@@ -175,10 +167,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('tax.editor', [])).wrapper;
         });
 
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('should be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
@@ -191,10 +179,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         beforeEach(async () => {
             wrapper = await (await init('', [])).wrapper;
-        });
-
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should not be able to add a new country from empty card', async () => {
@@ -213,7 +197,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         const taxRuleDataGrid = wrapper.find('.sw-data-grid');
 
-        const taxRateField = taxRuleDataGrid.find('sw-number-field-stub');
+        const taxRateField = taxRuleDataGrid.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

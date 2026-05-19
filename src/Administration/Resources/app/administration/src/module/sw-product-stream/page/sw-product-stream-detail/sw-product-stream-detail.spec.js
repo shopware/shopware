@@ -93,9 +93,10 @@ async function createWrapper() {
                 'sw-button-group': true,
                 'sw-button-process': true,
                 'sw-context-button': true,
-                'sw-icon': true,
                 'sw-context-menu-item': true,
-                'sw-card-view': true,
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>',
+                },
                 'sw-skeleton': true,
                 'sw-language-info': true,
                 'sw-text-field': true,
@@ -104,24 +105,26 @@ async function createWrapper() {
                 'sw-language-switch': true,
                 'sw-product-stream-modal-preview': true,
                 'sw-custom-field-set-renderer': true,
+                'mt-banner': true,
             },
             provide: {
                 customFieldDataProviderService: {
                     getCustomFieldSets: () => Promise.resolve({}),
                 },
                 productStreamConditionService: {},
+                productTypeService: {
+                    fetchProductTypes: () =>
+                        Promise.resolve([
+                            'digital',
+                            'physical',
+                        ]),
+                },
             },
         },
     });
 }
 
 describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should fetch custom product custom fields and add them to the condition select list', async () => {
         const wrapper = await createWrapper();
 
@@ -129,5 +132,67 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const relatedCustomFields = wrapper.vm.productCustomFields;
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
+    });
+
+    it('should show warning banner when indexing is disabled', async () => {
+        Shopware.Context.app.productStreamIndexingEnabled = false;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const banner = wrapper.find('.sw-product-stream-detail__product-stream-warning mt-banner-stub');
+        expect(banner.exists()).toBe(true);
+    });
+
+    it('should not show warning banner when indexing is enabled', async () => {
+        Shopware.Context.app.productStreamIndexingEnabled = true;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const banner = wrapper.find('.sw-product-stream-detail__product-stream-warning mt-banner-stub');
+        expect(banner.exists()).toBe(false);
+    });
+
+    it('should show warning when filters contain product states field', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
+        wrapper.vm.productStreamFiltersTree = [
+            {
+                field: 'states',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(true);
+    });
+
+    it('should not show warning when filters do not contain product states', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.productStream = {
+            id: 'stream-1',
+            filters: {
+                entity: 'product_stream',
+            },
+        };
+        wrapper.vm.productStreamFilters = [
+            {
+                field: 'stock',
+            },
+        ];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showProductStatesFilterWarning).toBe(false);
     });
 });

@@ -1,6 +1,6 @@
 {% block sw_data_grid_settings %}
 <sw-context-button
-    v-tooltip="{ message: $tc('global.sw-data-grid.tooltipListSettings') }"
+    v-tooltip="{ message: $t('global.sw-data-grid.tooltipListSettings') }"
     :disabled="disabled"
     :menu-width="300"
     :auto-close="false"
@@ -13,12 +13,13 @@
         <mt-button
             class="sw-data-grid-settings__trigger"
             :disabled="disabled"
-            :aria-label="$tc('global.sw-data-grid.tooltipListSettings')"
+            :aria-label="$t('global.sw-data-grid.tooltipListSettings')"
             size="x-small"
             square
+            variant="secondary"
         >
             {% block sw_data_grid_settings_trigger_icon %}
-            <sw-icon
+            <mt-icon
                 name="regular-bars-s"
                 size="14px"
             />
@@ -34,10 +35,10 @@
         {% block sw_data_grid_settings_compact_switch %}
 
         <mt-switch
-            :checked="currentCompact"
+            :model-value="currentCompact"
             remove-top-margin
-            :label="$tc('global.sw-data-grid.labelSettingsCompactMode')"
-            @change="onChangeCompactMode(currentCompact)"
+            :label="$t('global.sw-data-grid.labelSettingsCompactMode')"
+            @update:model-value="onChangeCompactMode"
         />
         {% endblock %}
 
@@ -45,10 +46,10 @@
 
         <mt-switch
             v-if="enablePreviews"
-            :checked="currentPreviews"
+            :model-value="currentPreviews"
             remove-top-margin
-            :label="$tc('global.sw-data-grid.labelSettingsPreviewImages')"
-            @change="onChangePreviews(currentPreviews)"
+            :label="$t('global.sw-data-grid.labelSettingsPreviewImages')"
+            @update:model-value="onChangePreviews"
         />
         {% endblock %}
 
@@ -79,11 +80,11 @@
         >
 
             {% block sw_data_grid_settings_column_visibility_checkbox %}
-            <sw-checkbox-field
+            <mt-checkbox
                 :disabled="column.primary"
-                :label="$te(column.label) ? $tc(column.label) : column.label"
-                :value="currentColumns[index].visible"
-                @update:value="onChangeColumnVisibility($event, index)"
+                :label="$te(column.label) ? $t(column.label) : column.label"
+                :checked="currentColumns[index].visible"
+                @update:checked="onChangeColumnVisibility($event, index)"
             />
             {% endblock %}
 
@@ -98,10 +99,11 @@
                     size="x-small"
                     square
                     :disabled="index === 0"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderUp(column)"
                 >
                     {% block sw_data_grid_settings_column_control_up_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-up-xxs"
                         size="14px"
                     />
@@ -115,10 +117,11 @@
                     square
                     :disabled="index === (currentColumns.length - 1)"
                     class="down"
+                    variant="secondary"
                     @click="onClickChangeColumnOrderDown(column)"
                 >
                     {% block sw_data_grid_settings_column_control_down_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-chevron-down-xxs"
                         size="14px"
                     />

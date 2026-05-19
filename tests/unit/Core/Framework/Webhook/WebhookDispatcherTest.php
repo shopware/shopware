@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -22,13 +23,13 @@ class WebhookDispatcherTest extends TestCase
         $e = new TestEvent();
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($e, 'event')
             ->willReturnArgument(0);
 
         $webhookManager = $this->createMock(WebhookManager::class);
-        $webhookManager->expects(static::once())->method('dispatch')->with($e);
+        $webhookManager->expects($this->once())->method('dispatch')->with($e);
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcher,
@@ -43,13 +44,13 @@ class WebhookDispatcherTest extends TestCase
         $e = new TestEvent();
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
-        $eventDispatcher->expects(static::once())
+        $eventDispatcher->expects($this->once())
             ->method('dispatch')
             ->with($e, 'event')
             ->willReturnArgument(0);
 
         $webhookManager = $this->createMock(WebhookManager::class);
-        $webhookManager->expects(static::once())->method('dispatch')->with($e);
+        $webhookManager->expects($this->once())->method('dispatch')->with($e);
 
         $webhookDispatcher = new WebhookDispatcher(
             $eventDispatcher,
@@ -72,7 +73,7 @@ class WebhookDispatcherTest extends TestCase
         };
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('addSubscriber')
             ->with($subscriber);
 
@@ -94,7 +95,7 @@ class WebhookDispatcherTest extends TestCase
         };
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('removeSubscriber')
             ->with($subscriber);
 
@@ -108,10 +109,10 @@ class WebhookDispatcherTest extends TestCase
 
     public function testAddListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('addListener')
             ->with('event', $listener, 5);
 
@@ -125,10 +126,10 @@ class WebhookDispatcherTest extends TestCase
 
     public function testRemoveListenerForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('removeListener')
             ->with('event', $listener);
 
@@ -143,7 +144,7 @@ class WebhookDispatcherTest extends TestCase
     public function testGetListenersForwardsToInner(): void
     {
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('getListeners')
             ->with('event');
 
@@ -157,10 +158,10 @@ class WebhookDispatcherTest extends TestCase
 
     public function testGetListenerPriorityForwardsToInner(): void
     {
-        $listener = function (): void {};
+        $listener = static function (): void {};
 
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('getListenerPriority')
             ->with('event', $listener);
 
@@ -175,7 +176,7 @@ class WebhookDispatcherTest extends TestCase
     public function testHasListenersForwardsToInner(): void
     {
         $eventDispatcherMock = $this->createMock(EventDispatcher::class);
-        $eventDispatcherMock->expects(static::once())
+        $eventDispatcherMock->expects($this->once())
             ->method('hasListeners')
             ->with('event');
 
@@ -203,7 +204,7 @@ class TestEvent implements Hookable
         return [];
     }
 
-    public function isAllowed(string $appId, \Shopware\Core\Framework\Webhook\AclPrivilegeCollection $permissions): bool
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
         return true;
     }

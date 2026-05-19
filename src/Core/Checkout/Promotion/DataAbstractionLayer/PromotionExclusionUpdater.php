@@ -4,11 +4,9 @@ namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('checkout')]
@@ -24,11 +22,13 @@ class PromotionExclusionUpdater
     /**
      * function is called when a promotion is saved.
      * the exclusions of promotions will be checked and are written/deleted if necessary
+     *
+     * @param array<string> $ids
      */
     public function update(array $ids): void
     {
         // if there are no ids, we don't have to do anything
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -39,7 +39,7 @@ class PromotionExclusionUpdater
             // create empty array if there are no exclusions
             $promotionExclusions = [];
 
-            if (\count($exclusions) > 0) {
+            if ($exclusions !== []) {
                 $firstResult = array_shift($exclusions);
                 if (\array_key_exists('exclusion_ids', $firstResult)) {
                     // if there are exclusions, set them in array
@@ -97,8 +97,6 @@ class PromotionExclusionUpdater
      *
      * @param array<string> $excludeThisIds
      *
-     * @throws Exception
-     *
      * @return array<string>
      */
     private function deleteFromJSON(string $deleteId, array $excludeThisIds): array
@@ -111,7 +109,7 @@ class PromotionExclusionUpdater
 
         $types = [];
 
-        if (\count($excludeThisIds) > 0) {
+        if ($excludeThisIds !== []) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
             $types['excludedIds'] = ArrayParameterType::BINARY;
@@ -119,7 +117,7 @@ class PromotionExclusionUpdater
 
         $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAllAssociative();
 
-        if (\count($results) === 0) {
+        if ($results === []) {
             return [];
         }
 
@@ -145,7 +143,7 @@ class PromotionExclusionUpdater
     /**
      * appends addId in all promotions that id is in ids
      *
-     * @throws Exception
+     * @param array<string> $ids
      */
     private function addToJSON(string $addId, array $ids): void
     {
@@ -174,14 +172,11 @@ class PromotionExclusionUpdater
      * sets all ids in onlyAddThisExistingIds as exclusion in promotion with id
      *
      * @param array<string> $onlyAddThisExistingIds
-     *
-     * @throws Exception
-     * @throws InvalidUuidException
      */
     private function updateJSON(string $id, array $onlyAddThisExistingIds): void
     {
         $value = '[]';
-        if (\count($onlyAddThisExistingIds) > 0) {
+        if ($onlyAddThisExistingIds !== []) {
             $value = json_encode($onlyAddThisExistingIds, \JSON_THROW_ON_ERROR);
         }
 
@@ -197,7 +192,9 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * function returns all promotion id hex values that are in given array ids
+     * @param array<string> $ids
+     *
+     * @return array<string>
      */
     private function getExistingIds(array $ids): array
     {
@@ -222,9 +219,7 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * returns exclusions of promotion with id id
-     *
-     * @throws InvalidUuidException
+     * @return list<array<string,mixed>>
      */
     private function getExclusionIds(string $id): array
     {
@@ -243,23 +238,23 @@ class PromotionExclusionUpdater
     }
 
     /**
-     * helper function to convert hex array values to a binary array
-     *
      * @param array<string> $hexIds
+     *
+     * @return array<string>
      */
     private function convertHexArrayToByteArray(array $hexIds): array
     {
-        if (\count($hexIds) === 0) {
+        if ($hexIds === []) {
             return [];
         }
 
-        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid((string) $hexId)));
+        $validValues = array_values(array_filter($hexIds, static fn ($hexId) => Uuid::isValid($hexId)));
 
-        if (\count($validValues) === 0) {
+        if ($validValues === []) {
             return [];
         }
 
-        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
+        $bytes = array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
 
         return $bytes;
     }

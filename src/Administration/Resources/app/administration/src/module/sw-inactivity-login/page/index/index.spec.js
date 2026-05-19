@@ -21,10 +21,7 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                         </div>
                     `,
                 },
-                'sw-icon': await wrapTestComponent('sw-icon'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
-                'sw-password-field-deprecated': await wrapTestComponent('sw-password-field-deprecated'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -35,7 +32,6 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'router-link': true,
                 'sw-field-copyable': true,
-                'sw-icon-deprecated': true,
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
@@ -69,16 +65,9 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
 }
 
 describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
-    const original = window.location;
-
     beforeAll(() => {
         // @ts-ignore
         global.BroadcastChannel = BroadcastChannel;
-
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
     });
 
     afterEach(() => {
@@ -86,19 +75,6 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         sessionStorage.removeItem('sw-admin-previous-route_foo');
         sessionStorage.removeItem('inactivityBackground_foo');
         localStorage.removeItem('rememberMe');
-    });
-
-    afterAll(() => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: original,
-        });
-    });
-
-    it('should be a Vue.js component', async () => {
-        sessionStorage.setItem('lastKnownUser', 'max');
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should set data:url as background image', async () => {
@@ -109,7 +85,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
 
         const container = wrapper.find('.sw-inactivity-login');
         expect(container.exists()).toBe(true);
-        expect(container.element.style.backgroundImage).toBe('url(data:urlFoOBaR)');
+        expect(container.element.style.backgroundImage).toBe('url("data:urlFoOBaR")');
     });
 
     it('should push to login without last known user', async () => {
@@ -132,6 +108,8 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         sessionStorage.setItem('sw-admin-previous-route_foo', '{ "fullPath": "sw.example.route.index" }');
         const wrapper = await createWrapper(push, loginByUserName);
         await flushPromises();
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');
@@ -158,7 +136,7 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(loginByUserName).toHaveBeenCalledWith('max', '');
 
         expect(wrapper.vm.passwordError !== null).toBe(true);
-        const passwordError = wrapper.find('.sw-field__error');
+        const passwordError = wrapper.findByText('span', 'global.sw-inactivity-login.modal.errors.password');
         expect(passwordError.exists()).toBe(true);
     });
 
@@ -180,8 +158,10 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
     it('should redirect on valid channel message', async () => {
         const push = jest.fn();
         sessionStorage.setItem('lastKnownUser', 'max');
-        await createWrapper(push);
+        const wrapper = await createWrapper(push);
         await flushPromises();
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         const channel = new BroadcastChannel('session_channel');
         channel.postMessage({
@@ -225,8 +205,10 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         );
         await flushPromises();
 
-        const rememberMeInput = wrapper.find('.sw-field--checkbox input');
-        await rememberMeInput.trigger('click');
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        const rememberMeInput = wrapper.find('.mt-field--checkbox__container input');
+        await rememberMeInput.setChecked(true);
 
         const loginButton = wrapper.findByText('button', 'sw-login.index.buttonLogin');
         await loginButton.trigger('click');

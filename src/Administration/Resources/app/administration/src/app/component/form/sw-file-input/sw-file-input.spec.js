@@ -8,13 +8,6 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-file-input', { sync: true }), {
-        global: {
-            stubs: {
-                'sw-icon': {
-                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
-                },
-            },
-        },
         ...customOptions,
     });
 }
@@ -47,10 +40,6 @@ describe('src/app/component/form/sw-file-input', () => {
             get: fileInputValueGet,
             set: fileInputValueSet,
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('upload button should be enabled', async () => {
@@ -181,5 +170,64 @@ describe('src/app/component/form/sw-file-input', () => {
 
         removeIcon = wrapper.find('.sw-file-input__remove-icon');
         expect(removeIcon.exists()).toBeFalsy();
+    });
+
+    it.each([
+        'products.csv',
+        'products-import.CSV',
+        'my.products.import.file.CsV',
+        'products.- import -with. weird file_name.csv',
+    ])('should accept files with allowed extension for %s', async (fileName) => {
+        await wrapper.setProps({
+            allowedFileExtensions: ['csv'],
+        });
+
+        fileInputValue = fileName;
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 1234,
+                name: fileName,
+                type: 'text/csv',
+            },
+        ]);
+
+        await fileInput.trigger('change');
+
+        expect(wrapper.vm.selectedFile).toEqual({
+            size: 1234,
+            name: fileName,
+            type: 'text/csv',
+        });
+    });
+
+    it.each([
+        'products.txt',
+        'products-import.PdF',
+        'my.products.import.file.xml',
+        'products.- import -with. weird file_name.',
+        'products.- import -_ with.csv other weird file_name',
+    ])('should show error notification when file extension is not allowed for %s', async (fileName) => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setProps({
+            allowedFileExtensions: ['csv'],
+        });
+
+        fileInputValue = fileName;
+        fileInputFilesGet.mockReturnValue([
+            {
+                size: 1234,
+                name: fileName,
+                type: 'text/csv',
+            },
+        ]);
+
+        await fileInput.trigger('change');
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.sw-file-input.notification.invalidFileExtension.message',
+            title: 'global.default.error',
+        });
+        expect(wrapper.vm.selectedFile).toBeNull();
     });
 });

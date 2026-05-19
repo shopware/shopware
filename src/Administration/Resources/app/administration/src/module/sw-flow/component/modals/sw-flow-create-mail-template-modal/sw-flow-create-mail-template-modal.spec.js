@@ -69,7 +69,6 @@ async function createWrapper(privileges = []) {
                     'sw-code-editor': await wrapTestComponent('sw-code-editor'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-field-error': {
                         props: ['error'],
                         template: '<div class="sw-field__error"></div>',
@@ -145,7 +144,6 @@ async function createWrapper(privileges = []) {
                                     if (mailTemplate.mailTemplateTypeId) {
                                         return Promise.resolve();
                                     }
-                                    // eslint-disable-next-line prefer-promise-reject-errors
                                     return Promise.reject({
                                         response: {
                                             data: {

@@ -27,10 +27,6 @@ describe('sw-app-wrong-app-url-modal', () => {
                     </div>
                 `,
             },
-            'sw-icon': await wrapTestComponent('sw-icon'),
-            'icons-small-default-x-line-medium': {
-                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
-            },
             'router-link': true,
             'sw-loader': true,
         };
@@ -42,7 +38,6 @@ describe('sw-app-wrong-app-url-modal', () => {
             {
                 global: {
                     stubs: {
-                        'sw-icon': await wrapTestComponent('sw-icon'),
                         ...stubs,
                     },
                     provide: {
@@ -77,14 +72,12 @@ describe('sw-app-wrong-app-url-modal', () => {
                 },
             }),
         });
-
-        removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
+    beforeEach(() => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 
     it('should show modal', async () => {

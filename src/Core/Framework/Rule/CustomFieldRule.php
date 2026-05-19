@@ -2,13 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -23,7 +26,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return array<string, array<int, mixed>>
+     * @return array<string, list<Constraint>>
      */
     public static function getConstraints(array $renderedField): array
     {
@@ -35,7 +38,7 @@ class CustomFieldRule
             'operator' => [
                 new NotBlank(),
                 new Choice(
-                    [
+                    choices: [
                         Rule::OPERATOR_NEQ,
                         Rule::OPERATOR_GTE,
                         Rule::OPERATOR_LTE,
@@ -53,9 +56,9 @@ class CustomFieldRule
      * @param array<string, mixed> $customFields
      * @param array<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
      */
-    public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields): bool
+    public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields, ?SalesChannelContext $context = null): bool
     {
-        $actual = self::getValue($customFields, $renderedField);
+        $actual = self::getValue($customFields, $renderedField, $context);
         $expected = self::getExpectedValue($renderedFieldValue, $renderedField);
 
         if ($actual === null) {
@@ -66,7 +69,7 @@ class CustomFieldRule
             return false;
         }
 
-        if (self::isFloat($renderedField)) {
+        if (self::isFloat($renderedField) || self::isPrice($renderedField)) {
             return FloatComparator::compare((float) $actual, (float) $expected, $operator);
         }
 
@@ -81,7 +84,7 @@ class CustomFieldRule
             Rule::OPERATOR_EQ => $actual === $expected,
             Rule::OPERATOR_GT => $actual > $expected,
             Rule::OPERATOR_LT => $actual < $expected,
-            default => throw new UnsupportedOperatorException($operator, self::class),
+            default => throw RuleException::unsupportedOperator($operator, self::class),
         };
     }
 
@@ -91,10 +94,27 @@ class CustomFieldRule
      *
      * @return array<string>|float|bool|int|string|null
      */
-    public static function getValue(array $customFields, array $renderedField): array|float|bool|int|string|null
+    public static function getValue(array $customFields, array $renderedField, ?SalesChannelContext $context = null): array|float|bool|int|string|null
     {
-        if (!empty($customFields) && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
-            return $customFields[$renderedField['name']];
+        if ($customFields !== [] && \is_string($renderedField['name']) && \array_key_exists($renderedField['name'], $customFields)) {
+            $value = $customFields[$renderedField['name']];
+
+            if (self::isPrice($renderedField) && $value instanceof PriceCollection) {
+                $currencyId = $context?->getCurrencyId() ?? Defaults::CURRENCY;
+                $price = $value->getCurrencyPrice($currencyId);
+
+                if ($price === null) {
+                    return null;
+                }
+
+                if ($context?->getTaxState() === CartPrice::TAX_STATE_NET) {
+                    return $price->getNet();
+                }
+
+                return $price->getGross();
+            }
+
+            return $value;
         }
 
         if (self::isSwitchOrBoolField($renderedField)) {
@@ -120,6 +140,10 @@ class CustomFieldRule
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
         }
 
+        if (self::isDatetimeOrDateField($renderedField) && \is_string($renderedFieldValue)) {
+            return (new \DateTimeImmutable($renderedFieldValue))->format(\DATE_ATOM);
+        }
+
         return $renderedFieldValue;
     }
 
@@ -129,6 +153,14 @@ class CustomFieldRule
     public static function isFloat(array $renderedField): bool
     {
         return $renderedField['type'] === CustomFieldTypes::FLOAT;
+    }
+
+    /**
+     * @param array<string, string|array<string, string>> $renderedField
+     */
+    public static function isPrice(array $renderedField): bool
+    {
+        return $renderedField['type'] === CustomFieldTypes::PRICE;
     }
 
     /**
@@ -162,7 +194,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      *
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     private static function getRenderedFieldValueConstraints(array $renderedField): array
     {
@@ -184,6 +216,14 @@ class CustomFieldRule
      */
     private static function isSwitchOrBoolField(array $renderedField): bool
     {
-        return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true);
+        return \in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH, CustomFieldTypes::CHECKBOX], true);
+    }
+
+    /**
+     * @param array<string, string|array<string, string>> $renderedField
+     */
+    private static function isDatetimeOrDateField(array $renderedField): bool
+    {
+        return \in_array($renderedField['type'], [CustomFieldTypes::DATETIME, CustomFieldTypes::DATE], true);
     }
 }

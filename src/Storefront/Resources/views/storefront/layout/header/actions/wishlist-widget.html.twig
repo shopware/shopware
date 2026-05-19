@@ -22,4 +22,10 @@
           data-wishlist-widget="true"
           data-wishlist-widget-options="{{ wishlistWidgetOptions|json_encode }}"
     ></span>
+
+    <span class="visually-hidden"
+          id="wishlist-basket-live-area"
+          data-wishlist-live-area-text="{{ 'header.wishlistAriaLiveTemplate'|trans }}"
+          aria-live="polite"
+    ></span>
 {% endblock %}

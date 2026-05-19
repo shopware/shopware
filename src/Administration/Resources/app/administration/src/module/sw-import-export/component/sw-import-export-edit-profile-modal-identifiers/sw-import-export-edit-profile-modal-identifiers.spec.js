@@ -4,7 +4,6 @@
 import { mount } from '@vue/test-utils';
 
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-identifiers', () => {
@@ -80,7 +79,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-empty-state': true,
-                        'sw-icon': true,
                         'sw-field-error': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
@@ -138,12 +136,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 data: [],
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(getProfileMock());
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have identifier entries for all entities in mapping', async () => {

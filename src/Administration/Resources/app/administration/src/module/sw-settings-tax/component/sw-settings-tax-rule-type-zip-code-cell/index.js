@@ -14,12 +14,4 @@ export default {
             required: true,
         },
     },
-
-    created() {
-        this.createdComponent();
-    },
-
-    methods: {
-        createdComponent() {},
-    },
 };

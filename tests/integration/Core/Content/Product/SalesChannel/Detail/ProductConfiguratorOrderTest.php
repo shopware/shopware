@@ -61,41 +61,110 @@ class ProductConfiguratorOrderTest extends TestCase
     public function testDefaultOrder(): void
     {
         $groupNames = $this->getOrder();
-        static::assertEquals(['a', 'b', 'c', 'd', 'e', 'f'], $groupNames);
+        static::assertSame(['a', 'b', 'c', 'd', 'e', 'f'], $groupNames);
     }
 
     public function testGroupPositionOrder(): void
     {
         $groupNames = $this->getOrder(['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
     public function testConfiguratorGroupConfigOrder(): void
     {
         $groupNames = $this->getOrder(null, ['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
     }
 
     public function testConfiguratorGroupConfigOverrideOrder(): void
     {
         $groupNames = $this->getOrder(['f', 'b', 'c', 'd', 'a', 'e'], ['f', 'e', 'd', 'c', 'b', 'a']);
-        static::assertEquals(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+        static::assertSame(['f', 'e', 'd', 'c', 'b', 'a'], $groupNames);
+    }
+
+    public function testGroupsWithoutAvailableOptionsAreRemoved(): void
+    {
+        $productId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+        $materialGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex();
+        $smallOptionId = Uuid::randomHex();
+        $largeOptionId = Uuid::randomHex();
+        $cottonOptionId = Uuid::randomHex();
+        $woolOptionId = Uuid::randomHex();
+
+        $this->repository->create([
+            [
+                'id' => $productId,
+                'name' => 'Test product',
+                'productNumber' => 'configurator-parent',
+                'manufacturer' => ['name' => 'test'],
+                'tax' => $tax,
+                'stock' => 10,
+                'active' => true,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
+                'configuratorSettings' => [
+                    $this->createConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                    $this->createConfiguratorSetting($blueOptionId, 'Blue', $colorGroupId, 'Color', 1),
+                    $this->createConfiguratorSetting($smallOptionId, 'Small', $sizeGroupId, 'Size', 2),
+                    $this->createConfiguratorSetting($largeOptionId, 'Large', $sizeGroupId, 'Size', 2),
+                    $this->createConfiguratorSetting($cottonOptionId, 'Cotton', $materialGroupId, 'Material', 3),
+                    $this->createConfiguratorSetting($woolOptionId, 'Wool', $materialGroupId, 'Material', 3),
+                ],
+                'visibilities' => [
+                    [
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
+            ],
+            [
+                'id' => $variantId,
+                'productNumber' => 'configurator-variant',
+                'stock' => 10,
+                'active' => true,
+                'parentId' => $productId,
+                'options' => [
+                    ['id' => $redOptionId],
+                    ['id' => $smallOptionId],
+                ],
+            ],
+        ], Context::createDefaultContext());
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        $criteria = new Criteria([$variantId]);
+        /** @var SalesChannelProductEntity $salesChannelProduct */
+        $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
+
+        static::assertInstanceOf(SalesChannelProductEntity::class, $salesChannelProduct);
+
+        $groups = $this->loader->load($salesChannelProduct, $this->context);
+
+        static::assertSame(['Color', 'Size'], array_values(array_map(
+            static fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(),
+            $groups->getElements()
+        )));
+        static::assertNull($groups->get($materialGroupId));
     }
 
     /**
-     * @param array<string, string> $a
+     * @param array<string, string> $groupIds
      */
-    private static function ashuffle(array &$a): bool
+    private function shuffle(array &$groupIds): void
     {
-        $keys = array_keys($a);
+        $keys = array_keys($groupIds);
         shuffle($keys);
         $shuffled = [];
         foreach ($keys as $key) {
-            $shuffled[$key] = $a[$key];
+            $shuffled[$key] = $groupIds[$key];
         }
-        $a = $shuffled;
-
-        return true;
+        $groupIds = $shuffled;
     }
 
     /**
@@ -121,7 +190,7 @@ class ProductConfiguratorOrderTest extends TestCase
 
         $optionIds = [];
 
-        self::ashuffle($groupIds);
+        $this->shuffle($groupIds);
 
         $configuratorSettings = [];
         foreach ($groupIds as $groupName => $groupId) {
@@ -188,7 +257,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
+                'options' => array_map(static fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 
@@ -201,8 +270,37 @@ class ProductConfiguratorOrderTest extends TestCase
 
         // get ordered PropertyGroupCollection
         $groups = $this->loader->load($salesChannelProduct, $this->context);
-        $propertyGroupNames = array_map(fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
+        $propertyGroupNames = array_map(static fn (PropertyGroupEntity $propertyGroupEntity) => $propertyGroupEntity->getName(), $groups->getElements());
 
         return array_values($propertyGroupNames);
+    }
+
+    /**
+     * @return array{
+     *     option: array{
+     *         id: string,
+     *         name: string,
+     *         group: array{id: string, name: string, position: int}
+     *     }
+     * }
+     */
+    private function createConfiguratorSetting(
+        string $optionId,
+        string $optionName,
+        string $groupId,
+        string $groupName,
+        int $groupPosition
+    ): array {
+        return [
+            'option' => [
+                'id' => $optionId,
+                'name' => $optionName,
+                'group' => [
+                    'id' => $groupId,
+                    'name' => $groupName,
+                    'position' => $groupPosition,
+                ],
+            ],
+        ];
     }
 }

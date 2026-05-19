@@ -60,7 +60,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, $response['errors'][0]['code']);
@@ -106,7 +106,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -224,7 +224,7 @@ class LogoutRouteTest extends TestCase
         );
 
         static::assertInstanceOf(ContextTokenResponse::class, $logoutResponse);
-        static::assertNotEquals($loginResponse->getToken(), $logoutResponse->getToken());
+        static::assertNotSame($loginResponse->getToken(), $logoutResponse->getToken());
     }
 
     public function testLogoutForcedForGuestAccounts(): void
@@ -261,7 +261,7 @@ class LogoutRouteTest extends TestCase
             ->logout($context, $request);
 
         static::assertInstanceOf(ContextTokenResponse::class, $logout);
-        static::assertNotEquals($login->getToken(), $logout->getToken());
+        static::assertNotSame($login->getToken(), $logout->getToken());
 
         $exists = static::getContainer()->get(Connection::class)
             ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
@@ -298,7 +298,7 @@ class LogoutRouteTest extends TestCase
             );
 
         static::assertIsString($this->browser->getResponse()->getContent());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
     }

@@ -23,7 +23,7 @@ class MessageSizeCalculatorTest extends TestCase
         $envelope = new Envelope(new \stdClass(), [new SerializedMessageStamp($serializedMessage)]);
 
         $serializer = $this->createMock(SerializerInterface::class);
-        $serializer->expects(static::never())->method('encode');
+        $serializer->expects($this->never())->method('encode');
         $calculator = new MessageSizeCalculator($serializer);
 
         $size = $calculator->size($envelope);
@@ -39,7 +39,7 @@ class MessageSizeCalculatorTest extends TestCase
         $envelope = new Envelope(new \stdClass());
 
         $serializer = $this->createMock(SerializerInterface::class);
-        $serializer->expects(static::once())->method('encode')->with($envelope)->willReturn($encodedMessage);
+        $serializer->expects($this->once())->method('encode')->with($envelope)->willReturn($encodedMessage);
 
         $calculator = new MessageSizeCalculator($serializer);
 

@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  *
  * Overview
  * This custom ESLint rule enforces that the v-slot attribute is moved to the <sw-block> element when it wraps a single

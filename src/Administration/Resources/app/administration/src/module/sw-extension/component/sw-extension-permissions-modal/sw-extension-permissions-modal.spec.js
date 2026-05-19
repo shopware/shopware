@@ -10,16 +10,13 @@ async function createWrapper(propsData) {
             global: {
                 mocks: {
                     $t: (...args) => JSON.stringify([...args]),
-                    $tc: (...args) => JSON.stringify([...args]),
                 },
                 stubs: {
                     'sw-modal': {
                         props: ['title'],
-                        // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><slot/><slot name="modal-footer"></slot></div>',
                     },
-                    'sw-icon': true,
                     'sw-extension-permissions-details-modal': true,
                     'sw-extension-domains-modal': true,
                     'router-link': true,
@@ -66,7 +63,7 @@ describe('src/module/sw-extension/component/sw-extension-permissions-modal', () 
         );
 
         expect(wrapper.find('.sw-extension-permissions-modal__image').attributes().src).toBe(
-            'administration/static/img/extension-store/permissions.svg',
+            'administration/administration/static/img/extension-store/permissions.svg',
         );
     });
 

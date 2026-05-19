@@ -37,13 +37,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
-
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
@@ -64,9 +60,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-text-editor': true,
                     'sw-language-switch': true,
                     'sw-notification-center': true,
-                    'sw-icon': true,
                     'sw-help-text': true,
-
                     'sw-label': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -76,6 +70,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-ignore-class': true,
                     'sw-entity-tag-select': true,
                     'sw-error-summary': true,
+                    'sw-context-menu-item': true,
                     'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', {
                         sync: true,
                     }),
@@ -90,6 +85,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
@@ -99,7 +95,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-inherit-wrapper': true,
                     'sw-media-collapse': true,
                     'mt-tabs': true,
-                    'mt-checkbox': true,
                     'sw-highlight-text': true,
                     'sw-select-result': true,
                     'sw-select-result-list': true,
@@ -189,6 +184,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: {},
                 },
             },
             props: {
@@ -285,7 +281,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('shopwareApps').selectedIds = [
+        Shopware.Store.get('swBulkEdit').selectedIds = [
             Shopware.Utils.createId(),
         ];
     });
@@ -300,13 +296,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
     it('should be show empty state', async () => {
         wrapper = await createWrapper();
 
-        Shopware.Store.get('shopwareApps').selectedIds = [];
+        Shopware.Store.get('swBulkEdit').selectedIds = [];
         await wrapper.setData({
             isLoading: false,
         });
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {
@@ -336,7 +331,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
         await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
         await flushPromises();
 
-        Shopware.Store.get('shopwareApps').selectedIds = new Array(100).fill(1);
+        Shopware.Store.get('swBulkEdit').selectedIds = new Array(100).fill(1);
 
         await wrapper.find('.sw-bulk-edit-customer__save-action').trigger('click');
 
@@ -477,7 +472,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#F88962');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-pumpkin-500)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-users');
 
         wrapper.vm.setRouteMetaModule.mockRestore();

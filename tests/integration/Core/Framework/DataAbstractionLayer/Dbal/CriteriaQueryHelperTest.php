@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
@@ -26,7 +27,7 @@ class CriteriaQueryHelperTest extends TestCase
     public function testInvalidSortingDirection(): void
     {
         $context = Context::createDefaultContext();
-        /** @var EntityRepository $taxRepository */
+        /** @var EntityRepository<TaxCollection> $taxRepository */
         $taxRepository = static::getContainer()->get('tax.repository');
 
         $criteria = new Criteria();
@@ -42,7 +43,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('addOrderBy');
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
@@ -56,7 +57,7 @@ class CriteriaQueryHelperTest extends TestCase
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('addOrderBy');
 
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
@@ -70,7 +71,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'test matching'), 1000));
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 
@@ -85,7 +86,7 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $queryMock = $this->createMock(QueryBuilder::class);
         $queryMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('addOrderBy')
             ->with('_score', 'DESC');
 
@@ -105,7 +106,7 @@ class CriteriaQueryHelperTest extends TestCase
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals($queryBuilder->getOrderByParts(), [
+        static::assertSame($queryBuilder->getOrderByParts(), [
             'MIN(`product`.`created_at`) ASC',
             '_score DESC',
         ]);
@@ -123,7 +124,7 @@ class CriteriaQueryHelperTest extends TestCase
         $builder = static::getContainer()->get(CriteriaQueryBuilder::class);
         $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
 
-        static::assertEquals($queryBuilder->getOrderByParts(), [
+        static::assertSame($queryBuilder->getOrderByParts(), [
             'MIN(`product`.`created_at`) ASC',
             '_score ASC',
         ]);

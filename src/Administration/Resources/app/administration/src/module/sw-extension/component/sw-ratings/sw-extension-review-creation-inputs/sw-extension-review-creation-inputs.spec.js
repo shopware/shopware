@@ -23,7 +23,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                         'sw-field-error': await wrapTestComponent('sw-field-error', { sync: true }),
                         'sw-extension-select-rating': await wrapTestComponent('sw-extension-select-rating', { sync: true }),
                         'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars', { sync: true }),
-                        'sw-icon': true,
                         'sw-textarea-field': {
                             template: '<textarea></textarea>',
                         },

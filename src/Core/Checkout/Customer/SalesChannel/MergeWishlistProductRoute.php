@@ -4,9 +4,11 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,22 +16,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -45,7 +53,12 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist/merge', name: 'store-api.customer.wishlist.merge', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/customer/wishlist/merge',
+        name: 'store-api.customer.wishlist.merge',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
@@ -70,16 +83,14 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
     private function getWishlistId(SalesChannelContext $context, string $customerId): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('customerId', $customerId),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
+            ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
-
-        return $wishlistIds->firstId() ?? Uuid::randomHex();
+        return $this->wishlistRepository->searchIds($criteria, $context->getContext())->firstId() ?? Uuid::randomHex();
     }
 
     /**
@@ -94,18 +105,16 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
 
         $ids = array_unique(array_filter($productIds->all()));
 
-        if (\count($ids) === 0) {
+        if ($ids === []) {
             return [];
         }
 
-        /** @var array<string> $ids */
         $ids = $this->productRepository->searchIds(new Criteria($ids), $context)->getIds();
 
         $customerProducts = $this->loadCustomerProducts($wishlistId, $ids);
 
         $upsertData = [];
 
-        /** @var string $id * */
         foreach ($ids as $id) {
             if (\array_key_exists($id, $customerProducts)) {
                 $upsertData[] = [

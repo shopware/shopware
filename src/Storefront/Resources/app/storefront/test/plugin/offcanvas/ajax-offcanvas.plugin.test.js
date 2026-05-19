@@ -1,26 +1,12 @@
 import AjaxOffcanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 
-// Fake requests from HttpClient
-jest.mock('src/service/http-client.service', () => {
-    return function () {
-        return {
-            post: (url, data, callback) => {
-                callback('<div>Interesting content from POST request</div>');
-            },
-            get: (url, callback) => {
-                callback('<div>Interesting content from GET request</div>');
-            },
-        };
-    };
-});
-
 /**
  * @package storefront
  */
 describe('AjaxOffcanvas tests', () => {
 
     beforeEach(() => {
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
 
         window.focusHandler = {
             saveFocusState: jest.fn(),
@@ -33,7 +19,13 @@ describe('AjaxOffcanvas tests', () => {
         document.body.innerHTML = '';
     });
 
-    it('should open with data from url (POST)', () => {
+    it('should open with data from url (POST)', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('<div>Interesting content from POST request</div>'),
+            })
+        );
+
         AjaxOffcanvas.open(
             '/route/action',
             ['foo', 'bar'],
@@ -44,16 +36,23 @@ describe('AjaxOffcanvas tests', () => {
             false,
             'my-class'
         );
+        await new Promise(process.nextTick);
 
         // Ensure OffCanvas exists and has content from ajax request
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from POST request</div>');
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
-    it('should open with data from url (GET)', () => {
+    it('should open with data from url (GET)', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('<div>Interesting content from GET request</div>'),
+            })
+        );
+
         AjaxOffcanvas.open(
             '/route/action',
             null,
@@ -64,16 +63,23 @@ describe('AjaxOffcanvas tests', () => {
             false,
             'my-class'
         );
+        await new Promise(process.nextTick);
 
         // Ensure OffCanvas exists and has content from ajax request
         expect(AjaxOffcanvas.exists()).toBe(true);
         expect(document.querySelector('.offcanvas').innerHTML).toBe('<div>Interesting content from GET request</div>');
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
-    it('should execute callback after request', () => {
+    it('should execute callback after request', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                text: () => Promise.resolve('<div>Interesting content from GET request</div>'),
+            })
+        );
+
         const callbackFn = jest.fn(() => {
             const el = document.createElement('p');
             document.body.appendChild(el);
@@ -89,6 +95,7 @@ describe('AjaxOffcanvas tests', () => {
             false,
             'my-class'
         );
+        await new Promise(process.nextTick);
 
         // Ensure OffCanvas exists and callback was executed
         expect(AjaxOffcanvas.exists()).toBe(true);
@@ -97,11 +104,11 @@ describe('AjaxOffcanvas tests', () => {
 
         AjaxOffcanvas.close();
 
-        // Ensure plugins will be re-initialized
-        expect(window.PluginManager.initializePlugins).toHaveBeenCalledTimes(1);
+        // Ensure plugins will be re-initialized within the offcanvas
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
     });
 
     it('should throw error when no URL is passed', () => {
-        expect(() => AjaxOffcanvas.open()).toThrowError('A url must be given!');
+        expect(() => AjaxOffcanvas.open()).toThrow('A url must be given!');
     });
 });

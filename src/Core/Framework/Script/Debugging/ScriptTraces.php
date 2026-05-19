@@ -19,7 +19,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, list<array{name: string, took: float, output: array<string|int, mixed>, deprecations: array<string, int>}>>
      */
     protected array $traces = [];
 
@@ -63,7 +63,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
         $took = round(microtime(true) - $time, 3);
 
-        $name = explode('/', (string) $script->getName());
+        $name = explode('/', $script->getName());
         $name = array_pop($name);
 
         $this->add($hook, $name, $took, $debug, $deprecations);
@@ -100,6 +100,11 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
     public function getTook(): float
     {
+        /**
+         * `data` is the same as the `traces` property
+         *
+         * @var array<string, list<array{name: string, took: float, output: array<string|int, mixed>, deprecations: array<string, int>}>> $data
+         */
         $data = $this->data instanceof Data ? $this->data->getIterator() : $this->data;
 
         $took = 0.0;
@@ -158,7 +163,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     /**
      * @internal
      *
-     * @return array<string, mixed>
+     * @return array<string|int, mixed>
      */
     public function getOutput(string $name, int $index): array
     {

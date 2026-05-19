@@ -6,10 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Product\SearchKeyword\AnalyzedKeyword;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 
@@ -29,7 +33,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     /**
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyze(array $productData, array $configFields, array $expected): void
@@ -39,9 +43,18 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
 
         $tokenizer = new Tokenizer(3, ['-', '_']);
         $tokenFilter = $this->createMock(TokenFilter::class);
-        $tokenFilter->method('filter')->willReturnCallback(fn (array $tokens) => $tokens);
+        $tokenFilter->method('filter')->willReturnCallback(static fn (array $tokens) => $tokens);
 
-        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter);
+        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer($tokenizer, $tokenFilter, $configLoader);
+
         $analyzer = $analyzer->analyze($product, $this->context, $configFields);
         $analyzerResult = $analyzer->getKeys();
 
@@ -57,7 +70,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      *
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
-     * @param array<int, string> $expected
+     * @param list<int|string> $expected
      */
     #[DataProvider('analyzeCases')]
     public function testAnalyzeWithIgnoredErrorNoticeReporting(array $productData, array $configFields, array $expected): void
@@ -70,9 +83,9 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:array<int, int|string>}>
+     * @return \Generator<string, array{0:array<string, array<string, string|array<int|string, string|array<int|string>>>|int|string|TagCollection>, 1:array<int, array{field: string, tokenize: bool, ranking: int}>, 2:list<int|string>}>
      */
-    public static function analyzeCases(): iterable
+    public static function analyzeCases(): \Generator
     {
         $tag1 = new TagEntity();
         $tag1->setId('tag-1');
@@ -122,15 +135,18 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 ],
             ],
             [
-                20,
+                '20',
                 'awesome',
+                'awesome product',
                 'description',
                 'long',
                 'manu_001',
                 'pink',
                 'product',
                 'tag',
+                'tag yellow pink',
                 'this',
+                'this long description',
                 'yellow',
             ],
         ];
@@ -181,6 +197,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 self::getLongTextPart2(),
                 'awesome',
                 'product',
+                'awesome product',
             ],
         ];
 
@@ -228,8 +245,84 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'part-a',
                 'part-b',
                 'product',
+                'physical',
+                'awesome product',
+                'part-a part-b',
             ],
         ];
+    }
+
+    public function testAssociativeArrayOrderIndependence(): void
+    {
+        $tokenizer = $this->createMock(TokenizerInterface::class);
+        $tokenizer->method('tokenize')
+            ->with('value1 value2 value3', 3)
+            ->willReturnCallback(static function (string $text) {
+                return explode(' ', $text);
+            });
+
+        $tokenFilter = $this->createMock(AbstractTokenFilter::class);
+        $tokenFilter->method('filter')
+            ->willReturnArgument(0);
+
+        $configLoader = $this->createMock(SearchConfigLoader::class);
+        $configLoader->method('load')
+            ->willReturn([
+                [
+                    'min_search_length' => 3,
+                ],
+            ]);
+
+        $analyzer = new ProductSearchKeywordAnalyzer(
+            $tokenizer,
+            $tokenFilter,
+            $configLoader
+        );
+
+        $config = [
+            [
+                'field' => 'customFields.assocArray',
+                'tokenize' => true,
+                'ranking' => 100,
+            ],
+        ];
+
+        // Test with first order of keys
+        $product1 = new ProductEntity();
+        $product1->setCustomFields([
+            'assocArray' => [
+                'key1' => 'value1',
+                'key2' => 'value2',
+                'key3' => 'value3',
+            ],
+        ]);
+
+        $result1 = $analyzer->analyze($product1, Context::createDefaultContext(), $config);
+        $words1 = $result1->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words1);
+
+        // Test with different order of keys
+        $product2 = new ProductEntity();
+        $product2->setCustomFields([
+            'assocArray' => [
+                'key3' => 'value3',
+                'key1' => 'value1',
+                'key2' => 'value2',
+            ],
+        ]);
+
+        $result2 = $analyzer->analyze($product2, Context::createDefaultContext(), $config);
+        $words2 = $result2->map(static fn (AnalyzedKeyword $keyword) => $keyword->getKeyword());
+        sort($words2);
+
+        sort($words1);
+
+        // Both results should be identical
+        static::assertSame($words1, $words2);
+        static::assertEquals(
+            ['value1', 'value1 value2 value3', 'value2', 'value3'],
+            $words1,
+        );
     }
 
     private static function getLongTextDescription(): string

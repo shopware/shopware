@@ -15,8 +15,7 @@ const availableTooltipPlacements: Placements[] = [
 /**
  * @private
  */
-// eslint-disable-next-line max-len
-// eslint-disable-next-line no-use-before-define,import/prefer-default-export,sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
@@ -295,6 +294,38 @@ class Tooltip {
         this._isShown = false;
     }
 
+    /**
+     * Cleanup the tooltip and removes all event listeners
+     * so that the tooltip can be garbage collected
+     */
+    destroy() {
+        if (this._parentDOMElementWrapper) {
+            this._parentDOMElementWrapper.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+            this._parentDOMElementWrapper.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+        } else {
+            this._parentDOMElement.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+            this._parentDOMElement.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+        }
+        this._DOMElement!.removeEventListener('mouseenter', this.onMouseToggle.bind(this));
+        this._DOMElement!.removeEventListener('mouseleave', this.onMouseToggle.bind(this));
+
+        if (this._parentDOMElementWrapper) {
+            this._parentDOMElementWrapper.replaceWith(this._parentDOMElement);
+        }
+
+        this.hideTooltip();
+        this._DOMElement = null;
+        this._parentDOMElementWrapper = null;
+
+        this._isShown = false;
+        this._state = false;
+        if (this._timeout) {
+            clearTimeout(this._timeout);
+        }
+
+        this._timeout = undefined;
+    }
+
     _placeTooltip() {
         let possiblePlacements = availableTooltipPlacements;
         let placement = this._placement;
@@ -443,7 +474,7 @@ function createOrUpdateTooltip(
     },
 ) {
     let message: string = typeof value === 'string' ? value : value.message;
-    message = message ? message.trim() : '';
+    message = message ? message?.trim?.() : '';
 
     const placement = value.position || Object.keys(modifiers)[0];
     const showDelay = value.showDelay;
@@ -526,7 +557,6 @@ Shopware.Directive.register('tooltip', {
     },
 
     updated: (el: HTMLElement, binding) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
 
@@ -536,7 +566,6 @@ Shopware.Directive.register('tooltip', {
     mounted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             tooltip!.init();
         }
     },

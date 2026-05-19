@@ -52,7 +52,7 @@ class ScheduledTaskControllerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testRunSkippedTasks(): void
@@ -83,7 +83,7 @@ class ScheduledTaskControllerTest extends TestCase
 
         /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testGetMinRunInterval(): void

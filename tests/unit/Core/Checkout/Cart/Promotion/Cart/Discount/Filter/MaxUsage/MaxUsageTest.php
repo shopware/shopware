@@ -6,11 +6,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(MaxUsage::class)]
+#[Package('checkout')]
 class MaxUsageTest extends TestCase
 {
     /**
@@ -29,7 +31,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(-1, $items);
+        static::assertSame(-1, $items);
     }
 
     /**
@@ -47,7 +49,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(2, $items);
+        static::assertSame(2, $items);
     }
 
     /**
@@ -66,7 +68,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(1, $items);
+        static::assertSame(1, $items);
     }
 
     /**
@@ -85,7 +87,7 @@ class MaxUsageTest extends TestCase
             1
         );
 
-        static::assertEquals(1, $items);
+        static::assertSame(1, $items);
     }
 
     /**
@@ -104,6 +106,6 @@ class MaxUsageTest extends TestCase
             3
         );
 
-        static::assertEquals(-1, $items);
+        static::assertSame(-1, $items);
     }
 }

@@ -1,5 +1,4 @@
 import template from './sw-order-create-details.html.twig';
-// eslint-disable-next-line max-len
 import type {
     Cart,
     LineItem,
@@ -136,7 +135,6 @@ export default Component.wrapComponentConfig({
         },
 
         isCartTokenAvailable(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').isCartTokenAvailable;
         },
 
@@ -217,11 +215,7 @@ export default Component.wrapComponentConfig({
                 languageId: this.salesChannelContext.context.languageIdChain[0],
                 shippingMethodId: this.salesChannelContext.shippingMethod.id,
                 paymentMethodId: this.salesChannelContext.paymentMethod.id,
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
             };
         },
@@ -395,7 +389,7 @@ export default Component.wrapComponentConfig({
 
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
                 this.promotionError = {
-                    detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                    detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                 } as ShopwareHttpError;
             }
         },

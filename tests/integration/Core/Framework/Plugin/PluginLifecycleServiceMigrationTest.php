@@ -27,18 +27,17 @@ use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -83,7 +82,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         $this->context = Context::createDefaultContext();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
 
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',
@@ -160,7 +159,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
-        $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
+        $migrationSource = (new \ReflectionProperty(MigrationCollection::class, 'migrationSource'))->getValue($migrationCollection);
 
         $dbMigrations = $connection
             ->fetchAllAssociative(
@@ -190,6 +189,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
         );
     }
 

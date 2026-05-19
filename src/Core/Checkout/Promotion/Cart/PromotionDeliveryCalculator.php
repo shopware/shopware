@@ -61,16 +61,18 @@ class PromotionDeliveryCalculator
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $toCalculate, SalesChannelContext $context): void
     {
-        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+        $discountLineItems->sort(static function (LineItem $a, LineItem $b) {
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
+        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
+
+        // build exclusions list before reducing line items
+        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
 
         // reduce discount lineItems if fixed price discounts are in collection
+        $this->restorePriceDefinitions($discountLineItems);
         $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
-
-        $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -87,7 +89,7 @@ class PromotionDeliveryCalculator
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
-                if (!$this->isAutomaticDisount($discountItem)) {
+                if (!$this->isAutomaticDiscount($discountItem)) {
                     $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
                 }
 
@@ -116,6 +118,39 @@ class PromotionDeliveryCalculator
             } else {
                 $this->addPromotionDeletedNotice($original, $toCalculate, $discountItem);
             }
+        }
+    }
+
+    /**
+     * Any delivery discount will be replaced by a proper delivery and a fake line item ({@see addFakeLineitem}).
+     * To be able to recalculate a cart with copied discount line items,
+     * the original price definitions need to be restored.
+     */
+    private function restorePriceDefinitions(LineItemCollection $items): void
+    {
+        foreach ($items as $item) {
+            if (!$item->getPriceDefinition() instanceof QuantityPriceDefinition) {
+                continue;
+            }
+
+            if ($item->getPayloadValue('discountScope') !== PromotionDiscountEntity::SCOPE_DELIVERY) {
+                continue;
+            }
+
+            $type = $item->getPayloadValue('discountType');
+            $value = $item->getPayloadValue('value');
+
+            if (!$type || !$value) {
+                continue;
+            }
+
+            $definition = match ($type) {
+                PromotionDiscountEntity::TYPE_ABSOLUTE, PromotionDiscountEntity::TYPE_FIXED_UNIT => new AbsolutePriceDefinition((float) $value),
+                PromotionDiscountEntity::TYPE_PERCENTAGE => new PercentagePriceDefinition((float) $value),
+                default => $item->getPriceDefinition(),
+            };
+
+            $item->setPriceDefinition($definition);
         }
     }
 
@@ -172,7 +207,7 @@ class PromotionDeliveryCalculator
     private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
-        $fixedPricesDiscountLineItems = $discountLineItems->filter(function (LineItem $discountLineItem) {
+        $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
             if (!$discountLineItem->hasPayloadValue('discountScope') || !$discountLineItem->hasPayloadValue('discountType')) {
                 return false;
             }
@@ -200,7 +235,7 @@ class PromotionDeliveryCalculator
 
         // if there are more than one fixed price lineitems in filtered collection
         // we are sorting all by lowest fixed price (lowest price to beginning)
-        $fixedPricesDiscountLineItems->sort(function (LineItem $discountA, LineItem $discountB) {
+        $fixedPricesDiscountLineItems->sort(static function (LineItem $discountA, LineItem $discountB) {
             $priceDefA = $discountA->getPriceDefinition();
             $priceDefB = $discountB->getPriceDefinition();
 
@@ -211,8 +246,7 @@ class PromotionDeliveryCalculator
                 throw PromotionException::invalidPriceDefinition((string) $discountB->getLabel(), $discountB->getReferencedId());
             }
 
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart - This is covered randomly
             if ($priceDefA->getPrice() === $priceDefB->getPrice()) {
                 return 0;
             }
@@ -312,7 +346,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPrice());
 
         // get shipping costs
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         // make sure that discount value is not higher than shipping costs, reduce them if necessary
         if ($reduceValue > $maxReducedPrice) {
@@ -368,7 +402,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPercentage());
 
         // we may only discount the available shipping costs (these may be reduced by another discount before)
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxValue !== '') {
             $castedMaxValue = (float) $maxValue;
@@ -408,7 +442,7 @@ class PromotionDeliveryCalculator
         $fixedPrice = abs($definition->getPrice());
 
         // get shipping costs and set them as maximum value that may be discounted
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxReducedPrice <= $fixedPrice) {
             return $deliveryAdded;
@@ -499,7 +533,7 @@ class PromotionDeliveryCalculator
     private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {
         // filter all cart line items with the code
-        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
+        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(static fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
 
         // if we have a line item in cart for this discount, it is already stored and we do not need to add
         // another lineitem
@@ -515,8 +549,10 @@ class PromotionDeliveryCalculator
         $toCalculate->addLineItems(new LineItemCollection([$promotionItem]));
     }
 
-    private function isAutomaticDisount(LineItem $discountItem): bool
+    private function isAutomaticDiscount(LineItem $discountItem): bool
     {
-        return empty($discountItem->getPayloadValue('code'));
+        $code = $discountItem->getPayloadValue('code');
+
+        return $code === null || $code === '';
     }
 }

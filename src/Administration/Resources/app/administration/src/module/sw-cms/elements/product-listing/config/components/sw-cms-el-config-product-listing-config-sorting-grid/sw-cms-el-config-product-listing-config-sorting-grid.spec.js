@@ -64,7 +64,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                               <slot name="column-fields" v-bind="{ item: item }"></slot>
                               <slot name="column-priority" v-bind="{ item: item }">
                                   <div :class="'column-priority_' + item.id">
-                                      <sw-number-field v-model:value="item.priority" class="sw-grid-priority"></sw-number-field>
+                                      <mt-number-field v-model:value="item.priority" class="sw-grid-priority"></mt-number-field>
                                   </div>
                               </slot>
                           </template>
@@ -75,7 +75,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     template: '<div @click="$emit(\'click\')"></div>',
                 },
                 'sw-pagination': true,
-                'sw-number-field': {
+                'mt-number-field': {
                     template: `
                     <input type="number" :value="value" @input="$emit('update:value', Number($event.target.value))" />
                 `,
@@ -85,7 +85,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                 },
             },
             mocks: {
-                $tc: (param) => {
+                $t: (param) => {
                     if (snippets[param]) {
                         return snippets[param];
                     }
@@ -103,13 +103,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
     });
 }
 
-// eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should remove entry from product sortings on delete', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },

@@ -63,7 +63,6 @@ async function createWrapper() {
                         template: '<div class="mt-card"><slot /></div>',
                     },
 
-                    'sw-number-field': true,
                     'sw-text-field': {
                         template: '<div class="sw-field"></div>',
                         props: ['disabled'],
@@ -101,13 +100,6 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-settings-number-range/page/sw-settings-number-range-create', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be has number range', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();

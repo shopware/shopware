@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -128,7 +127,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         toggleButtonText() {
-            return this.$tc('sw-cms.sidebar.contentMenu.visibilityBlockTextButton', this.isCollapsed ? 0 : 1);
+            return this.$t('sw-cms.sidebar.contentMenu.visibilityBlockTextButton', this.isCollapsed ? 0 : 1);
         },
 
         expandedClass() {
@@ -144,9 +143,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         createdComponent() {
-            if (!this.block.backgroundMediaMode) {
-                this.block.backgroundMediaMode = 'cover';
-            }
+            this.block.backgroundMediaMode ??= 'cover';
+            this.block.backgroundColor ??= '';
         },
 
         onBlockOverlayClick() {

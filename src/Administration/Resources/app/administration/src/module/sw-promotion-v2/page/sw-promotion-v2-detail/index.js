@@ -78,7 +78,11 @@ export default {
             const criteria = new Criteria(1, 1)
                 .addAssociation('discounts.promotionDiscountPrices')
                 .addAssociation('discounts.discountRules')
-                .addAssociation('salesChannels');
+                .addAssociation('personaRules')
+                .addAssociation('orderRules')
+                .addAssociation('cartRules')
+                .addAssociation('salesChannels')
+                .addAssociation('setgroups.setGroupRules');
 
             criteria.getAssociation('discounts').addSorting(Criteria.sort('createdAt', 'ASC'));
 
@@ -90,7 +94,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('promotion.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     showOnDisabledElements: true,
                 };
             }
@@ -127,6 +131,10 @@ export default {
         this.createdComponent();
     },
 
+    beforeRouteLeave() {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    },
+
     methods: {
         createdComponent() {
             Shopware.ExtensionAPI.publishData({
@@ -147,6 +155,10 @@ export default {
 
                 return;
             }
+
+            Shopware.Store.get('shopwareApps').selectedIds = [
+                this.promotionId,
+            ];
 
             this.loadEntityData();
         },
@@ -250,10 +262,10 @@ export default {
                         params: { id: this.promotion.id },
                     });
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'global.notification.notificationSaveErrorMessage',
                         {
                             entityName: this.promotion.name,

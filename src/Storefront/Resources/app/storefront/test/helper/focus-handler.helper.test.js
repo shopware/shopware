@@ -1,4 +1,5 @@
 import FocusHandler from 'src/helper/focus-handler.helper';
+import template from './focus-handler.helper.template.html';
 
 /**
  * @package storefront
@@ -158,5 +159,51 @@ describe('focus-handler.helper', () => {
 
         expect(consoleSpy).toHaveBeenCalledWith('[FocusHandler]: Unable to save focus state. Parameters "focusStorageKey" and "uniqueSelector" are required.');
         consoleSpy.mockRestore();
+    });
+
+    describe('getFocusableElements', () => {
+        test('returns all focusable elements', () => {
+            document.body.innerHTML = template;
+
+            const focusableElements = focusHandler.getFocusableElements();
+
+            expect(focusableElements).toBeInstanceOf(NodeList);
+            expect(focusableElements).toHaveLength(5);
+            expect(focusableElements[0]).toBeInstanceOf(HTMLAnchorElement);
+            expect(focusableElements[1]).toBeInstanceOf(HTMLButtonElement);
+            expect(focusableElements[2]).toBeInstanceOf(HTMLInputElement);
+            expect(focusableElements[3]).toBeInstanceOf(HTMLSelectElement);
+            expect(focusableElements[4]).toBeInstanceOf(HTMLTextAreaElement);
+        });
+
+        test('returns the first focusable element', () => {
+            document.body.innerHTML = template;
+
+            const focusableElement = focusHandler.getFirstFocusableElement();
+
+            expect(focusableElement).toBeInstanceOf(HTMLAnchorElement);
+            expect(focusableElement.textContent).toBe('This is a link and the first focusable element');
+        });
+
+        test('returns the last focusable element', () => {
+            document.body.innerHTML = template;
+
+            const focusableElement = focusHandler.getLastFocusableElement();
+
+            expect(focusableElement).toBeInstanceOf(HTMLTextAreaElement);
+            expect(focusableElement.textContent).toBe('This is a textarea and the last focusable element');
+        });
+
+        test('only returns focusable elements inside given parent element', () => {
+            document.body.innerHTML = template;
+
+            const parentElement = document.querySelector('.parent-element');
+            const focusableElements = focusHandler.getFocusableElements(parentElement);
+
+            expect(focusableElements).toBeInstanceOf(NodeList);
+            expect(focusableElements).toHaveLength(2);
+            expect(focusableElements[0]).toBeInstanceOf(HTMLInputElement);
+            expect(focusableElements[1]).toBeInstanceOf(HTMLSelectElement);
+        });
     });
 });

@@ -1,5 +1,13 @@
 import { mount } from '@vue/test-utils';
 
+let resizeListener;
+const deviceMock = {
+    onResize: jest.fn(({ listener }) => {
+        resizeListener = listener;
+    }),
+    removeResizeListener: jest.fn(),
+};
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-sidebar', {
@@ -17,7 +25,9 @@ async function createWrapper() {
                 stubs: {
                     'sw-sidebar-item': await wrapTestComponent('sw-sidebar-item', { sync: true }),
                     'sw-sidebar-navigation-item': await wrapTestComponent('sw-sidebar-navigation-item', { sync: true }),
-                    'sw-icon': true,
+                },
+                mocks: {
+                    $device: deviceMock,
                 },
                 provide: {
                     setSwPageSidebarOffset: () => {},
@@ -36,6 +46,10 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
+        resizeListener = null;
+        deviceMock.onResize.mockClear();
+        deviceMock.removeResizeListener.mockClear();
+
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -47,10 +61,6 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should open the sidebar', async () => {
@@ -81,11 +91,30 @@ describe('src/app/component/sidebar/sw-sidebar/index.js', () => {
         expect(firstSidebarItemContent.text()).toBe('The content of the first sidebar item');
 
         // Close the sidebar
-        const closeButton = await wrapper.find('button[aria-label="closeContent"]');
+        const closeButton = await wrapper.find('button[aria-label="sw-sidebar.ariaLabelButtonClose"]');
         await closeButton.trigger('click');
 
         // Check if the content of the first sidebar item is not visible
         firstSidebarItemContent = await wrapper.find('.first-sidebar-item-content');
         expect(firstSidebarItemContent.exists()).toBe(false);
+    });
+
+    it('should keep the active navigation item after resizing', async () => {
+        const firstSidebarNavigationItem = await wrapper.find(
+            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+        );
+        await firstSidebarNavigationItem.trigger('click');
+
+        expect(firstSidebarNavigationItem.classes()).toContain('is--active');
+        expect(deviceMock.onResize).toHaveBeenCalledTimes(1);
+        expect(resizeListener).toBeDefined();
+
+        resizeListener();
+        await flushPromises();
+
+        const resizedSidebarNavigationItem = await wrapper.find(
+            'button.sw-sidebar-navigation-item[title="First sidebar item"]',
+        );
+        expect(resizedSidebarNavigationItem.classes()).toContain('is--active');
     });
 });

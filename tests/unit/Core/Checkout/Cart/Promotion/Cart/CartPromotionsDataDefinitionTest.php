@@ -7,11 +7,13 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[CoversClass(CartPromotionsDataDefinition::class)]
+#[Package('checkout')]
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**
@@ -155,5 +157,21 @@ class CartPromotionsDataDefinitionTest extends TestCase
         $tuple = $definition->getPromotionCodeTuples()[0];
 
         static::assertSame('100', $tuple->getCode());
+    }
+
+    /**
+     * This test verifies that getAllCodes returns only a string array.
+     */
+    #[Group('promotions')]
+    public function testGetAllCodeReturnsStringArray(): void
+    {
+        $promotion1 = new PromotionEntity();
+        $promotion2 = new PromotionEntity();
+
+        $definition = new CartPromotionsDataDefinition();
+        $definition->addCodePromotions('100', [$promotion1]);
+        $definition->addCodePromotions('test', [$promotion2]);
+
+        static::assertContainsOnlyString($definition->getAllCodes());
     }
 }

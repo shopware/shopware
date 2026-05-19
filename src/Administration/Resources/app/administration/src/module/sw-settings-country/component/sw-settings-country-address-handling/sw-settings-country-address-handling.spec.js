@@ -39,7 +39,6 @@ async function createWrapper(privileges = [], customPropsData = {}) {
         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated'),
         'sw-field-error': true,
         'sw-help-text': true,
-        'sw-icon': true,
         'sw-extension-component-section': true,
         'sw-multi-snippet-drag-and-drop': await wrapTestComponent('sw-multi-snippet-drag-and-drop'),
         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -112,7 +111,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     draggable: {},
                 },
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -204,12 +203,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
-    });
-
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to edit the address handling tab', async () => {
@@ -380,7 +373,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
     });
 
     it('should disable postal code validation', async () => {
-        // eslint-disable-next-line no-restricted-syntax
         for (const prop of [
             {
                 checkPostalCodePattern: true,
@@ -388,9 +380,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             },
             {},
         ]) {
-            // eslint-disable-next-line no-await-in-loop
             wrapper = await createWrapper(['country.editor'], prop);
-            // eslint-disable-next-line no-await-in-loop
             await flushPromises();
 
             const countryCheckPostalCodePatternField = wrapper.find(

@@ -7,8 +7,8 @@
     v-model="multiSelectSwitch"
     class="sw-custom-field-detail__switch"
     :disabled="multiSelectSwitchDisabled || undefined"
-    :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-    @update:value="onChangeMultiSelectSwitch"
+    :label="$t('sw-settings-custom-field.customField.detail.labelMultiSelect')"
+    @update:model-value="onChangeMultiSelectSwitch"
 />
 {% endblock %}
 
@@ -19,7 +19,7 @@
 >
     {% block sw_custom_field_type_select_options_label %}
     <span>
-        {{ $tc('sw-settings-custom-field.customField.detail.labelOption', { count: (index+1) }, 0) }}
+        {{ $t('sw-settings-custom-field.customField.detail.labelOption', { count: (index+1) }, 0) }}
     </span>
     {% endblock %}
 
@@ -27,9 +27,10 @@
     <mt-button
         class="sw-custom-field-type-select__delete-option-button"
         size="small"
+        variant="secondary"
         @click="onDeleteOption(index)"
     >
-        {{ $tc('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
+        {{ $t('sw-settings-custom-field.customField.detail.labelDeleteOption') }}
     </mt-button>
     {% endblock %}
 
@@ -43,7 +44,7 @@
 
         <mt-text-field
             v-model="option.value"
-            :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
+            :label="$t('sw-settings-custom-field.customField.detail.labelTechnicalName')"
         />
         {% endblock %}
 
@@ -69,9 +70,10 @@
     v-if="isOptionAddable"
     size="small"
     class="sw-custom-field-type-select__button-add"
+    variant="secondary"
     @click="onClickAddOption"
 >
-    {{ $tc('sw-settings-custom-field.customField.detail.buttonAddOption') }}
+    {{ $t('sw-settings-custom-field.customField.detail.buttonAddOption') }}
 </mt-button>
     {% endblock %}
 {% endblock %}

@@ -1,23 +1,21 @@
-@import "~scss/variables";
-
 .sw-help-text {
-    width: 16px;
-    height: 16px;
-    background-color: $color-shopware-brand-500;
-    color: $color-white;
+    width: var(--scale-size-16);
+    height: var(--scale-size-16);
+    color: var(--color-icon-brand-default);
     border-radius: 50%;
     line-height: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     pointer-events: auto;
+    cursor: pointer;
 
-    .sw-icon {
-        width: 16px;
-        height: 16px;
-        padding-top: 4px;
-        padding-right: 5px;
-        padding-bottom: 3px;
-        padding-left: 5px;
+    &:hover {
+        color: var(--color-icon-brand-hover);
+    }
+
+    .mt-icon {
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
     }
 }

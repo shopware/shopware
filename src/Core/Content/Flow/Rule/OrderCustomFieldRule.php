@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class OrderCustomFieldRule extends FlowRule
@@ -27,6 +27,8 @@ class OrderCustomFieldRule extends FlowRule
 
     /**
      * @param array<string, string|array<string, string>> $renderedField
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
@@ -46,7 +48,7 @@ class OrderCustomFieldRule extends FlowRule
 
         $orderCustomFields = $scope->getOrder()->getCustomFields() ?? [];
 
-        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $orderCustomFields);
+        return CustomFieldRule::match($this->renderedField, $this->renderedFieldValue, $this->operator, $orderCustomFields, $scope->getSalesChannelContext());
     }
 
     public function getConstraints(): array

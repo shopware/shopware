@@ -63,42 +63,58 @@
         {% set thumbnails = media.thumbnails|sort|reverse %}
 
         {# generate srcset with all available thumbnails #}
-        {% set srcsetValue %}{% apply spaceless %}
-            {% if loadOriginalImage %}{{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% endif %}{% for thumbnail in thumbnails %}{{ thumbnail.url|sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
-        {% endapply %}{% endset %}
+        {% set srcsetValues = [] %}
 
-        {# generate sizes #}
-        {% set sizesValue %}{% apply spaceless %}
-            {% set sizeFallback = 100 %}
+        {% if loadOriginalImage %}
+            {% set srcsetValues = srcsetValues|merge([media|sw_encode_media_url ~ ' ' ~ (thumbnails|first.width + 1) ~ 'w']) %}
+        {% endif %}
 
-            {# set largest size depending on column count of cms block #}
-            {% if autoColumnSizes and columns %}
-                {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
+        {% for thumbnail in thumbnails %}
+            {% set thumbnailUrl = thumbnail.url|sw_encode_url %}
+            {% if feature('v6.8.0.0') %}
+                {% set thumbnailUrl = thumbnail.url %}
             {% endif %}
 
-            {% set breakpoint = {
-                xs: theme_config('breakpoint.xs'),
-                sm: theme_config('breakpoint.sm'),
-                md: theme_config('breakpoint.md'),
-                lg: theme_config('breakpoint.lg'),
-                xl: theme_config('breakpoint.xl')
-            } %}
+            {% set srcsetValues = srcsetValues|merge([thumbnailUrl ~ ' ' ~ thumbnail.width ~ 'w']) %}
+        {% endfor %}
 
-            {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
-        {% endapply %}{% endset %}
+        {# generate sizes #}
+        {% set sizeFallback = 100 %}
+
+        {# set largest size depending on column count of cms block #}
+        {% if autoColumnSizes and columns %}
+            {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
+        {% endif %}
+
+        {% set breakpoint = {
+            xs: theme_config('breakpoint.xs'),
+            sm: theme_config('breakpoint.sm'),
+            md: theme_config('breakpoint.md'),
+            lg: theme_config('breakpoint.lg'),
+            xl: theme_config('breakpoint.xl'),
+            xxl: theme_config('breakpoint.xxl')
+        } %}
+
+        {% set sizesValues = [] %}
+
+        {% for key, value in breakpoint|reverse %}
+            {% set sizesValues = sizesValues|merge(['(min-width: ' ~ value ~ 'px) ' ~ sizes[key]]) %}
+        {% endfor %}
+
+        {% set sizesValues = sizesValues|merge([sizeFallback ~ 'vw']) %}
     {% endif %}
 
     {% block thumbnail_utility_img %}
         <img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}
             {% if media.thumbnails|length > 0 %}
-                {% if load %}srcset="{{ srcsetValue }}" {% else %}data-srcset="{{ srcsetValue }}" {% endif %}
+                {% if load %}srcset="{{ srcsetValues|join(', ') }}" {% else %}data-srcset="{{ srcsetValues|join(', ') }}" {% endif %}
                 {% if sizes['default'] %}
                 sizes="{{ sizes['default'] }}"
                 {% elseif sizes|length > 0 %}
-                sizes="{{ sizesValue }}"
+                sizes="{{ sizesValues|join(', ') }}"
                 {% endif %}
             {% endif %}
-            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value }}"{% endif %}{% endfor %}
+            {% for key, value in attributes %}{% if value != '' %} {{ key }}="{{ value|striptags|trim }}"{% elseif key == 'alt' and value is not same as(false) %} {{ key }}="{{ value|striptags|trim }}"{% endif %}{% endfor %}
         />
     {% endblock %}
 {% endblock %}

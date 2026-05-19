@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1721811224AddInAppPurchaseGatewayUrl;
 
 /**
@@ -25,17 +26,19 @@ class Migration1721811224AddInAppPurchaseGatewayUrlTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1721811224, (new Migration1721811224AddInAppPurchaseGatewayUrl())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();
         $this->migrate();
         $this->migrate();
 
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns('app');
-
-        static::assertArrayHasKey('in_app_purchases_gateway_url', $columns);
-        static::assertFalse($columns['in_app_purchases_gateway_url']->getNotnull());
+        $column = TableHelper::getColumnOfTable($this->connection, 'app', 'in_app_purchases_gateway_url');
+        static::assertFalse($column->isNotNull);
     }
 
     private function migrate(): void

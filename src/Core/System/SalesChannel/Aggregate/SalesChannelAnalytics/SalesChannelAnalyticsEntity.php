@@ -20,7 +20,9 @@ class SalesChannelAnalyticsEntity extends Entity
 
     protected bool $anonymizeIp;
 
-    protected SalesChannelEntity $salesChannel;
+    protected bool $trackOffcanvasCart = false;
+
+    protected ?SalesChannelEntity $salesChannel = null;
 
     public function getTrackingId(): string
     {
@@ -62,7 +64,17 @@ class SalesChannelAnalyticsEntity extends Entity
         $this->anonymizeIp = $anonymizeIp;
     }
 
-    public function getSalesChannel(): SalesChannelEntity
+    public function isTrackOffcanvasCart(): bool
+    {
+        return $this->trackOffcanvasCart;
+    }
+
+    public function setTrackOffcanvasCart(bool $trackOffcanvasCart): void
+    {
+        $this->trackOffcanvasCart = $trackOffcanvasCart;
+    }
+
+    public function getSalesChannel(): ?SalesChannelEntity
     {
         return $this->salesChannel;
     }

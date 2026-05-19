@@ -5,7 +5,6 @@
 
 import fs from 'fs';
 import path from 'path';
-// @ts-expect-error - There are no types for this package
 import cliProgress from 'cli-progress';
 import colors from 'picocolors';
 
@@ -52,7 +51,7 @@ templateFiles.forEach((file) => {
     }
 
     // Find all position identifiers in the file and add them to the result
-    [...fileContent.matchAll(/position-identifier="(.*)"/gm)].map((match) => match[1]).forEach((match) => {
+    [...fileContent.matchAll(/position-identifier="(.+)"/gm)].map((match) => match[1]).forEach((match) => {
         result.push(match);
     });
 })
@@ -60,10 +59,14 @@ templateFiles.forEach((file) => {
 // Stop the progress bar
 pb.stop();
 
+// Sort the result array to maintain consistent ordering
+const sortedPositionIdentifiers = result.sort((a, b) => a.localeCompare(b));
+
 // Define the output file path for the result
 const outputFile = path.join(__dirname, '../../src/meta/position-identifiers.json');
 
 console.log(colors.blueBright(`\nWriting to ${outputFile}`));
-fs.writeFileSync(outputFile, JSON.stringify(result));
+
+fs.writeFileSync(outputFile, JSON.stringify(sortedPositionIdentifiers, null, 1));
 
 console.log(colors.green('\nAll done!'));

@@ -16,15 +16,15 @@ use Symfony\Component\Mime\Email;
  */
 #[AsMessageHandler(handles: SendMailMessage::class)]
 #[Package('after-sales')]
-final class SendMailHandler
+final readonly class SendMailHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly TransportInterface $transport,
-        private readonly FilesystemOperator $filesystem,
-        private readonly LoggerInterface $logger
+        private TransportInterface $transport,
+        private FilesystemOperator $filesystem,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -47,7 +47,9 @@ final class SendMailHandler
             throw $e;
         }
 
-        $mail = unserialize($mailData);
+        /** @phpstan-ignore shopware.unserializeUsage */
+        $mail = \unserialize($mailData);
+
         if (!is_a($mail, Email::class)) {
             $this->logger->error('The mail data file does not contain a valid email object. Mail could not be sent.', ['mailDataPath' => $mailDataPath]);
 

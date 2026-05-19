@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
-use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 
 /**
  * @internal
@@ -20,6 +20,9 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
 {
     private const SHOPWARE_TOKEN_HEADER = 'X-Shopware-Token';
 
+    /**
+     * @param EntityRepository<UserConfigCollection> $userConfigRepository
+     */
     public function __construct(
         private readonly AbstractStoreRequestOptionsProvider $optionsProvider,
         private readonly EntityRepository $userConfigRepository,
@@ -50,8 +53,7 @@ class FrwRequestOptionsProvider extends AbstractStoreRequestOptionsProvider
             new EqualsFilter('key', FirstRunWizardService::USER_CONFIG_KEY_FRW_USER_TOKEN),
         );
 
-        /** @var UserConfigEntity|null $userConfig */
-        $userConfig = $this->userConfigRepository->search($criteria, $context)->first();
+        $userConfig = $this->userConfigRepository->search($criteria, $context)->getEntities()->first();
 
         return $userConfig === null ? null : $userConfig->getValue()[FirstRunWizardService::USER_CONFIG_VALUE_FRW_USER_TOKEN] ?? null;
     }

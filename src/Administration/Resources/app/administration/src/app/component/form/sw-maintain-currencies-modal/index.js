@@ -5,13 +5,12 @@
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-maintain-currencies-modal', {
+export default {
     template,
     inject: ['repositoryFactory'],
 
@@ -44,7 +43,6 @@ Component.register('sw-maintain-currencies-modal', {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         hideListPrices: {
             required: false,
             default: false,
@@ -201,7 +199,6 @@ Component.register('sw-maintain-currencies-modal', {
                 };
             }
 
-            // eslint-disable-next-line vue/no-mutating-props
             this.prices[this.prices.length] = price;
 
             this.createdComponent();
@@ -215,4 +212,4 @@ Component.register('sw-maintain-currencies-modal', {
             this.$emit('modal-close', this.prices);
         },
     },
-});
+};

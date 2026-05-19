@@ -2,7 +2,7 @@
 <mt-card
     class="sw-users-permissions-detailed-permissions-grid"
     position-identifier="sw-users-permissions-detailed-permissions-grid"
-    :title="$tc('sw-users-permissions.roles.grid.title')"
+    :title="$t('sw-users-permissions.roles.grid.title')"
 >
     <div class="sw-users-permissions-detailed-permissions-grid__grid">
         {% block sw_users_permissions_detailed_permissions_grid_header %}
@@ -18,7 +18,7 @@
                 class="sw-users-permissions-detailed-permissions-grid__checkbox-wrapper"
             >
                 {% block sw_users_permissions_detailed_permissions_grid_header_roles_name %}
-                {{ $tc('sw-privileges.permissionType.' + permissionType) }}
+                {{ $t('sw-privileges.permissionType.' + permissionType) }}
                 {% endblock %}
             </div>
             {% endblock %}
@@ -60,7 +60,7 @@
                             >
                             <div class="sw-field__checkbox-state">
                                 <span
-                                    class="sw-icon sw-icon--fill"
+                                    class="mt-icon mt-icon--fill"
                                     style="width: 16px; height: 16px;"
                                 >
                                     <svg

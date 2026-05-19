@@ -13,6 +13,7 @@ export default {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     emits: [
@@ -73,12 +74,12 @@ export default {
                     this.$emit('modal-save');
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-payment.sorting-modal.saveSuccessful'),
+                        message: this.$t('sw-settings-payment.sorting-modal.saveSuccessful'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-payment.sorting-modal.errorMessage'),
+                        message: this.$t('sw-settings-payment.sorting-modal.errorMessage'),
                     });
                 });
         },
@@ -89,11 +90,14 @@ export default {
 
         isShopwareDefaultPaymentMethod(paymentMethod) {
             const defaultPaymentMethods = [
-                'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\DebitPayment',
                 'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\InvoicePayment',
                 'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\CashPayment',
                 'Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\PrePayment',
             ];
+
+            if (!this.feature.isActive('v6.8.0.0')) {
+                defaultPaymentMethods.push('Shopware\\Core\\Checkout\\Payment\\Cart\\PaymentHandler\\DebitPayment');
+            }
 
             return defaultPaymentMethods.includes(paymentMethod.handlerIdentifier);
         },

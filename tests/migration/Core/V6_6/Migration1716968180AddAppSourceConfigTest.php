@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1716968180AddAppSourceConfig;
 
 /**
@@ -19,32 +20,33 @@ class Migration1716968180AddAppSourceConfigTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716968180, (new Migration1716968180AddAppSourceConfig())->getCreationTimestamp());
+    }
+
+    public function testMigration(): void
+    {
+        $this->dropSourceConfigColumn();
+
+        static::assertFalse(TableHelper::columnExists($this->connection, 'app', 'source_config'));
+
+        $migration = new Migration1716968180AddAppSourceConfig();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        static::assertTrue(TableHelper::columnExists($this->connection, 'app', 'source_config'));
+    }
+
+    private function dropSourceConfigColumn(): void
+    {
         try {
             $this->connection->executeStatement(
                 'ALTER TABLE `app` DROP COLUMN `source_config`;'
             );
         } catch (\Throwable) {
         }
-    }
-
-    public function testMigration(): void
-    {
-        static::assertFalse($this->columnExists());
-
-        $migration = new Migration1716968180AddAppSourceConfig();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
-
-        static::assertTrue($this->columnExists());
-    }
-
-    private function columnExists(): bool
-    {
-        $field = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `app` WHERE `Field` = "source_config";',
-        );
-
-        return $field === 'source_config';
     }
 }

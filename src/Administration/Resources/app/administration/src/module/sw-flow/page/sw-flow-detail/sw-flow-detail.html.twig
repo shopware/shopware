@@ -2,7 +2,7 @@
 <sw-page class="sw-flow-detail">
     {% block sw_flow_detail_header %}
     <template #smart-bar-header>
-        <h2>{{ placeholder(flow, 'name', $tc('sw-flow.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(flow, 'name', $t('sw-flow.detail.textHeadline')) }}</h2>
     </template>
     {% endblock %}
 
@@ -11,7 +11,7 @@
         {% block sw_flow_detail_smart_bar_actions_save %}
         <sw-button-process
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('flow.editor'),
                 position: 'bottom',
                 showOnDisabledElements: true
@@ -24,7 +24,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -48,7 +48,7 @@
                     class="sw-flow-detail__tab-general"
                     :route="routeDetailTab('general')"
                 >
-                    {{ $tc('sw-flow.page.tabGeneral') }}
+                    {{ $t('sw-flow.page.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -57,20 +57,22 @@
                     class="sw-flow-detail__tab-flow"
                     :route="routeDetailTab('flow')"
                 >
-                    {{ $tc('sw-flow.page.tabFlow') }}
+                    {{ $t('sw-flow.page.tabFlow') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
+
             <mt-banner
                 v-if="isTemplate"
                 variant="attention"
                 class="sw-flow-detail__warning"
             >
-                {{ $tc('sw-flow.flowNotification.messageWarningSave') }}
+                {{ $t('sw-flow.flowNotification.messageWarningSave') }}
             </mt-banner>
+
             {% block sw_flow_tabs_content %}
             <template v-if="isLoading">
                 <sw-skeleton />

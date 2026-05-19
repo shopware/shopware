@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -15,8 +15,7 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "type": {
-                        "type": "string",
-                        "enum": ["page", "link", "folder"]
+                        "$ref": "#/components/schemas/Category/properties/type"
                     },
                     "translated": {
                         "type": "object",
@@ -29,8 +28,7 @@
                                 "type": "object"
                             },
                             "linkType": {
-                                "type": "string",
-                                "enum": ["external", "category", "product", "landing_page"]
+                                "$ref": "#/components/schemas/Category/properties/linkType"
                             },
                             "internalLink": {
                                 "type": "string"

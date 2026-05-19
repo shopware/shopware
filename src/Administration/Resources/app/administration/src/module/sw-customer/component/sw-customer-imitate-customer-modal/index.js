@@ -39,14 +39,14 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc('sw-customer.imitateCustomerModal.modalTitle', {
+            return this.$t('sw-customer.imitateCustomerModal.modalTitle', {
                 firstname: this.customer.firstName,
                 lastname: this.customer.lastName,
             });
         },
 
         modalDescription() {
-            return this.$tc('sw-customer.imitateCustomerModal.modalDescription', {
+            return this.$t('sw-customer.imitateCustomerModal.modalDescription', {
                 firstname: this.customer.firstName,
                 lastname: this.customer.lastName,
             });
@@ -64,6 +64,7 @@ export default {
             const criteria = new Criteria();
             criteria.addAssociation('salesChannel');
             criteria.addFilter(Criteria.equals('salesChannel.typeId', Shopware.Defaults.storefrontSalesChannelTypeId));
+            criteria.addFilter(Criteria.equals('salesChannel.active', true));
             criteria.addSorting(Criteria.sort('salesChannel.name', 'ASC'));
             criteria.addSorting(Criteria.sort('languageId', 'DESC'));
 
@@ -72,6 +73,10 @@ export default {
             }
 
             return criteria;
+        },
+
+        hasSalesChannelDomains() {
+            return this.salesChannelDomains !== null && this.salesChannelDomains.length > 0;
         },
     },
 
@@ -99,7 +104,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationImitateCustomerErrorMessage'),
+                        message: this.$t('sw-customer.detail.notificationImitateCustomerErrorMessage'),
                     });
                 });
         },

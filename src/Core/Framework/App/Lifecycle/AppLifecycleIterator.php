@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -17,6 +20,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppLifecycleIterator
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AppLoader $appLoader
@@ -28,8 +34,12 @@ class AppLifecycleIterator
      *
      * @return list<array{manifest: Manifest, exception: \Exception}>
      */
-    public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context, array $installAppNames = []): array
-    {
+    public function iterateOverApps(
+        AbstractAppLifecycle $appLifecycle,
+        AppInstallParameters $parameters,
+        Context $context,
+        array $installAppNames = []
+    ): array {
         $appsFromFileSystem = $this->appLoader->load();
         $installedApps = $this->getRegisteredApps($context);
 
@@ -42,7 +52,7 @@ class AppLifecycleIterator
 
             try {
                 if (!\array_key_exists($manifest->getMetadata()->getName(), $installedApps)) {
-                    $appLifecycle->install($manifest, $activate, $context);
+                    $appLifecycle->install($manifest, $parameters, $context);
                     $successfulUpdates[] = $manifest->getMetadata()->getName();
 
                     continue;
@@ -50,7 +60,12 @@ class AppLifecycleIterator
 
                 $app = $installedApps[$manifest->getMetadata()->getName()];
                 if (version_compare($manifest->getMetadata()->getVersion(), $app['version']) > 0) {
-                    $appLifecycle->update($manifest, $app, $context);
+                    $appLifecycle->update(
+                        $manifest,
+                        new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
+                        $app,
+                        $context
+                    );
                 }
                 $successfulUpdates[] = $manifest->getMetadata()->getName();
             } catch (\Exception $exception) {
@@ -61,7 +76,7 @@ class AppLifecycleIterator
             }
         }
 
-        if (empty($installAppNames)) {
+        if ($installAppNames === []) {
             $this->deleteNotFoundAndFailedInstallApps($this->getRegisteredApps($context), $successfulUpdates, $appLifecycle, $context);
         }
 

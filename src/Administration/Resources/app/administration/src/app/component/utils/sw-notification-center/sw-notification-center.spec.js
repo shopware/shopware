@@ -10,8 +10,6 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-notification-center-item': await wrapTestComponent('sw-notification-center-item'),
                 'sw-time-ago': await wrapTestComponent('sw-time-ago'),
@@ -35,7 +33,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);
@@ -58,7 +56,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(false);
@@ -81,7 +79,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         // opening the delete modal this way, because doing it via the DOM closes the context menu
@@ -91,7 +89,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await flushPromises();
 
         // re-opening the context menu, happens only in test
-        await wrapper.find('.sw-icon').trigger('click');
+        await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);

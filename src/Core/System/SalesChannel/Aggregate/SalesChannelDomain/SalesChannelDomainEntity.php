@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -35,6 +36,8 @@ class SalesChannelDomainEntity extends Entity
     protected string $languageId;
 
     protected ?LanguageEntity $language = null;
+
+    protected MeasurementUnits $measurementUnits;
 
     protected ?ProductExportCollection $productExports = null;
 
@@ -160,5 +163,15 @@ class SalesChannelDomainEntity extends Entity
     public function setSalesChannelDefaultHreflang(?SalesChannelEntity $salesChannelDefaultHreflang): void
     {
         $this->salesChannelDefaultHreflang = $salesChannelDefaultHreflang;
+    }
+
+    public function getMeasurementUnits(): MeasurementUnits
+    {
+        return $this->measurementUnits;
+    }
+
+    public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
+    {
+        $this->measurementUnits = $measurementUnits;
     }
 }

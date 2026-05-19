@@ -16,6 +16,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'solid-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -65,7 +70,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     systemConfigApiService: {
                         getConfig: () =>
                             Promise.resolve({
@@ -104,12 +113,14 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     </div>
                 `,
                     },
-                    'sw-number-field': true,
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: [
+                            'items',
+                            'dataSource',
+                        ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                             <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>
@@ -119,7 +130,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-language-switch': true,
                     'sw-context-menu-item': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-modal': true,
                     'router-link': true,
 
@@ -129,10 +139,8 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-skeleton': true,
                     'sw-skeleton-bar': true,
                     'sw-settings-tax-provider-sorting-modal': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
                     'sw-checkbox-field': true,
+                    'mt-number-field': true,
                 },
             },
         },
@@ -140,13 +148,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new tax', async () => {
         const wrapper = await createWrapper([
             'tax.creator',
@@ -327,7 +328,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {
@@ -339,7 +340,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
 
         const entityListing = wrapper.find('.sw-settings-tax-list-grid');
 
-        const taxRateField = entityListing.find('sw-number-field-stub');
+        const taxRateField = entityListing.find('mt-number-field-stub');
 
         expect(taxRateField.attributes('digits')).toBe('3');
     });

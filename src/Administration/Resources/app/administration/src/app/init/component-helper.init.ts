@@ -10,6 +10,7 @@ import {
     mapActions as mapVuexActions,
 } from 'vuex';
 import { mapState, mapActions } from 'pinia';
+import createTextEditorDataMappingButton from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping/index';
 
 import * as mapErrors from 'src/app/service/map-errors.service';
 
@@ -20,6 +21,7 @@ const componentHelper: ComponentHelper = {
     mapVuexMutations,
     mapVuexGetters,
     mapVuexActions,
+    createTextEditorDataMappingButton,
     ...mapErrors,
 };
 

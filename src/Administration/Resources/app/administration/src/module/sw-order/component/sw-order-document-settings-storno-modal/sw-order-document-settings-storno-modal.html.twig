@@ -6,35 +6,32 @@
     {% block sw_order_document_settings_modal_form_cancellation_document_number %}
     <mt-text-field
         v-model="documentNumber"
-        :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
+        class="sw-order-document-settings-storno-modal__document-number"
+        :label="$t('sw-order.documentModal.labelDocumentStornoNumber')"
+        :error="documentNumberErrorMessage"
+        required
     />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
-    <sw-select-field
-        v-model:value="documentConfig.custom.invoiceNumber"
+    <mt-select
+        v-model="documentConfig.custom.invoiceNumber"
         class="sw-order-document-settings-storno-modal__invoice-select"
-        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
-    >
-        <option
-            v-for="invoice in invoices"
-            :key="invoice.config.custom.invoiceNumber"
-            :value="invoice.config.custom.invoiceNumber"
-        >
-            {{ invoice.config.custom.invoiceNumber }}
-        </option>
-    </sw-select-field>
+        :label="$t('sw-order.documentModal.labelInvoiceNumber')"
+        :placeholder="$t('sw-order.documentModal.selectInvoiceNumber')"
+        :options="invoiceOptions"
+    />
     {% endblock %}
 
     {% block sw_order_document_settings_modal_form_cancellation_document_date %}
-    <sw-datepicker
-        v-model:value="documentConfig.documentDate"
+    <mt-datepicker
+        v-model="documentConfig.documentDate"
+        class="sw-order-document-settings-storno-modal__document-date"
         date-type="date"
-        required
         hide-hint
-        :label="$tc('sw-order.documentModal.labelDocumentDate')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-order.documentModal.labelDocumentDate')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
+        required
     />
     {% endblock %}
 </sw-container>

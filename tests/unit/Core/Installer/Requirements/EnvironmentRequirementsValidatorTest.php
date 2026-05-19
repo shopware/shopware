@@ -24,9 +24,9 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 class EnvironmentRequirementsValidatorTest extends TestCase
 {
     /**
-     * @param array<string, string> $composerOverrides
+     * @param array<string, string|false> $composerOverrides
      * @param array<string, Link> $requires
-     * @param SystemCheck[] $expectedChecks
+     * @param list<SystemCheck> $expectedChecks
      */
     #[DataProvider('composerRequirementsProvider')]
     public function testValidateRequirements(?string $coreComposerName, array $composerOverrides, array $requires, array $expectedChecks): void
@@ -50,9 +50,9 @@ class EnvironmentRequirementsValidatorTest extends TestCase
         $composer->method('getRepositoryManager')->willReturn($repoManagerMock);
 
         if ($coreComposerName) {
-            $composer->expects(static::never())->method('getPackage');
+            $composer->expects($this->never())->method('getPackage');
         } else {
-            $composer->expects(static::once())->method('getPackage')->willReturn($corePackage);
+            $composer->expects($this->once())->method('getPackage')->willReturn($corePackage);
         }
 
         $validator = new EnvironmentRequirementsValidator($composer, $systemEnvironment);

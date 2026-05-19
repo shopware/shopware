@@ -9,7 +9,7 @@
         class="sw-meteor-navigation__link"
     >
         {% block sw_meteor_navigation_link_icon %}
-        <sw-icon
+        <mt-icon
             class="sw-meteor-navigation__back-arrow"
             name="solid-long-arrow-left"
             size="12px"
@@ -17,7 +17,7 @@
         {% endblock %}
 
         {% block sw_meteor_navigation_link_label %}
-        {{ $tc('sw-meteor.navigation.backButton') }}
+        {{ $t('sw-meteor.navigation.backButton') }}
         {% endblock %}
     </router-link>
     {% endblock %}

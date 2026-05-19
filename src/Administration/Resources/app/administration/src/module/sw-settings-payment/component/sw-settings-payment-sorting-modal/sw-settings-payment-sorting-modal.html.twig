@@ -1,7 +1,7 @@
 {% block sw_settings_payment_sorting_modal %}
 <sw-modal
     class="sw-settings-payment-sorting-modal"
-    :title="$tc('sw-settings-payment.sorting-modal.modalTitle')"
+    :title="$t('sw-settings-payment.sorting-modal.modalTitle')"
     @modal-close="closeModal"
 >
 
@@ -10,7 +10,7 @@
 
         {% block sw_settings_payment_sorting_modal_content_subtitle %}
         <div class="sw-modal__body sw-settings-payment-sorting-modal__subtitle">
-            {{ $tc('sw-settings-payment.sorting-modal.subTitle') }}
+            {{ $t('sw-settings-payment.sorting-modal.subTitle') }}
         </div>
         {% endblock %}
 
@@ -30,7 +30,7 @@
                         :class="!paymentMethod.active ? 'is--disabled' : ''"
                     >
                         {% block sw_settings_payment_sorting_modal_content_payment_method_action %}
-                        <sw-icon
+                        <mt-icon
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__action"
                             name="regular-grip-vertical"
                         />
@@ -39,7 +39,7 @@
                         <img
                             v-if="isShopwareDefaultPaymentMethod(paymentMethod)"
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__icon"
-                            :src="assetFilter('/administration/static/img/checkout/shopware_payment_method.svg')"
+                            :src="assetFilter('/administration/administration/static/img/checkout/shopware_payment_method.svg')"
                             alt=""
                         >
                         <sw-media-preview-v2
@@ -69,9 +69,10 @@
         {% block sw_settings_payment_sorting_modal_footer_cancel_button %}
         <mt-button
             class="sw-settings-payment-sorting-modal__cancel-button"
+            variant="secondary"
             @click="closeModal"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -79,12 +80,13 @@
         <sw-button-process
             class="sw-settings-payment-sorting-modal__save-button"
             variant="primary"
+            size="small"
             :is-loading="isSaving"
             :disabled="!acl.can('category.editor')"
             :process-success="false"
             @click="applyChanges"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
         {% endblock %}
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,6 +21,9 @@ class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';
 
+    /**
+     * @param EntityRepository<AppCollection> $appRepo
+     */
     public function __construct(
         EntityRepository $appRepo,
         private readonly AppStateService $appStateService

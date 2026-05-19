@@ -63,22 +63,22 @@ class PaymentMethodDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            new FkField('plugin_id', 'pluginId', PluginDefinition::class),
-            new StringField('handler_identifier', 'handlerIdentifier'),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of payment method.'),
+            (new FkField('plugin_id', 'pluginId', PluginDefinition::class))->setDescription('Unique identity of plugin.'),
+            (new StringField('handler_identifier', 'handlerIdentifier'))->setDescription('Internal field that contains system identifier details for payment methods like Paypal.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new TranslatedField('distinguishableName'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('description'))->addFlags(new ApiAware()),
-            (new IntField('position', 'position'))->addFlags(new ApiAware()),
-            (new BoolField('active', 'active'))->addFlags(new ApiAware()),
-            (new BoolField('after_order_enabled', 'afterOrderEnabled'))->addFlags(new ApiAware()),
+            (new IntField('position', 'position'))->addFlags(new ApiAware())->setDescription('The order of the tabs of your defined payment methods in the storefront by entering numerical values like 1,2,3, etc.'),
+            (new BoolField('active', 'active'))->addFlags(new ApiAware())->setDescription('When boolean value is `true`, the payment methods are available for selection in the storefront.'),
+            (new BoolField('after_order_enabled', 'afterOrderEnabled'))->addFlags(new ApiAware())->setDescription('When set to true, customers are redirected to the payment options page to choose a new payment method on order failure.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
-            new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
-            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware()),
+            (new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class))->setDescription('Unique identity of rule.'),
+            (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of media.'),
             (new StringField('formatted_handler_identifier', 'formattedHandlerIdentifier'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()),
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new ApiAware(), new Required()),
-            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
+            (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware())->setDescription('Payment method logo or icon image'),
             new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class, 'id'),
 
             // Reverse Associations, not available in store-api

@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -61,7 +62,7 @@ class AccountEditOrderPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountEditOrderPage
     {
-        if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
+        if (!$salesChannelContext->getCustomer() && !$request->query->getBoolean('deepLinkCode')) {
             throw CartException::customerNotLoggedIn();
         }
 
@@ -86,7 +87,7 @@ class AccountEditOrderPageLoader
         $page->setOrder($order);
         $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
-        $page->setDeepLinkCode($request->get('deepLinkCode'));
+        $page->setDeepLinkCode($request->query->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
             new AccountEditOrderPageLoadedEvent($page, $salesChannelContext, $request)
@@ -111,7 +112,7 @@ class AccountEditOrderPageLoader
     {
         $criteria = $this->createCriteria($request, $context);
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('checkPromotion', 'true');
+        $apiRequest->query->set('checkPromotion', true);
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
@@ -122,30 +123,45 @@ class AccountEditOrderPageLoader
 
     private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
-        if ($request->get('orderId')) {
-            $criteria = new Criteria([$request->get('orderId')]);
+        $orderId = $request->attributes->getString('orderId');
+        if ($orderId) {
+            $criteria = new Criteria([$orderId]);
         } else {
+            if (Feature::isActive('v6.8.0.0')) {
+                throw OrderException::invalidUuid($orderId);
+            }
             $criteria = new Criteria();
         }
-        $criteria->addAssociation('lineItems.cover')
+
+        $criteria
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.salutation')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.country')
+            ->addAssociation('primaryOrderDelivery.shippingOrderAddress.countryState')
+            ->addAssociation('primaryOrderDelivery.stateMachineState')
+            ->addAssociation('primaryOrderTransaction.stateMachineState')
+            ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('billingAddress.countryState')
-            ->addAssociation('deliveries.shippingOrderAddress.salutation')
-            ->addAssociation('deliveries.shippingOrderAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.countryState')
-            ->addAssociation('deliveries.stateMachineState')
-            ->addAssociation('transactions.stateMachineState')
-            ->addAssociation('stateMachineState');
+            ->addAssociation('stateMachineState')
+            ->addAssociation('billingAddress.countryState');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria
+                ->addAssociation('deliveries.shippingOrderAddress.salutation')
+                ->addAssociation('deliveries.shippingOrderAddress.country')
+                ->addAssociation('deliveries.shippingOrderAddress.countryState')
+                ->addAssociation('deliveries.stateMachineState')
+                ->addAssociation('transactions.stateMachineState');
+        }
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
-        } elseif ($request->get('deepLinkCode')) {
-            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));
+        } elseif ($request->query->get('deepLinkCode')) {
+            $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->query->get('deepLinkCode')));
         } else {
             throw CartException::customerNotLoggedIn();
         }
@@ -156,6 +172,7 @@ class AccountEditOrderPageLoader
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
         $routeRequest = $request->duplicate();
+        $routeRequest->query->set('onlyAvailable', '1');
 
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
@@ -187,13 +204,18 @@ class AccountEditOrderPageLoader
 
     private function isOrderPaid(OrderEntity $order): bool
     {
-        $transactions = $order->getTransactions();
+        $transaction = $order->getPrimaryOrderTransaction();
 
-        if ($transactions === null) {
-            return false;
+        if (!Feature::isActive('v6.8.0.0')) {
+            $transactions = $order->getTransactions();
+
+            if ($transactions === null) {
+                return false;
+            }
+
+            $transaction = $transactions->last();
         }
 
-        $transaction = $transactions->last();
         if ($transaction === null) {
             return false;
         }

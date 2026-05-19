@@ -39,10 +39,6 @@ describe('sw-bulk-edit-order-documents', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should search for document types when component created', async () => {
         wrapper.vm.documentTypeRepository.search = jest.fn().mockReturnValue(Promise.resolve([]));
 
@@ -67,7 +63,7 @@ describe('sw-bulk-edit-order-documents', () => {
             },
         });
 
-        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeTruthy();
+        expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(true);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeDefined();
 
         await wrapper.setProps({
@@ -75,7 +71,7 @@ describe('sw-bulk-edit-order-documents', () => {
                 disabled: false,
             },
         });
-        expect(wrapper.find('sw-checkbox-field-stub').attributes().disabled).toBeUndefined();
+        expect(wrapper.findComponent('.mt-field--checkbox__container').props().disabled).toBe(false);
         expect(wrapper.findComponent('.mt-switch').props().disabled).toBeUndefined();
     });
 });

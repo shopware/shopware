@@ -249,7 +249,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     {
         $validator = $this->createMock(DataValidator::class);
         $validator
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('getViolations');
 
         $checkoutConfirmPageLoader = $this->createLoader(validator: $validator);
@@ -277,7 +277,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             addressValidationFactory: $addressValidationMock,
         );
 
-        $addressValidationMock->expects(static::exactly(2))->method('create')->willReturnOnConsecutiveCalls(
+        $addressValidationMock->expects($this->exactly(2))->method('create')->willReturnOnConsecutiveCalls(
             new DataValidationDefinition('address.create'),
             new DataValidationDefinition('address.update'),
         );
@@ -296,7 +296,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
     {
         $cartService = $this->createMock(StorefrontCartFacade::class);
         $cartService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('get')
             ->with(null, static::isInstanceOf(SalesChannelContext::class), false, true);
 
@@ -322,7 +322,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
         $addressValidation->method('create')->willReturn(new DataValidationDefinition('address.create'));
 
         $dispatcher = $this->createMock(EventDispatcher::class);
-        $dispatcher->method('dispatch')->willReturnCallback(function ($validationEvent) use ($countryId) {
+        $dispatcher->method('dispatch')->willReturnCallback(static function ($validationEvent) use ($countryId) {
             if (!$validationEvent instanceof BuildValidationEvent) {
                 return $validationEvent;
             }
@@ -335,7 +335,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
 
             $message = $zipcode->getMessage();
 
-            static::assertSame($message, (new CustomerZipCode(['countryId' => $countryId]))->getMessage());
+            static::assertSame($message, (new CustomerZipCode(countryId: $countryId))->getMessage());
 
             return $validationEvent;
         });

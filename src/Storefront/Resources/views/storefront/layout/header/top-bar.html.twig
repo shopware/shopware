@@ -5,7 +5,6 @@
             {% if header.languages.count > 1 or header.currencies.count > 1 %}
                 <nav class="top-bar-nav d-flex justify-content-end gap-3"
                      aria-label="{{ 'header.topBarAriaLabel'|trans|striptags }}">
-
                     {% block layout_header_top_bar_language %}
                         {% sw_include '@Storefront/storefront/layout/header/actions/language-widget.html.twig' %}
                     {% endblock %}

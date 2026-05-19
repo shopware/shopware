@@ -13,7 +13,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-shipping-zip-code :condition="condition" :level="0"></sw-condition-shipping-zip-code>
  */
-Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -56,9 +57,9 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
         },
 
         taggedFieldPlaceholder() {
-            const defaultPlaceholder = this.$tc('global.sw-tagged-field.text-default-placeholder');
+            const defaultPlaceholder = this.$t('global.sw-tagged-field.text-default-placeholder');
 
-            return `${defaultPlaceholder} ${this.$tc('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
+            return `${defaultPlaceholder} ${this.$t('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
         ...mapPropertyErrors('condition', [
@@ -74,11 +75,11 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
             return [
                 {
                     value: false,
-                    label: this.$tc('sw-property.detail.alphanumericSortingType'),
+                    label: this.$t('sw-property.detail.alphanumericSortingType'),
                 },
                 {
                     value: true,
-                    label: this.$tc('sw-property.detail.numericSortingType'),
+                    label: this.$t('sw-property.detail.numericSortingType'),
                 },
             ];
         },
@@ -110,4 +111,4 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
             this.condition.value.operator = undefined;
         },
     },
-});
+};

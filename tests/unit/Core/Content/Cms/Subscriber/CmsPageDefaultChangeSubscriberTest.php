@@ -34,7 +34,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
             EntityDeleteEvent::class => 'beforeDeletion',
         ];
 
-        static::assertEquals($expectedEvents, CmsPageDefaultChangeSubscriber::getSubscribedEvents());
+        static::assertSame($expectedEvents, CmsPageDefaultChangeSubscriber::getSubscribedEvents());
     }
 
     /**
@@ -202,7 +202,7 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<array{method: string, with: array<mixed>, willReturn: mixed}> $configurations
+     * @param array<array{method: string, with: list<mixed>, willReturn: mixed}> $configurations
      */
     private function getConnectionMock(array $configurations = []): Connection
     {
@@ -220,7 +220,9 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
 
     private function getFetchAllAssociativeConnection(string $id): Connection
     {
-        $config[]['configuration_value'] = json_encode(['_value' => $id], \JSON_THROW_ON_ERROR);
+        $config = [
+            ['configuration_value' => json_encode(['_value' => $id], \JSON_THROW_ON_ERROR)],
+        ];
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')

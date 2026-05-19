@@ -287,7 +287,6 @@ async function createWrapper() {
                 },
                 'sw-label': true,
                 'sw-simple-search-field': true,
-                'sw-empty-state': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -335,7 +334,6 @@ async function createWrapper() {
                         },
                     },
                 },
-                'sw-icon': true,
                 'sw-data-grid': {
                     template: `
                         <div class="sw-data-grid">
@@ -350,7 +348,7 @@ async function createWrapper() {
                 'sw-media-preview-v2': true,
                 'router-link': true,
                 'sw-product-variant-info': true,
-                'sw-number-field': true,
+                'mt-number-field': true,
                 'sw-inheritance-switch': true,
                 'sw-price-preview': true,
                 'sw-color-badge': true,
@@ -359,6 +357,15 @@ async function createWrapper() {
                 'sw-price-field': true,
                 'sw-pagination': true,
                 'sw-button-process': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
             },
         },
     });
@@ -370,11 +377,6 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort options by their position', async () => {

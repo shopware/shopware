@@ -2,6 +2,7 @@
 {# New mt-textarea component #}
 {% block sw_textarea_field %}
 <mt-textarea
+    v-if="!deprecated"
     v-bind="$attrs"
     v-model="realValue"
     :placeholder="placeholder"
@@ -19,5 +20,21 @@
 </mt-textarea>
 {% endblock %}
 
-{% block sw_textarea_field_deprecated %}
-{% endblock %}
+<sw-textarea-field-deprecated
+    v-else
+    v-bind="$attrs"
+    v-model:value="realValue"
+    :value="value"
+    :placeholder="placeholder"
+>
+    <template
+        v-for="(index, name) in getSlots()"
+        #[name]="data"
+    >
+        <slot
+            :name="name"
+            v-bind="data || {}"
+        >
+        </slot>
+    </template>
+</sw-textarea-field-deprecated>

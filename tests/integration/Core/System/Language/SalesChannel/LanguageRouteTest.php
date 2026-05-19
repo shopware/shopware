@@ -124,13 +124,13 @@ class LanguageRouteTest extends TestCase
         static::getContainer()->get('locale.repository')->create([
             [
                 'id' => $this->ids->get('locale-1'),
-                'code' => 'locale-1',
+                'code' => 'de-DE-1',
                 'name' => 'locale-1',
                 'territory' => 'locale-1',
             ],
             [
                 'id' => $this->ids->get('locale-2'),
-                'code' => 'locale-2',
+                'code' => 'de-DE-2',
                 'name' => 'locale-2',
                 'territory' => 'locale-2',
             ],
@@ -141,12 +141,14 @@ class LanguageRouteTest extends TestCase
                 'id' => $this->ids->create('language'),
                 'name' => 'match',
                 'localeId' => $this->ids->get('locale-1'),
+                'active' => true,
                 'translationCodeId' => $this->ids->get('locale-1'),
             ],
             [
                 'id' => $this->ids->create('language2'),
                 'name' => 'match2',
                 'localeId' => $this->ids->get('locale-2'),
+                'active' => true,
                 'translationCodeId' => $this->ids->get('locale-2'),
             ],
         ];

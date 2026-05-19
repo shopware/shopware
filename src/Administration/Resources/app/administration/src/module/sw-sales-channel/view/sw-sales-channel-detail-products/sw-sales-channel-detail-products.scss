@@ -1,5 +1,5 @@
 .sw-sales-channel-detail-products {
-    &.sw-card .sw-card__content {
+    &.sw-card .mt-card__content {
         min-height: 420px;
         padding: 0;
     }
@@ -11,5 +11,9 @@
 
     .sw-data-grid .sw-data-grid__bulk-selected {
         margin: 12px 8px;
+    }
+
+    .mt-card__content {
+        padding: 0;
     }
 }

@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -60,7 +59,7 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
         if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
             $orderCustomer = $this->order->getOrderCustomer();
             if (!$orderCustomer) {
-                throw new AssociationNotFoundException('orderCustomer');
+                throw OrderException::associationNotFound('orderCustomer');
             }
 
             $this->mailRecipientStruct = new MailRecipientStruct([
@@ -84,8 +83,8 @@ class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware,
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('order', new EntityType(OrderDefinition::class))
-            ->add('orderTransaction', new EntityType(OrderTransactionDefinition::class));
+            ->add(OrderAware::ORDER, new EntityType(OrderDefinition::class))
+            ->add(OrderTransactionAware::ORDER_TRANSACTION, new EntityType(OrderTransactionDefinition::class));
     }
 
     public function getCustomerId(): string

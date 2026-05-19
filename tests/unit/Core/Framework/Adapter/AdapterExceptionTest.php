@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Node\Expression\AbstractExpression;
 
@@ -15,6 +17,29 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    public function testUnsupportedOperator(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(AdapterException::OPERATOR_NOT_SUPPORTED, $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame(['operator' => '$', 'class' => 'testClass'], $exception->getParameters());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testUnsupportedOperatorDeprecated(): void
+    {
+        $exception = AdapterException::unsupportedOperator('$', 'testClass');
+
+        static::assertInstanceOf(UnsupportedOperatorException::class, $exception);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('CONTENT__RULE_OPERATOR_NOT_SUPPORTED', $exception->getErrorCode());
+        static::assertSame('Unsupported operator $ in testClass', $exception->getMessage());
+        static::assertSame('$', $exception->getOperator());
+        static::assertSame('testClass', $exception->getClass());
+    }
+
     public function testUnexpectedTwigExpression(): void
     {
         /** @var AbstractExpression&MockObject $expression */
@@ -76,5 +101,35 @@ class AdapterExceptionTest extends TestCase
         static::assertSame(AdapterException::INVALID_ARGUMENT, $exception->getErrorCode());
         static::assertSame('test', $exception->getMessage());
         static::assertEmpty($exception->getParameters());
+    }
+
+    public function testMissingRequiredParameter(): void
+    {
+        $exception = AdapterException::missingRequiredParameter('test');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(AdapterException::MISSING_REQUIRED_PARAMETER, $exception->getErrorCode());
+        static::assertSame('Parameter "test" is required but not found in the container.', $exception->getMessage());
+        static::assertSame(['parameter' => 'test'], $exception->getParameters());
+    }
+
+    public function testInvalidCachePolicyConfiguration(): void
+    {
+        $exception = AdapterException::invalidCachePolicyConfiguration('missing required parameter test');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(AdapterException::INVALID_CACHE_POLICY_CONFIGURATION, $exception->getErrorCode());
+        static::assertSame('Used cache policy configuration is invalid: missing required parameter test', $exception->getMessage());
+        static::assertSame(['error' => 'missing required parameter test'], $exception->getParameters());
+    }
+
+    public function testCacheCleanerLocked(): void
+    {
+        $exception = AdapterException::cacheCleanerLocked('operationName', 'keyValue');
+
+        static::assertSame(Response::HTTP_CONFLICT, $exception->getStatusCode());
+        static::assertSame(AdapterException::CACHE_CLEARER_LOCKED, $exception->getErrorCode());
+        static::assertSame('Cache clearing operation "operationName" with key "keyValue" is already running. Please trigger cache clear later.', $exception->getMessage());
+        static::assertSame(['operation' => 'operationName', 'key' => 'keyValue'], $exception->getParameters());
     }
 }

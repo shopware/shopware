@@ -136,8 +136,8 @@ class TaxProviderProcessorTest extends TestCase
         $lineItemTax = $lineItemTaxes['7'];
         $deliveryTax = $deliveryTaxes['7'];
 
-        static::assertEquals(7, $lineItemTax->getTaxRate());
-        static::assertEquals(7, $deliveryTax->getTaxRate());
+        static::assertSame(7.0, $lineItemTax->getTaxRate());
+        static::assertSame(7.0, $deliveryTax->getTaxRate());
     }
 
     public function testNoTaxResultsGivenDoesNoAdjustment(): void
@@ -153,7 +153,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $testProvider = $this->createMock(TestEmptyTaxProvider::class);
         $testProvider
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('provide')
             ->with($cart, $salesChannelContext)
             ->willReturn($taxProviderStruct);
@@ -161,12 +161,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) use ($testProvider) {
+            ->willReturnCallback(static function (string $identifier) use ($testProvider) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return $testProvider;
                 }
@@ -196,7 +196,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $adjustment = $this->createMock(TaxAdjustment::class);
         $adjustment
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $processor = new TaxProviderProcessor(
@@ -270,12 +270,12 @@ class TaxProviderProcessorTest extends TestCase
         $taxProviderRegistry = $this->createMock(TaxProviderRegistry::class);
         $taxProviderRegistry
             ->method('has')
-            ->willReturnCallback(fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
+            ->willReturnCallback(static fn (string $identifier) => $identifier === TestEmptyTaxProvider::class);
 
         $taxProviderRegistry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestEmptyTaxProvider::class) {
                     return new TestEmptyTaxProvider();
                 }
@@ -340,7 +340,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $processor = new TaxProviderProcessor(
@@ -364,7 +364,7 @@ class TaxProviderProcessorTest extends TestCase
         $registry
             ->method('get')
             ->withAnyParameters()
-            ->willReturnCallback(function (string $identifier) {
+            ->willReturnCallback(static function (string $identifier) {
                 if ($identifier === TestGenericExceptionTaxProvider::class) {
                     return new TestGenericExceptionTaxProvider();
                 }
@@ -397,7 +397,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('error')
             ->with('There were 1 errors while fetching taxes from providers: ' . \PHP_EOL . 'Tax provider \'Shopware\\Tests\\Unit\\Core\\Checkout\\Cart\\TaxProvider\\_fixtures\\TestGenericExceptionTaxProvider\' threw an exception: Test exception' . \PHP_EOL);
 
@@ -454,7 +454,7 @@ class TaxProviderProcessorTest extends TestCase
 
         $taxProviderPayloadService = $this->createMock(TaxProviderPayloadService::class);
         $taxProviderPayloadService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('request')
             ->with(
                 'https://example.com',
@@ -479,27 +479,27 @@ class TaxProviderProcessorTest extends TestCase
     {
         $repo = $this->createMock(EntityRepository::class);
         $repo
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('search');
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('error');
 
         $taxAdjuster = $this->createMock(TaxAdjustment::class);
         $taxAdjuster
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('adjust');
 
         $registry = $this->createMock(TaxProviderRegistry::class);
         $registry
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('get');
 
         $payloadService = $this->createMock(TaxProviderPayloadService::class);
         $payloadService
-            ->expects(static::never())
+            ->expects($this->never())
             ->method('request');
 
         $processor = new TaxProviderProcessor(

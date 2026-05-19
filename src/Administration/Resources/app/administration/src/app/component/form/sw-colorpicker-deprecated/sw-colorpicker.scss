@@ -331,7 +331,7 @@
     cursor: pointer;
 }
 
-.sw-field__addition .sw-colorpicker__trigger .sw-icon {
+.sw-field__addition .sw-colorpicker__trigger .mt-icon {
     line-height: 16px;
 }
 
@@ -342,5 +342,9 @@
             transform: rotate(225deg);
         }
     }
+}
+
+.sw-popover__wrapper:has(.sw-colorpicker__colorpicker) {
+    z-index: 1000;
 }
 /* stylelint-enable */

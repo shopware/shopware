@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\Visibility;
@@ -14,26 +15,67 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  */
 #[AsMessageHandler]
 #[Package('discovery')]
-final class DeleteFileHandler
+final readonly class DeleteFileHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly FilesystemOperator $filesystemPublic,
-        private readonly FilesystemOperator $filesystemPrivate
+        private FilesystemOperator $filesystemPublic,
+        private FilesystemOperator $filesystemPrivate
     ) {
     }
 
     public function __invoke(DeleteFileMessage $message): void
     {
+        $filesystem = $this->getFileSystem($message->getVisibility());
+
         foreach ($message->getFiles() as $file) {
             try {
-                $this->getFileSystem($message->getVisibility())->delete($file);
+                $filesystem->delete($file);
             } catch (UnableToDeleteFile) {
                 // ignore file is already deleted
             }
         }
+
+        if (!$message->isDeleteEmptyDirectories()) {
+            return;
+        }
+
+        foreach ($message->getFiles() as $file) {
+            try {
+                $this->deleteEmptyDirectories($filesystem, $file);
+            } catch (FilesystemException) {
+                // ignore already deleted directories
+            }
+        }
+    }
+
+    private function deleteEmptyDirectories(FilesystemOperator $filesystem, string $path): void
+    {
+        $directory = \dirname($path);
+
+        if (
+            $directory === ''
+            || \dirname($directory) === '.'
+            || \dirname($directory) === '/'
+            || !$this->isDirectoryEmpty($filesystem, $directory)
+        ) {
+            return;
+        }
+
+        $filesystem->deleteDirectory($directory);
+
+        $this->deleteEmptyDirectories($filesystem, $directory);
+    }
+
+    private function isDirectoryEmpty(FilesystemOperator $filesystem, string $path): bool
+    {
+        foreach ($filesystem->listContents($path) as $ignored) {
+            return false;
+        }
+
+        return true;
     }
 
     private function getFileSystem(string $visibility): FilesystemOperator

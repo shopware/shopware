@@ -39,9 +39,9 @@ class ExtensionCompatibility
      * @internal
      */
     public function __construct(
-        private StoreClient $storeClient,
-        private AbstractExtensionDataProvider $extensionDataProvider,
-        private EventDispatcherInterface $eventDispatcher,
+        private readonly StoreClient $storeClient,
+        private readonly AbstractExtensionDataProvider $extensionDataProvider,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 

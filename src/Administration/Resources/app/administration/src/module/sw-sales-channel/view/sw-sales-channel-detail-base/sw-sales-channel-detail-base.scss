@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
+$sw-sales-channel-detail-color-text-access-key: var(--color-text-primary-default);
 
 .sw-sales-channel-detail-base {
     .sw-sales-channel-detail-base__secret-help-text-alert {
@@ -31,7 +31,7 @@ $sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
     .sw-sales-channel-detail-base__delete {
         margin-top: 30px;
         padding-top: 30px;
-        border-top: 1px solid $color-gray-300;
+        border-top: 1px solid var(--color-border-primary-default);
     }
 
     .sw-sales-channel-detail-base__headline {
@@ -39,12 +39,17 @@ $sw-sales-channel-detail-color-text-access-key: $color-darkgray-200;
     }
 
     .sw-sales-channel-detail-base__headline-text {
-        font-weight: bold;
+        font-weight: $font-weight-semi-bold;
+        font-size: $font-size-s;
     }
 
     .sw-sales-channel-detail-base__description-text {
         font-size: $font-size-xs;
         margin-bottom: 20px;
+    }
+
+    .sw-sales-channel-detail-base__agentic-commerce-config-hint {
+        margin-bottom: 8px;
     }
 
     .sw-sales-channel-detail__action-buttons {

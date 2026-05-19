@@ -65,8 +65,9 @@
                                             v-bind="getBind(customField, props)"
                                             :key="props.isInherited"
                                             :class="'sw-form-field-renderer-input-field__' + customField.name"
-                                            :disabled="disabled || props.isInherited"
+                                            :disabled="disabled"
                                             :value="props.currentValue"
+                                            v-on="getElementEventListeners(customField, props)"
                                             @update:value="props.updateCurrentValue"
                                         />
                                     </template>
@@ -117,7 +118,7 @@
                             @update:process-success="$emit('process-finish')"
                             @click="$emit('save')"
                         >
-                            {{ $tc('global.default.save') }}
+                            {{ $t('global.default.save') }}
                         </sw-button-process>
                     {% endblock %}
                     </template>

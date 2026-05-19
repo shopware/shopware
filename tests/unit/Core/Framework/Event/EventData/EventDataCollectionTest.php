@@ -33,6 +33,6 @@ class EventDataCollectionTest extends TestCase
             ],
         ];
 
-        static::assertEquals($expected, $collection->toArray());
+        static::assertSame($expected, $collection->toArray());
     }
 }

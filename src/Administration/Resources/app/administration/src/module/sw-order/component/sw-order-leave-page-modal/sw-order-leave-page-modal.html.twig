@@ -1,12 +1,12 @@
 {% block sw_order_leave_page_modal %}
 <sw-modal
-    :title="$tc('sw-order.leavePageModal.headline')"
+    :title="$t('sw-order.leavePageModal.headline')"
     variant="small"
     @modal-close="onCancel"
 >
 
     {% block sw_order_leave_page_modal_content %}
-    {{ $tc('sw-order.leavePageModal.description') }}
+    {{ $t('sw-order.leavePageModal.description') }}
     {% endblock %}
 
     <template #modal-footer>
@@ -14,9 +14,11 @@
         {% block sw_order_leave_page_modal_action_cancel %}
         <mt-button
             size="small"
+            variant="secondary"
+            data-analytics-id="sw-order-leave-page-modal.cancel"
             @click="onCancel"
         >
-            {{ $tc('sw-order.leavePageModal.cancelButton') }}
+            {{ $t('sw-order.leavePageModal.cancelButton') }}
         </mt-button>
         {% endblock %}
 
@@ -24,9 +26,10 @@
         <mt-button
             variant="primary"
             size="small"
+            data-analytics-id="sw-order-leave-page-modal.confirm"
             @click="onConfirm"
         >
-            {{ $tc('sw-order.leavePageModal.confirmButton') }}
+            {{ $t('sw-order.leavePageModal.confirmButton') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

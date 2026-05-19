@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Store;
 
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,10 +21,9 @@ trait ServiceBehaviour
         $appRepository = static::getContainer()->get('app.repository');
         $idResult = $appRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
-        /** @var array<string> $ids */
         $ids = $idResult->getIds();
         if (\count($ids)) {
-            $appRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
+            $appRepository->delete(array_map(static fn (string $id) => ['id' => $id], $ids), Context::createDefaultContext());
         }
 
         $fs = new Filesystem();
@@ -36,7 +36,9 @@ trait ServiceBehaviour
         $manifest->getMetadata()->setSelfManaged(true);
 
         if ($install) {
-            static::getContainer()->get(AppLifecycle::class)->install($manifest, true, Context::createDefaultContext());
+            static::getContainer()
+                ->get(AppLifecycle::class)
+                ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
         }
     }
 }

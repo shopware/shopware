@@ -50,13 +50,13 @@
         {% endblock %}
 
         {% block component_line_item_children_elements %}
-            <div class="container line-item-children-elements collapse" id="{{ childrenCollapseId }}">
+            <ul class="container line-item-children-elements collapse list-unstyled" id="{{ childrenCollapseId }}">
                 {% for nestedLineItem in lineItem.children %}
                     {% sw_include '@Storefront/storefront/component/line-item/line-item.html.twig' with {
                         lineItem: nestedLineItem
                     } %}
                 {% endfor %}
-            </div>
+            </ul>
         {% endblock %}
     </div>
 {% endblock %}

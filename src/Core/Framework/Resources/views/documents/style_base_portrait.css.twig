@@ -1,10 +1,15 @@
 <style type="text/css">
     {% block document_style %}
         body {
-            font-family: 'Source Sans Pro', sans-serif;
+            font-family: 'Source Sans Pro', "DejaVu Sans", sans-serif;
             font-size: 12px;
             line-height: 12px;
             width: 100%;
+        }
+
+        main {
+            width: 100%;
+            float: right;
         }
 
         .letter-header {
@@ -48,6 +53,7 @@
         /*Page */
         @page {
             margin-top: 200px;
+            margin-bottom: 50px;
         }
 
         /* Header */
@@ -95,6 +101,7 @@
             width: 100%;
             border-spacing: 0 2px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         .line-item-table tbody tr:first-child > td {
@@ -102,7 +109,11 @@
         }
 
         .line-item-table tbody tr > td {
-            padding-bottom: 5px;
+            padding-bottom: 10px;
+            padding-left: 5px;
+            padding-right: 5px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .line-item-table tbody tr:first-child > .line-item-breakable .label-wrapper {
@@ -120,20 +131,26 @@
         }
 
         .line-item-table-header > th.product-number {
-            width: 200px;
+            width: 12%;
+            padding-right: 10px;
         }
 
         .line-item-table-header > th.product-label {
-            width: 240px;
+            width: auto;
         }
 
         .line-item-table-header > th.numbers {
+            width: 7%;
             text-align: right;
+            padding-left: 10px;
+        }
+
+        .line-item-table-header > th.numbers.incl-vat {
+            width: 10%;
         }
 
         .line-item-table-header > th.incl-vat {
             position: relative;
-            width: auto;
         }
 
         .line-item-table-header > th.incl-vat > span {
@@ -224,9 +241,6 @@
 
         .payment-shipping-container, .shipping-address-container, .sum-container {
             page-break-inside: avoid;
-        }
-
-        .payment-shipping-container {
             clear: right;
         }
 
@@ -257,9 +271,8 @@
         /* Footer */
         footer {
             position: fixed;
-            bottom: 30px;
+            bottom: 10px;
             font-size: 8px;
-            padding-top: 30px;
             line-height: 9px;
             width: 100%;
         }

@@ -29,9 +29,14 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
     public const CUSTOM_FIELD_NAME_PATTERN = '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/';
 
     /**
-     * @var array<string, mixed>
+     * @var ?array<string, mixed>
      */
-    private array $customFields = [];
+    private ?array $customFields = null;
+
+    /**
+     * @var array<string, Field>
+     */
+    private array $customFieldObjects = [];
 
     /**
      * @internal
@@ -40,15 +45,15 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
     {
     }
 
-    public function getCustomField(string $attributeName): ?Field
+    public function getCustomField(string $attributeName): Field
     {
-        $type = $this->getCustomFields()[$attributeName] ?? null;
-
-        if (!$type) {
-            return null;
+        if (isset($this->customFieldObjects[$attributeName])) {
+            return $this->customFieldObjects[$attributeName];
         }
 
-        return match ($type) {
+        $type = $this->getCustomFields()[$attributeName] ?? null;
+
+        $object = match ($type) {
             CustomFieldTypes::INT => (new IntField($attributeName, $attributeName))->addFlags(new ApiAware()),
             CustomFieldTypes::FLOAT => (new FloatField($attributeName, $attributeName))->addFlags(new ApiAware()),
             CustomFieldTypes::BOOL => (new BoolField($attributeName, $attributeName))->addFlags(new ApiAware()),
@@ -58,6 +63,8 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
             CustomFieldTypes::PRICE => (new PriceField($attributeName, $attributeName))->addFlags(new ApiAware()),
             default => (new JsonField($attributeName, $attributeName))->addFlags(new ApiAware()),
         };
+
+        return $this->customFieldObjects[$attributeName] = $object;
     }
 
     /**
@@ -76,11 +83,11 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
     {
         $commands = $event->getCommands();
 
-        if (empty($commands)) {
+        if ($commands === []) {
             return;
         }
 
-        $customFieldCommands = array_filter($commands, function ($command) {
+        $customFieldCommands = array_filter($commands, static function ($command) {
             return $command->getEntityName() === CustomFieldSetDefinition::ENTITY_NAME
                 || $command->getEntityName() === CustomFieldDefinition::ENTITY_NAME;
         });
@@ -92,7 +99,8 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
 
     public function reset(): void
     {
-        $this->customFields = [];
+        $this->customFields = null;
+        $this->customFieldObjects = [];
     }
 
     /**
@@ -116,17 +124,13 @@ class CustomFieldService implements EventSubscriberInterface, ResetInterface
      */
     private function getCustomFields(): array
     {
-        if (!empty($this->customFields)) {
+        if ($this->customFields !== null) {
             return $this->customFields;
         }
 
-        /** @var array<string, mixed> $customField */
-        $customField = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
+        /** @var array<string, mixed> */
+        $customFields = $this->connection->fetchAllKeyValue('SELECT `name`, `type` FROM `custom_field` WHERE `active` = 1');
 
-        if (!empty($customField)) {
-            $this->customFields = $customField;
-        }
-
-        return $this->customFields;
+        return $this->customFields = $customFields;
     }
 }

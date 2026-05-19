@@ -62,11 +62,11 @@ class PaymentRecurringProcessor
 
     private function getCurrentOrderTransaction(string $orderId, Context $context): OrderTransactionEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)));
-        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
-        $criteria->setLimit(1);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('stateId', $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE)))
+            ->addFilter(new EqualsFilter('orderId', $orderId))
+            ->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING))
+            ->setLimit(1);
 
         $transaction = $this->orderTransactionRepository->search($criteria, $context)->getEntities()->first();
 

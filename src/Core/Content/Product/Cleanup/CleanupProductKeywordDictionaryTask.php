@@ -17,4 +17,9 @@ class CleanupProductKeywordDictionaryTask extends ScheduledTask
     {
         return self::WEEKLY;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

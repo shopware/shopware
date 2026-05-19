@@ -13,6 +13,6 @@
 
     &__divider {
         border-bottom: 1px solid $color-gray-400;
-        transform: translateY(-40%);
+        transform: translateY(calc(-43px / 2));
     }
 }

@@ -3,11 +3,18 @@
 namespace Shopware\Core\Framework\Store;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
+use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
+use Shopware\Core\Framework\Store\Exception\ShopSecretInvalidException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
+use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
@@ -24,6 +31,13 @@ class StoreException extends HttpException
     public const MISSING_INTEGRATION_IN_CONTEXT_SOURCE = 'FRAMEWORK__STORE_MISSING_INTEGRATION_IN_CONTEXT_SOURCE';
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__STORE_MISSING_REQUEST_PARAMETER';
     public const INVALID_TYPE = 'FRAMEWORK__STORE_INVALID_TYPE';
+    public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__STORE_JWKS_NOT_FOUND';
+    public const PLUGIN_NOT_A_ZIP_FILE = 'FRAMEWORK__PLUGIN_NOT_A_ZIP_FILE';
+    public const INVALID_CONTEXT_SOURCE_USER = 'FRAMEWORK__INVALID_CONTEXT_SOURCE_USER';
+    public const STORE_LICENSE_DOMAIN_VALIDATION_FAILED = 'FRAMEWORK__STORE_LICENSE_DOMAIN_VALIDATION_FAILED';
+    public const STORE_INVALID_CREDENTIALS = 'FRAMEWORK__STORE_INVALID_CREDENTIALS';
+    public const STORE_SHOP_SECRET_INVALID = 'FRAMEWORK__STORE_SHOP_SECRET_INVALID';
+    public const STORE_TOKEN_IS_MISSING = 'FRAMEWORK__STORE_TOKEN_IS_MISSING';
 
     public static function cannotDeleteManaged(string $pluginName): self
     {
@@ -118,6 +132,23 @@ class StoreException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function jwksNotFound(?\Throwable $e = null): self|AppException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return AppException::jwksNotFound($e);
+        }
+
+        return new self(
+            statusCode: Response::HTTP_INTERNAL_SERVER_ERROR,
+            errorCode: self::JWKS_KEY_NOT_FOUND,
+            message: 'Unable to retrieve JWKS key',
+            previous: $e
+        );
+    }
+
     public static function missingIntegrationInContextSource(string $actualContextSource): StoreException
     {
         return new self(
@@ -150,5 +181,86 @@ class StoreException extends HttpException
     public static function storeError(ClientException $exception): self
     {
         return new StoreApiException($exception);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function pluginNotAZipFile(string $mimeType): self|PluginNotAZipFileException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new PluginNotAZipFileException($mimeType);
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_NOT_A_ZIP_FILE,
+            'Extension is not a zip file. Got "{{ mimeType }}"',
+            ['mimeType' => $mimeType]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self
+     */
+    public static function invalidContextSourceUser(string $contextSource): self|InvalidContextSourceUserException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new InvalidContextSourceUserException($contextSource);
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_CONTEXT_SOURCE_USER,
+            '{{ contextSource }} does not have a valid user ID',
+            ['contextSource' => $contextSource]
+        );
+    }
+
+    public static function licenseDomainVerificationFailure(string $domain): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STORE_LICENSE_DOMAIN_VALIDATION_FAILED,
+            'License host verification failed for domain "{{ domain }}.',
+            ['domain' => $domain],
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidCredentials(): self|StoreInvalidCredentialsException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new StoreInvalidCredentialsException();
+        }
+
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::STORE_INVALID_CREDENTIALS,
+            'Invalid credentials'
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function shopSecretInvalid(): self|ShopSecretInvalidException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new ShopSecretInvalidException();
+        }
+
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::STORE_SHOP_SECRET_INVALID,
+            'Store shop secret is invalid'
+        );
+    }
+
+    public static function storeTokenMissing(): self
+    {
+        return new StoreTokenMissingException();
     }
 }

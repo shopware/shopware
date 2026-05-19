@@ -5,13 +5,13 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context, Defaults } = Shopware;
+const { Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-product-stream-grid-preview', {
+export default {
     template,
 
     inject: [
@@ -25,7 +25,6 @@ Component.register('sw-product-stream-grid-preview', {
         /**
          * The apiFilter of a loaded product stream
          */
-        // eslint-disable-next-line vue/require-prop-types
         filters: {
             required: true,
         },
@@ -89,27 +88,27 @@ Component.register('sw-product-stream-grid-preview', {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturer'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturer'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -125,11 +124,11 @@ Component.register('sw-product-stream-grid-preview', {
 
         emptyStateMessage() {
             if (!this.filters) {
-                return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoStream');
+                return this.$t('global.entity-components.productStreamPreview.emptyMessageNoStream');
             }
 
             if (this.searchTerm.length) {
-                return this.$tc(
+                return this.$t(
                     'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
@@ -138,7 +137,7 @@ Component.register('sw-product-stream-grid-preview', {
                 );
             }
 
-            return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
+            return this.$t('global.entity-components.productStreamPreview.emptyMessageNoProducts');
         },
 
         assetFilter() {
@@ -188,11 +187,8 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         loadProducts() {
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.term = this.searchTerm || null;
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.filters = [...this.filters];
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.limit = this.limit;
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');
@@ -239,4 +235,4 @@ Component.register('sw-product-stream-grid-preview', {
             this.$emit('selection-change', products);
         },
     },
-});
+};

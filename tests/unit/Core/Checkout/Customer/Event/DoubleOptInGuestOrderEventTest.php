@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(DoubleOptInGuestOrderEvent::class)]
+#[Package('checkout')]
 class DoubleOptInGuestOrderEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -34,6 +36,6 @@ class DoubleOptInGuestOrderEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
-        static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
     }
 }

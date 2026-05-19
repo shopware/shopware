@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.8.0 - Will be removed, use mt-empty-state instead #}
 {% block sw_empty_state %}
 <div
     class="sw-empty-state"
@@ -10,7 +11,7 @@
         <div class="sw-empty-state__icon">
             <slot name="icon">
                 {% block sw_empty_state_slot_icon %}
-                <sw-icon
+                <mt-icon
                     :name="moduleIcon"
                     size="60px"
                     :color="moduleColor"

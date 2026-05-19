@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -34,7 +36,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -66,7 +68,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testWithCriteriaLimitOfZero(): void
@@ -76,7 +78,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -105,7 +107,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 
     public function testSearchWithCount(): void
@@ -115,14 +117,14 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => true,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -163,14 +165,14 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -210,16 +212,17 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'include_named_queries_score' => true,
+                'track_scores' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
                     'explain' => true,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -241,7 +244,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         );
 
         $context = Context::createDefaultContext();
-        $context->addState(ElasticsearchEntitySearcher::EXPLAIN_MODE);
+        $context->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
 
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -262,14 +265,14 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([
@@ -293,11 +296,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $dispatcher->addListener(ElasticsearchEntitySearcherSearchedEvent::class, static function (ElasticsearchEntitySearcherSearchedEvent $event) use (&$searchedEventDispatched): void {
             $searchedEventDispatched = true;
-            static::assertEquals([
-                'hits' => [
-                    'hits' => [],
-                ],
-            ], $event->result);
         });
 
         $searcher = new ElasticsearchEntitySearcher(
@@ -328,19 +326,19 @@ class ElasticsearchEntitySearcherTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')
-            ->willThrowException(new NoNodesAvailableException());
+            ->willThrowException(new RuntimeException());
 
         $helper = $this->createMock(ElasticsearchHelper::class);
-        $helper->expects(static::once())->method('logAndThrowException');
+        $helper->expects($this->once())->method('logAndThrowException');
         $helper->method('allowSearch')->willReturn(true);
 
         $searcher = new ElasticsearchEntitySearcher(
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), new ArrayKeyValueStorage([])),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
             '5s',
@@ -356,6 +354,92 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $context
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
+    }
+
+    public function testSearchWithGroupingDoesNotSendPrecisionThresholdByDefault(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+        $criteria->addGroupField(new FieldGrouping('id'));
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static function (array $params): bool {
+                $cardinality = $params['body']['aggregations']['total-count']['cardinality'] ?? null;
+
+                return \is_array($cardinality)
+                    && ($cardinality['field'] ?? null) === 'id'
+                    && !\array_key_exists('precision_threshold', $cardinality);
+            }))
+            ->willReturn([]);
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowSearch')->willReturn(true);
+        $helper->method('getIndexName')->willReturn('');
+
+        $criteriaParser = $this->createMock(CriteriaParser::class);
+        $criteriaParser->method('buildAccessor')->willReturn('id');
+
+        $searcher = new ElasticsearchEntitySearcher(
+            $client,
+            $this->createMock(EntitySearcherInterface::class),
+            $helper,
+            $criteriaParser,
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch',
+            null
+        );
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
+    }
+
+    public function testSearchWithGroupingSendsConfiguredPrecisionThreshold(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(10);
+        $criteria->addGroupField(new FieldGrouping('id'));
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())
+            ->method('search')
+            ->with(static::callback(static function (array $params): bool {
+                $cardinality = $params['body']['aggregations']['total-count']['cardinality'] ?? null;
+
+                return \is_array($cardinality)
+                    && ($cardinality['field'] ?? null) === 'id'
+                    && ($cardinality['precision_threshold'] ?? null) === 40000;
+            }))
+            ->willReturn([]);
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->method('allowSearch')->willReturn(true);
+        $helper->method('getIndexName')->willReturn('');
+
+        $criteriaParser = $this->createMock(CriteriaParser::class);
+        $criteriaParser->method('buildAccessor')->willReturn('id');
+
+        $searcher = new ElasticsearchEntitySearcher(
+            $client,
+            $this->createMock(EntitySearcherInterface::class),
+            $helper,
+            $criteriaParser,
+            $this->createMock(AbstractElasticsearchSearchHydrator::class),
+            new EventDispatcher(),
+            '10s',
+            'dfs_query_then_fetch',
+            40000
+        );
+
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+
+        $searcher->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
     }
 }

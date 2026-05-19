@@ -3,16 +3,17 @@
 namespace Shopware\Tests\Unit\Core\Content\Mail\Transport;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\Mail\Transport\MailerTransportDecorator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,6 +33,9 @@ class MailerTransportDecoratorTest extends TestCase
 
     private Filesystem $filesystem;
 
+    /**
+     * @var MockObject&EntityRepository<DocumentCollection>
+     */
     private MockObject&EntityRepository $documentRepository;
 
     private MailerTransportDecorator $decorator;
@@ -40,7 +44,7 @@ class MailerTransportDecoratorTest extends TestCase
     {
         $this->decorated = $this->createMock(TransportInterface::class);
         $this->attachmentsBuilder = $this->createMock(MailAttachmentsBuilder::class);
-        $this->filesystem = new Filesystem(new MemoryFilesystemAdapter());
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->documentRepository = $this->createMock(EntityRepository::class);
 
         $this->decorator = new MailerTransportDecorator(
@@ -56,7 +60,7 @@ class MailerTransportDecoratorTest extends TestCase
         $mail = $this->createMock(Email::class);
         $envelope = $this->createMock(Envelope::class);
 
-        $this->decorated->expects(static::once())->method('send')->with($mail, $envelope);
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
 
         $this->decorator->send($mail, $envelope);
     }
@@ -71,7 +75,7 @@ class MailerTransportDecoratorTest extends TestCase
         $this->filesystem->write('foo', 'foo');
         $this->filesystem->write('bar', 'bar');
 
-        $this->decorated->expects(static::once())->method('send')->with($mail, $envelope);
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
 
         $this->decorator->send($mail, $envelope);
         $attachments = $mail->getAttachments();
@@ -95,10 +99,10 @@ class MailerTransportDecoratorTest extends TestCase
 
         $mail->setMailAttachmentsConfig($mailAttachmentsConfig);
 
-        $this->decorated->expects(static::once())->method('send')->with($mail, $envelope);
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
 
         $this->attachmentsBuilder
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('buildAttachments')
             ->with(
                 $mailAttachmentsConfig->getContext(),
@@ -113,7 +117,7 @@ class MailerTransportDecoratorTest extends TestCase
             ]);
 
         $this->documentRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->with([
                 ['id' => 'foo', 'sent' => true],

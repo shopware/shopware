@@ -1,4 +1,3 @@
-import DomAccess from 'src/helper/dom-access.helper';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Plugin from 'src/plugin-system/plugin.class';
@@ -40,16 +39,21 @@ export default class OffCanvasTabs extends Plugin {
         event.preventDefault();
         const tab = event.currentTarget;
 
-        if (DomAccess.hasAttribute(tab, 'href')) {
-            const tabTarget = DomAccess.getAttribute(tab, 'href');
-            const pane = DomAccess.querySelector(document, tabTarget);
+        if (tab.hasAttribute('href')) {
+            const tabTarget = tab.getAttribute('href');
+            const pane = document.querySelector(tabTarget);
             OffCanvas.open(
                 pane.innerHTML,
-                () => { window.PluginManager.initializePlugins(); },
+                () => {
+                    const offcanvasElements = OffCanvas.getOffCanvas();
+                    if (offcanvasElements.length > 0) {
+                        window.PluginManager.initializePluginsInParentElement(offcanvasElements[0]);
+                    }
+                },
                 this.options.offcanvasPostion,
                 true,
                 OffCanvas.REMOVE_OFF_CANVAS_DELAY(),
-                false
+                false,
             );
         }
 

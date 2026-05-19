@@ -82,7 +82,6 @@ async function createWrapper() {
                 'sw-skeleton': true,
                 'sw-button-process': true,
                 'sw-media-collapse': true,
-                'sw-icon': true,
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-inheritance-switch': true,
@@ -102,10 +101,6 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort custom fields by their position', async () => {

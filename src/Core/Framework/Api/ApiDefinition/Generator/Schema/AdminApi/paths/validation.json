@@ -1,0 +1,96 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Email support check",
+        "version": "v1"
+    },
+    "paths": {
+        "\/_action\/validation\/email": {
+            "post": {
+                "tags": [
+                    "Email support validation"
+                ],
+                "summary": "Email support.",
+                "description": "Checks a given email string.",
+                "operationId": "supportsEmail",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "The email to be verified.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Email is supported"
+                    },
+                    "400": {
+                        "description": "Invalid request payload. The argument 'email' may be missing.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "description": "Contains the error message.",
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "code": "0",
+                                            "status": "400",
+                                            "title": "Unprocessable Content",
+                                            "detail": "This value should not be blank."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Email address is not supported.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "description": "Contains the validation error.",
+                                            "type": "array"
+
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "errors": [
+                                        {
+                                            "code": "0",
+                                            "status": "422",
+                                            "title": "Unprocessable Content",
+                                            "detail": "This value is not a supported email address."
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

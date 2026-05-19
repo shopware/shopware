@@ -18,10 +18,6 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
         wrapper.unmount();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('button should not be disabled when disableButton is false', async () => {
         const proccessActionButton = wrapper.find('.sw-import-export-progress__start-process-action');
 

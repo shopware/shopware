@@ -10,13 +10,16 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class IsActiveRule extends Rule
 {
     final public const RULE_NAME = 'customerIsActive';
 
+    /**
+     * @internal
+     */
     public function __construct(protected bool $isActive = false)
     {
         parent::__construct();

@@ -101,7 +101,7 @@ class SalesChannelRepository
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
-        if (empty($ids->getIds())) {
+        if ($ids->getIds() === []) {
             /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
@@ -114,19 +114,21 @@ class SalesChannelRepository
 
         $search = $ids->getData();
 
-        foreach ($entities as $element) {
-            if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
-                continue;
+        if (!$criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO)) {
+            foreach ($entities as $element) {
+                if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
+                    continue;
+                }
+
+                $data = $search[$element->getUniqueIdentifier()];
+                unset($data['id']);
+
+                if ($data === []) {
+                    continue;
+                }
+
+                $element->addExtension('search', new ArrayEntity($data));
             }
-
-            $data = $search[$element->getUniqueIdentifier()];
-            unset($data['id']);
-
-            if (empty($data)) {
-                continue;
-            }
-
-            $element->addExtension('search', new ArrayEntity($data));
         }
 
         $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
@@ -172,6 +174,7 @@ class SalesChannelRepository
         $criteria = clone $criteria;
 
         /** @var TEntityCollection $entities */
+        // @phpstan-ignore varTag.type (phpstan can't detect that TEntityCollection is always an EntityCollection<Entity>)
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
         if ($criteria->getFields() === []) {
@@ -212,7 +215,7 @@ class SalesChannelRepository
         $processed = [];
 
         // process all associations breadth-first
-        while (!empty($queue) && --$maxCount > 0) {
+        while ($queue !== [] && --$maxCount > 0) {
             $cur = array_shift($queue);
 
             $definition = $cur['definition'];

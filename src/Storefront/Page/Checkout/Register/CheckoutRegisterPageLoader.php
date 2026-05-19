@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -21,9 +22,9 @@ use Shopware\Core\Framework\Uuid\UuidException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
-use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +45,8 @@ class CheckoutRegisterPageLoader
         private readonly CartService $cartService,
         private readonly AbstractSalutationRoute $salutationRoute,
         private readonly AbstractCountryRoute $countryRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly AbstractSalutationsSorter $salutationsSorter
     ) {
     }
 
@@ -118,17 +120,15 @@ class CheckoutRegisterPageLoader
     {
         $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
-        $salutations->sort(fn (SalutationEntity $a, SalutationEntity $b) => $b->getSalutationKey() <=> $a->getSalutationKey());
-
-        return $salutations;
+        return $this->salutationsSorter->sort($salutations);
     }
 
     private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
     {
-        $countries = $this->countryRoute->load(new Request(), new Criteria(), $salesChannelContext)->getCountries();
+        $criteria = (new Criteria())
+            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING))
+            ->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
 
-        $countries->sortCountryAndStates();
-
-        return $countries;
+        return $this->countryRoute->load(new Request(), $criteria, $salesChannelContext)->getCountries();
     }
 }

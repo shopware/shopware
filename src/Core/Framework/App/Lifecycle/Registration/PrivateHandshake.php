@@ -15,11 +15,14 @@ class PrivateHandshake implements AppHandshakeInterface
 {
     public function __construct(
         private readonly string $shopUrl,
+        #[\SensitiveParameter]
         private readonly string $secret,
         private readonly string $appEndpoint,
         private readonly string $appName,
         private readonly string $shopId,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
+        #[\SensitiveParameter]
+        private readonly ?string $currentAppSecret = null
     ) {
     }
 
@@ -36,13 +39,21 @@ class PrivateHandshake implements AppHandshakeInterface
 
         $signature = hash_hmac('sha256', $uri->getQuery(), $this->secret);
 
+        $headers = [
+            'shopware-app-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // Add shop signature for re-registration
+        if ($this->currentAppSecret !== null) {
+            $shopSignature = hash_hmac('sha256', $uri->getQuery(), $this->currentAppSecret);
+            $headers['shopware-shop-signature'] = $shopSignature;
+        }
+
         return new Request(
             'GET',
             $uri,
-            [
-                'shopware-app-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ]
+            $headers
         );
     }
 

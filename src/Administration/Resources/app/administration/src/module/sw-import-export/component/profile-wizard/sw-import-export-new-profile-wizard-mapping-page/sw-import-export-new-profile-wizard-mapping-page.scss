@@ -1,9 +1,9 @@
-@import "~scss/variables";
-
 .sw-import-export-new-profile-wizard-mapping-page {
     &__text {
-        font-size: $font-size-xs;
-        margin: 12px 0 32px;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-regular);
+        margin: var(--scale-size-12) 0 var(--scale-size-32);
     }
 
     &__mapping {

@@ -7,18 +7,12 @@
         @filter-reset="resetFilter"
     >
         {% block sw_existence_filter_content %}
-        <sw-select-field
-            :value="value"
+        <mt-select
+            :model-value="value"
             :placeholder="filter.placeholder"
-            @update:value="changeValue"
-        >
-            <option :value="true">
-                {{ filter.optionHasCriteria }}
-            </option>
-            <option :value="false">
-                {{ filter.optionNoCriteria }}
-            </option>
-        </sw-select-field>
+            :options="filterOptions"
+            @update:model-value="changeValue"
+        />
         {% endblock %}
     </sw-base-filter>
 </div>

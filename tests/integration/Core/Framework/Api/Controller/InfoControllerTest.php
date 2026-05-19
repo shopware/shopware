@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
+use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -15,10 +15,13 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
+use Shopware\Core\Framework\App\Event\CustomAppEvent;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\A11yRenderedDocumentAware;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -27,9 +30,13 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\LogAware;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
+use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
@@ -37,9 +44,14 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
@@ -50,6 +62,8 @@ class InfoControllerTest extends TestCase
 
     use AppSystemTestBehaviour;
 
+    use EnvTestBehaviour;
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -59,20 +73,30 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfig(): void
     {
+        $this->setEnvVars([
+            'APP_URL' => 'https://test-app.url',
+        ]);
+
+        $shopId = static::getContainer()->get(ShopIdProvider::class)->getShopId();
+
         $expected = [
             'version' => '6.7.9999999.9999999-dev',
+            'shopId' => $shopId->id,
+            'appUrl' => 'https://test-app.url',
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => true,
-                'enableQueueStatsWorker' => true,
                 'enableNotificationWorker' => true,
                 'transports' => ['async', 'low_priority'],
+                'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
+                'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
+                'firstMigrationDate' => null,
                 'private_allowed_extensions' => [
                     'jpg',
                     'jpeg',
@@ -103,6 +127,7 @@ class InfoControllerTest extends TestCase
                     'wma',
                     'txt',
                     'doc',
+                    'docx',
                     'ico',
                     'glb',
                     'zip',
@@ -112,6 +137,13 @@ class InfoControllerTest extends TestCase
                     'xlsx',
                     'html',
                     'xml',
+                    'vtt',
+                    'srt',
+                    'sub',
+                    'ass',
+                    'ssa',
+                    'step',
+                    'stp',
                 ],
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
@@ -122,7 +154,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/config';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -130,13 +162,14 @@ class InfoControllerTest extends TestCase
 
         $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
-        // reset environment based miss match
+        // reset environment-based mismatch
         $decodedResponse['bundles'] = [];
         $decodedResponse['versionRevision'] = $expected['versionRevision'];
+        $expected['settings']['firstMigrationDate'] = $decodedResponse['settings']['firstMigrationDate'];
 
-        static::assertEquals($expected, $decodedResponse);
+        static::assertSame($expected, $decodedResponse);
     }
 
     public function testGetConfigWithPermissions(): void
@@ -206,7 +239,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/config';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -214,7 +247,7 @@ class InfoControllerTest extends TestCase
 
         $decodedResponse = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         foreach (array_keys($expected) as $key) {
             static::assertArrayHasKey($key, $decodedResponse);
@@ -235,12 +268,12 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/version';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
         static::assertNotEmpty($version);
@@ -255,12 +288,12 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/v1/_info/version';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
         static::assertNotEmpty($version);
@@ -271,7 +304,7 @@ class InfoControllerTest extends TestCase
     {
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -279,13 +312,13 @@ class InfoControllerTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'checkout.customer.login',
                 'class' => CustomerLoginEvent::class,
-                'extensions' => [],
                 'data' => [
                     'customer' => [
                         'type' => 'entity',
@@ -305,12 +338,14 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    LogAware::class,
+                    lcfirst((new \ReflectionClass(LogAware::class))->getShortName()),
                 ],
             ],
             [
+                'extensions' => [],
                 'name' => 'checkout.order.placed',
                 'class' => CheckoutOrderPlacedEvent::class,
-                'extensions' => [],
                 'data' => [
                     'order' => [
                         'type' => 'entity',
@@ -319,6 +354,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                     CustomerGroupAware::class,
@@ -332,9 +369,9 @@ class InfoControllerTest extends TestCase
                 ],
             ],
             [
+                'extensions' => [],
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
                 'class' => OrderStateMachineStateChangeEvent::class,
-                'extensions' => [],
                 'data' => [
                     'order' => [
                         'type' => 'entity',
@@ -358,20 +395,22 @@ class InfoControllerTest extends TestCase
         ];
 
         foreach ($expected as $event) {
-            $actualEvents = array_values(array_filter($response, fn ($x) => $x['name'] === $event['name']));
+            $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
+            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
-            static::assertEquals($event, $actualEvents[0], $event['name']);
+            static::assertSame($event, $actualEvents[0], $event['name']);
         }
     }
 
     public function testBundlePaths(): void
     {
-        $kernelMock = $this->createMock(Kernel::class);
+        $kernel = new StubKernel([
+            new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoController'),
+        ]);
+
         $eventCollector = $this->createMock(FlowActionCollector::class);
-        $fileSystemOperatorMock = $this->createMock(PrefixFilesystem::class);
         $infoController = new InfoController(
             $this->createMock(DefinitionService::class),
             new ParameterBag([
@@ -387,31 +426,31 @@ class InfoControllerTest extends TestCase
                 'shopware.staging.administration.show_banner' => true,
                 'shopware.deployment.runtime_extension_management' => true,
             ]),
-            $kernelMock,
+            $kernel,
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,
+            static::getContainer()->get(MigrationInfo::class),
             static::getContainer()->get(AppUrlVerifier::class),
             static::getContainer()->get('router'),
             $eventCollector,
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
-            $fileSystemOperatorMock,
+            new ViteFileAccessorDecorator(
+                [],
+                static::getContainer()->get('shopware.asset.asset'),
+                $kernel,
+                new Filesystem(),
+            ),
+            new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
+            new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
-
-        $fileSystemOperatorMock->expects(static::exactly(1))
-            ->method('read')
-            ->willReturn('{"entryPoints": { "some-functionality-bundle": {"js": ["foo.js"]}}}');
-        $fileSystemOperatorMock->method('publicUrl')
-            ->willReturn('http://example.com/foo.js');
-
-        $kernelMock
-            ->expects(static::exactly(1))
-            ->method('getBundles')
-            ->willReturn([new BundleFixture('SomeFunctionalityBundle', __DIR__ . '/Fixtures/InfoController')]);
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
@@ -421,17 +460,14 @@ class InfoControllerTest extends TestCase
         $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('SomeFunctionalityBundle', $config['bundles']);
 
-        $jsFilePath = explode('?', (string) $config['bundles']['SomeFunctionalityBundle']['js'][0])[0];
-        static::assertEquals(
-            'http://example.com/foo.js',
-            $jsFilePath
+        static::assertStringEndsWith(
+            '/bundles/somefunctionality/administration/js/some-functionality-bundle.js',
+            (string) $config['bundles']['SomeFunctionalityBundle']['js'][0]
         );
     }
 
     public function testBaseAdminPaths(): void
     {
-        static::markTestSkipped('#6556');
-
         if (!class_exists(AdministrationController::class)) {
             static::markTestSkipped('Cannot test without Administration as results will differ');
         }
@@ -440,9 +476,14 @@ class InfoControllerTest extends TestCase
 
         $this->loadAppsFromDir(__DIR__ . '/Fixtures/AdminExtensionApiApp');
 
-        $kernelMock = $this->createMock(Kernel::class);
+        $kernel = new StubKernel([
+            new AdminExtensionApiBundle(),
+            new AdminExtensionApiWithoutSelfKnownBaseUrlBundle(),
+            new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),
+            new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
+        ]);
+
         $eventCollector = $this->createMock(FlowActionCollector::class);
-        $fileSystemOperatorMock = $this->createMock(FilesystemOperator::class);
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);
@@ -462,55 +503,64 @@ class InfoControllerTest extends TestCase
                 'shopware.staging.administration.show_banner' => false,
                 'shopware.deployment.runtime_extension_management' => true,
             ]),
-            $kernelMock,
+            $kernel,
             $this->createMock(BusinessEventCollector::class),
             static::getContainer()->get('shopware.increment.gateway.registry'),
             $this->connection,
+            static::getContainer()->get(MigrationInfo::class),
             static::getContainer()->get(AppUrlVerifier::class),
             static::getContainer()->get('router'),
             $eventCollector,
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get(ApiRouteInfoResolver::class),
             static::getContainer()->get(InAppPurchase::class),
-            $fileSystemOperatorMock,
+            new ViteFileAccessorDecorator(
+                [],
+                static::getContainer()->get('shopware.asset.asset'),
+                $kernel,
+                new Filesystem(),
+            ),
+            new Filesystem(),
+            static::getContainer()->get(ShopIdProvider::class),
+            $this->createMock(StatsService::class),
+            new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
 
-        $kernelMock
-            ->expects(static::exactly(1))
-            ->method('getBundles')
-            ->willReturn([
-                new AdminExtensionApiPlugin(true, __DIR__ . '/Fixtures/InfoController'),
-                new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
-            ]);
-
         $content = $infoController->config(Context::createDefaultContext(), Request::create($appUrl))->getContent();
         static::assertNotFalse($content);
         $config = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertCount(3, $config['bundles']);
+        static::assertCount(4, $config['bundles']);
+
+        static::assertArrayHasKey('AdminExtensionApiBundle', $config['bundles']);
+        static::assertSame('https://extension-bundle.test', $config['bundles']['AdminExtensionApiBundle']['baseUrl']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiBundle']['type']);
+
+        static::assertArrayNotHasKey('AdminExtensionApiWithoutSelfKnownBaseUrlBundle', $config['bundles']);
 
         static::assertArrayHasKey('AdminExtensionApiPlugin', $config['bundles']);
-        static::assertEquals('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
+        static::assertSame('https://extension-api.test', $config['bundles']['AdminExtensionApiPlugin']['baseUrl']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPlugin']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $config['bundles']);
         static::assertStringContainsString(
             '/admin/adminextensionapipluginwithlocalentrypoint/index.html',
             $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['baseUrl'],
         );
-        static::assertEquals('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
+        static::assertSame('plugin', $config['bundles']['AdminExtensionApiPluginWithLocalEntryPoint']['type']);
 
         static::assertArrayHasKey('AdminExtensionApiApp', $config['bundles']);
-        static::assertEquals('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
-        static::assertEquals('app', $config['bundles']['AdminExtensionApiApp']['type']);
+        static::assertSame('https://app-admin.test', $config['bundles']['AdminExtensionApiApp']['baseUrl']);
+        static::assertSame('app', $config['bundles']['AdminExtensionApiApp']['type']);
     }
 
     public function testFlowActionsRoute(): void
     {
         $url = '/api/_info/flow-actions.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -518,24 +568,24 @@ class InfoControllerTest extends TestCase
 
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'action.add.order.tag',
                 'requirements' => [
                     'orderAware',
                 ],
-                'extensions' => [],
                 'delayable' => true,
             ],
         ];
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
+            $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
-            static::assertEquals($action, $actualActions[0]);
+            static::assertSame($action, $actualActions[0]);
         }
     }
 
@@ -552,7 +602,7 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/flow-actions.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -562,20 +612,20 @@ class InfoControllerTest extends TestCase
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'telegram.send.message',
                 'requirements' => [
                     'orderaware',
                 ],
-                'extensions' => [],
                 'delayable' => true,
             ],
         ];
 
         foreach ($expected as $action) {
-            $actualActions = array_values(array_filter($response, fn ($x) => $x['name'] === $action['name']));
+            $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
             static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
-            static::assertEquals($action, $actualActions[0]);
+            static::assertSame($action, $actualActions[0]);
         }
     }
 
@@ -583,25 +633,24 @@ class InfoControllerTest extends TestCase
     {
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         foreach ($response as $event) {
-            if ($event['name'] === 'mail.after.create.message' || $event['name'] === 'mail.before.send' || $event['name'] === 'mail.sent') {
-                static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
+            if (\in_array($event['name'], ['mail.after.create.message', 'mail.before.send', 'mail.sent'], true)) {
+                static::assertNotContains(MailAware::class, $event['aware']);
 
                 continue;
             }
 
-            static::assertContains('Shopware\Core\Framework\Event\MailAware', $event['aware'], $event['name']);
-            static::assertNotContains('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], $event['name']);
+            static::assertContains(MailAware::class, $event['aware'], $event['name']);
         }
     }
 
@@ -618,53 +667,91 @@ class InfoControllerTest extends TestCase
 
         $url = '/api/_info/events.json';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->request(Request::METHOD_GET, $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
 
-        $response = json_decode($content, true);
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         $expected = [
             [
+                'extensions' => [],
                 'name' => 'customer.wishlist',
+                'class' => CustomAppEvent::class,
+                'data' => [],
                 'aware' => [
                     'mailAware',
                     'customerAware',
                 ],
-                'data' => [],
-                'class' => 'Shopware\Core\Framework\App\Event\CustomAppEvent',
-                'extensions' => [],
             ],
         ];
 
         foreach ($expected as $event) {
-            $actualEvent = array_values(array_filter($response, function ($x) use ($event) {
+            $actualEvent = array_values(array_filter($response, static function ($x) use ($event) {
                 return $x['name'] === $event['name'];
             }));
 
             static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
-            static::assertEquals($event, $actualEvent[0]);
+            static::assertSame($event, $actualEvent[0]);
         }
     }
 
     public function testFetchApiRoutes(): void
     {
         $client = $this->getBrowser();
-        $client->request('GET', '/api/_info/routes');
+        $client->request(Request::METHOD_GET, '/api/_info/routes');
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
         static::assertJson($content);
-        static::assertSame(200, $client->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $routes = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         foreach ($routes['endpoints'] as $route) {
             static::assertArrayHasKey('path', $route);
             static::assertArrayHasKey('methods', $route);
         }
+    }
+
+    public function testFetchMessageStats(): void
+    {
+        $statsService = $this->getContainer()->get(StatsService::class);
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 2))),
+        ]));
+        $statsService->registerMessage(new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . (time() - 1))),
+        ]));
+
+        $client = $this->getBrowser();
+        $client->request(Request::METHOD_GET, '/api/_info/message-stats.json');
+
+        $content = $client->getResponse()->getContent();
+        static::assertNotFalse($content);
+        static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+
+        static::assertJson($content);
+        $stats = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertIsArray($stats);
+        static::assertArrayHasKey('enabled', $stats);
+        static::assertTrue($stats['enabled']);
+        static::assertArrayHasKey('stats', $stats);
+        static::assertIsArray($stats['stats']);
+        static::assertArrayHasKey('totalMessagesProcessed', $stats['stats']);
+        static::assertGreaterThanOrEqual(2, $stats['stats']['totalMessagesProcessed']);
+        static::assertArrayHasKey('processedSince', $stats['stats']);
+        static::assertInstanceOf(\DateTimeInterface::class, \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC3339_EXTENDED, $stats['stats']['processedSince']));
+        static::assertArrayHasKey('averageTimeInQueue', $stats['stats']);
+        static::assertIsFloat($stats['stats']['averageTimeInQueue']);
+        static::assertArrayHasKey('messageTypeStats', $stats['stats']);
+        static::assertIsArray($stats['stats']['messageTypeStats']);
+        static::assertArrayHasKey('type', $stats['stats']['messageTypeStats'][0]);
+        static::assertSame('stdClass', $stats['stats']['messageTypeStats'][0]['type']);
+        static::assertArrayHasKey('count', $stats['stats']['messageTypeStats'][0]);
     }
 
     private function createApp(string $appId, string $aclRoleId): void
@@ -692,7 +779,7 @@ class InfoControllerTest extends TestCase
             'badge' => 'Telegram',
             'url' => 'https://example.xyz',
             'delayable' => true,
-            'requirements' => json_encode(['orderaware']),
+            'requirements' => json_encode(['orderaware'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -703,7 +790,7 @@ class InfoControllerTest extends TestCase
             'id' => Uuid::fromHexToBytes($flowAppId),
             'app_id' => Uuid::fromHexToBytes($appId),
             'name' => 'customer.wishlist',
-            'aware' => json_encode(['mailAware', 'customerAware']),
+            'aware' => json_encode(['mailAware', 'customerAware'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -728,10 +815,28 @@ class InfoControllerTest extends TestCase
         $this->connection->insert('acl_role', [
             'id' => Uuid::fromHexToBytes($aclRoleId),
             'name' => 'aclTest',
-            'privileges' => json_encode(['users_and_permissions.viewer']),
+            'privileges' => json_encode(['users_and_permissions.viewer'], \JSON_THROW_ON_ERROR),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiBundle extends Bundle
+{
+    public function getAdminBaseUrl(): ?string
+    {
+        return 'https://extension-bundle.test';
+    }
+}
+
+/**
+ * @internal
+ */
+class AdminExtensionApiWithoutSelfKnownBaseUrlBundle extends Bundle
+{
 }
 
 /**

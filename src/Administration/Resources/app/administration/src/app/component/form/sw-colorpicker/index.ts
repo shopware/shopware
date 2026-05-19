@@ -1,15 +1,15 @@
 import template from './sw-colorpicker.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-colorpicker and mt-colorpicker. Autoswitches between the two components.
+ *
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-colorpicker instead.
  */
-Component.register('sw-colorpicker', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -30,25 +30,15 @@ Component.register('sw-colorpicker', {
             required: false,
             default: undefined,
         },
+
+        deprecated: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
-        useMeteorComponent() {
-            // Use new meteor component in major
-            if (Shopware.Feature.isActive('ENABLE_METEOR_COMPONENTS')) {
-                return true;
-            }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-colorpicker',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-colorpicker" is deprecated and will be removed in v6.7.0.0. Please use "mt-colorpicker" instead.',
-            );
-
-            return false;
-        },
-
         currentValue: {
             get() {
                 if (this.value !== null) {
@@ -67,8 +57,6 @@ Component.register('sw-colorpicker', {
 
     methods: {
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
     },

@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,18 +14,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerWishlistCollection> $wishlistRepository
+     * @param EntityRepository<ProductCollection> $productRepository
      */
     public function __construct(
         private readonly EntityRepository $wishlistRepository,
@@ -38,7 +46,12 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist/delete/{productId}', name: 'store-api.customer.wishlist.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/customer/wishlist/delete/{productId}',
+        name: 'store-api.customer.wishlist.delete',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_DELETE]
+    )]
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
@@ -62,37 +75,36 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 
     private function getWishlistId(SalesChannelContext $context, string $customerId): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customerId),
-            new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
-        ]));
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('customerId', $customerId),
+                new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
+            ]));
 
-        $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
-
-        if ($wishlistIds->firstId() === null) {
+        $wishlistId = $this->wishlistRepository->searchIds($criteria, $context->getContext())->firstId();
+        if (!$wishlistId) {
             throw CustomerException::customerWishlistNotFound();
         }
 
-        return $wishlistIds->firstId();
+        return $wishlistId;
     }
 
     private function getWishlistProductId(string $wishlistId, string $productId, SalesChannelContext $context): string
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('wishlistId', $wishlistId),
-            new EqualsFilter('productId', $productId),
-            new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
-        ]));
-        $wishlistProductIds = $this->productRepository->searchIds($criteria, $context->getContext());
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
+                new EqualsFilter('wishlistId', $wishlistId),
+                new EqualsFilter('productId', $productId),
+                new EqualsFilter('productVersionId', Defaults::LIVE_VERSION),
+            ]));
 
-        if ($wishlistProductIds->firstId() === null) {
+        $wishlistProductId = $this->productRepository->searchIds($criteria, $context->getContext())->firstId();
+        if (!$wishlistProductId) {
             throw CustomerException::wishlistProductNotFound($productId);
         }
 
-        return $wishlistProductIds->firstId();
+        return $wishlistProductId;
     }
 }

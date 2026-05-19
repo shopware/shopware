@@ -30,7 +30,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -70,7 +70,7 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $client = $this->createMock(Client::class);
         // client should not be used if limit is 0
-        $client->expects(static::never())
+        $client->expects($this->never())
             ->method('search');
 
         $helper = $this->createMock(ElasticsearchHelper::class);
@@ -112,13 +112,13 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -160,13 +160,13 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $client = $this->createMock(Client::class);
 
-        $client->expects(static::once())
+        $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'size' => 0,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([
@@ -190,11 +190,6 @@ class ElasticsearchEntityAggregatorTest extends TestCase
 
         $dispatcher->addListener(ElasticsearchEntityAggregatorSearchedEvent::class, static function (ElasticsearchEntityAggregatorSearchedEvent $event) use (&$searchedEventDispatched): void {
             $searchedEventDispatched = true;
-            static::assertEquals([
-                'hits' => [
-                    'hits' => [],
-                ],
-            ], $event->result);
         });
 
         $aggregator = new ElasticsearchEntityAggregator(

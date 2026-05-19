@@ -6,12 +6,12 @@ import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.servi
 import template from './sw-search-preferences-modal.html.twig';
 import './sw-search-preferences-modal.scss';
 
-const { Component, Mixin, Module } = Shopware;
+const { Mixin, Module } = Shopware;
 
 /**
  * @private
  */
-Component.register('sw-search-preferences-modal', {
+export default {
     template,
 
     inject: [
@@ -57,14 +57,14 @@ Component.register('sw-search-preferences-modal', {
             return [
                 {
                     property: 'active',
-                    label: this.$tc('global.sw-search-preferences-modal.columnActive'),
+                    label: this.$t('global.sw-search-preferences-modal.columnActive'),
                     sortable: false,
                     width: '100px',
                     align: 'center',
                 },
                 {
                     property: 'moduleName',
-                    label: this.$tc('global.sw-search-preferences-modal.columnModuleName'),
+                    label: this.$t('global.sw-search-preferences-modal.columnModuleName'),
                     sortable: false,
                 },
             ];
@@ -128,7 +128,7 @@ Component.register('sw-search-preferences-modal', {
         getModuleName(entityName) {
             const module = Module.getModuleByEntityName(entityName);
 
-            return this.$tc(module?.manifest.title);
+            return this.$t(module?.manifest.title);
         },
 
         onChangeSearchPreference(searchPreference) {
@@ -157,7 +157,6 @@ Component.register('sw-search-preferences-modal', {
         },
 
         onSave() {
-            // eslint-disable-next-line max-len
             this.userSearchPreferences =
                 this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
@@ -187,4 +186,4 @@ Component.register('sw-search-preferences-modal', {
                 });
         },
     },
-});
+};

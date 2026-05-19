@@ -37,6 +37,57 @@ export default {
 
             return criteria;
         },
+
+        boxLayoutOptions() {
+            return [
+                {
+                    value: 'standard',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                },
+                {
+                    value: 'image',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                },
+                {
+                    value: 'minimal',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                },
+            ];
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    value: 'standard',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    value: 'cover',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+                {
+                    value: 'contain',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeContain'),
+                },
+            ];
+        },
+
+        verticalAlignOptions() {
+            return [
+                {
+                    value: 'flex-start',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
+                },
+                {
+                    value: 'center',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                },
+                {
+                    value: 'flex-end',
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                },
+            ];
+        },
     },
 
     created() {

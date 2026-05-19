@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1733323215AddHashToAppTemplate;
 
 /**
@@ -23,24 +24,31 @@ class Migration1733323215AddHashToAppTemplateTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
+    }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1733323215, (new Migration1733323215AddHashToAppTemplate())->getCreationTimestamp());
+    }
+
+    public function testMigration(): void
+    {
+        $this->dropHashColumn();
+
+        $migration = new Migration1733323215AddHashToAppTemplate();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        static::assertTrue(TableHelper::columnExists($this->connection, 'app_template', 'hash'));
+    }
+
+    private function dropHashColumn(): void
+    {
         try {
             $this->connection->executeStatement(
                 'ALTER TABLE `app_template` DROP COLUMN `hash`;'
             );
         } catch (\Throwable) {
         }
-    }
-
-    public function testMigration(): void
-    {
-        $migration = new Migration1733323215AddHashToAppTemplate();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
-
-        $manager = $this->connection->createSchemaManager();
-        $columns = $manager->listTableColumns('app_template');
-
-        static::assertArrayHasKey('hash', $columns);
     }
 }

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Command\StoreLoginCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -36,13 +37,13 @@ class StoreLoginCommandTest extends TestCase
     {
         $commandTester = new CommandTester(static::getContainer()->get(StoreLoginCommand::class));
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('User not found');
-
         $commandTester->setInputs(['non-empty-password']);
         $commandTester->execute([
             '--shopwareId' => 'no-reply@shopware.de',
             '--user' => 'missing_user',
         ]);
+
+        static::assertSame(Command::FAILURE, $commandTester->getStatusCode());
+        static::assertStringContainsString('User not found', $commandTester->getDisplay());
     }
 }

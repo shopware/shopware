@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type RedisTypeHint from \Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory
+ */
 #[Package('framework')]
 #[AsCommand(name: 'cache:watch:delayed', description: 'Watches the delayed cache keys/tags')]
 class CacheWatchDelayedCommand extends Command
@@ -36,7 +39,13 @@ class CacheWatchDelayedCommand extends Command
             return self::FAILURE;
         }
 
-        $this->dispatcher->addListener(ConsoleEvents::SIGNAL, function (ConsoleSignalEvent $event): void {
+        if (!$this->container->has('shopware.cache.invalidator.storage.redis_adapter')) {
+            $output->writeln('Redis cache invalidation is not configured.');
+
+            return self::FAILURE;
+        }
+
+        $this->dispatcher->addListener(ConsoleEvents::SIGNAL, static function (ConsoleSignalEvent $event): void {
             $signal = $event->getHandlingSignal();
             $event->setExitCode(0);
 
@@ -45,8 +54,16 @@ class CacheWatchDelayedCommand extends Command
             }
         });
 
-        $before = $this->container
-            ->get('shopware.cache.invalidator.storage.redis_adapter')
+        /** @var RedisTypeHint $adapter */
+        $adapter = $this->container->get('shopware.cache.invalidator.storage.redis_adapter');
+
+        if (method_exists($adapter, 'sMembers') === false) {
+            $output->writeln('Redis adapter does not support sMembers method.');
+
+            return self::FAILURE;
+        }
+
+        $before = $adapter
             ->sMembers('invalidation');
 
         $section = $output->section();
@@ -56,8 +73,7 @@ class CacheWatchDelayedCommand extends Command
 
         // @phpstan-ignore-next-line
         while (true) {
-            $current = $this->container
-                ->get('shopware.cache.invalidator.storage.redis_adapter')
+            $current = $adapter
                 ->sMembers('invalidation');
 
             if ($before !== $current) {
@@ -76,7 +92,7 @@ class CacheWatchDelayedCommand extends Command
     private function render(Table $table, array $rows): void
     {
         $table->setHeaders(['Tags at: ' . date('Y-m-d H:i:s')]);
-        $table->setRows(array_map(fn ($tag) => [$tag], $rows));
+        $table->setRows(array_map(static fn ($tag) => [$tag], $rows));
         $table->render();
     }
 }

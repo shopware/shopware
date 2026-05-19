@@ -65,13 +65,16 @@ describe('src/app/init-pre/api-services.init.ts', () => {
                 'userRecoveryService',
                 'userValidationService',
                 'userService',
+                'shopIdChangeService',
             ];
 
             serviceNames.forEach((serviceName) => {
-                const MockApiService = jest.fn().mockImplementation(function () {
-                    this.name = serviceName;
-                });
-                services.push(() => Promise.resolve({ default: MockApiService }));
+                const MockApiClass = class {
+                    constructor() {
+                        this.name = serviceName;
+                    }
+                };
+                services.push(MockApiClass);
             });
 
             return services;
@@ -136,6 +139,7 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('userRecoveryService')).toBeUndefined();
         expect(Shopware.Service('userValidationService')).toBeUndefined();
         expect(Shopware.Service('userService')).toBeUndefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeUndefined();
 
         await initializeApiServices();
 
@@ -196,5 +200,6 @@ describe('src/app/init-pre/api-services.init.ts', () => {
         expect(Shopware.Service('userRecoveryService')).toBeDefined();
         expect(Shopware.Service('userValidationService')).toBeDefined();
         expect(Shopware.Service('userService')).toBeDefined();
+        expect(Shopware.Service('shopIdChangeService')).toBeDefined();
     });
 });

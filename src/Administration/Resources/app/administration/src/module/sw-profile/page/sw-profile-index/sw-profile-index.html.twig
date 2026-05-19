@@ -8,7 +8,7 @@
 
     <template #smart-bar-header>
         {% block sw_profile_index_headline %}
-        <h2>{{ $tc('sw-profile.general.headlineProfile') }}</h2>
+        <h2>{{ $t('sw-profile.general.headlineProfile') }}</h2>
         {% endblock %}
     </template>
 
@@ -23,7 +23,7 @@
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-profile.index.buttonSaveLabel') }}
+            {{ $t('sw-profile.index.buttonSaveLabel') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -37,20 +37,27 @@
                 {% block sw_profile_index_tabs_item_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.general' }"
-                    :title="$tc('sw-profile.tabGeneral.title')"
+                    :title="$t('sw-profile.tabGeneral.title')"
                 >
-                    {{ $tc('sw-profile.tabGeneral.title') }}
+                    {{ $t('sw-profile.tabGeneral.title') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_profile_index_tabs_item_search_preferences %}
                 <sw-tabs-item
                     :route="{ name: 'sw.profile.index.searchPreferences' }"
-                    :title="$tc('sw-profile.tabSearchPreferences.title')"
+                    :title="$t('sw-profile.tabSearchPreferences.title')"
                 >
-                    {{ $tc('sw-profile.tabSearchPreferences.title') }}
+                    {{ $t('sw-profile.tabSearchPreferences.title') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <sw-tabs-item
+                    :route="{ name: 'sw.profile.index.privacyPreferences' }"
+                    :title="$t('sw-profile.tabPrivacyPreferences.title')"
+                >
+                    {{ $t('sw-profile.tabPrivacyPreferences.title') }}
+                </sw-tabs-item>
             </sw-tabs>
             {% endblock %}
 

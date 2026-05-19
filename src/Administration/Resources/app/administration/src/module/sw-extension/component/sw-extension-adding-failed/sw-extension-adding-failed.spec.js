@@ -8,8 +8,9 @@ async function createWrapper() {
         global: {
             stubs: {
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
-                'i18n-t': true,
-                'sw-icon': true,
+                'i18n-t': {
+                    template: '<div class="i18n-stub"><slot></slot></div>',
+                },
                 'sw-label': true,
                 'router-link': true,
                 'sw-loader': true,
@@ -95,7 +96,6 @@ describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
         );
     });
 
-    // eslint-disable-next-line max-len
     it('does not render additional information about licenses and uses general failure text if extension is not licensed', async () => {
         Shopware.Store.get('shopwareExtensions').setMyExtensions([]);
 

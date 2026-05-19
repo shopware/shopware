@@ -3,48 +3,48 @@
     {% block sw_settings_country_address_handling_options %}
     <mt-card
         position-identifier="sw-settings-country-address-handling-options"
-        :title="$tc('sw-settings-country.detail.titleOptions')"
+        :title="$t('sw-settings-country.detail.titleOptions')"
         :is-loading="isLoading"
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
 
             <mt-switch
-                :checked="country.forceStateInRegistration"
+                :model-value="country.forceStateInRegistration"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
-                @change="updateCountry('forceStateInRegistration', $event)"
+                :label="$t('sw-settings-country.detail.labelForceStateInRegistration')"
+                @update:model-value="updateCountry('forceStateInRegistration', $event)"
             />
 
             <mt-switch
-                :checked="country.postalCodeRequired"
+                :model-value="country.postalCodeRequired"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelPostalCodeRequired')"
-                @change="updateCountry('postalCodeRequired', $event)"
+                :label="$t('sw-settings-country.detail.labelPostalCodeRequired')"
+                @update:model-value="updateCountry('postalCodeRequired', $event)"
             />
 
             <mt-switch
-                :checked="country.checkPostalCodePattern"
+                :model-value="country.checkPostalCodePattern"
                 class="sw-settings-country-address-handling__option-items"
                 bordered
                 :disabled="!hasDefaultPostalCodePattern || !acl.can('country.editor') || undefined"
-                :label="$tc('sw-settings-country.detail.labelCheckPostalCodePattern')"
-                :help-text="$tc('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
-                @change="updateCountry('checkPostalCodePattern', $event)"
+                :label="$t('sw-settings-country.detail.labelCheckPostalCodePattern')"
+                :help-text="$t('sw-settings-country.detail.helpTextCheckPostalCodePattern')"
+                @update:model-value="updateCountry('checkPostalCodePattern', $event)"
             />
 
             <div class="sw-settings-country-address-handling__option-items advanced-postal-code">
 
                 <mt-switch
-                    :checked="country.checkAdvancedPostalCodePattern"
+                    :model-value="country.checkAdvancedPostalCodePattern"
                     class="sw-settings-country-address-handling__option-items"
                     :disabled="!acl.can('country.editor') || disabledAdvancedPostalCodePattern || undefined"
-                    :label="$tc('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
-                    :help-text="$tc('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', {5: '{5}', 4: '{4}', 2: '{2}'}, 0)"
-                    @change="updateCountry('checkAdvancedPostalCodePattern', $event)"
+                    :label="$t('sw-settings-country.detail.labelCheckAdvancedPostalCodePattern')"
+                    :help-text="$t('sw-settings-country.detail.helpTextAdvancedPostalCodePattern', {5: '{5}', 4: '{4}', 2: '{2}'}, 0)"
+                    @update:model-value="updateCountry('checkAdvancedPostalCodePattern', $event)"
                 />
 
                 <mt-text-field
@@ -52,7 +52,7 @@
                     class="sw-settings-country-address-handling__text-field"
                     :class="{'is--disabled': !country.checkAdvancedPostalCodePattern}"
                     :disabled="!acl.can('country.editor') || undefined"
-                    :placeholder="$tc('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
+                    :placeholder="$t('sw-settings-country.detail.placeholderAdvancedPostalCodePattern')"
                     @update:model-value="updateCountry('advancedPostalCodePattern', $event)"
                 />
             </div>
@@ -63,7 +63,7 @@
     {% block sw_settings_country_address_handling_formatting %}
     <mt-card
         position-identifier="sw-settings-country-address-handling-formatting"
-        :title="$tc('sw-settings-country.detail.titleFormatting')"
+        :title="$t('sw-settings-country.detail.titleFormatting')"
         :is-loading="isLoading"
     >
         <sw-container class="sw-settings-country-address-handling__options-container">
@@ -87,14 +87,14 @@
 
             <div class="sw-settings-country-address-handling__address-preview">
                 <div class="sw-card__title">
-                    {{ $tc('sw-settings-country.detail.previewTitle') }}
+                    {{ $t('sw-settings-country.detail.previewTitle') }}
                 </div>
 
                 <sw-entity-single-select
                     v-model:value="customerId"
                     class="sw-settings-country-address-handling__customer-select"
-                    :label="$tc('sw-settings-country.detail.labelCustomer')"
-                    :placeholder="$tc('sw-settings-country.detail.placeholderSelectCustomer')"
+                    :label="$t('sw-settings-country.detail.labelCustomer')"
+                    :placeholder="$t('sw-settings-country.detail.placeholderSelectCustomer')"
                     entity="customer"
                     show-clearable-button
                     :criteria="customerCriteria"
@@ -110,7 +110,7 @@
                     ghost
                     @click="resetMarkup"
                 >
-                    {{ $tc('sw-settings-country.detail.buttonResetMarkup') }}
+                    {{ $t('sw-settings-country.detail.buttonResetMarkup') }}
                 </mt-button>
             </div>
         </sw-container>

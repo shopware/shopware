@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Sitemap\Service;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Sitemap\Event\SitemapFilterOpenTagEvent;
 use Shopware\Core\Content\Sitemap\SitemapException;
-use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -32,8 +31,6 @@ class SitemapHandle implements SitemapHandleInterface
 
     private ?string $domainName = null;
 
-    private ?string $domainId;
-
     /**
      * @internal
      */
@@ -42,10 +39,8 @@ class SitemapHandle implements SitemapHandleInterface
         private readonly SalesChannelContext $context,
         private readonly EventDispatcherInterface $eventDispatcher,
         ?string $domain = null,
-        ?string $domainId = null
+        private ?string $domainId = null,
     ) {
-        $this->domainId = $domainId;
-
         $this->setDomainName($domain);
 
         $filePath = $this->getTmpFilePath($context);
@@ -55,9 +50,6 @@ class SitemapHandle implements SitemapHandleInterface
         $this->tmpFiles[] = $filePath;
     }
 
-    /**
-     * @param Url[] $urls
-     */
     public function write(array $urls): void
     {
         foreach ($urls as $url) {

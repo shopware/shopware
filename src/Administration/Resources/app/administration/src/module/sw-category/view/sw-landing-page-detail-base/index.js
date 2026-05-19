@@ -1,5 +1,4 @@
 import template from './sw-landing-page-detail-base.html.twig';
-import './sw-landing-page-detail-base.scss';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();

@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtSwitch } from '@shopware-ag/meteor-component-library';
+import selectMtSelectOptionByText from 'test/_helper_/select-mt-select-by-text';
 
 async function createWrapper() {
     return mount(
@@ -23,14 +23,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-select-field': {
-                        template:
-                            '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'options',
-                        ],
-                    },
                     'sw-text-field': true,
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
                     'sw-media-upload-v2': true,
@@ -40,8 +32,16 @@ async function createWrapper() {
                     'sw-media-modal-v2': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-icon': true,
-                    'mt-switch': MtSwitch,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': await wrapTestComponent('sw-container'),
                 },
             },
             props: {
@@ -60,6 +60,10 @@ async function createWrapper() {
                             value: 'standard',
                         },
                         url: {
+                            source: 'static',
+                            value: null,
+                        },
+                        ariaLabel: {
                             source: 'static',
                             value: null,
                         },
@@ -83,6 +87,10 @@ async function createWrapper() {
                             source: 'static',
                             value: false,
                         },
+                        fetchPriorityHigh: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -97,21 +105,22 @@ describe('src/module/sw-cms/elements/image/config', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
+    it('should keep minHeight value when changing display mode', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should keep minHeight value when changing display mode', async () => {
-        const wrapper = await createWrapper('settings');
-        const displayModeSelect = wrapper.find('.sw-cms-el-config-image__display-mode');
-
-        await displayModeSelect.setValue('cover');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeCover',
+            '.sw-cms-el-config-image__display-mode input',
+        );
 
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
 
-        await displayModeSelect.setValue('standard');
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-cms.elements.general.config.label.displayModeStandard',
+            '.sw-cms-el-config-image__display-mode input',
+        );
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');

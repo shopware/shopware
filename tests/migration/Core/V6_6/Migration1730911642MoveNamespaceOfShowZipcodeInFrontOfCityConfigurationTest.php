@@ -5,9 +5,11 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfiguration;
 
 /**
@@ -34,30 +36,14 @@ class Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfigurationTes
 
     public function testConfigExists(): void
     {
-        // Revert the change, already done by the migration itself
-        $this->connection->update('system_config', [
-            'configuration_key' => 'core.address.showZipcodeInFrontOfCity',
-        ], [
+        // Revert the change already done by the migrations
+        $this->connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.loginRegistration.showZipcodeInFrontOfCity',
+            'configuration_value' => json_encode(['_value' => true]),
+            'sales_channel_id' => null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
-
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select('configuration_value')
-            ->from('system_config')
-            ->where(
-                $qb->expr()->like('configuration_key', ':configKey')
-            )
-            ->setParameter('configKey', 'core.address.showZipcodeInFrontOfCity')
-        ;
-
-        $previousValue = $qb->executeQuery()->fetchOne();
-        static::assertIsString($previousValue);
-
-        $previousValue = json_decode($previousValue, true);
-
-        static::assertArrayHasKey('_value', $previousValue);
-        static::assertTrue($previousValue['_value']);
 
         $migration = new Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfiguration();
         $migration->update($this->connection);
@@ -79,7 +65,7 @@ class Migration1730911642MoveNamespaceOfShowZipcodeInFrontOfCityConfigurationTes
         $afterValue = json_decode($afterValue, true);
 
         static::assertArrayHasKey('_value', $afterValue);
-        static::assertSame($previousValue['_value'], $afterValue['_value']);
+        static::assertTrue($afterValue['_value']);
 
         $qb = $this->connection->createQueryBuilder();
         $qb

@@ -3,16 +3,16 @@
  *
  * @module core/service/utils
  */
-import throttle from 'lodash/throttle';
-import flow from 'lodash/flow';
-import debounce from 'lodash/debounce';
-import flattenDeep from 'lodash/flattenDeep';
+import throttle from 'lodash-es/throttle';
+import flow from 'lodash-es/flow';
+import debounce from 'lodash-es/debounce';
+import flattenDeep from 'lodash-es/flattenDeep';
 import { uuidv7 } from 'uuidv7';
-import remove from 'lodash/remove';
-import slice from 'lodash/slice';
-import uniqBy from 'lodash/uniqBy';
-import chunk from 'lodash/chunk';
-import intersectionBy from 'lodash/intersectionBy';
+import remove from 'lodash-es/remove';
+import slice from 'lodash-es/slice';
+import uniqBy from 'lodash-es/uniqBy';
+import chunk from 'lodash-es/chunk';
+import intersectionBy from 'lodash-es/intersectionBy';
 
 import {
     deepCopyObject,
@@ -26,6 +26,8 @@ import {
     get,
     set,
     pick,
+    unset,
+    has,
 } from './utils/object.utils';
 import { warn, error } from './utils/debug.utils';
 import { currency, date, dateWithUserTimezone, fileSize, md5, toISODate } from './utils/format.utils';
@@ -37,6 +39,9 @@ import sortUtils from './utils/sort.utils';
 import VueHelper from './utils/vue-helper.utils';
 import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
+import unitConversionUtils from './utils/unit-conversion.utils';
+import { mapInheritanceSlotPropsToMeteorProps } from './utils/meteor-inheritance.utils';
+import { telemetry as MeteorTelemetry } from '@shopware-ag/meteor-admin-sdk';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const object = {
@@ -51,6 +56,8 @@ export const object = {
     get: get,
     set: set,
     pick: pick,
+    unset: unset,
+    has: has,
 };
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -137,6 +144,20 @@ export const genericRuleCondition = {
     getPlaceholderSnippet: genericRuleConditionUtils.getPlaceholderSnippet,
 };
 
+/**
+ * @private
+ */
+export const unitConversion = {
+    convert: unitConversionUtils.convertUnit,
+};
+
+/**
+ * @private
+ */
+export const extension = {
+    getExtensionNameByOrigin: MeteorTelemetry.getSourceExtensionName,
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     createId,
@@ -157,6 +178,9 @@ export default {
     VueHelper,
     EventBus,
     genericRuleCondition,
+    unitConversion,
+    extension,
+    mapInheritanceSlotPropsToMeteorProps,
 };
 
 /**
@@ -165,8 +189,6 @@ export default {
  * @returns { String }
  */
 function createId(): string {
-    // eslint-disable-next-line max-len
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
     return uuidv7().replace(/-/g, '');
 }
 

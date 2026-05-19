@@ -4,10 +4,10 @@
     class="sw-bulk-edit-order-documents-download-documents"
 >
     {% block sw_bulk_edit_order_documents_download_documents_content %}
-    <sw-checkbox-field
+    <mt-checkbox
         v-for="documentType in documentTypes"
         :key="documentType.id"
-        v-model:value="documentType.selected"
+        v-model:checked="documentType.selected"
         :label="documentType.translated.name"
         class="sw-bulk-edit-order-documents-download-documents__checkbox"
         :class="`is--${documentType.technicalName}`"

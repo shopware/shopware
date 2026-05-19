@@ -282,13 +282,7 @@ async function createWrapper() {
                         'sw-data-grid-settings': {
                             template: '<div></div>',
                         },
-                        'sw-empty-state': {
-                            template: '<div class="sw-empty-state"></div>',
-                        },
                         'sw-pagination': {
-                            template: '<div></div>',
-                        },
-                        'sw-icon': {
                             template: '<div></div>',
                         },
                         'router-link': true,

@@ -1,0 +1,12 @@
+{
+    "base": "/bundles/administration/",
+    "entryPoints": {
+        "administration": {
+            "js": [
+                "/bundles/administration/administration/assets/app.js"
+            ],
+            "legacy": false,
+            "preload": []
+        }
+    }
+}

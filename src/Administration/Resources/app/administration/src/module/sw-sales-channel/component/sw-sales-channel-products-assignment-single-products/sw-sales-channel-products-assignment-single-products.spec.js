@@ -58,11 +58,9 @@ async function createWrapper() {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
                 'sw-context-menu-item': true,
-                'sw-empty-state': true,
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tab-items': true,
-                'sw-icon': true,
                 'sw-pagination': true,
                 'sw-data-grid-skeleton': true,
                 'sw-data-grid-settings': true,
@@ -86,6 +84,15 @@ async function createWrapper() {
                 },
                 validationService: {},
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
         },
         props: {
             salesChannel: {
@@ -103,7 +110,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         setProductData([]);
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should display data grid when there is product data', async () => {
@@ -142,7 +149,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-data-grid__select-all .sw-field__checkbox input').trigger('click');
+        await wrapper.find('.sw-data-grid__select-all.mt-field--checkbox__container input').trigger('click');
         expect(wrapper.emitted('selection-change').at(-1)).toEqual([
             [
                 {

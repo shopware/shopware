@@ -31,7 +31,6 @@ async function createWrapper(customString = '') {
                     },
                     'sw-skeleton': true,
                     'sw-search-bar': true,
-                    'sw-icon': true,
                     'sw-button-process': true,
                 },
             },
@@ -40,11 +39,6 @@ async function createWrapper(customString = '') {
 }
 
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
-    it('should be a vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should trim empty spaces from license host', async () => {
         const wrapper = await createWrapper('  foobar  ');
 

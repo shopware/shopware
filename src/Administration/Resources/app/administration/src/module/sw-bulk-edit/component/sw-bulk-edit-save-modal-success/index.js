@@ -3,6 +3,7 @@
  */
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
+import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
 
 const { Criteria } = Shopware.Data;
 
@@ -50,7 +51,7 @@ export default {
         },
 
         selectedIds() {
-            return Shopware.Store.get('shopwareApps').selectedIds;
+            return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
         downloadOrderDocuments() {
@@ -89,8 +90,8 @@ export default {
 
         description() {
             return this.selectedDocumentTypes.length > 0
-                ? this.$tc('sw-bulk-edit.modal.success.instruction')
-                : this.$tc('sw-bulk-edit.modal.success.description');
+                ? this.$t('sw-bulk-edit.modal.success.instruction')
+                : this.$t('sw-bulk-edit.modal.success.description');
         },
     },
 
@@ -106,14 +107,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.success.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.success.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'close',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'right',
                     variant: 'primary',
                     action: '',
@@ -164,10 +165,14 @@ export default {
 
             if (!documentIds || documentIds.length === 0) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
+                    message: this.$t('sw-bulk-edit.modal.success.messageNoDocumentsFound'),
                 });
 
                 return Promise.resolve();
+            }
+
+            if (!this.document[documentType]) {
+                this.document[documentType] = {};
             }
 
             this.document[documentType].isDownloading = true;
@@ -178,7 +183,7 @@ export default {
                         return;
                     }
 
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
+                    const filename = fileReaderUtils.getFilenameFromResponse(response);
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;

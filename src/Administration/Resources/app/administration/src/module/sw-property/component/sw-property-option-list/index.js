@@ -5,7 +5,7 @@
 import template from './sw-property-option-list.html.twig';
 import './sw-property-option-list.scss';
 
-const { Store, Mixin } = Shopware;
+const { Store } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -16,15 +16,12 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
-
     props: {
         propertyGroup: {
             type: Object,
             required: true,
         },
+
         optionRepository: {
             type: Object,
             required: true,
@@ -42,6 +39,7 @@ export default {
             sortBy: 'name',
             sortDirection: 'ASC',
             showDeleteModal: false,
+            showEmptyState: false,
         };
     },
 
@@ -60,7 +58,7 @@ export default {
 
         tooltipAdd() {
             return {
-                message: this.$tc('sw-property.detail.addOptionNotPossible'),
+                message: this.$t('sw-property.detail.addOptionNotPossible'),
                 disabled: this.isSystemLanguage,
             };
         },
@@ -69,6 +67,22 @@ export default {
             return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         },
 
+        useNaturalNameSorting() {
+            const options = this.propertyGroup?.options || [];
+
+            if (!options.length) {
+                return false;
+            }
+
+            return options.some((option) => {
+                const name = (option?.translated?.name ?? option?.name ?? '').toString();
+                return /\d/.test(name);
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         dataSource() {
             return this.propertyGroup.options && this.propertyGroup.options.slice(0, this.limit);
         },
@@ -110,6 +124,7 @@ export default {
             }
 
             Promise.allSettled(Object.values(this.selection).map((option) => this.onOptionDelete(option))).then(() => {
+                this.resetSelectionState();
                 this.refreshOptionList();
             });
         },
@@ -167,6 +182,11 @@ export default {
             });
         },
 
+        resetSelectionState() {
+            this.selection = null;
+            this.deleteButtonDisabled = true;
+        },
+
         onOptionEdit(option) {
             const localCopy = option;
             localCopy._isNew = false;
@@ -178,21 +198,26 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-property.detail.labelOptionName'),
+                    label: this.$t('sw-property.detail.labelOptionName'),
                     routerLink: 'sw.property.detail',
                     inlineEdit: 'string',
                     primary: true,
+                    naturalSorting: this.useNaturalNameSorting,
                 },
                 {
                     property: 'colorHexCode',
-                    label: this.$tc('sw-property.detail.labelOptionColor'),
+                    label: this.$t('sw-property.detail.labelOptionColor'),
                 },
                 {
                     property: 'position',
-                    label: this.$tc('sw-property.detail.labelOptionPosition'),
+                    label: this.$t('sw-property.detail.labelOptionPosition'),
                     inlineEdit: 'number',
                 },
             ];
+        },
+
+        checkEmptyState() {
+            this.showEmptyState = this.$refs.grid?.total === 0;
         },
     },
 };

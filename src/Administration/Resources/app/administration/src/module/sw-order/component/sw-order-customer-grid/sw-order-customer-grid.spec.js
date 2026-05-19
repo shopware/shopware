@@ -76,8 +76,8 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-number-field': {
-                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                'mt-number-field': {
+                    template: '<input class="mt-number-field" type="number" v-model="value" />',
                     props: {
                         value: 0,
                     },
@@ -107,10 +107,13 @@ async function createWrapper() {
                     data() {
                         return { term: '' };
                     },
-                    template:
-                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                    template: `
+                        <div>
+                            <input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">
+                            <slot name="filter"></slot>
+                        </div>
+                    `,
                 },
-                'sw-icon': true,
                 'sw-field': true,
                 'router-link': true,
                 'sw-order-new-customer-modal': true,
@@ -161,10 +164,12 @@ async function createWrapper() {
                                     {
                                         id: '1234',
                                         name: 'Lazada',
+                                        languageId: '8888',
                                     },
                                     {
                                         id: '123456',
                                         name: 'Tiki',
+                                        languageId: '5678',
                                     },
                                 ]);
                             }
@@ -180,12 +185,6 @@ async function createWrapper() {
                 },
             },
             mocks: {
-                $tc: (key, value) => {
-                    if (!value) {
-                        return key;
-                    }
-                    return key + JSON.stringify(value);
-                },
                 $t: (key, value) => {
                     if (!value) {
                         return key;
@@ -491,6 +490,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
+
+        // First call on customer select, second call after sales channel select
+        expect(Shopware.Store.get('context').api.languageId).toBe('8888');
     });
 
     it('should show sales channel select modal when customer sales channel is not in the allowed list and has no bound sales channel', async () => {

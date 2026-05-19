@@ -14,7 +14,6 @@ async function createWrapper(customRoute, fromLink = null) {
                     template: '<div class="sw-router-link"><slot></slot></div>',
                     props: ['to'],
                 },
-                'sw-icon': true,
             },
             mocks: {
                 $route: customRoute,

@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,9 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[CoversClass(AddOrderTagAction::class)]
 class AddOrderTagActionTest extends TestCase
 {
+    /**
+     * @var MockObject&EntityRepository<OrderCollection>
+     */
     private MockObject&EntityRepository $repository;
 
     private AddOrderTagAction $action;
@@ -58,7 +62,7 @@ class AddOrderTagActionTest extends TestCase
         ]);
         $flow->setConfig($config);
 
-        $this->repository->expects(static::once())
+        $this->repository->expects($this->once())
             ->method('update')
             ->with([['id' => $orderId, 'tags' => $expected]]);
 
@@ -69,7 +73,7 @@ class AddOrderTagActionTest extends TestCase
     {
         $flow = new StorableFlow('foo', Context::createDefaultContext());
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }
@@ -80,7 +84,7 @@ class AddOrderTagActionTest extends TestCase
             OrderAware::ORDER_ID => Uuid::randomHex(),
         ]);
 
-        $this->repository->expects(static::never())->method('update');
+        $this->repository->expects($this->never())->method('update');
 
         $this->action->handleFlow($flow);
     }

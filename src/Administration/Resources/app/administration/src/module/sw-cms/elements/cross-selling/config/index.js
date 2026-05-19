@@ -48,6 +48,46 @@ export default {
         isProductPageType() {
             return this.cmsPageState?.currentPage?.type === 'product_detail';
         },
+
+        boxLayoutOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'image',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeImage'),
+                },
+                {
+                    id: 3,
+                    value: 'minimal',
+                    label: this.$t('sw-cms.elements.productBox.config.label.layoutTypeMinimal'),
+                },
+            ];
+        },
+
+        displayModeOptions() {
+            return [
+                {
+                    id: 1,
+                    value: 'standard',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
+                },
+                {
+                    id: 2,
+                    value: 'cover',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
+                },
+                {
+                    id: 3,
+                    value: 'contain',
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeContain'),
+                },
+            ];
+        },
     },
 
     created() {

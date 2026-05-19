@@ -4,21 +4,31 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Twig\Cache\CacheInterface;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type TwigOptions array{cache?: CacheInterface, debug?: bool, auto_reload?: bool}
  */
 #[Package('framework')]
 class Script extends Struct
 {
+    /**
+     * @var TwigOptions
+     */
+    private array $twigOptions = [];
+
+    /**
+     * @param array<Script> $includes
+     */
     public function __construct(
         protected string $name,
         protected string $script,
         protected \DateTimeInterface $lastModified,
         private readonly ?ScriptAppInformation $scriptAppInformation = null,
-        protected array $twigOptions = [],
         protected array $includes = [],
-        private readonly bool $active = true
+        private readonly bool $active = true,
     ) {
     }
 
@@ -32,9 +42,20 @@ class Script extends Struct
         return $this->script;
     }
 
+    /**
+     * @return TwigOptions
+     */
     public function getTwigOptions(): array
     {
         return $this->twigOptions;
+    }
+
+    /**
+     * @param TwigOptions $twigOptions
+     */
+    public function setTwigOptions(array $twigOptions): void
+    {
+        $this->twigOptions = $twigOptions;
     }
 
     public function getLastModified(): \DateTimeInterface
@@ -43,7 +64,7 @@ class Script extends Struct
     }
 
     /**
-     * @return Script[]
+     * @return array<Script>
      */
     public function getIncludes(): array
     {

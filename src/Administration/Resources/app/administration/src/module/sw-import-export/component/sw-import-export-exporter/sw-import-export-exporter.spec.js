@@ -9,22 +9,22 @@ const repositoryMockFactory = () => {
         search: (criteria) => {
             const profiles = [
                 {
-                    label: 'Default product',
+                    technicalName: 'default_product',
                     sourceEntity: 'product',
                     config: [],
                 },
                 {
-                    label: 'Default configurator settings',
+                    technicalName: 'default_configurator_settings',
                     sourceEntity: 'product_configurator_setting',
                     config: [],
                 },
                 {
-                    label: 'Default category',
+                    technicalName: 'default_category',
                     sourceEntity: 'category',
                     config: [],
                 },
                 {
-                    label: 'Default media',
+                    technicalName: 'default_media',
                     sourceEntity: 'media',
                     config: [],
                 },
@@ -63,8 +63,6 @@ describe('components/sw-import-export-exporter', () => {
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-loader': true,
-                        'sw-icon': true,
-
                         'sw-field-error': true,
                         'sw-import-export-progress': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
@@ -89,7 +87,6 @@ describe('components/sw-import-export-exporter', () => {
                                     return Promise.resolve();
                                 }
 
-                                // eslint-disable-next-line prefer-promise-reject-errors
                                 return Promise.reject({
                                     response: {
                                         data: {
@@ -115,12 +112,8 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not show the warning when nothing is selected', async () => {
-        expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBe(false);
     });
 
     it('should not show the warning when a product profile without variants is selected', async () => {
@@ -128,13 +121,13 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
 
         const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-highlight-text');
-        expect(defaultProduct.text()).toBe('Default product');
+        expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
-        expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
+        expect(wrapper.find('.sw-import-export-exporter__variants-warning').exists()).toBe(false);
     });
 
     it('should not show the warning when a product profile should not export variants', async () => {
@@ -142,16 +135,16 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
 
         const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text');
-        expect(defaultProduct.text()).toBe('Default product');
+        expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
         const variantsWarning = wrapper.find('.sw-import-export-exporter__variants-warning');
 
-        expect(variantsWarning.exists()).toBeFalsy();
+        expect(variantsWarning.exists()).toBe(false);
     });
 
     it('should show the warning when a product profile should also export variants', async () => {
@@ -159,12 +152,12 @@ describe('components/sw-import-export-exporter', () => {
         await flushPromises();
 
         const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text');
-        expect(defaultProduct.text()).toBe('Default product');
+        expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
+        expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('default_product');
 
         await wrapper.setData({
             config: {
@@ -241,10 +234,10 @@ describe('components/sw-import-export-exporter', () => {
         const resultNames = [];
         results.forEach((result) => resultNames.push(result.text()));
 
-        expect(resultNames).toContain('Default product');
-        expect(resultNames).toContain('Default configurator settings');
-        expect(resultNames).toContain('Default category');
-        expect(resultNames).toContain('Default media');
+        expect(resultNames).toContain('default_product');
+        expect(resultNames).toContain('default_configurator_settings');
+        expect(resultNames).toContain('default_category');
+        expect(resultNames).toContain('default_media');
     });
 
     it('should show only matching profiles when sourceEntity property is set', async () => {
@@ -260,10 +253,10 @@ describe('components/sw-import-export-exporter', () => {
         const resultNames = [];
         results.forEach((result) => resultNames.push(result.text()));
 
-        expect(resultNames).not.toContain('Default product');
-        expect(resultNames).toContain('Default configurator settings');
-        expect(resultNames).not.toContain('Default category');
-        expect(resultNames).not.toContain('Default media');
+        expect(resultNames).not.toContain('default_product');
+        expect(resultNames).toContain('default_configurator_settings');
+        expect(resultNames).not.toContain('default_category');
+        expect(resultNames).not.toContain('default_media');
     });
 
     it('should throw an warning if the import fails hard', async () => {

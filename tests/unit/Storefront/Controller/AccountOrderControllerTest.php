@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -38,6 +39,8 @@ use Shopware\Storefront\Controller\AccountOrderController;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
+use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -48,6 +51,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[CoversClass(AccountOrderController::class)]
+#[Package('checkout')]
 class AccountOrderControllerTest extends TestCase
 {
     private AccountOrderControllerTestClass $controller;
@@ -65,7 +69,8 @@ class AccountOrderControllerTest extends TestCase
         $this->orderRouteMock = $this->createMock(AbstractOrderRoute::class);
         $this->accountEditOrderPageLoaderMock = $this->createMock(AccountEditOrderPageLoader::class);
         $this->handlePaymentRouteMock = $this->createMock(AbstractHandlePaymentMethodRoute::class);
-        $this->orderServiceMock = $this->createPartialMock(OrderService::class, ['__construct']);
+
+        $this->orderServiceMock = $this->createMock(OrderService::class);
 
         $this->controller = new AccountOrderControllerTestClass(
             $this->createMock(AccountOrderPageLoader::class),
@@ -80,6 +85,8 @@ class AccountOrderControllerTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class),
             $this->createMock(SystemConfigService::class),
             $this->orderServiceMock,
+            $this->createMock(HeaderPageletLoaderInterface::class),
+            $this->createMock(FooterPageletLoaderInterface::class),
         );
     }
 
@@ -90,10 +97,10 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder($ids->get('order'), new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testEditOrderInvalidUuid(): void
@@ -104,10 +111,10 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder('invalid-id', new Request(), Generator::generateSalesChannelContext());
 
         // Ensure flash massage is shown
-        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_NOT_FOUND']], $this->controller->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testOrderAlreadyPaid(): void
@@ -139,7 +146,7 @@ class AccountOrderControllerTest extends TestCase
             )
         );
 
-        $dispatcher = static::createMock(EventDispatcherInterface::class);
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
         $container = new ContainerBuilder();
         $container->set('event_dispatcher', $dispatcher);
@@ -152,10 +159,10 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->editOrder($ids->get('order'), new Request(), $salesChannelContext);
 
         // Ensure flash massage is shown
-        static::assertEquals(['danger' => ['error.CHECKOUT__ORDER_ORDER_ALREADY_PAID']], $this->controller->flashBag);
+        static::assertSame(['danger' => ['error.CHECKOUT__ORDER_ORDER_ALREADY_PAID']], $this->controller->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
+        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        static::assertSame('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testCancelOrderRedirectsToCorrectRouteForLoggedInCustomer(): void
@@ -172,7 +179,7 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals('frontend.account.order.page', $response->getTargetUrl());
+        static::assertSame('frontend.account.order.page', $response->getTargetUrl());
     }
 
     public function testCancelOrderRedirectsToCorrectRouteForGuestCustomer(): void
@@ -190,7 +197,7 @@ class AccountOrderControllerTest extends TestCase
         $response = $this->controller->cancelOrder($request, $salesChannelContextMock);
 
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertEquals('frontend.account.order.single.page', $response->getTargetUrl());
+        static::assertSame('frontend.account.order.single.page', $response->getTargetUrl());
     }
 
     public function testTransactionsStateMachineAssociationIsLoadedOnOrderUpdate(): void
@@ -235,16 +242,20 @@ class AccountOrderControllerTest extends TestCase
         );
 
         $this->orderRouteMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with($request = new Request(), $salesChannelContext, $criteria)
             ->willReturn($accountRouteResponse);
 
+        $this->orderServiceMock
+            ->method('isPaymentChangeableByTransactionState')
+            ->willReturn(true);
+
         $this->handlePaymentRouteMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('load')
             ->with(static::isInstanceOf(Request::class), $salesChannelContext)
-            ->willReturn(new HandlePaymentMethodRouteResponse(new RedirectResponse('http://doesnotexist.com')));
+            ->willReturn(new HandlePaymentMethodRouteResponse(new RedirectResponse('https://doesnotexist.com')));
 
         $this->controller->updateOrder($ids->get('order'), $request, $salesChannelContext);
     }

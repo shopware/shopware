@@ -14,10 +14,6 @@ async function createWrapper(action) {
                 tooltip: {},
             },
             stubs: {
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'icons-regular-external-link': {
-                    template: '<span class="sw-icon sw-icon--regular-external-link"></span>',
-                },
                 'sw-extension-icon': await wrapTestComponent('sw-extension-icon'),
             },
             provide: {
@@ -43,18 +39,6 @@ const baseAction = {
 
 describe('sw-app-action-button', () => {
     let wrapper = null;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(baseAction);
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.classes()).toEqual(
-            expect.arrayContaining([
-                'sw-app-action-button',
-                'sw-context-menu-item',
-            ]),
-        );
-    });
 
     it('is a div if action is a webaction', async () => {
         wrapper = await createWrapper(baseAction);
@@ -101,5 +85,29 @@ describe('sw-app-action-button', () => {
         expect(wrapper.emitted('run-app-action')[0]).toStrictEqual([
             baseAction,
         ]);
+    });
+
+    it('should show meteor icon if set and view is not item', async () => {
+        wrapper = await createWrapper({
+            ...baseAction,
+            meteorIcon: 'regular-star',
+            view: 'list',
+        });
+
+        const meteorIcon = wrapper.find('.mt-icon');
+
+        expect(meteorIcon.exists()).toBe(true);
+        expect(meteorIcon.classes()).toContain('icon--regular-star');
+    });
+
+    it('should not show meteor icon if view is item', async () => {
+        wrapper = await createWrapper({
+            ...baseAction,
+            meteorIcon: 'regular-star',
+            view: 'item',
+        });
+
+        const meteorIcon = wrapper.find('.mt-icon');
+        expect(meteorIcon.exists()).toBe(false);
     });
 });

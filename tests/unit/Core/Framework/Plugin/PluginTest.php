@@ -18,8 +18,10 @@ class PluginTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $pluginsDir = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/plugins/';
-        self::$swagTestPluginPath = $pluginsDir . '/SwagTestPlugin';
+        $pluginsDir = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/plugins/';
+        $swagTestPluginPath = realpath($pluginsDir . '/SwagTestPlugin');
+        static::assertIsString($swagTestPluginPath);
+        self::$swagTestPluginPath = $swagTestPluginPath;
 
         self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();
         symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);
@@ -29,7 +31,7 @@ class PluginTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
-        if (file_exists(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
+        if (\is_dir(self::$symlinkedSwagTestPluginPath) && is_link(self::$symlinkedSwagTestPluginPath)) {
             unlink(self::$symlinkedSwagTestPluginPath);
         }
     }
@@ -38,27 +40,35 @@ class PluginTest extends TestCase
     {
         $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath);
 
-        static::assertEquals(self::$swagTestPluginPath . '/src', $plugin->getPath());
+        static::assertSame(self::$swagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetPathWithSymlinkedPlugin(): void
     {
         $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
-        static::assertEquals(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
+        static::assertSame(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetBasePath(): void
     {
         $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
-        static::assertEquals(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
+        static::assertSame(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
     }
 
     public function testGetBasePathIncludingSlash(): void
     {
         $plugin = new SwagTestPlugin(true, 'somePlugin', '/www/');
 
-        static::assertEquals('/www/somePlugin', $plugin->getBasePath());
+        static::assertSame('/www/somePlugin', $plugin->getBasePath());
+    }
+
+    public function testGetPathWithTrailingSlashBasePath(): void
+    {
+        $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath . '/');
+
+        static::assertSame(self::$swagTestPluginPath . '/src', $plugin->getPath());
+        static::assertStringNotContainsString('//', $plugin->getPath());
     }
 }

@@ -1,6 +1,6 @@
 {% block sw_alert %}
 <mt-banner
-    v-if="useMeteorComponent"
+    v-if="!deprecated"
     v-bind="$attrs"
 >
     <template #default>
@@ -9,7 +9,6 @@
 </mt-banner>
 {% endblock %}
 
-{% block sw_alert_deprecated %}
 <sw-alert-deprecated
     v-else
     v-bind="$attrs"
@@ -19,4 +18,3 @@
         <slot name="actions"></slot>
     </template>
 </sw-alert-deprecated>
-{% endblock %}

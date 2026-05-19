@@ -55,6 +55,11 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
         ];
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1673249981, (new Migration1673249981MigrateIsNewCustomerRule())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->addTestConditions();
@@ -65,8 +70,8 @@ class Migration1673249981MigrateIsNewCustomerRuleTest extends TestCase
         static::assertCount(0, $this->getIsNewCustomerConditions());
         static::assertNull($this->getTestRule()['payload'], 'the migrated rule payload should be empty');
         $value = json_decode((string) $this->getDaysSinceFirstLoginConditions()['value'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals('=', $value['operator']);
-        static::assertEquals(0, $value['daysPassed']);
+        static::assertSame('=', $value['operator']);
+        static::assertSame(0, $value['daysPassed']);
 
         $this->removeTestConditions();
     }

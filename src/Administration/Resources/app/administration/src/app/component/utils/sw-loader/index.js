@@ -1,7 +1,5 @@
 import template from './sw-loader.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -9,7 +7,7 @@ const { Component } = Shopware;
  * @status ready
  * @description Wrapper component for sw-loader and mt-loader. Autoswitches between the two components.
  */
-Component.register('sw-loader', {
+export default {
     template,
 
     props: {
@@ -36,8 +34,7 @@ Component.register('sw-loader', {
             // Throw warning when deprecated component is used
             Shopware.Utils.debug.warn(
                 'sw-loader',
-                // eslint-disable-next-line max-len
-                'The old usage of "sw-loader" is deprecated and will be removed in v6.7.0.0. Please use "mt-loader" instead.',
+                'The old usage of "sw-loader" is deprecated and will be removed in v6.8.0.0. Please use "mt-loader" instead.',
             );
 
             return false;
@@ -46,9 +43,7 @@ Component.register('sw-loader', {
 
     methods: {
         getSlots() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots;
         },
     },
-});
+};

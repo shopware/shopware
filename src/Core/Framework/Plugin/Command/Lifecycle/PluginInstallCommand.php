@@ -2,14 +2,24 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
+use Composer\Package\PackageInterface;
+use Composer\Util\PackageSorter;
+use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
+use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(
     name: 'plugin:install',
@@ -19,6 +29,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PluginInstallCommand extends AbstractPluginLifecycleCommand
 {
     private const LIFECYCLE_METHOD = 'install';
+
+    /**
+     * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
+    public function __construct(
+        PluginLifecycleService $pluginLifecycleService,
+        EntityRepository $pluginRepo,
+        CacheClearer $cacheClearer,
+        private readonly string $projectDir
+    ) {
+        parent::__construct($pluginLifecycleService, $pluginRepo, $cacheClearer);
+    }
 
     protected function configure(): void
     {
@@ -43,6 +67,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         }
 
         $activatePlugins = $input->getOption('activate');
+        $plugins = $this->sortPluginsByRequirements($plugins);
 
         $installedPluginCount = 0;
         foreach ($plugins as $plugin) {
@@ -73,7 +98,8 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
                 if ($input->getOption('refresh')) {
                     $io->note('Can not refresh and activate in same request.');
                 } else {
-                    $this->pluginLifecycleService->activatePlugin($plugin, $context);
+                    // do not validate requirements here, as the plugin was already installed and would have thrown an exception if the requirements were not met.
+                    $this->pluginLifecycleService->activatePlugin($plugin, $context, validateRequirements: false);
                     $activationSuffix = ' and activated';
                 }
             }
@@ -90,5 +116,46 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         }
 
         return self::SUCCESS;
+    }
+
+    private function sortPluginsByRequirements(PluginCollection $plugins): PluginCollection
+    {
+        if ($plugins->count() <= 1) {
+            return $plugins;
+        }
+
+        // This only sorts selected plugins that are known before installation starts. The command
+        // does not reload Composer's autoloader after a plugin installs new PHP packages, so later
+        // plugins can use those packages only in a new CLI process.
+        $packages = [];
+        $pluginsByPackageName = [];
+
+        foreach ($plugins as $plugin) {
+            $package = $this->getPluginPackage($plugin);
+            $packages[] = $package;
+            $pluginsByPackageName[$package->getName()] = $plugin;
+        }
+
+        $sortedPlugins = [];
+        foreach (PackageSorter::sortPackages($packages) as $package) {
+            $sortedPlugins[] = $pluginsByPackageName[$package->getName()];
+        }
+
+        return new PluginCollection($sortedPlugins);
+    }
+
+    private function getPluginPackage(PluginEntity $plugin): PackageInterface
+    {
+        $pluginPath = $plugin->getPath();
+        \assert($pluginPath !== null);
+
+        $pluginDirectory = Path::join($this->projectDir, $pluginPath);
+        $composerJsonPath = Path::join($pluginDirectory, 'composer.json');
+
+        if (!is_file($composerJsonPath)) {
+            throw PluginException::composerJsonMissing($plugin->getName(), $composerJsonPath);
+        }
+
+        return Factory::createComposer($pluginDirectory)->getPackage();
     }
 }

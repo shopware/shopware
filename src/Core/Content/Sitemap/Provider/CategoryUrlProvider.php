@@ -6,6 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelCategoryIdsFetchedEvent;
+use Shopware\Core\Content\Sitemap\Event\SitemapQueryEvent;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
@@ -16,12 +18,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Package('discovery')]
 class CategoryUrlProvider extends AbstractUrlProvider
 {
     final public const CHANGE_FREQ = 'daily';
+
+    final public const QUERY_EVENT_NAME = 'sitemap.query.category';
 
     /**
      * @internal
@@ -31,7 +36,8 @@ class CategoryUrlProvider extends AbstractUrlProvider
         private readonly Connection $connection,
         private readonly CategoryDefinition $definition,
         private readonly IteratorFactory $iteratorFactory,
-        private readonly RouterInterface $router
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -45,21 +51,37 @@ class CategoryUrlProvider extends AbstractUrlProvider
         return 'category';
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws \Exception
-     */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
         $categories = $this->getCategories($context, $limit, $offset);
 
-        if (empty($categories)) {
+        if ($categories === []) {
             return new UrlResult([], null);
         }
-        $keys = FetchModeHelper::keyPair($categories);
 
-        $seoUrls = $this->getSeoUrls(array_values($keys), 'frontend.navigation.page', $context, $this->connection);
+        $keys = FetchModeHelper::keyPair($categories);
+        $autoIncrementIds = array_keys($keys);
+
+        // The next offset must be taken from all results before the event can filter any ids out to prevent fetching
+        // the same ids again
+        $nextOffset = array_pop($autoIncrementIds);
+        \assert(\is_int($nextOffset) || $nextOffset === null);
+
+        $categoryIdsFetchedEvent = $this->eventDispatcher->dispatch(
+            new SalesChannelCategoryIdsFetchedEvent(\array_column($categories, 'id'), $context)
+        );
+
+        if (empty($categoryIdsFetchedEvent->getIds())) {
+            return new UrlResult([], $nextOffset);
+        }
+
+        $availableCategories = \array_filter(
+            $categories,
+            static fn (array $category) => $categoryIdsFetchedEvent->hasId($category['id'])
+        );
+
+        /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
+        $seoUrls = $this->getSeoUrls($categoryIdsFetchedEvent->getIds(), 'frontend.navigation.page', $context, $this->connection);
 
         /** @var array<string, array{seo_path_info: string}> $seoUrls */
         $seoUrls = FetchModeHelper::groupUnique($seoUrls);
@@ -67,7 +89,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $urls = [];
         $url = new Url();
 
-        foreach ($categories as $category) {
+        foreach ($availableCategories as $category) {
             $lastMod = $category['updated_at'] ?: $category['created_at'];
 
             $lastMod = (new \DateTime($lastMod))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -77,6 +99,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
             if (isset($seoUrls[$category['id']])) {
                 $newUrl->setLoc($seoUrls[$category['id']]['seo_path_info']);
             } else {
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Will be fixed with https://github.com/shopware/shopware/issues/12970) */
                 $newUrl->setLoc($this->router->generate('frontend.navigation.page', ['navigationId' => $category['id']]));
             }
 
@@ -87,10 +110,6 @@ class CategoryUrlProvider extends AbstractUrlProvider
 
             $urls[] = $newUrl;
         }
-
-        $keys = array_keys($keys);
-        /** @var int|null $nextOffset */
-        $nextOffset = array_pop($keys);
 
         return new UrlResult($urls, $nextOffset);
     }
@@ -132,7 +151,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->andWhere('`category`.type != :folderType');
 
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
-        if (!empty($excludedCategoryIds)) {
+        if ($excludedCategoryIds !== []) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
             $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::BINARY);
         }
@@ -140,6 +159,10 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('linkType', CategoryDefinition::TYPE_LINK);
         $query->setParameter('folderType', CategoryDefinition::TYPE_FOLDER);
+
+        $this->eventDispatcher->dispatch(
+            new SitemapQueryEvent($query, $limit, $offset, $context, self::QUERY_EVENT_NAME)
+        );
 
         /** @var list<array{id: string, created_at: string, updated_at: string}> $result */
         $result = $query->executeQuery()->fetchAllAssociative();
@@ -155,7 +178,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $salesChannelId = $salesChannelContext->getSalesChannelId();
 
         $excludedUrls = $this->configHandler->get(ConfigHandler::EXCLUDED_URLS_KEY);
-        if (empty($excludedUrls)) {
+        if ($excludedUrls === []) {
             return [];
         }
 

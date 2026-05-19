@@ -110,7 +110,7 @@ class AbstractProductDetailCmsElementResolverTest extends TestCase
         $slot->setId('slot-1');
 
         $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())
+        $result->expects($this->once())
             ->method('get')
             ->with('product-1')
             ->willReturn(new SalesChannelProductEntity());

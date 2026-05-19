@@ -26,12 +26,36 @@ class ColorPickerFieldTest extends TestCase
 
         $colorPickerField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(ColorPickerField::class, $colorPickerField);
-        static::assertEquals('test_color_picker_field', $colorPickerField->getName());
-        static::assertEquals([
+        static::assertSame('test_color_picker_field', $colorPickerField->getName());
+        static::assertSame([
             'en-GB' => 'Test color-picker field',
         ], $colorPickerField->getLabel());
-        static::assertEquals([], $colorPickerField->getHelpText());
-        static::assertEquals(1, $colorPickerField->getPosition());
+        static::assertSame([], $colorPickerField->getHelpText());
+        static::assertSame(1, $colorPickerField->getPosition());
         static::assertFalse($colorPickerField->getRequired());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/color-picker-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $colorPickerField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(ColorPickerField::class, $colorPickerField);
+
+        static::assertEquals([
+            'name' => 'test_color_picker_field',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test color-picker field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'type' => 'colorpicker',
+                'componentName' => 'sw-field',
+                'customFieldType' => 'colorpicker',
+            ],
+        ], $colorPickerField->toEntityPayload());
     }
 }

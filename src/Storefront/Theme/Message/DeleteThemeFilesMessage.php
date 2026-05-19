@@ -2,11 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Message;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 
 /**
  * used to delay the deletion of theme files
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. Unused theme files are now deleted with a scheduled task.
+ * @see DeleteThemeFilesTask
+ * @see DeleteThemeFilesTaskHandler
  */
 #[Package('framework')]
 class DeleteThemeFilesMessage implements AsyncMessageInterface
@@ -20,16 +27,31 @@ class DeleteThemeFilesMessage implements AsyncMessageInterface
 
     public function getThemePath(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->themePath;
     }
 
     public function getSalesChannelId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->salesChannelId;
     }
 
     public function getThemeId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->themeId;
     }
 }

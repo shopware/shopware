@@ -30,14 +30,14 @@ class MediaPathUpdaterTest extends TestCase
         ];
 
         $builder = $this->createMock(MediaLocationBuilder::class);
-        $builder->expects(static::once())
+        $builder->expects($this->once())
             ->method('media')
             ->with($ids->getList(['media-1', 'media-2']))
             ->willReturn($locations);
 
         $storage = $this->createMock(MediaPathStorage::class);
 
-        $storage->expects(static::once())
+        $storage->expects($this->once())
             ->method('media')
             ->with([
                 $ids->get('media-1') => 'media/media_1.png',
@@ -61,14 +61,14 @@ class MediaPathUpdaterTest extends TestCase
         ];
 
         $builder = $this->createMock(MediaLocationBuilder::class);
-        $builder->expects(static::once())
+        $builder->expects($this->once())
             ->method('media')
             ->with($ids->getList(['media-1', 'media-2']))
             ->willReturn($locations);
 
         $storage = $this->createMock(MediaPathStorage::class);
 
-        $storage->expects(static::never())
+        $storage->expects($this->never())
             ->method('media');
 
         $updater = new MediaPathUpdater($strategy, $builder, $storage);
@@ -89,14 +89,14 @@ class MediaPathUpdaterTest extends TestCase
 
         $builder = $this->createMock(MediaLocationBuilder::class);
 
-        $builder->expects(static::once())
+        $builder->expects($this->once())
             ->method('thumbnails')
             ->with($ids->getList(['thumbnail-1', 'thumbnail-2']))
             ->willReturn($locations);
 
         $storage = $this->createMock(MediaPathStorage::class);
 
-        $storage->expects(static::once())
+        $storage->expects($this->once())
             ->method('thumbnails')
             ->with([
                 $ids->get('thumbnail-1') => 'thumbnail/media_1_100x100.png',
@@ -121,14 +121,14 @@ class MediaPathUpdaterTest extends TestCase
 
         $builder = $this->createMock(MediaLocationBuilder::class);
 
-        $builder->expects(static::once())
+        $builder->expects($this->once())
             ->method('thumbnails')
             ->with($ids->getList(['thumbnail-1', 'thumbnail-2']))
             ->willReturn($locations);
 
         $storage = $this->createMock(MediaPathStorage::class);
 
-        $storage->expects(static::never())
+        $storage->expects($this->never())
             ->method('thumbnails');
 
         $updater = new MediaPathUpdater($strategy, $builder, $storage);

@@ -66,11 +66,11 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
     {
         $update = [];
         $codes = \array_values(\array_filter(\array_map(
-            fn ($item) => $item->getPayload()['code'] ?? '',
+            static fn ($item) => $item->getPayload()['code'] ?? '',
             \iterator_to_array($lineItems)
         )));
 
-        if (empty($codes)) {
+        if ($codes === []) {
             return;
         }
 
@@ -81,7 +81,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 /** @var string $code */
                 $code = $item->getPayload()['code'] ?? '';
 
-                if ($code !== $promotion->getCode()) {
+                if (strtolower($code) !== strtolower($promotion->getCode())) {
                     continue;
                 }
 
@@ -99,7 +99,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             }
         }
 
-        if (!empty($update)) {
+        if ($update !== []) {
             $this->codesRepository->update($update, $context);
         }
     }
@@ -109,14 +109,11 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     private function getPromotions(array $codes, Context $context): PromotionIndividualCodeCollection
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsAnyFilter('code', $codes)
-        );
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsAnyFilter('code', $codes));
 
         $promotions = $this->codesRepository->search($criteria, $context)->getEntities();
-
-        if (!($promotions instanceof PromotionIndividualCodeCollection) || $promotions->count() === 0) {
+        if ($promotions->count() === 0) {
             throw PromotionException::promotionCodesNotFound($codes);
         }
 
@@ -140,13 +137,13 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
     private function getOrderCustomer(OrderLineItemCollection $orderLineItems, EntityWrittenEvent $event): OrderCustomerEntity
     {
         $lineItem = $orderLineItems->first();
-        \assert($lineItem instanceof OrderLineItemEntity);
+        \assert($lineItem !== null);
 
-        $orderCustomer = $this->orderCustomerRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId())),
-            $event->getContext()
-        )->getEntities()->first();
-        \assert($orderCustomer instanceof OrderCustomerEntity);
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId()));
+
+        $orderCustomer = $this->orderCustomerRepository->search($criteria, $event->getContext())->getEntities()->first();
+        \assert($orderCustomer !== null);
 
         return $orderCustomer;
     }

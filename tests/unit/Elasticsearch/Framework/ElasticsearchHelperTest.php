@@ -3,13 +3,21 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use OpenSearch\Client;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\TermLevel\TermQuery;
+use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -23,7 +31,7 @@ class ElasticsearchHelperTest extends TestCase
     public function testLogAndThrowException(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('critical');
+        $logger->expects($this->once())->method('critical');
         $helper = new ElasticsearchHelper(
             'prod',
             true,
@@ -44,7 +52,7 @@ class ElasticsearchHelperTest extends TestCase
     public function testLogAndThrowExceptionOnlyLogs(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(static::once())->method('critical');
+        $logger->expects($this->once())->method('critical');
         $helper = new ElasticsearchHelper(
             'prod',
             true,
@@ -113,5 +121,88 @@ class ElasticsearchHelperTest extends TestCase
         static::assertFalse(
             $helper->allowSearch(new ProductDefinition(), Context::createDefaultContext(), $criteria)
         );
+    }
+
+    public function testAddQueries(): void
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('test_entity');
+
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('field', 'test'), 500));
+
+        $search = $this->createMock(Search::class);
+        $search->expects($this->once())->method('addQuery')->with(static::isInstanceOf(BoolQuery::class));
+
+        $expectedParsed = new TermQuery('field', 'test');
+        $parser = $this->createMock(CriteriaParser::class);
+        $parser->method('parseFilter')
+            ->willReturnCallback(static function () use ($expectedParsed) {
+                return $expectedParsed;
+            });
+
+        $helper = new ElasticsearchHelper(
+            'dev',
+            true,
+            true,
+            'prefix',
+            true,
+            $this->createMock(Client::class),
+            $this->createMock(ElasticsearchRegistry::class),
+            $parser,
+            $this->createMock(LoggerInterface::class)
+        );
+
+        $helper->addQueries($definition, $criteria, $search, $context);
+
+        static::assertSame(['boost' => '500'], $expectedParsed->getParameters());
+    }
+
+    public function testAddQueriesWithTerm(): void
+    {
+        $definition = $this->createMock(EntityDefinition::class);
+        $definition->method('getEntityName')->willReturn('test_entity');
+
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->setTerm('test');
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('fieldB', 'bar'), 500));
+
+        $search = new Search();
+
+        $search->addQuery(new TermQuery('fieldA', 'bar'), BoolQuery::SHOULD);
+
+        $expectedParsed = new MatchQuery('fieldB', 'bar', ['boost' => SearchRanking::HIGH_SEARCH_RANKING]);
+        $parser = $this->createMock(CriteriaParser::class);
+        $parser->method('parseFilter')
+            ->willReturnCallback(static function () use ($expectedParsed) {
+                return $expectedParsed;
+            });
+
+        $helper = new ElasticsearchHelper(
+            'dev',
+            true,
+            true,
+            'prefix',
+            true,
+            $this->createMock(Client::class),
+            $this->createMock(ElasticsearchRegistry::class),
+            $parser,
+            $this->createMock(LoggerInterface::class)
+        );
+
+        $helper->addQueries($definition, $criteria, $search, $context);
+
+        static::assertSame(['query' => [
+            'bool' => [
+                BoolQuery::SHOULD => [
+                    ['term' => ['fieldA' => 'bar']],
+                    ['match' => ['fieldB' => ['query' => 'bar', 'boost' => (string) SearchRanking::HIGH_SEARCH_RANKING, 'fuzziness' => '2']]],
+                ],
+            ],
+        ]], $search->toArray());
     }
 }

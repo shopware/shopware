@@ -36,6 +36,6 @@ class NewsletterRegisterEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('url', $flow->data());
-        static::assertEquals('my-url', $flow->data()['url']);
+        static::assertSame('my-url', $flow->data()['url']);
     }
 }

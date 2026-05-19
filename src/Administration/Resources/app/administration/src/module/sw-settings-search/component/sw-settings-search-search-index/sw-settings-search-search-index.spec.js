@@ -87,10 +87,9 @@ async function createWrapper(privileges = []) {
                 },
 
                 stubs: {
-                    'sw-progress-bar': {
-                        template: '<div class="sw-progress-bar"><slot></slot></div>',
+                    'mt-progress-bar': {
+                        template: '<div class="mt-progress-bar"><slot></slot></div>',
                     },
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-time-ago': true,
                     'sw-button-process': true,
@@ -101,13 +100,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-index', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not able to rebuild the search index', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',
@@ -182,5 +174,14 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.index.success',
         });
+    });
+
+    it('should return early and not set latestIndex when result.total === 0', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productSearchKeywordRepository.search = jest.fn(() => Promise.resolve({ total: 0 }));
+        wrapper.vm.latestIndex = null;
+        await wrapper.vm.getLatestProductKeywordIndexed();
+        expect(wrapper.vm.latestIndex).toBeNull();
     });
 });

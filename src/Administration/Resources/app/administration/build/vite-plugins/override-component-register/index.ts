@@ -46,7 +46,7 @@ export default function viteOverridePlugin(options: Options): Plugin {
                     const importPath = relativePath.split(path.sep).join('/');
 
                     // Get component name from file name and prefix with _ to avoid name conflicts
-                    const componentName = `_${path.basename(file, '.override.vue')}`;
+                    const componentName = `_${path.basename(file, '.override.vue').replace(/[-_/\\:*?"<>|]/g, '')}`;
                     componentNames.push(`${componentName}`);
 
                     return `import ${componentName} from './${importPath}';`;

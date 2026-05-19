@@ -19,11 +19,11 @@ const mediaItems = [
     },
     {
         id: '3',
-        media: { url: '/administration/static/img/plugin-manager--login.png' },
+        media: { url: '/administration/static/img/plugin-manager--login.webp' },
     },
     {
         id: '4',
-        media: { url: '/administration/static/img/sw-login-background.png' },
+        media: { url: '/administration/static/img/sw-login-background.webp' },
     },
 ];
 
@@ -83,7 +83,6 @@ async function createWrapper(props = {}, listeners = {}) {
         {
             global: {
                 stubs: {
-                    'sw-icon': true,
                     'sw-image-slider': await wrapTestComponent('sw-image-slider', {
                         sync: true,
                     }),

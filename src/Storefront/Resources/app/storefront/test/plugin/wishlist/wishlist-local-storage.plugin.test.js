@@ -3,6 +3,7 @@ import BaseWishlistStoragePlugin from 'src/plugin/wishlist/base-wishlist-storage
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import Storage from 'src/helper/storage/storage.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
+import AjaxOffCanvas from "../../../src/plugin/offcanvas/ajax-offcanvas.plugin";
 
 /**
  * @package checkout
@@ -15,7 +16,7 @@ describe('WishlistLocalStoragePlugin tests', () => {
 
     beforeEach(() => {
         CookieStorageHelper.setItem('wishlist-enabled', true);
-        // create mocks
+
         window.wishlistEnabled = true;
 
         const mockElement = document.createElement('div');
@@ -56,30 +57,6 @@ describe('WishlistLocalStoragePlugin tests', () => {
         wishlistStoragePlugin.remove('PRODUCT_001');
         expect(wishlistStoragePlugin.getCurrentCounter()).toEqual(0);
         expect(Storage.getItem(key)).toBeFalsy();
-    });
-
-    test('LocalWishlistStoragePlugin redirect to login on add product when cookie consent is not given', () => {
-        window = Object.create(window);
-        Object.defineProperty(window, 'location', {
-            value: {
-                href: 'http://shopware.test',
-            },
-            writable: true,
-        });
-
-        window.useDefaultCookieConsent = true;
-        CookieStorageHelper.removeItem('wishlist-enabled');
-
-        let loginRedirectEventFired = false;
-
-        wishlistStoragePlugin.$emitter.subscribe('Wishlist/onLoginRedirect', () => {
-            loginRedirectEventFired = true;
-        });
-
-        wishlistStoragePlugin.add('PRODUCT_001', { afterLoginPath: 'http://shopware.test/login' });
-
-        expect(loginRedirectEventFired).toBe(true);
-        expect(window.location.href).toBe('http://shopware.test/login');
     });
 
     test('LocalWishlistStoragePlugin clear wishlist storage on guest logout', () => {

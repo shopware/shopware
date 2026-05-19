@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\CoreSubscriber;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,7 +30,7 @@ class CoreSubscriberTest extends TestCase
 
     public function testOnRequestNonceGenerated(): void
     {
-        $subscriber = new CoreSubscriber([]);
+        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
         $request = new Request();
         $event = new RequestEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST);
         $subscriber->initializeCspNonce($event);
@@ -39,7 +40,7 @@ class CoreSubscriberTest extends TestCase
 
     public function testNonSuccessfulResponseDoesNotGetTouched(): void
     {
-        $subscriber = new CoreSubscriber([]);
+        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
         $request = new Request();
         $response = new Response('', Response::HTTP_INTERNAL_SERVER_ERROR);
 
@@ -51,7 +52,7 @@ class CoreSubscriberTest extends TestCase
 
     public function testSuccessfullyGetTouched(): void
     {
-        $subscriber = new CoreSubscriber([]);
+        $subscriber = new CoreSubscriber([], $this->createMock(ScriptExecutor::class));
         $request = new Request();
         $request->server->set('HTTPS', 'on');
         $response = new Response();
@@ -64,7 +65,7 @@ class CoreSubscriberTest extends TestCase
 
     public function testCSP(): void
     {
-        $subscriber = new CoreSubscriber(['admin' => 'default-src \'self\'; script-src \'self\' \'nonce-%nonce%\';']);
+        $subscriber = new CoreSubscriber(['admin' => 'default-src \'self\'; script-src \'self\' \'nonce-%nonce%\';'], $this->createMock(ScriptExecutor::class));
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['admin']);
         $request->server->set('HTTPS', 'on');

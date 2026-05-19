@@ -7,7 +7,7 @@
 
     .sw-product-stream-detail__open_modal_preview {
         display: flex;
-        margin: auto auto 20px;
+        margin: 20px auto;
     }
 
     .sw-card.is--disabled .sw-card__content {
@@ -15,13 +15,19 @@
     }
 
     &__button-context-menu {
-        .sw-icon {
+        .mt-icon {
             width: 16px;
             height: 16px;
             padding-top: 6px;
             padding-right: 3px;
             padding-bottom: 4px;
             padding-left: 3px;
+        }
+    }
+
+    &__product-stream-warning {
+        ul {
+            list-style-type: initial;
         }
     }
 }

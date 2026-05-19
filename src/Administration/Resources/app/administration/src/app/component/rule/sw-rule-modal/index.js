@@ -15,7 +15,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * <sw-rule-modal ruleId="0fd38734776f41e9a1ba431f1667e677" @save="onSave" @modal-close="onCloseModal">
  * </sw-rule-modal>
  */
-Component.register('sw-rule-modal', {
+export default {
     template,
 
     inject: [
@@ -75,9 +75,9 @@ Component.register('sw-rule-modal', {
 
         modalTitle() {
             if (!this.rule || this.rule.isNew()) {
-                return this.$tc('sw-rule-modal.modalTitleNew');
+                return this.$t('sw-rule-modal.modalTitleNew');
             }
-            return this.placeholder(this.rule, 'name', this.$tc('sw-rule-modal.modalTitleModify'));
+            return this.placeholder(this.rule, 'name', this.$t('sw-rule-modal.modalTitleModify'));
         },
 
         ...mapPropertyErrors('rule', [
@@ -113,7 +113,6 @@ Component.register('sw-rule-modal', {
                 languageId: Shopware.Store.get('session').languageId,
             };
             const criteria = new Criteria(1, 500);
-            criteria.addAssociation('appScriptCondition');
 
             return Promise.all([
                 this.appScriptConditionRepository.search(criteria, context),
@@ -158,7 +157,7 @@ Component.register('sw-rule-modal', {
 
             if (!tooltip.disabled) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
+                    title: this.$t('global.default.error'),
                     message: tooltip.message,
                 });
                 return false;
@@ -175,11 +174,11 @@ Component.register('sw-rule-modal', {
                 this.rule[this.ruleAwareGroupKey] = [];
             }
 
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-rule-modal.messageSaveSuccess', { name: this.rule.name }, 0);
+            const titleSaveSuccess = this.$t('global.default.success');
+            const messageSaveSuccess = this.$t('sw-rule-modal.messageSaveSuccess', { name: this.rule.name }, 0);
 
-            const titleSaveError = this.$tc('global.default.error');
-            const messageSaveError = this.$tc('sw-rule-modal.messageSaveError', { name: this.rule.name }, 0);
+            const titleSaveError = this.$t('global.default.error');
+            const messageSaveError = this.$t('sw-rule-modal.messageSaveError', { name: this.rule.name }, 0);
 
             this.isLoading = true;
             return this.ruleRepository
@@ -203,4 +202,4 @@ Component.register('sw-rule-modal', {
                 });
         },
     },
-});
+};

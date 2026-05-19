@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -17,12 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteChildDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteManyToOneDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteParentDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteChildDefinition;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteManyToOneDefinition;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteParentDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,6 +36,9 @@ class SetNullOnDeleteTest extends TestCase
 
     private EntityWriter $writer;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $repository;
 
     private Connection $connection;
@@ -170,7 +175,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertArrayHasKey(SetNullOnDeleteParentDefinition::ENTITY_NAME, $deleted);
 
         static::assertCount(1, $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME]);
-        static::assertEquals($ids->get('parent'), $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME][0]->getPrimaryKey());
+        static::assertSame($ids->get('parent'), $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME][0]->getPrimaryKey());
 
         $updated = $result->getWritten();
         static::assertCount(1, $updated);
@@ -179,8 +184,8 @@ class SetNullOnDeleteTest extends TestCase
         static::assertCount(1, $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME]);
         /** @var EntityWriteResult $updateResult */
         $updateResult = $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME][0];
-        static::assertEquals($ids->get('child'), $updateResult->getPrimaryKey());
-        static::assertEquals([
+        static::assertSame($ids->get('child'), $updateResult->getPrimaryKey());
+        static::assertSame([
             'id' => $ids->get('child'),
             'setNullOnDeleteParentId' => null,
             'setNullOnDeleteParentVersionId' => null,
@@ -238,7 +243,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertArrayHasKey(SetNullOnDeleteManyToOneDefinition::ENTITY_NAME, $deleted);
 
         static::assertCount(1, $deleted[SetNullOnDeleteManyToOneDefinition::ENTITY_NAME]);
-        static::assertEquals($childId, $deleted[SetNullOnDeleteManyToOneDefinition::ENTITY_NAME][0]->getPrimaryKey());
+        static::assertSame($childId, $deleted[SetNullOnDeleteManyToOneDefinition::ENTITY_NAME][0]->getPrimaryKey());
 
         $updated = $result->getWritten();
         static::assertCount(1, $updated);
@@ -247,7 +252,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertCount(1, $updated[SetNullOnDeleteParentDefinition::ENTITY_NAME]);
         /** @var EntityWriteResult $updateResult */
         $updateResult = $updated[SetNullOnDeleteParentDefinition::ENTITY_NAME][0];
-        static::assertEquals($id, $updateResult->getPrimaryKey());
+        static::assertSame($id, $updateResult->getPrimaryKey());
         static::assertEquals([
             'id' => $id,
             'versionId' => Defaults::LIVE_VERSION,
@@ -289,7 +294,7 @@ class SetNullOnDeleteTest extends TestCase
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
             static function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {
                 static::assertCount(1, $event->getPayloads());
-                static::assertEquals(
+                static::assertSame(
                     [
                         'id' => $childId,
                         'setNullOnDeleteParentId' => null,

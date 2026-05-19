@@ -69,8 +69,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-select-base': await wrapTestComponent('sw-select-base'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
@@ -84,7 +82,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-icon': true,
                 'sw-color-badge': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
@@ -246,7 +243,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .sw-icon').exists()).toBe(true);
+        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
     });
 
     it('should be possible to clear the selection', async () => {

@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
@@ -31,7 +33,7 @@ class IndexCreatorTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with([
                 'index' => 'foo',
@@ -43,13 +45,16 @@ class IndexCreatorTest extends TestCase
             ]);
 
         // Alias does not exist, swap directly
-        $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
-        $indices->expects(static::once())->method('refresh')->with(['index' => 'foo']);
-        $indices->expects(static::once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
+        $indices->expects($this->once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
+        $indices->expects($this->once())->method('refresh')->with(['index' => 'foo']);
+        $indices->expects($this->once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
 
         $client
             ->method('indices')
             ->willReturn($indices);
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->expects($this->never())->method('logAndThrowException');
 
         $index = new IndexCreator(
             $client,
@@ -57,7 +62,8 @@ class IndexCreatorTest extends TestCase
                 'settings' => $constructorConfig,
             ],
             $this->createMock(IndexMappingProvider::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $helper
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
@@ -69,7 +75,7 @@ class IndexCreatorTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->willReturnCallback(static function (array $config): void {
                 static::assertArrayHasKey('body', $config);
@@ -78,22 +84,26 @@ class IndexCreatorTest extends TestCase
             });
 
         // Alias does not exist, swap directly
-        $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
-        $indices->expects(static::once())->method('refresh')->with(['index' => 'foo']);
-        $indices->expects(static::once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
+        $indices->expects($this->once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(false);
+        $indices->expects($this->once())->method('refresh')->with(['index' => 'foo']);
+        $indices->expects($this->once())->method('putAlias')->with(['index' => 'foo', 'name' => 'bla']);
 
         $client
             ->method('indices')
             ->willReturn($indices);
 
         $eventDispatcher = new EventDispatcher();
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->expects($this->never())->method('logAndThrowException');
+
         $index = new IndexCreator(
             $client,
             [
                 'settings' => [],
             ],
             $this->createMock(IndexMappingProvider::class),
-            $eventDispatcher
+            $eventDispatcher,
+            $helper
         );
 
         $calledCreateEvent = false;
@@ -104,7 +114,7 @@ class IndexCreatorTest extends TestCase
         });
 
         $calledConfigEvent = false;
-        $eventDispatcher->addListener(ElasticsearchIndexConfigEvent::class, function (ElasticsearchIndexConfigEvent $event) use (&$calledConfigEvent): void {
+        $eventDispatcher->addListener(ElasticsearchIndexConfigEvent::class, static function (ElasticsearchIndexConfigEvent $event) use (&$calledConfigEvent): void {
             $calledConfigEvent = true;
 
             $event->setConfig($event->getConfig() + ['event' => true]);
@@ -122,7 +132,7 @@ class IndexCreatorTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with([
                 'index' => 'foo',
@@ -150,11 +160,15 @@ class IndexCreatorTest extends TestCase
                 ],
             ]);
 
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->expects($this->never())->method('logAndThrowException');
+
         $index = new IndexCreator(
             $client,
             [],
             $mappingProvider,
-            new EventDispatcher()
+            new EventDispatcher(),
+            $helper
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
@@ -167,7 +181,7 @@ class IndexCreatorTest extends TestCase
         $client = $this->createMock(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('create')
             ->with([
                 'index' => 'foo',
@@ -178,19 +192,23 @@ class IndexCreatorTest extends TestCase
             ]);
 
         // Alias does not exist, swap directly
-        $indices->expects(static::once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(true);
-        $indices->expects(static::never())->method('refresh');
-        $indices->expects(static::never())->method('putAlias');
+        $indices->expects($this->once())->method('existsAlias')->with(['name' => 'bla'])->willReturn(true);
+        $indices->expects($this->never())->method('refresh');
+        $indices->expects($this->never())->method('putAlias');
 
         $client
             ->method('indices')
             ->willReturn($indices);
 
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->expects($this->never())->method('logAndThrowException');
+
         $index = new IndexCreator(
             $client,
             [],
             $this->createMock(IndexMappingProvider::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $helper
         );
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
@@ -208,14 +226,59 @@ class IndexCreatorTest extends TestCase
             ->method('indices')
             ->willReturn($indices);
 
+        $helper = $this->createMock(ElasticsearchHelper::class);
+        $helper->expects($this->never())->method('logAndThrowException');
+
         $index = new IndexCreator(
             $client,
             [],
             $this->createMock(IndexMappingProvider::class),
-            new EventDispatcher()
+            new EventDispatcher(),
+            $helper
         );
 
         static::assertTrue($index->aliasExists('foo'));
+    }
+
+    public function testIndexCreationLogsWhenClientThrows(): void
+    {
+        $client = $this->createMock(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        $client->method('indices')->willReturn($indices);
+
+        $indices->expects($this->once())
+            ->method('create')
+            ->willThrowException(new \RuntimeException('boom'));
+        $indices->expects($this->never())->method('refresh');
+        $indices->expects($this->never())->method('putAlias');
+        $indices->expects($this->never())->method('existsAlias');
+
+        $helper = $this->createMock(ElasticsearchHelper::class);
+
+        $helper->expects($this->once())
+            ->method('logAndThrowException')
+            ->with(static::callback(static function (ElasticsearchException $exception): bool {
+                static::assertSame(ElasticsearchException::INDEX_CREATION_ERROR, $exception->getErrorCode());
+                static::assertSame('foo', $exception->getParameters()['index'] ?? null);
+
+                return true;
+            }))
+            ->willThrowException(new \RuntimeException('handled'));
+
+        $index = new IndexCreator(
+            $client,
+            [],
+            $this->createMock(IndexMappingProvider::class),
+            new EventDispatcher(),
+            $helper
+        );
+
+        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('handled');
+
+        $index->createIndex($definition, 'foo', 'alias', Context::createDefaultContext());
     }
 
     /**

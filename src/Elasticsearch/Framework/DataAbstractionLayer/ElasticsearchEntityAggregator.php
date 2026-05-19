@@ -10,10 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Shopware\Elasticsearch\Framework\Exception\EmptyQueryException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('framework')]
@@ -42,7 +42,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
                 return $this->decorated->aggregate($definition, $criteria, $context);
             }
 
-            if (\count($criteria->getAggregations()) === 0) {
+            if ($criteria->getAggregations() === []) {
                 return new AggregationResultCollection();
             }
 
@@ -57,7 +57,6 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             $result = $this->client->search([
                 'index' => $this->helper->getIndexName($definition),
-                'track_total_hits' => false,
                 'body' => $searchArray,
                 'search_type' => $this->searchType,
             ]);
@@ -70,7 +69,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
             return $result;
         } catch (\Throwable $e) {
-            if ($e instanceof ElasticsearchException && $e->getErrorCode() === ElasticsearchException::EMPTY_QUERY) {
+            if ($e instanceof EmptyQueryException) {
                 return new AggregationResultCollection();
             }
 
@@ -89,6 +88,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $this->helper->addTerm($criteria, $search, $context, $definition);
         $this->helper->handleIds($definition, $criteria, $search, $context);
         $search->setSize(0);
+        $search->setTrackTotalHits(false);
 
         return $search;
     }

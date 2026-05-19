@@ -31,6 +31,9 @@ class MailAttachmentsBuilderTest extends TestCase
 {
     private MockObject&MediaService $mediaService;
 
+    /**
+     * @var MockObject&EntityRepository<MediaCollection>
+     */
     private MockObject&EntityRepository $mediaRepository;
 
     private MockObject&DocumentGenerator $documentGenerator;
@@ -74,7 +77,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $mailTemplate->setMedia(new MailTemplateMediaCollection([$mediaA, $mediaB, $mediaC]));
 
         $this->mediaService
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
                 [
@@ -91,7 +94,7 @@ class MailAttachmentsBuilderTest extends TestCase
 
         $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], Uuid::randomHex());
 
-        static::assertEquals(
+        static::assertSame(
             [
                 [
                     'content' => 'foo',
@@ -123,7 +126,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $orderId = Uuid::randomHex();
 
         $this->connection
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->with(
                 static::anything(),
@@ -141,7 +144,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $document = new RenderedDocument();
         $document->setContent('');
         $this->documentGenerator
-            ->expects(static::exactly(4))
+            ->expects($this->exactly(4))
             ->method('readDocument')
             ->willReturn($document);
 
@@ -155,13 +158,13 @@ class MailAttachmentsBuilderTest extends TestCase
         }, $extension->getMediaIds());
 
         $this->mediaRepository
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->with($criteria, $context)
             ->willReturn(new EntitySearchResult('media', 2, new MediaCollection($entities), null, $criteria, $context));
 
         $this->mediaService
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getAttachment')
             ->willReturnOnConsecutiveCalls(
                 [
@@ -221,5 +224,38 @@ class MailAttachmentsBuilderTest extends TestCase
             ],
             $attachments
         );
+    }
+
+    public function testBuildTemplateDocumentAttachmentsForXmlDocument(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = new MailTemplateEntity();
+        $xmlDocId = Uuid::randomHex();
+        $extension = new MailSendSubscriberConfig(false, [$xmlDocId]);
+
+        $document = new RenderedDocument();
+        $document->setContent('<?xml version="1.0"?>');
+        $document->setName('invoice.xml');
+        $document->setContentType('application/xml');
+
+        $this->documentGenerator
+            ->expects($this->once())
+            ->method('readDocument')
+            ->with($xmlDocId, $context, '', null)
+            ->willReturn($document);
+
+        $this->mediaRepository
+            ->expects($this->never())
+            ->method('search');
+
+        $attachments = $this->attachmentsBuilder->buildAttachments($context, $mailTemplate, $extension, [], null);
+
+        static::assertCount(1, $attachments);
+        $attachment = $attachments[0];
+        static::assertArrayHasKey('id', $attachment);
+        static::assertSame($xmlDocId, $attachment['id']);
+        static::assertSame('<?xml version="1.0"?>', $attachment['content']);
+        static::assertSame('invoice.xml', $attachment['fileName']);
+        static::assertSame('application/xml', $attachment['mimeType']);
     }
 }

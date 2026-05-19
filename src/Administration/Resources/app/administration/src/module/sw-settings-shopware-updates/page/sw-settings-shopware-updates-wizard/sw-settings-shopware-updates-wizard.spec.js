@@ -148,9 +148,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-loader': {
                             template: '<div></div>',
                         },
-                        'sw-icon': {
-                            template: '<div></div>',
-                        },
                         'router-link': {
                             template: '<a></a>',
                         },
@@ -161,7 +158,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-modal': {
                             template: '<div><slot name="modal-footer"></slot></div>',
                         },
-                        'sw-progress-bar': true,
+                        'mt-progress-bar': true,
                         'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
@@ -169,6 +166,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-field-error': true,
                         'sw-base-field': true,
                         'sw-app-topbar-button': true,
+                        'sw-app-topbar-sidebar': true,
                         'sw-help-center-v2': true,
                         'sw-empty-state': true,
                         'sw-data-grid-column-boolean': true,
@@ -190,10 +188,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have three green color badges and one red one', async () => {
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
@@ -211,21 +205,15 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
     it('should show the correct error message, when theme deactivation fails', async () => {
         const stopUpdateProcessSpy = jest.spyOn(wrapper.vm, 'stopUpdateProcess');
         const createNotificationWarningSpy = jest.spyOn(wrapper.vm, 'createNotificationWarning');
-        const translationSpy = jest.spyOn(wrapper.vm, '$tc');
 
         wrapper.vm.deactivatePlugins(0);
         await flushPromises();
 
         expect(stopUpdateProcessSpy).toHaveBeenCalled();
-        expect(createNotificationWarningSpy).toHaveBeenCalled();
-        expect(translationSpy).toHaveBeenCalledWith(
-            'sw-extension.errors.messageDeactivationFailedThemeAssignment',
-            null,
-            null,
-            {
-                assignments: 'afe95e1e-cc8e-487b-863a-94c5c4e51fa6',
-                themeName: '7305fd18-09ee-4d2c-afd4-b9fb90ad8508',
-            },
+        expect(createNotificationWarningSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: expect.stringContaining('sw-extension.errors.messageDeactivationFailedThemeAssignment'),
+            }),
         );
     });
 

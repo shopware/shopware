@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -21,6 +22,9 @@ class AppLocaleProviderTest extends TestCase
 
     private AppLocaleProvider $localeProvider;
 
+    /**
+     * @var EntityRepository<UserCollection>
+     */
     private EntityRepository $userRepository;
 
     protected function setUp(): void
@@ -47,7 +51,7 @@ class AppLocaleProviderTest extends TestCase
     public function testGetLocaleFromContextReturnsLocaleFromUser(): void
     {
         $userId = Uuid::randomHex();
-        $userLocale = 'abc-de';
+        $userLocale = 'de-US';
 
         $this->userRepository->create([[
             'id' => $userId,

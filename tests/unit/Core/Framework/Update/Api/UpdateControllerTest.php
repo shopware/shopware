@@ -168,7 +168,7 @@ class UpdateControllerTest extends TestCase
     public function testDownloadRecovery(): void
     {
         $apiClient = $this->createMock(ApiClient::class);
-        $apiClient->expects(static::once())->method('downloadRecoveryTool');
+        $apiClient->expects($this->once())->method('downloadRecoveryTool');
 
         $updateController = new UpdateController(
             $apiClient,
@@ -193,7 +193,7 @@ class UpdateControllerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;
@@ -234,7 +234,7 @@ class UpdateControllerTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$events): object {
+            ->willReturnCallback(static function ($event) use (&$events): object {
                 $events[] = $event;
 
                 return $event;

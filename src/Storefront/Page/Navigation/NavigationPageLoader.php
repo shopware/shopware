@@ -5,10 +5,13 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +29,8 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCategoryRoute $cmsPageRoute,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
 
@@ -35,7 +39,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page = $this->genericLoader->load($request, $context);
         $page = NavigationPage::createFrom($page);
 
-        $navigationId = $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = $request->attributes->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
 
         $category = $this->cmsPageRoute
             ->load($navigationId, $request, $context)
@@ -49,6 +53,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         $page->setNavigationId($category->getId());
         $page->setCategory($category);
 
+        if (Feature::isActive('BREADCRUMB_REWORK') || Feature::isActive('v6.8.0.0')) {
+            $page->setBreadcrumb($this->breadcrumbBuilder->getCategoryBreadcrumbUrls($category, $context->getContext(), $context->getSalesChannel()));
+        }
+
         if ($category->getCmsPage()) {
             $page->setCmsPage($category->getCmsPage());
         }
@@ -56,7 +64,11 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         if ($page->getMetaInformation()) {
             $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
                 ? $this->seoUrlReplacer->generate('frontend.home.page')
-                : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
+                : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
+
+            if ($request->query->has('p') && $request->query->getInt('p') > 1) {
+                $canonical .= '?p=' . $request->query->get('p');
+            }
 
             $page->getMetaInformation()->setCanonical($canonical);
         }

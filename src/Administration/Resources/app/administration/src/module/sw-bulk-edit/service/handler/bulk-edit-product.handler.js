@@ -21,7 +21,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         this.products = {};
     }
 
-    async bulkEdit(entityIds, payload) {
+    async bulkEdit(entityIds, payload, context) {
         this.entityIds = entityIds;
         const taxId = payload.find((change) => change.field === 'taxId')?.value;
         const price = payload.find((change) => change.field === 'price')?.value;
@@ -65,15 +65,14 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
             return Promise.resolve({ data: [] });
         }
 
-        const syncPayloadStringified = JSON.stringify(syncPayload, (k, v) => (v === undefined ? null : v));
-
         return RetryHelper.retry(() => {
             return this.syncService.sync(
-                syncPayloadStringified,
+                syncPayload,
                 {},
                 {
                     'single-operation': 1,
                     'sw-language-id': Shopware.Context.api.languageId,
+                    ...context,
                 },
             );
         });
@@ -318,6 +317,8 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
     }
 
     formatPrice(price, dbPrice) {
+        const preserveFromDb = price.gross === null && price.net === null;
+
         if (price.gross === null) {
             price.linked = false;
             price.gross = dbPrice?.gross ?? 0;
@@ -326,6 +327,12 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         if (price.net === null) {
             price.linked = false;
             price.net = dbPrice?.net ?? 0;
+        }
+
+        // When both gross and net were null (e.g. listPrice/regulationPrice-only bulk edit),
+        // preserve base price semantics (linked) from DB to avoid unintended changes
+        if (preserveFromDb && dbPrice?.linked !== undefined) {
+            price.linked = dbPrice.linked;
         }
 
         return price;

@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Store\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CartPositionStruct extends Struct
 {
@@ -23,20 +20,35 @@ class CartPositionStruct extends Struct
 
     protected int $discountAppliesForMonths;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $extension;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $variant;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): CartPositionStruct
     {
         return (new self())->assign($data);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getExtensionInformation(): array
     {
         return $this->extension;
     }
 
+    /**
+     * @param array<string, mixed> $extensionInformation
+     */
     public function setExtensionInformation(array $extensionInformation): void
     {
         $this->extension = $extensionInformation;
@@ -52,11 +64,17 @@ class CartPositionStruct extends Struct
         return $this->getExtensionInformation()['name'];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getVariant(): array
     {
         return $this->variant;
     }
 
+    /**
+     * @param array<string, mixed> $variant
+     */
     public function setVariant(array $variant): void
     {
         $this->variant = $variant;

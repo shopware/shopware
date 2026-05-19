@@ -71,7 +71,7 @@ SQL
         $defaultFolderId = Uuid::randomBytes();
         $configurationId = Uuid::randomBytes();
 
-        $connection->executeQuery(
+        $connection->executeStatement(
             'REPLACE INTO `media_default_folder` SET
                 id = :id,
                 entity = :entity,

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -34,6 +35,9 @@ class DeliveryPromotionCalculationTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use ShippingMethodPricesTestBehaviour;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     private EntityRepository $promotionRepository;
 
     private CartService $cartService;
@@ -87,14 +91,14 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(90, $cart->getShippingCosts()->getTotalPrice());
+        static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
 
-        static::assertEquals(2, $cart->getDeliveries()->count());
+        static::assertCount(2, $cart->getDeliveries());
     }
 
     /**
@@ -125,14 +129,14 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 100');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 100');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(70, $cart->getShippingCosts()->getTotalPrice(), 'Added promotion code to cart. Delivery costs should be 50');
+        static::assertSame(70.0, $cart->getShippingCosts()->getTotalPrice(), 'Added promotion code to cart. Delivery costs should be 50');
 
-        static::assertEquals(2, $cart->getDeliveries()->count());
+        static::assertCount(2, $cart->getDeliveries());
     }
 
     /**
@@ -160,9 +164,9 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
-        static::assertEquals(2, $cart->getDeliveries()->count());
-        static::assertEquals(2, $cart->getLineItems()->count());
-        static::assertEquals(50, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 50');
+        static::assertCount(2, $cart->getDeliveries());
+        static::assertCount(2, $cart->getLineItems());
+        static::assertSame(50.0, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 50');
     }
 
     /**
@@ -196,15 +200,15 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(10, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 10');
+        static::assertSame(10.0, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 10');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(3, $cart->getLineItems()->count());
-        static::assertEquals(3, $cart->getDeliveries()->count());
+        static::assertCount(3, $cart->getLineItems());
+        static::assertCount(3, $cart->getDeliveries());
 
-        static::assertEquals(0, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 50');
+        static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice(), 'Added only product to cart. Delivery costs should be 50');
     }
 
     /**
@@ -234,12 +238,12 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
-        static::assertEquals(2, $cart->getDeliveries()->count());
-        static::assertEquals(0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertCount(2, $cart->getDeliveries());
+        static::assertSame(0.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -269,12 +273,12 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -304,12 +308,12 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(69, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertSame(69.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -325,10 +329,10 @@ class DeliveryPromotionCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
 
-        $shippingCosts = 100;
+        $shippingCosts = 100.0;
         $this->setNewShippingPrices($this->connection, $shippingCosts);
-        $fixedPrice = 60;
-        $currencyPrice = 40;
+        $fixedPrice = 60.0;
+        $currencyPrice = 40.0;
 
         $code = 'BF';
 
@@ -345,12 +349,12 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals($shippingCosts, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame($shippingCosts, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals($currencyPrice, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertSame($currencyPrice, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -385,16 +389,16 @@ class DeliveryPromotionCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
-        static::assertEquals(1, $cart->getLineItems()->count());
+        static::assertCount(1, $cart->getLineItems());
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(2, $cart->getLineItems()->count());
+        static::assertCount(2, $cart->getLineItems());
 
-        static::assertEquals(69, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertSame(69.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -404,10 +408,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      * @throws Exception
      * @throws CartException
      */
-    #[Group('promotions
-
-NEXT-21735 - Sometimes has a $reduceValue of 0')]
-    #[Group('not-deterministic')]
+    #[Group('promotions')]
     public function testMultipleDeliveryDiscountsWithoutFixed(): void
     {
         $productId = Uuid::randomHex();
@@ -430,16 +431,16 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
-        static::assertEquals(1, $cart->getLineItems()->count());
+        static::assertCount(1, $cart->getLineItems());
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(3, $cart->getLineItems()->count());
+        static::assertCount(3, $cart->getLineItems());
 
-        static::assertEquals(40, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
+        static::assertSame(40.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs may not be discounted beneath 0!');
     }
 
     /**
@@ -474,18 +475,18 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(100, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
+        static::assertSame(100.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery costs should be 100 in the beginning');
 
-        static::assertEquals(1, $cart->getLineItems()->count());
+        static::assertCount(1, $cart->getLineItems());
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(2, $cart->getLineItems()->count());
+        static::assertCount(2, $cart->getLineItems());
 
-        static::assertEquals(2, $cart->getDeliveries()->count());
+        static::assertCount(2, $cart->getDeliveries());
 
-        static::assertEquals(20, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs should be the lowest fixed price!');
+        static::assertSame(20.0, $cart->getShippingCosts()->getTotalPrice(), 'Delivery Costs should be the lowest fixed price!');
     }
 
     /**
@@ -526,10 +527,10 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals($expectedPrice, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
-        static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(2, $cart->getLineItems()->count());
-        static::assertEquals(2, $cart->getDeliveries()->count());
+        static::assertSame($expectedPrice, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
+        static::assertSame($expectedTotal, $cart->getPrice()->getTotalPrice());
+        static::assertCount(2, $cart->getLineItems());
+        static::assertCount(2, $cart->getDeliveries());
     }
 
     /**
@@ -573,9 +574,9 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals($expectedPrice, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
-        static::assertEquals(2, $cart->getLineItems()->count());
-        static::assertEquals(2, $cart->getDeliveries()->count());
+        static::assertSame($expectedPrice, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
+        static::assertCount(2, $cart->getLineItems());
+        static::assertCount(2, $cart->getDeliveries());
     }
 
     /**
@@ -612,10 +613,10 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(52, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
-        static::assertEquals(3, $cart->getLineItems()->count());
-        static::assertEquals(2, $cart->getDeliveries()->count());
-        static::assertEquals(5.85, $cart->getDeliveries()->getShippingCosts()->sum()->getCalculatedTaxes()->getAmount());
+        static::assertSame(52.0, $cart->getDeliveries()->getShippingCosts()->sum()->getTotalPrice());
+        static::assertCount(3, $cart->getLineItems());
+        static::assertCount(2, $cart->getDeliveries());
+        static::assertSame(5.85, $cart->getDeliveries()->getShippingCosts()->sum()->getCalculatedTaxes()->getAmount());
     }
 
     /**
@@ -631,7 +632,7 @@ NEXT-21735 - Sometimes has a $reduceValue of 0')]
             $data[]['id'] = $id;
         }
 
-        if (\count($data) === 0) {
+        if ($data === []) {
             return;
         }
         $this->promotionRepository->delete($data, $this->context->getContext());

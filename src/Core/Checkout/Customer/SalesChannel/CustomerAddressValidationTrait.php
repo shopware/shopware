@@ -14,10 +14,11 @@ trait CustomerAddressValidationTrait
 {
     private function validateAddress(string $id, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        $criteria = new Criteria([$id]);
-        $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
+        $criteria = (new Criteria([$id]))
+            ->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        if (\count($this->addressRepository->searchIds($criteria, $context->getContext())->getIds())) {
+        $total = $this->addressRepository->searchIds($criteria, $context->getContext())->getTotal();
+        if ($total !== 0) {
             return;
         }
 

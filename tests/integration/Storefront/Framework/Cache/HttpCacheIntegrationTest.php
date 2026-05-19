@@ -26,7 +26,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Group('skip-paratest')]
 #[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {
@@ -87,7 +86,7 @@ class HttpCacheIntegrationTest extends TestCase
         $this->assertCacheHeader('GET /: fresh', $response);
     }
 
-    public function testCacheHitWithDifferentCacheKeys(): void
+    public function testCacheHashCookieChange(): void
     {
         $kernel = $this->getCacheKernel();
 
@@ -95,7 +94,6 @@ class HttpCacheIntegrationTest extends TestCase
         static::assertIsString($appUrl);
 
         $request = $this->createRequest($appUrl);
-        $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'a');
 
         $response = $kernel->handle($request);
         $this->assertCacheHeader('GET /: miss, store', $response);
@@ -105,8 +103,9 @@ class HttpCacheIntegrationTest extends TestCase
 
         $request->cookies->set(HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE, 'b');
 
+        // cache miss as request hash differs, no store as it also differs from hash calculated from context
         $response = $kernel->handle($request);
-        $this->assertCacheHeader('GET /: miss, store', $response);
+        $this->assertCacheHeader('GET /: miss', $response);
     }
 
     public function testCacheForAppScriptEndpointIsEnabledByDefault(): void
@@ -210,7 +209,7 @@ class HttpCacheIntegrationTest extends TestCase
         $route = '/storefront/script/custom-cache-config';
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, function (ResponseEvent $event) use ($route): void {
+        $this->addEventListener(static::getContainer()->get('event_dispatcher'), KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
                 return;
             }

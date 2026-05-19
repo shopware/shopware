@@ -8,8 +8,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -33,7 +35,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     private ThemeLifecycleService&MockObject $themeLifecycleServiceMock;
 
-    /** @var EntityRepository<ThemeCollection>&MockObject */
+    /**
+     * @var EntityRepository<ThemeCollection>&MockObject
+     */
     private EntityRepository&MockObject $themeRepositoryMock;
 
     private Connection&MockObject $connectionMock;
@@ -73,11 +77,11 @@ class ThemeLifecycleHandlerTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())->method('getConfigurations')->willReturn(
+        $this->configurationRegistryMock->expects($this->once())->method('getConfigurations')->willReturn(
             $collection
         );
 
-        $this->themeRepositoryMock->expects(static::never())->method('upsert');
+        $this->themeRepositoryMock->expects($this->never())->method('upsert');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -97,7 +101,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             $themeConfig,
         ]);
 
-        $this->configurationRegistryMock->expects(static::once())->method('getConfigurations')->willReturn(
+        $this->configurationRegistryMock->expects($this->once())->method('getConfigurations')->willReturn(
             $collection
         );
 
@@ -114,7 +118,7 @@ class ThemeLifecycleHandlerTest extends TestCase
             ],
         ]);
 
-        $this->themeRepositoryMock->expects(static::once())->method('upsert');
+        $this->themeRepositoryMock->expects($this->once())->method('upsert');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -175,7 +179,12 @@ class ThemeLifecycleHandlerTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -215,7 +224,12 @@ class ThemeLifecycleHandlerTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
 
         $this->themeLifecycleHandler->handleThemeUninstall(
             $themeConfig,
@@ -232,17 +246,17 @@ class ThemeLifecycleHandlerTest extends TestCase
         $context->addState('skip-theme-compilation');
 
         $this->themeLifecycleServiceMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('refreshTheme')
             ->with($config, $context);
 
         $this->connectionMock
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->themeServiceMock->expects(static::never())->method('compileThemeById');
-        $this->themeServiceMock->expects(static::never())->method('compileTheme');
+        $this->themeServiceMock->expects($this->never())->method('compileThemeById');
+        $this->themeServiceMock->expects($this->never())->method('compileTheme');
 
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $config,

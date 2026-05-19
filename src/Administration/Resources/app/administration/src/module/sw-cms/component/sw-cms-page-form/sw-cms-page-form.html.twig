@@ -3,6 +3,14 @@
     v-responsive="{ 'is--compact': el => el.width <= 1620, timeout: 100 }"
     class="sw-cms-page-form"
 >
+    <mt-banner
+        v-if="!!contentEntity"
+        class="sw-cms-page-form__banner-inheritance"
+        icon="link-horizontal"
+        variant="inherited"
+    >
+        {{ $t('sw-cms.inherit.formBanner') }}
+    </mt-banner>
 
     {% block sw_cms_page_form_content %}
     <template
@@ -20,7 +28,7 @@
                 <div class="sw-cms-page-form__section-action sw-cms-page-form__section-name">
 
                     {% block sw_cms_page_form_section_name_icon %}
-                    <sw-icon
+                    <mt-icon
                         name="regular-layout"
                         size="20"
                         class="sw-cms-page-form__section-action-icon sw-cms-page-form__section-name-icon"
@@ -34,11 +42,11 @@
                     {% endblock %}
 
                     <div class="sw-cms-page-form__device-actions">
-                        <sw-icon :name="getDeviceActive('mobile', section)" />
+                        <mt-icon :name="getDeviceActive('mobile', section)" />
 
-                        <sw-icon :name="getDeviceActive('tablet', section)" />
+                        <mt-icon :name="getDeviceActive('tablet', section)" />
 
-                        <sw-icon :name="getDeviceActive('desktop', section)" />
+                        <mt-icon :name="getDeviceActive('desktop', section)" />
                     </div>
                 </div>
                 {% endblock %}
@@ -53,7 +61,7 @@
 
                 {% block sw_cms_page_form_section_empty_state_block_text %}
                 <p class="sw-cms-page-form__empty-state-text">
-                    {{ $tc('sw-cms.section.sectionEmptyState') }}
+                    {{ $t('sw-cms.section.sectionEmptyState') }}
                 </p>
                 {% endblock %}
             </mt-card>
@@ -75,14 +83,14 @@
                     <div class="sw-cms-page-form__section-type-label">
 
                         {% block sw_cms_page_form_section_type_label_icon %}
-                        <sw-icon
+                        <mt-icon
                             v-if="block.sectionPosition !== 'main'"
                             size="20"
                             name="regular-align-left-xs"
                             class="sw-cms-page-form__section-type-icon"
                         />
 
-                        <sw-icon
+                        <mt-icon
                             v-else
                             size="20"
                             name="regular-align-right-xs"
@@ -106,16 +114,15 @@
                 <mt-card
                     position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
-                    :title="$tc(getBlockTitle(block))"
+                    :title="$t(getBlockTitle(block))"
                 >
                     <template #headerRight>
-                        here
                         <div class="sw-cms-page-form__block-device-actions">
-                            <sw-icon :name="getDeviceActive('mobile', section, block)" />
+                            <mt-icon :name="getDeviceActive('mobile', section, block)" />
 
-                            <sw-icon :name="getDeviceActive('tablet', section, block)" />
+                            <mt-icon :name="getDeviceActive('tablet', section, block)" />
 
-                            <sw-icon :name="getDeviceActive('desktop', section, block)" />
+                            <mt-icon :name="getDeviceActive('desktop', section, block)" />
                         </div>
                     </template>
 
@@ -125,20 +132,21 @@
                         :key="blockIndex"
                         class="sw-cms-page-form__element-config"
                     >
-
                         <template v-if="displayNotification(section, block)">
                             <mt-banner variant="info">
-                                {{ $tc('sw-cms.blocks.blockDisableState') }}
+                                {{ $t('sw-cms.blocks.blockDisableState') }}
                             </mt-banner>
                         </template>
 
                         {% block sw_cms_page_form_element_config %}
-                        <component
-                            :is="cmsElements[element.type].configComponent"
-                            :element="element"
-                            :element-data="cmsElements[element.type]"
-                            @element-update="elementUpdate"
-                        />
+                        <sw-cms-form-sync :element="element">
+                            <component
+                                :is="cmsElements[element.type].configComponent"
+                                :element="element"
+                                :element-data="cmsElements[element.type]"
+                                @element-update="elementUpdate"
+                            />
+                        </sw-cms-form-sync>
                         {% endblock %}
                     </div>
                     {% endblock %}

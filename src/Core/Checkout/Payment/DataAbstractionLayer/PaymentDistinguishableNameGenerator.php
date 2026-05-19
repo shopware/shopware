@@ -28,7 +28,7 @@ class PaymentDistinguishableNameGenerator
             $payments = $this->getInstalledPayments($context);
 
             $upsertablePayments = $this->generateDistinguishableNamesPayload($payments);
-            if (\count($upsertablePayments) === 0) {
+            if ($upsertablePayments === []) {
                 return;
             }
 
@@ -44,9 +44,7 @@ class PaymentDistinguishableNameGenerator
             ->addAssociation('plugin.translations')
             ->addAssociation('appPaymentMethod.app.translations');
 
-        return $this->paymentMethodRepository
-            ->search($criteria, $context)
-            ->getEntities();
+        return $this->paymentMethodRepository->search($criteria, $context)->getEntities();
     }
 
     /**
@@ -73,7 +71,7 @@ class PaymentDistinguishableNameGenerator
             }
 
             $distinguishableNames = array_filter($distinguishableNames);
-            if (\count($distinguishableNames) === 0) {
+            if ($distinguishableNames === []) {
                 continue;
             }
 

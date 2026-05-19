@@ -114,10 +114,6 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it("should keep the customer's account type as private even when the company field is set", async () => {
         expect(wrapper.vm).toBeTruthy();
 
@@ -151,20 +147,38 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should accept customer registration button called', async () => {
+        await wrapper.setData({
+            customer: {
+                active: true,
+            },
+        });
+
+        await flushPromises();
+
         expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
         expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
 
         const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:last-child');
+        expect(button.attributes().disabled).toBeFalsy();
         await button.trigger('click');
 
         expect(wrapper.vm.customerGroupRegistrationService.accept).toHaveBeenCalled();
     });
 
     it('should decline customer registration button called', async () => {
+        await wrapper.setData({
+            customer: {
+                active: true,
+            },
+        });
+
+        await flushPromises();
+
         expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
         expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
 
         const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:first-child');
+        expect(button.attributes().disabled).toBeFalsy();
         await button.trigger('click');
 
         expect(wrapper.vm.customerGroupRegistrationService.decline).toHaveBeenCalled();
@@ -206,5 +220,15 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer.salutationId).toBe('1');
+    });
+
+    it('should set the initial limit on the addresses association criteria', async () => {
+        await flushPromises();
+
+        const criteria = wrapper.vm.defaultCriteria;
+        const addressesAssociation = criteria.getAssociation('addresses');
+
+        expect(addressesAssociation.limit).toBe(criteria.limit);
+        expect(addressesAssociation.limit).toBe(25);
     });
 });

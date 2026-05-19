@@ -45,4 +45,31 @@ describe('src/module/sw-settings-seo/component/sw-seo-main-category', () => {
         expect(singleSelect).toBeDefined();
         expect(singleSelect.attributes('label')).toBe('sw-seo-url.labelMainCategory');
     });
+
+    it('should emit main-category-remove when selection is cleared', async () => {
+        const wrapper = await createWrapper();
+
+        const mainCategory = {
+            salesChannelId: 'salesChannelId1',
+            categoryId: 'categoryId1',
+            category: { id: 'categoryId1', translated: { name: 'Category 1' } },
+        };
+
+        await wrapper.setProps({
+            mainCategories: [mainCategory],
+            categories: [
+                { id: 'categoryId1', translated: { name: 'Category 1' } },
+            ],
+            currentSalesChannelId: 'salesChannelId1',
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.mainCategoryForSalesChannel).toEqual(mainCategory);
+
+        await wrapper.vm.onMainCategorySelected(null);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('main-category-remove')).toBeTruthy();
+        expect(wrapper.emitted('main-category-remove')[0]).toEqual([mainCategory]);
+    });
 });

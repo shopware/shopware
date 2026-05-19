@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Route;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -27,7 +28,7 @@ class ApiRouteInfoResolver
     {
         $routes = [];
         foreach ($this->router->getRouteCollection()->all() as $route) {
-            $routeScope = $route->getDefaults()['_routeScope'] ?? [];
+            $routeScope = $route->getDefaults()[PlatformRequest::ATTRIBUTE_ROUTE_SCOPE] ?? [];
             if (!\in_array($apiScope, $routeScope, true)) {
                 continue;
             }
@@ -37,7 +38,7 @@ class ApiRouteInfoResolver
         }
 
         return array_map(
-            fn (string $path, array $methods) => new RouteInfo(path: $path, methods: $methods),
+            static fn (string $path, array $methods) => new RouteInfo(path: $path, methods: $methods),
             array_keys($routes),
             array_values($routes)
         );

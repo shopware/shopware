@@ -36,11 +36,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore - Covered by integration test {@see EntityReaderTest}
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface
@@ -71,7 +74,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $definition->getCollectionClass();
 
-        $fields = $this->criteriaFieldsResolver->resolve($criteria, $definition);
+        $fieldsForPartialLoading = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
         return $this->_read(
             $criteria,
@@ -80,7 +83,8 @@ class EntityReader implements EntityReaderInterface
             new $collectionClass(),
             $definition->getFields()->getBasicFields(),
             true,
-            $fields
+            $fieldsForPartialLoading,
+            $fieldsForPartialLoading !== [],
         );
     }
 
@@ -91,7 +95,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      *
      * @return EntityCollection<Entity>
      */
@@ -101,25 +105,28 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection,
         FieldCollection $fields,
-        bool $performEmptySearch = false,
-        array $partial = []
+        bool $performEmptySearch,
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): EntityCollection {
-        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
-        $hasIds = !empty($criteria->getIds());
+        $hasFilters = $criteria->getFilters() !== [] || $criteria->getPostFilters() !== [];
+        $hasIds = $criteria->getIds() !== [];
 
         if (!$performEmptySearch && !$hasFilters && !$hasIds) {
             return $collection;
         }
 
-        if ($partial !== []) {
-            $fields = $definition->getFields()->filter(function (Field $field) use (&$partial) {
+        // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+        // and only the initial call is relevant for marking the whole read as partial
+        if ($fieldsForPartialLoading !== []) {
+            $fields = $definition->getFields()->filter(static function (Field $field) use (&$fieldsForPartialLoading) {
                 if ($field->getFlag(PrimaryKey::class)) {
-                    $partial[$field->getPropertyName()] = [];
+                    $fieldsForPartialLoading[$field->getPropertyName()] = [];
 
                     return true;
                 }
 
-                return isset($partial[$field->getPropertyName()]);
+                return isset($fieldsForPartialLoading[$field->getPropertyName()]);
             });
         }
 
@@ -130,14 +137,30 @@ class EntityReader implements EntityReaderInterface
             throw DataAbstractionLayerException::parentAssociationCannotBeFetched();
         }
 
-        $rows = $this->fetch($criteria, $definition, $context, $fields, $partial);
+        $rows = $this->fetch($criteria, $definition, $context, $fields, $fieldsForPartialLoading);
 
-        $collection = $this->hydrator->hydrate($collection, $definition->getEntityClass(), $definition, $rows, $definition->getEntityName(), $context, $partial);
+        $collection = $this->hydrator->hydrate(
+            $collection,
+            $definition->getEntityClass(),
+            $definition,
+            $rows,
+            $definition->getEntityName(),
+            $context,
+            $fieldsForPartialLoading,
+        );
 
-        $collection = $this->fetchAssociations($criteria, $definition, $context, $collection, $fields, $partial);
+        $collection = $this->fetchAssociations(
+            $criteria,
+            $definition,
+            $context,
+            $collection,
+            $fields,
+            $fieldsForPartialLoading,
+            $isPartialLoading,
+        );
 
-        $hasIds = !empty($criteria->getIds());
-        if ($hasIds && empty($criteria->getSorting())) {
+        $hasIds = $criteria->getIds() !== [];
+        if ($hasIds && $criteria->getSorting() === []) {
             $collection->sortByIdArray($criteria->getIds());
         }
 
@@ -145,7 +168,7 @@ class EntityReader implements EntityReaderInterface
     }
 
     /**
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function joinBasic(
         EntityDefinition $definition,
@@ -154,10 +177,10 @@ class EntityReader implements EntityReaderInterface
         QueryBuilder $query,
         FieldCollection $fields,
         ?Criteria $criteria = null,
-        array $partial = []
+        array $fieldsForPartialLoading = [],
     ): void {
-        $isPartial = $partial !== [];
-        $filtered = $fields->filter(static function (Field $field) use ($isPartial, $partial) {
+        $isPartial = $fieldsForPartialLoading !== [];
+        $filtered = $fields->filter(static function (Field $field) use ($isPartial, $fieldsForPartialLoading) {
             if ($field->is(Runtime::class)) {
                 return false;
             }
@@ -166,7 +189,7 @@ class EntityReader implements EntityReaderInterface
                 return true;
             }
 
-            return isset($partial[$field->getPropertyName()]);
+            return isset($fieldsForPartialLoading[$field->getPropertyName()]);
         });
 
         $parentAssociation = null;
@@ -192,11 +215,15 @@ class EntityReader implements EntityReaderInterface
             }
 
             // self references can not be resolved if set to autoload, otherwise we get an endless loop
-            if (!$field instanceof ParentAssociationField && $field instanceof AssociationField && $field->getAutoload() && $field->getReferenceDefinition() === $definition) {
+            if (!$field instanceof ParentAssociationField
+                && $field instanceof AssociationField
+                && $field->getAutoload()
+                && $field->getReferenceDefinition() === $definition
+            ) {
                 continue;
             }
 
-            // many to one associations can be directly fetched in same query
+            // many-to-one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();
 
@@ -204,27 +231,53 @@ class EntityReader implements EntityReaderInterface
 
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
-                $alias = $root . '.' . $field->getPropertyName();
+                $fieldPropertyName = $field->getPropertyName();
+                $alias = $root . '.' . $fieldPropertyName;
 
                 $joinCriteria = null;
-                if ($criteria && $criteria->hasAssociation($field->getPropertyName())) {
-                    $joinCriteria = $criteria->getAssociation($field->getPropertyName());
+                if ($criteria && $criteria->hasAssociation($fieldPropertyName)) {
+                    $joinCriteria = $criteria->getAssociation($fieldPropertyName);
                     $basics = $this->addAssociationFieldsToCriteria($joinCriteria, $reference, $basics);
                 }
 
-                $this->joinBasic($reference, $context, $alias, $query, $basics, $joinCriteria, $partial[$field->getPropertyName()] ?? []);
+                $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
+                if ($isPartial && $referenceField
+                    && !isset($fieldsForPartialLoading[$fieldPropertyName][$referenceField->getPropertyName()])
+                ) {
+                    $fieldsForPartialLoading[$fieldPropertyName] ??= [];
+                    $fieldsForPartialLoading[$fieldPropertyName][$referenceField->getPropertyName()] = [];
+                }
+
+                $this->joinBasic(
+                    $reference,
+                    $context,
+                    $alias,
+                    $query,
+                    $basics,
+                    $joinCriteria,
+                    $fieldsForPartialLoading[$field->getPropertyName()] ?? [],
+                );
 
                 continue;
             }
 
             // add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
+                /**
+                 * When the association is filtered or sorted we do a seperate query to load the ids of the association.
+                 * Therefore we do not need to add the select here to the main query.
+                 *
+                 * @see self::loadManyToManyWithCriteria()
+                 */
                 if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
                     continue;
                 }
 
-                // requested a paginated, filtered or sorted list
-
+                /**
+                 * When the association is not filtered we select the ids of the association directly in the main query.
+                 *
+                 * @see self::loadManyToManyOverExtension()
+                 */
                 $this->addManyToManySelect($definition, $root, $field, $query, $context);
 
                 continue;
@@ -275,17 +328,28 @@ class EntityReader implements EntityReaderInterface
         }
 
         if ($addTranslation) {
-            $this->queryHelper->addTranslationSelect($root, $definition, $query, $context, $partial);
+            $this->queryHelper->addTranslationSelect(
+                $root,
+                $definition,
+                $query,
+                $context,
+                $fieldsForPartialLoading,
+            );
         }
     }
 
     /**
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      *
      * @return list<array<string, mixed>>
      */
-    private function fetch(Criteria $criteria, EntityDefinition $definition, Context $context, FieldCollection $fields, array $partial = []): array
-    {
+    private function fetch(
+        Criteria $criteria,
+        EntityDefinition $definition,
+        Context $context,
+        FieldCollection $fields,
+        array $fieldsForPartialLoading = [],
+    ): array {
         $table = $definition->getEntityName();
 
         $query = $this->criteriaQueryBuilder->build(
@@ -295,9 +359,17 @@ class EntityReader implements EntityReaderInterface
             $context
         );
 
-        $this->joinBasic($definition, $context, $table, $query, $fields, $criteria, $partial);
+        $this->joinBasic(
+            $definition,
+            $context,
+            $table,
+            $query,
+            $fields,
+            $criteria,
+            $fieldsForPartialLoading,
+        );
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
@@ -312,14 +384,16 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadManyToMany(
         Criteria $criteria,
+        EntityDefinition $definition,
         ManyToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         $associationCriteria = $criteria->getAssociation($association->getPropertyName());
 
@@ -332,14 +406,29 @@ class EntityReader implements EntityReaderInterface
         // check if the requested criteria is restricted (limit, offset, sorting, filtering)
         if ($this->isAssociationRestricted($criteria, $association->getPropertyName())) {
             // if restricted load paginated list of many to many
-            $this->loadManyToManyWithCriteria($associationCriteria, $association, $context, $collection, $partial);
+            $this->loadManyToManyWithCriteria(
+                $definition,
+                $associationCriteria,
+                $association,
+                $context,
+                $collection,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
 
             return;
         }
 
         // otherwise the association is loaded in the root query of the entity as sub select which contains all ids
         // the ids are extracted in the entity hydrator (see: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::extractManyToManyIds)
-        $this->loadManyToManyOverExtension($associationCriteria, $association, $context, $collection, $partial);
+        $this->loadManyToManyOverExtension(
+            $associationCriteria,
+            $association,
+            $context,
+            $collection,
+            $fieldsForPartialLoading,
+            $isPartialLoading,
+        );
     }
 
     private function addManyToManySelect(
@@ -409,7 +498,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadOneToMany(
         Criteria $criteria,
@@ -417,7 +506,8 @@ class EntityReader implements EntityReaderInterface
         OneToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         $fieldCriteria = new Criteria();
         if ($criteria->hasAssociation($association->getPropertyName())) {
@@ -432,18 +522,34 @@ class EntityReader implements EntityReaderInterface
 
         // association should not be paginated > load data over foreign key condition
         if ($fieldCriteria->getLimit() === null) {
-            $this->loadOneToManyWithoutPagination($definition, $association, $context, $collection, $fieldCriteria, $partial);
+            $this->loadOneToManyWithoutPagination(
+                $definition,
+                $association,
+                $context,
+                $collection,
+                $fieldCriteria,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
 
             return;
         }
 
         // load association paginated > use internal counter loops
-        $this->loadOneToManyWithPagination($definition, $association, $context, $collection, $fieldCriteria, $partial);
+        $this->loadOneToManyWithPagination(
+            $definition,
+            $association,
+            $context,
+            $collection,
+            $fieldCriteria,
+            $fieldsForPartialLoading,
+            $isPartialLoading,
+        );
     }
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadOneToManyWithoutPagination(
         EntityDefinition $definition,
@@ -451,7 +557,8 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection,
         Criteria $fieldCriteria,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         $ref = $association->getReferenceDefinition()->getFields()->getByStorageName(
             $association->getReferenceField()
@@ -477,7 +584,7 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -488,9 +595,9 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        if ($partial !== []) {
+        if ($isPartialLoading) {
             // Make sure our collection index will be loaded
-            $partial[$propertyName] = [];
+            $fieldsForPartialLoading[$propertyName] = [];
             $collectionClass = EntityCollection::class;
         }
 
@@ -501,7 +608,8 @@ class EntityReader implements EntityReaderInterface
             new $collectionClass(),
             $referenceClass->getFields()->getBasicFields(),
             false,
-            $partial
+            $fieldsForPartialLoading,
+            $isPartialLoading,
         );
 
         $grouped = [];
@@ -556,7 +664,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadOneToManyWithPagination(
         EntityDefinition $definition,
@@ -564,10 +672,9 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection,
         Criteria $fieldCriteria,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
-        $isPartial = $partial !== [];
-
         $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
 
         // inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
@@ -581,15 +688,17 @@ class EntityReader implements EntityReaderInterface
 
         $ids = array_values($collection->getIds());
 
-        if ($isPartial) {
+        // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+        // and only the initial call is relevant for marking the whole read as partial
+        if ($fieldsForPartialLoading !== []) {
             // Make sure our collection index will be loaded
-            $partial[$association->getPropertyName()] = [];
+            $fieldsForPartialLoading[$association->getPropertyName()] = [];
         }
 
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
+            $parentIds = array_values(\array_filter($collection->map(static fn (Entity $entity) => $entity->get('parentId'))));
 
             $ids = array_unique([...$ids, ...$parentIds]);
         }
@@ -605,7 +714,8 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        if (\count($filteredIds = \array_filter($ids)) !== 0) {
+        $filteredIds = \array_filter($ids);
+        if ($filteredIds !== []) {
             $fieldCriteria->setIds($filteredIds);
         }
 
@@ -624,7 +734,8 @@ class EntityReader implements EntityReaderInterface
             new $collectionClass(),
             $referenceClass->getFields()->getBasicFields(),
             false,
-            $partial
+            $fieldsForPartialLoading,
+            $isPartialLoading,
         );
 
         // assign loaded reference collections to root entities
@@ -675,35 +786,39 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadManyToManyOverExtension(
         Criteria $criteria,
         ManyToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         // collect all ids of many-to-many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
-
-        if (\count($ids) !== 0) {
-            $criteria->setIds($ids);
-        }
 
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
 
-        $data = $this->_read(
-            $criteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $partial
-        );
+        if ($ids !== []) {
+            $criteria->setIds($ids);
+
+            $data = $this->_read(
+                $criteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
@@ -731,14 +846,16 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadManyToManyWithCriteria(
+        EntityDefinition $definition,
         Criteria $fieldCriteria,
         ManyToManyAssociationField $association,
         Context $context,
         EntityCollection $collection,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         $fields = $association->getToManyReferenceDefinition()->getFields();
         $reference = null;
@@ -779,7 +896,8 @@ class EntityReader implements EntityReaderInterface
         $localColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
         $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
 
-        $condition = $root . '.' . $referenceColumn . ' = ' . EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()) . '.id';
+        $condition = $root . '.' . $referenceColumn . ' = '
+            . EntityDefinitionQueryHelper::escape($association->getToManyReferenceDefinition()->getEntityName()) . '.id';
 
         if (str_ends_with($association->getMappingReferenceColumn(), '_id')) {
             $referenceVersionColumn = u($association->getMappingReferenceColumn())->trimSuffix('_id')->append('_version_id')->toString();
@@ -787,8 +905,11 @@ class EntityReader implements EntityReaderInterface
             $referenceVersionColumn = $association->getMappingReferenceColumn() . '_version_id';
         }
 
-        if ($association->getToManyReferenceDefinition()->isVersionAware() && $association->getMappingDefinition()->getField($referenceVersionColumn)) {
-            $condition .= ' AND ' . $root . '.version_id = ' . EntityDefinitionQueryHelper::escape($referenceVersionColumn) . '.version_id';
+        if ($association->getToManyReferenceDefinition()->isVersionAware()
+            && $association->getMappingDefinition()->getField($referenceVersionColumn)
+        ) {
+            $condition .= ' AND ' . $root . '.version_id = '
+                . EntityDefinitionQueryHelper::escape($referenceVersionColumn) . '.version_id';
         }
 
         $query
@@ -799,16 +920,40 @@ class EntityReader implements EntityReaderInterface
                 $condition
             );
 
-        $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
-        $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        if (!$association->is(Inherited::class)) {
+            $query->andWhere($root . '.' . $localColumn . ' IN (:localIds)');
+            $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        } else {
+            // When the association is inherited, we need to join the base entity to the local table
+            // the "join column" (column name = property name) contains the id of the parent entity if the association is inherited
+            $joinCondition = $root . '.' . $localColumn . ' = '
+                . EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.'
+                . EntityDefinitionQueryHelper::escape($association->getPropertyName());
+
+            if ($definition->isVersionAware()) {
+                $joinCondition .= ' AND ' . $root . '.'
+                    . EntityDefinitionQueryHelper::escape($definition->getEntityName() . '_version_id') . ' = '
+                    . EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.version_id';
+            }
+            $query->innerJoin(
+                $root,
+                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                $joinCondition
+            );
+
+            $query->andWhere(EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.id IN (:localIds)');
+            $query->setParameter('localIds', Uuid::fromHexToBytesList($collection->getIds()), ArrayParameterType::BINARY);
+        }
 
         $orderBy = '';
         $parts = $query->getOrderByParts();
-        if (!empty($parts)) {
+        if ($parts !== []) {
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
         }
         // order by is handled in group_concat
+        // Order of IDs in criteria will determine result order, when no order by is given
         $fieldCriteria->resetSorting();
 
         $query->select(
@@ -854,22 +999,28 @@ class EntityReader implements EntityReaderInterface
         }
         unset($row);
 
-        if (\count($ids) !== 0) {
-            $fieldCriteria->setIds($ids);
-        }
-
         $referenceClass = $association->getToManyReferenceDefinition();
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $referenceClass->getCollectionClass();
-        $data = $this->_read(
-            $fieldCriteria,
-            $referenceClass,
-            $context,
-            new $collectionClass(),
-            $referenceClass->getFields()->getBasicFields(),
-            false,
-            $partial
-        );
+
+        if ($ids !== []) {
+            // only read data when we have found mapped IDs
+            // otherwise we would load the whole reference table
+            $fieldCriteria->setIds($ids);
+
+            $data = $this->_read(
+                $fieldCriteria,
+                $referenceClass,
+                $context,
+                new $collectionClass(),
+                $referenceClass->getFields()->getBasicFields(),
+                false,
+                $fieldsForPartialLoading,
+                $isPartialLoading,
+            );
+        } else {
+            $data = new $collectionClass();
+        }
 
         foreach ($collection as $struct) {
             $structData = new $collectionClass();
@@ -992,7 +1143,7 @@ class EntityReader implements EntityReaderInterface
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
+            static fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -1005,8 +1156,8 @@ class EntityReader implements EntityReaderInterface
 
         $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::BINARY);
 
-        $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
-        $offset = $fieldCriteria->getOffset() + 1;
+        $limit = (int) $fieldCriteria->getOffset() + (int) $fieldCriteria->getLimit();
+        $offset = (int) $fieldCriteria->getOffset() + 1;
 
         $wrapper->setParameter('limit', $limit);
         $wrapper->setParameter('offset', $offset);
@@ -1104,9 +1255,9 @@ class EntityReader implements EntityReaderInterface
 
         return $fieldCriteria->getOffset() !== null
             || $fieldCriteria->getLimit() !== null
-            || !empty($fieldCriteria->getSorting())
-            || !empty($fieldCriteria->getFilters())
-            || !empty($fieldCriteria->getPostFilters())
+            || $fieldCriteria->getSorting() !== []
+            || $fieldCriteria->getFilters() !== []
+            || $fieldCriteria->getPostFilters() !== []
         ;
     }
 
@@ -1133,14 +1284,15 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      */
     private function loadToOne(
         AssociationField $association,
         Context $context,
         EntityCollection $collection,
         Criteria $criteria,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): void {
         if (!$association instanceof OneToOneAssociationField && !$association instanceof ManyToOneAssociationField) {
             return;
@@ -1161,7 +1313,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        $related = \array_filter($collection->map(function (Entity $entity) use ($association) {
+        $related = \array_filter($collection->map(static function (Entity $entity) use ($association) {
             if ($association->is(Extension::class)) {
                 return $entity->getExtension($association->getPropertyName());
             }
@@ -1172,7 +1324,7 @@ class EntityReader implements EntityReaderInterface
         $referenceDefinition = $association->getReferenceDefinition();
         $collectionClass = $referenceDefinition->getCollectionClass();
 
-        if ($partial !== []) {
+        if ($isPartialLoading) {
             $collectionClass = EntityCollection::class;
         }
 
@@ -1187,7 +1339,15 @@ class EntityReader implements EntityReaderInterface
 
         $relatedCollection->fill($related);
 
-        $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $relatedCollection, $fields, $partial);
+        $this->fetchAssociations(
+            $associationCriteria,
+            $referenceDefinition,
+            $context,
+            $relatedCollection,
+            $fields,
+            $fieldsForPartialLoading,
+            $isPartialLoading,
+        );
 
         foreach ($collection as $entity) {
             if ($association->is(Extension::class)) {
@@ -1217,7 +1377,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
-     * @param array<string, mixed> $partial
+     * @param array<string, mixed> $fieldsForPartialLoading
      *
      * @return EntityCollection<Entity>
      */
@@ -1227,7 +1387,8 @@ class EntityReader implements EntityReaderInterface
         Context $context,
         EntityCollection $collection,
         FieldCollection $fields,
-        array $partial
+        array $fieldsForPartialLoading,
+        bool $isPartialLoading,
     ): EntityCollection {
         if ($collection->count() <= 0) {
             return $collection;
@@ -1238,24 +1399,49 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            if ($partial !== [] && !\array_key_exists($association->getPropertyName(), $partial)) {
+            // Do not re-use `$isPartialLoading` here, as this method could be called for associations
+            // and only the initial call is relevant for marking the whole read as partial
+            if ($fieldsForPartialLoading !== [] && !\array_key_exists($association->getPropertyName(), $fieldsForPartialLoading)) {
                 continue;
             }
 
             if ($association instanceof OneToOneAssociationField || $association instanceof ManyToOneAssociationField) {
-                $this->loadToOne($association, $context, $collection, $criteria, $partial[$association->getPropertyName()] ?? []);
+                $this->loadToOne(
+                    $association,
+                    $context,
+                    $collection,
+                    $criteria,
+                    $fieldsForPartialLoading[$association->getPropertyName()] ?? [],
+                    $isPartialLoading,
+                );
 
                 continue;
             }
 
             if ($association instanceof OneToManyAssociationField) {
-                $this->loadOneToMany($criteria, $definition, $association, $context, $collection, $partial[$association->getPropertyName()] ?? []);
+                $this->loadOneToMany(
+                    $criteria,
+                    $definition,
+                    $association,
+                    $context,
+                    $collection,
+                    $fieldsForPartialLoading[$association->getPropertyName()] ?? [],
+                    $isPartialLoading,
+                );
 
                 continue;
             }
 
             if ($association instanceof ManyToManyAssociationField) {
-                $this->loadManyToMany($criteria, $association, $context, $collection, $partial[$association->getPropertyName()] ?? []);
+                $this->loadManyToMany(
+                    $criteria,
+                    $definition,
+                    $association,
+                    $context,
+                    $collection,
+                    $fieldsForPartialLoading[$association->getPropertyName()] ?? [],
+                    $isPartialLoading,
+                );
             }
         }
 

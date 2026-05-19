@@ -5,10 +5,12 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * @internal
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
 #[Package('framework')]
 class MaintenanceController extends StorefrontController
 {
@@ -33,16 +35,26 @@ class MaintenanceController extends StorefrontController
     ) {
     }
 
-    #[Route(path: '/maintenance', name: 'frontend.maintenance.page', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance',
+        name: 'frontend.maintenance.page',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function renderMaintenancePage(Request $request, SalesChannelContext $context): ?Response
     {
-        $salesChannel = $context->getSalesChannel();
-
         if ($this->maintenanceModeResolver->shouldRedirectToShop($request)) {
+            if ($request->query->getString('redirectTo') !== '') {
+                return $this->createActionResponse($request);
+            }
+
             return $this->redirectToRoute('frontend.home.page');
         }
 
-        $salesChannelId = $salesChannel->getId();
+        $salesChannelId = $context->getSalesChannelId();
         $maintenanceLayoutId = $this->systemConfigService->getString('core.basicInformation.maintenancePage', $salesChannelId);
 
         if ($maintenanceLayoutId === '') {
@@ -76,9 +88,17 @@ class MaintenanceController extends StorefrontController
     }
 
     /**
-     * Route for stand alone cms pages during maintenance
+     * Route for standalone cms pages during maintenance
      */
-    #[Route(path: '/maintenance/singlepage/{id}', name: 'frontend.maintenance.singlepage', defaults: ['allow_maintenance' => true, '_httpCache' => true], methods: ['GET'])]
+    #[Route(
+        path: '/maintenance/singlepage/{id}',
+        name: 'frontend.maintenance.singlepage',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE => true,
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function renderSinglePage(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {

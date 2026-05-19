@@ -6,7 +6,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-search', () => import('./page/sw-settings-search'));
 Shopware.Component.register('sw-settings-search-view-general', () => import('./view/sw-settings-search-view-general'));
 Shopware.Component.register(
@@ -43,7 +43,7 @@ Shopware.Component.register(
     'sw-settings-search-live-search-keyword',
     () => import('./component/sw-settings-search-live-search-keyword'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-search', {

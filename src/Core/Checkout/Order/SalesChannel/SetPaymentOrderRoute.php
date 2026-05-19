@@ -6,21 +6,26 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
-use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
@@ -31,7 +36,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('checkout')]
 class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 {
@@ -43,11 +48,12 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     public function __construct(
         private readonly OrderService $orderService,
         private readonly EntityRepository $orderRepository,
-        private readonly AbstractPaymentMethodRoute $paymentRoute,
         private readonly OrderConverter $orderConverter,
         private readonly CartRuleLoader $cartRuleLoader,
+        private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly InitialStateIdLoader $initialStateIdLoader
+        private readonly InitialStateIdLoader $initialStateIdLoader,
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
     ) {
     }
 
@@ -59,14 +65,24 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     #[Route(
         path: '/store-api/order/payment',
         name: 'store-api.order.set-payment',
-        defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true],
-        methods: ['POST'],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_POST],
     )]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
-        $paymentMethodId = (string) $request->request->get('paymentMethodId');
+        $paymentMethodId = $request->request->getAlnum('paymentMethodId');
+        if (!Uuid::isValid($paymentMethodId)) {
+            throw OrderException::invalidUuid($paymentMethodId);
+        }
 
-        $orderId = (string) $request->request->get('orderId');
+        $orderId = $request->request->getAlnum('orderId');
+        if (!Uuid::isValid($orderId)) {
+            throw OrderException::invalidUuid($orderId);
+        }
+
         $order = $this->loadOrder($orderId, $context);
 
         $context = $this->orderConverter->assembleSalesChannelContext(
@@ -75,7 +91,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
 
-        $this->validateRequest($context, $paymentMethodId);
+        $this->validateRequest($request, $order, $context);
 
         $this->validatePaymentState($order);
 
@@ -104,6 +120,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $transactionId = Uuid::randomHex();
         $payload = [
             'id' => $order->getId(),
+            'primaryOrderTransactionId' => $transactionId,
             'transactions' => [
                 [
                     'id' => $transactionId,
@@ -137,11 +154,18 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $this->eventDispatcher->dispatch($event);
     }
 
-    private function validateRequest(SalesChannelContext $salesChannelContext, string $paymentMethodId): void
+    private function validateRequest(Request $request, OrderEntity $order, SalesChannelContext $salesChannelContext): void
     {
-        $availablePayments = $this->paymentRoute->load(new Request(), $salesChannelContext, new Criteria());
+        $paymentMethodId = $request->request->getAlnum('paymentMethodId');
+        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+        $cart->setToken($salesChannelContext->getToken());
 
-        if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
+        $this->cartService->setCart($cart);
+        $request->attributes->set('orderId', $order->getId());
+
+        $response = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
+
+        if ($response->getPaymentMethods()->get($paymentMethodId) === null) {
             throw OrderException::paymentMethodNotAvailable($paymentMethodId);
         }
     }
@@ -153,13 +177,22 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             return false;
         }
 
-        $lastTransaction = $transactions->last();
+        $lastTransaction = $order->getPrimaryOrderTransaction();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lastTransaction = $transactions->last();
+        }
+
         if ($lastTransaction === null) {
             return false;
         }
 
         foreach ($transactions as $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
+                if ($this->hasChangedAmount($order->getPrice(), $transaction->getAmount())) {
+                    return false;
+                }
+
                 $initialState = $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE);
                 if ($transaction->getStateId() === $initialState) {
                     return true;
@@ -219,33 +252,31 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
 
     private function loadOrder(string $orderId, SalesChannelContext $context): OrderEntity
     {
-        $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('transactions');
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('transactions')
+            ->addAssociation('primaryOrderTransaction.stateMachineState');
+
+        $criteria->getAssociation('transactions')
+            ->addSorting(new FieldSorting('createdAt'));
 
         $customer = $context->getCustomer();
         \assert($customer !== null);
 
-        $criteria->addFilter(
-            new EqualsFilter(
-                'order.orderCustomer.customerId',
-                $customer->getId()
-            )
-        );
-        $criteria->addAssociations([
-            'lineItems',
-            'deliveries.shippingOrderAddress',
-            'deliveries.stateMachineState',
-            'orderCustomer',
-            'tags',
-            'transactions.stateMachineState',
-            'stateMachineState',
-        ]);
+        $criteria
+            ->addFilter(new EqualsFilter('order.orderCustomer.customerId', $customer->getId()))
+            ->addAssociations([
+                'lineItems',
+                'deliveries.shippingOrderAddress',
+                'deliveries.stateMachineState',
+                'orderCustomer',
+                'tags',
+                'transactions.stateMachineState',
+                'stateMachineState',
+            ]);
 
         $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();
-
         if ($order === null) {
             throw OrderException::orderNotFound($orderId);
         }
@@ -263,5 +294,24 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         throw OrderException::paymentMethodNotChangeable();
+    }
+
+    private function hasChangedAmount(CartPrice $original, CalculatedPrice $transactionAmount): bool
+    {
+        if ($original->getTotalPrice() !== $transactionAmount->getTotalPrice()) {
+            return true;
+        }
+
+        $cartTaxes = $original->getCalculatedTaxes();
+        $transactionTaxes = $transactionAmount->getCalculatedTaxes();
+        if ($cartTaxes->getKeys() !== $transactionTaxes->getKeys()) {
+            return true;
+        }
+
+        if ($cartTaxes->getAmount() !== $transactionTaxes->getAmount()) {
+            return true;
+        }
+
+        return false;
     }
 }

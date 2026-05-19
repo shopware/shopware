@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
@@ -53,7 +52,7 @@ async function createWrapper(extension) {
     return mount(await wrapTestComponent('sw-extension-card-bought', { sync: true }), {
         global: {
             mocks: {
-                $tc: (v1, v2, v3) =>
+                $t: (v1, v2, v3) =>
                     v1 || v2
                         ? v1
                         : JSON.stringify([
@@ -76,10 +75,6 @@ async function createWrapper(extension) {
                 'sw-loader': await wrapTestComponent('sw-loader', {
                     sync: true,
                 }),
-                'sw-icon': await wrapTestComponent('sw-icon', {
-                    sync: true,
-                }),
-                'sw-icon-deprecated': await wrapTestComponent('sw-icon-deprecated', { sync: true }),
                 'sw-circle-icon': await wrapTestComponent('sw-circle-icon', { sync: true }),
                 'router-link': {
                     template: '<div class="sw-router-link"><slot></slot></div>',
@@ -108,6 +103,7 @@ async function createWrapper(extension) {
                 'sw-loader-deprecated': true,
                 'i18n-t': true,
                 'sw-label': true,
+                'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
             },
             provide: {
                 extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
@@ -216,7 +212,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes('src')).toBe('https://example.com');
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 
@@ -255,10 +251,10 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
         expect(wrapper.find('.sw-extension-card-base__info-name').text()).toBe('Sample Extension Label');
         expect(wrapper.find('.sw-extension-icon img').attributes().src).toBe(
-            'administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.webp',
         );
         expect(wrapper.find('.sw-extension-card-base__meta-info').text().replace(/\s/g, '')).toBe(
-            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021',
+            'sw-extension-store.component.sw-extension-card-base.installedLabel01/02/2021,02:30',
         );
     });
 
@@ -456,7 +452,6 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
 
     it('should display error on install and download attempt when app subscription is expired', async () => {
         httpClient.post.mockImplementation(() => {
-            // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject({
                 response: {
                     data: {
@@ -585,7 +580,7 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
             const infoSubscriptionExpiry = wrapper.get('.sw-extension-card-bought__info-subscription-expiry');
             expect(infoSubscriptionExpiry.text()).toBe(expectedTextSnippet);
 
-            const icon = infoSubscriptionExpiry.findComponent('.sw-icon');
+            const icon = infoSubscriptionExpiry.findComponent('.mt-icon');
 
             if (expectedIcon) {
                 // eslint-disable-next-line jest/no-conditional-expect

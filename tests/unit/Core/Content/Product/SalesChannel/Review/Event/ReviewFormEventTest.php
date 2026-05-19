@@ -28,12 +28,12 @@ class ReviewFormEventTest extends TestCase
 
         $event = new ReviewFormEvent($context, $salesChannelId, $mailRecipientStruct, $data, $productId, $customerId);
 
-        static::assertEquals($context, $event->getContext());
-        static::assertEquals($salesChannelId, $event->getSalesChannelId());
-        static::assertEquals($mailRecipientStruct, $event->getMailStruct());
-        static::assertEquals($data->all(), $event->getReviewFormData());
-        static::assertEquals($productId, $event->getProductId());
-        static::assertEquals($customerId, $event->getCustomerId());
+        static::assertSame($context, $event->getContext());
+        static::assertSame($salesChannelId, $event->getSalesChannelId());
+        static::assertSame($mailRecipientStruct, $event->getMailStruct());
+        static::assertSame($data->all(), $event->getReviewFormData());
+        static::assertSame($productId, $event->getProductId());
+        static::assertSame($customerId, $event->getCustomerId());
     }
 
     public function testScalarValuesCorrectly(): void
@@ -56,6 +56,6 @@ class ReviewFormEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('reviewFormData', $flow->data());
-        static::assertEquals(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['reviewFormData']);
+        static::assertSame(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['reviewFormData']);
     }
 }

@@ -30,12 +30,12 @@ class WebhookEventLogEntity extends Entity
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $requestContent;
+    protected ?array $requestContent = null;
 
     /**
      * @var array<string, mixed>|null
      */
-    protected ?array $responseContent;
+    protected ?array $responseContent = null;
 
     protected ?int $responseStatusCode = null;
 

@@ -6,8 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Unit\Core\Framework\Struct\Fixture\TestCollection;
 
 /**
  * @internal
@@ -20,7 +24,7 @@ class CollectionTest extends TestCase
         $elements = ['a', 'b'];
         $collection = new TestCollection($elements);
 
-        static::assertEquals($elements, $collection->getElements());
+        static::assertSame($elements, $collection->getElements());
     }
 
     public function testConstructorKeepingKeys(): void
@@ -28,7 +32,7 @@ class CollectionTest extends TestCase
         $elements = ['z' => 'a', 'y' => 'b'];
         $collection = new TestCollection($elements);
 
-        static::assertEquals($elements, $collection->getElements());
+        static::assertSame($elements, $collection->getElements());
     }
 
     public function testClear(): void
@@ -44,21 +48,33 @@ class CollectionTest extends TestCase
     public function testCount(): void
     {
         $collection = new TestCollection();
-        static::assertEquals(0, $collection->count());
+        static::assertCount(0, $collection);
 
         $collection->add('a');
         $collection->add('b');
-        static::assertEquals(2, $collection->count());
+        static::assertCount(2, $collection);
+    }
+
+    public function testIsEmpty(): void
+    {
+        $collection = new TestCollection();
+        static::assertTrue($collection->isEmpty());
+
+        $collection->add('a');
+        static::assertFalse($collection->isEmpty());
+
+        $collection->clear();
+        static::assertTrue($collection->isEmpty());
     }
 
     public function testGetNumericKeys(): void
     {
         $collection = new TestCollection();
-        static::assertEquals([], $collection->getKeys());
+        static::assertSame([], $collection->getKeys());
 
         $collection->add('a');
         $collection->add('b');
-        static::assertEquals([0, 1], $collection->getKeys());
+        static::assertSame([0, 1], $collection->getKeys());
     }
 
     public function testHasWithNumericKey(): void
@@ -75,44 +91,46 @@ class CollectionTest extends TestCase
     public function testMap(): void
     {
         $collection = new TestCollection();
-        $collection->map(function (): void {
+        $collection->map(static function (): void {
             static::fail('map should not be called for empty collection');
         });
 
         $collection->add('a');
         $collection->add('b');
-        $result = $collection->map(fn ($element) => $element . '_test');
-        static::assertEquals(['a_test', 'b_test'], $result);
+        $result = $collection->map(static fn ($element) => $element . '_test');
+        static::assertSame(['a_test', 'b_test'], $result);
     }
 
     public function testFmap(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
-        $collection->fmap(function (): void {
+        $collection->fmap(static function (): void {
             static::fail('fmap should not be called for empty collection');
         });
 
         $collection->add('a');
         $collection->add('b');
-        $filtered = $collection->fmap(fn ($element) => $element === 'a' ? false : $element . '_test');
-        static::assertEquals([1 => 'b_test'], $filtered);
+        $filtered = $collection->fmap(static fn ($element) => $element === 'a' ? false : $element . '_test');
+        static::assertSame([1 => 'b_test'], $filtered);
     }
 
     public function testSort(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
 
-        $collection->sort(function (): void {
-            static::fail('fmap should not be called for empty collection');
+        $collection->sort(static function (): void {
+            static::fail('sort should not be called for empty collection');
         });
 
         $collection->add('b');
         $collection->add('c');
         $collection->add('a');
 
-        $collection->sort(fn ($a, $b) => strcmp((string) $a, (string) $b));
+        $collection->sort(static fn ($a, $b) => strcmp($a, $b));
 
-        static::assertEquals([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
+        static::assertSame([2 => 'a', 0 => 'b', 1 => 'c'], $collection->getElements());
     }
 
     public function testFilterInstance(): void
@@ -120,20 +138,21 @@ class CollectionTest extends TestCase
         $productStruct = new ProductEntity();
         $categoryStruct = new CategoryEntity();
         $collection = new TestCollection();
-        static::assertEquals(0, $collection->filterInstance(ProductEntity::class)->count());
+        static::assertCount(0, $collection->filterInstance(ProductEntity::class));
 
         $collection->add('a');
         $collection->add($productStruct);
         $collection->add($categoryStruct);
 
         $filtered = $collection->filterInstance(Struct::class);
-        static::assertEquals([$productStruct, $categoryStruct], array_values($filtered->getElements()));
+        static::assertSame([$productStruct, $categoryStruct], array_values($filtered->getElements()));
     }
 
     public function testFilter(): void
     {
+        /** @var TestCollection<string> $collection */
         $collection = new TestCollection();
-        $collection->filter(function (): void {
+        $collection->filter(static function (): void {
             static::fail('filter should not be called for empty collection');
         });
 
@@ -141,8 +160,8 @@ class CollectionTest extends TestCase
         $collection->add('b');
         $collection->add('c');
 
-        $filtered = $collection->filter(fn ($element) => $element !== 'b');
-        static::assertEquals(['a', 'c'], array_values($filtered->getElements()));
+        $filtered = $collection->filter(static fn ($element) => $element !== 'b');
+        static::assertSame(['a', 'c'], array_values($filtered->getElements()));
     }
 
     public function testSlice(): void
@@ -154,27 +173,27 @@ class CollectionTest extends TestCase
         $collection->add('b');
         $collection->add('c');
 
-        static::assertEquals(['b', 'c'], array_values($collection->slice(1)->getElements()));
-        static::assertEquals(['b'], array_values($collection->slice(1, 1)->getElements()));
+        static::assertSame(['b', 'c'], array_values($collection->slice(1)->getElements()));
+        static::assertSame(['b'], array_values($collection->slice(1, 1)->getElements()));
     }
 
     public function testGetElements(): void
     {
         $elements = ['a', 'b'];
         $collection = new TestCollection();
-        static::assertEquals([], $collection->getElements());
+        static::assertSame([], $collection->getElements());
 
         $collection->add('a');
         $collection->add('b');
 
-        static::assertEquals($elements, $collection->getElements());
+        static::assertSame($elements, $collection->getElements());
     }
 
     public function testJsonSerialize(): void
     {
         $elements = ['a', 'b'];
         $collection = new TestCollection();
-        static::assertEquals(
+        static::assertSame(
             [],
             $collection->jsonSerialize()
         );
@@ -182,7 +201,7 @@ class CollectionTest extends TestCase
         $collection->add('a');
         $collection->add('b');
 
-        static::assertEquals(
+        static::assertSame(
             $elements,
             $collection->jsonSerialize()
         );
@@ -196,7 +215,7 @@ class CollectionTest extends TestCase
         $collection->add('a');
         $collection->add('b');
 
-        static::assertEquals('a', $collection->first());
+        static::assertSame('a', $collection->first());
     }
 
     public function testLast(): void
@@ -207,7 +226,7 @@ class CollectionTest extends TestCase
         $collection->add('a');
         $collection->add('b');
 
-        static::assertEquals('b', $collection->last());
+        static::assertSame('b', $collection->last());
     }
 
     public function testGetAt(): void
@@ -217,14 +236,14 @@ class CollectionTest extends TestCase
 
         $collection->add('a');
         $collection->add('b');
-        static::assertEquals('a', $collection->getAt(0));
-        static::assertEquals('b', $collection->getAt(1));
+        static::assertSame('a', $collection->getAt(0));
+        static::assertSame('b', $collection->getAt(1));
     }
 
     public function testFirstWhereWithEmptyCollectionWillReturnNull(): void
     {
         $collection = new TestCollection();
-        static::assertNull($collection->firstWhere(fn ($element) => $element === 'a'));
+        static::assertNull($collection->firstWhere(static fn ($element) => $element === 'a'));
     }
 
     public function testFirstWhereWithMatchingElementWillReturnFirstElement(): void
@@ -233,15 +252,43 @@ class CollectionTest extends TestCase
         $collection->add('a1');
         $collection->add('a2');
         $collection->add('a3');
-        static::assertEquals('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
+        static::assertSame('a1', $collection->firstWhere(static fn ($element) => str_starts_with($element, 'a')));
     }
-}
 
-/**
- * @internal
- *
- * @extends Collection<string|ProductEntity|CategoryEntity>
- */
-class TestCollection extends Collection
-{
+    public function testFromAssociative(): void
+    {
+        $data = [
+            null,
+            0,
+            'some-string',
+            new \stdClass(),
+            ['some' => 'value'],
+        ];
+
+        $collection = (new TestCollection())->assignRecursive($data);
+
+        static::assertCount(5, $collection);
+
+        static::assertSame($data[0], $collection->get(0));
+        static::assertSame($data[1], $collection->get(1));
+        static::assertSame($data[2], $collection->get(2));
+        static::assertSame($data[3], $collection->get(3));
+        static::assertSame($data[4], $collection->get(4));
+    }
+
+    public function testFromAssociativeWithExpectedClass(): void
+    {
+        $data = [
+            'some-string',
+            new \stdClass(),
+            ['versionId' => Uuid::randomHex()],
+            ['_uniqueIdentifier' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+        ];
+
+        $collection = (new EntityCollection())->assignRecursive($data);
+
+        static::assertCount(1, $collection);
+        static::assertInstanceOf(Entity::class, $collection->first());
+        static::assertNotNull($collection->first()->getVersionId());
+    }
 }

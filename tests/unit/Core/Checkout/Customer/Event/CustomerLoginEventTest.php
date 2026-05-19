@@ -9,12 +9,14 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
 #[CoversClass(CustomerLoginEvent::class)]
+#[Package('checkout')]
 class CustomerLoginEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
@@ -34,6 +36,6 @@ class CustomerLoginEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('contextToken', $flow->data());
-        static::assertEquals('context-token', $flow->data()['contextToken']);
+        static::assertSame('context-token', $flow->data()['contextToken']);
     }
 }

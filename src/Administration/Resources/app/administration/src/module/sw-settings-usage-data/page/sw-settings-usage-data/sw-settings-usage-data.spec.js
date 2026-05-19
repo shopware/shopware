@@ -11,7 +11,6 @@ async function createWrapper() {
         {
             global: {
                 stubs: {
-                    'sw-icon': await wrapTestComponent('sw-icon'),
                     'sw-page': {
                         template: `
                         <div class="sw-page">
@@ -28,7 +27,6 @@ async function createWrapper() {
                     'sw-tabs-item': true,
                     'sw-error-summary': true,
                     'sw-extension-component-section': true,
-                    'sw-icon-deprecated': true,
                 },
             },
         },

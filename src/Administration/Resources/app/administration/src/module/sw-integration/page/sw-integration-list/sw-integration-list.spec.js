@@ -86,13 +86,11 @@ async function createWrapper(privileges = []) {
                 },
                 'sw-language-switch': true,
                 'sw-search-bar': true,
-                'sw-icon': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-                'sw-password-field': await wrapTestComponent('sw-password-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -102,17 +100,15 @@ async function createWrapper(privileges = []) {
                 'sw-field-copyable': true,
 
                 'sw-entity-multi-select': true,
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>',
-                },
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'detailRoute',
                     ],
                     template: `
                         <div>
-                            <template v-for="item in items" :key="item.id">
+                            <template v-for="item in (dataSource || items)" :key="item.id">
                                 <slot name="actions" v-bind="{ item }">
                                 </slot>
                                 <slot name="action-modals" v-bind="{ item }">
@@ -130,6 +126,15 @@ async function createWrapper(privileges = []) {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'solid-content',
+                        },
+                    },
+                },
+            },
         },
     });
 
@@ -138,11 +143,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-integration/page/sw-integration-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create / edit without permissions', async () => {
         const wrapper = await createWrapper();
 

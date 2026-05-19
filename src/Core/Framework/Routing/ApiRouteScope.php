@@ -13,14 +13,17 @@ use Symfony\Component\HttpFoundation\Request;
 class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDependant
 {
     final public const ID = 'api';
+    final public const ALLOWED_PATH = 'api';
 
-    protected array $allowedPaths = ['api', 'sw-domain-hash.html'];
+    protected array $allowedPaths = [self::ALLOWED_PATH, 'sw-domain-hash.html'];
 
     public function isAllowed(Request $request): bool
     {
-        /** @var Context $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         $authRequired = $request->attributes->get('auth_required', true);
+        if (!$context instanceof Context) {
+            throw RoutingException::missingRouteAttribute(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, (string) $request->attributes->get('_route', ''));
+        }
         $source = $context->getSource();
 
         if (!$authRequired) {
@@ -30,6 +33,9 @@ class ApiRouteScope extends AbstractRouteScope implements ApiContextRouteScopeDe
         return $context->getSource() instanceof AdminApiSource;
     }
 
+    /**
+     * @codeCoverageIgnore no logic
+     */
     public function getId(): string
     {
         return self::ID;

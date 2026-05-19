@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Storage;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
@@ -14,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 /**
  * @internal
  */
-#[CoversClass(MySQLKeyValueStorage::class)]
 class MySQLKeyValueStorageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -41,7 +39,7 @@ class MySQLKeyValueStorageTest extends TestCase
             'keys' => ArrayParameterType::STRING,
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'key-1' => 'value-1',
             'key-2' => '',
             'key-3' => json_encode(['a' => 'b']),
@@ -54,10 +52,10 @@ class MySQLKeyValueStorageTest extends TestCase
         $this->keyValueStorage->set('key-1', 'value-1');
         $this->keyValueStorage->set('key-2', null);
 
-        static::assertEquals('value-1', $this->keyValueStorage->get('key-1', 'default'));
-        static::assertEquals('', $this->keyValueStorage->get('key-2'));
-        static::assertEquals('', $this->keyValueStorage->get('key-2', 'default'));
-        static::assertEquals('default', $this->keyValueStorage->get('key-3', 'default'));
+        static::assertSame('value-1', $this->keyValueStorage->get('key-1', 'default'));
+        static::assertSame('', $this->keyValueStorage->get('key-2'));
+        static::assertSame('', $this->keyValueStorage->get('key-2', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-3', 'default'));
     }
 
     #[Depends('testSet')]

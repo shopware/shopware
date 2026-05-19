@@ -11,7 +11,7 @@ import template from './sw-extension-component-section.html.twig';
  * @component-example
  * <sw-extension-component-section positionId="my-special-position" />
  */
-Shopware.Component.register('sw-extension-component-section', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     extensionApiDevtoolInformation: {
@@ -56,14 +56,12 @@ Shopware.Component.register('sw-extension-component-section', {
                 sections.forEach((section) => {
                     const debugArgs = [
                         'CORE',
-                        // eslint-disable-next-line max-len
                         `The extension "${section.extensionName}" uses a deprecated position identifier "${this.positionIdentifier}". ${this.deprecationMessage}`,
                     ];
                     // @ts-expect-error
                     if (process.env !== 'prod') {
                         Shopware.Utils.debug.error(...debugArgs);
                     } else {
-                        // eslint-disable-next-line max-len
                         Shopware.Utils.debug.warn(...debugArgs);
                     }
                 });
@@ -85,9 +83,13 @@ Shopware.Component.register('sw-extension-component-section', {
         },
 
         getActiveTab(componentSection: ComponentSectionEntry) {
-            return this.activeTabName
-                ? componentSection.props.tabs?.find((tab) => tab.name === this.activeTabName)
-                : componentSection.props.tabs?.[0];
+            if ('tabs' in componentSection.props) {
+                return this.activeTabName
+                    ? componentSection.props.tabs?.find((tab) => tab.name === this.activeTabName)
+                    : componentSection.props.tabs?.[0];
+            }
+
+            return null;
         },
     },
 });

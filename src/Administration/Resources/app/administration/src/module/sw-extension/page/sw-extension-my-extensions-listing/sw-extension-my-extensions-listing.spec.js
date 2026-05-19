@@ -1,6 +1,7 @@
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
+import selectMtSelectOptionByText from '../../../../../test/_helper_/select-mt-select-by-text';
 
 const routes = [
     {
@@ -49,9 +50,7 @@ async function createWrapper() {
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
-                    'sw-icon': true,
                     'sw-field': true,
-                    // eslint-disable-next-line max-len
                     'sw-extension-my-extensions-listing-controls': await wrapTestComponent(
                         'sw-extension-my-extensions-listing-controls',
                         { sync: true },
@@ -362,10 +361,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         await wrapper.vm.$nextTick();
 
-        const sortingOption = wrapper.find('option[value="name-desc"]');
-
-        // setting sorting option
-        await sortingOption.setSelected();
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-desc',
+            '.mt-select__selection',
+        );
 
         const correctOrder = [
             'very smart plugin',
@@ -400,12 +400,11 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
 
-        await wrapper.vm.$nextTick();
-
-        const sortingOption = wrapper.find('option[value="name-asc"]');
-
-        // setting sorting option
-        await sortingOption.setSelected();
+        await selectMtSelectOptionByText(
+            wrapper,
+            'sw-extension.my-extensions.listing.controls.filterOptions.name-asc',
+            '.mt-select__selection',
+        );
 
         const correctOrder = [
             '#1 best plugin',

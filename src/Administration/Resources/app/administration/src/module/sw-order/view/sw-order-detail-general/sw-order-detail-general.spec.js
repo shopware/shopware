@@ -89,9 +89,9 @@ async function createWrapper() {
                 },
                 'sw-order-general-info': true,
                 'sw-order-line-items-grid': true,
+                'sw-order-promotion-field': true,
+                'sw-number-field': await wrapTestComponent('sw-number-field', { sync: true }),
                 'sw-order-saveable-field': await wrapTestComponent('sw-order-saveable-field', { sync: true }),
-                'sw-number-field': await wrapTestComponent('sw-number-field'),
-                'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -101,12 +101,12 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'sw-extension-component-section': true,
-                'sw-icon': true,
                 'router-link': true,
                 'sw-loader': true,
+                'sw-number-field-deprecated': true,
             },
             mocks: {
-                $tc: (key, value) => {
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }
@@ -129,7 +129,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }
@@ -140,12 +139,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tax\TaxDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class LineItemTaxationRule extends Rule
@@ -23,6 +23,8 @@ class LineItemTaxationRule extends Rule
 
     /**
      * @param list<string> $taxIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

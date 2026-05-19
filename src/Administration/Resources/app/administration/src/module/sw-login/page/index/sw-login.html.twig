@@ -4,7 +4,6 @@
     class="sw-login"
     :class="{ 'is--login-success' : isLoginSuccess }"
 >
-
     {% block sw_login_container %}
     <div
         class="sw-login__container"
@@ -16,13 +15,13 @@
             <div class="sw-login__image-headlines">
                 {% block sw_login_headline %}
                 <div class="sw-login__headline">
-                    {{ $tc('sw-login.index.headlineMain') }}
+                    {{ $t('sw-login.index.headlineMain') }}
                 </div>
                 {% endblock %}
 
                 {% block sw_login_sub_headline %}
                 <div class="sw-login__sub-headline">
-                    {{ $tc('sw-login.index.subheadlineMain') }}
+                    {{ $t('sw-login.index.subheadlineMain') }}
                 </div>
                 {% endblock %}
             </div>
@@ -38,8 +37,8 @@
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink"
-                    width="34px"
-                    height="34px"
+                    width="38px"
+                    height="38px"
                     viewBox="0 0 34 34"
                     version="1.1"
                 >
@@ -53,7 +52,6 @@
             {% endblock %}
 
             {% block sw_login_view %}
-
             <router-view
                 v-slot="{Component}"
             >
@@ -74,7 +72,7 @@
             {% endblock %}
 
             {% block sw_login_loader %}
-            <sw-loader v-if="isLoading" />
+            <mt-loader v-if="isLoading" />
             {% endblock %}
         </div>
         {% endblock %}

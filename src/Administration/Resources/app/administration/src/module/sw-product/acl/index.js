@@ -10,6 +10,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         viewer: {
             privileges: [
                 'product:read',
+                'product_translation:read',
                 'product_download:read',
                 'product_media:read',
                 'product_manufacturer:read',
@@ -54,6 +55,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'number_range:read',
                 'number_range_type:read',
                 Shopware.Service('privileges').getPrivileges('cms.viewer'),
+                Shopware.Service('privileges').getPrivileges('measurement.viewer'),
+                'user_config:read',
             ],
             dependencies: [],
         },
@@ -99,6 +102,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'product_feature_set:create',
                 'product_feature_set:update',
                 'product_feature_set:delete',
+                'user_config:create',
+                'user_config:update',
             ],
             dependencies: [
                 'product.viewer',

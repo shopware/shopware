@@ -75,7 +75,7 @@ class AggregationProcessorTest extends TestCase
 
         $processor->process(new Request(), $result, $context);
 
-        static::assertEquals(['foo'], $result->getCurrentFilter('foo'));
+        static::assertSame(['foo'], $result->getCurrentFilter('foo'));
     }
 
     public function testReduceAggregationBehavior(): void
@@ -100,7 +100,7 @@ class AggregationProcessorTest extends TestCase
         $filter = $agg->getFilter();
         $filter = \array_shift($filter);
         static::assertInstanceOf(EqualsFilter::class, $filter);
-        static::assertEquals('bar', $filter->getField());
+        static::assertSame('bar', $filter->getField());
 
         $agg = $criteria->getAggregation('bar');
         static::assertInstanceOf(FilterAggregation::class, $agg);

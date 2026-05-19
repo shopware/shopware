@@ -15,9 +15,7 @@ const createWrapper = async () => {
             global: {
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
-                    'sw-icon': true,
                     'sw-loader': true,
-
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-inheritance-switch': true,
@@ -27,8 +25,6 @@ const createWrapper = async () => {
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-data-grid-settings': true,
                     'sw-field': true,
-                    'sw-number-field': await wrapTestComponent('sw-number-field'),
-                    'sw-number-field-deprecated': await wrapTestComponent('sw-number-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
@@ -170,7 +166,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         // check if input field has a value of 1 and is disabled
         expect(firstQuantityField.element.value).toBe('1');
-        expect(firstQuantityField.attributes('disabled')).toBe('');
+        expect(firstQuantityField.attributes('disabled')).toBeDefined();
     });
 
     it('second start quantity input should not be disabled', async () => {
@@ -296,5 +292,55 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             '.context-price-group-1 .sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__price input[name="sw-price-field-gross"]',
         );
         expect(secondPriceFieldGross.element.value).toBe('0');
+    });
+
+    it('should accept the value entered in the “To” field without changing it automatically for valid inputs on non-last rules', async () => {
+        const entities = [
+            {
+                ruleId: 'ruleId',
+                quantityStart: 1,
+                quantityEnd: 5,
+                price: [{ currencyId: 'euro', gross: 10, net: 10, linked: true, listPrice: null }],
+            },
+            {
+                ruleId: 'ruleId',
+                quantityStart: 11,
+                quantityEnd: null,
+                price: [{ currencyId: 'euro', gross: 8, net: 8, linked: true, listPrice: null }],
+            },
+        ];
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            prices: new EntityCollection(
+                '/test-price',
+                'product_price',
+                null,
+                { isShopwareContext: true },
+                entities,
+                entities.length,
+                null,
+            ),
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = { id: 'parentProductId' };
+        Shopware.Store.get('swProductDetail').currencies = [
+            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' },
+        ];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstQuantityEndInput = wrapper.find('.sw-data-grid__row--0 input[name="ruleId-1-quantityEnd"]');
+        expect(firstQuantityEndInput.element.value).toBe('5');
+
+        const newValue = 10;
+        await firstQuantityEndInput.setValue(newValue);
+        await firstQuantityEndInput.trigger('blur');
+        await wrapper.vm.$nextTick();
+
+        expect(firstQuantityEndInput.element.value).toBe(newValue.toString());
+        expect(wrapper.vm.product.prices).toHaveLength(2);
+        expect(wrapper.vm.product.prices[0].quantityEnd).toBe(newValue);
     });
 });

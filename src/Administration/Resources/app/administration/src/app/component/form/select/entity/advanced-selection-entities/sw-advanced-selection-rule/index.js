@@ -1,7 +1,6 @@
 import template from './sw-advanced-selection-rule.html.twig';
 import './sw-advanced-selection-rule.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -12,7 +11,7 @@ const { Criteria } = Shopware.Data;
  * to `sw-entity-...-select` components.
  * @status prototype
  */
-Component.register('sw-advanced-selection-rule', {
+export default {
     template,
 
     inject: [
@@ -145,30 +144,30 @@ Component.register('sw-advanced-selection-rule', {
             const filters = {
                 conditionGroups: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.groupFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.groupFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.groupFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.groupFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.groupFilterOptions,
                 },
                 conditions: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.conditionFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.conditionFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.conditionFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.conditionFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.conditionFilterOptions,
                 },
                 assignments: {
                     existingType: true,
                     property: 'conditions',
-                    label: this.$tc('sw-settings-rule.filter.assignmentFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.assignmentFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.assignmentFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.assignmentFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.associationFilterOptions,
                 },
                 tags: {
                     property: 'tags',
-                    label: this.$tc('sw-settings-rule.filter.tagFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.tagFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.tagFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.tagFilter.placeholder'),
                     criteria: new Criteria(1, 25).addSorting(Criteria.sort('name')),
                 },
             };
@@ -180,7 +179,7 @@ Component.register('sw-advanced-selection-rule', {
             const conditions = this.ruleConditionDataProviderService.getConditions().map((condition) => {
                 return {
                     value: condition.type,
-                    label: this.$tc(condition.label),
+                    label: this.$t(condition.label),
                 };
             });
             conditions.sort((a, b) => a.label.localeCompare(b.label));
@@ -200,7 +199,7 @@ Component.register('sw-advanced-selection-rule', {
 
                 groupFilter.push({
                     value: conditionFilterString,
-                    label: this.$tc(group.name),
+                    label: this.$t(group.name),
                 });
             });
             groupFilter.sort((a, b) => a.label.localeCompare(b.label));
@@ -218,7 +217,7 @@ Component.register('sw-advanced-selection-rule', {
                     if (value.type === 'association' && key !== 'conditions' && key !== 'tags') {
                         associations.push({
                             value: key,
-                            label: this.$tc(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
+                            label: this.$t(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
                         });
                     }
                 },
@@ -263,6 +262,9 @@ Component.register('sw-advanced-selection-rule', {
             return aggregations;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -342,4 +344,4 @@ Component.register('sw-advanced-selection-rule', {
             return counts;
         },
     },
-});
+};

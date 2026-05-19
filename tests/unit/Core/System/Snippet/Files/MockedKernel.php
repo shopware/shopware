@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -17,8 +18,12 @@ class MockedKernel extends Kernel
     /**
      * @param array<string, BundleInterface> $bundles
      */
-    public function __construct(array $bundles)
+    public function __construct(array $bundles, ?KernelPluginLoader $pluginLoader = null)
     {
         $this->bundles = $bundles;
+
+        if ($pluginLoader) {
+            $this->pluginLoader = $pluginLoader;
+        }
     }
 }

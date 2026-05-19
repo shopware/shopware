@@ -1,17 +1,17 @@
 {% block sw_cms_visibility_toggle %}
 <div class="sw-cms-visibility-toggle-wrapper">
     <div class="sw-cms-visibility-toggle">
-        <sw-icon
+        <mt-icon
             name="regular-eye-slash"
             size="24"
         />
-        <span class="sw-cms-visibility-toggle__text">{{ $tc('sw-cms.detail.label.visibilityParagraph') }}</span>
+        <span class="sw-cms-visibility-toggle__text">{{ $t('sw-cms.detail.label.visibilityParagraph') }}</span>
         <button
             class="sw-cms-visibility-toggle__button"
             @click="$emit('toggle')"
         >
             <span>{{ text }}</span>
-            <sw-icon
+            <mt-icon
                 :name="isCollapsed ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs'"
                 size="10"
             />

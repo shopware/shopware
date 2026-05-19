@@ -1,5 +1,5 @@
-import orderBy from 'lodash/orderBy';
-import sortBy from 'lodash/sortBy';
+import orderBy from 'lodash-es/orderBy';
+import sortBy from 'lodash-es/sortBy';
 import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 
@@ -78,7 +78,7 @@ export default {
             const groups = this.actionGroups.map((group) => {
                 return {
                     id: group,
-                    label: this.$tc(`sw-flow.actions.group.${group}`),
+                    label: this.$t(`sw-flow.actions.group.${group}`),
                 };
             });
 
@@ -167,6 +167,7 @@ export default {
                 'sequences',
                 'appActions',
                 'getSelectedAppAction',
+                'hasAvailableAction',
             ],
         ),
     },
@@ -409,7 +410,7 @@ export default {
             const actionTitle = this.flowBuilderService.getActionTitle(actionName);
             return {
                 ...actionTitle,
-                label: this.$tc(actionTitle.label),
+                label: this.$t(actionTitle.label),
                 group: this.flowBuilderService.getActionGroupMapping(actionName),
             };
         },
@@ -501,7 +502,6 @@ export default {
 
                 action.group = action.group || this.flowBuilderService.getGroup('GENERAL');
 
-                // eslint-disable-next-line max-len
                 actions.push(
                     actions.splice(
                         actions.findIndex((el) => el.group === this.flowBuilderService.getGroup('GENERAL')),
@@ -525,10 +525,6 @@ export default {
             actions.splice(stopFlowIndex, 0, stopAction);
 
             return actions;
-        },
-
-        hasAvailableAction(actionName) {
-            return this.availableActions.includes(actionName);
         },
 
         isValidAction(actionName) {

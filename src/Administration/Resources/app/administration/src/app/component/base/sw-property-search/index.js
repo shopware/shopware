@@ -5,14 +5,13 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-property-search', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -23,13 +22,11 @@ Component.register('sw-property-search', {
         collapsible: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         overlay: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         options: {
@@ -86,7 +83,7 @@ Component.register('sw-property-search', {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
-            criteria.addSorting(Criteria.sort('name', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             if (this.currentGroup) {
                 criteria.addFilter(Criteria.equals('groupId', this.currentGroup.id));
@@ -312,4 +309,4 @@ Component.register('sw-property-search', {
             });
         },
     },
-});
+};

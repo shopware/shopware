@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
@@ -26,8 +27,8 @@ class IterateEntityMessageTest extends TestCase
             $dateTime,
         );
 
-        static::assertEquals($dateTime, $message->runDate);
-        static::assertEquals($dateTime, $message->lastRun);
+        static::assertSame($dateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $message->runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($dateTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $message->lastRun?->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     /**

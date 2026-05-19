@@ -1,0 +1,904 @@
+{
+  "sw-cms": {
+    "general": {
+      "placeholderSearchBar": "Search layouts...",
+      "mainMenuItemGeneral": "Shopping Experiences",
+      "moduleTitle": "Shopping Experiences",
+      "greeting": "Layouts",
+      "createNewLayout": "Create new layout",
+      "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
+      "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
+      "deleteDisabledLandingPageToolTip": "The layout you want to delete is still assigned to at least one landing page.",
+      "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
+      "privacyNotice": "By selecting continue you confirm that you have read our <a href=\"%privacyUrl%\">data protection information</a> and accepted our <a href=\"%tosUrl%\">general terms and conditions</a>."
+    },
+    "inherit": {
+      "tooltip": "This field does not exist on the base layout and cannot be inherited.",
+      "formBanner": "This layout has inherited fields. Meaning that as long as the inherited state is active the content will be inherited. Inherited fields can be unlinked by clicking the link symbol. Clicking the symbol again will set the inherited state back.",
+      "unlinkNotice": "Some inherited fields have been unlinked.",
+      "unlinkAllButton": "Reset all fields.",
+      "unlinkAllConfirmText": "Are you sure you want to reset all fields? This will permanently delete all unlinked content.",
+      "unlinkFieldConfirmText": "Are you sure you want to restore inheritance? This will remove all custom data of this field and restore values from the parent element.",
+      "unlinkAllTitle": "Reset all fields",
+      "unlinkFieldTitle": "Restore inheritance"
+    },
+    "sorting": {
+      "labelSort": "Sort by:",
+      "labelSortByNameAsc": "Name, ascending",
+      "labelSortByNameDesc": "Name, descending",
+      "labelSortByCreatedAsc": "Creation date, ascending",
+      "labelSortByCreatedDsc": "Creation date, descending",
+      "labelSortByUpdatedAsc": "Modification date, ascending",
+      "labelSortByUpdatedDsc": "Modification date, descending",
+      "labelSortByAllPages": "All types"
+    },
+    "list": {
+      "gridHeaderName": "Name",
+      "gridHeaderType": "Type",
+      "gridHeaderAssignment": "Assigned categories",
+      "gridHeaderAssignments": "Assigned",
+      "gridHeaderAssignedPages": "Assigned pages",
+      "gridHeaderCreated": "Created",
+      "gridHeaderUpdated": "Updated date"
+    },
+    "section": {
+      "fallBackSectionName": "Section",
+      "positionLeft": "Content, left",
+      "positionRight": "Content, right",
+      "fullWidth": "Full width",
+      "sidebar": "Sidebar",
+      "layoutSection": "Layout section",
+      "isSidebar": "Layout section - Sidebar",
+      "isDefault": "Layout section - Default",
+      "sectionEmptyState": "Nothing here. Add blocks and elements."
+    },
+    "sidebar": {
+      "contentMenu": {
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "generalSettings": "General",
+        "settings": "Settings",
+        "layoutSettings": "Layout",
+        "visibilitySettings": "Visibility",
+        "visibilityMobile": "Mobile",
+        "visibilityTablet": "Tablet",
+        "visibilityDesktop": "Desktop",
+        "visibilityBlockTextButton": "Collapse block | Expand block",
+        "visibilitySectionTextButton": "Collapse section | Expand section",
+        "visibilityLabelCheckboxGroup": "Devices"
+      },
+      "layoutAssignment": {
+        "headline": "Manage where this layout is visible",
+        "infoText": "You can use layouts for several categories in your shop. Here you can see which categories already use this layout or assign it to other categories.",
+        "actionAssignLayout": "Assign layout"
+      },
+      "layoutSetAsDefault": {
+        "headline": "Default layouts",
+        "actionSetAsDefaultLayout": "Set as default layout"
+      }
+    },
+    "create": {
+      "notification":{
+        "assignToEntityError": "Assigning layouts failed"
+      }
+    },
+    "createWizard": {
+      "choosePageTypeTitle": "What kind of page would you like to create?",
+      "choosePageTypeHelpText": "These different layout types will help you find existing layouts faster. You may change the layout type afterwards at any time via the layout settings.",
+      "chooseSectionTitle": "Choose a section type to start with.",
+      "chooseSectionHelpText": "Sections divide your working space into areas and help you to be more creative. You may combine different sections and move or delete them at any time.",
+      "chooseNameTitle": "How do you want to label your new layout?",
+      "createLayout": "Create layout",
+      "stepBack": "Back"
+    },
+    "detail": {
+      "alert": {
+        "titleTranslations": "Translations currently not available!",
+        "contentTranslations": "Layouts can only be edited in the system default language."
+      },
+      "helpText": {
+        "cssClassField": "You can add one or more CSS classes separated by spaces"
+      },
+      "label": {
+        "buttonSave": "Save",
+        "pageName": "Layout name",
+        "pageNamePlaceholder": "Enter layout name...",
+        "pageEntity": "Custom Entity",
+        "pageEntityPlaceholder": "Select Custom Entity...",
+        "pageCssClass": "CSS classes",
+        "pageTypeSelection": "Layout type",
+        "pageType": {
+          "landingpage": "Landing page",
+          "page": "Shop page",
+          "productList": "Listing page",
+          "productDetail": "Product page",
+          "customEntityDetail": "Content layout",
+          "customEntityList": "Content listing page"
+        },
+        "demoEntity": "Preview entity",
+        "blockCategorySelection": "Block category",
+        "blockCategoryFavorite": "Favourites",
+        "blockCategoryText": "Text",
+        "blockCategoryTextImage": "Text & images",
+        "blockCategorySidebar": "Sidebar",
+        "blockCategoryImage": "Images",
+        "blockCategoryCommerce": "Commerce",
+        "blockCategoryVideo": "Video",
+        "blockCategoryForm": "Form",
+        "blockCategoryHtml": "HTML",
+        "blockCategoryApp": "Apps",
+        "buttonElementSettingsConfirm": "Done",
+        "blockNameField": "Block name",
+        "blockNameFieldPlaceholder": "Enter name...",
+        "blockSizingField": "Sizing mode",
+        "blockSizingOptionBoxed": "Boxed content",
+        "blockSizingOptionFull": "Full width",
+        "backgroundColorField": "Colour",
+        "backgroundColorLabel": "Background colour",
+        "backgroundMediaField": "Image",
+        "backgroundMediaLabel": "Background image",
+        "backgroundMediaMode": "Image mode",
+        "backgroundMediaModeContain": "Contain",
+        "backgroundMediaModeCover": "Cover",
+        "backgroundMediaModeAuto": "Auto",
+        "sizingField": "Sizing mode",
+        "cssClassField": "CSS classes",
+        "sectionNameField": "Section name",
+        "blockTopMarginField": "Top margin",
+        "blockRightMarginField": "Right margin",
+        "blockBottomMarginField": "Bottom margin",
+        "blockLeftMarginField": "Left margin",
+        "sizingOptionBoxed": "Boxed content",
+        "sizingOptionFull": "Full width",
+        "buttonMappingAction": "Data mapping",
+        "buttonMappingRemoveAction": "Remove data mapping",
+        "mappingPreview": "Field mapped to:",
+        "mappingEmptyPreview": "No preview available.",
+        "addBlocks": "Add blocks via drag & drop",
+        "labelNavigation": "Navigation",
+        "lockedNotification": "This is a locked default layout you may use for your content from the get-go. Note that you cannot edit this template! If you want to adapt the layout to your needs, just duplicate the layout and alter the duplicate.",
+        "headlineEmptyState": "Space for creativity",
+        "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content.",
+        "defaultLayout": "Default layout",
+        "blockFavoriteEmptyState": "Click the heart-shaped symbol next to a block to mark them as favourites and conveniently collect them in one place.",
+        "visibilityParagraph": "Invisible on selected devices"
+      },
+      "notification": {
+        "pageInvalid": "Errors occurred. Please check the error list in the editor.",
+        "errorCollectionText": "Page could not be saved, because of the following errors:",
+        "warningCollectionText": "The following, recommended elements are missing in  this layout:",
+        "messageMissingFields": "Some required fields were not filled in.",
+        "messageMissingBlockFields": "Some blocks were not configured sufficiently.",
+        "messageMissingProductListing": "This listing page does not contain a product listing block.",
+        "messageMissingSections": "This layout does not contain sections.",
+        "messageRedundantElements": "There are blocks that may only exist once. ({names})",
+        "messageMissingBlocks": "You cannot save an empty page. Please add at least one block first.",
+        "messageMissingElements": "Configuration required. Please configure all elements of your layout."
+      },
+      "placeholder": {
+        "demoEntity": "Select an entity to preview..."
+      },
+      "sidebar": {
+        "titlePageSettings": "Settings",
+        "headerPageSettings": "Basic information",
+        "titleBlockOverview": "Blocks",
+        "titleBlockSettings": "Block settings",
+        "headerBlockSettings": "Block:",
+        "titleNavigator": "Navigator",
+        "titleSectionSettings": "Section settings",
+        "titleLayoutAssignment": "Layout assignment",
+        "confirmTextNavigator": "When entering the block navigator, your current page will be saved. Are you sure you want to proceed?",
+        "confirmReminderNavigator": "Don't ask me again",
+        "mobile": "Mobile sidebar behaviour",
+        "mobileOptionHidden": "Hidden",
+        "mobileOptionWrap": "Wrap"
+      },
+      "title": {
+        "elementSettingsModal": "Element settings",
+        "elementChangeModal": "Replace element",
+        "blockFavoriteEmptyState": "No favourite blocks yet"
+      },
+      "tooltip": {
+        "blockNameField": "Name each block individually to keep track of your work.",
+        "sectionNameField": "Name each section individually to keep track of your work.",
+        "cannotSelectProductPageLayout": "You cannot change a product page's layout type."
+      }
+    },
+    "elements": {
+      "general": {
+        "config": {
+          "caption": {
+            "mediaUpload": "Upload an image"
+          },
+          "label": {
+            "verticalAlign": "Vertical align",
+            "alignment": "Alignment",
+            "verticalAlignTop": "Top",
+            "verticalAlignCenter": "Center",
+            "verticalAlignBottom": "Bottom",
+            "displayMode": "Display mode",
+            "displayModeStandard": "Original",
+            "displayModeCover": "Cropped",
+            "displayModeStretch": "Scaled",
+            "displayModeContain": "Fixed height",
+            "autoSlide": "Automatic transition",
+            "autoplayTimeout": "Delay",
+            "speed": "Animation duration",
+            "horizontalAlign": "Horizontal align",
+            "horizontalAlignLeft": "Left",
+            "horizontalAlignCenter": "Center",
+            "horizontalAlignRight": "Right"
+          },
+          "helpText": {
+            "autoplayTimeout": "The millisecond duration for how long the slide should stay still.",
+            "speed": "The millisecond duration of the sliding animation.",
+            "displayMode": "<ul><li><strong>Original:</strong> The content is displayed in its original resolution or shrunk down to current CMS page's width.</li><li><strong>Scaled:</strong> The content is scaled to the CMS page's width without any height restrictions.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured maximum height.</li></ul>"
+          },
+          "tab": {
+            "content": "Content",
+            "settings": "Settings",
+            "options": "Options"
+          },
+          "infoText": {
+            "autoSlideTitle": "Accessibility concerns",
+            "autoSlide": "Enabling this feature may make parts of your storefront inaccessible to users with disabilities. This may result in non-compliance with accessibility laws applicable in your jurisdiction (e.g., the European Accessibility Act). By proceeding, you acknowledge this risk and accept full responsibility.",
+            "listingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
+          }
+        },
+        "switch": {
+          "groups": {
+            "all": "All elements",
+            "favorites": "Favourite elements"
+          }
+        }
+      },
+      "image": {
+        "label": "Image",
+        "config": {
+          "label": {
+            "ariaLabel": "Link description",
+            "minHeight": "Minimum height",
+            "isDecorative": "Mark images as decorative",
+            "useFetchPriorityOnFirstItem": "Load first image with higher priority",
+            "linkNewTab": "Open link in new tab",
+            "linkTo": "Link target",
+            "fetchPriorityHigh": "Fetch priority high"
+          },
+          "helpText": {
+            "ariaLabel": "This text will be read out by screen readers as link text.",
+            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "fetchPriorityHigh": "Activate this option if the image is the first one on the page. The image will then be assigned the attribute 'fetchpriority=\"high\"', telling the browser to load it with higher priority. This can help improve the Largest Contentful Paint (LCP).",
+            "useFetchPriorityOnFirstItem": "When this option is enabled, the first image is loaded with a higher priority. This can improve the speed at which the page is rendered in the browser.",
+            "isDecorative": "When this option is enabled, the image information will not be read out by screen readers. This means that the \"alt\" and \"title\" tags will remain empty."
+          },
+          "placeholder": {
+            "enterMinHeight": "Enter a minimum height...",
+            "enterUrl": "Enter URL..."
+          }
+        }
+      },
+      "imageGallery": {
+        "label": "Image gallery",
+        "config": {
+          "label": {
+            "navigationPreview": "Preview navigation",
+            "navigationPreviewPositionLeft": "Left",
+            "navigationPreviewPositionUnderneath": "Underneath",
+            "zoom": "Zoom",
+            "fullscreen": "Fullscreen gallery",
+            "keepAspectRatioOnZoom": "Keep aspect ratio on zoom",
+            "magnifierOverGallery": "Show magnifier over Gallery",
+            "magnifierOverGalleryHelpText": "Show the magnifier box on top of the gallery instead of showing it next to the gallery"
+          },
+          "helpText": {
+            "displayMode": "<ul><li><strong>Original:</strong> The content is displayed in its original resolution or shrunk down to the slider's height.</li><li><strong>Fixed height:</strong> The content is displayed in its original resolution or shrunk down to the configured height.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
+          }
+        }
+      },
+      "imageSlider": {
+        "label": "Image slider",
+        "config": {
+          "label": {
+            "sliderItems": "Images",
+            "navigationArrows": "Arrow navigation",
+            "navigationPositionNone": "None",
+            "navigationPositionInside": "Inside",
+            "navigationPositionOutside": "Outside",
+            "navigationDots": "Dots navigation"
+          },
+          "helpText": {
+            "displayMode": "<ul><li><strong>Original:</strong> The content is scaled to the CMS page's width without any height restrictions. The slider's height is dynamically adjusted.</li><li><strong>Fixed height:</strong> The content is scaled to the CMS page's width without any height restrictions. The slider maintains the height of the tallest content element.</li><li><strong>Cropped:</strong> The content is scaled to the current CMS page's width. Any vertical overflow is cropped to the configured height.</li></ul>"
+          }
+        }
+      },
+      "productBox": {
+        "label": "Product box",
+        "component": {
+          "label": {
+            "actionBuy": "Add to cart",
+            "badgeTopseller": "Topseller",
+            "badgeNew": "New",
+            "priceUnitContent": "Content:"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Product",
+            "layoutType": "Layout type",
+            "layoutTypeStandard": "Standard",
+            "layoutTypeImage": "Big image",
+            "layoutTypeMinimal": "Minimal content",
+            "headlineLevel": "Headline level for product boxes",
+            "headlineLevelHelp": "Choose a headline level for the product box titles in this product listing. If \"No headline\" is selected, no headline level will be applied.",
+            "headlineLevelOption": "Headline {level}",
+            "headlineLevelDefaultOption": "Headline 2 (recommended default)",
+            "headlineLevelEmptyOption": "No headline (not recommended)"
+          },
+          "placeholder": {
+            "selection": "Select a product..."
+          }
+        }
+      },
+      "productListing": {
+        "label": "Product listing",
+        "config": {
+          "tab": {
+            "sorting": "Sorting",
+            "filter": "Filter"
+          },
+          "sorting": {
+            "labelShowSorting": "Show product sorting",
+            "labelUseCustomSortings": "Use custom sortings",
+            "labelDefaultSorting": "Default sorting",
+            "labelProductSortings": "Product sortings",
+            "placeholderDefaultProductSorting": "Select a default sorting...",
+            "placeHolderProductSortings": "Add or remove product sortings",
+            "helpTextUseCustomSortings": "You're able to define custom product sortings for the product listing. To create an individual sorting for this listing enable this switch.",
+            "helpTextDefaultSorting": "Default sorting for the listing, if no other sorting is provided.",
+            "gridHeaderName": "Name",
+            "gridHeaderFields": "Criteria",
+            "gridHeaderPriority": "Priority",
+            "deleteModal": {
+              "heading": "Deleting \"{productSortingName}\".",
+              "body": "Are you sure you want to delete \"{productSortingName}\"?"
+            },
+            "defaultSortingInUse": "This product sorting is already selected as default sorting.",
+            "defaultSortingCantBeDisabled": "This sorting is the default sorting. It has to be active to cause no problems with your product listing."
+          },
+          "filter": {
+            "infoText": "Make sure that a filter block is added to your layout to see this setting in action.",
+            "labelFilterByManufacturer": "Filter by manufacturer",
+            "labelFilterByRating": "Filter by rating",
+            "labelFilterByPrice": "Filter by price",
+            "labelFilterForFreeShipping": "Filter for free shipping",
+            "labelUseFilterByProperties": "Configure filterable product properties",
+            "helpTextUseFilterByProperties": "If disabled, filters for all existing properties are displayed in this layout.",
+            "descriptionTextUseFilterByProperties": "Properties that are set to not filterable are not displayed here. You can change this in the <a href=\"#/sw/property/index\" target=\"_blank\">properties</a> module.",
+            "gridHeaderStatus": "Status",
+            "gridHeaderName": "Name",
+            "gridEmptyStateLabel": "No properties found.",
+            "gridEmptyStateHint": "Try another search term"
+          }
+        }
+      },
+      "productHeading": {
+        "logo": {
+          "label": "Manufacturer logo"
+        },
+        "name": {
+          "label": "Product name"
+        }
+      },
+      "productSlider": {
+        "label": "Product slider",
+        "config": {
+          "label": {
+            "title": "Slider title",
+            "selection": "Products",
+            "navigation": "Navigation",
+            "border": "Border",
+            "minWidth": "Minimum width",
+            "navigationArrows": "Arrow navigation",
+            "navigationPositionNone": "None",
+            "navigationPositionInside": "Inside",
+            "navigationPositionOutside": "Outside",
+            "productAssignmentType": "Product assignment",
+            "productStreamSorting": "Sorting",
+            "productStreamLimit": "Maximum number of products",
+            "productStreamChoice": "Dynamic product group"
+          },
+          "placeholder": {
+            "title": "Slider title",
+            "selection": "Select products",
+            "minWidth": "Minimum width",
+            "productStreamChoice": "Select a dynamic product group",
+            "productStreamSorting": "Select a sorting..."
+          },
+          "helpText": {
+            "minWidth": "Enter the minimum width with your desired unit. For example: 200px",
+            "displayMode": "<ul><li><strong>Original:</strong> The content is scaled to the height or width of the product box, so that they always fit into their designated area. The content is never scaled up.</li><li><strong>Fixed height:</strong> The content is scaled to the height or width of the product box, so that they always fit into their designated area. The content can be scaled up.</li><li><strong>Cropped:</strong> The content is scaled to the height or width of the product box. Any overflow is cropped.</li></ul>"
+          },
+          "productAssignmentTypeOptions": {
+            "manual": "Manual assignment",
+            "productStream": "Dynamic product group"
+          },
+          "productStreamSortingOptions": {
+            "nameAsc": "Name ascending",
+            "nameDesc": "Name descending",
+            "priceAsc": "Price ascending",
+            "priceDesc": "Price descending",
+            "creationDateAsc": "Creation date ascending",
+            "creationDateDesc": "Creation date descending",
+            "releaseDateAsc": "Release date ascending",
+            "releaseDateDesc": "Release date descending",
+            "random": "Random"
+          },
+          "textProductStreamPreviewLink": "Preview dynamic product group",
+          "textProductStreamPerformanceHint": "Please keep in mind: Dynamic product groups might have a noticeable performance impact, depending on the complexity of the product group's filters and the amount of sliders shown on one page."
+        }
+      },
+      "sidebarCategoryNavigation": {
+        "label": "Category navigation",
+        "infoText": {
+          "navigationElement": "This element's navigation data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
+        },
+        "component": {
+          "label": {
+            "navigation": "Navigation"
+          }
+        },
+        "preview": {
+          "label": {
+            "navigation": "Navigation"
+          }
+        }
+      },
+      "sidebarFilter": {
+        "label": "Product filter",
+        "infoText": {
+          "filterElement": "This element's filter data is automatically loaded. The displayed filters can be configured via the Listing Element."
+        }
+      },
+      "text": {
+        "label": "Text",
+        "config": {
+          "label": {
+            "content": "Text"
+          }
+        }
+      },
+      "video": {
+        "label": "Video",
+        "config": {
+          "label": {
+            "ariaLabel": "Screen reader title",
+            "minHeight": "Minimum height",
+            "autoPlay": "Play automatically",
+            "loop": "Play in a loop",
+            "muted": "Play muted",
+            "showControls": "Show controls",
+            "showCover": "Load only after confirmation",
+            "playsInline": "Play inline on iOS devices"
+          },
+          "helpText": {
+            "ariaLabel": "Read by screen readers and should briefly describe the content or purpose of the video. If left empty, either the title or alt text configured in the media module will be used, instead.",
+            "minHeight": "Enter the minimum height with your desired unit. For example: 200px",
+            "autoPlay": "Autoplay is allowed by many browsers only when the video is muted.<br>With autoplay, a cover is not meaningful because playback starts immediately and no confirmation is needed.",
+            "showCover": "The cover configured in the media selection will be displayed until the user confirms to load the video via click.",
+            "playsInline": "On iOS, videos often open fullscreen. Enable this option to keep playback inline."
+          },
+          "placeholder": {
+            "ariaLabel": "Enter screen reader title...",
+            "minHeight": "Enter minimum height..."
+          }
+        }
+      },
+      "vimeoVideo": {
+        "label": "Vimeo video",
+        "config": {
+          "label": {
+            "videoId": "Video link",
+            "autoPlay": "Play automatically",
+            "loop": "Play in a loop",
+            "showControls": "Show controls",
+            "controlsColor": "Change controls color",
+            "byLine": "Show video creator",
+            "showPortrait": "Show picture of the creator",
+            "showTitle": "Show video title",
+            "advancedPrivacy": "Advanced privacy mode",
+            "start": "Start video at",
+            "end": "End video at",
+            "needsConfirmation": "Load only after confirmation",
+            "previewImage": "Preview image",
+            "videoTitle" : "Video title"
+          },
+          "placeholder": {
+            "videoId": "Enter a video link...",
+            "videoTitle": "Enter a descriptive title..."
+          },
+          "helpText": {
+            "autoPlay": "Some browser prevent videos from starting automatically.",
+            "advancedPrivacy": "When you turn on privacy-enhanced mode, the video platform won't store information about visitors on your website, until they play the video."
+          }
+        }
+      },
+      "youtubeVideo": {
+        "label": "YouTube video"
+      },
+      "form": {
+        "label": "Form",
+        "config": {
+          "label": {
+            "receiverEmail": "Receiver addresses",
+            "title": "Title",
+            "type": "Form type",
+            "typeContact": "Contact",
+            "typeNewsletter": "Newsletter",
+            "typeRevocationRequest": "Revocation",
+            "confirmationText": "Confirmation text"
+          },
+          "placeholder": {
+            "type": "Select a form type..."
+          }
+        },
+        "element": {
+          "label": {
+            "action": "Action*",
+            "email": "Email address*",
+            "firstName": "First name*",
+            "lastName": "Last name*",
+            "message": "Your message*",
+            "newsletterSubmit": "Continue",
+            "phone": "Phone number*",
+            "privacy": "Privacy*",
+            "salutation": "Salutation*",
+            "salutationUndisclosed": "Prefer not to disclose",
+            "subject": "Subject line*",
+            "subscribeToNewsletter": "Subscribe to newsletter",
+            "contractNumber": "Contract number (order number, subscription number, ...)*    ",
+            "comment": "Comment"
+          },
+          "placeholder": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john{'@'}doe.com",
+            "phone": "+4920 3920173",
+            "subject": "Lorem ipsum dolor sit amet.",
+            "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.",
+            "contractNumber": "SW123456789",
+            "comment": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."
+          },
+          "helpText": {
+            "requiredFields": "Fields marked with asterisks (*) are required."
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "First name",
+              "lastName": "Last name",
+              "salutation": "Salutation"
+            }
+          }
+        },
+        "preview": {
+          "label": {
+            "form": "Form",
+            "send": "Send"
+          }
+        }
+      },
+      "buyBox": {
+        "label": "Buy box",
+        "infoText": {
+          "tooltipSettingDisabled" : "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
+        },
+        "config": {
+          "label": {
+            "selection": "Product"
+          },
+          "placeholder": {
+            "selection": "Select a product ..."
+          }
+        },
+        "component": {
+          "label": {
+            "actionBuy": "Add to cart",
+            "taxInfo": "Prices incl. VAT plus shipping costs",
+            "deliveryShippingFree": "Free shipping",
+            "deliveryTime": "Available, delivery time {name}",
+            "variants": "Variants",
+            "productNumber": "Product number:"
+          }
+        }
+      },
+      "productDescriptionReviews": {
+        "label": "Product description & reviews",
+        "infoText": {
+          "descriptionAndReviewsElement": "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
+        },
+        "component": {
+          "label": {
+            "descriptionAndReviews": "Product description & reviews"
+          }
+        },
+        "preview": {
+          "label": {
+            "descriptionAndReviews": "Product description & reviews",
+            "description": "Description",
+            "reviews": "Reviews"
+          }
+        }
+      },
+      "crossSelling": {
+        "label": "Cross Selling",
+        "preview": {
+          "label": {
+            "crossSellingTitle": "Cross Selling title"
+          }
+        },
+        "config": {
+          "label": {
+            "selection": "Product",
+            "minWidth": "Minimal width"
+          },
+          "placeholder": {
+            "selection": "Select product...",
+            "minWidth": "Enter minimal width..."
+          },
+          "infoText": {
+            "productDetailElement": "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
+          }
+        }
+      },
+      "productName": {
+        "label": "Product Name"
+      },
+      "html": {
+        "label": "HTML",
+        "labelContent": "Content",
+        "config": {
+          "warning": "Unfiltered HTML code can lead to security risks. Please only insert HTML code from trusted sources and test your changes before publishing them."
+        }
+      }
+    },
+    "blocks": {
+      "commerce": {
+        "productHeading": {
+          "label": "Product name & manufacturer logo"
+        },
+        "productListing": {
+          "label": "Product listing"
+        },
+        "productSlider": {
+          "label": "Product slider"
+        },
+        "productThreeColumn": {
+          "label": "Three columns, product boxes"
+        },
+        "productDescriptionReviews": {
+          "label": "Product description & reviews",
+          "preview": {
+            "label": {
+              "description": "Description",
+              "reviews": "Reviews"
+            }
+          }
+        },
+        "galleryBuyBox": {
+          "label": "Image gallery and buy box"
+        },
+        "crossSelling": {
+          "label": "Cross Selling"
+        }
+      },
+      "image": {
+        "image": {
+          "label": "Image, boxed"
+        },
+        "imageBubbleRow": {
+          "label": "Three columns, rounded"
+        },
+        "imageCover": {
+          "label": "Image, full-sized"
+        },
+        "imageFourColumn": {
+          "label": "Four columns, boxed"
+        },
+        "imageGallery": {
+          "label": "Image gallery"
+        },
+        "imageHighlightRow": {
+          "label": "Three columns, boxed & background"
+        },
+        "imageSimpleGrid": {
+          "label": "Image grid"
+        },
+        "imageSlider": {
+          "label": "Image slider"
+        },
+        "imageThreeColumn": {
+          "label": "Three columns, boxed"
+        },
+        "imageThreeCover": {
+          "label": "Three columns, full-sized"
+        },
+        "imageTwoColumn": {
+          "label": "Two columns, boxed"
+        }
+      },
+      "sidebar": {
+        "categoryNavigation": {
+          "label": "Category navigation",
+          "preview": {
+            "label": {
+              "navigation": "Navigation"
+            }
+          }
+        },
+        "sidebarFilter": {
+          "label": "Product filter"
+        }
+      },
+      "text": {
+        "text": {
+          "label": "Text"
+        },
+        "textHero": {
+          "label": "Text banner"
+        },
+        "textTeaser": {
+          "label": "Teaser text"
+        },
+        "textTeaserSection": {
+          "label": "Two columns, teaser text"
+        },
+        "textThreeColumn": {
+          "label": "Three columns, text"
+        },
+        "textTwoColumn": {
+          "label": "Two columns, text"
+        }
+      },
+      "textImage": {
+        "centerText": {
+          "label": "Three columns, boxed images & text"
+        },
+        "imageText": {
+          "label": "Two columns, boxed image & text"
+        },
+        "imageTextBubble": {
+          "label": "Three columns, captioned & rounded"
+        },
+        "imageTextCover": {
+          "label": "Two columns, full-sized image & text"
+        },
+        "imageTextGallery": {
+          "label": "Three columns, image/text cards"
+        },
+        "imageTextRow": {
+          "label": "Three columns, captioned images"
+        },
+        "textOnImage": {
+          "label": "Hero image"
+        }
+      },
+      "video": {
+        "video": {
+          "label": "Video"
+        },
+        "vimeoVideo": {
+          "label": "Vimeo video"
+        },
+        "youtubeVideo": {
+          "label": "YouTube video"
+        }
+      },
+      "form": {
+        "form": {
+          "label": "Form"
+        }
+      },
+      "html": {
+        "html": {
+          "label": "HTML"
+        }
+      },
+      "blockDisableState": "This block is not visible on any device. You can edit the block but the changes will not be visible in your shop. Edit this layout in shopping experiences module to change the block visibility."
+    },
+    "components": {
+      "setDefaultLayoutModal": {
+        "title": "Assign default layout",
+        "infoText": "Please note that all products that are currently assigned to a default layout will be reassigned to this layout and newly created products will automatically be assigned to it as well. Do you really want to use this layout as default? | Please note that all categories that are currently assigned to a default layout will be reassigned to this layout and newly created categories will automatically be assigned to it as well. Do you really want to use this layout as default?"
+      },
+      "cmsLayoutModal": {
+        "actionConfirm": "Save",
+        "modalTitle": "Select layout",
+        "headline": "Landing page / product listing"
+      },
+      "cmsLayoutAssignmentModal": {
+        "infoText": "The layout will be displayed in your shop, as soon as you assign it to an active category.",
+        "infoTextShopPages": "You can use this layout for categories and for shop pages such as TOS, imprint, error pages etc.",
+        "infoTextProductDetailPages": "The layout can only be seen in your shop when you assign it to an active product.",
+        "labelCategories": "Categories",
+        "placeholderCategories": "Choose categories...",
+        "placeholderLandingPages": "Choose landing pages...",
+        "labelSalesChannel": "Sales Channel",
+        "placeholderSalesChannel": "Choose a Sales Channel...",
+        "resetOptionSalesChannel": "All Sales Channels",
+        "helpTextSalesChannel": "Layouts assigned to specific Sales Channels will override layout assignments in \"All Sales Channels\".",
+        "labelShopPages": "Shop pages",
+        "confirmChangesTextCategories": "You have removed layout assignments from categories. If you confirm these changes, those categories will no longer have a layout assigned.",
+        "confirmChangesTextCategoriesAssignedLayouts": "Some of the selected categories already have a layout assigned. If you proceed those previous assignments will be replaced with the current layout.",
+        "confirmChangesTextLandingPages": "You have removed layout assignments from landing pages. If you confirm these changes, those landing pages will no longer have a layout assigned.",
+        "confirmChangesTextLandingPagesAssignedLayouts": "Some of the selected landing pages already have a layout assigned. If you proceed those previous assignments will be replaced with the current layout.",
+        "confirmChangesTextProducts": "You have removed layout assignments from products. If you confirm these changes, those products will no longer have a layout assigned.",
+        "confirmChangesTextProductsAssignedLayouts": "Some of the selected products already have a layout assigned. If you proceed the previous assignments will be replaced with the current layout.",
+        "confirmChangesTextShopPages": "You have removed layout assignments from shop pages. If you confirm these changes, those shop pages will no longer have a layout assigned",
+        "confirmChangesText": "Do you want to apply your changes?",
+        "confirmChangesTitle": "Confirm assignment",
+        "shopPagesLoadError": "Unable to load shop pages",
+        "shopPagesSaveError": "Unable to save shop pages",
+        "tabCategories": "Categories",
+        "tabShopPages": "Shop pages",
+        "tabLandingPages": "Landing pages",
+        "shopPages": {
+          "tosPage": "TOS pages",
+          "revocationPage": "Revocation notices",
+          "shippingPaymentInfoPage": "Payment and shipping information",
+          "privacyPage": "Privacy pages",
+          "imprintPage": "Imprint pages",
+          "404Page": "404 pages",
+          "maintenancePage": "Maintenance pages",
+          "contactPage": "Contact forms",
+          "revocationRequestPage": "Revocation request form",
+          "newsletterPage": "Newsletter pages"
+        },
+        "products": {
+          "productAssignmentHeadline": "Product assignment",
+          "productAssignmentPlaceholder": "Search and assign products...",
+          "productAssignmentLabel": "Products",
+          "productAssignmentEmptyStateDescription": "No products assigned",
+          "productStreamAssignmentEmptyStateDescription": "No dynamic product group assigned",
+          "columnNameLabel": "Name",
+          "columnManufacturerLabel": "Manufacturer"
+        }
+      },
+      "cmsMissingElementModal": {
+        "headline": "Missing elements",
+        "title": "The element <span>{element}</span> is missing in this product detail page. | The elements <span>{element}</span> are missing in this product detail page.",
+        "subtitle": "Customers visiting this page will miss out on important product information.",
+        "paragraph": "Do you want to save the layout anyway?",
+        "buttonSave": "Save layout"
+      },
+      "cmsListItem": {
+        "emptyText": "No layout assigned",
+        "edit": "Edit",
+        "rename": "Rename",
+        "delete": "Delete",
+        "duplicate": "Duplicate",
+        "view": "View",
+        "addPreviewImage": "Add preview image",
+        "setAsDefaultProductList": "Set as product listing default",
+        "setAsDefaultProductDetail": "Set as product page default",
+        "defaultLayout": "Default layout",
+        "defaultLayoutProductList": "Default layout - Listing page",
+        "defaultLayoutProductDetail": "Default layout - Product page",
+        "removePreviewImage": "Remove preview",
+        "notificationDeleteErrorMessage": "The layout you want to delete is still assigned to at least one category.",
+        "modal": {
+          "renameModalTitle": "Rename layout",
+          "textRenameConfirm": "Choose a new name for \"{pageName}\":",
+          "textDeleteConfirm": "Are you sure you really want to delete the layout \"{pageName}\"?",
+          "buttonRename": "Rename",
+          "buttonDelete": "Delete"
+        }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cms": {
+        "label": "Shopping Experiences"
+      }
+    }
+  }
+}

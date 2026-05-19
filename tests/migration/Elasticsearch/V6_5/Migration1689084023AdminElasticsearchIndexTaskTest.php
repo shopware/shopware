@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Elasticsearch\Migration\V6_5\Migration1689084023AdminElasticsearchIndexTask;
 
 /**
@@ -24,20 +25,21 @@ class Migration1689084023AdminElasticsearchIndexTaskTest extends TestCase
         $this->rollback();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1689084023, (new Migration1689084023AdminElasticsearchIndexTask())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1689084023AdminElasticsearchIndexTask();
         $migration->update($this->connection);
 
-        $schemaManager = $this->connection->createSchemaManager();
-        $columns = $schemaManager->listTableColumns('admin_elasticsearch_index_task');
-
-        static::assertNotEmpty($columns);
-        static::assertArrayHasKey('id', $columns);
-        static::assertArrayHasKey('`index`', $columns);
-        static::assertArrayHasKey('alias', $columns);
-        static::assertArrayHasKey('entity', $columns);
-        static::assertArrayHasKey('doc_count', $columns);
+        static::assertTrue(TableHelper::columnExists($this->connection, 'admin_elasticsearch_index_task', 'id'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'admin_elasticsearch_index_task', 'index'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'admin_elasticsearch_index_task', 'alias'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'admin_elasticsearch_index_task', 'entity'));
+        static::assertTrue(TableHelper::columnExists($this->connection, 'admin_elasticsearch_index_task', 'doc_count'));
     }
 
     private function rollback(): void

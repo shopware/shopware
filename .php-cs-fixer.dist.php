@@ -18,10 +18,14 @@ return (new Config())
         'class_attributes_separation' => ['elements' => ['property' => 'one', 'method' => 'one']],
         'concat_space' => ['spacing' => 'one'],
         'declare_strict_types' => true,
+        'fully_qualified_strict_types' => [
+            'import_symbols' => true,
+        ],
         'fopen_flags' => false,
         'general_phpdoc_annotation_remove' => ['annotations' => ['copyright', 'category']],
         'linebreak_after_opening_tag' => false,
         'method_argument_space' => ['on_multiline' => 'ensure_fully_multiline'],
+        'modern_serialization_methods' => false, // TODO: enable again with https://github.com/shopware/shopware/issues/15465
         'native_function_invocation' => [
             'scope' => 'namespaced',
             'strict' => false,
@@ -40,10 +44,19 @@ return (new Config())
         'php_unit_dedicate_assert' => ['target' => 'newest'],
         'php_unit_dedicate_assert_internal_type' => true,
         'php_unit_mock' => true,
-        'php_unit_test_case_static_method_calls' => ['call_type' => 'static'],
+        'php_unit_test_case_static_method_calls' => ['methods' => [
+            'any' => 'this',
+            'never' => 'this',
+            'atLeast' => 'this',
+            'atLeastOnce' => 'this',
+            'once' => 'this',
+            'exactly' => 'this',
+            'atMost' => 'this',
+        ]],
         'self_accessor' => false,
         'single_line_throw' => false,
         'single_quote' => ['strings_containing_single_quote_chars' => true],
+        'static_lambda' => false, // Would break places commented with `Do not declare closure as static`. If those are refactored, it could be enabled.
         'strict_comparison' => true,
         'strict_param' => true,
         'trailing_comma_in_multiline' => ['after_heredoc' => true, 'elements' => ['array_destructuring', 'arrays', 'match']],
@@ -60,5 +73,4 @@ return (new Config())
         (new Finder())
             ->in([__DIR__ . '/src', __DIR__ . '/tests'])
             ->exclude(['node_modules', '*/vendor/*'])
-            ->notPath('WebInstaller/Tests/_fixtures/Options.php')
     );

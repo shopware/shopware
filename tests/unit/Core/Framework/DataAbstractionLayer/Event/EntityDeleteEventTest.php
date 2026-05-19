@@ -121,7 +121,7 @@ class EntityDeleteEventTest extends TestCase
 
         $event = EntityDeleteEvent::create($writeContext, []);
 
-        $callbackFactory = fn () => new class {
+        $callbackFactory = static fn () => new class {
             public int $counter = 0;
 
             public function __invoke(): void
@@ -139,9 +139,9 @@ class EntityDeleteEventTest extends TestCase
 
         $event->success();
 
-        static::assertEquals(2, $callback1->counter);
+        static::assertSame(2, $callback1->counter);
 
         $event->error();
-        static::assertEquals(1, $callback2->counter);
+        static::assertSame(1, $callback2->counter);
     }
 }

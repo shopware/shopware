@@ -54,7 +54,7 @@ async function createWrapper(privileges = []) {
                 },
 
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $device: {
                         removeResizeListener: () => {},
                         getSystemKey: () => {},
@@ -148,11 +148,9 @@ async function createWrapper(privileges = []) {
                     'sw-language-info': true,
                     'sw-button-process': true,
                     'sw-field': true,
-
-                    'sw-icon': true,
                     'sw-simple-search-field': true,
                     'sw-context-menu-item': true,
-                    'sw-number-field': true,
+                    'mt-number-field': true,
                     'sw-one-to-many-grid': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
@@ -174,13 +172,6 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
         Shopware.Store.get('session').setCurrentUser({});
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be render tab', async () => {

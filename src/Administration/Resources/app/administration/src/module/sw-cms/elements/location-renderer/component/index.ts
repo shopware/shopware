@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-cms-el-location-renderer.html.twig';
 import './sw-cms-el-location-renderer.scss';
 import type { ElementDataProp } from '../index';
@@ -9,7 +8,7 @@ const { Component, Mixin } = Shopware;
  * @private
  * @sw-package discovery
  */
-Component.register('sw-cms-el-location-renderer', {
+export default Component.wrapComponentConfig({
     template,
 
     mixins: [
@@ -27,7 +26,6 @@ Component.register('sw-cms-el-location-renderer', {
         src(): string {
             // Add this.element.id to the url as a query param
             const url = new URL(this.elementData.appData.baseUrl);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             url.searchParams.set('elementId', this.element.id);
 
             return url.toString();
@@ -71,7 +69,7 @@ Component.register('sw-cms-el-location-renderer', {
 
     methods: {
         createdComponent(): void {
-            this.initElementConfig(this.elementData.name);
+            this.initElementConfig();
             this.updatePublishData();
         },
 
@@ -84,16 +82,19 @@ Component.register('sw-cms-el-location-renderer', {
                 this.unpublishDataWithElementId();
             }
 
-            // This is just for avoiding breaking changes for older implementations.
-            // The important part is the publisher with the element id.
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed
+             */
             this.unpublishData = Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
                 path: 'element',
                 scope: this,
+                deprecated: true,
+                deprecationMessage:
+                    'The general cms element data set is deprecated. Please use a specific cms data set instead by provoding the element id.',
             });
 
             this.unpublishDataWithElementId = Shopware.ExtensionAPI.publishData({
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 id: `${this.publishingKey}__${this.element.id}`,
                 path: 'element',
                 scope: this,

@@ -18,7 +18,6 @@ async function createWrapper() {
                     'sw-product-cross-selling-form': true,
                     'sw-empty-state': true,
                     'sw-skeleton': true,
-                    'sw-icon': true,
                     'sw-inheritance-switch': true,
 
                     'router-link': true,
@@ -74,12 +73,6 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
                 };
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should load assigned products', async () => {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -72,16 +72,14 @@ class RequestTransformer implements RequestTransformerInterface
         SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
     ];
 
-    /**
-     * @var array<string>
-     */
-    private array $allowedList = [
+    private const DOES_NOT_REQUIRE_SALESCHANNEL = [
         '/_wdt/',
         '/_profiler/',
         '/_error/',
         '/payment/finalize-transaction',
         '/installer',
         '/_fragment/',
+        '/robots.txt',
     ];
 
     /**
@@ -109,11 +107,28 @@ class RequestTransformer implements RequestTransformerInterface
         if ($salesChannel === null) {
             // this class and therefore the "isSalesChannelRequired" method is currently not extendable
             // which can cause problems when adding custom paths
-            throw new SalesChannelMappingException($request->getUri());
+            throw StorefrontFrameworkException::salesChannelMappingException($request->getUri());
         }
 
-        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBaseUrl();
+        /**
+         * Use getBasePath() instead of getBaseUrl() to exclude the script name (e.g. /index.php)
+         * from the absolute base url. The sales channel domain url never contains the script name,
+         * so including it would cause the str_replace below to fail, leaving $baseUrl as the full
+         * domain url instead of just the virtual path (e.g. /de).
+         *
+         * getBasePath() = /subdir           (directory only)
+         * getBaseUrl()  = /subdir/index.php (includes script name when explicitly in the url)
+         */
+        $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        // if no replacement occurred, consider punycode urls
+        if ($baseUrl === $salesChannel['url']) {
+            $baseUrl = str_replace(
+                $this->getSchemeAndAsciiHttpHost($request) . $request->getBasePath(),
+                '',
+                $salesChannel['url']
+            );
+        }
 
         $resolved = $this->resolveSeoUrl(
             $request,
@@ -158,7 +173,7 @@ class RequestTransformer implements RequestTransformerInterface
          */
         $transformedServerVars = array_merge(
             $request->server->all(),
-            ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
+            ['REQUEST_URI' => rtrim($request->getBasePath(), '/') . $resolved['pathInfo']]
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
@@ -208,8 +223,9 @@ class RequestTransformer implements RequestTransformerInterface
             );
         }
 
-        $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $salesChannel['languageId']);
+        // add all headers from the original request, overrides the headers from the domain mapping if they are passed on the request directly
+        $transformedRequest->headers->add($request->headers->all());
         $transformedRequest->attributes->set(self::ORIGINAL_REQUEST_URI, $currentRequestUri);
 
         return $transformedRequest;
@@ -244,7 +260,7 @@ class RequestTransformer implements RequestTransformerInterface
             }
         }
 
-        foreach ($this->allowedList as $prefix) {
+        foreach (self::DOES_NOT_REQUIRE_SALESCHANNEL as $prefix) {
             if (str_starts_with($pathInfo, $prefix)) {
                 return false;
             }
@@ -260,25 +276,34 @@ class RequestTransformer implements RequestTransformerInterface
     {
         $domains = $this->domainLoader->load();
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = $this->getNormalizedRequestUrl($request);
+
+        if ($this->isHttpHostPunycode($request)) {
+            $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
+            $domain = $domains[$requestUrl] ?? $domains[$asciiRequestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
+                || str_starts_with($asciiRequestUrl, $baseUrl);
+        } else {
+            $domain = $domains[$requestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
+        }
 
         // direct hit
-        if (\array_key_exists($requestUrl, $domains)) {
-            $domain = $domains[$requestUrl];
+        if ($domain !== null) {
             $domain['url'] = rtrim($domain['url'], '/');
 
             return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, $filter, \ARRAY_FILTER_USE_KEY);
 
-        if (empty($domains)) {
+        if ($domains === []) {
             return null;
         }
 
@@ -328,6 +353,28 @@ class RequestTransformer implements RequestTransformerInterface
         return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
     }
 
+    private function getSchemeAndAsciiHttpHost(Request $request): string
+    {
+        return $request->getScheme() . '://' . $request->getHttpHost();
+    }
+
+    private function isHttpHostPunycode(Request $request): bool
+    {
+        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost());
+    }
+
+    /**
+     * domain urls and request uri should be in same format, all with trailing slash
+     */
+    private function getNormalizedRequestUrl(Request $request, bool $unicode = true): string
+    {
+        $schemeAndHost = $unicode === true
+            ? $this->getSchemeAndHttpHost($request)
+            : $this->getSchemeAndAsciiHttpHost($request);
+
+        return rtrim($schemeAndHost . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+    }
+
     /**
      * We add the trailing slash to the base url
      * so we have to add it to the path info too, to check if they are equal
@@ -342,6 +389,6 @@ class RequestTransformer implements RequestTransformerInterface
      */
     private function containsBaseUrl(string $seoPathInfo, string $baseUrl): bool
     {
-        return !empty($baseUrl) && mb_strpos($seoPathInfo, $baseUrl) === 0;
+        return $baseUrl !== '' && str_starts_with($seoPathInfo, $baseUrl);
     }
 }

@@ -79,7 +79,7 @@ const marketingStore = Shopware.Store.register({
                     langIsoCode,
                     snippets,
                 ]) => {
-                    Shopware.Snippet.mergeLocaleMessage(langIsoCode, snippets);
+                    Shopware.Snippet?.mergeLocaleMessage(langIsoCode, snippets);
                 },
             );
         },
@@ -97,7 +97,6 @@ const marketingStore = Shopware.Store.register({
 
     getters: {
         getActiveCampaign(): null | Campaign {
-            // eslint-disable-next-line max-len
             if (
                 Shopware.Service('shopwareDiscountCampaignService')?.isDiscountCampaignActive(
                     this.campaign as DiscountCampaign,

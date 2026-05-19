@@ -34,10 +34,10 @@ Contains styles for the search suggest popover in the shop header.
 }
 
 .search-suggest-product {
-    &.is-active {
-        .search-suggest-product-link {
-            color: $primary;
-        }
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
     }
 }
 
@@ -46,11 +46,24 @@ Contains styles for the search suggest popover in the shop header.
     &:hover {
         text-decoration: none;
     }
+
+    &:focus,
+    &:focus-visible {
+        color: $primary;
+        box-shadow: $focus-ring-box-shadow-inset;
+        outline: none;
+    }
 }
 
 .search-suggest-product-link {
     display: block;
     padding: $spacer-sm 0;
+    color: $body-color;
+    text-decoration: none;
+
+    &:hover {
+        color: $primary;
+    }
 }
 
 .search-suggest-product-name {
@@ -59,8 +72,17 @@ Contains styles for the search suggest popover in the shop header.
     text-overflow: ellipsis;
 }
 
+.search-suggest-product-variation {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .search-suggest-product-price {
     text-align: right;
+    padding-right: 0.25rem;
 }
 
 .search-suggest-product-list-price,

@@ -18,9 +18,9 @@ class SnippetFileCollectionFactoryTest extends TestCase
     public function testCreateSnippetFileCollection(): void
     {
         $snippetFileLoaderMock = $this->createMock(SnippetFileLoaderInterface::class);
-        $snippetFileLoaderMock->expects(static::once())
+        $snippetFileLoaderMock->expects($this->once())
             ->method('loadSnippetFilesIntoCollection')
-            ->willReturnCallback(function (SnippetFileCollection $fileCollection): void {
+            ->willReturnCallback(static function (SnippetFileCollection $fileCollection): void {
                 $fileCollection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
             });
 

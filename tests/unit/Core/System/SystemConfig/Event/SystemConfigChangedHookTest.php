@@ -71,4 +71,14 @@ class SystemConfigChangedHookTest extends TestCase
             false,
         ];
     }
+
+    public function testSilentIsNotInPayload(): void
+    {
+        $hook = new SystemConfigChangedHook([], [], null, true);
+        static::assertTrue($hook->silent);
+        static::assertSame([
+            'changes' => [],
+            'salesChannelId' => null,
+        ], $hook->getWebhookPayload());
+    }
 }

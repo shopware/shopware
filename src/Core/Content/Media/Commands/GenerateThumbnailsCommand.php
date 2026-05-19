@@ -153,7 +153,7 @@ class GenerateThumbnailsCommand extends Command
     /**
      * @param RepositoryIterator<MediaCollection> $iterator
      *
-     * @return array<string, int|array<array<string>>>
+     * @return array{generated: int, skipped: int, errored: int, errors: list<list<string>>}
      */
     private function generateThumbnails(RepositoryIterator $iterator, Context $context): array
     {
@@ -172,7 +172,7 @@ class GenerateThumbnailsCommand extends Command
                     }
                 } catch (\Throwable $e) {
                     ++$errored;
-                    $errors[] = [\sprintf('Cannot process file %s (id: %s) due error: %s', $media->getFileName(), $media->getId(), $e->getMessage())];
+                    $errors[] = [\sprintf('Cannot process file "%s" (id: %s) due error: %s', $media->getFileName() ?? '', $media->getId(), $e->getMessage())];
                 }
             }
             $this->io->progressAdvance($result->count());
@@ -225,7 +225,6 @@ class GenerateThumbnailsCommand extends Command
 
         if (is_countable($result['errors']) ? \count($result['errors']) : 0) {
             if ($this->io->isVerbose()) {
-                /** @var array<array<string>> $errors */
                 $errors = $result['errors'];
                 $this->io->table(
                     ['Error messages'],

@@ -44,6 +44,7 @@ describe('date-picker.plugin test', () => {
                     get: () => [],
                 };
             },
+            initializePluginsInParentElement: jest.fn(),
         };
 
         document.body.innerHTML = template;

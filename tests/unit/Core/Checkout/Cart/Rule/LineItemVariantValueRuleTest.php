@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemVariantValueRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -24,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[CoversClass(LineItemVariantValueRule::class)]
 #[Group('rules')]
+#[Package('checkout')]
 class LineItemVariantValueRuleTest extends TestCase
 {
     private LineItemVariantValueRule $rule;
@@ -124,24 +126,22 @@ class LineItemVariantValueRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         $operators = RuleConfig::OPERATOR_SET_STRING;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);
     }
 
     /**
-     * @return array<string, array{bool, list<string>, list<string>, string}>
+     * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */
-    public static function getMatchValues(): iterable
+    public static function getMatchValues(): \Generator
     {
         $id = Uuid::randomHex();
 
-        return [
-            yield 'should match when option id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should not match when option id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ],
-            yield 'should match when option id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ],
-            yield 'should not match when option id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ],
-        ];
+        yield 'should match when option id is included' => [true, [$id], [$id, Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should not match when option id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
+        yield 'should match when option id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
+        yield 'should not match when option id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
     }
 }

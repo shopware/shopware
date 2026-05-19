@@ -5,12 +5,10 @@
 import template from './sw-sorting-select.html.twig';
 import './sw-sorting-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sorting-select', {
+export default {
     template,
 
     emits: ['sorting-changed'],
@@ -40,27 +38,27 @@ Component.register('sw-sorting-select', {
             return [
                 {
                     value: 'name:ASC',
-                    name: this.$tc('sw-cms.sorting.labelSortByNameAsc'),
+                    name: this.$t('sw-cms.sorting.labelSortByNameAsc'),
                 },
                 {
                     value: 'name:DESC',
-                    name: this.$tc('sw-cms.sorting.labelSortByNameDesc'),
+                    name: this.$t('sw-cms.sorting.labelSortByNameDesc'),
                 },
                 {
                     value: 'createdAt:DESC',
-                    name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc'),
+                    name: this.$t('sw-cms.sorting.labelSortByCreatedDsc'),
                 },
                 {
                     value: 'createdAt:ASC',
-                    name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc'),
+                    name: this.$t('sw-cms.sorting.labelSortByCreatedAsc'),
                 },
                 {
                     value: 'updatedAt:DESC',
-                    name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc'),
+                    name: this.$t('sw-cms.sorting.labelSortByUpdatedDsc'),
                 },
                 {
                     value: 'updatedAt:ASC',
-                    name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc'),
+                    name: this.$t('sw-cms.sorting.labelSortByUpdatedAsc'),
                 },
                 ...this.additionalSortOptions,
             ];
@@ -68,6 +66,16 @@ Component.register('sw-sorting-select', {
 
         sortingConditionConcatenation() {
             return `${this.sortBy}:${this.sortDirection}`;
+        },
+
+        sortingConditionOptions() {
+            return this.sortOptions.map((option) => {
+                return {
+                    id: option.value,
+                    value: option.value,
+                    label: option.name,
+                };
+            });
         },
     },
 
@@ -80,4 +88,4 @@ Component.register('sw-sorting-select', {
             this.$emit('sorting-changed', { sortBy, sortDirection });
         },
     },
-});
+};

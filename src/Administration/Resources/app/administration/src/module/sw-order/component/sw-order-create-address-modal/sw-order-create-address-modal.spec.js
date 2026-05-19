@@ -28,7 +28,6 @@ async function createWrapper() {
                     'sw-card-filter': await wrapTestComponent('sw-card-filter'),
                     'sw-empty-state': true,
                     'sw-address': await wrapTestComponent('sw-address'),
-                    'sw-icon': true,
                     'sw-loader': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -44,7 +43,7 @@ async function createWrapper() {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve();
+                                return Promise.resolve([]);
                             },
                         }),
                     },
@@ -75,15 +74,11 @@ describe('src/module/sw-order/component/sw-order-create-address-modal', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should dispatch error with invalid company field', async () => {
         await wrapper.setData({
             addresses: [
-                { id: '12345', isNew: () => {} },
-                { id: '02', isNew: () => {} },
+                { id: '12345', isNew: () => {}, getEntityName: () => 'customer_address' },
+                { id: '02', isNew: () => {}, getEntityName: () => 'customer_address' },
             ],
         });
 

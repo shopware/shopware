@@ -37,15 +37,16 @@ describe('build/vite-plugins/asset-plugin', () => {
             fn(req, res, next);
             expect(next).toHaveBeenCalled();
 
-            // check 404 is returned when file does not exist
+            // check 404 is returned when path is served, but file does not exist
             console.error = jest.fn();
-            req = { originalUrl: '/static' };
+            req = { originalUrl: '/bundles/administration/administration/static/foo.png' };
             res = {
                 writeHead: jest.fn(),
                 end: jest.fn(),
             };
             next = jest.fn();
             fn(req, res, next);
+
             expect(res.writeHead).toHaveBeenCalledWith(404);
             expect(res.end).toHaveBeenCalledWith('Not found');
             expect(console.error).toHaveBeenCalled();

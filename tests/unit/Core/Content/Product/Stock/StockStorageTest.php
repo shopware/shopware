@@ -30,7 +30,7 @@ class StockStorageTest extends TestCase
 
         $stockStorage = new StockStorage($connection, $dispatcher);
 
-        static::assertEquals(
+        static::assertSame(
             [],
             $stockStorage->load(new StockLoadRequest(array_values($productIds)), $salesChannelContext)->all()
         );
@@ -41,7 +41,7 @@ class StockStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $dispatcher->expects(static::never())->method('dispatch');
+        $dispatcher->expects($this->never())->method('dispatch');
 
         $stockStorage = new StockStorage($connection, $dispatcher);
         $stockStorage->alter([], Context::createDefaultContext());

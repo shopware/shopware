@@ -11,6 +11,6 @@ class ParentAssociationField extends ManyToOneAssociationField
         string $referenceClass,
         string $referenceField = 'id'
     ) {
-        parent::__construct('parent', 'parent_id', $referenceClass, $referenceField, false);
+        parent::__construct('parent', 'parent_id', $referenceClass, $referenceField);
     }
 }

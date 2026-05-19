@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 const ATTRIBUTE_VALUE_REGEXP = /v-(?:if|else-if)="([^"]+)"/;
 /**

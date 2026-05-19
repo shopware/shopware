@@ -30,18 +30,12 @@ class PluginAclPrivilegesSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     * @param EntityLoadedEvent<AclRoleEntity> $event
+     */
     public function onAclRoleLoaded(EntityLoadedEvent $event): void
     {
-        if (!$event->getDefinition() instanceof AclRoleDefinition) {
-            return;
-        }
-
-        /** @var AclRoleEntity[] $aclRoles */
         $aclRoles = $event->getEntities();
-
-        if (!$aclRoles) {
-            return;
-        }
 
         $additionalRolePrivileges = $this->getAdditionalRolePrivileges();
 

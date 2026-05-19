@@ -5,14 +5,13 @@
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
  * @private
  */
-Component.register('sw-sales-channel-menu', {
+export default {
     template,
 
     inject: [
@@ -80,7 +79,7 @@ Component.register('sw-sales-channel-menu', {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: '#D8DDE6',
+                    color: 'var(--color-zinc-200)',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
@@ -99,9 +98,9 @@ Component.register('sw-sales-channel-menu', {
             return {
                 active: true,
                 children: [],
-                color: '#D8DDE6',
+                color: 'var(--color-zinc-200)',
                 icon: 'regular-ellipsis-v',
-                label: this.$tc('sw-sales-channel.general.titleMenuMoreItems'),
+                label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
                 position: -1, // use last position
             };
@@ -151,12 +150,14 @@ Component.register('sw-sales-channel-menu', {
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         destroyedComponent() {
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         getDomainLink(salesChannel) {
@@ -177,4 +178,4 @@ Component.register('sw-sales-channel-menu', {
             window.open(storeFrontLink, '_blank');
         },
     },
-});
+};

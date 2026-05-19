@@ -19,9 +19,9 @@ class AppTelemetrySubscriberTest extends TestCase
     public function testEmitAppInstalledMetric(): void
     {
         $meter = $this->createMock(Meter::class);
-        $meter->expects(static::once())
+        $meter->expects($this->once())
             ->method('emit')
-            ->with(static::callback(function (ConfiguredMetric $metric) {
+            ->with(static::callback(static function (ConfiguredMetric $metric) {
                 return $metric->name === 'app.install.count' && $metric->value === 1;
             }));
 

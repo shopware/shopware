@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": [],
     "paths": [],
     "components": {
@@ -26,11 +26,46 @@
                         }
                     },
                     "errors": {
-                        "type": "array",
+                        "type": "object",
                         "description": "A list of all cart errors, such as insufficient stocks, invalid addresses or vouchers.",
-                        "items": {
-                            "$ref": "#/components/schemas/CartError"
-                        }
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/CartError"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "key": {
+                                            "type": "string"
+                                        },
+                                        "level": {
+                                            "type": "number"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "messageKey": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "key",
+                                        "level",
+                                        "message",
+                                        "messageKey"
+                                    ]
+                                }
+                            }
+                        ]
                     },
                     "deliveries": {
                         "type": "array",
@@ -57,21 +92,44 @@
                         "type": "boolean"
                     },
                     "customerComment": {
-                        "type": "string",
                         "description": "A comment that can be added to the cart.",
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "affiliateCode": {
-                        "type": "string",
                         "description": "An affiliate tracking code",
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "campaignCode": {
-                        "type": "string",
                         "description": "A campaign tracking code",
-                        "nullable": true
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": ["cart"]
                     }
-                }
+                },
+                "required": ["price", "apiAlias"]
             }
         }
     }

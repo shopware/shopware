@@ -2,13 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,8 +28,14 @@ class SearchKeywordUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<EntityCollection<Entity>>
+     */
     private EntityRepository $salesChannelLanguageRepository;
 
     private Connection $connection;
@@ -35,6 +45,11 @@ class SearchKeywordUpdaterTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->salesChannelLanguageRepository = static::getContainer()->get('sales_channel_language.repository');
         $this->connection = static::getContainer()->get(Connection::class);
+
+        // Guarantees a clean state for assertDictionary(), assertKeywords(), assertLanguageHasNoDictionary
+        $this->connection->executeStatement('DELETE FROM product');
+        $this->connection->executeStatement('DELETE FROM product_search_keyword');
+        $this->connection->executeStatement('DELETE FROM product_keyword_dictionary');
     }
 
     /**
@@ -70,14 +85,14 @@ class SearchKeywordUpdaterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
+        /** @var Criteria<array<string, string>> $criteria */
         $criteria = new Criteria();
 
         // Delete sales channel de-DE language associations to ensure only default language is used to create keywords.
         $criteria->addFilter(new EqualsFilter('languageId', $this->getDeDeLanguageId()));
 
-        /** @var list<array<string, string>> $salesChannalLanguageIds */
-        $salesChannalLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
-        $this->salesChannelLanguageRepository->delete($salesChannalLanguageIds, $context);
+        $salesChannelLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
+        $this->salesChannelLanguageRepository->delete($salesChannelLanguageIds, $context);
 
         $this->productRepository->create([$productData], Context::createDefaultContext());
 
@@ -118,6 +133,61 @@ class SearchKeywordUpdaterTest extends TestCase
 
         static::getContainer()->get(SearchKeywordUpdater::class)
             ->update($ids->getList(['p1', 'p2']), Context::createDefaultContext());
+
+        // Products should still get keywords from the default searchable fields (name, productNumber)
+        // even when custom fields are configured but have no values
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, ['p1']);
+        $this->assertKeywords($ids->get('p2'), Defaults::LANGUAGE_SYSTEM, ['p2']);
+    }
+
+    /**
+     * Tests that associations without a direct FK field (like ManyToMany) don't cause errors.
+     * Categories is a ManyToMany association without a categoriesId FK field on product.
+     * This test verifies that the buildCriteria method correctly handles associations
+     * that don't have a corresponding FK field by not attempting to filter on non-existent fields.
+     */
+    public function testAssociationWithoutFkFieldDoesNotThrowError(): void
+    {
+        $ids = new IdsCollection();
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        // Create product with category
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->name('Test product')
+                ->categories(['testcategory'])
+                ->build(),
+        ];
+
+        static::getContainer()->get('product.repository')->create($products, $context);
+
+        // Enable categories.name as a searchable field (ManyToMany without FK field)
+        $rowsAffected = $this->connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1, tokenize = 1, ranking = 100
+             WHERE field = :field',
+            [
+                'field' => 'categories.name',
+            ]
+        );
+
+        static::assertGreaterThan(0, $rowsAffected, 'categories.name field should exist and be updated');
+
+        static::getContainer()->get(SearchKeywordUpdater::class)->reset();
+
+        // This should not throw an error even though 'categoriesId' FK field doesn't exist
+        static::getContainer()->get(SearchKeywordUpdater::class)
+            ->update([$ids->get('p1')], Context::createDefaultContext());
+
+        // Basic keywords from product name and number should still be generated
+        $this->assertKeywords($ids->get('p1'), Defaults::LANGUAGE_SYSTEM, [
+            'p1',
+            'product',
+            'test',
+            'test product',
+        ]);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
@@ -131,6 +201,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'id' => $ids->get('language'),
                 'name' => 'Español',
                 'localeId' => $esLocale,
+                'active' => true,
                 'translationCodeId' => $esLocale,
             ],
         ], Context::createDefaultContext());
@@ -153,127 +224,149 @@ class SearchKeywordUpdaterTest extends TestCase
                 '1000', // productNumber
                 'product', // part of name
                 'test', // part of name
+                'test product', // product name
             ]
         );
         $this->assertKeywords($ids->get('1000'), $ids->get('language'), []);
     }
 
     /**
-     * @return array<string, array<int, mixed>>
+     * @return iterable<string, array<int, mixed>>
      */
-    public static function productKeywordProvider(): array
+    public static function productKeywordProvider(): iterable
     {
         $idsCollection = new IdsCollection();
 
-        return [
-            'test different languages' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->translation('de-DE', 'name', 'Test produkt')
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                [
-                    '1000', // productNumber
-                    'produkt', // part of name
-                    'test', // part of name
-                ],
+        yield 'translated product name creates language specific keywords' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->translation('de-DE', 'name', 'Test produkt')
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
             ],
-            'test it uses parent languages' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                ],
-            ],
-            'test it uses correct languages for association' => [
-                (new ProductBuilder($idsCollection, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'manufacturer', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                [
-                    '1000', // productNumber
-                    'Hersteller', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                ],
-            ],
-            'test it uses correct translation from parent' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('Test product')
-                    ->translation('de-DE', 'name', 'Test produkt')
-                    ->price(5)
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name(null)
-                            ->build()
-                    )
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                [
-                    '1000', // productNumber
-                    'produkt', // part of name
-                    'test', // part of name
-                ],
-                ['1001'],
-            ],
-            'test it uses correct translation from parent association' => [
-                (new ProductBuilder($idsCollection, '1001'))
-                    ->name('Test product')
-                    ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
-                    ->price(5)
-                    ->variant(
-                        (new ProductBuilder($idsCollection, '1000'))
-                            ->price(10)
-                            ->name(null)
-                            ->build()
-                    )
-                    ->build(),
-                $idsCollection,
-                [
-                    '1000', // productNumber
-                    'manufacturer', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                [
-                    '1000', // productNumber
-                    'Hersteller', // manufacturer name
-                    'product', // part of name
-                    'test', // part of name
-                ],
-                ['1001'],
+            [
+                '1000', // productNumber
+                'produkt', // part of name
+                'test', // part of name
+                'test produkt', // product name
             ],
         ];
+        yield 'missing translation falls back to parent language keywords' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+        ];
+        yield 'translated manufacturer name creates language specific keywords' => [
+            (new ProductBuilder($idsCollection, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'manufacturer', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'Hersteller', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+        ];
+        yield 'variant inherits translated product name from parent' => [
+            (new ProductBuilder($idsCollection, '1001'))
+                ->name('Test product')
+                ->translation('de-DE', 'name', 'Test produkt')
+                ->price(5)
+                ->variant(
+                    (new ProductBuilder($idsCollection, '1000'))
+                        ->price(10)
+                        ->name(null)
+                        ->build()
+                )
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'produkt', // part of name
+                'test', // part of name
+                'test produkt', // product name
+            ],
+            ['1001'],
+        ];
+        yield 'variant inherits translated manufacturer name from parent' => [
+            (new ProductBuilder($idsCollection, '1001'))
+                ->name('Test product')
+                ->manufacturer('manufacturer', ['de-DE' => ['name' => 'Hersteller']])
+                ->price(5)
+                ->variant(
+                    (new ProductBuilder($idsCollection, '1000'))
+                        ->price(10)
+                        ->name(null)
+                        ->build()
+                )
+                ->build(),
+            $idsCollection,
+            [
+                '1000', // productNumber
+                'manufacturer', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            [
+                '1000', // productNumber
+                'Hersteller', // manufacturer name
+                'product', // part of name
+                'test', // part of name
+                'test product', // product name
+            ],
+            ['1001'],
+        ];
+    }
+
+    public function testGetConfigFieldsFiltersCustomFieldsBySearchable(): void
+    {
+        $customFieldName = 'searchable_field';
+        $this->createCustomFieldWithSearchConfig($customFieldName, active: true, searchable: true);
+
+        $configFields = $this->queryConfigFieldsDirectly();
+        $customFieldFields = array_filter($configFields, static fn ($field) => str_starts_with($field['field'] ?? '', 'customFields.' . $customFieldName));
+        static::assertCount(1, $customFieldFields);
+
+        $includedField = reset($customFieldFields);
+        static::assertSame('customFields.' . $customFieldName, $includedField['field']);
     }
 
     /**
@@ -292,7 +385,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $keywords);
+        static::assertEquals($expectedKeywords, $keywords, 'no match: ' . print_r($keywords, true));
     }
 
     private function assertLanguageHasNoKeywords(string $languageId): void
@@ -325,7 +418,7 @@ class SearchKeywordUpdaterTest extends TestCase
             ]
         );
 
-        static::assertEquals($expectedKeywords, $dictionary);
+        static::assertSame($expectedKeywords, $dictionary);
     }
 
     private function assertLanguageHasNoDictionary(string $languageId): void
@@ -355,5 +448,79 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertIsString($firstId);
 
         return $firstId;
+    }
+
+    private function createCustomFieldWithSearchConfig(string $fieldName, bool $active = true, bool $searchable = true): string
+    {
+        $customFieldSetId = Uuid::randomHex();
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field_set (id, name, config, active, created_at)
+            VALUES (:id, :name, :config, 1, NOW())',
+            [
+                'id' => Uuid::fromHexToBytes($customFieldSetId),
+                'name' => 'test_set',
+                'config' => json_encode([]),
+            ]
+        );
+
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field_set_relation (id, set_id, entity_name, created_at)
+            VALUES (:id, :setId, :entityName, NOW())',
+            [
+                'id' => Uuid::randomBytes(),
+                'setId' => Uuid::fromHexToBytes($customFieldSetId),
+                'entityName' => 'product',
+            ]
+        );
+
+        $customFieldId = Uuid::randomHex();
+        $this->connection->executeStatement(
+            'INSERT INTO custom_field (id, name, type, config, active, set_id, created_at, include_in_search)
+            VALUES (:id, :name, :type, :config, :active, :setId, NOW(), :includeInSearch)',
+            [
+                'id' => Uuid::fromHexToBytes($customFieldId),
+                'name' => $fieldName,
+                'type' => 'text',
+                'config' => json_encode([]),
+                'active' => $active ? 1 : 0,
+                'setId' => Uuid::fromHexToBytes($customFieldSetId),
+                'includeInSearch' => $searchable ? 1 : 0,
+            ]
+        );
+
+        $searchConfigId = $this->connection->fetchOne(
+            'SELECT id FROM product_search_config WHERE language_id = :languageId',
+            ['languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $this->connection->executeStatement(
+            'INSERT INTO product_search_config_field (id, product_search_config_id, field, searchable, tokenize, ranking, custom_field_id, created_at)
+            VALUES (:id, :configId, :field, 1, 0, 1000, :customFieldId, NOW())',
+            [
+                'id' => Uuid::randomBytes(),
+                'configId' => $searchConfigId,
+                'field' => 'customFields.' . $fieldName,
+                'customFieldId' => Uuid::fromHexToBytes($customFieldId),
+            ]
+        );
+
+        return $customFieldId;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function queryConfigFieldsDirectly(): array
+    {
+        $query = $this->connection->createQueryBuilder();
+        $query->select('configField.field', 'configField.tokenize', 'configField.ranking', 'LOWER(HEX(config.language_id)) as language_id');
+        $query->from('product_search_config', 'config');
+        $query->join('config', 'product_search_config_field', 'configField', 'config.id = configField.product_search_config_id');
+        $query->andWhere('config.language_id IN (:languageIds)');
+        $query->andWhere('configField.searchable = 1');
+
+        $query->setParameter('languageIds', Uuid::fromHexToBytesList([Defaults::LANGUAGE_SYSTEM]), ArrayParameterType::BINARY);
+
+        return $query->executeQuery()->fetchAllAssociative();
     }
 }

@@ -26,11 +26,6 @@ async function createWrapper(reason = 'status') {
 }
 
 describe('src/module/sw-order/component/sw-order-save-changes-beforehand-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit right event on button click', async () => {
         const wrapper = await createWrapper();
 

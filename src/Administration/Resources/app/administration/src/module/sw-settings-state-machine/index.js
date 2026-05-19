@@ -48,7 +48,7 @@ Module.register('sw-settings-state-machine', {
             props: {
                 default(route) {
                     return {
-                        stateMachineId: route.params.id,
+                        stateMachineId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -56,7 +56,7 @@ Module.register('sw-settings-state-machine', {
     },
 
     settingsItem: {
-        group: 'shop',
+        group: 'general',
         to: 'sw.settings.state.machine.index',
         icon: 'regular-history',
         privilege: 'state_machine.viewer',

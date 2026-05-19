@@ -35,7 +35,7 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
     public function testRun(): void
     {
         $this->purger
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('deleteNotUsedMedia')
             ->with(null, null, null, ProductDownloadDefinition::ENTITY_NAME);
 

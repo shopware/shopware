@@ -1,0 +1,127 @@
+{
+  "sw-settings-country": {
+    "page": {
+      "generalTab": "Settings",
+      "stateTab": "States/regions",
+      "addressHandlingTab": "Address handling"
+    },
+    "general": {
+      "mainMenuItemGeneral": "Countries",
+      "placeholderSearchBar": "Search countries...",
+      "actions": {
+        "newSnippet": "Add new snippet",
+        "createBefore": "New row before",
+        "createAfter": "New row after",
+        "moveTop": "Move row to top",
+        "moveBottom": "Move row to bottom"
+      }
+    },
+    "list": {
+      "textHeadline": "Countries",
+      "textDeleteConfirm": "Are you sure you want to delete the country \"{name}\"?",
+      "columnName": "Name",
+      "columnPosition": "Position",
+      "columnIso": "ISO2",
+      "columnIso3": "ISO3",
+      "columnActive": "Active",
+      "buttonAddCountry": "Add country",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageDeleteSuccess": "Country \"{name}\" has been deleted.",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New country",
+      "titleCard": "General",
+      "messageSaveSuccess": "Country \"{name}\" has been saved.",
+      "messageSaveError": "Country \"{name}\" could not be saved.",
+      "labelName": "Name",
+      "labelPosition": "Position",
+      "labelIso": "ISO2",
+      "labelIso3": "ISO3",
+      "labelActive": "Active",
+      "labelShippingAvailable": "Shipping",
+      "labelTaxFree": "Tax-free (B2C)",
+      "labelCompanyTaxFree": "Tax-free (B2B)",
+      "helpTextCompanyTaxFree": "In order to conduct tax-free B2B transactions, the respective customer accounts need to have a valid VAT Reg.No.",
+      "labelCheckVatIdFormat": "Validate VAT Reg.No. format",
+      "helpTextCheckVatIdFormat": "Validates the European VAT Reg.No. format.",
+      "labelForceStateInRegistration": "State/region required",
+      "placeholderName": "Enter name...",
+      "placeholderPosition": "1",
+      "placeholderStateSearch": "Search states/regions...",
+      "placeholderIso": "Enter alpha-2 ISO code...",
+      "placeholderIso3": "Enter alpha-3 ISO code...",
+      "buttonSave": "Save",
+      "buttonAddCountryState": "Add state/region",
+      "editAction": "Edit",
+      "columnStateNameLabel": "Name",
+      "columnStateShortCodeLabel": "ISO",
+      "taxFreeFrom": "Min. cart value (net)",
+      "baseCurrency": "Base currency",
+      "taxFreeFromHelpText": "If the shopping cart total is higher than the value set in \"min. cart value (net)\", the whole shopping cart will be free of tax.",
+      "labelVatIdRequired": "VAT Reg.No. required",
+      "labelIsEu": "Member state of the European Union",
+      "helpTextIsEu": "Switch on to enable the display of the \"intra-community\" delivery.",
+      "helpTextLabelVatIdRequired": "Please keep in mind the global switch in \"Settings > Login/registration\".",
+      "titleOptions": "Options",
+      "currencyDependentValues": "Currency dependent values",
+      "labelPostalCodeRequired": "Postal code required",
+      "labelCheckPostalCodePattern": "Postal code validation",
+      "labelCheckAdvancedPostalCodePattern": "Advanced validation rules",
+      "placeholderAdvancedPostalCodePattern": "Enter postal code pattern...",
+      "helpTextAdvancedPostalCodePattern": "Possible formats to use:<ul><li>^\\d{5}$ - Exact 5 Digits, e.g 12345</li><li>^(\\d{4})\\s*([A-Z]{2})$ - Exact 4 Digits and 2 Letters, e.g 1234 AB</li></ul>",
+      "labelCheckDefaultAddressFormat": "Custom address format",
+      "labelAddressFormatPlain": "Format",
+      "titleFormatting": "Address markup",
+      "helpTextCheckPostalCodePattern": "Enables validation of postal codes for a range of countries",
+      "previewTitle": "Preview",
+      "labelCustomer": "Customer",
+      "placeholderSelectCustomer": "Select a customer...",
+      "buttonResetMarkup": "Reset address markup",
+      "newSnippetModalTitle": "Insert snippet",
+      "buttonInsertSnippet": "Insert snippet",
+      "placeholderSearchSnippet": "Search snippets..."
+    }
+  },
+  "sw-country-state-detail": {
+    "titleNew": "New state/region",
+    "titleEdit": "Edit state/region",
+    "buttonSave": "Save",
+    "labelName": "Name",
+    "labelPosition": "Position",
+    "labelShortCode": "ISO",
+    "tooltipPosition": "Changes the positioning of states/regions in listings.",
+    "createNewStateError": "Cannot create a region with the currently selected language. Please create a region using the default system language first.",
+    "emptyTitle": "No region available",
+    "emptySubline": "Add a region"
+  },
+  "sw-privileges": {
+    "permissions": {
+      "country": {
+        "label": "Countries"
+      }
+    }
+  },
+  "sw-custom-snippet": {
+    "address": {
+      "countryState": "State",
+      "salutation": "Salutation",
+      "country": "Country",
+      "zipcode": "Postal code",
+      "lastName": "Last name",
+      "firstName": "First name",
+      "street": "Street",
+      "city": "City",
+      "company": "Company",
+      "phoneNumber": "Phone number",
+      "department": "Department",
+      "title": "Title"
+    },
+    "symbol": {
+      "tilde": "~",
+      "dash": "-",
+      "comma": ","
+    }
+  }
+}

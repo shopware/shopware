@@ -15,13 +15,15 @@ use Shopware\Core\Framework\Increment\RedisIncrementer;
 #[Group('redis')]
 class RedisIncrementerTest extends TestCase
 {
+    private string $redisUrl;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        $this->redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if ($redisUrl === '') {
+        if ($this->redisUrl === '') {
             static::markTestSkipped('Redis is not available');
         }
     }
@@ -30,10 +32,14 @@ class RedisIncrementerTest extends TestCase
     {
         parent::tearDown();
 
-        $factory = new RedisConnectionFactory();
-        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
-        static::assertInstanceOf(\Redis::class, $redisClient);
+        // Clear the Redis incrementer storage only if it was set up and not skipped
+        if ($this->redisUrl === '') {
+            return;
+        }
 
+        $factory = new RedisConnectionFactory();
+        $redisClient = $factory->create($this->redisUrl);
+        static::assertInstanceOf(\Redis::class, $redisClient);
         $redisClient->flushAll();
     }
 
@@ -42,6 +48,29 @@ class RedisIncrementerTest extends TestCase
         yield [null];
 
         yield ['test'];
+    }
+
+    public static function deleteKeysProvider(): \Generator
+    {
+        yield 'delete keys' => [
+            ['t1', 't2'],
+            ['t3' => [
+                'key' => 't3',
+                'cluster' => 'test',
+                'pool' => 'test',
+                'count' => 1,
+            ]],
+        ];
+
+        yield 'delete all keys' => [
+            ['t1', 't2', 't3'],
+            [],
+        ];
+
+        yield 'delete whole cluster' => [
+            [],
+            [],
+        ];
     }
 
     #[DataProvider('incrementerProvider')]
@@ -103,11 +132,29 @@ class RedisIncrementerTest extends TestCase
         static::assertEmpty($incrementer->list('test'));
     }
 
+    /**
+     * @param array<string> $keys
+     * @param array<string, array{count: int, key: string, cluster: string, pool: string}> $expectedList
+     */
+    #[DataProvider('deleteKeysProvider')]
+    public function testDelete(array $keys, array $expectedList): void
+    {
+        $incrementer = $this->getIncrementer();
+
+        $incrementer->increment('test', 't1');
+        $incrementer->increment('test', 't2');
+        $incrementer->increment('test', 't3');
+
+        $incrementer->delete('test', $keys);
+
+        static::assertSame($expectedList, $incrementer->list('test'));
+    }
+
     private function getIncrementer(?string $prefix = null): RedisIncrementer
     {
         $factory = new RedisConnectionFactory($prefix);
 
-        $redisClient = $factory->create((string) EnvironmentHelper::getVariable('REDIS_URL'));
+        $redisClient = $factory->create($this->redisUrl);
         static::assertInstanceOf(\Redis::class, $redisClient);
 
         $incrementer = new RedisIncrementer($redisClient);

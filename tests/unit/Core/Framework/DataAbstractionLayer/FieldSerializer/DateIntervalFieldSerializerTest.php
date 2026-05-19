@@ -55,7 +55,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $iterator = $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         );
@@ -66,7 +66,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         static::assertIsString($dateIntervalString);
         static::assertMatchesRegularExpression(self::REGEX_DATE_INTERVAL_VALIDATION, $dateIntervalString);
-        static::assertEquals('P2Y0M5DT0H0M0S', $dateIntervalString);
+        static::assertSame('P2Y0M5DT0H0M0S', $dateIntervalString);
     }
 
     public function testEncodeMethodWithIncorrectFieldParameterTypeWillThrowInvalidSerializerException(): void
@@ -77,7 +77,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $this->dateIntervalFieldSerializer->encode(
             new ManyToOneAssociationField('name', 'name', 'name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -89,7 +89,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $intervalString = $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -102,7 +102,7 @@ class DateIntervalFieldSerializerTest extends TestCase
         $data = new KeyValuePair('key', new DateIntervalField('name', 'name'), false);
 
         $this->validator
-            ->expects(static::exactly(2))
+            ->expects($this->exactly(2))
             ->method('validate')
             ->with($data->getValue(), static::callback(static function ($constraint): bool {
                 return $constraint instanceof NotNull || ($constraint instanceof Type && $constraint->type === \DateInterval::class);
@@ -113,7 +113,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $this->dateIntervalFieldSerializer->encode(
             (new DateIntervalField('name', 'name'))->setFlags(new Required()),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -125,14 +125,14 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $dateIntervalString = $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
 
         static::assertIsString($dateIntervalString);
         static::assertMatchesRegularExpression(self::REGEX_DATE_INTERVAL_VALIDATION, $dateIntervalString);
-        static::assertEquals('P2Y0M5DT0H0M2S', $dateIntervalString);
+        static::assertSame('P2Y0M5DT0H0M2S', $dateIntervalString);
     }
 
     public function testEncodeMethodWithIncorrectStringWillThrowInvalidDateIntervalFormatException(): void
@@ -142,7 +142,7 @@ class DateIntervalFieldSerializerTest extends TestCase
         static::expectException(DataAbstractionLayerException::class);
         $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('fake', 'fake'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         )->current();
@@ -154,7 +154,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $interval = $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         );
@@ -172,7 +172,7 @@ class DateIntervalFieldSerializerTest extends TestCase
 
         $interval = $this->dateIntervalFieldSerializer->encode(
             new DateIntervalField('name', 'name'),
-            $this->createStub(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             $data,
             $this->createMock(WriteParameterBag::class)
         );

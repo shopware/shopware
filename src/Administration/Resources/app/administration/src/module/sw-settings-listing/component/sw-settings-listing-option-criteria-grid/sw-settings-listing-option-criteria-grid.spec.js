@@ -54,9 +54,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
                         }),
-                        'sw-icon': {
-                            template: '<i></i>',
-                        },
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
                         'sw-field-error': await wrapTestComponent('sw-field-error'),
@@ -124,10 +121,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js Component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort criterias by their position', async () => {

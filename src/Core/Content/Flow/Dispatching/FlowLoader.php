@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  *
- * @phpstan-type TFlows array<string, array<array{id: string, name: string, payload: array<mixed>}>>
+ * @phpstan-import-type EventGroupedFlowHolders from AbstractFlowLoader
  */
 #[Package('after-sales')]
 class FlowLoader extends AbstractFlowLoader
@@ -21,9 +21,6 @@ class FlowLoader extends AbstractFlowLoader
     ) {
     }
 
-    /**
-     * @return TFlows
-     */
     public function load(): array
     {
         $flows = $this->connection->fetchAllAssociative(
@@ -32,13 +29,14 @@ class FlowLoader extends AbstractFlowLoader
                 ORDER BY `priority` DESC',
         );
 
-        if (empty($flows)) {
+        if ($flows === []) {
             return [];
         }
 
         foreach ($flows as $key => $flow) {
             try {
-                $payload = unserialize($flow['payload']);
+                /** @phpstan-ignore shopware.unserializeUsage */
+                $payload = \unserialize($flow['payload']);
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Flow payload is invalid:\n"
@@ -54,10 +52,10 @@ class FlowLoader extends AbstractFlowLoader
             $flows[$key]['payload'] = $payload;
         }
 
-        /** @var list<array{id: string, name: string, payload: string}> $flows */
         $result = FetchModeHelper::group($flows);
 
-        /** @var TFlows $result */
+        /** @var EventGroupedFlowHolders $result */
+        // @phpstan-ignore varTag.type (with the FetchModeHelper we lose the payload type information)
         return $result;
     }
 }

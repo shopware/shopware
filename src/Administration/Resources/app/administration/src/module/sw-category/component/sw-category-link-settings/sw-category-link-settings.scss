@@ -1,13 +1,9 @@
-@import "~scss/variables";
-
+// ToDo: Remove when https://github.com/shopware/meteor/issues/896 is fixed
 .sw-category-link-settings {
-    .sw-category-detail-base__link-section {
-        margin-bottom: 16px;
-        line-height: 22px;
-    }
-
-    .sw-category-detail-base__link-element {
-        margin-left: 2px;
-        font-weight: $font-weight-semi-bold;
+    .sw-category-link-settings__external-link {
+        label.mt-field-label {
+            margin-top: -3px !important;
+            margin-bottom: 5px !important;
+        }
     }
 }

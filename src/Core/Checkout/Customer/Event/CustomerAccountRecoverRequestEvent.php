@@ -28,14 +28,14 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
-    private string $shopName;
+    private readonly string $shopName;
 
     private ?MailRecipientStruct $mailRecipientStruct = null;
 
     public function __construct(
-        private SalesChannelContext $salesChannelContext,
-        private CustomerRecoveryEntity $customerRecovery,
-        private string $resetUrl
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly CustomerRecoveryEntity $customerRecovery,
+        private readonly string $resetUrl,
     ) {
         $this->shopName = $salesChannelContext->getSalesChannel()->getTranslation('name');
     }
@@ -74,17 +74,17 @@ class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAw
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customerRecovery', new EntityType(CustomerRecoveryDefinition::class))
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('resetUrl', new ScalarValueType(ScalarValueType::TYPE_STRING))
-            ->add('shopName', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerRecoveryAware::CUSTOMER_RECOVERY, new EntityType(CustomerRecoveryDefinition::class))
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::RESET_URL, new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add(FlowMailVariables::SHOP_NAME, new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+        if (!$this->mailRecipientStruct) {
             $customer = $this->customerRecovery->getCustomer();
-            \assert($customer instanceof CustomerEntity);
+            \assert($customer !== null);
 
             $this->mailRecipientStruct = new MailRecipientStruct([
                 $customer->getEmail() => $customer->getFirstName() . ' ' . $customer->getLastName(),

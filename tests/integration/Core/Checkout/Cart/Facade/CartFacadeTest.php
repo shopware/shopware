@@ -79,8 +79,8 @@ class CartFacadeTest extends TestCase
         }
 
         static::assertInstanceOf(ItemFacade::class, $item);
-        static::assertEquals($this->ids->get($expected), $item->getReferencedId());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+        static::assertSame($this->ids->get($expected), $item->getReferencedId());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
     }
 
     public function testContainer(): void
@@ -109,7 +109,7 @@ class CartFacadeTest extends TestCase
         $split = $product->take(1);
         static::assertInstanceOf(ItemFacade::class, $split);
         $container->add($split);
-        $container->discount('my-discount', 'percentage', -10, 'Fanzy discount');
+        $container->discount('my-discount', 'percentage', -10, 'Fancy discount');
 
         $surcharge = new PriceCollection([new Price(Defaults::CURRENCY, 2, 2, false)]);
         $container->surcharge('my-surcharge', 'absolute', $surcharge, 'unit test');
@@ -122,13 +122,13 @@ class CartFacadeTest extends TestCase
 
         static::assertInstanceOf(ItemFacade::class, $container);
         static::assertInstanceOf(PriceFacade::class, $container->getPrice());
-        static::assertEquals(182, $container->getPrice()->getTotal());
+        static::assertSame(182.0, $container->getPrice()->getTotal());
     }
 
     public function testRemove(): void
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $hook = new CartHook($this->createCart(), $context);
         $cart = static::getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
@@ -136,8 +136,8 @@ class CartFacadeTest extends TestCase
         $item = $cart->products()->add($this->ids->get('p1'));
 
         static::assertInstanceOf(ItemFacade::class, $item);
-        static::assertEquals($this->ids->get('p1'), $item->getReferencedId());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+        static::assertSame($this->ids->get('p1'), $item->getReferencedId());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
 
         $cart->remove($item->getId());
 
@@ -146,23 +146,20 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, ExpectedPrice|null> $expectations
+     * @param array<string, ExpectedPrice|array<string, array<string, array<string, array<string, ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|null> $expectations
      */
     #[DataProvider('scriptProvider')]
     public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $hook = $this->createTestHook($hook, $this->ids);
+        $hook = $this->createTestHook($hook);
 
         $service = static::getContainer()
             ->get(CartFacadeHookFactory::class)
             ->factory($hook, $this->script);
 
         static::getContainer()->get(ScriptExecutor::class)->execute($hook);
-
-        // add {% do debug.dump('foo') %} to debug scripts
-        //         dump(static::getContainer()->get(ScriptTraces::class)->getTraces());
 
         $this->assertItems($service, $expectations);
 
@@ -320,7 +317,7 @@ class CartFacadeTest extends TestCase
         yield 'Test payload' => [
             'payload-cases',
             [],
-            function (CartFacade $service, IdsCollection $ids): void {
+            static function (CartFacade $service, IdsCollection $ids): void {
                 $item = $service->get($ids->get('p1'));
                 static::assertInstanceOf(ItemFacade::class, $item);
 
@@ -328,7 +325,7 @@ class CartFacadeTest extends TestCase
                 foreach ($expected as $key => $value) {
                     static::assertArrayHasKey($key, $item->getItem()->getPayload());
                     $actual = $item->getItem()->getPayload()[$key];
-                    static::assertEquals($value, $actual, \sprintf('Payload value %s does not match', $key));
+                    static::assertSame($value, $actual, \sprintf('Payload value %s does not match', $key));
                 }
             },
         ];
@@ -336,7 +333,7 @@ class CartFacadeTest extends TestCase
         yield 'Test add errors' => [
             'add-errors',
             [],
-            function (CartFacade $cart): void {
+            static function (CartFacade $cart): void {
                 static::assertTrue($cart->errors()->has('NO_PRODUCTS_IN_CART'));
                 static::assertTrue($cart->errors()->has('YOU_SHOULD_REALLY_ADD_PRODUCTS'));
                 static::assertTrue($cart->errors()->has('ADD_PRODUCTS_OR_GO_AWAY'));
@@ -348,7 +345,7 @@ class CartFacadeTest extends TestCase
         yield 'Test cart states' => [
             'cart-state',
             [],
-            function (CartFacade $cart): void {
+            static function (CartFacade $cart): void {
                 static::assertTrue($cart->states()->has('my-custom-state'));
                 static::assertFalse($cart->states()->has('default-state'));
             },
@@ -372,7 +369,7 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @param array<string, ExpectedPrice|null> $expectations
+     * @param array<string, ExpectedPrice|array<string, array<string, array<string, array<string, ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|ExpectedPrice>|null> $expectations
      */
     private function assertItems(ItemsFacade|CartFacade|LineItemCollection $scope, array $expectations): void
     {
@@ -392,35 +389,33 @@ class CartFacadeTest extends TestCase
             if ($expected instanceof CalculatedPrice) {
                 static::assertInstanceOf(ItemFacade::class, $item);
                 static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-                static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnit());
-                static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotal());
+                static::assertSame($expected->getUnitPrice(), $item->getPrice()->getUnit());
+                static::assertSame($expected->getTotalPrice(), $item->getPrice()->getTotal());
 
                 continue;
             }
 
             $price = $expected['price'];
+            static::assertInstanceOf(ExpectedPrice::class, $price);
             static::assertInstanceOf(ItemFacade::class, $item);
             static::assertInstanceOf(PriceFacade::class, $item->getPrice());
-            static::assertEquals($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
-            static::assertEquals($price->getTotalPrice(), $item->getPrice()->getTotal());
+            static::assertSame($price->getUnitPrice(), $item->getPrice()->getUnit(), print_r($item->getItem(), true));
+            static::assertSame($price->getTotalPrice(), $item->getPrice()->getTotal());
 
-            $this->assertItems($item->getChildren(), $expected['children']);
+            $children = $expected['children'];
+            static::assertIsArray($children);
+            $this->assertItems($item->getChildren(), $children);
         }
     }
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
+    private function createTestHook(string $case): CartTestHook
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $cart = $this->createCart();
 
-        $data['ids'] = $ids;
-
-        return new CartTestHook($case, $cart, $context, $data, [CartFacadeHookFactory::class]);
+        return new CartTestHook($case, $cart, $context, $this->ids, [CartFacadeHookFactory::class]);
     }
 
     private function init(): IdsCollection
@@ -452,6 +447,7 @@ class CartFacadeTest extends TestCase
 /**
  * @internal
  */
+#[Package('checkout')]
 class ExpectedPrice extends CalculatedPrice
 {
     public function __construct(

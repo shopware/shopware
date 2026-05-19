@@ -43,7 +43,7 @@ class JavascriptPluginGeneratorTest extends TestCase
         (new JavascriptPluginGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(JavascriptPluginGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(JavascriptPluginGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator

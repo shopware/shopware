@@ -13,11 +13,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
+use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -79,7 +81,13 @@ class AppStateServiceThemeTest extends TestCase
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
         static::assertIsString($appId);
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
+
         $this->appStateService->deactivateApp($appId, $context);
     }
 
@@ -114,7 +122,12 @@ class AppStateServiceThemeTest extends TestCase
         $appId = $this->appRepo->searchIds($criteria, $context)->firstId();
         static::assertIsString($appId);
 
-        $this->expectException(ThemeAssignmentException::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->expectException(ThemeAssignmentException::class);
+        } else {
+            $this->expectException(ThemeException::class);
+        }
+        $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
         $this->appStateService->deactivateApp($appId, $context);
     }
 
@@ -129,10 +142,10 @@ class AppStateServiceThemeTest extends TestCase
         static::assertIsString($appId);
 
         $eventWasReceived = false;
-        $onAppDeactivation = function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
+        $onAppDeactivation = static function (AppDeactivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
-            static::assertEquals($appId, $event->getApp()->getId());
-            static::assertEquals($context, $event->getContext());
+            static::assertSame($appId, $event->getApp()->getId());
+            static::assertSame($context, $event->getContext());
         };
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppDeactivation);
 
@@ -144,7 +157,7 @@ class AppStateServiceThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        static::assertEquals(0, $this->templateRepo->search($criteria, $context)->getTotal());
+        static::assertSame(0, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppDeactivation);
     }
@@ -160,10 +173,10 @@ class AppStateServiceThemeTest extends TestCase
         static::assertIsString($appId);
 
         $eventWasReceived = false;
-        $onAppActivation = function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
+        $onAppActivation = static function (AppActivatedEvent $event) use (&$eventWasReceived, $appId, $context): void {
             $eventWasReceived = true;
-            static::assertEquals($appId, $event->getApp()->getId());
-            static::assertEquals($context, $event->getContext());
+            static::assertSame($appId, $event->getApp()->getId());
+            static::assertSame($context, $event->getContext());
         };
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppActivation);
 
@@ -177,7 +190,7 @@ class AppStateServiceThemeTest extends TestCase
 
         // We expect 1 storefront twig template and svg image to be stored in the DB
         $expectedTemplates = 2;
-        static::assertEquals($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
+        static::assertSame($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }

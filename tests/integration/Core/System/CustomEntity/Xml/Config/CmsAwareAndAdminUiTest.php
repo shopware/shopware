@@ -9,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -20,13 +20,13 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[Group('slow')]
-#[Group('skip-paratest')]
 class CmsAwareAndAdminUiTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -93,7 +93,7 @@ class CmsAwareAndAdminUiTest extends TestCase
     {
         $this->appLifecycle->install(
             Manifest::createFromXmlFile(__DIR__ . '/_fixtures/apps/cmsAwareAndAdminUiApp/manifest.xml'),
-            true,
+            new AppInstallParameters(),
             $this->context
         );
 
@@ -106,7 +106,7 @@ class CmsAwareAndAdminUiTest extends TestCase
 
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEquals(self::APP_NAME, $appEntity->getName());
+        static::assertSame(self::APP_NAME, $appEntity->getName());
 
         return $appEntity;
     }
@@ -167,7 +167,7 @@ class CmsAwareAndAdminUiTest extends TestCase
     private function assertCmsAwareAndAdminUiIsInstalled(AppEntity|PluginEntity $entity): void
     {
         static::assertTrue(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
             'The custom entity should be created'
         );
 
@@ -188,12 +188,12 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'custom_entity_string_field',
                 'custom_entity_int_field',
             ],
-            $this->getTableColumns(self::CUSTOM_ENTITY_NAME),
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME)->columns, 'name'),
             'Exactly these columns should exist for this cms-aware custom entity'
         );
 
         static::assertTrue(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_translation'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be created'
         );
 
@@ -219,12 +219,12 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'sw_og_title',
                 'sw_og_description',
             ],
-            $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_translation'),
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_translation')->columns, 'name'),
             'The fields translation table of this custom entity should have exactly these fields'
         );
 
         static::assertTrue(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'This table for the many-to-many fields of this custom entity should be created'
         );
 
@@ -234,7 +234,7 @@ class CmsAwareAndAdminUiTest extends TestCase
                 'category_id',
                 'category_version_id',
             ],
-            $this->getTableColumns(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            array_column(TableHelper::getTable($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories')->columns, 'name'),
             'A cms-aware custom entity should be connected to the categories'
         );
 
@@ -252,7 +252,7 @@ class CmsAwareAndAdminUiTest extends TestCase
         static::assertCount(2, $cmsAwareAndAdminUiSettings);
 
         static::assertIsString($flagsJson = file_get_contents(__DIR__ . '/_fixtures/other/flags.json'));
-        static::assertEquals(
+        static::assertSame(
             $this->jsonDecode($flagsJson),
             $this->jsonDecode($cmsAwareAndAdminUiSettings['flags'])
         );
@@ -263,7 +263,7 @@ class CmsAwareAndAdminUiTest extends TestCase
      */
     private function assertCmsAwareAndAdminUiIsUninstalled(): void
     {
-        static::assertEquals(
+        static::assertSame(
             0,
             $this->connection->executeQuery(
                 'SELECT COUNT(*) FROM custom_entity'
@@ -272,35 +272,18 @@ class CmsAwareAndAdminUiTest extends TestCase
         );
 
         static::assertFalse(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME),
             'The custom entity should be removed'
         );
 
         static::assertFalse(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_sw_categories'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_sw_categories'),
             'This table for the many-to-many fields of this custom entity should be removed'
         );
 
         static::assertFalse(
-            $this->dbHasTable(self::CUSTOM_ENTITY_NAME . '_translation'),
+            TableHelper::tableExists($this->connection, self::CUSTOM_ENTITY_NAME . '_translation'),
             'The translation table for this custom entity should be removed'
-        );
-    }
-
-    private function dbHasTable(string $tableName): bool
-    {
-        return EntityDefinitionQueryHelper::tableExists($this->connection, $tableName);
-    }
-
-    /**
-     * @return array<int, string|int>
-     */
-    private function getTableColumns(string $tableName): array
-    {
-        return \array_keys(
-            $this->connection->fetchAllAssociativeIndexed(
-                "SHOW COLUMNS FROM $tableName"
-            )
         );
     }
 

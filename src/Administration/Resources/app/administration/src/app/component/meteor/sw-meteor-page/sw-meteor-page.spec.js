@@ -11,7 +11,6 @@ async function createWrapper(slotsData = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
             stubs: {
-                'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-notification-center': true,
                 'sw-help-center-v2': true,
@@ -29,12 +28,13 @@ async function createWrapper(slotsData = {}) {
                 'mt-tabs': true,
                 'sw-extension-component-section': true,
                 'sw-app-topbar-button': true,
+                'sw-app-topbar-sidebar': true,
             },
             mocks: {
                 $route: {
                     meta: {
                         $module: {
-                            icon: 'default-object-plug',
+                            icon: 'regular-plug',
                             title: 'sw.example.title',
                             color: '#189EFF',
                         },
@@ -78,13 +78,6 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be in full width', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -104,7 +97,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
             hideIcon: true,
         });
 
-        const iconComponent = wrapper.find('sw-icon-stub');
+        const iconComponent = wrapper.find('.mt-icon');
         expect(iconComponent.exists()).toBe(false);
     });
 
@@ -112,12 +105,9 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const iconComponent = wrapper.find('sw-icon-stub');
-        expect(iconComponent.exists()).toBe(true);
-        expect(iconComponent.attributes()).toHaveProperty('name');
-        expect(iconComponent.attributes().name).toBe('default-object-plug');
-        expect(iconComponent.attributes()).toHaveProperty('color');
-        expect(iconComponent.attributes().color).toBe('#189EFF');
+        const iconComponent = wrapper.findComponent('.mt-icon');
+        expect(iconComponent.vm.name).toContain('regular-plug');
+        expect(iconComponent.vm.color).toBe('#189EFF');
     });
 
     [

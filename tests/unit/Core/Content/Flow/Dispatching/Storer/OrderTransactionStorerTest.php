@@ -11,10 +11,9 @@ use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,15 +26,17 @@ class OrderTransactionStorerTest extends TestCase
 {
     private OrderTransactionStorer $storer;
 
-    private MockObject&EntityRepository $repository;
-
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private MockObject&OrderTransactionProvider $orderTransactionProvider;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->storer = new OrderTransactionStorer($this->repository, $this->dispatcher);
+        $this->orderTransactionProvider = $this->createMock(OrderTransactionProvider::class);
+
+        $this->storer = new OrderTransactionStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->orderTransactionProvider,
+        );
     }
 
     public function testStoreWithAware(): void
@@ -77,27 +78,23 @@ class OrderTransactionStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new OrderTransactionEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $entity->setId('id');
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->orderTransactionProvider->expects($this->once())->method('getData')->willReturn($entity);
         $res = $storable->getData('orderTransaction');
 
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
+        $this->orderTransactionProvider->expects($this->once())->method('getData')->willReturn(null);
         $res = $storable->getData('orderTransaction');
 
-        static::assertEquals($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void
@@ -107,20 +104,5 @@ class OrderTransactionStorerTest extends TestCase
         $customerGroup = $storable->getData('orderTransaction');
 
         static::assertNull($customerGroup);
-    }
-
-    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
-    {
-        $this->dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.order_transaction.criteria.event'
-            );
-
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['orderTransactionId' => 'id'], []);
-        $this->storer->restore($storable);
-        $storable->getData('orderTransaction');
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -57,13 +58,21 @@ class OrderDeliveryStatusRuleTest extends TestCase
     #[DataProvider('getMatchingValues')]
     public function testOrderDeliveryStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
+        $orderDeliveryId = Uuid::randomHex();
+
         $orderDeliveryCollection = new OrderDeliveryCollection();
         $orderDelivery = new OrderDeliveryEntity();
-        $orderDelivery->setId(Uuid::randomHex());
+        $orderDelivery->setId($orderDeliveryId);
         $orderDelivery->setStateId($orderStateId);
         $orderDeliveryCollection->add($orderDelivery);
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            $order->setPrimaryOrderDeliveryId($orderDeliveryId);
+            $order->setPrimaryOrderDelivery($orderDelivery);
+        }
+
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
@@ -105,7 +114,7 @@ class OrderDeliveryStatusRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         $operators = RuleConfig::OPERATOR_SET_STRING;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => true,
         ], $configData['operatorSet']);

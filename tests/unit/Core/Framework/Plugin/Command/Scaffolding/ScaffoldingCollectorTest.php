@@ -49,9 +49,9 @@ class ScaffoldingCollectorTest extends TestCase
         $generator1 = $this->createMock(ScaffoldingGenerator::class);
 
         $generator1
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateStubs')
-            ->willReturnCallback(function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
                 $stubCollection->add(Stub::raw(
                     'src/Resources/config/config.xml',
                     '<config>',
@@ -61,9 +61,9 @@ class ScaffoldingCollectorTest extends TestCase
         $generator2 = $this->createMock(ScaffoldingGenerator::class);
 
         $generator2
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('generateStubs')
-            ->willReturnCallback(function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
+            ->willReturnCallback(static function (PluginScaffoldConfiguration $configuration, StubCollection $stubCollection): void {
                 $stubCollection->add(Stub::raw(
                     'src/TestPlugin.php',
                     'class TestPlugin',

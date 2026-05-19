@@ -18,7 +18,7 @@ class ElasticsearchUpdateMappingCommandTest extends TestCase
     {
         $updater = $this->createMock(IndexMappingUpdater::class);
         $updater
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update');
 
         $command = new ElasticsearchUpdateMappingCommand(

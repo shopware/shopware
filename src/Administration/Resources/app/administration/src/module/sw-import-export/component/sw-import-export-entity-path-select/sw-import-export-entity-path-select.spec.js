@@ -14,9 +14,6 @@ async function createWrapper(entityType = 'product') {
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': await wrapTestComponent('sw-popover'),
@@ -690,6 +687,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 value: 'translations.DEFAULT.slotConfig',
             },
             {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
+            },
+            {
                 label: 'translations.DEFAULT.customFields',
                 value: 'translations.DEFAULT.customFields',
                 relation: true,
@@ -769,6 +774,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',
@@ -852,6 +865,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             {
                 label: 'translations.DEFAULT.slotConfig',
                 value: 'translations.DEFAULT.slotConfig',
+            },
+            {
+                label: 'translations.DEFAULT.ogTitle',
+                value: 'translations.DEFAULT.ogTitle',
+            },
+            {
+                label: 'translations.DEFAULT.ogDescription',
+                value: 'translations.DEFAULT.ogDescription',
             },
             {
                 label: 'translations.DEFAULT.customFields',
@@ -1084,6 +1105,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'transactions.orderVersionId',
             'transactions.paymentMethod',
             'transactions.paymentMethodId',
+            'transactions.primaryOrder',
             'transactions.stateId',
             'transactions.stateMachineState',
             'transactions.updatedAt',
@@ -1115,6 +1137,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             'deliveries.orderId',
             'deliveries.orderVersionId',
             'deliveries.positions',
+            'deliveries.primaryOrder',
             'deliveries.shippingCosts',
             'deliveries.shippingDateEarliest',
             'deliveries.shippingDateLatest',
@@ -1141,5 +1164,57 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(wrapper.find('.sw-select-result-list .sw-popover__wrapper').classes()).toContain(
             'sw-import-export-entity-path-select__result-list',
         );
+    });
+
+    it('should filter out password, legacy_password and legacy_encoder', async () => {
+        const wrapper = await createWrapper('customer');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('firstName');
+        expect(possibleSelectionResult).toContain('lastName');
+        expect(possibleSelectionResult).toContain('email');
+
+        expect(possibleSelectionResult).not.toContain('password');
+        expect(possibleSelectionResult).not.toContain('legacyPassword');
+        expect(possibleSelectionResult).not.toContain('legacyEncoder');
+    });
+
+    it('should filter out user association because user has WriteProtection', async () => {
+        // For test reasons, use "acl_user_role" because it has an association to "user". User is by definition write protected.
+        const wrapper = await createWrapper('acl_user_role');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('aclRoleId');
+        expect(possibleSelectionResult).toContain('userId');
+
+        expect(possibleSelectionResult).not.toContain('user');
+    });
+
+    it('should not filter out read-only properties', async () => {
+        const wrapper = await createWrapper('customer');
+        await flushPromises();
+
+        const pathSelection = wrapper.find('.sw-import-export-entity-path-select__selection-input');
+        await pathSelection.trigger('click');
+        await flushPromises();
+
+        const possibleSelectionResult = wrapper.findAll('.sw-select-result').map((element) => element.text());
+
+        expect(possibleSelectionResult).toContain('lastOrderDate');
+        expect(possibleSelectionResult).toContain('orderCount');
+        expect(possibleSelectionResult).toContain('orderTotalAmount');
+        expect(possibleSelectionResult).toContain('reviewCount');
     });
 });

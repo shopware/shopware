@@ -15,22 +15,16 @@ class ElasticsearchRangeAggregation extends AbstractAggregation
     use BucketingTrait;
 
     /**
-     * @var array<int, array<string, float>>
-     */
-    private array $ranges = [];
-
-    /**
      * @param array<int, array<string, float>> $ranges
      */
     public function __construct(
         string $name,
         string $field,
-        array $ranges
+        private array $ranges,
     ) {
         parent::__construct($name);
 
         $this->setField($field);
-        $this->setRanges($ranges);
     }
 
     /**

@@ -66,22 +66,22 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.recommendedPlugins.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.recommendedPlugins.modalTitle'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.paypal.info',
                     disabled: false,
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.shopware.account',

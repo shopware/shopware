@@ -169,7 +169,6 @@ async function createWrapper(
                     'sw-entity-single-select': true,
                     'sw-modal': true,
                     'sw-checkbox-field': true,
-                    'sw-icon': true,
                     'sw-cms-visibility-config': {
                         template: '<div class="sw-cms-visibility-config"></div>',
                         props: ['visibility'],
@@ -237,7 +236,7 @@ async function createWrapper(
                                                     },
                                                     data: {
                                                         media: {
-                                                            value: 'preview_mountain_large.jpg',
+                                                            value: 'preview_mountain_large.webp',
                                                             source: 'default',
                                                         },
                                                     },
@@ -277,12 +276,6 @@ async function createWrapper(
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     const showDefaultLayoutSelectionDataProvider = [
@@ -483,7 +476,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         expect(sidebarItems).toHaveLength(5);
 
         sidebarItems.forEach((sidebarItem) => {
-            expect(sidebarItem.props('disabled')).toBe(false);
+            expect(sidebarItem.props('disabled')).toBeFalsy();
         });
     });
 
@@ -640,12 +633,12 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await flushPromises();
 
         const layoutTypeSelect = wrapper.findComponent(
-            'sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]',
+            '.mt-select[tooltip-message="sw-cms.detail.tooltip.cannotSelectProductPageLayout"]',
         );
 
         expect(layoutTypeSelect.attributes()['tooltip-message']).toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
 
-        expect(layoutTypeSelect.attributes().disabled).toBeTruthy();
+        expect(layoutTypeSelect.props().disabled).toBe(true);
     });
 
     it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
@@ -660,11 +653,14 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
-        const productPageOption = wrapper.find('option[value="product_detail"]');
+        const layoutTypeSelect = wrapper.findComponent(
+            '.mt-select[tooltip-message="sw-cms.detail.tooltip.cannotSelectProductPageLayout"]',
+        );
+        await layoutTypeSelect.find('input').trigger('click');
+        const productPageOption = wrapper.findComponent('[data-testid="mt-select-option--product_detail"]');
 
-        expect(layoutTypeSelect.attributes().disabled).toBeUndefined();
-        expect(productPageOption.attributes().disabled).toBeDefined();
+        expect(layoutTypeSelect.props().disabled).toBe(false);
+        expect(productPageOption.props().disabled).toBe(true);
     });
 
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
@@ -743,9 +739,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const newBlockCategory = wrapper.find(
-            '.sw-cms-sidebar__block-category option[value="completely_different_category"]',
-        );
+        const layoutTypeSelect = wrapper.findComponent('.sw-cms-sidebar__block-overview .mt-select');
+        await layoutTypeSelect.find('input').trigger('click');
+        const newBlockCategory = wrapper.findComponent('[data-testid="mt-select-option--completely_different_category"]');
 
         expect(newBlockCategory.exists()).toBeTruthy();
         expect(newBlockCategory.text()).toBe('apps.sw-cms.detail.label.blockCategory.completely_different_category');
@@ -848,13 +844,13 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                             value: 'standard',
                         },
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },
                     data: {
                         media: {
-                            value: 'preview_mountain_large.jpg',
+                            value: 'preview_mountain_large.webp',
                             source: 'default',
                         },
                     },
@@ -888,5 +884,27 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(wrapper.vm.$refs.itemConfigSidebar.isActive).toBeTruthy();
         expect(wrapper.vm.selectedSection.id).toBe('2222');
+    });
+
+    it('should emit page-save when aborting block drop', async () => {
+        const wrapper = await createWrapper();
+
+        // Prepare drag data: block being dragged from section index 0
+        const dragData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 0,
+        };
+
+        // Prepare drop data: abort drop into a different section index
+        const dropData = {
+            block: getBlockData(0, 'dropAbortBlock'),
+            sectionIndex: 1,
+            dropIndex: 0,
+            section: null,
+            sectionPosition: '',
+        };
+
+        wrapper.vm.onBlockDropAbort(dragData, dropData);
+        expect(wrapper.emitted('page-save')).toBeTruthy();
     });
 });

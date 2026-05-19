@@ -12,16 +12,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[Package('discovery')]
 class NavigationLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Tree $navigation;
-
-    protected SalesChannelContext $salesChannelContext;
-
     public function __construct(
-        Tree $navigation,
-        SalesChannelContext $salesChannelContext
+        protected Tree $navigation,
+        protected SalesChannelContext $salesChannelContext,
     ) {
-        $this->navigation = $navigation;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getContext(): Context

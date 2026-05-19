@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Increment;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -26,6 +27,16 @@ abstract class AbstractIncrementer
     abstract public function list(string $cluster, int $limit = 5, int $offset = 0): array;
 
     abstract public function reset(string $cluster, ?string $key = null): void;
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:visibility-change - Will become abstract
+     *
+     * @param array<string> $keys
+     */
+    public function delete(string $cluster, array $keys = []): void
+    {
+        Feature::throwException('v6.8.0.0', 'AbstractIncrementer::delete() is deprecated and will become abstract in v6.8.0.0. Please implement it in your incrementer class.');
+    }
 
     public function getPool(): string
     {

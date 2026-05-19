@@ -27,11 +27,11 @@ class CustomerBuilder
 
     public string $id;
 
-    protected string $firstName;
+    protected string $firstName = 'Max';
 
-    protected string $lastName;
+    protected string $lastName = 'Mustermann';
 
-    protected string $email;
+    protected string $email = 'max@mustermann.com';
 
     protected string $customerGroupId;
 
@@ -69,9 +69,6 @@ class CustomerBuilder
     ) {
         $this->ids = $ids;
         $this->id = $ids->create($customerNumber);
-        $this->firstName = 'Max';
-        $this->lastName = 'Mustermann';
-        $this->email = 'max@mustermann.com';
         $this->salutation = self::salutation($ids);
 
         $this->customerGroup($customerGroup);

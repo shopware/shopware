@@ -1,22 +1,21 @@
 {% block sw_import_export_edit_profile_modal_mapping %}
 <div class="sw-import-export-edit-profile-modal-mapping">
-
     {% block sw_import_export_edit_profile_modal_mapping_toolbar %}
     <div class="sw-import-export-edit-profile-modal-mapping__toolbar">
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
-        <sw-simple-search-field
-            v-model:value="searchTerm"
+        <mt-search
+            v-model="searchTerm"
+            class="sw-import-export-view-profiles__search"
             size="small"
-            variant="form"
             :disabled="!mappingsExist"
-            @search-term-change="onSearch"
+            @change="onSearch"
         />
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_add_mapping %}
         <mt-button
             v-tooltip="{
-                message: $tc('sw-import-export.profile.addMappingTooltipText'),
+                message: $t('sw-import-export.profile.addMappingTooltipText'),
                 disabled: addMappingEnabled,
                 showOnDisabledElements: true
             }"
@@ -24,9 +23,10 @@
             ghost
             :disabled="profile.systemDefault || !addMappingEnabled"
             size="small"
+            variant="secondary"
             @click="onAddMapping"
         >
-            {{ $tc('sw-import-export.profile.addMappingLabel') }}
+            {{ $t('sw-import-export.profile.addMappingLabel') }}
         </mt-button>
         {% endblock %}
     </div>
@@ -43,10 +43,8 @@
         plain-appearance
         class="sw-import-export-edit-profile-modal-mapping__grid"
     >
-
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
         <template #column-csvName="{ item, itemIndex }">
-
             <mt-text-field
                 v-model="item.mappedKey"
                 :name="`mappedKey-${itemIndex}`"
@@ -70,11 +68,10 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
         <template #column-required="{ item }">
-
             <mt-switch
                 v-show="isRequiredBySystem(item)"
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
-                :checked="true"
+                :model-value="true"
                 :disabled="true"
             />
 
@@ -89,7 +86,6 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
         <template #column-defaultValue="{ item, itemIndex }">
-
             <mt-switch
                 v-model="item.useDefaultValue"
                 :name="`useDefaultValue-${itemIndex}`"
@@ -107,20 +103,20 @@
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_position_column %}
         <template #column-position="{ item, itemIndex }">
-
             {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
-            <sw-button-group>
+            <sw-button-group class="sw-import-export-edit-profile-modal-mapping__position-buttons">
                 {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
                 <mt-button
                     size="x-small"
                     square
                     :disabled="isFirstMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'up')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
-                    <sw-icon
-                        name="regular-chevron-up-xxs"
-                        size="14px"
+                    <mt-icon
+                        name="regular-chevron-up-xs"
+                        size="10px"
                     />
                     {% endblock %}
                 </mt-button>
@@ -131,12 +127,13 @@
                     size="x-small"
                     square
                     :disabled="isLastMapping(item) || !!searchTerm"
+                    variant="secondary"
                     @click="updateSorting(itemIndex, 'down')"
                 >
                     {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
-                    <sw-icon
-                        name="regular-chevron-down-xxs"
-                        size="14px"
+                    <mt-icon
+                        name="regular-chevron-down-xs"
+                        size="10px"
                     />
                     {% endblock %}
                 </mt-button>
@@ -153,7 +150,7 @@
                 :disabled="profile.systemDefault"
                 @click="onDeleteMapping(item.id)"
             >
-                {{ $tc('sw-import-export.profile.deleteMappingLabel') }}
+                {{ $t('sw-import-export.profile.deleteMappingLabel') }}
             </sw-context-menu-item>
         </template>
         {% endblock %}
@@ -162,11 +159,11 @@
     {% endblock %}
 
     {% block sw_import_export_edit_profile_modal_mapping_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-else
         class="sw-import-export-edit-profile-modal-mapping__empty-state"
-        :title="$tc('sw-import-export.profile.mappingEmptyState')"
-        :absolute="false"
+        :icon="$route.meta.$module.icon"
+        :headline="$t('sw-import-export.profile.mappingEmptyState')"
     />
     {% endblock %}
 </div>

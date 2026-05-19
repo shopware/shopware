@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line filename-rules/match
 import { createPinia, setActivePinia } from 'pinia';
 import type { AdminMenuStore } from './admin-menu.store';
 import type { AppModuleDefinition } from '../../core/service/api/app-modules.service';
@@ -23,8 +22,13 @@ describe('admin-menu.store', () => {
         store = Shopware.Store.get('adminMenu');
     });
 
+    afterEach(() => {
+        localStorage.removeItem('sw-admin-menu-expanded');
+    });
+
     it('has initial state', () => {
         expect(store.isExpanded).toBe(true);
+        expect(localStorage.getItem('sw-admin-menu-expanded')).toBeNull();
         expect(store.expandedEntries).toStrictEqual([]);
         expect(store.adminModuleNavigation).toStrictEqual([]);
     });
@@ -59,17 +63,21 @@ describe('admin-menu.store', () => {
 
     it('collapses the sidebar with `collapseSidebar`', () => {
         expect(store.isExpanded).toBe(true);
+        expect(localStorage.getItem('sw-admin-menu-expanded')).toBeNull();
 
         store.collapseSidebar();
         expect(store.isExpanded).toBe(false);
+        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('false');
     });
 
     it('expands the sidebar with `expandSidebar`', () => {
         store.collapseSidebar();
         expect(store.isExpanded).toBe(false);
+        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('false');
 
         store.expandSidebar();
         expect(store.isExpanded).toBe(true);
+        expect(localStorage.getItem('sw-admin-menu-expanded')).toBe('true');
     });
 
     it('returns the app module navigation with `appModuleNavigation`', () => {

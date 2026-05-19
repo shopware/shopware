@@ -1,7 +1,7 @@
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 /**
  * @sw-package framework
  *
@@ -15,7 +15,7 @@ const { Component, Application } = Shopware;
  * </sw-search-bar-item>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-bar-item', {
+export default {
     template,
 
     inject: {
@@ -124,14 +124,14 @@ Component.register('sw-search-bar-item', {
             const { action, label, entity, title } = this.item;
 
             if (title && !action) {
-                return this.$tc(`${title}`, 2);
+                return this.$t(`${title}`, 2);
             }
 
             return action
-                ? this.$tc(
+                ? this.$t(
                       'global.sw-search-bar-item.addNewEntity',
                       {
-                          entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                          entity: label?.toLowerCase() ?? this.$t(`global.entities.${entity}`).toLowerCase(),
                       },
                       0,
                   )
@@ -167,7 +167,7 @@ Component.register('sw-search-bar-item', {
                 return false;
             }
 
-            return this.$tc(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+            return this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
         },
 
         productDisplayName() {
@@ -259,4 +259,4 @@ Component.register('sw-search-bar-item', {
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
         },
     },
-});
+};

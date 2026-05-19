@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -28,6 +30,9 @@ class AvailableCombinationLoaderTest extends TestCase
 
     private AbstractAvailableCombinationLoader $loader;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private IdsCollection $ids;
@@ -37,6 +42,9 @@ class AvailableCombinationLoaderTest extends TestCase
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->loader = static::getContainer()->get(AvailableCombinationLoader::class);
         $this->ids = new IdsCollection();
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
 
         $this->createSalesChannel([
             'id' => $this->ids->get('sales-channel'),
@@ -106,8 +114,26 @@ class AvailableCombinationLoaderTest extends TestCase
         $result = $this->loader->loadCombinations($this->ids->get('a.0'), $salesChanelContext);
 
         foreach ($result->getCombinations() as $combination) {
-            static::assertEquals($expected, $result->isAvailable($combination));
+            static::assertSame($expected, $result->isAvailable($combination));
         }
+
+        if ($differentChannel) {
+            static::assertCount(0, $result->getCombinations());
+        }
+    }
+
+    public function testHiddenCloseoutCombinationsAreRemovedWhenConfigured(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $context = Context::createDefaultContext();
+        $salesChanelContext = Generator::generateSalesChannelContext($context);
+        $productId = $this->createSingleVariantProduct($context, true, null, 0);
+
+        $result = $this->loader->loadCombinations($productId, $salesChanelContext);
+
+        static::assertCount(0, $result->getCombinations());
     }
 
     /**
@@ -244,5 +270,34 @@ class AvailableCombinationLoaderTest extends TestCase
         $this->productRepository->create([$product, $variant], $context);
 
         return $productId;
+    }
+
+    private function createSingleVariantProduct(Context $context, ?bool $parentCloseout, ?bool $variantCloseout, int $stock): string
+    {
+        $ids = new IdsCollection();
+
+        $product = (new ProductBuilder($ids, 'single.0'))
+            ->manufacturer('m1')
+            ->name('test')
+            ->price(10)
+            ->visibility(TestDefaults::SALES_CHANNEL)
+            ->configuratorSetting('red', 'color')
+            ->configuratorSetting('xl', 'size')
+            ->stock(10)
+            ->closeout($parentCloseout)
+            ->variant(
+                (new ProductBuilder($ids, 'single.1'))
+                    ->visibility(TestDefaults::SALES_CHANNEL)
+                    ->option('red', 'color')
+                    ->option('xl', 'size')
+                    ->stock($stock)
+                    ->closeout($variantCloseout)
+                    ->build()
+            )
+            ->build();
+
+        static::getContainer()->get('product.repository')->create([$product], $context);
+
+        return $ids->get('single.0');
     }
 }

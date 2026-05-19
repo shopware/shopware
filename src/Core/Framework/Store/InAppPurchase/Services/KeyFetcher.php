@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Store\InAppPurchase\Services;
 
 use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\JWT\Struct\JWKCollection;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -21,15 +21,15 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @phpstan-import-type JSONWebKey from JWKStruct
  */
 #[Package('checkout')]
-final class KeyFetcher
+final readonly class KeyFetcher
 {
     final public const CORE_STORE_JWKS = 'core.store.jwks';
 
     public function __construct(
-        private readonly ClientInterface $client,
-        private readonly AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider,
-        private readonly SystemConfigService $systemConfigService,
-        private readonly LoggerInterface $logger
+        private ClientInterface $client,
+        private AbstractStoreRequestOptionsProvider $storeRequestOptionsProvider,
+        private SystemConfigService $systemConfigService,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -41,7 +41,7 @@ final class KeyFetcher
             return $key;
         }
 
-        return $this->fetchAndStoreKey($context) ?? $key ?? throw AppException::jwksNotFound();
+        return $this->fetchAndStoreKey($context) ?? $key ?? throw StoreException::jwksNotFound();
     }
 
     private function getStoredKey(): ?JWKCollection
@@ -77,7 +77,7 @@ final class KeyFetcher
 
                     return null;
                 }
-                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result);
+                $this->systemConfigService->set(self::CORE_STORE_JWKS, $result, null, true);
 
                 /** @var array{keys: array<int, JSONWebKey>} $key */
                 $key = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);

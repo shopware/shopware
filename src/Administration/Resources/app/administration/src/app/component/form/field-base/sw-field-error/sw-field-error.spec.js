@@ -8,15 +8,12 @@ const createWrapper = async (options) => {
     return mount(await wrapTestComponent('sw-field-error', { sync: true }), {
         global: {
             mocks: {
-                $tc: (key, number, value) => {
+                $t: (key, number, value) => {
                     if (!value || Object.keys(value).length < 1) {
                         return key;
                     }
                     return key + JSON.stringify(value);
                 },
-            },
-            stubs: {
-                'sw-icon': true,
             },
         },
         ...options,

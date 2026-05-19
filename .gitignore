@@ -21,6 +21,27 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# Yalc
+.yalc/
+yalc.lock
+
+# AI/LLM Development Tools
+.claude/
+.codex/
+.cursor/
+.cursorrules
+.tabnine/
+.ai/
+.llm/
+.aider/
+.aiderignore
+.kite/
+.codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
+
 # Composer
 /composer.phar
 /auth.json
@@ -96,6 +117,20 @@ app/config/parameters.yml
 .env.test
 .env.e2e
 .env.dev
+
+# Local AI/LLM overrides
+# Claude.local.md
+*.local.md
+# AGENTS.override.md
+*.override.md
+*.cursorignore.local
+*.cursorindexingignore.local
+*.tabnineignore.local
+
+# AI/LLM Documentation
+CLAUDE.md
+GEMINI.md
+
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 src/Core/DevOps/Locust/fixtures/*
@@ -104,14 +139,14 @@ src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
 /shop
+.codex
 
 .php-cs-fixer.cache
 
 # tests / ci
 /build/
 !build/artifacts/.gitkeep
-tests/integration/Core/Framework/Plugin/_fixtures/SwagFashionTheme.zip
-tests/integration/Core/Framework/Plugin/_fixtures/TestShippingApp.zip
+tests/integration/Core/Framework/Plugin/_fixtures/*.zip
 .jest
 ###> symfony/phpunit-bridge ###
 .phpunit
@@ -153,9 +188,17 @@ http-client.private.env.json
 .direnv/
 .phpbench/*
 
+# Vector databases
+*.vdb
+*.vdb.local
+*.vectordb
+
 # Devenv
 .devenv*
 devenv.local.nix
 
 # danger.php
 danger.phar
+
+# Vite deps
+**/.tmp/vite/*

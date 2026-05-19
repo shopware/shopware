@@ -44,7 +44,7 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivilegesEvent(): void
     {
-        $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
+        $getAdditionalPrivileges = static function (AclGetAdditionalPrivilegesEvent $event): void {
             $privileges = $event->getPrivileges();
             static::assertContains('system:clear:cache', $privileges);
             $privileges[] = 'my_custom_privilege';
@@ -72,8 +72,8 @@ class AclControllerTest extends TestCase
             $content = $response->getContent();
 
             static::assertIsString($content);
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code'], $content);
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+            static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'][0]['code'], $content);
         } finally {
             $this->resetBrowser();
         }

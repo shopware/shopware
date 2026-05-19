@@ -26,27 +26,28 @@ export default {
 
     computed: {
         nextLabel() {
-            return this.$tc('sw-first-run-wizard.general.buttonNext');
+            return this.$t('sw-first-run-wizard.general.buttonNext');
         },
 
         buttonConfig() {
-            const disabledExtensionManagement = Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            const disabledExtensionManagement =
+                Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
             const nextRoute = disabledExtensionManagement ? 'shopware.account' : 'paypal.info';
 
             return [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.defaults',
                     disabled: false,
                 },
                 {
                     key: 'configure-later',
-                    label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
+                    label: this.$t('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: `sw.first.run.wizard.index.${nextRoute}`,
                     disabled: false,
                 },
@@ -87,7 +88,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.mailerSelection.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.mailerSelection.modalTitle'));
         },
 
         async handleSelection() {

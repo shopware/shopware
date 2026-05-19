@@ -2,6 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import '../../mixin/sw-cms-state.mixin';
 
 let resizeObserverList = [];
 
@@ -61,9 +62,6 @@ async function createWrapper() {
             },
             global: {
                 stubs: {
-                    'sw-icon': {
-                        template: '<div></div>',
-                    },
                     'sw-cms-el-config-text': {
                         template: '<div class="sw-cms-el-config-text">Config element</div>',
                         props: [
@@ -72,6 +70,13 @@ async function createWrapper() {
                         ],
                     },
                     'sw-extension-component-section': true,
+                    'sw-cms-form-sync': {
+                        template: '<slot />',
+                        props: [
+                            'element',
+                            'contentEntity',
+                        ],
+                    },
                 },
                 provide: {
                     cmsService: {

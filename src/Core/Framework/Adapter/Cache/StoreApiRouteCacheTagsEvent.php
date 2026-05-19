@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -11,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('framework')]
+/**
+ * @deprecated tag:v6.8.0 - Will be removed in 6.8.0 as it was not used anymore
+ */
 class StoreApiRouteCacheTagsEvent extends Event
 {
     /**
@@ -24,6 +28,10 @@ class StoreApiRouteCacheTagsEvent extends Event
         protected SalesChannelContext $context,
         protected ?Criteria $criteria
     ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
     }
 
     /**
@@ -31,21 +39,41 @@ class StoreApiRouteCacheTagsEvent extends Event
      */
     public function getTags(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->tags;
     }
 
     public function getRequest(): Request
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->request;
     }
 
     public function getContext(): SalesChannelContext
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->context;
     }
 
     public function getCriteria(): ?Criteria
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->criteria;
     }
 
@@ -54,6 +82,11 @@ class StoreApiRouteCacheTagsEvent extends Event
      */
     public function setTags(array $tags): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         $this->tags = $tags;
     }
 
@@ -62,11 +95,21 @@ class StoreApiRouteCacheTagsEvent extends Event
      */
     public function addTags(array $tags): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         $this->tags = array_merge($this->tags, $tags);
     }
 
     public function getSalesChannelId(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->context->getSalesChannelId();
     }
 
@@ -75,6 +118,11 @@ class StoreApiRouteCacheTagsEvent extends Event
      */
     public function getResponse(): StoreApiResponse
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'),
+        );
+
         return $this->response;
     }
 }

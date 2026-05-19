@@ -20,10 +20,10 @@ class ItemFacade
      * @internal
      */
     public function __construct(
-        private LineItem $item,
-        private ScriptPriceStubs $priceStubs,
-        private CartFacadeHelper $helper,
-        private SalesChannelContext $context
+        private readonly LineItem $item,
+        private readonly ScriptPriceStubs $priceStubs,
+        private readonly CartFacadeHelper $helper,
+        private readonly SalesChannelContext $context,
     ) {
     }
 

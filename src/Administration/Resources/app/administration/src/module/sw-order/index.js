@@ -10,7 +10,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-order-list', () => import('./page/sw-order-list'));
 Shopware.Component.register('sw-order-detail', () => import('./page/sw-order-detail'));
 Shopware.Component.register('sw-order-create', () => import('./page/sw-order-create'));
@@ -56,6 +56,10 @@ Shopware.Component.register('sw-order-state-change-modal', () => import('./compo
 Shopware.Component.register('sw-order-state-select-v2', () => import('./component/sw-order-state-select-v2'));
 Shopware.Component.register('sw-order-details-state-card', () => import('./component/sw-order-details-state-card'));
 Shopware.Component.register('sw-order-inline-field', () => import('./component/sw-order-inline-field'));
+
+/**
+ * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ */
 Shopware.Component.register('sw-order-user-card', () => import('./component/sw-order-user-card'));
 Shopware.Component.register('sw-order-document-card', () => import('./component/sw-order-document-card'));
 Shopware.Component.register(
@@ -112,7 +116,7 @@ Shopware.Component.register(
     'sw-order-customer-address-select',
     () => import('./component/sw-order-customer-address-select'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-order', {
@@ -122,8 +126,8 @@ Module.register('sw-order', {
     description: 'sw-order.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#A092F0',
-    icon: 'regular-shopping-bag',
+    color: 'var(--color-purple-500)',
+    icon: 'solid-shopping-bag',
     favicon: 'icon-module-orders.png',
     entity: 'order',
 
@@ -168,7 +172,7 @@ Module.register('sw-order', {
             children: orderDetailChildren(),
             props: {
                 default: ($route) => {
-                    return { orderId: $route.params.id };
+                    return { orderId: $route.params.id.toLowerCase() };
                 },
             },
         },
@@ -178,7 +182,7 @@ Module.register('sw-order', {
         {
             id: 'sw-order',
             label: 'sw-order.general.mainMenuItemGeneral',
-            color: '#A092F0',
+            color: 'var(--color-purple-500)',
             icon: 'regular-shopping-bag',
             position: 30,
             privilege: 'order.viewer',

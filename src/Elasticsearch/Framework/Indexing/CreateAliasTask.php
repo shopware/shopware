@@ -23,4 +23,9 @@ class CreateAliasTask extends ScheduledTask
     {
         return (bool) $bag->get('elasticsearch.enabled');
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return true;
+    }
 }

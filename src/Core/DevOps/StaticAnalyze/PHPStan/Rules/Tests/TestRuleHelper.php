@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class TestRuleHelper
 {
-    public static function isTestClass(ClassReflection $class): bool
+    public static function isTestClass(TestReflectionClassInterface|ClassReflection $class): bool
     {
         foreach ($class->getParents() as $parent) {
             if ($parent->getName() === TestCase::class) {
@@ -23,7 +23,7 @@ class TestRuleHelper
         return false;
     }
 
-    public static function isUnitTestClass(ClassReflection $class): bool
+    public static function isUnitTestClass(TestReflectionClassInterface|ClassReflection $class): bool
     {
         if (!static::isTestClass($class)) {
             return false;
@@ -34,10 +34,10 @@ class TestRuleHelper
             'Shopware\\Tests\\Migration\\',
 
             'Shopware\\Commercial\\Tests\\Unit\\',
-            'Shopware\\Commercial\\Migration\\Test\\',
+            'Shopware\\Commercial\\Tests\\Migration\\',
 
             'Swag\\SaasRufus\\Test\\Migration\\',
-            'Swag\\SaasRufus\\Tests\\Unit\\',
+            'Swag\\SaasRufus\\Test\\Unit\\',
         ];
 
         foreach ($unitTestNamespaces as $unitTestNamespace) {

@@ -3,36 +3,42 @@
 namespace Shopware\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask;
+use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. Unused theme files are now deleted with a scheduled task.
+ * @see DeleteThemeFilesTask
+ * @see DeleteThemeFilesTaskHandler
  */
 #[AsMessageHandler]
 #[Package('framework')]
-final class DeleteThemeFilesHandler
+final readonly class DeleteThemeFilesHandler
 {
     public function __construct(
-        private readonly FilesystemOperator $filesystem,
-        private readonly AbstractThemePathBuilder $pathBuilder,
-        private readonly CacheInvalidator $cacheInvalidator
+        private FilesystemOperator $filesystem,
+        private AbstractThemePathBuilder $pathBuilder,
     ) {
     }
 
     public function __invoke(DeleteThemeFilesMessage $message): void
     {
-        $currentPath = $this->pathBuilder->assemblePath($message->getSalesChannelId(), $message->getThemeId());
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
+        $currentPath = $this->pathBuilder->assemblePath($message->getSalesChannelId(), $message->getThemeId());
         if ($currentPath === $message->getThemePath()) {
             return;
         }
 
         $this->filesystem->deleteDirectory('theme' . \DIRECTORY_SEPARATOR . $message->getThemePath());
-        $this->cacheInvalidator->invalidate([
-            'theme_scripts_' . $message->getThemePath(),
-        ]);
     }
 }

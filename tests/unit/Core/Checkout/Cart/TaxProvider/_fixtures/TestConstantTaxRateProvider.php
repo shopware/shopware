@@ -9,11 +9,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\AbstractTaxProvider;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class TestConstantTaxRateProvider extends AbstractTaxProvider
 {
     public function __construct(private readonly float $taxRate = 0.07)
@@ -54,7 +56,6 @@ class TestConstantTaxRateProvider extends AbstractTaxProvider
                 continue;
             }
 
-            /** @var string $positionId */
             $positionId = $position->getIdentifier();
 
             $deliveries[$positionId] = new CalculatedTaxCollection([

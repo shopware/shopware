@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
@@ -25,6 +26,8 @@ class CustomerIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $repository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -49,7 +52,7 @@ class CustomerIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -60,7 +63,7 @@ class CustomerIndexer extends EntityIndexer
     {
         $updates = $event->getPrimaryKeys(CustomerDefinition::ENTITY_NAME);
 
-        if (empty($updates)) {
+        if ($updates === []) {
             return null;
         }
 
@@ -81,13 +84,13 @@ class CustomerIndexer extends EntityIndexer
         }
 
         $ids = array_unique(array_filter($ids));
-        if (empty($ids) || !$message instanceof CustomerIndexingMessage) {
+        if ($ids === [] || !$message instanceof CustomerIndexingMessage) {
             return;
         }
 
         $context = $message->getContext();
 
-        if (!empty($message->getIds())) {
+        if ($message->getIds() !== []) {
             $this->customerNewsletterSalesChannelsUpdater->updateCustomersRecipient($message->getIds());
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -13,10 +14,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaArrayConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
@@ -24,6 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Util\Base64;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -60,6 +64,7 @@ class RequestCriteriaBuilderTest extends TestCase
             $aggregationParser,
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
         );
     }
 
@@ -86,6 +91,7 @@ class RequestCriteriaBuilderTest extends TestCase
             $aggregationParser,
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
             $max
         );
 
@@ -136,8 +142,8 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (DataAbstractionLayerException $e) {
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-            static::assertEquals('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+            static::assertSame('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
             $postExceptionThrown = true;
         }
 
@@ -149,8 +155,8 @@ class RequestCriteriaBuilderTest extends TestCase
         try {
             $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (DataAbstractionLayerException $e) {
-            static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-            static::assertEquals('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
+            static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+            static::assertSame('FRAMEWORK__INVALID_API_CRITERIA_IDS', $e->getErrorCode());
             $getExceptionThrown = true;
         }
 
@@ -182,13 +188,13 @@ class RequestCriteriaBuilderTest extends TestCase
         $request->setMethod(Request::METHOD_POST);
 
         $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
-        static::assertEquals($expectedIds, $criteria->getIds());
+        static::assertSame($expectedIds, $criteria->getIds());
 
         $request = new Request($body);
         $request->setMethod(Request::METHOD_GET);
 
         $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
-        static::assertEquals($expectedIds, $criteria->getIds());
+        static::assertSame($expectedIds, $criteria->getIds());
     }
 
     public function testAssociationsAddedToCriteria(): void
@@ -316,9 +322,9 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(\count($expectedParsedSortings), $sorting);
         foreach ($expectedParsedSortings as $index => $expectedParsedSorting) {
             static::assertInstanceOf($expectedParsedSorting::class, $sorting[$index]);
-            static::assertEquals($expectedParsedSorting->getField(), $sorting[$index]->getField());
-            static::assertEquals($expectedParsedSorting->getDirection(), $sorting[$index]->getDirection());
-            static::assertEquals($expectedParsedSorting->getNaturalSorting(), $sorting[$index]->getNaturalSorting());
+            static::assertSame($expectedParsedSorting->getField(), $sorting[$index]->getField());
+            static::assertSame($expectedParsedSorting->getDirection(), $sorting[$index]->getDirection());
+            static::assertSame($expectedParsedSorting->getNaturalSorting(), $sorting[$index]->getNaturalSorting());
         }
     }
 
@@ -460,10 +466,10 @@ class RequestCriteriaBuilderTest extends TestCase
             );
         } catch (SearchRequestException $e) {
             $sortException = $e->getErrors()->current();
-            static::assertEquals($expected->getErrorCode(), $sortException['code']);
-            static::assertEquals($expected->getMessage(), $sortException['detail']);
-            static::assertEquals($expected->getStatusCode(), $sortException['status']);
-            static::assertEquals($expected->getParameter('path'), $sortException['source']['pointer']);
+            static::assertSame($expected->getErrorCode(), $sortException['code']);
+            static::assertSame($expected->getMessage(), $sortException['detail']);
+            static::assertSame($expected->getStatusCode(), (int) $sortException['status']);
+            static::assertSame($expected->getParameter('path'), $sortException['source']['pointer']);
 
             $wasThrown = true;
         }
@@ -516,6 +522,7 @@ class RequestCriteriaBuilderTest extends TestCase
             $aggregationParser,
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
             100
         );
 
@@ -532,8 +539,8 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertTrue($criteria->hasAssociation('options'));
         static::assertTrue($criteria->hasAssociation('categories'));
 
-        static::assertEquals(100, $criteria->getLimit());
-        static::assertEquals(101, $criteria->getAssociation('options')->getLimit());
+        static::assertSame(100, $criteria->getLimit());
+        static::assertSame(101, $criteria->getAssociation('options')->getLimit());
         static::assertNull($criteria->getAssociation('prices')->getLimit());
         static::assertNull($criteria->getAssociation('categories')->getLimit());
     }
@@ -546,7 +553,7 @@ class RequestCriteriaBuilderTest extends TestCase
             ],
         ];
 
-        static::expectException(AssociationNotFoundException::class);
+        static::expectException(FrameworkException::class);
         static::expectExceptionMessage('Can not find association by name 1');
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
@@ -677,9 +684,9 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->requestCriteriaBuilder->fromArray($pagingPayload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (SearchRequestException $e) {
             $sortException = $e->getErrors()->current();
-            static::assertEquals($expectedExceptionCode, $sortException['code']);
-            static::assertEquals(400, $sortException['status']);
-            static::assertEquals($path, $sortException['source']['pointer']);
+            static::assertSame($expectedExceptionCode, $sortException['code']);
+            static::assertSame('400', $sortException['status']);
+            static::assertSame($path, $sortException['source']['pointer']);
 
             $wasThrown = true;
         }
@@ -741,9 +748,9 @@ class RequestCriteriaBuilderTest extends TestCase
         } catch (SearchRequestException $e) {
             $error = $e->getErrors()->current();
 
-            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertEquals('The value for filter "name" must be scalar.', $error['detail']);
-            static::assertEquals(400, $error['status']);
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The value for filter "name" must be scalar.', $error['detail']);
+            static::assertSame('400', $error['status']);
 
             throw $e;
         }
@@ -764,9 +771,9 @@ class RequestCriteriaBuilderTest extends TestCase
         } catch (SearchRequestException $e) {
             $error = $e->getErrors()->current();
 
-            static::assertEquals('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertEquals('The filter parameter has to be an array.', $error['detail']);
-            static::assertEquals(400, $error['status']);
+            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
+            static::assertSame('The filter parameter has to be an array.', $error['detail']);
+            static::assertSame('400', $error['status']);
 
             throw $e;
         }
@@ -792,11 +799,10 @@ class RequestCriteriaBuilderTest extends TestCase
 
         $payload['includes'] = 'string_instead_of_array';
 
-        $request = new Request([], $payload, [], [], []);
+        $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
-        $this->expectException(DataAbstractionLayerException::class);
-        $this->expectExceptionMessage('Expected data at includes to be of the type array, string given');
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -804,5 +810,226 @@ class RequestCriteriaBuilderTest extends TestCase
             $this->staticDefinitionRegistry->get(ProductDefinition::class),
             Context::createDefaultContext()
         );
+    }
+
+    public function testExcludesArrayValidation(): void
+    {
+        $payload = [
+            'excludes' => ['product', 'category'],
+        ];
+
+        $request = new Request(request: $payload);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = new Criteria();
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $payload['excludes'] = 'string_instead_of_array';
+
+        $request = new Request([], $payload, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            $criteria,
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[DataProvider('searchInfoHeaderProvider')]
+    public function testIncludeSearchInfoHeader(array $data, bool $expectedState): void
+    {
+        $request = new Request();
+        $request->setMethod(Request::METHOD_POST);
+
+        if (isset($data['headerValue'])) {
+            $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, $data['headerValue']);
+        }
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($expectedState, $criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
+    /**
+     * @return iterable<string, array{data: array{headerValue?: string}, expectedState: bool}>
+     */
+    public static function searchInfoHeaderProvider(): iterable
+    {
+        yield 'no header set (default behavior)' => [
+            'data' => [],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 1 (enable search info)' => [
+            'data' => ['headerValue' => '1'],
+            'expectedState' => false,
+        ];
+
+        yield 'header set to 0 (disable search info)' => [
+            'data' => ['headerValue' => '0'],
+            'expectedState' => true,
+        ];
+
+        yield 'header set to other value (enable search info)' => [
+            'data' => ['headerValue' => 'anything'],
+            'expectedState' => false,
+        ];
+    }
+
+    public function testCompressedCriteriaParameter(): void
+    {
+        $criteriaData = [
+            'limit' => 25,
+            'page' => 2,
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+            'sort' => [
+                ['field' => 'id', 'order' => 'ASC'],
+            ],
+            'includes' => ['product', 'category'],
+        ];
+
+        // Compress and encode the criteria data
+        $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
+
+        $request = new Request(['_criteria' => $encodedCriteria]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(25, $criteria->getLimit());
+        static::assertSame(25, $criteria->getOffset()); // page 2 with limit 25 = offset 25
+        static::assertCount(1, $criteria->getFilters());
+        static::assertCount(1, $criteria->getSorting());
+        static::assertSame(['product', 'category'], $criteria->getIncludes());
+    }
+
+    public function testCompressedCriteriaParameterTakesPrecedenceOverIndividualParameters(): void
+    {
+        $criteriaData = [
+            'limit' => 50,
+            'page' => 1,
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+        ];
+
+        // Compress and encode the criteria data
+        $jsonData = json_encode($criteriaData, \JSON_THROW_ON_ERROR);
+        $encodedCriteria = self::gzipAndBase64UrlEncode($jsonData);
+
+        // Add conflicting individual parameters
+        $request = new Request([
+            '_criteria' => $encodedCriteria,
+            'limit' => 10, // This should be ignored
+            'page' => 3,   // This should be ignored
+            'filter' => [  // This should be ignored
+                ['type' => 'equals', 'field' => 'name', 'value' => 'test'],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        // Should use values from _criteria parameter, not individual parameters
+        static::assertSame(50, $criteria->getLimit());
+        static::assertSame(0, $criteria->getOffset()); // page 1 with limit 50 = offset 0
+        static::assertCount(1, $criteria->getFilters());
+
+        // Verify the filter is from _criteria, not individual parameter
+        $filter = $criteria->getFilters()[0];
+        static::assertSame(['product.active'], $filter->getFields());
+    }
+
+    #[WithoutErrorHandler]
+    public function testInvalidCompressedCriteriaParameterThrowsException(): void
+    {
+        // Test integration with invalid base64 - detailed unit tests are in CompressedCriteriaDecoderTest
+        $invalidBase64 = 'invalid-base64-format-with-special-chars!@#$%';
+
+        $request = new Request(['_criteria' => $invalidBase64]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $this->expectException(DataAbstractionLayerException::class);
+
+        $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testCompressedCriteriaParameterPreparedInJS(): void
+    {
+        // This is a real-world example of encoded criteria
+        $encodedCriteria = 'H4sIAHfzwmgAA31UTW_bMAz9LzrnsO2Y25ChWLEVKNbuNBQGI7M2UVny9JHMK_rfR0qu7CRdT5Yp8j3q8UnPytBAUW0_ftioETpU208bRVab1GJQ22elh9DIRhOM47xfilq1UXEakT85tlF74_TTtcS1s4_U8aKFCLID-qnzLtn2BluCG9dK2VlUPXDhK03GEh7BDgtVpl0Kd844_wYU94Q6krO3LpB8T8DnvXqMy-pMv6IN9Jdsl_teAVUAC0POKrirulkIrhm9a5PO0g0zyRz6gQfCoxTNMCy59jTmFjfKQ2Tqzwf0wsiQYHQyELHd9QgjhnjrSZ_u_CciHEvoOwVBrrmOKaQr8GhjHmOZsQcbcgH_uNzVdStI3P6IPlKGHcCmR9Ax-QwS0P30JvN5F8IdGsNU8g8HIAN7g3dRJswJKUQ3XBGajMo_OTxghHuKRlqT9ZcTUSTyDaej86WV5HUPgTFxDCu1myJ11Zx3aiT2adhbbkYAjtTGnr89UteLl5M3NbupqVInO28UsFbijKpuM2ZdpcBSHdHvBDZSnHhpWP4SXvUrLhybonJ1Vw6eTyJ75bxyuZjvpQozTyPfLscD5KWMwcvcr8hE9CIJGhw4kOUtzitvBI-oFJ1Oc4lFF0Ekgq7z2LF75UYUevHL9F6r5eTru0BhNDDdy3W6wFgJdXng2b5aXoiv-GdX3pzXu1d6WDtlbeBzQDaveHLBfXh5-Qd2KWaANAUAAA';
+        $request = new Request(['_criteria' => $encodedCriteria]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        // Verify basic criteria properties
+        static::assertSame(10, $criteria->getLimit());
+        static::assertSame(10, $criteria->getOffset());
+
+        // Verify includes are properly set
+        $includes = $criteria->getIncludes();
+        static::assertIsArray($includes);
+        static::assertArrayHasKey('product', $includes);
+        static::assertArrayHasKey('media', $includes);
+        static::assertArrayHasKey('product_media', $includes);
+        static::assertArrayHasKey('calculated_price', $includes);
+
+        // Verify specific includes contain expected fields
+        static::assertContains('name', $includes['product']);
+        static::assertContains('description', $includes['product']);
+        static::assertContains('ratingAverage', $includes['product']);
+        static::assertContains('url', $includes['media']);
+        static::assertContains('width', $includes['media']);
+        static::assertContains('height', $includes['media']);
+    }
+
+    private static function gzipAndBase64UrlEncode(string $data): string
+    {
+        $gzippedData = gzencode($data);
+        static::assertNotFalse($gzippedData, 'Gzip compressing failed');
+
+        return Base64::urlEncode($gzippedData);
     }
 }

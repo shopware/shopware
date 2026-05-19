@@ -21,7 +21,6 @@ async function createWrapper() {
             global: {
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
-                    'sw-icon': true,
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-seo-url-template-card': true,
                     'sw-system-config': await wrapTestComponent('sw-system-config'),
@@ -31,10 +30,12 @@ async function createWrapper() {
                     'sw-ignore-class': true,
                     'sw-loader': true,
                     'sw-app-actions': true,
+                    'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
                     'sw-skeleton': true,
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,
@@ -70,10 +71,6 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card', async () => {

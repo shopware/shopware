@@ -6,12 +6,12 @@
         {% block sw_settings_seo_smart_bar_header_title %}
         <h2>
             {% block sw_settings_seo_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
-            <sw-icon
+            {{ $t('sw-settings.index.title') }}
+            <mt-icon
                 name="regular-chevron-right-xs"
-                small
+                size="var(--scale-size-12)"
             />
-            {{ $tc('sw-settings-seo.general.textHeadline') }}
+            {{ $t('sw-settings-seo.general.textHeadline') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -23,9 +23,10 @@
         {% block sw_settings_seo_smart_bar_actions_add %}
         <mt-button
             variant="primary"
+            size="default"
             @click="onClickSave()"
         >
-            {{ $tc('sw-settings-seo.general.buttonSave') }}
+            {{ $t('sw-settings-seo.general.buttonSave') }}
         </mt-button>
         {% endblock %}
     </template>

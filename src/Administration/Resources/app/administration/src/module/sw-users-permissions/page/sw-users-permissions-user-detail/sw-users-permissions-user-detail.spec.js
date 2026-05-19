@@ -7,6 +7,12 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 
 let wrapper;
 
+const mockedLoginService = {
+    verifyUserToken: jest.fn(() => Promise.resolve('verifiedToken')),
+    getBearerAuthentication: jest.fn(),
+    setBearerAuthentication: jest.fn(),
+};
+
 async function createWrapper(
     privileges = [],
     options = {
@@ -48,14 +54,16 @@ async function createWrapper(
                             return privileges.includes(identifier);
                         },
                     },
-                    loginService: {},
+                    loginService: mockedLoginService,
                     userService: {
                         getUser: () => Promise.resolve({ data: {} }),
                     },
                     mediaDefaultFolderService: {
                         getDefaultFolderId: () => Promise.resolve('1234'),
                     },
-                    userValidationService: {},
+                    userValidationService: {
+                        checkUserEmail: () => Promise.resolve({ emailIsUnique: true }),
+                    },
                     integrationService: {},
                     repositoryFactory: {
                         create: (entityName) => {
@@ -74,6 +82,7 @@ async function createWrapper(
                                             },
                                         });
                                     },
+                                    save: () => Promise.resolve(),
                                 };
                             }
 
@@ -103,6 +112,11 @@ async function createWrapper(
                     $route: {
                         params: {
                             id: '1a2b3c4d',
+                        },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
                         },
                     },
                     $device: {
@@ -136,14 +150,10 @@ async function createWrapper(
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
                     'sw-upload-listener': true,
                     'sw-media-upload-v2': true,
-                    'sw-password-field': await wrapTestComponent('sw-text-field', {
-                        sync: true,
-                    }),
                     'sw-select-field': true,
 
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
-                    'sw-icon': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
@@ -155,7 +165,6 @@ async function createWrapper(
                     `,
                     },
                     'sw-context-menu-item': true,
-                    'sw-empty-state': true,
                     'sw-skeleton': true,
                     'sw-loader': true,
                     'sw-verify-user-modal': true,
@@ -183,11 +192,13 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         Shopware.Service().register('timezoneService', () => {
             return new TimezoneService();
         });
-
-        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
     });
 
     beforeEach(async () => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        jest.spyOn(Shopware.ExtensionAPI, 'publishData').mockImplementation(() => {});
+
         Shopware.Store.get('session').languageId = '123456789';
         wrapper = await createWrapper();
     });
@@ -197,10 +208,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // not work with automatic unmount
         await wrapper.unmount();
         Shopware.Store.get('session').languageId = '';
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain all fields', async () => {
@@ -229,7 +236,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldUsername.props('modelValue')).toBe('admin');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('7dc07b43229843d387bb5f59233c2d66');
+        expect(fieldLanguage.props('modelValue')).toBe('7dc07b43229843d387bb5f59233c2d66');
     });
 
     it('should contain all fields with a given user', async () => {
@@ -267,7 +274,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldUsername.props('modelValue')).toBe('maxmuster');
         expect(fieldProfilePicture.attributes('value')).toBeUndefined();
         expect(fieldPassword.attributes('value')).toBeUndefined();
-        expect(fieldLanguage.attributes('value')).toBe('12345');
+        expect(fieldLanguage.props('modelValue')).toBe('12345');
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
@@ -334,7 +341,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const fieldEmail = wrapper.findComponent('.sw-settings-user-detail__grid-eMail');
         const fieldUsername = wrapper.findComponent('.sw-settings-user-detail__grid-username');
         const fieldProfilePicture = wrapper.findComponent('.sw-settings-user-detail__grid-profile-picture');
-        const fieldPassword = wrapper.findComponent('.sw-settings-user-detail__grid-password');
+        const fieldPassword = wrapper.findByLabel('sw-users-permissions.users.user-detail.labelPassword');
         const fieldLanguage = wrapper.findComponent('.sw-settings-user-detail__grid-language');
         const contextMenuItemEdit = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-edit');
         const contextMenuItemDelete = wrapper.findComponent('.sw-settings-user-detail__grid-context-menu-delete');
@@ -344,8 +351,8 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldEmail.props('disabled')).toBe(true);
         expect(fieldUsername.props('disabled')).toBe(true);
         expect(fieldProfilePicture.attributes().disabled).toBe('true');
-        expect(fieldPassword.classes()).toContain('is--disabled');
-        expect(fieldLanguage.attributes().disabled).toBe('true');
+        expect(fieldPassword.attributes('disabled')).toBeDefined();
+        expect(fieldLanguage.props().disabled).toBe(true);
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBe('true');
     });
@@ -541,5 +548,38 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
             path: 'user',
             scope: expect.anything(),
         });
+    });
+
+    it('should update the auth token if user password is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).toHaveBeenCalledWith('newPassword');
+        expect(mockedLoginService.setBearerAuthentication).toHaveBeenCalledWith({ access: 'verifiedToken' });
+    });
+
+    it('should not update the auth token if user password is not changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
+    });
+
+    it('should not update the auth token if user a different user then the currently logged in user is changed', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        wrapper.vm.user.password = 'newPassword';
+        wrapper.vm.user.id = 'randomId';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(mockedLoginService.verifyUserToken).not.toHaveBeenCalled();
+        expect(mockedLoginService.setBearerAuthentication).not.toHaveBeenCalled();
     });
 });

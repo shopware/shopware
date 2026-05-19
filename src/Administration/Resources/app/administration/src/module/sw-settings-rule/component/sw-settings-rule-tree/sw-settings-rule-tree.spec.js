@@ -27,7 +27,6 @@ async function createWrapper(props = defaultProps) {
         global: {
             stubs: {
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
-                'sw-icon': true,
                 'sw-text-field': true,
                 'sw-tree-input-field': true,
                 'sw-checkbox-field': true,

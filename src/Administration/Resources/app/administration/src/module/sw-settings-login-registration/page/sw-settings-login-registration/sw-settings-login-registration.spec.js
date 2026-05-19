@@ -42,7 +42,6 @@ async function createWrapper() {
                           <slot></slot>
                      </div>`,
                     },
-                    'sw-icon': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
@@ -67,10 +66,6 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card system', async () => {

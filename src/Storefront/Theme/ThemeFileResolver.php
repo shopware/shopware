@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\File;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
@@ -32,22 +31,46 @@ class ThemeFileResolver
         bool $onlySourceFiles
     ): array {
         return [
-            self::SCRIPT_FILES => $this->resolve(
+            self::SCRIPT_FILES => $this->resolveScriptFiles(
                 $themeConfig,
                 $configurationCollection,
-                $onlySourceFiles,
-                $this->resolveScriptFiles(...)
+                $onlySourceFiles
             ),
-            self::STYLE_FILES => $this->resolve(
+            self::STYLE_FILES => $this->resolveStyleFiles(
                 $themeConfig,
                 $configurationCollection,
-                $onlySourceFiles,
-                fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+                $onlySourceFiles
             ),
         ];
     }
 
-    private function resolveScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
+    public function resolveScriptFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): FileCollection {
+        return $this->resolve(
+            $themeConfig,
+            $configurationCollection,
+            $onlySourceFiles,
+            $this->collectConfigurationScriptFiles(...)
+        );
+    }
+
+    public function resolveStyleFiles(
+        StorefrontPluginConfiguration $themeConfig,
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        bool $onlySourceFiles
+    ): FileCollection {
+        return $this->resolve(
+            $themeConfig,
+            $configurationCollection,
+            $onlySourceFiles,
+            static fn (StorefrontPluginConfiguration $configuration) => $configuration->getStyleFiles()
+        );
+    }
+
+    private function collectConfigurationScriptFiles(StorefrontPluginConfiguration $configuration, bool $onlySourceFiles): FileCollection
     {
         $fileCollection = new FileCollection();
         $scriptFiles = $configuration->getScriptFiles();
@@ -115,7 +138,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if (file_exists($filepath)) {
+                if (\is_file($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;
@@ -125,7 +148,7 @@ class ThemeFileResolver
                     continue;
                 }
 
-                throw new ThemeCompileException(
+                throw ThemeException::themeCompileException(
                     $themeConfig->getTechnicalName(),
                     \sprintf('Unable to load file "Resources/%s". Did you forget to build the theme? Try running ./bin/build-storefront.sh', $filepath)
                 );

@@ -84,8 +84,8 @@ export default {
 
         title() {
             return this.tag.isNew()
-                ? this.$tc('sw-settings-tag.list.buttonAddTag')
-                : this.$tc(
+                ? this.$t('sw-settings-tag.list.buttonAddTag')
+                : this.$t(
                       'sw-settings-tag.detail.editTitle',
                       {
                           name: this.tag.name,
@@ -101,7 +101,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -219,7 +219,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                     this.isLoading = false;
                 });

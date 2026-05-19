@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -134,8 +135,8 @@ class CustomFieldSetRepositoryTest extends TestCase
         $attributeSet = $result->first();
         static::assertNotNull($attributeSet);
 
-        static::assertEquals($id2, $attributeSet->getId());
-        static::assertEquals($attributeSets[1]['config'], $attributeSet->getConfig());
+        static::assertSame($id2, $attributeSet->getId());
+        static::assertSame($attributeSets[1]['config'], $attributeSet->getConfig());
     }
 
     public function testDelete(): void
@@ -180,7 +181,7 @@ class CustomFieldSetRepositoryTest extends TestCase
         $event = $result->getEventByEntityName(CustomFieldSetDefinition::ENTITY_NAME);
         static::assertNotNull($event);
         static::assertCount(1, $event->getIds());
-        static::assertEquals($id, $event->getIds()[0]);
+        static::assertSame($id, $event->getIds()[0]);
 
         $event = $result->getEventByEntityName(CustomFieldDefinition::ENTITY_NAME);
         static::assertNotNull($event);
@@ -226,7 +227,6 @@ class CustomFieldSetRepositoryTest extends TestCase
 
         $update = [
             'id' => $id,
-            'name' => 'test_set_update',
             'config' => ['description' => 'update', 'translatable' => true],
         ];
         $result = $this->repo->update([$update], Context::createDefaultContext());
@@ -237,7 +237,27 @@ class CustomFieldSetRepositoryTest extends TestCase
         $result = $this->repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities();
         $set = $result->first();
         static::assertNotNull($set);
-        static::assertEquals($update['config'], $set->getConfig());
+        static::assertSame($update['config'], $set->getConfig());
+    }
+
+    public function testNameIsImmutable(): void
+    {
+        $id = Uuid::randomHex();
+        $attributeSet = [
+            'id' => $id,
+            'name' => 'test_set',
+            'config' => ['description' => 'test'],
+        ];
+
+        $this->repo->create([$attributeSet], Context::createDefaultContext());
+
+        $this->expectException(WriteException::class);
+        $this->repo->update([
+            [
+                'id' => $id,
+                'name' => 'renamed_set',
+            ],
+        ], Context::createDefaultContext());
     }
 
     public function testSearchWithAssociations(): void

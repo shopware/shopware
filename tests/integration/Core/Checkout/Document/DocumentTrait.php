@@ -7,7 +7,9 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
@@ -42,8 +44,9 @@ trait DocumentTrait
 
     /**
      * @param array<string, string> $options
+     * @param array<string, string> $additionalAddress
      */
-    private function createCustomer(array $options = []): string
+    private function createCustomer(array $options = [], ?array $additionalAddress = null): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -56,7 +59,7 @@ trait DocumentTrait
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'email' => Uuid::randomHex() . '@example.com',
+            'email' => 'test@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -77,7 +80,13 @@ trait DocumentTrait
             ],
         ];
 
-        $customer = array_merge($customer, $options);
+        if ($additionalAddress) {
+            $customer['addresses'][] = \array_merge($additionalAddress, [
+                'customerId' => $customerId,
+            ]);
+        }
+
+        $customer = \array_merge($customer, $options);
 
         static::getContainer()->get('customer.repository')->upsert([$customer], $this->context);
 
@@ -127,16 +136,57 @@ trait DocumentTrait
         return $cartService->add($cart, $lineItems, $this->salesChannelContext);
     }
 
+    /**
+     * @param array<int|string, int> $taxes
+     */
+    private function generateDemoCartWithTaxes(array $taxes): Cart
+    {
+        $cartService = static::getContainer()->get(CartService::class);
+
+        $cart = $cartService->createNew('A');
+
+        $products = [];
+
+        $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
+
+        $ids = new IdsCollection();
+
+        $lineItems = [];
+
+        foreach ($taxes as $index => $tax) {
+            $price = 100.0 + (int) $index;
+            $name = 'product ' . $index;
+            $number = 'p' . $index;
+
+            $product = (new ProductBuilder($ids, $number))
+                ->price($price)
+                ->name($name)
+                ->active(true)
+                ->tax('test-' . Uuid::randomHex(), $tax)
+                ->visibility()
+                ->build();
+
+            $products[] = $product;
+
+            $lineItems[] = $factory->create(['id' => $ids->get($number), 'referencedId' => $ids->get($number)], $this->salesChannelContext);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, $product['tax']);
+        }
+
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        return $cartService->add($cart, $lineItems, $this->salesChannelContext);
+    }
+
     private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
     {
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
             Context::createDefaultContext()
         )->firstId();
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepository<DocumentBaseConfigCollection> $documentBaseConfigRepository */
         $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
 
         $criteria = new Criteria();
@@ -178,7 +228,7 @@ trait DocumentTrait
     {
         $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        /** @var EntityRepository $documentTypeRepository */
+        /** @var EntityRepository<DocumentTypeCollection> $documentTypeRepository */
         $documentTypeRepository = static::getContainer()->get('document_type.repository');
         $documentTypeId = $documentTypeRepository->searchIds(
             (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
@@ -210,7 +260,7 @@ trait DocumentTrait
             ];
         }
 
-        /** @var EntityRepository $documentBaseConfigRepository */
+        /** @var EntityRepository<DocumentBaseConfigCollection> $documentBaseConfigRepository */
         $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }

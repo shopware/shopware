@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class SalesChannelRule extends Rule
@@ -15,6 +15,8 @@ class SalesChannelRule extends Rule
 
     /**
      * @param list<string>|null $salesChannelIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

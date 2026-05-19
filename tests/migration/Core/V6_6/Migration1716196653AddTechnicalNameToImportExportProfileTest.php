@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1716196653AddTechnicalNameToImportExportProfile;
 
@@ -25,10 +26,8 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
     public static function setUpBeforeClass(): void
     {
         $connection = self::getContainer()->get(Connection::class);
-        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
-        $columns = array_column($columns, 'Field');
 
-        if (!\in_array('name', $columns, true)) {
+        if (!TableHelper::columnExists($connection, 'import_export_profile', 'name')) {
             $connection->executeStatement('ALTER TABLE `import_export_profile` ADD COLUMN `name` VARCHAR(255) NULL');
             self::$nameColumnAdded = true;
         }
@@ -46,53 +45,33 @@ class Migration1716196653AddTechnicalNameToImportExportProfileTest extends TestC
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1716196653, (new Migration1716196653AddTechnicalNameToImportExportProfile())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
-        $columns = array_column($columns, 'Field');
-
-        if (\in_array('technical_name', $columns, true)) {
+        if (TableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name')) {
             $this->connection->executeStatement('ALTER TABLE `import_export_profile` DROP COLUMN `technical_name`');
         }
 
-        $index = $this->connection->fetchAllAssociative('SHOW INDEX FROM `import_export_profile` WHERE Key_name = \'uniq.import_export_profile.technical_name\'');
-
-        if (!empty($index)) {
+        if (TableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name')) {
             $this->connection->executeStatement('ALTER TABLE `import_export_profile` DROP INDEX `uniq.import_export_profile.technical_name`');
         }
 
         $m = new Migration1716196653AddTechnicalNameToImportExportProfile();
         $m->update($this->connection);
-
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
-        $columns = array_column($columns, 'Field');
-
-        static::assertContains('technical_name', $columns);
-
-        $index = $this->connection->fetchAllAssociative('SHOW INDEX FROM `import_export_profile` WHERE Key_name = \'uniq.import_export_profile.technical_name\'');
-
-        static::assertNotEmpty($index);
-    }
-
-    public function testDoubleExecution(): void
-    {
-        $m = new Migration1716196653AddTechnicalNameToImportExportProfile();
-        $m->update($this->connection);
         $m->update($this->connection);
 
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `import_export_profile`');
-        $columns = array_column($columns, 'Field');
+        static::assertTrue(TableHelper::columnExists($this->connection, 'import_export_profile', 'technical_name'));
 
-        static::assertContains('technical_name', $columns);
-
-        $index = $this->connection->fetchAllAssociative('SHOW INDEX FROM `import_export_profile` WHERE Key_name = \'uniq.import_export_profile.technical_name\'');
-
-        static::assertNotEmpty($index);
+        static::assertTrue(TableHelper::indexExists($this->connection, 'import_export_profile', 'uniq.import_export_profile.technical_name'));
     }
 
     /**
-     * @param array<int, string> $names
-     * @param array<int, string> $expectedTechnicalNames
+     * @param list<string|null> $names
+     * @param list<string> $expectedTechnicalNames
      */
     #[DataProvider('nameProvider')]
     public function testGeneratedTechnicalName(array $names, array $expectedTechnicalNames): void

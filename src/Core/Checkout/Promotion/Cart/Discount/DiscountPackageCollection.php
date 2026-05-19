@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
-use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -14,12 +13,6 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('checkout')]
 class DiscountPackageCollection extends Collection
 {
-    /**
-     * Gets a list of all prices within all
-     * existing packages of this collection.
-     *
-     * @throws PriceNotFoundException
-     */
     public function getAffectedPrices(): PriceCollection
     {
         $affectedPrices = new PriceCollection();

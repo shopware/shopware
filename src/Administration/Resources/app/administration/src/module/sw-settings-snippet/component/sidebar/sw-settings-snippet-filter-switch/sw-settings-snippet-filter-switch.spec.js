@@ -18,7 +18,6 @@ async function createWrapper() {
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
-                    'sw-icon': true,
                 },
             },
             props: {
@@ -34,10 +33,6 @@ describe('sw-settings-snippet-filter-switch', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain a prop property, called: value', async () => {

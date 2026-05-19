@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - trunk
-      - 6.5.x
-      - 6.6.x
+      - 6.[0-9]*.x
+      - 6.[0-9]*.[0-9]*.x
   workflow_call:
 
 jobs:
@@ -16,11 +16,12 @@ jobs:
       id-token: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: octo-sts/action@v1.0.0
+      - uses: shopware/octo-sts-action@main
         id: sts-shopware-private
         with:
           scope: shopware
@@ -28,7 +29,6 @@ jobs:
 
       - name: Push to private fork
         run: |
-          git config --unset http."https://github.com/".extraheader
           git config "http.https://github.com/shopware/shopware-private.git/.extraheader" "AUTHORIZATION: basic $(echo -n "x-access-token:${{ steps.sts-shopware-private.outputs.token }}" | base64)"
           git remote add private https://github.com/shopware/shopware-private.git
           git fetch private

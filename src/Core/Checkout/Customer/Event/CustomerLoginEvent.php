@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Monolog\Level;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
@@ -16,12 +17,13 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('checkout')]
-class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
+class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware, LogAware
 {
     final public const EVENT_NAME = 'checkout.customer.login';
 
@@ -75,8 +77,21 @@ class CustomerLoginEvent extends Event implements SalesChannelAware, ShopwareSal
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class))
-            ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class))
+            ->add(FlowMailVariables::CONTEXT_TOKEN, new ScalarValueType(ScalarValueType::TYPE_STRING));
+    }
+
+    public function getLogData(): array
+    {
+        return [
+            'customerId' => $this->customer->getId(),
+            'customerNumber' => $this->customer->getCustomerNumber(),
+        ];
+    }
+
+    public function getLogLevel(): Level
+    {
+        return Level::Info;
     }
 
     public function getCustomerId(): string

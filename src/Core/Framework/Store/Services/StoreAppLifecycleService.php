@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
+use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -18,6 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @internal - only for use by the app-system
@@ -25,6 +30,13 @@ use Shopware\Core\Framework\Store\StoreException;
 #[Package('checkout')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
+     */
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly AppLoader $appLoader,
@@ -45,7 +57,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
             throw StoreException::extensionInstallException(\sprintf('Cannot find app by name %s', $technicalName));
         }
 
-        $this->appLifecycle->install($manifests[$technicalName], false, $context);
+        $this->appLifecycle->install($manifests[$technicalName], new AppInstallParameters(activate: false), $context);
     }
 
     public function uninstallExtension(string $technicalName, Context $context, bool $keepUserData = false): void
@@ -113,6 +125,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
         $this->appLifecycle->update(
             $manifests[$technicalName],
+            new AppUpdateParameters(),
             [
                 'id' => $app->getId(),
                 'version' => $app->getVersion(),
@@ -133,9 +146,9 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     private function getAppByName(string $technicalName, Context $context): AppEntity
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
-        $app = $this->appRepository->search($criteria, $context)->first();
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!$app instanceof AppEntity) {
+        if (!$app) {
             throw StoreException::extensionNotFoundFromTechnicalName($technicalName);
         }
 
@@ -197,8 +210,8 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('id', $id));
 
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        \assert($app !== null);
 
         return $app;
     }

@@ -6,11 +6,14 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -31,11 +34,13 @@ class DownloadResponseGenerator
      * @internal
      */
     public function __construct(
+        private readonly LoggerInterface $logger,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
         private readonly MediaService $mediaService,
         private readonly string $localPrivateDownloadStrategy,
-        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator
+        private readonly AbstractMediaUrlGenerator $mediaUrlGenerator,
+        private readonly string $privateLocalPathPrefix = ''
     ) {
     }
 
@@ -52,7 +57,10 @@ class DownloadResponseGenerator
             $url = $fileSystem->temporaryUrl($path, (new \DateTime())->modify($expiration));
 
             return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl) {
+        } catch (UnableToGenerateTemporaryUrl $exception) {
+            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+        } catch (\Exception $exception) {
+            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
         }
 
         return $this->getDefaultResponse($media, $context, $fileSystem);
@@ -75,14 +83,19 @@ class DownloadResponseGenerator
                     $location = stream_get_meta_data($stream)['uri'] ?? $location;
                 }
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_SENDFILE_DOWNLOAD_STRATEGY, $location);
 
                 return $response;
             case self::X_ACCEL_DOWNLOAD_STRATEGY:
                 $location = $media->getPath();
 
-                $response = new Response(null, 200, $this->getStreamHeaders($media));
+                // Apply the path prefix if configured
+                if ($this->privateLocalPathPrefix !== '') {
+                    $location = $this->privateLocalPathPrefix . '/' . ltrim($location, '/');
+                }
+
+                $response = new Response(null, Response::HTTP_OK, $this->getStreamHeaders($media));
                 $response->headers->set(self::X_ACCEL_REDIRECT, $location);
 
                 return $response;
@@ -111,7 +124,7 @@ class DownloadResponseGenerator
             throw MediaException::fileNotFound($media->getFileName() . '.' . $media->getFileExtension());
         }
 
-        return new StreamedResponse(function () use ($stream): void {
+        return new StreamedResponse(static function () use ($stream): void {
             fpassthru($stream);
         }, Response::HTTP_OK, $this->getStreamHeaders($media));
     }
@@ -138,12 +151,18 @@ class DownloadResponseGenerator
     {
         $filename = $media->getFileName() . '.' . $media->getFileExtension();
 
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($filename);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
+
         return [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 HeaderUtils::DISPOSITION_ATTACHMENT,
                 $filename,
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $filename) ?? ''
+                $filenameFallback
             ),
             'Content-Length' => $media->getFileSize() ?? 0,
             'Content-Type' => 'application/octet-stream',

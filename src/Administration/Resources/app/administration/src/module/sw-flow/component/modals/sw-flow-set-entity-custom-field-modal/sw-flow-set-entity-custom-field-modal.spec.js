@@ -100,7 +100,7 @@ async function createWrapper(customField = customNormalField) {
                     },
                 },
                 mocks: {
-                    $tc: (...args) => JSON.stringify([...args]),
+                    $t: (...args) => JSON.stringify([...args]),
                 },
                 data() {
                     return {
@@ -159,7 +159,6 @@ async function createWrapper(customField = customNormalField) {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-highlight-text': true,
                     'sw-field': true,
                     'sw-multi-select': true,

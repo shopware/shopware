@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class FrameworkException extends HttpException
 {
@@ -28,6 +27,7 @@ class FrameworkException extends HttpException
 
     private const MISSING_OPTIONS = 'FRAMEWORK__MISSING_OPTIONS';
     private const INVALID_OPTIONS = 'FRAMEWORK__INVALID_OPTIONS';
+    private const ASSOCIATION_NOT_FOUND = 'FRAMEWORK__ASSOCIATION_NOT_FOUND';
 
     public static function projectDirNotExists(string $dir, ?\Throwable $e = null): self
     {
@@ -129,5 +129,27 @@ class FrameworkException extends HttpException
             self::INVALID_OPTIONS,
             $message
         );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function associationNotFound(string $association): self|AssociationNotFoundException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AssociationNotFoundException($association);
+        }
+
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ASSOCIATION_NOT_FOUND,
+            'Can not find association by name {{ association }}',
+            ['association' => $association]
+        );
+    }
+
+    public static function unexpectedType(mixed $givenType, string $expectedType): UnexpectedTypeException
+    {
+        return new UnexpectedTypeException($givenType, $expectedType);
     }
 }

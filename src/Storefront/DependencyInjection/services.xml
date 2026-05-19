@@ -39,12 +39,27 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
         </service>
 
+        <service id="Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="slugify"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher">
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher">
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\CacheCookieEventSubscriber">
+            <argument type="service" id="session.factory"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\CachedDomainLoader" decorates="Shopware\Storefront\Framework\Routing\DomainLoader" decoration-priority="-1000">
@@ -63,7 +78,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\RequestTransformer"
-                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+                 decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface" public="true">
 
             <argument type="service" id="Shopware\Storefront\Framework\Routing\RequestTransformer.inner"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoResolver"/>
@@ -74,6 +89,7 @@
         <service id="Shopware\Storefront\Framework\Routing\Router" decorates="router">
             <argument type="service" id="Shopware\Storefront\Framework\Routing\Router.inner"/>
             <argument type="service" id="request_stack"/>
+            <argument>%storefront.router.allowed_routes%</argument>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver">
@@ -101,7 +117,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
-            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -161,16 +177,20 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
 
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\TemplateDataSubscriber">
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -201,6 +221,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">
@@ -273,6 +294,9 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute"/>
+            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">
@@ -291,6 +315,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
@@ -340,7 +365,6 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
 
@@ -390,6 +414,7 @@
             <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
@@ -424,6 +449,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\AbstractSalutationsSorter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
@@ -444,48 +470,15 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider"/>
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
+        <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider">
+            <deprecated package="shopware/storefront" version="6.7.3.0">The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.</deprecated>
+        </service>
 
+        <!-- @deprecated tag:v6.8.0 Will be removed -->
         <service id="Shopware\Storefront\Framework\Cookie\AppCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
-            <argument type="service" id="Shopware\Storefront\Framework\Cookie\AppCookieProvider.inner"/>
-            <argument type="service" id="app.repository"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
-            <argument type="tagged_iterator" tag="shopware.storefront.captcha"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="service_container" />
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
-            <argument type="service" id="validator"/>
-
-            <tag name="shopware.storefront.captcha" priority="400"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-
-            <tag name="shopware.storefront.captcha" priority="300"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
-
-        <service id="shopware.captcha.client" class="GuzzleHttp\Client"/>
-
-        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
-            <argument type="service" id="shopware.captcha.client"/>
-
-            <tag name="shopware.storefront.captcha" priority="200"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
-            <argument type="service" id="shopware.captcha.client"/>
-
-            <tag name="shopware.storefront.captcha" priority="100"/>
+            <argument type="service" id=".inner"/>
+            <deprecated package="shopware/storefront" version="6.7.3.0">The %service_id% service will be removed in v6.8.0.0 without replacement</deprecated>
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
@@ -535,12 +528,55 @@
             <tag name="kernel.event_listener" event="kernel.exception"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\SystemCheck\SaleChannelsReadinessCheck" >
-            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface" />
-            <argument type="service" id="Symfony\Component\Routing\RouterInterface" />
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil">
+            <argument type="service" id="Symfony\Component\Routing\RouterInterface"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
 
             <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductDetailReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\ProductListingReadinessCheck">
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Robots\RobotsConfigChangeSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
         </service>
     </services>
 </container>

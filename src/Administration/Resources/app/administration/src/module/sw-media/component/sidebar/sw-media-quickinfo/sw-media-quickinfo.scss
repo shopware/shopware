@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-media-quickinfo-border-color-preview: $color-gray-300;
+$sw-media-quickinfo-border-color-preview: var(--color-border-primary-default);
 $sw-media-quickinfo-border-radius-preview: $border-radius-default;
 
 .sw-media-quickinfo {
@@ -39,5 +39,32 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         &.has--error {
             margin-bottom: 14px;
         }
+    }
+
+    .sw-model-viewer-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+
+        .sw-model-viewer-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 1;
+            aspect-ratio: 1 / 1;
+        }
+    }
+}
+
+.sw-model-editor-modal {
+    .sw-modal__body {
+        padding: 0;
+        overflow-y: hidden;
+    }
+
+    .sw-model-editor-modal-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
     }
 }

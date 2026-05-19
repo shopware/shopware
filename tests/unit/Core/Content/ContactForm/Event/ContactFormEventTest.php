@@ -37,6 +37,6 @@ class ContactFormEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('contactFormData', $flow->data());
-        static::assertEquals(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['contactFormData']);
+        static::assertSame(['foo' => 'bar', 'bar' => 'baz'], $flow->data()['contactFormData']);
     }
 }

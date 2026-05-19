@@ -90,7 +90,6 @@ async function createWrapper() {
                     },
                     'sw-loader': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-highlight-text': true,
                     'sw-product-variant-info': true,

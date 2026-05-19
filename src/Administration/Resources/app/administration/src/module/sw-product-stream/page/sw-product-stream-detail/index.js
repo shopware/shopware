@@ -2,6 +2,8 @@
  * @sw-package inventory
  */
 
+import { computed } from 'vue';
+
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
@@ -20,11 +22,13 @@ export default {
         'productStreamConditionService',
         'acl',
         'customFieldDataProviderService',
+        'productTypeService',
     ],
 
     provide() {
         return {
-            productCustomFields: this.productCustomFields,
+            productCustomFields: computed(() => this.productCustomFields),
+            productTypes: computed(() => this.productTypes),
         };
     },
 
@@ -71,6 +75,10 @@ export default {
             showModalPreview: false,
             languageId: null,
             customFieldSets: null,
+            productTypes: [
+                'physical',
+                'digital',
+            ],
         };
     },
 
@@ -104,7 +112,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('product_stream.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     appearance: 'dark',
                     showOnDisabledElements: true,
                 };
@@ -138,6 +146,23 @@ export default {
         showCustomFields() {
             return this.productStream && this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        productStreamIndexingEnabled() {
+            return Context.app.productStreamIndexingEnabled ?? true;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
+        showProductStatesFilterWarning() {
+            if (!this.productStreamFiltersTree) {
+                return false;
+            }
+
+            return this.hasProductStatesFilter(this.productStreamFiltersTree);
+        },
     },
 
     watch: {
@@ -169,15 +194,30 @@ export default {
                 scope: this,
             });
             this.languageId = Context.api.languageId;
+
+            const promises = [
+                this.loadCustomFieldSets(),
+                this.loadProductTypes(),
+            ];
+
             if (this.productStreamId) {
-                this.getProductCustomFields();
+                promises.push(this.getProductCustomFields());
             }
-            this.loadCustomFieldSets();
+
+            Promise.all(promises).then(() => {
+                Promise.resolve();
+            });
         },
 
         loadCustomFieldSets() {
             this.customFieldDataProviderService.getCustomFieldSets('product_stream').then((sets) => {
                 this.customFieldSets = sets;
+            });
+        },
+
+        loadProductTypes() {
+            this.productTypeService.fetchProductTypes().then((types) => {
+                this.productTypes = types;
             });
         },
 
@@ -245,8 +285,7 @@ export default {
                 const behavior = {
                     cloneChildren: true,
                     overwrites: {
-                        // eslint-disable-next-line max-len
-                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$tc('global.default.copy')}`,
+                        name: `${this.productStream.name || this.productStream.translated.name} ${this.$t('global.default.copy')}`,
                     },
                 };
 
@@ -266,7 +305,7 @@ export default {
                         this.isLoading = false;
 
                         this.createNotificationError({
-                            message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                            message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                         });
                     });
             });
@@ -310,7 +349,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
             });
         },
 
@@ -410,11 +449,76 @@ export default {
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
             return {
                 showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
             };
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
+        normalizeFilterCollection(filters) {
+            if (Array.isArray(filters)) {
+                return filters.filter(Boolean);
+            }
+
+            if (typeof filters.toArray === 'function') {
+                return filters.toArray();
+            }
+
+            if (typeof filters.map === 'function') {
+                return filters.map((filter) => filter);
+            }
+
+            if (typeof filters[Symbol.iterator] === 'function') {
+                return [...filters];
+            }
+
+            return [];
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
+        hasProductStatesFilter(filters) {
+            return this.normalizeFilterCollection(filters).some((condition) => {
+                if (!condition) {
+                    return false;
+                }
+
+                if (this.isDeprecatedProductStatesField(condition.field)) {
+                    return true;
+                }
+
+                if (condition.queries && this.hasProductStatesFilter(condition.queries)) {
+                    return true;
+                }
+
+                if (condition.children && this.hasProductStatesFilter(condition.children)) {
+                    return true;
+                }
+
+                return false;
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed since product states filter is no longer supported.
+         *
+         * @internal
+         */
+        isDeprecatedProductStatesField(field) {
+            if (!field || typeof field !== 'string') {
+                return false;
+            }
+
+            return field === 'states' || field === 'product.states';
         },
     },
 };

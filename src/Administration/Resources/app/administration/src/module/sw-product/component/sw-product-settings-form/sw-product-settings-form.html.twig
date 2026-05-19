@@ -3,25 +3,29 @@
     {% block sw_product_settings_form_content %}
     <sw-container
         columns="1fr 1fr 1fr"
-        gap="0px 30px"
+        gap="0 var(--scale-size-30)"
     >
         {% block sw_product_settings_form_release_date_field %}
         <sw-inherit-wrapper
             v-model:value="product.releaseDate"
+            class="sw-product-settings-form__release-date"
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.releaseDate"
+            :label="$t('sw-product.settingsForm.labelReleaseDate')"
         >
             <template #content="props">
 
-                <sw-datepicker
-                    :map-inheritance="props"
+                <mt-datepicker
                     date-type="datetime"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :disabled="props.isInherited || !allowEdit"
                     :error="productReleaseDateError"
-                    :label="$tc('sw-product.settingsForm.labelReleaseDate')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
-                    :value="props.currentValue"
-                    @update:value="props.updateCurrentValue"
+                    :placeholder="$t('sw-product.settingsForm.placeholderReleaseDate')"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -37,13 +41,16 @@
             <template #content="props">
 
                 <mt-text-field
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productEanError"
-                    :label="$tc('sw-product.settingsForm.labelEan')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
+                    :label="$t('sw-product.settingsForm.labelEan')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderEan')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>
@@ -59,13 +66,16 @@
             <template #content="props">
 
                 <mt-text-field
-                    :map-inheritance="props"
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
                     :error="productManufacturerNumberError"
-                    :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
-                    :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
+                    :label="$t('sw-product.settingsForm.labelManufacturerNumber')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderManufacturerNumber')"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"
                     @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
                 />
 
             </template>

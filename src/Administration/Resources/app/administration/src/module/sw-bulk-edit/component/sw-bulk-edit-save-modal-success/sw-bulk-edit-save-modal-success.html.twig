@@ -6,7 +6,7 @@
         appearance="pill"
         variant="success"
     >
-        <sw-icon
+        <mt-icon
             name="regular-check-circle"
             size="30px"
         />
@@ -38,10 +38,11 @@
             <mt-button
                 class="action"
                 size="small"
-                :disabled="document[selectedDocumentType.technicalName].isDownloading"
+                :disabled="document[selectedDocumentType.technicalName]?.isDownloading ?? false"
+                variant="secondary"
                 @click="downloadDocument(selectedDocumentType.technicalName)"
             >
-                {{ $tc('sw-bulk-edit.modal.success.buttonDownload') }}
+                {{ $t('sw-bulk-edit.modal.success.buttonDownload') }}
             </mt-button>
         </li>
     </ul>

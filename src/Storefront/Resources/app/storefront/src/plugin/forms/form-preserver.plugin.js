@@ -1,5 +1,4 @@
 import Debouncer from 'src/helper/debouncer.helper';
-import DomAccess from 'src/helper/dom-access.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 import Storage from 'src/helper/storage/storage.helper';
 
@@ -19,6 +18,7 @@ export default class FormPreserverPlugin extends Plugin {
         /**
          * Indicates whether to throw an error if no form elements are found or not
          *
+         * @deprecated tag:v6.8.0 - Option becomes obsolete.
          * @type boolean
          */
         strictMode: false,
@@ -31,8 +31,15 @@ export default class FormPreserverPlugin extends Plugin {
         ignoredElementTypes: ['button', 'file', 'hidden', 'image', 'password', 'reset', 'submit'],
 
         /**
+         * Form element names which should not be considered for preserving
+         *
+         * @type Array
+         */
+        ignoredElementNames: [],
+
+        /**
          * Form element types which should be preserved with a delay once the input event is triggered.
-         * Other types are preserved on the change event immediately. By default these types are:
+         * Other types are preserved on the change event immediately. By default, these types are:
          * ['checkbox', 'color', 'radio', 'select-one', 'select-multiple']
          *
          * @type Array
@@ -62,7 +69,7 @@ export default class FormPreserverPlugin extends Plugin {
      */
     _prepareElements() {
         let formElements = this.el.elements;
-        const outSideFormElements = DomAccess.querySelectorAll(document, `:not(form) > [form="${this.el.id}"]`, this.options.strictMode);
+        const outSideFormElements = document.querySelectorAll(`:not(form) > [form="${this.el.id}"]`);
 
         formElements = Array.from(formElements);
         this.formElements = formElements.concat(Array.from(outSideFormElements));
@@ -70,6 +77,10 @@ export default class FormPreserverPlugin extends Plugin {
         this.formElements.forEach((formElement) => {
             const elementType = formElement.type;
             if (this.options.ignoredElementTypes.includes(elementType)) {
+                return;
+            }
+
+            if (this.options.ignoredElementNames.includes(formElement.name)) {
                 return;
             }
 
@@ -201,7 +212,7 @@ export default class FormPreserverPlugin extends Plugin {
         }
 
         const values = Array.from(selectedOptions).map(
-            selectedOption => selectedOption.value
+            selectedOption => selectedOption.value,
         );
         this.storage.setItem(key, values);
     }

@@ -14,9 +14,6 @@ async function createWrapper() {
                 element: {},
             },
             global: {
-                stubs: {
-                    'sw-icon': true,
-                },
                 provide: {
                     cmsService: {
                         getCmsElementRegistry: () => ({
@@ -34,12 +31,6 @@ describe('src/module/sw-cms/elements/sidebar-filter/component', () => {
         Shopware.Store.register({
             id: 'cmsPage',
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('set a is--disabled class to wrapper', async () => {

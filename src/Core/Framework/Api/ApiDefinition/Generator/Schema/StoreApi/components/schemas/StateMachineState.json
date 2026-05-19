@@ -1,0 +1,12 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "StateMachineState": {
+                "required": ["translated"]
+            }
+        }
+    }
+}

@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Services;
 
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,6 +31,7 @@ use Shopware\Core\Framework\Store\Struct\VariantCollection;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Framework\ThemeInterface;
+use Shopware\Storefront\Theme\ThemeCollection;
 use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
@@ -46,6 +48,11 @@ class ExtensionLoader
      */
     private ?array $installedThemeNames = null;
 
+    /**
+     * @param ?EntityRepository<ThemeCollection> $themeRepository
+     *
+     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
+     */
     public function __construct(
         private readonly ?EntityRepository $themeRepository,
         private readonly AppLoader $appLoader,
@@ -53,7 +60,8 @@ class ExtensionLoader
         private readonly ConfigurationService $configurationService,
         private readonly LocaleProvider $localeProvider,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly InAppPurchase $inAppPurchase
+        private readonly InAppPurchase $inAppPurchase,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -126,9 +134,16 @@ class ExtensionLoader
     {
         $extensions = new ExtensionCollection();
 
-        foreach ($collection as $app) {
-            $plugin = $this->loadFromPlugin($context, $app);
-            $extensions->set($plugin->getName(), $plugin);
+        foreach ($collection as $plugin) {
+            try {
+                $extension = $this->loadFromPlugin($context, $plugin);
+                $extensions->set($extension->getName(), $extension);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to load plugin extension data', [
+                    'plugin' => $plugin->getName(),
+                    'exception' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $extensions;
@@ -142,7 +157,7 @@ class ExtensionLoader
 
         $id = $this->getLocalesCodesFromLanguageIds([$languageId]);
 
-        if (empty($id)) {
+        if ($id === []) {
             return null;
         }
 
@@ -166,10 +181,12 @@ class ExtensionLoader
     {
         $isTheme = false;
 
+        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if (interface_exists(ThemeInterface::class) && class_exists($plugin->getBaseClass())) {
             $implementedInterfaces = class_implements($plugin->getBaseClass());
 
             if (\is_array($implementedInterfaces)) {
+                /** @phpstan-ignore phpat.restrictNamespacesInCore */
                 $isTheme = \array_key_exists(ThemeInterface::class, $implementedInterfaces);
             }
         }
@@ -191,6 +208,7 @@ class ExtensionLoader
             'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
+            'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
@@ -246,10 +264,14 @@ class ExtensionLoader
                 'installedAt' => null,
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
+                'allowUpdate' => !$app->isManagedByComposer(),
+                'managedByComposer' => $app->isManagedByComposer(),
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
                 'privacyPolicyLink' => $app->getMetadata()->getPrivacy(),
                 'inAppPurchases' => $this->inAppPurchase->getByExtension($app->getMetadata()->getName()),
+                'permissions' => Utils::makePermissions($app->getPermissions()?->asParsedPrivileges() ?? []),
+                'requestedPermissions' => [],
             ];
 
             $collection->set($name, $this->loadFromArray($context, $row, $language));
@@ -286,7 +308,8 @@ class ExtensionLoader
             'privacyPolicyLink' => $app->getPrivacy(),
             'iconRaw' => $app->getIcon(),
             'installedAt' => $app->getCreatedAt(),
-            'permissions' => $app->getAclRole() !== null ? $this->makePermissionArray($app->getAclRole()->getPrivileges()) : [],
+            'permissions' => $app->getAclRole() !== null ? Utils::makePermissions($app->getAclRole()->getPrivileges()) : [],
+            'requestedPermissions' => Utils::makePermissions($app->getRequestedPrivileges()),
             'active' => $app->isActive(),
             'languages' => [],
             'type' => ExtensionStruct::EXTENSION_TYPE_APP,
@@ -321,6 +344,7 @@ class ExtensionLoader
             'images' => ImageCollection::class,
             'categories' => StoreCategoryCollection::class,
             'permissions' => PermissionCollection::class,
+            'requestedPermissions' => PermissionCollection::class,
         ];
 
         foreach ($replacements as $key => $collectionClass) {
@@ -328,33 +352,6 @@ class ExtensionLoader
         }
 
         return $data;
-    }
-
-    /**
-     * @param array<string> $appPrivileges
-     *
-     * @return array<array<string, string>>
-     */
-    private function makePermissionArray(array $appPrivileges): array
-    {
-        $permissions = [];
-
-        foreach ($appPrivileges as $privilege) {
-            if (substr_count($privilege, ':') === 1) {
-                $entityAndOperation = explode(':', $privilege);
-                if (\array_key_exists($entityAndOperation[1], AclRoleDefinition::PRIVILEGE_DEPENDENCE)) {
-                    /** @var array<string, string> $permission */
-                    $permission = array_combine(['entity', 'operation'], $entityAndOperation);
-                    $permissions[] = $permission;
-
-                    continue;
-                }
-            }
-
-            $permissions[] = ['operation' => $privilege, 'entity' => 'additional_privileges'];
-        }
-
-        return $permissions;
     }
 
     /**

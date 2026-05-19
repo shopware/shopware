@@ -11,7 +11,7 @@ import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 export {};
 
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
  * @private
@@ -115,10 +115,22 @@ export default Shopware.Mixin.register(
             }
         },
 
+        beforeRouteLeave(to) {
+            const targetRouteName = typeof to !== 'string' && 'name' in to ? to.name : undefined;
+
+            // Routes from the `sw-bulk-edit` module are generated under `sw.bulk.edit.*`.
+            if (typeof targetRouteName === 'string' && targetRouteName.startsWith('sw.bulk.edit.')) {
+                return;
+            }
+
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+            Shopware.Store.get('swBulkEdit').selectedIds = [];
+        },
+
         watch: {
             // Watch for changes in query parameters and update listing
             $route(newRoute, oldRoute) {
-                if (this.disableRouteParams || this.previousRouteName !== newRoute.name) {
+                if (this.disableRouteParams || oldRoute.name !== newRoute.name) {
                     return;
                 }
 
@@ -146,6 +158,7 @@ export default Shopware.Mixin.register(
 
             selection() {
                 Shopware.Store.get('shopwareApps').selectedIds = Object.keys(this.selection);
+                Shopware.Store.get('swBulkEdit').selectedIds = Object.keys(this.selection);
             },
 
             term(newValue) {
@@ -348,7 +361,7 @@ export default Shopware.Mixin.register(
             },
 
             isValidTerm(term: string) {
-                return term && term.trim().length > 1;
+                return this.searchRankingService.isValidTerm(term);
             },
 
             async addQueryScores(term: string, originalCriteria: Criteria) {
@@ -379,6 +392,28 @@ export default Shopware.Mixin.register(
                         // @ts-expect-error
                         query[key] = false;
                     }
+                });
+            },
+
+            /**
+             * Update filter criteria and reset pagination to page 1.
+             * This method is called when filters are changed via sw-sidebar-filter-panel.
+             *
+             * @param {Array} criteria - The new filter criteria
+             */
+            updateCriteria(criteria: any[]) {
+                this.page = 1;
+
+                // @ts-expect-error - filterCriteria is defined in base component
+                this.filterCriteria = criteria;
+
+                if (this.disableRouteParams) {
+                    this.getList();
+                    return;
+                }
+
+                this.updateRoute({
+                    page: 1,
                 });
             },
         },

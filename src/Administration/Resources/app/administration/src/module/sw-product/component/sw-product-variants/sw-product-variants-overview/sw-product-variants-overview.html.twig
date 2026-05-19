@@ -6,8 +6,8 @@
     <div class="sw-configuration-option-list__toolbar">
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px)"
-            gap="0 10px"
+            columns="1fr minmax(min-content, max-content) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20))) minmax(min-content, calc(var(--scale-size-160) + var(--scale-size-20)))"
+            gap="0 var(--scale-size-10)"
         >
 
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
@@ -23,9 +23,15 @@
             <div class="sw-product-variants-overview__filter-list-button">
 
                 {% block sw_product_variants_overview_option_list_toolbar_container_filter_list_button %}
-                <mt-button @click="filterWindowOpen = !filterWindowOpen">
-                    {{ $tc('sw-product.variations.generatedFilterList') }}
-                    <sw-icon name="regular-filter" />
+                <mt-button
+                    variant="secondary"
+                    @click="filterWindowOpen = !filterWindowOpen"
+                >
+                    {{ $t('sw-product.variations.generatedFilterList') }}
+                    <mt-icon
+                        name="regular-filter"
+                        size="var(--scale-size-12)"
+                    />
                 </mt-button>
                 {% endblock %}
 
@@ -33,7 +39,7 @@
                 <sw-context-menu v-show="filterWindowOpen">
                     <sw-container
                         columns="1fr"
-                        gap="5px"
+                        gap="var(--scale-size-6)"
                     >
 
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_tree %}
@@ -63,8 +69,11 @@
                         {% block sw_product_variants_overview_option_list_toolbar_container_filter_buttons %}
                         <div class="sw-product-variants-overview__filter-buttons">
                             {% block sw_product_variants_overview_option_list_toolbar_container_button_filter_reset %}
-                            <mt-button @click="resetFilterOptions()">
-                                {{ $tc('sw-product.variations.overview.filterReset') }}
+                            <mt-button
+                                variant="secondary"
+                                @click="resetFilterOptions()"
+                            >
+                                {{ $t('sw-product.variations.overview.filterReset') }}
                             </mt-button>
                             {% endblock %}
 
@@ -73,7 +82,7 @@
                                 variant="primary"
                                 @click="getList()"
                             >
-                                {{ $tc('sw-product.variations.overview.filter') }}
+                                {{ $t('sw-product.variations.overview.filter') }}
                             </mt-button>
                             {% endblock %}
                         </div>
@@ -88,25 +97,25 @@
             {% block sw_product_variants_overview_option_list_toolbar_buttons %}
             <mt-button
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.creator'),
                     showOnDisabledElements: true
                 }"
-                ghost
                 :disabled="!acl.can('product.creator')"
                 class="sw-product-variants__generate-action"
+                variant="primary"
                 @click="$emit('generator-open')"
             >
-                {{ $tc('sw-product.variations.overview.generateVariants') }}
+                {{ $t('sw-product.variations.overview.generateVariants') }}
             </mt-button>
 
             <mt-button
-                ghost
                 class="sw-product-variants__configure-storefront-action"
                 :disabled="!acl.can('product.editor')"
+                variant="primary"
                 @click="$emit('delivery-open')"
             >
-                {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
+                {{ $t('sw-product.variations.overview.storefrontDelivery') }}
             </mt-button>
             {% endblock %}
 
@@ -146,7 +155,7 @@
                     @click="onOptionEdit(item)"
                 >
 
-                    <sw-icon name="regular-link-xs" />
+                    <mt-icon name="regular-link-xs" />
 
                     <span
                         v-for="(singleVariation, index) in item.options"
@@ -162,7 +171,7 @@
                 v-if="variantIsDigital(item)"
                 class="sw-product-variants-overview__digital-indicator"
             >
-                {{ $tc('sw-product.variations.generatedListColumnContentProductState.is-download') }}
+                {{ $t('sw-product.variations.generatedListColumnContentProductState.is-download') }}
             </sw-label>
         </template>
         {% endblock %}
@@ -230,9 +239,10 @@
             #column-stock="{ item, isInlineEdit, compact }"
         >
             {% block sw_product_variants_overview_data_grid_column_stock_inline_edit_field %}
-            <sw-number-field
+            <mt-number-field
                 v-if="isInlineEdit && (!variantIsDigital(item) || item.isCloseout === true)"
-                v-model:value="item.stock"
+                v-model="item.stock"
+                number-type="int"
                 :size="compact ? 'small' : 'default'"
             />
             {% endblock %}
@@ -311,7 +321,7 @@
                 add-files-on-multiselect
                 :disable-deletion-for-last-item="{
                     value: true,
-                    helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                    helpText: $t('sw-product.list.columnDownloadsTooltip')
                 }"
                 :source-multiselect="getDownloadsSource(item)"
                 :target-folder-id="productDownloadFolderId"
@@ -340,23 +350,23 @@
             </template>
 
             <template v-else>
-                <sw-icon
+                <mt-icon
                     v-if="item.active === true"
                     name="regular-checkmark-xs"
-                    size="12px"
+                    size="var(--scale-size-12)"
                     class="is--active"
                 />
-                <sw-icon
+                <mt-icon
                     v-else-if="item.active === false"
                     name="regular-times-s"
-                    size="10px"
+                    size="var(--scale-size-10)"
                     class="is--inactive"
                 />
-                <sw-icon
+                <mt-icon
                     v-else
                     key="inherit-icon"
                     name="regular-link-horizontal"
-                    size="16px"
+                    size="var(--scale-size-16)"
                 />
             </template>
         </template>
@@ -369,19 +379,19 @@
             {% block sw_product_variants_overview_actions_items %}
             <sw-context-menu-item
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.editor'),
                     showOnDisabledElements: true
                 }"
                 :disabled="!acl.can('product.editor')"
                 @click="onOptionEdit(item)"
             >
-                {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
+                {{ $t('sw-product.variations.generatedListContextMenuEdit') }}
             </sw-context-menu-item>
 
             <sw-context-menu-item
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('product.deleter'),
                     showOnDisabledElements: true
                 }"
@@ -389,7 +399,7 @@
                 :disabled="!acl.can('product.deleter')"
                 @click="onVariationDelete(item)"
             >
-                {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
+                {{ $t('sw-product.variations.generatedListContextMenuDelete') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>
@@ -417,7 +427,7 @@
                 tabindex="0"
                 @click="toggleBulkEditModal"
             >
-                {{ $tc('global.default.bulkEdit') }}
+                {{ $t('global.default.bulkEdit') }}
             </span>
             {% endblock %}
 
@@ -429,7 +439,7 @@
                 tabindex="0"
                 @click="onClickBulkDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $t('global.default.delete') }}
             </span>
             {% endblock %}
         </template>
@@ -453,7 +463,7 @@
                             :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
                             @click="onOptionEdit(item)"
                         >
-                            <sw-icon
+                            <mt-icon
                                 class="sw-product-variants-overview__variation-link-icon"
                                 name="regular-link-xs"
                             />
@@ -522,7 +532,7 @@
                         allow-multi-select
                         :disable-deletion-for-last-item="{
                             value: true,
-                            helpText: $tc('sw-product.list.columnDownloadsTooltip')
+                            helpText: $t('sw-product.list.columnDownloadsTooltip')
                         }"
                         :add-files-on-multiselect="true"
                         :source-multiselect="getDownloadsSource(item)"
@@ -534,19 +544,19 @@
 
                 {% block sw_product_variants_overview_bulk_edit_modal_column_active %}
                 <template #column-active="{ item }">
-                    <sw-icon
+                    <mt-icon
                         v-if="item.active === true"
                         class="is--active"
                         name="regular-checkmark-xs"
-                        small
+                        size="var(--scale-size-16)"
                     />
-                    <sw-icon
+                    <mt-icon
                         v-else-if="item.active === false"
                         class="is--inactive"
                         name="regular-times-s"
-                        small
+                        size="var(--scale-size-16)"
                     />
-                    <sw-icon
+                    <mt-icon
                         v-else
                         key="inherit-icon"
                         name="regular-link-horizontal"
@@ -565,7 +575,7 @@
     <sw-modal
         v-if="showDeleteModal"
         class="sw-product-variants-overview__delete-modal"
-        :title="$tc('global.default.warning')"
+        :title="$t('global.default.warning')"
         variant="small"
         @modal-close="onCloseDeleteModal"
     >
@@ -573,7 +583,7 @@
         <p
             class="sw-product-variants-overview__modal--confirm-delete-text"
         >
-            {{ toBeDeletedVariantIds.length > 1 ? $tc('sw-product.variations.generatedListDeleteModalMessagePlural') : $tc('sw-product.variations.generatedListDeleteModalMessage') }}
+            {{ toBeDeletedVariantIds.length > 1 ? $t('sw-product.variations.generatedListDeleteModalMessagePlural') : $t('sw-product.variations.generatedListDeleteModalMessage') }}
         </p>
 
         <template #modal-footer>
@@ -582,9 +592,10 @@
                 class="sw-product-variants-overview__modal--cancel-button"
                 size="small"
                 :disabled="modalLoading"
+                variant="secondary"
                 @click="onCloseDeleteModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             <mt-button
                 variant="critical"
@@ -592,7 +603,7 @@
                 :disabled="modalLoading"
                 @click="onConfirmDelete"
             >
-                {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
+                {{ $t('sw-product.variations.generatedListDeleteModalButtonDelete') }}
             </mt-button>
             {% endblock %}
         </template>

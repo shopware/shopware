@@ -44,7 +44,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                         'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
                             sync: true,
                         }),
-                        'sw-icon': true,
                         'sw-textarea-field': {
                             template: '<textarea></textarea>',
                         },

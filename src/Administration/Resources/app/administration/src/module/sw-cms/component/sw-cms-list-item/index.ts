@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-list-item.html.twig';
 import './sw-cms-list-item.scss';
 
@@ -74,11 +73,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         defaultLayoutAsset() {
-            return `url(${this.assetFilter(`administration/static/img/cms/default_preview_${this.page.type}.jpg`)})`;
+            return `url(${this.assetFilter(
+                `administration/administration/static/img/cms/default_preview_${this.page.type}.webp`,
+            )})`;
         },
 
         defaultItemLayoutAssetBackground() {
-            const path = 'administration/static/img/cms';
+            const path = 'administration/administration/static/img/cms';
 
             if (this.page.sections!.length < 1) {
                 return null;

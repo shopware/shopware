@@ -3,16 +3,16 @@
 namespace Shopware\Core\Framework\Test\Filesystem\Adapter;
 
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 
 /**
  * @internal
  */
-class MemoryAdapterFactory implements AdapterFactoryInterface
+final class MemoryAdapterFactory implements AdapterFactoryInterface
 {
     /**
-     * @var MemoryFilesystemAdapter[]
+     * @var list<InMemoryFilesystemAdapter>
      */
     private static ?array $instances = null;
 
@@ -37,7 +37,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
 
     public function create(array $config): FilesystemAdapter
     {
-        $adapter = new MemoryFilesystemAdapter();
+        $adapter = new InMemoryFilesystemAdapter();
         static::addAdapter($adapter);
 
         return $adapter;
@@ -48,7 +48,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
         return 'memory';
     }
 
-    private static function addAdapter(MemoryFilesystemAdapter $adapter): void
+    private static function addAdapter(InMemoryFilesystemAdapter $adapter): void
     {
         if (!static::$instances) {
             static::$instances = [];

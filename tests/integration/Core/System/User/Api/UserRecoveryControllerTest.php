@@ -42,7 +42,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testUpdateUserPasswordWithInvalidHash(): void
@@ -59,7 +59,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testCreateUserRecovery(): void
@@ -77,7 +77,7 @@ class UserRecoveryControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             UserRecoveryRequestEvent::EVENT_NAME,
-            function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
+            static function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             },
         );
@@ -89,7 +89,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $criteria = new Criteria();
         $criteria->setLimit(1);

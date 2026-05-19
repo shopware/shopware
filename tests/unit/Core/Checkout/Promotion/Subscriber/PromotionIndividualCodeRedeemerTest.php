@@ -54,8 +54,8 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
     public function testOnOrderCreateWithOtherLineItem(): void
     {
         $codeRepository = $this->createMock(EntityRepository::class);
-        $codeRepository->expects(static::never())->method('search');
-        $codeRepository->expects(static::never())->method('searchIds');
+        $codeRepository->expects($this->never())->method('search');
+        $codeRepository->expects($this->never())->method('searchIds');
         $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, $this->createMock(EntityRepository::class));
 
         $customer = new OrderCustomerEntity();
@@ -133,7 +133,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $order->setLineItems(new OrderLineItemCollection([$lineItem1, $lineItem2]));
         $order->setOrderCustomer($customer);
 
-        $orderRepository->expects(static::once())->method('search')->willReturn(
+        $orderRepository->expects($this->once())->method('search')->willReturn(
             new EntitySearchResult('order_customer', 1, new OrderCustomerCollection([$customer]), null, new Criteria(), $context),
         );
 

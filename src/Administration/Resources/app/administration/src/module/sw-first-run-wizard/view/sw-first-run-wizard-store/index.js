@@ -41,9 +41,9 @@ export default {
         buttonConfig() {
             const backButton = {
                 key: 'back',
-                label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                label: this.$t('sw-first-run-wizard.general.buttonBack'),
                 position: 'left',
-                variant: null,
+                variant: 'secondary',
                 action: 'sw.first.run.wizard.index.shopware.account',
                 disabled: this.isActivating || this.loadStatus,
             };
@@ -53,7 +53,7 @@ export default {
                     backButton,
                     {
                         key: 'next',
-                        label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                        label: this.$t('sw-first-run-wizard.general.buttonNext'),
                         position: 'right',
                         variant: 'primary',
                         action: 'sw.first.run.wizard.index.finish',
@@ -66,15 +66,15 @@ export default {
                 backButton,
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
-                    variant: null,
+                    variant: 'secondary',
                     action: 'sw.first.run.wizard.index.finish',
                     disabled: this.isActivating || this.loadStatus,
                 },
                 {
                     key: 'activate',
-                    label: this.$tc('sw-first-run-wizard.general.buttonActivate'),
+                    label: this.$t('sw-first-run-wizard.general.buttonActivate'),
                     position: 'right',
                     variant: 'primary',
                     action: this.activateStore.bind(this),
@@ -109,7 +109,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.store.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.store.modalTitle'));
         },
 
         async updateExtensionStatus() {

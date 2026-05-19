@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -33,6 +34,9 @@ class CustomerTokenSubscriberTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
@@ -87,7 +91,7 @@ class CustomerTokenSubscriberTest extends TestCase
 
         $newToken = null;
 
-        $context->method('assign')->withAnyParameters()->willReturnCallback(function ($array) use ($context, &$newToken) {
+        $context->method('assign')->withAnyParameters()->willReturnCallback(static function ($array) use ($context, &$newToken) {
             $newToken = $array['token'];
 
             return $context;

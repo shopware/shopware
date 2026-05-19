@@ -14,7 +14,7 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $tc: (key, value) => {
+                    $t: (key, value) => {
                         if (!value) {
                             return key;
                         }
@@ -29,7 +29,6 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal'),
-                    'sw-icon': true,
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -111,7 +110,6 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toBe(
-            // eslint-disable-next-line max-len
             'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label"}',
         );
     });
@@ -130,7 +128,6 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const title = wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toBe(
-            // eslint-disable-next-line max-len
             'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label, sw-cms.elements.crossSelling.label"}',
         );
     });

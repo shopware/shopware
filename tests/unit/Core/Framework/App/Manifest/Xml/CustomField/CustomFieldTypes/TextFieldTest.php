@@ -26,13 +26,40 @@ class TextFieldTest extends TestCase
 
         $textField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(TextField::class, $textField);
-        static::assertEquals('test_text_field', $textField->getName());
-        static::assertEquals([
+        static::assertSame('test_text_field', $textField->getName());
+        static::assertSame([
             'en-GB' => 'Test text field',
         ], $textField->getLabel());
-        static::assertEquals([], $textField->getHelpText());
-        static::assertEquals(1, $textField->getPosition());
-        static::assertEquals(['en-GB' => 'Enter a text...'], $textField->getPlaceholder());
+        static::assertSame([], $textField->getHelpText());
+        static::assertSame(1, $textField->getPosition());
+        static::assertSame(['en-GB' => 'Enter a text...'], $textField->getPlaceholder());
         static::assertFalse($textField->getRequired());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/text-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $textField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(TextField::class, $textField);
+
+        static::assertEquals([
+            'name' => 'test_text_field',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test text field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'type' => 'text',
+                'placeholder' => [
+                    'en-GB' => 'Enter a text...',
+                ],
+                'componentName' => 'sw-field',
+                'customFieldType' => 'text',
+            ],
+        ], $textField->toEntityPayload());
     }
 }

@@ -1,7 +1,6 @@
 import template from './sw-language-info.html.twig';
 import './sw-language-info.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -18,7 +17,7 @@ const { warn } = Shopware.Utils.debug;
  * </sw-language-info>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-language-info', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -37,7 +36,6 @@ Component.register('sw-language-info', {
         changeLanguageOnParentClick: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -72,7 +70,7 @@ Component.register('sw-language-info', {
         infoText() {
             // Actual language is system default, because we are creating a new entity
             if (this.isNewEntity) {
-                return this.$tc(
+                return this.$t(
                     'sw-language-info.infoTextNewEntity',
                     {
                         entityDescription: this.entityDescription,
@@ -87,7 +85,7 @@ Component.register('sw-language-info', {
 
             // Actual language is a child language with the root language as fallback
             if (this.language.parentId !== null && this.language.parentId.length > 0) {
-                return this.$tc(
+                return this.$t(
                     'sw-language-info.infoTextChildLanguage',
                     {
                         entityDescription: this.entityDescription,
@@ -103,7 +101,7 @@ Component.register('sw-language-info', {
             }
 
             // Actual language is a root language with the system default language as fallback
-            return this.$tc(
+            return this.$t(
                 'sw-language-info.infoTextRootLanguage',
                 {
                     entityDescription: this.entityDescription,
@@ -150,4 +148,4 @@ Component.register('sw-language-info', {
             Shopware.Utils.EventBus.emit('on-change-language-clicked', this.parentLanguage.id);
         },
     },
-});
+};

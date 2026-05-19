@@ -1,12 +1,9 @@
 // The eslint import resolver vite does not support shared worker imports
-/* eslint-disable import/no-unresolved */
 import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker?sharedworker';
 import AdminWorker from 'src/core/worker/admin-worker.worker?worker';
-/* eslint-enable import/no-unresolved */
 
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
-import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
@@ -29,10 +26,12 @@ let enabledNotification = false;
 export default function initializeWorker() {
     const loginService = Shopware.Service('loginService');
     const context = Shopware.Context.app;
-    const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
     const configService = Shopware.Service('configService');
 
-    registerThumbnailMiddleware(workerNotificationFactory);
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        const workerNotificationFactory = Shopware.Application.getContainer('factory').workerNotification;
+        registerThumbnailMiddleware(workerNotificationFactory);
+    }
 
     function getConfig() {
         return configService.getConfig().then((response) => {
@@ -48,8 +47,9 @@ export default function initializeWorker() {
                 },
             );
 
-            // Enable worker notification listener regardless of the config
-            enableWorkerNotificationListener(loginService, Shopware.Context.api);
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                enableWorkerNotificationListener(loginService, Shopware.Context.api);
+            }
 
             // Enable worker notification listener regardless of the config
             if (!enabledNotification) {
@@ -74,7 +74,7 @@ function enableAdminWorker(
     context: ApiContext,
     config: ContextStore['app']['config']['adminWorker'],
 ) {
-    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
     const getMessage = () => {
@@ -152,16 +152,17 @@ function getWorker(): SharedWorker {
             return;
         }
 
-        const tokenHandler = getRefreshTokenHelper();
+        const loginService = Shopware.Service('loginService');
 
-        if (!tokenHandler.isRefreshing) {
-            void tokenHandler.fireRefreshTokenRequest();
-        }
+        void loginService.refreshToken();
     };
 
     return worker;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function enableWorkerNotificationListener(loginService: LoginService, context: ContextStore['api']) {
     let workerNotificationListener = new WorkerNotificationListener(context);
 
@@ -202,6 +203,9 @@ function enableNotificationWorker(loginService: LoginService) {
     enabledNotification = true;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) {
     const ids = {};
     factory.register('DalIndexingMessage', {
@@ -434,6 +438,9 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
     return true;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Function will be removed. The increment-based message queue statistics are deprecated.
+ */
 function messageQueueNotification(
     key: string,
     ids: {
@@ -467,8 +474,8 @@ function messageQueueNotification(
     }
 
     const config: NotificationType = {
-        title: $root.$tc(messages.title),
-        message: $root.$tc(messages.message, entry.size),
+        title: $root.$t(messages.title),
+        message: $root.$t(messages.message, entry.size),
         variant: 'info',
         metadata: {
             size: entry.size,
@@ -477,17 +484,17 @@ function messageQueueNotification(
         isLoading: true,
     };
 
-    // Create new notification
+    // Create a new notification
     if (entry.size && notificationId === null) {
-        void notification.create(config).then((uuid) => {
-            notificationId = uuid;
+        notificationId = notification.create(config);
 
-            ids[key] = {
-                notificationId,
-                didSendForegroundMessage: false,
-            };
-        });
+        ids[key] = {
+            notificationId,
+            didSendForegroundMessage: false,
+        };
         next();
+
+        return;
     }
 
     // Update existing notification
@@ -495,7 +502,7 @@ function messageQueueNotification(
         config.uuid = notificationId;
 
         if (entry.size === 0) {
-            config.title = $root.$tc(messages.title);
+            config.title = $root.$t(messages.title);
             config.message = $root.$t(messages.success);
             config.isLoading = false;
 
@@ -506,7 +513,7 @@ function messageQueueNotification(
                 delete foreground.isLoading;
                 foreground.growl = true;
                 foreground.variant = 'positive';
-                void notification.create(foreground);
+                notification.create(foreground);
 
                 ids[key] = {
                     notificationId,
@@ -516,7 +523,7 @@ function messageQueueNotification(
 
             delete ids[key];
         }
-        void notification.update(config);
+        notification.update(config);
     }
     next();
 }

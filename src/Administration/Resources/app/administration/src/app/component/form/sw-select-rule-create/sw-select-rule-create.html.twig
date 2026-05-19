@@ -2,13 +2,13 @@
 <div class="sw-select-rule-create">
     <sw-entity-multi-select
         v-if="rules !== null"
+        v-bind="$attrs"
         v-model:entity-collection="collection"
         :criteria="ruleFilter"
-        v-bind="$attrs"
         advanced-selection-component="sw-advanced-selection-rule"
         :advanced-selection-parameters="getAdvancedSelectionParameters()"
+        @update:entity-collection="onUpdateCollection"
     >
-
         <template #before-item-list>
             {% block sw_select_rule_create_select_before %}
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -16,7 +16,7 @@
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
             >
-                {{ $tc('sw-select-rule-create.addNewRule') }}
+                {{ $t('sw-select-rule-create.addNewRule') }}
             </div>
             {% endblock %}
         </template>
@@ -44,6 +44,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>
@@ -62,6 +63,7 @@
         entity="rule"
         :criteria="ruleFilter"
         :value="ruleId"
+        :size="size"
         v-bind="$attrs"
         show-clearable-button
         advanced-selection-component="sw-advanced-selection-rule"
@@ -75,10 +77,11 @@
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
             >
-                {{ $tc('sw-select-rule-create.addNewRule') }}
+                {{ $t('sw-select-rule-create.addNewRule') }}
             </div>
             {% endblock %}
         </template>
+
         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
             {% block sw_select_rule_create_select_entity_select_result_list_item %}
             <slot
@@ -102,6 +105,7 @@
                             :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
                             :search-term="searchTerm"
                         />
+
                         <template v-else>
                             {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                         </template>

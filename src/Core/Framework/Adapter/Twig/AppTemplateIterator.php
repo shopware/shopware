@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -10,11 +12,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ *
+ * @implements \IteratorAggregate<int, string>
+ */
 #[Package('framework')]
 class AppTemplateIterator implements \IteratorAggregate
 {
     /**
      * @internal
+     *
+     * @param \IteratorAggregate<int, string> $templateIterator
+     * @param EntityRepository<TemplateCollection> $templateRepository
      */
     public function __construct(
         private readonly \IteratorAggregate $templateIterator,
@@ -34,6 +44,10 @@ class AppTemplateIterator implements \IteratorAggregate
      */
     private function getDatabaseTemplatePaths(): array
     {
+        if (MySQLFactory::hasNoDatabaseAvailable()) {
+            return [];
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', true));
         $criteria->addAggregation(

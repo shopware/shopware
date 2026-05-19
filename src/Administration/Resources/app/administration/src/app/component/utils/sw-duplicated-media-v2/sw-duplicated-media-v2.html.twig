@@ -2,13 +2,13 @@
 <sw-modal
     v-if="showModal"
     class="sw-duplicated-media-v2"
-    :title="$tc('global.sw-duplicated-media-v2.titleModal')"
+    :title="$t('global.sw-duplicated-media-v2.titleModal')"
     @modal-close="skipAll"
 >
     {% block sw_duplicated_media_v2_body %}
     {% block sw_duplicated_media_v2_body_description %}
     <p class="sw-duplicated-media-v2__description">
-        {{ $tc('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
+        {{ $t('global.sw-duplicated-media-v2.description', { fileName: `${currentTask.fileName}.${currentTask.extension}` }, 1) }}
     </p>
     {% endblock %}
 
@@ -23,7 +23,7 @@
         {% block sw_duplicated_media_v2_body_preview_label_old_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
-            {{ $tc('global.sw-duplicated-media-v2.labelNewFile') }}
+            {{ $t('global.sw-duplicated-media-v2.labelNewFile') }}
         </label>
         {%  endblock %}
 
@@ -32,7 +32,7 @@
         {% block sw_duplicated_media_v2_body_preview_label_new_file %}
         <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label class="sw-duplicated-media-v2__preview_label">
-            {{ $tc('global.sw-duplicated-media-v2.labelOldFile') }}
+            {{ $t('global.sw-duplicated-media-v2.labelOldFile') }}
         </label>
         {%  endblock %}
 
@@ -68,7 +68,7 @@
         {%  endblock %}
 
         {% block sw_duplicated_media_v2_body_preview_separator %}
-        <sw-icon
+        <mt-icon
             class="sw-duplicated-media-v2__preview-separator"
             name="regular-long-arrow-right"
         />
@@ -100,11 +100,11 @@
     {% block sw_duplicated_media_v2_footer %}
     <template #modal-footer>
         {% block sw_duplicated_media_v2_save_selection %}
-        <sw-checkbox-field
+        <mt-checkbox
             v-if="!isLoading && hasAdditionalErrors"
-            v-model:value="shouldSaveSelection"
+            v-model:checked="shouldSaveSelection"
             class="sw-duplicated-media-v2__additional-error-count"
-            :label="$tc('global.sw-duplicated-media-v2.labelSaveSelection', additionalErrorCount)"
+            :label="$t('global.sw-duplicated-media-v2.labelSaveSelection', { count: additionalErrorCount })"
         />
         {% endblock %}
 
@@ -112,9 +112,10 @@
         <mt-button
             size="small"
             :disabled="isLoading"
+            variant="secondary"
             @click="skipCurrentFile"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 

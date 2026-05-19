@@ -18,11 +18,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the deprecated tabs when major feature flag is disabled', async () => {
         global.activeFeatureFlags = [''];
 
@@ -33,7 +28,7 @@ describe('src/app/component/base/sw-tabs', () => {
     });
 
     it('should render the mt-tabs when major feature flag is enabled', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
+        global.activeFeatureFlags = ['V6_8_0_0'];
 
         const wrapper = await createWrapper();
 

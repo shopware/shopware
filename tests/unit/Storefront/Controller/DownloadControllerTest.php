@@ -39,7 +39,7 @@ class DownloadControllerTest extends TestCase
     {
         $containerBuilder = new ContainerBuilder();
         $router = $this->createMock(UrlGeneratorInterface::class);
-        $router->expects(static::once())
+        $router->expects($this->once())
             ->method('generate')
             ->with(
                 'frontend.account.order.single.page',
@@ -67,7 +67,7 @@ class DownloadControllerTest extends TestCase
         $this->downloadRouteMock->method('load')->willReturn(new Response());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects(static::once())->method('getCustomer')->willReturn(new CustomerEntity());
+        $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn(new CustomerEntity());
         $response = $this->controller->downloadFile(new Request(), $salesChannelContext);
 
         static::assertNotInstanceOf(RedirectResponse::class, $response);

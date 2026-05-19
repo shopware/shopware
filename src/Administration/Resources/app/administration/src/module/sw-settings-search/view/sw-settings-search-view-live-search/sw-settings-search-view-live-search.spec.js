@@ -55,7 +55,7 @@ async function createWrapper(privileges = []) {
                     'sw-button-process': true,
 
                     'sw-time-ago': true,
-                    'sw-progress-bar': true,
+                    'mt-progress-bar': true,
                 },
             },
         },
@@ -63,13 +63,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/view/sw-settings-search-view-live-search', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should return storefrontEsEnable value', async () => {
         Shopware.Context.app.storefrontEsEnable = true;
         const wrapper = await createWrapper();

@@ -12,10 +12,9 @@
             class="sw_sidebar__navigation-list"
             :class="`is--${index}`"
         >
-
             <li
                 v-for="item in section"
-                :key="item.id"
+                :key="`${item.id ?? item.title}-${resizeNavigationKey}`"
             >
                 {% block sw_sidebar_navigation_item %}
                 <sw-sidebar-navigation-item

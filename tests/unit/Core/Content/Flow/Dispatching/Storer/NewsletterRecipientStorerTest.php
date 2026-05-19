@@ -9,12 +9,11 @@ use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Content\Flow\Dispatching\Aware\NewsletterRecipientAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
-use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -27,15 +26,17 @@ class NewsletterRecipientStorerTest extends TestCase
 {
     private NewsletterRecipientStorer $storer;
 
-    private MockObject&EntityRepository $repository;
-
-    private MockObject&EventDispatcherInterface $dispatcher;
+    private NewsletterRecipientProvider&MockObject $newsletterRecipientProvider;
 
     protected function setUp(): void
     {
-        $this->repository = $this->createMock(EntityRepository::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->storer = new NewsletterRecipientStorer($this->repository, $this->dispatcher);
+        $this->newsletterRecipientProvider = $this->createMock(NewsletterRecipientProvider::class);
+
+        $this->storer = new NewsletterRecipientStorer(
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->newsletterRecipientProvider
+        );
     }
 
     public function testStoreWithAware(): void
@@ -77,26 +78,22 @@ class NewsletterRecipientStorerTest extends TestCase
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
         $this->storer->restore($storable);
         $entity = new NewsletterRecipientEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $entity->setId('id');
+        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn($entity);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
         $res = $storable->getData('newsletterRecipient');
-        static::assertEquals($res, $entity);
+        static::assertSame($res, $entity);
     }
 
     public function testLazyLoadNullEntity(): void
     {
         $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
         $this->storer->restore($storable);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
+        $this->newsletterRecipientProvider->expects($this->once())->method('getData')->willReturn(null);
 
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
         $res = $storable->getData('newsletterRecipient');
 
-        static::assertEquals($res, $entity);
+        static::assertNull($res);
     }
 
     public function testLazyLoadNullId(): void
@@ -106,20 +103,5 @@ class NewsletterRecipientStorerTest extends TestCase
         $customerGroup = $storable->getData('newsletterRecipient');
 
         static::assertNull($customerGroup);
-    }
-
-    public function testDispatchBeforeLoadStorableFlowDataEvent(): void
-    {
-        $this->dispatcher
-            ->expects(static::once())
-            ->method('dispatch')
-            ->with(
-                static::isInstanceOf(BeforeLoadStorableFlowDataEvent::class),
-                'flow.storer.newsletter_recipient.criteria.event'
-            );
-
-        $storable = new StorableFlow('name', Context::createDefaultContext(), ['newsletterRecipientId' => 'id'], []);
-        $this->storer->restore($storable);
-        $storable->getData('newsletterRecipient');
     }
 }

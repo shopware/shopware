@@ -54,8 +54,8 @@ class MediaFolderControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals(404, $response->getStatusCode());
-        static::assertEquals('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);
+        static::assertSame(404, $response->getStatusCode());
+        static::assertSame('CONTENT__MEDIA_FOLDER_NOT_FOUND', $responseData['errors'][0]['code']);
     }
 
     public function testDissolve(): void
@@ -87,7 +87,7 @@ class MediaFolderControllerTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
         static::assertEmpty($response->getContent());
 
         $folder = $this->mediaFolderRepo->search(new Criteria([$folderId]), $this->context)->get($folderId);

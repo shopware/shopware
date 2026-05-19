@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -37,7 +38,9 @@ class EntityExistsValidatorTest extends TestCase
         $context = Context::createDefaultContext();
 
         $constraint = new EntityExists(
-            ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME, 'criteria' => $criteria]
+            entity: LocaleDefinition::ENTITY_NAME,
+            context: $context,
+            criteria: $criteria
         );
 
         $validator->validate(Uuid::randomHex(), [$constraint]);
@@ -56,15 +59,17 @@ class EntityExistsValidatorTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'test' . $id1],
-                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'test' . $id2],
+                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'de-DE-' . $id1],
+                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'de-DE-' . $id2],
             ],
             $context
         );
 
         $validator = $this->getValidator();
+
         $constraint = new EntityExists(
-            ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME]
+            entity: LocaleDefinition::ENTITY_NAME,
+            context: $context,
         );
 
         $violations = $validator->validate($id1, $constraint);
@@ -90,8 +95,8 @@ class EntityExistsValidatorTest extends TestCase
 
         $repository->create(
             [
-                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'test' . $id1],
-                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'test' . $id2],
+                ['id' => $id1, 'name' => 'Test 1', 'territory' => 'test', 'code' => 'de-DE-' . $id1],
+                ['id' => $id2, 'name' => 'Test 2', 'territory' => 'test', 'code' => 'de-DE-' . $id2],
             ],
             $context
         );
@@ -99,13 +104,12 @@ class EntityExistsValidatorTest extends TestCase
         $validator = $this->getValidator();
 
         $constraint = new All(
-            [
-                'constraints' => [
-                    new EntityExists(
-                        ['context' => $context, 'entity' => LocaleDefinition::ENTITY_NAME]
-                    ),
-                ],
-            ]
+            constraints: [
+                new EntityExists(
+                    entity: LocaleDefinition::ENTITY_NAME,
+                    context: $context,
+                ),
+            ],
         );
 
         $violations = $validator->validate([$id1, $id2], [$constraint]);
@@ -119,11 +123,15 @@ class EntityExistsValidatorTest extends TestCase
         static::assertCount(1, $violations);
     }
 
+    /**
+     * @return EntityRepository<LocaleCollection>
+     */
     protected function createRepository(): EntityRepository
     {
         $definition = static::getContainer()->get(LocaleDefinition::class);
         static::assertInstanceOf(LocaleDefinition::class, $definition);
 
+        /** @var EntityRepository<LocaleCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

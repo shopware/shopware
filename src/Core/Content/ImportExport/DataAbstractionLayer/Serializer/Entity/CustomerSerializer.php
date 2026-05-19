@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('fundamentals@after-sales')]
@@ -18,6 +20,8 @@ class CustomerSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      * @param array<string, string|null> $cacheCustomerGroups
      * @param array<string, string|null> $cacheSalesChannels
      */

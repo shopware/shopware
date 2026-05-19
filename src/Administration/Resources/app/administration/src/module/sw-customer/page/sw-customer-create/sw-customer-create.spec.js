@@ -23,7 +23,6 @@ async function createWrapper({ customerRepositorySaveMock, languageRepositorySea
                 'sw-customer-base-form': true,
                 'sw-card-view': true,
                 'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-icon': true,
                 'sw-loader': true,
                 'router-link': true,
             },
@@ -220,7 +219,6 @@ describe('module/sw-customer/page/sw-customer-create', () => {
 
     it('should throw exception when the customer creation fails', async () => {
         const customerRepositorySaveMock = jest.fn(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {

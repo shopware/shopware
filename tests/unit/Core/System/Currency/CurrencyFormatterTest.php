@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -38,7 +37,7 @@ class CurrencyFormatterTest extends TestCase
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO): void
     {
-        $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
         $pattern = \sprintf('/\%s\d{%s}/', $expectedSeparator, (string) $decimalPlaces);
         $formattedPrice = $this->formatter->formatCurrencyByLanguage(
             $price,
@@ -57,7 +56,7 @@ class CurrencyFormatterTest extends TestCase
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillWriteCorrectCurrencySymbol(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
-        $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
+        $this->localeProvider->expects($this->once())->method('getLocaleForLanguageId')->willReturn($localeCode);
         $formattedPrice = $this->formatter->formatCurrencyByLanguage(
             $price,
             $currencyISO,
@@ -79,22 +78,20 @@ class CurrencyFormatterTest extends TestCase
     {
         $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
 
-        static::assertNotEmpty(ReflectionHelper::getPropertyValue($this->formatter, 'formatter'));
+        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
         $this->formatter->reset();
 
-        static::assertEmpty(ReflectionHelper::getPropertyValue($this->formatter, 'formatter'));
+        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
     }
 
     /**
-     * @return array<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
+     * @return iterable<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
      */
-    public static function formattingParameterProvider(): array
+    public static function formattingParameterProvider(): iterable
     {
-        return [
-            [71.01, 2, 'es-ES', ',', 'EUR', '€'],
-            [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'],
-            [0.71, 3, 'en-GB', '.', 'GBP', '£'],
-        ];
+        yield 'Spanish euro formatting uses comma decimals and euro symbol' => [71.01, 2, 'es-ES', ',', 'EUR', '€'];
+        yield 'Czech koruna formatting uses comma decimals and koruna symbol' => [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'];
+        yield 'British pound formatting uses dot decimals and pound symbol' => [0.71, 3, 'en-GB', '.', 'GBP', '£'];
     }
 
     private function createContext(int $decimals): Context

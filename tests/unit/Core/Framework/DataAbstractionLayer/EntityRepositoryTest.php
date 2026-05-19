@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -31,7 +32,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -45,18 +45,18 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::once())->method('read');
+        $reader->expects($this->once())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::never())->method('search');
+        $searcher->expects($this->never())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             $this->createMock(EntityDefinition::class),
@@ -79,21 +79,21 @@ class EntityRepositoryTest extends TestCase
 
         $searchEvent = null;
         $aggregateEvent = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$searchEvent): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$searchEvent): void {
             $searchEvent = $inner;
         });
-        $eventDispatcher->addListener('product.aggregation.result.loaded', function ($inner) use (&$aggregateEvent): void {
+        $eventDispatcher->addListener('product.aggregation.result.loaded', static function ($inner) use (&$aggregateEvent): void {
             $aggregateEvent = $inner;
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::once())->method('read');
+        $reader->expects($this->once())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::never())->method('search');
+        $searcher->expects($this->never())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::once())->method('aggregate');
+        $aggregator->expects($this->once())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -119,18 +119,18 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $reader = $this->createMock(EntityReaderInterface::class);
-        $reader->expects(static::never())->method('read');
+        $reader->expects($this->never())->method('read');
 
         $searcher = $this->createMock(EntitySearcherInterface::class);
-        $searcher->expects(static::once())->method('search');
+        $searcher->expects($this->once())->method('search');
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -155,7 +155,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -177,7 +177,7 @@ class EntityRepositoryTest extends TestCase
         $productEntity4->setUniqueIdentifier('test-4');
 
         $reader
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('read')
             ->willReturn(new ProductCollection([$productEntity, $productEntity2, $productEntity3, $productEntity4]));
 
@@ -188,12 +188,12 @@ class EntityRepositoryTest extends TestCase
             'test-3' => ['data' => [], 'primaryKey' => 'test-3'],
         ];
         $searcher
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new IdSearchResult(4, $data, new Criteria(), Context::createDefaultContext()));
 
         $aggregator = $this->createMock(EntityAggregatorInterface::class);
-        $aggregator->expects(static::never())->method('aggregate');
+        $aggregator->expects($this->never())->method('aggregate');
 
         $repo = new EntityRepository(
             new ProductDefinition(),
@@ -297,7 +297,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener('product.aggregation.result.loaded', function ($inner) use (&$event): void {
+        $eventDispatcher->addListener('product.aggregation.result.loaded', static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -321,12 +321,12 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $searchedEvent = null;
-        $eventDispatcher->addListener(EntitySearchedEvent::class, function ($inner) use (&$searchedEvent): void {
+        $eventDispatcher->addListener(EntitySearchedEvent::class, static function ($inner) use (&$searchedEvent): void {
             $searchedEvent = $inner;
         });
 
         $resultEvent = null;
-        $eventDispatcher->addListener('product.id.search.result.loaded', function ($inner) use (&$resultEvent): void {
+        $eventDispatcher->addListener('product.id.search.result.loaded', static function ($inner) use (&$resultEvent): void {
             $resultEvent = $inner;
         });
 
@@ -351,13 +351,13 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('insert')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_INSERT)]]);
 
@@ -383,13 +383,13 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('update')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 
@@ -415,13 +415,13 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('upsert')
             ->willReturn([[new EntityWriteResult('test', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 
@@ -447,7 +447,7 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
@@ -461,7 +461,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('delete')
             ->willReturn($writeResult);
 
@@ -495,7 +495,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->createVersion('test', Context::createDefaultContext());
     }
@@ -503,7 +503,7 @@ class EntityRepositoryTest extends TestCase
     public function testCreateVersionVersionAware(): void
     {
         $versionManager = $this->createMock(VersionManager::class);
-        $versionManager->expects(static::once())->method('createVersion');
+        $versionManager->expects($this->once())->method('createVersion');
         $definition = $this->createMock(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
@@ -533,7 +533,7 @@ class EntityRepositoryTest extends TestCase
         );
 
         static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Entity  is not version aware');
+        static::expectExceptionMessage('Entity "" is not version aware');
 
         $repo->merge('test', Context::createDefaultContext());
     }
@@ -541,7 +541,7 @@ class EntityRepositoryTest extends TestCase
     public function testMergeVersionVersionAware(): void
     {
         $versionManager = $this->createMock(VersionManager::class);
-        $versionManager->expects(static::once())->method('merge');
+        $versionManager->expects($this->once())->method('merge');
         $definition = $this->createMock(EntityDefinition::class);
         $definition->method('isVersionAware')->willReturn(true);
 
@@ -570,7 +570,7 @@ class EntityRepositoryTest extends TestCase
             $this->createMock(EntityLoadedEventFactory::class),
         );
 
-        static::expectException(InvalidUuidException::class);
+        static::expectExceptionObject(DataAbstractionLayerException::invalidEntityUuidException('test'));
 
         $repo->clone('test', Context::createDefaultContext(), 'test');
     }
@@ -580,13 +580,13 @@ class EntityRepositoryTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         $event = null;
-        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, function ($inner) use (&$event): void {
+        $eventDispatcher->addListener(EntityWrittenContainerEvent::class, static function ($inner) use (&$event): void {
             $event = $inner;
         });
 
         $versionManager = $this->createMock(VersionManager::class);
         $versionManager
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('clone')
             ->willReturn([[new EntityWriteResult('new-id', [], 'product', EntityWriteResult::OPERATION_UPDATE)]]);
 

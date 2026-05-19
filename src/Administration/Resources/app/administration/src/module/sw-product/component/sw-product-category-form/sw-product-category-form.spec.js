@@ -41,7 +41,11 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
+
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
 
         return mount(await wrapTestComponent('sw-product-category-form', { sync: true }), {
             global: {
@@ -68,7 +72,6 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                     'sw-product-visibility-select': true,
                     'sw-help-text': true,
                     'sw-inheritance-switch': true,
-                    'sw-icon': true,
                     'sw-product-visibility-detail': true,
                     'sw-ai-copilot-badge': true,
                 },

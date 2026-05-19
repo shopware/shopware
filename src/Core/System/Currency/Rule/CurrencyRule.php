@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
 /**
- * @internal
+ * @final
  */
 #[Package('fundamentals@after-sales')]
 class CurrencyRule extends Rule
@@ -20,6 +20,8 @@ class CurrencyRule extends Rule
 
     /**
      * @param list<string>|null $currencyIds
+     *
+     * @internal
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,

@@ -28,7 +28,7 @@ class DocumentFileRendererRegistryTest extends TestCase
     {
         $registry = $this->createMock(DocumentFileRendererRegistry::class);
         $registry
-            ->expects(static::exactly(1))
+            ->expects($this->exactly(1))
             ->method('render')
             ->willReturn($document->getContent());
 
@@ -79,7 +79,7 @@ class DocumentFileRendererRegistryTest extends TestCase
                 content: 'pdf'
             ),
 
-            function (string $rendered): void {
+            static function (string $rendered): void {
                 static::assertSame($rendered, 'pdf');
             },
         ];
@@ -94,7 +94,7 @@ class DocumentFileRendererRegistryTest extends TestCase
                 content: 'html'
             ),
 
-            function (string $rendered): void {
+            static function (string $rendered): void {
                 static::assertSame($rendered, 'html');
             },
         ];

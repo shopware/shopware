@@ -81,6 +81,10 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: false,
         },
+        useFetchPriorityOnFirstItem: {
+            source: 'static',
+            value: false,
+        },
     },
     enrich: function enrich(slot, data) {
         if (Object.keys(data).length < 1) {

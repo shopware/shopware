@@ -54,7 +54,7 @@ class ProductReviewSubscriberTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'product_review.written' => 'createReview',
             EntityDeleteEvent::class => 'detectChangeset',
             'product_review.deleted' => 'onReviewDeleted',
@@ -163,7 +163,7 @@ class ProductReviewSubscriberTest extends TestCase
             Context::createDefaultContext(),
         );
 
-        $this->productReviewCountService->expects(static::once())
+        $this->productReviewCountService->expects($this->once())
             ->method('updateReviewCountForCustomer')
             ->with('customer_id');
 
@@ -176,7 +176,7 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $this->productReviewCountService->expects(static::never())->method('updateReviewCount');
+        $this->productReviewCountService->expects($this->never())->method('updateReviewCount');
         $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids, true));
     }
 
@@ -186,7 +186,7 @@ class ProductReviewSubscriberTest extends TestCase
             Uuid::randomHex(),
             Uuid::randomHex(),
         ];
-        $this->productReviewCountService->expects(static::once())->method('updateReviewCount')->with($ids);
+        $this->productReviewCountService->expects($this->once())->method('updateReviewCount')->with($ids);
 
         $this->productReviewSubscriber->createReview($this->getEntityWrittenEvent($ids));
     }

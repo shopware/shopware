@@ -47,13 +47,8 @@ describe('src/app/component/base/sw-address/index.ts', () => {
         await flushPromises;
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render an address', async () => {
         await wrapper.setProps({
-            // eslint-disable-next-line max-len
             formattingAddress:
                 'Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br>',
         });
@@ -61,7 +56,6 @@ describe('src/app/component/base/sw-address/index.ts', () => {
         const formattingAddress = wrapper.find('.sw-address__formatting');
 
         expect(formattingAddress).toBeTruthy();
-        // eslint-disable-next-line max-len
         expect(formattingAddress.text()).toBe(
             'Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)',
         );

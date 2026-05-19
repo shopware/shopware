@@ -1,10 +1,13 @@
-@import "~scss/variables";
-
 .sw-cms-el-config-image-slider {
     .sw-cms-el-config-image-slider__setting-option {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
-        gap: 0 32px;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        column-gap: 16px;
+    }
+
+    &__setting-auto-slide-switch > .mt-switch,
+    &__setting-auto-slide-delay > .mt-number-field {
+        margin-bottom: 0;
     }
 
     .sw-cms-el-config-image-slider__setting-display-mode {
@@ -14,6 +17,8 @@
     .sw-cms-el-config-image-slider__settings-links {
         .sw-cms-el-config-image-slider__settings-link {
             margin-top: 8px;
+            border-top: 1px solid var(--color-border-primary-default);
+            padding-top: 20px;
 
             .sw-cms-el-config-image-slider__settings-link-prefix {
                 display: flex;
@@ -27,11 +32,23 @@
         }
     }
 
+    &__settings-link-container {
+        margin: 0 0 var(--scale-size-22) 0;
+    }
+
+    &__settings-is-decorative {
+        margin: 0;
+    }
+
     .sw-cms-el-config-image-slider__settings-link-input {
         margin-bottom: 0;
     }
 
     &__setting-auto-slide {
+        &.mt-banner {
+            padding-bottom: 0;
+        }
+
         &.sw-field--switch .sw-field__label label {
             margin-right: 0;
         }

@@ -71,7 +71,6 @@ async function createWrapper() {
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-highlight-text': true,
                     'sw-label': true,
-                    'sw-icon': true,
                     'sw-field-error': true,
                     'sw-loader': true,
                     'sw-inheritance-switch': true,

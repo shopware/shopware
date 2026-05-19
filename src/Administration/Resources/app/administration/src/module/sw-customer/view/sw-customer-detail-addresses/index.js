@@ -68,7 +68,6 @@ export default {
 
         sortedAddresses() {
             if (this.addressSortProperty) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 return this.activeCustomer.addresses.sort((a, b) => {
                     const aValue = a[this.addressSortProperty];
                     const bValue = b[this.addressSortProperty];
@@ -149,42 +148,42 @@ export default {
             return [
                 {
                     property: 'defaultShippingAddress',
-                    label: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    label: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                     align: 'center',
                     iconLabel: 'regular-shopping-cart',
-                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultShippingAddress'),
+                    iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultShippingAddress'),
                 },
                 {
                     property: 'defaultBillingAddress',
-                    label: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    label: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                     align: 'center',
                     iconLabel: 'regular-file-text',
-                    iconTooltip: this.$tc('sw-customer.detailAddresses.columnDefaultBillingAddress'),
+                    iconTooltip: this.$t('sw-customer.detailAddresses.columnDefaultBillingAddress'),
                 },
                 {
                     property: 'lastName',
-                    label: this.$tc('sw-customer.detailAddresses.columnLastName'),
+                    label: this.$t('sw-customer.detailAddresses.columnLastName'),
                 },
                 {
                     property: 'firstName',
-                    label: this.$tc('sw-customer.detailAddresses.columnFirstName'),
+                    label: this.$t('sw-customer.detailAddresses.columnFirstName'),
                 },
                 {
                     property: 'company',
-                    label: this.$tc('sw-customer.detailAddresses.columnCompany'),
+                    label: this.$t('sw-customer.detailAddresses.columnCompany'),
                 },
                 {
                     property: 'street',
-                    label: this.$tc('sw-customer.detailAddresses.columnStreet'),
+                    label: this.$t('sw-customer.detailAddresses.columnStreet'),
                 },
                 {
                     property: 'zipcode',
-                    label: this.$tc('sw-customer.detailAddresses.columnZipCode'),
+                    label: this.$t('sw-customer.detailAddresses.columnZipCode'),
                     align: 'right',
                 },
                 {
                     property: 'city',
-                    label: this.$tc('sw-customer.detailAddresses.columnCity'),
+                    label: this.$t('sw-customer.detailAddresses.columnCity'),
                 },
             ];
         },
@@ -230,13 +229,11 @@ export default {
 
             Object.assign(address, this.currentAddress);
 
-            if (this.customer.addresses.has(address.id)) {
-                this.customer.addresses.remove(address.id);
-            }
+            this.customerAddressRepository.save(address).then(() => {
+                this.currentAddress = null;
 
-            this.customer.addresses.push(address);
-
-            this.currentAddress = null;
+                this.refreshList();
+            });
         },
 
         isValidAddress(address) {
@@ -245,7 +242,7 @@ export default {
             let isValid = true;
 
             requiredAddressFields.forEach((field) => {
-                if (ignoreFields.indexOf(field) !== -1 || required(address[field])) {
+                if (ignoreFields.includes(field) || required(address[field])) {
                     return;
                 }
 
@@ -280,6 +277,8 @@ export default {
 
         onEditAddress(id) {
             const currentAddress = this.addressRepository.create(Shopware.Context.api, id);
+            // Otherwise repository save will do a POST call instead of PATCH
+            currentAddress._isNew = false;
 
             // assign values and id to new address
             Object.assign(currentAddress, this.activeCustomer.addresses.get(id));

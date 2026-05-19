@@ -1,7 +1,7 @@
 import template from './sw-duplicated-media-v2.html.twig';
 import './sw-duplicated-media-v2.scss';
 
-const { Component, Context, Filter } = Shopware;
+const { Context, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,12 +14,13 @@ const LOCAL_STORAGE_KEY_OPTION = 'sw-duplicate-media-resolve-option';
 const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-duplicated-media-v2', {
+export default {
     template,
 
     inject: [
         'repositoryFactory',
         'mediaService',
+        'mediaPresignedUploadService',
     ],
 
     data() {
@@ -36,6 +37,9 @@ Component.register('sw-duplicated-media-v2', {
     },
 
     computed: {
+        presignedSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+        },
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -53,7 +57,7 @@ Component.register('sw-duplicated-media-v2', {
         },
 
         buttonLabel() {
-            return this.$tc(`global.sw-duplicated-media-v2.button${this.selectedOption}`);
+            return this.$t(`global.sw-duplicated-media-v2.button${this.selectedOption}`);
         },
 
         dateFilter() {
@@ -91,19 +95,19 @@ Component.register('sw-duplicated-media-v2', {
             return [
                 {
                     value: 'Replace',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionReplace'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionReplace'),
                 },
                 {
                     value: 'Rename',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionRename'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionRename'),
                 },
                 {
                     value: 'Keep',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionKeep'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionKeep'),
                 },
                 {
                     value: 'Skip',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionSkip'),
+                    name: this.$t('global.sw-duplicated-media-v2.labelOptionSkip'),
                 },
             ];
         },
@@ -188,7 +192,7 @@ Component.register('sw-duplicated-media-v2', {
         },
 
         isDuplicatedNameError(error) {
-            return error.response.data.errors.some((err) => {
+            return error?.response?.data?.errors?.some((err) => {
                 return err.code === 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
             });
         },
@@ -217,7 +221,7 @@ Component.register('sw-duplicated-media-v2', {
             this.suggestedName = provided.fileName;
         },
 
-        solveDuplicate() {
+        async solveDuplicate() {
             if (!this.currentTask) {
                 this.isLoading = false;
                 return;
@@ -227,17 +231,17 @@ Component.register('sw-duplicated-media-v2', {
 
             switch (this.selectedOption) {
                 case 'Rename':
-                    this.renameFile(this.currentTask);
+                    await this.renameFile(this.currentTask);
                     break;
                 case 'Replace':
-                    this.replaceFile(this.currentTask);
+                    await this.replaceFile(this.currentTask);
                     break;
                 case 'Keep':
-                    this.keepFile(this.currentTask);
+                    await this.keepFile(this.currentTask);
                     break;
                 case 'Skip':
                 default:
-                    this.skipFile(this.currentTask);
+                    await this.skipFile(this.currentTask);
                     break;
             }
 
@@ -246,7 +250,7 @@ Component.register('sw-duplicated-media-v2', {
             if (!this.currentTask || !this.isWorkingOnMultipleTasks) {
                 this.isLoading = false;
             } else {
-                this.solveDuplicate();
+                await this.solveDuplicate();
             }
         },
 
@@ -256,26 +260,32 @@ Component.register('sw-duplicated-media-v2', {
             const { fileName } = await this.mediaService.provideName(uploadTask.fileName, uploadTask.extension);
             newTask.fileName = fileName;
 
+            if (this.presignedSupported && uploadTask.src instanceof File) {
+                const mediaId = await this.presignedUpload(newTask, newTask.targetId);
+                this.emitUploadFinished(newTask.uploadTag, mediaId);
+                return;
+            }
+
             this.mediaService.addUpload(newTask.uploadTag, newTask);
             await this.mediaService.runUploads(newTask.uploadTag);
         },
 
-        skipAll() {
+        async skipAll() {
             this.isLoading = true;
 
-            this.skipFile(this.currentTask);
+            await this.skipFile(this.currentTask);
             this.failedUploadTasks.splice(0, 1);
 
             if (!this.currentTask) {
                 this.isLoading = false;
             } else {
-                this.skipAll();
+                await this.skipAll();
             }
         },
 
-        skipCurrentFile() {
+        async skipCurrentFile() {
             this.isLoading = true;
-            this.skipFile(this.currentTask);
+            await this.skipFile(this.currentTask);
 
             this.failedUploadTasks.splice(0, 1);
             this.isLoading = false;
@@ -302,6 +312,29 @@ Component.register('sw-duplicated-media-v2', {
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
             const oldTargetId = uploadTask.targetId;
+
+            if (this.presignedSupported && uploadTask.src instanceof File) {
+                try {
+                    const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
+
+                    const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
+                    if (oldTarget && !oldTarget.hasFile) {
+                        await this.mediaRepository.delete(oldTargetId, Context.api);
+                    }
+
+                    this.emitUploadFinished(uploadTask.uploadTag, mediaId, mediaId !== oldTargetId ? oldTargetId : null);
+                } catch (e) {
+                    const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
+                    if (oldTarget && !oldTarget.hasFile) {
+                        await this.mediaRepository.delete(oldTargetId, Context.api);
+                    }
+
+                    throw e;
+                }
+
+                return;
+            }
+
             uploadTask.targetId = newTarget.id;
 
             this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
@@ -316,7 +349,52 @@ Component.register('sw-duplicated-media-v2', {
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
         },
 
+        async presignedUpload(uploadTask, mediaId) {
+            const mimeType = uploadTask.src.type || 'application/octet-stream';
+
+            const [
+                result,
+                dimensions,
+            ] = await Promise.all([
+                this.mediaPresignedUploadService.prepareUpload({
+                    fileName: uploadTask.fileName,
+                    extension: uploadTask.extension,
+                    mimeType,
+                    mediaId,
+                }),
+                this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
+            ]);
+
+            await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, uploadTask.src, mimeType);
+
+            await this.mediaPresignedUploadService.finalizeUpload(result.mediaId, {
+                fileName: uploadTask.fileName,
+                extension: uploadTask.extension,
+                mimeType,
+                path: result.path,
+                width: dimensions?.width ?? null,
+                height: dimensions?.height ?? null,
+            });
+
+            return result.mediaId;
+        },
+
+        emitUploadFinished(uploadTag, targetId, originalTargetId = null) {
+            this.mediaService.getListenerForTag(uploadTag).forEach((listener) => {
+                listener(
+                    this.mediaService._createUploadEvent('media-upload-finish', uploadTag, {
+                        targetId,
+                        originalTargetId,
+                        successAmount: 1,
+                        failureAmount: 0,
+                        totalAmount: 1,
+                    }),
+                );
+            });
+        },
+
         async keepFile(uploadTask) {
+            const originalTargetId = uploadTask.targetId;
             const oldTarget = await this.mediaRepository.get(uploadTask.targetId, Context.api);
             if (!oldTarget.hasFile) {
                 await this.mediaRepository.delete(oldTarget.id, Context.api);
@@ -333,8 +411,9 @@ Component.register('sw-duplicated-media-v2', {
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
             const newTarget = searchResult[0];
             uploadTask.targetId = newTarget.id;
+            uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);
         },
     },
-});
+};

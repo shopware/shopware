@@ -49,7 +49,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         KeyValuePair $data,
         WriteParameterBag $parameters
     ): \Generator {
-        $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $value = \json_decode(\json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($value !== null) {
             if (!\array_key_exists('type', $value)) {
@@ -175,7 +175,6 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private function validateRules(array $data, string $basePath): ConstraintViolationList
     {
         $violationList = new ConstraintViolationList();
-        /** @var string|null $type */
         $type = null;
         if (\array_key_exists('_name', $data)) {
             $type = $data['_name'];

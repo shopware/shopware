@@ -5,17 +5,18 @@ namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,13 +27,31 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(CancelOrderRoute::class)]
 class CancelOrderRouteTest extends TestCase
 {
-    public function testNoOrderId(): void
+    public function testRefundsDisabled(): void
     {
-        $this->expectException(RoutingException::class);
+        $this->expectExceptionObject(OrderException::orderNotCancellable());
 
         $route = new CancelOrderRoute(
             $this->createMock(OrderService::class),
-            $this->createMock(EntityRepository::class)
+            $this->createMock(EntityRepository::class),
+            new StaticSystemConfigService([
+                'core.cart.enableOrderRefunds' => false,
+            ]),
+        );
+
+        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $this->createMock(SalesChannelContext::class));
+    }
+
+    public function testNoOrderId(): void
+    {
+        $this->expectExceptionObject(OrderException::invalidRequestParameter('orderId'));
+
+        $route = new CancelOrderRoute(
+            $this->createMock(OrderService::class),
+            $this->createMock(EntityRepository::class),
+            new StaticSystemConfigService([
+                'core.cart.enableOrderRefunds' => true,
+            ]),
         );
 
         $route->cancel(new Request(), $this->createMock(SalesChannelContext::class));
@@ -40,20 +59,23 @@ class CancelOrderRouteTest extends TestCase
 
     public function testNotLoggedIn(): void
     {
-        $this->expectException(OrderException::class);
+        $this->expectExceptionObject(OrderException::customerNotLoggedIn());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn(null);
 
         $route = new CancelOrderRoute(
             $this->createMock(OrderService::class),
-            $this->createMock(EntityRepository::class)
+            $this->createMock(EntityRepository::class),
+            new StaticSystemConfigService([
+                'core.cart.enableOrderRefunds' => true,
+            ]),
         );
 
-        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
 
     public function testOrderNotFound(): void
@@ -65,20 +87,26 @@ class CancelOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomerId')
             ->willReturn($customer->getId());
 
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[]]);
+
         $route = new CancelOrderRoute(
             $this->createMock(OrderService::class),
-            new StaticEntityRepository([[]]),
+            $orderRepository,
+            new StaticSystemConfigService([
+                'core.cart.enableOrderRefunds' => true,
+            ]),
         );
 
-        $route->cancel(new Request(['orderId' => Uuid::randomHex()]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => Uuid::randomHex()]), $salesChannelContext);
     }
 
     public function testCancelOrder(): void
@@ -89,11 +117,11 @@ class CancelOrderRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomer')
             ->willReturn($customer);
         $salesChannelContext
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('getCustomerId')
             ->willReturn($customer->getId());
         $salesChannelContext
@@ -102,16 +130,22 @@ class CancelOrderRouteTest extends TestCase
 
         $orderService = $this->createMock(OrderService::class);
         $orderService
-            ->expects(static::once())
+            ->expects($this->once())
             ->method('orderStateTransition')
             ->with($orderId, 'cancel', new ParameterBag(), Context::createDefaultContext())
             ->willReturn(new StateMachineStateEntity());
 
+        /** @var StaticEntityRepository<OrderCollection> */
+        $orderRepository = new StaticEntityRepository([[Uuid::randomHex()]]);
+
         $route = new CancelOrderRoute(
             $orderService,
-            new StaticEntityRepository([[Uuid::randomHex()]]),
+            $orderRepository,
+            new StaticSystemConfigService([
+                'core.cart.enableOrderRefunds' => true,
+            ]),
         );
 
-        $route->cancel(new Request(['orderId' => $orderId]), $salesChannelContext);
+        $route->cancel(new Request([], ['orderId' => $orderId]), $salesChannelContext);
     }
 }

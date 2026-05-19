@@ -7,8 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -28,10 +31,16 @@ class PromotionFixedPriceCalculationTest extends TestCase
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected CartService $cartService;
 
+    /**
+     * @var EntityRepository<PromotionCollection>
+     */
     protected EntityRepository $promotionRepository;
 
     protected function setUp(): void
@@ -75,9 +84,9 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add promotion to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
 
-        static::assertEquals(40, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(40, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(35.49, $cart->getPrice()->getNetPrice());
+        static::assertSame(40.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(40.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(35.49, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -87,6 +96,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
     #[Group('promotions')]
     public function testRemoveOfFixedUnitPromotionsWithoutCode(): void
     {
+        Feature::skipTestIfActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -104,9 +115,9 @@ class PromotionFixedPriceCalculationTest extends TestCase
 
         static::assertCount(2, $cart->getLineItems(), 'We expect two lineItems in cart');
 
-        static::assertEquals(40, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(40, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
+        static::assertSame(40.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(40.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
 
         $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
         static::assertNotNull($discountLineItem);
@@ -117,9 +128,36 @@ class PromotionFixedPriceCalculationTest extends TestCase
 
         static::assertCount(1, $cart->getLineItems(), 'We expect 1 lineItem in cart');
 
-        static::assertEquals(100, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(100, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(84.03, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
+        static::assertSame(100.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(100.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(84.03, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
+    }
+
+    #[Group('promotions')]
+    public function testAutomaticFixedUnitPromotionsWithoutCodeAreNotRemovable(): void
+    {
+        Feature::skipTestIfInActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $this->createTestFixtureProduct($productId, 100, 19, static::getContainer(), $context);
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, static::getContainer(), $context);
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
+
+        $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($discountLineItem);
+        static::assertFalse($discountLineItem->isRemovable());
+
+        static::assertSame(40.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(40.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
+
+        $this->expectExceptionMessage('Line item with identifier');
+        $this->cartService->remove($cart, $discountLineItem->getId(), $context);
     }
 
     /**
@@ -138,7 +176,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         $code = 'BF' . Random::getAlphanumericString(5);
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $productGross = 100;
+        $productGross = 100.0;
         $fixedPriceValue = 80;
         $currencyMaxValue = 65.0;
 
@@ -156,14 +194,14 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
-        static::assertEquals($productGross, $cart->getPrice()->getTotalPrice());
+        static::assertSame($productGross, $cart->getPrice()->getTotalPrice());
 
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
-        static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(54.62, $cart->getPrice()->getNetPrice());
+        static::assertSame($expectedPrice, $cart->getPrice()->getPositionPrice());
+        static::assertSame($expectedPrice, $cart->getPrice()->getTotalPrice());
+        static::assertSame(54.62, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -199,8 +237,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
 
         static::assertCount(3, $cart->getLineItems(), 'We expect 2 products and 1 discount in cart');
 
-        static::assertEquals(100, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(100, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(84.03, $cart->getPrice()->getNetPrice());
+        static::assertSame(100.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(100.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(84.03, $cart->getPrice()->getNetPrice());
     }
 }

@@ -39,9 +39,9 @@ class RequirementStackExceptionTest extends TestCase
 
         static::assertCount(2, $converted);
 
-        static::assertEquals('424', $converted[0]['status']);
-        static::assertEquals('FRAMEWORK__PLUGIN_REQUIREMENT_MISSING', $converted[0]['code']);
+        static::assertSame('424', $converted[0]['status']);
+        static::assertSame('FRAMEWORK__PLUGIN_REQUIREMENT_MISSING', $converted[0]['code']);
 
-        static::assertEquals($convertedVersionMismatch, $converted[1]);
+        static::assertSame($convertedVersionMismatch, $converted[1]);
     }
 }

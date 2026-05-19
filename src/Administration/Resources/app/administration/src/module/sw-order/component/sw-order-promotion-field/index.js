@@ -4,7 +4,6 @@ import template from './sw-order-promotion-field.html.twig';
 /**
  * @sw-package checkout
  */
-
 const { Store } = Shopware;
 const { ChangesetGenerator } = Shopware.Data;
 
@@ -25,6 +24,18 @@ export default {
             from: 'swOrderDetailOnReloadEntityData',
             default: null,
         },
+        swOrderDetailOnSaveAndReload: {
+            from: 'swOrderDetailOnSaveAndReload',
+            default: null,
+        },
+        swOrderDetailOnSaveAndRecalculate: {
+            from: 'swOrderDetailOnSaveAndRecalculate',
+            default: null,
+        },
+        swOrderDetailHandleCartErrors: {
+            from: 'swOrderDetailHandleCartErrors',
+            default: null,
+        },
         repositoryFactory: {
             from: 'repositoryFactory',
             default: null,
@@ -40,9 +51,11 @@ export default {
     },
 
     emits: [
-        'loading-change',
         'error',
+        'loading-change',
         'reload-entity-data',
+        'save-and-reload',
+        'save-and-recalculate',
     ],
 
     mixins: [
@@ -61,20 +74,27 @@ export default {
         return {
             promotionError: null,
             disabledAutoPromotions: false,
+            promotionUpdates: [],
         };
     },
 
     computed: {
-        order: () => Store.get('swOrderDetail').order,
+        order() {
+            return Store.get('swOrderDetail').order;
+        },
 
-        versionContext: () => Store.get('swOrderDetail').versionContext,
+        isOrderLoading: () => Store.get('swOrderDetail').isLoading,
+
+        versionContext() {
+            return Store.get('swOrderDetail').versionContext;
+        },
 
         orderLineItemRepository() {
             return this.repositoryFactory.create('order_line_item');
         },
 
         hasLineItem() {
-            return this.order.lineItems.filter((item) => item.hasOwnProperty('id')).length > 0;
+            return this.order.lineItems.some((item) => item.hasOwnProperty('id'));
         },
 
         currency() {
@@ -82,9 +102,25 @@ export default {
         },
 
         manualPromotions() {
-            return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId !== null);
+            const promotionIds = [];
+            return this.order.lineItems.filter((item) => {
+                if (item.type !== 'promotion' || item.referencedId === null) {
+                    return false;
+                }
+
+                if (promotionIds.includes(item.referencedId)) {
+                    return false;
+                }
+
+                promotionIds.push(item.referencedId);
+
+                return true;
+            });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         automaticPromotions() {
             return this.order.lineItems.filter((item) => item.type === 'promotion' && item.referencedId === null);
         },
@@ -112,34 +148,62 @@ export default {
 
                 if (promotionCodeLength > 0 && latestTag.isInvalid) {
                     this.promotionError = {
-                        detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                        detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                     };
                 }
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         hasAutomaticPromotions() {
             return this.automaticPromotions.length > 0;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         changesetGenerator() {
             return new ChangesetGenerator();
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         *
+         * @returns {boolean}
+         */
         hasOrderUnsavedChanges() {
             return this.changesetGenerator.generate(this.order).changes !== null;
+        },
+
+        promotionsRemoved() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-deleted');
+        },
+
+        promotionsAdded() {
+            return this.promotionUpdates.filter((e) => e.messageKey === 'promotion-discount-added');
         },
     },
 
     watch: {
-        // Validate if switch can be toggled
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         *
+         * Validate if switch can be toggled
+         */
         disabledAutoPromotions(newState, oldState) {
             // To prevent recursion when value is set in next tick
-            if (oldState === this.hasAutomaticPromotions) return;
+            if (oldState === this.hasAutomaticPromotions) {
+                return;
+            }
 
             this.toggleAutomaticPromotions(newState);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         automaticPromotions() {
             // Sync value with database
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
@@ -151,131 +215,203 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         createdComponent() {
             this.disabledAutoPromotions = !this.hasAutomaticPromotions;
         },
 
+        emitEntityData() {
+            if (this.swOrderDetailOnReloadEntityData) {
+                this.swOrderDetailOnReloadEntityData();
+            } else {
+                this.$emit('reload-entity-data');
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        emitLoadingChange(state) {
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                state,
+            ]);
+        },
+
+        /**
+         * To prevent losing unsaved changes on reloading the order,
+         * we need to save the **versioned** order beforehand.
+         */
+        async saveAndReload(afterSaveFn = null) {
+            if (this.swOrderDetailOnSaveAndReload) {
+                await this.swOrderDetailOnSaveAndReload(afterSaveFn);
+            } else {
+                this.$emit('save-and-reload', afterSaveFn);
+            }
+        },
+
+        async saveAndRecalculate() {
+            if (this.swOrderDetailOnSaveAndRecalculate) {
+                await this.swOrderDetailOnSaveAndRecalculate();
+            } else {
+                this.$emit('save-and-recalculate');
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
+        handleUnsavedOrderChangesResponse() {
+            this.createNotificationWarning({
+                message: this.$t('sw-order.detailBase.textUnsavedChanges', 0),
+            });
+        },
+
+        handleError(error) {
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                false,
+            ]);
+
+            if (this.swOrderDetailOnError) {
+                this.swOrderDetailOnError(error);
+            } else {
+                this.$emit('error', error);
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
+         */
         deleteAutomaticPromotions() {
             if (this.automaticPromotions.length === 0) {
                 return Promise.resolve();
             }
 
-            const deletionPromises = [];
-
-            this.automaticPromotions.forEach((promotion) => {
-                deletionPromises.push(this.orderLineItemRepository.delete(promotion.id, this.versionContext));
+            const deletionPromises = this.automaticPromotions.map((promotion) => {
+                return this.orderLineItemRepository.delete(promotion.id, this.versionContext);
             });
 
             return Promise.all(deletionPromises)
                 .then(() => {
                     this.automaticPromotions.forEach((promotion) => {
                         this.createNotificationSuccess({
-                            message: this.$tc(
-                                'sw-order.detailBase.textPromotionRemoved',
-                                {
-                                    promotion: promotion.label,
-                                },
-                                0,
-                            ),
+                            message: this.$t('sw-order.detailBase.textPromotionRemoved', { promotion: promotion.label }, 0),
                         });
                     });
                 })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+                .catch(this.handleError.bind(this));
         },
 
-        toggleAutomaticPromotions(state) {
-            this.$emit('loading-change', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
-
-            // Throw notification warning and reset switch state
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. See `applyAutomaticPromotions` for an alternative
+         */
+        async toggleAutomaticPromotions(state) {
             if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
                 this.handleUnsavedOrderChangesResponse();
+
                 this.$nextTick(() => {
                     this.disabledAutoPromotions = !state;
                 });
-                return;
+
+                return Promise.resolve();
             }
 
-            this.deleteAutomaticPromotions()
-                .then(() => {
-                    return this.orderService.toggleAutomaticPromotions(this.order.id, this.order.versionId, state);
-                })
-                .then((response) => {
-                    this.handlePromotionResponse(response);
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
+
+            await this.saveAndReload();
+            await this.deleteAutomaticPromotions();
+
+            return this.orderService
+                .toggleAutomaticPromotions(this.order.id, this.order.versionId, state)
+                .then(this.handlePromotionResponse.bind(this))
+                .catch(this.handleError.bind(this));
         },
 
-        onSubmitCode(code) {
-            this.$emit('loading-change', true);
-            if (this.swOrderDetailOnLoadingChange) {
-                this.swOrderDetailOnLoadingChange(true);
-            }
+        async applyAutomaticPromotions() {
+            await this.saveAndReload(() =>
+                this.orderService
+                    .applyAutomaticPromotions(this.order.id, this.order.versionId)
+                    .then(this.handlePromotionResponse.bind(this))
+                    .catch(this.handleError.bind(this)),
+            );
+        },
 
-            if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
-                this.handleUnsavedOrderChangesResponse();
-                return;
-            }
+        async onSubmitCode(code) {
+            this.emitLoadingChange(true);
 
-            this.orderService
-                .addPromotionToOrder(this.order.id, this.order.versionId, code)
-                .then((response) => {
-                    this.handlePromotionResponse(response);
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+            return this.saveAndReload(() =>
+                this.orderService
+                    .addPromotionToOrder(this.order.id, this.order.versionId, code)
+                    .then(this.handlePromotionResponse.bind(this))
+                    .catch(this.handleError.bind(this)),
+            );
         },
 
         handlePromotionResponse(response) {
+            this.emitEntityData();
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                false,
+            ]);
+
+            if (typeof response?.data?.errors !== 'object') {
+                return;
+            }
+
+            const [
+                errors,
+                promotionErrors,
+            ] = (Array.isArray(response.data.errors) ? response.data.errors : Object.values(response.data.errors)).reduce(
+                (
+                    [
+                        general,
+                        promotion,
+                    ],
+                    e,
+                ) => {
+                    return [
+                        'promotion-discount-deleted',
+                        'promotion-discount-added',
+                    ].includes(e.messageKey)
+                        ? [
+                              general,
+                              [
+                                  ...promotion,
+                                  e,
+                              ],
+                          ]
+                        : [
+                              [
+                                  ...general,
+                                  e,
+                              ],
+                              promotion,
+                          ];
+                },
+                [
+                    [],
+                    [],
+                ],
+            );
+
+            this.promotionUpdates = promotionErrors;
+            response.data.errors = errors;
+
+            if (this.swOrderDetailHandleCartErrors) {
+                this.swOrderDetailHandleCartErrors(response);
+                return;
+            }
+
             Object.values(response.data.errors).forEach((value) => {
                 switch (value.level) {
                     case 0: {
-                        this.createNotificationSuccess({
+                        this.createNotificationInfo({
                             message: value.message,
                         });
                         break;
@@ -298,48 +434,26 @@ export default {
             });
         },
 
-        handleUnsavedOrderChangesResponse() {
-            this.createNotificationWarning({
-                message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
-            });
+        async onRemoveExistingCode(removedItem) {
+            Shopware.Store.get('swOrderDetail').setLoading([
+                'recalculation',
+                true,
+            ]);
+
+            this.order.lineItems = this.order.lineItems.filter(
+                (item) => item.type !== 'promotion' || item.promotionId !== removedItem.promotionId,
+            );
+
+            await this.saveAndRecalculate();
         },
 
-        onRemoveExistingCode(removedItem) {
-            this.$emit('loading-change', true);
-
-            if (this.hasOrderUnsavedChanges) {
-                this.$emit('loading-change', false);
-                if (this.swOrderDetailOnLoadingChange) {
-                    this.swOrderDetailOnLoadingChange(false);
-                }
-                this.handleUnsavedOrderChangesResponse();
-                return;
-            }
-
-            const lineItem = this.order.lineItems.find((item) => {
-                return item.type === 'promotion' && item.payload.code === removedItem.code;
-            });
-
-            this.orderLineItemRepository
-                .delete(lineItem.id, this.versionContext)
-                .then(() => {
-                    this.$emit('reload-entity-data');
-                    if (this.swOrderDetailOnReloadEntityData) {
-                        this.swOrderDetailOnReloadEntityData();
-                    }
-                })
-                .catch((error) => {
-                    this.$emit('loading-change', false);
-                    if (this.swOrderDetailOnLoadingChange) {
-                        this.swOrderDetailOnLoadingChange(false);
-                    }
-                    this.$emit('error', error);
-                    if (this.swOrderDetailOnError) {
-                        this.swOrderDetailOnError(error);
-                    }
-                });
+        dismissPromotionUpdates() {
+            this.promotionUpdates = [];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         getLineItemByPromotionCode(code) {
             return this.order.lineItems.find((item) => {
                 return item.type === 'promotion' && item.payload.code === code;

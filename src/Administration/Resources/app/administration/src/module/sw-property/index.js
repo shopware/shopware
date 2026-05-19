@@ -7,14 +7,14 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-property-list', () => import('./page/sw-property-list'));
 Shopware.Component.register('sw-property-detail', () => import('./page/sw-property-detail'));
 Shopware.Component.extend('sw-property-create', 'sw-property-detail', () => import('./page/sw-property-create'));
 Shopware.Component.register('sw-property-option-detail', () => import('./component/sw-property-option-detail'));
 Shopware.Component.register('sw-property-detail-base', () => import('./component/sw-property-detail-base'));
 Shopware.Component.register('sw-property-option-list', () => import('./component/sw-property-option-list'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-property', {
@@ -25,7 +25,7 @@ Module.register('sw-property', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#57D9A3',
-    icon: 'regular-products',
+    icon: 'solid-products',
     favicon: 'icon-module-products.png',
     entity: 'property_group',
 
@@ -46,7 +46,7 @@ Module.register('sw-property', {
             props: {
                 default: (route) => {
                     return {
-                        groupId: route.params.id,
+                        groupId: route.params.id.toLowerCase(),
                     };
                 },
             },

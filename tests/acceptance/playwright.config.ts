@@ -21,6 +21,10 @@ if (missingEnvVars.length > 0) {
 process.env['SHOPWARE_ADMIN_USERNAME'] = process.env['SHOPWARE_ADMIN_USERNAME'] || 'admin';
 process.env['SHOPWARE_ADMIN_PASSWORD'] = process.env['SHOPWARE_ADMIN_PASSWORD'] || 'shopware';
 
+const ignoreHTTPSErrors =
+    process.env.SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS === 'true' ||
+    process.env.SHOPWARE_PLAYWRIGHT_IGNORE_HTTPS_ERRORS === '1';
+
 if (process.env.DATABASE_URL) {
     const matches = process.env.DATABASE_URL.match(/mysql:\/\/([^:@]+)(:([^:@]+))?@([^/]+)\/([^?]+)/);
     if (matches) {
@@ -56,13 +60,13 @@ export default defineConfig({
     reporter: 'html',
 
     timeout: 60_000,
-
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('/')`. */
         baseURL: process.env['APP_URL'],
-        trace: 'on-first-retry',
+        trace: 'retain-on-failure',
         video: 'off',
+        ignoreHTTPSErrors,
     },
 
     // We abuse this to wait for the external webserver
@@ -70,6 +74,7 @@ export default defineConfig({
         command: 'sleep 1d',
         url: process.env['APP_URL'],
         reuseExistingServer: true,
+        ignoreHTTPSErrors,
     },
 
     /* Configure projects for major browsers */
@@ -90,7 +95,7 @@ export default defineConfig({
                 },
             },
             dependencies: ['Setup'],
-            grepInvert: /@Install|@Update|@Setup.*/,
+            grepInvert: /@Install|@Update|@Visual|@Setup.*/,
         },
         {
             name: 'Install',
@@ -108,6 +113,15 @@ export default defineConfig({
             dependencies: [],
             grep: /@Update/,
             retries: 0,
+        },
+        {
+            name: 'Visual',
+            use: {
+                ...devices['Desktop Chrome'],
+                channel: 'chromium',
+            },
+            dependencies: [],
+            grep: /@Visual/,
         },
     ],
 

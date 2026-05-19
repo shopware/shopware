@@ -1,6 +1,6 @@
 {% block sw_sales_channel_detail_domains %}
 <mt-card
-    :title="$tc('sw-sales-channel.detail.titleDomains')"
+    :title="$t('sw-sales-channel.detail.titleDomains')"
     class="sw-sales-channel-detail-domains"
     position-identifier="sw-sales-channel-detail-domains"
 >
@@ -10,7 +10,7 @@
         {% block sw_sales_channel_detail_domains_headline %}
         <h4 class="sw-sales-channel-detail-domains__headline sw-sales-channel-detail-base__headline">
             <span class="sw-sales-channel-detail-domains__headline-text sw-sales-channel-detail-base__headline-text">
-                {{ $tc('sw-sales-channel.detail.titleDomainHeadline') }}
+                {{ $t('sw-sales-channel.detail.titleDomainHeadline') }}
             </span>
         </h4>
         {% endblock %}
@@ -20,9 +20,10 @@
             size="small"
             :disabled="disableEdit || undefined"
             class="sw-sales-channel-detail__button-domain-add"
+            variant="secondary"
             @click="onClickOpenCreateDomainModal"
         >
-            {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
+            {{ $t('sw-sales-channel.detail.buttonAddDomain') }}
         </mt-button>
         {% endblock %}
     </div>
@@ -53,7 +54,7 @@
 
             {% block sw_sales_channel_detail_domains_column_language_id %}
             <template
-                #column-languageId="{ item, isInlineEdit}"
+                #column-languageId="{ item, isInlineEdit }"
             >
                 {{ item.language.name }}
             </template>
@@ -61,15 +62,23 @@
 
             {% block sw_sales_channel_detail_domains_column_currency_id %}
             <template
-                #column-currencyId="{ item, isInlineEdit}"
+                #column-currencyId="{ item, isInlineEdit }"
             >
                 {{ item.currency.translated.name }}
             </template>
             {% endblock %}
 
+            {% block sw_sales_channel_detail_domains_column_measurement_system_name %}
+            <template
+                #column-measurementSystemName="{ item, isInlineEdit }"
+            >
+                {{ getMeasurementName(item.measurementUnits.system) }}
+            </template>
+            {% endblock %}
+
             {% block sw_sales_channel_detail_domains_column_snippet_set_id %}
             <template
-                #column-snippetSetId="{ item, isInlineEdit}"
+                #column-snippetSetId="{ item, isInlineEdit }"
             >
                 {{ item.snippetSet.name }}
             </template>
@@ -82,7 +91,7 @@
                     :disabled="disableEdit"
                     @click="onClickEditDomain(item)"
                 >
-                    {{ $tc('sw-sales-channel.detail.buttonEditDomain') }}
+                    {{ $t('sw-sales-channel.detail.buttonEditDomain') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -92,7 +101,7 @@
                     variant="danger"
                     @click="onClickDeleteDomain(item)"
                 >
-                    {{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}
+                    {{ $t('sw-sales-channel.detail.buttonDeleteDomain') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -115,14 +124,14 @@
             gap="0px 30px"
         >
             {% block sw_sales_channel_detail_domains_input_url %}
-            <sw-url-field
-                v-model:value="currentDomain.url"
+            <mt-url-field
+                v-model="currentDomain.url"
                 type="text"
                 omit-url-hash
                 omit-url-search
-                :label="$tc('sw-sales-channel.detail.labelInputUrl')"
+                :label="$t('sw-sales-channel.detail.labelInputUrl')"
                 :error="error"
-                @update:value="onInput"
+                @update:model-value="onInput"
             />
             {% endblock %}
 
@@ -134,7 +143,7 @@
                 label-property="name"
                 value-property="id"
                 required
-                :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                :label="$t('sw-sales-channel.detail.labelInputLanguage')"
                 show-clearable-button
                 @update:value="onLanguageSelect"
             />
@@ -149,7 +158,7 @@
             <sw-single-select
                 v-model:value="currentDomain.currencyId"
                 class="sw-sales-channel-detail-domains__domain-currency-select"
-                :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
+                :label="$t('sw-sales-channel.detail.labelInputCurrency')"
                 required
                 show-clearable-button
                 :options="salesChannel.currencies"
@@ -164,7 +173,7 @@
                 v-model:value="currentDomain.snippetSetId"
                 entity="snippet_set"
                 :criteria="snippetSetCriteria"
-                :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
+                :label="$t('sw-sales-channel.detail.labelInputSnippet')"
                 required
                 show-clearable-button
                 @option-select="onOptionSelect"
@@ -172,10 +181,17 @@
             {% endblock %}
         </sw-container>
 
+        <sw-sales-channel-measurement
+            :sales-channel="currentDomain"
+            :label-unit-system="$t('sw-sales-channel.detail.measurementSystem.labelUnitSystem')"
+            :label-length-unit="$t('sw-sales-channel.detail.measurementSystem.labelLengthUnit')"
+            :label-weight-unit="$t('sw-sales-channel.detail.measurementSystem.labelWeightUnit')"
+        />
+
         {% block sw_sales_channel_detail_domains_hreflang %}
         <sw-radio-field
             v-model:value="currentDomain.hreflangUseOnlyLocale"
-            :label="$tc('sw-sales-channel.detail.hreflang.domainSettings.label')"
+            :label="$t('sw-sales-channel.detail.hreflang.domainSettings.label')"
             identification="hreflang"
             :options="hreflangLocalisationOptions"
         />
@@ -186,9 +202,10 @@
             {% block sw_sales_channel_detail_domains_create_action_cancel %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseCreateDomainModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -209,13 +226,13 @@
     {% block sw_sales_channel_detail_domains_delete_modal %}
     <sw-modal
         v-if="deleteDomain"
-        :title="$tc('sw-sales-channel.detail.deleteDomainModalTitle')"
+        :title="$t('sw-sales-channel.detail.deleteDomainModalTitle')"
         variant="small"
         @modal-close="onCloseDeleteDomainModal"
     >
 
         {% block sw_sales_channel_detail_domains_delete_modal_confirm_text %}
-        {{ $tc('sw-sales-channel.detail.textConfirmDeleteDomain', { url: unicodeUriFilter(deleteDomain.url) }, 0) }}
+        {{ $t('sw-sales-channel.detail.textConfirmDeleteDomain', { url: unicodeUriFilter(deleteDomain.url) }, 0) }}
         {% endblock %}
 
         {% block sw_sales_channel_detail_domains_delete_modal_footer %}
@@ -223,9 +240,10 @@
             {% block sw_sales_channel_detail_domains_delete_modal_abort %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onCloseDeleteDomainModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
 
@@ -235,7 +253,7 @@
                 variant="critical"
                 @click="onConfirmDeleteDomain(deleteDomain)"
             >
-                {{ $tc('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
+                {{ $t('sw-sales-channel.detail.buttonConfirmDeleteDomain') }}
             </mt-button>
             {% endblock %}
         </template>

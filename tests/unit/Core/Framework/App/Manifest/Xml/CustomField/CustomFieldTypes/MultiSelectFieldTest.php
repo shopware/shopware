@@ -26,15 +26,15 @@ class MultiSelectFieldTest extends TestCase
 
         $multiSelectField = $customFieldSet->getFields()[0];
         static::assertInstanceOf(MultiSelectField::class, $multiSelectField);
-        static::assertEquals('test_multi_select_field', $multiSelectField->getName());
-        static::assertEquals([
+        static::assertSame('test_multi_select_field', $multiSelectField->getName());
+        static::assertSame([
             'en-GB' => 'Test multi-select field',
         ], $multiSelectField->getLabel());
-        static::assertEquals([], $multiSelectField->getHelpText());
-        static::assertEquals(1, $multiSelectField->getPosition());
-        static::assertEquals(['en-GB' => 'Choose your options...'], $multiSelectField->getPlaceholder());
+        static::assertSame([], $multiSelectField->getHelpText());
+        static::assertSame(1, $multiSelectField->getPosition());
+        static::assertSame(['en-GB' => 'Choose your options...'], $multiSelectField->getPlaceholder());
         static::assertFalse($multiSelectField->getRequired());
-        static::assertEquals([
+        static::assertSame([
             'first' => [
                 'en-GB' => 'First',
                 'de-DE' => 'Erster',
@@ -43,5 +43,46 @@ class MultiSelectFieldTest extends TestCase
                 'en-GB' => 'Second',
             ],
         ], $multiSelectField->getOptions());
+    }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/multi-select-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $multiSelectField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(MultiSelectField::class, $multiSelectField);
+
+        static::assertEquals([
+            'name' => 'test_multi_select_field',
+            'type' => 'select',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test multi-select field',
+                ],
+                'helpText' => [],
+                'customFieldPosition' => 1,
+                'placeholder' => [
+                    'en-GB' => 'Choose your options...',
+                ],
+                'componentName' => 'sw-multi-select',
+                'customFieldType' => 'select',
+                'options' => [
+                    [
+                        'label' => [
+                            'en-GB' => 'First',
+                            'de-DE' => 'Erster',
+                        ],
+                        'value' => 'first',
+                    ],
+                    [
+                        'label' => [
+                            'en-GB' => 'Second',
+                        ],
+                        'value' => 'second',
+                    ],
+                ],
+            ],
+        ], $multiSelectField->toEntityPayload());
     }
 }

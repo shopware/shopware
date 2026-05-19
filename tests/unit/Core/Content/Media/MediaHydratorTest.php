@@ -78,7 +78,6 @@ class MediaHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);
@@ -91,11 +90,11 @@ class MediaHydratorTest extends TestCase
         static::assertSame(100, $first->getFileSize());
         static::assertSame('foo.jpg', $first->getFileName());
         static::assertInstanceOf(\DateTimeInterface::class, $first->getUploadedAt());
-        static::assertEquals($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUploadedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUploadedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertInstanceOf(\DateTimeInterface::class, $first->getCreatedAt());
-        static::assertEquals($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertInstanceOf(\DateTimeInterface::class, $first->getUpdatedAt());
-        static::assertEquals($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUpdatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+        static::assertSame($date->format(Defaults::STORAGE_DATE_TIME_FORMAT), $first->getUpdatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         static::assertSame('media/foo.jpg', $first->getPath());
         static::assertFalse($first->isPrivate());
     }
@@ -119,7 +118,6 @@ class MediaHydratorTest extends TestCase
         $structs = $this->hydrator->hydrate(new EntityCollection(), $definition->getEntityClass(), $definition, $rows, 'test', Context::createDefaultContext());
         static::assertCount(1, $structs);
 
-        /** @var MediaEntity|null $first */
         $first = $structs->first();
 
         static::assertInstanceOf(MediaEntity::class, $first);

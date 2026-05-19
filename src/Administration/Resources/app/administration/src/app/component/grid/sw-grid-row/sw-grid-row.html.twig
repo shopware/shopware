@@ -12,9 +12,10 @@
             {% block sw_grid_row_slot_actions %}
             <mt-button
                 size="small"
+                variant="secondary"
                 @click="onInlineEditCancel(id, index)"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             <mt-button
                 class="sw-grid-row__inline-edit-action"
@@ -22,7 +23,7 @@
                 size="small"
                 @click="onInlineEditFinish"
             >
-                {{ $tc('global.default.save') }}
+                {{ $t('global.default.save') }}
             </mt-button>
             {% endblock %}
         </slot>

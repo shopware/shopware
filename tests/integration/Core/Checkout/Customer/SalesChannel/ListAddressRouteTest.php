@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -15,6 +16,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * @internal
  */
 #[Group('store-api')]
+#[Package('checkout')]
 class ListAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -76,6 +78,8 @@ class ListAddressRouteTest extends TestCase
         static::assertSame('12345', $response['elements'][0]['zipcode']);
         static::assertSame($this->getValidCountryId(), $response['elements'][0]['countryId']);
         static::assertSame($this->getValidSalutationId(), $response['elements'][0]['salutation']['id']);
+        static::assertTrue($response['elements'][0]['isDefaultBillingAddress']);
+        static::assertTrue($response['elements'][0]['isDefaultShippingAddress']);
     }
 
     public function testListAddressesIncludes(): void

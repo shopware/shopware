@@ -20,9 +20,4 @@ trait ItemsCountTrait
     {
         return $this->getItems()->count();
     }
-
-    private function getItems(): LineItemCollection
-    {
-        return $this->items;
-    }
 }

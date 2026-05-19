@@ -52,6 +52,10 @@
         .sw-grid-row:first-child.is--selected {
             box-shadow: none;
         }
+
+        .mt-field--checkbox {
+            margin-bottom: 0;
+        }
     }
 
     .sw-property-search__tree-selection,
@@ -67,12 +71,18 @@
             cursor: pointer;
         }
 
-        .sw-icon {
-            margin-right: 10px;
-        }
-
         .sw-grid__pagination {
             background-color: $color-white;
+
+            .mt-icon {
+                margin: 0;
+            }
+        }
+    }
+
+    .sw-property-search__tree-selection__group_grid {
+        .mt-icon {
+            margin-right: 10px;
         }
     }
 
@@ -130,6 +140,12 @@
 
     .sw-property-search__search-field {
         margin-bottom: 0;
+
+        &-container {
+            padding: 30px;
+            border-bottom: 1px solid #d8dde6;
+            background-color: $color-gray-100;
+        }
     }
 
     .sw-property-search__toolbar {

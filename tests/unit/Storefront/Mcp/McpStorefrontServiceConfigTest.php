@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Mcp\Tool\ThemeConfigTool;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * Guards that Storefront MCP services are correctly registered and tagged.
@@ -31,15 +31,15 @@ class McpStorefrontServiceConfigTest extends TestCase
     protected function setUp(): void
     {
         $this->container = new ContainerBuilder();
-        $loader = new XmlFileLoader($this->container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../src/Storefront/DependencyInjection/mcp.xml');
+        $loader = new PhpFileLoader($this->container, new FileLocator());
+        $loader->load(__DIR__ . '/../../../../src/Storefront/DependencyInjection/mcp.php');
     }
 
     public function testThemeConfigToolIsRegistered(): void
     {
         static::assertTrue(
             $this->container->hasDefinition(ThemeConfigTool::class),
-            'ThemeConfigTool is not registered in Storefront mcp.xml',
+            'ThemeConfigTool is not registered in Storefront mcp.php',
         );
     }
 

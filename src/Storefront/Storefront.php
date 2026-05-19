@@ -9,6 +9,7 @@ use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompil
 use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -32,7 +33,9 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('controller.xml');
         $loader->load('theme.xml');
         $loader->load('system.xml');
-        $loader->load('mcp.xml'); // @codeCoverageIgnore
+
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $phpLoader->load('mcp.php'); // @codeCoverageIgnore
 
         $container->setParameter('storefrontRoot', $this->getPath());
 

@@ -4,20 +4,14 @@
 
 ## API
 
-### Newsletter status schema now includes all Store API status values
-
-The Store API now uses a shared `NewsletterStatus` schema for newsletter-related responses.
-
-This aligns the documented schema for `/store-api/newsletter/subscribe` with the existing runtime behavior by including `undefined` as a valid newsletter status, alongside `notSet`, `optIn`, `optOut`, and `direct`. The account newsletter recipient schema also reuses the same status definition, so API consumers and generated clients get a consistent enum for newsletter status values.
-
 ### Mail template preview and send routes support richer rendering context
 
 The mail template Admin API now exposes dedicated preview and send routes:
 
-- `/api/_action/mail-template/simulate`
-- `/api/_action/mail-template/preview`
-- `/api/_action/mail-template/get-data-and-send`
-- `/api/_action/mail-template/available-variables`
+-   `/api/_action/mail-template/simulate`
+-   `/api/_action/mail-template/preview`
+-   `/api/_action/mail-template/get-data-and-send`
+-   `/api/_action/mail-template/available-variables`
 
 The preview routes support sales-channel-aware rendering.
 `/api/_action/mail-template/preview` accepts `salesChannelId`, `includeHeaderFooter`, and `strictRendering`, and `/api/_action/mail-template/simulate` accepts `salesChannelId` and `strictRendering`.
@@ -103,10 +97,10 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 
 Due to misleading block names, the following blocks have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
 
-* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
-* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
-* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
-* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
+-   `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+-   `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+-   `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+-   `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
 
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering
 
@@ -115,6 +109,7 @@ This helps developers and merchants validate the final rendered output more accu
 
 The HTML preview is now rendered in a sandboxed iframe instead of being injected directly into the Administration DOM.
 This keeps the preview close to the actual mail output while reducing the risk of script execution from rendered template content.
+
 ### Custom fields respect read-only permissions in Administration detail views
 
 Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
@@ -145,6 +140,7 @@ Switch and checkbox fields in theme configuration now render and handle inherita
 Also the checkbox field is now positionally aligned with the other components.
 
 ### Resolving download errors by renaming media
+
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
 ## Storefront
@@ -240,7 +236,9 @@ The new `AbstractAgenticCommerceProductExportProvider` can be used to implement 
 ## Administration
 
 ### [Internal] Twig to Native Block Runtime Adapter
+
 A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
+
 ### Fixed mixin-based route guards for lazy-loaded administration routes
 
 Mixin-defined route guards such as `beforeRouteLeave` are now executed reliably for lazy-loaded Administration route components.
@@ -276,7 +274,8 @@ This improves discoverability for screenreader and keyboard users.
 A new option `autoFocus` (default: `true`) was added to the `cookie-permission.html.twig` template and `CookiePermissionPlugin`.
 
 In addition to this the cookie bar will be moved to the top of the body element.
-* Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
+
+-   Deprecated block position of `base_cookie_permission` Cookie permission bar will be moved to top of the body element.
 
 ### Live purchase limits for closeout products on the product detail page
 
@@ -367,7 +366,7 @@ The old microdata is deprecated and will be removed with the next major release 
 The following schema types are now emitted as JSON-LD:
 
 | Schema                                                             | Pages                                          |
-|--------------------------------------------------------------------|------------------------------------------------|
+| ------------------------------------------------------------------ | ---------------------------------------------- |
 | `WebSite` + `SearchAction`                                         | All pages (enables Google Sitelinks Searchbox) |
 | `Organization` with logo                                           | All pages                                      |
 | `WebPage` / `ProductPage` / `CollectionPage` / `SearchResultsPage` | All pages (type narrows per context)           |
@@ -377,14 +376,14 @@ The following schema types are now emitted as JSON-LD:
 
 The `Product` schema on the product detail page is significantly more complete compared to the previous microdata:
 
-- All product images are listed (previously only cover image via `itemprop`)
-- `VideoObject` entries are emitted for any video media in the product's media collection
-- `AggregateRating` now includes the required `ratingCount` (total number of approved reviews), sourced via an efficient aggregation query in `ProductPageLoader`
-- Individual `Review` items (up to 10 most recent) are included alongside `AggregateRating`
-- `OfferShippingDetails` with `ShippingDeliveryTime` is included for single-price products
-- Dimensions (`weight`, `height`, `width`, `depth`) are typed as `QuantitativeValue` nodes
-- `itemCondition` and a typed `seller` (`Organization`) are set on every `Offer`
-- `gtin13` (EAN) and `mpn` (manufacturer number) are included when present
+-   All product images are listed (previously only cover image via `itemprop`)
+-   `VideoObject` entries are emitted for any video media in the product's media collection
+-   `AggregateRating` now includes the required `ratingCount` (total number of approved reviews), sourced via an efficient aggregation query in `ProductPageLoader`
+-   Individual `Review` items (up to 10 most recent) are included alongside `AggregateRating`
+-   `OfferShippingDetails` with `ShippingDeliveryTime` is included for single-price products
+-   Dimensions (`weight`, `height`, `width`, `depth`) are typed as `QuantitativeValue` nodes
+-   `itemCondition` and a typed `seller` (`Organization`) are set on every `Offer`
+-   `gtin13` (EAN) and `mpn` (manufacturer number) are included when present
 
 #### Extending the schema templates
 
@@ -411,7 +410,7 @@ To add or change properties, override the `_script` block, merge your changes in
 The available outer / script block pairs are:
 
 | Template                         | Outer block                           | Script block                                 |
-|----------------------------------|---------------------------------------|----------------------------------------------|
+| -------------------------------- | ------------------------------------- | -------------------------------------------- |
 | `json-ld-webpage.html.twig`      | `layout_structured_data_webpage`      | `layout_structured_data_webpage_script`      |
 | `json-ld-breadcrumb.html.twig`   | `layout_structured_data_breadcrumb`   | `layout_structured_data_breadcrumb_script`   |
 | `json-ld-organization.html.twig` | `layout_structured_data_organization` | `layout_structured_data_organization_script` |
@@ -436,8 +435,9 @@ Similar to the existing Contact Form, the revocation form can be integrated and 
 External media entities can now have external thumbnail URLs attached to them, which is useful for CDNs that provide pre-generated thumbnails alongside the main media file.
 
 Two new API endpoints have been added:
-- `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
-- `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
+
+-   `POST /api/_action/media/{id}/external-thumbnails` - Add thumbnails to existing external media
+-   `DELETE /api/_action/media/{id}/external-thumbnails` - Remove all external thumbnails from media
 
 Both endpoints require the target media entity to be external (i.e. its path must be an HTTP/HTTPS URL). Attempting to call them on regular file-based media returns an error.
 
@@ -445,11 +445,19 @@ When creating external media via `POST /api/_action/media/external-link`, you ca
 
 ```json
 {
-  "url": "https://cdn.example.com/image.jpg",
-  "thumbnails": [
-    { "url": "https://cdn.example.com/image-200x200.jpg", "width": 200, "height": 200 },
-    { "url": "https://cdn.example.com/image-400x400.jpg", "width": 400, "height": 400 }
-  ]
+    "url": "https://cdn.example.com/image.jpg",
+    "thumbnails": [
+        {
+            "url": "https://cdn.example.com/image-200x200.jpg",
+            "width": 200,
+            "height": 200
+        },
+        {
+            "url": "https://cdn.example.com/image-400x400.jpg",
+            "width": 400,
+            "height": 400
+        }
+    ]
 }
 ```
 
@@ -468,13 +476,13 @@ Use `default` for global config values and sales channel IDs for channel-specifi
 
 ```yaml
 shopware:
-  staging:
-    system_config:
-      default:
-        core.mailerSettings.smtpHost: "smtp.staging.local"
-        core.listing.allowBuyInListing: false
-      0188da12724970b9b4a708298259b171:
-        core.mailerSettings.smtpHost: "smtp.other.staging.local"
+    staging:
+        system_config:
+            default:
+                core.mailerSettings.smtpHost: "smtp.staging.local"
+                core.listing.allowBuyInListing: false
+            0188da12724970b9b4a708298259b171:
+                core.mailerSettings.smtpHost: "smtp.other.staging.local"
 ```
 
 When `bin/console system:setup:staging` is executed, the configured keys are written to the database via `SystemConfigService`.
@@ -483,20 +491,20 @@ When `bin/console system:setup:staging` is executed, the configured keys are wri
 
 The following methods are deprecated and will be removed with the next major version:
 
-- `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
-- `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
-- `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
+-   `AbstractNewsletterSubscribeRoute::subscribe()` → use `subscribeWithResponse()` instead
+-   `AbstractNewsletterConfirmRoute::confirm()` → use `confirmWithResponse()` instead
+-   `AbstractNewsletterUnsubscribeRoute::unsubscribe()` → use `unsubscribeWithResponse()` instead
 
 The new methods currently return `StoreApiResponse` in the abstract classes. In the next major version, the return types will change to their explicit types:
 
-- `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
-- `confirmWithResponse()` → `SuccessResponse`
-- `unsubscribeWithResponse()` → `SuccessResponse`
+-   `subscribeWithResponse()` → `NewsletterSubscribeRouteResponse`
+-   `confirmWithResponse()` → `SuccessResponse`
+-   `unsubscribeWithResponse()` → `SuccessResponse`
 
 The Store API newsletter routes now return `200 OK` with a response body instead of `204 No Content`:
 
 | Route                               | Response                                                       |
-|-------------------------------------|----------------------------------------------------------------|
+| ----------------------------------- | -------------------------------------------------------------- |
 | `/store-api/newsletter/subscribe`   | `{"success": true, "status": "notSet\|optIn\|optOut\|direct"}` |
 | `/store-api/newsletter/confirm`     | `{"success": true}`                                            |
 | `/store-api/newsletter/unsubscribe` | `{"success": true}`                                            |
@@ -548,10 +556,10 @@ Customer recovery records (password reset tokens) expire after 2 hours. Previous
 
 The attribute-based entity definition system now supports additional field types:
 
-- `FieldType::EMAIL` maps to `EmailField` for email validation
-- `#[Password]` attribute for password fields with configurable hashing algorithm, hash options, and scope
-- `#[ListField]` attribute for storing lists with optional typed field specification
-- `FieldType::PRICE` maps to `PriceField` for price storage
+-   `FieldType::EMAIL` maps to `EmailField` for email validation
+-   `#[Password]` attribute for password fields with configurable hashing algorithm, hash options, and scope
+-   `#[ListField]` attribute for storing lists with optional typed field specification
+-   `FieldType::PRICE` maps to `PriceField` for price storage
 
 ### Inheritance added to product main categories
 
@@ -577,8 +585,8 @@ The class `\Shopware\Core\Content\Seo\SeoUrlTemplate\TemplateGroup` has been dep
 
 Two new events are dispatched when the product slider CMS element resolves its product criteria, allowing subscribers to modify the criteria:
 
-- `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
-- `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
+-   `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
+-   `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
 
 ### Allow custom HTTP client injection for S3 client creation
 
@@ -596,15 +604,15 @@ custom timeouts, retry strategies, or HTTP protocol version for S3 operations.
 
 The events below now accept an optional `Context` as the last constructor argument and implement `ShopwareEvent`. Shopware's own dispatch sites already pass the context. Third-party code that instantiates these events without `$context` will see a deprecation notice; in 6.8, the parameter becomes required. A temporary `getNullableContext()` method is available for consumers who cannot guarantee the dispatcher passed context.
 
-- `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
-- `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
-- `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
-- `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
-- `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
-- `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
-- `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
-- `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
-- `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
+-   `Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent`
+-   `Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent`
+-   `Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportExportHandlerEvent`
+-   `Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent`
+-   `Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent`
+-   `Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent`
+-   `Shopware\Storefront\Theme\Event\ThemeAssignedEvent`
+-   `Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent`
+-   `Shopware\Storefront\Theme\Event\ThemeConfigResetEvent`
 
 ### `#[Field]` attribute supports custom `maxLength` for string fields
 
@@ -627,7 +635,7 @@ Fixed media custom fields not being available as data mapping source for image e
 
 ### Block renaming
 
-* Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
+-   Deprecated block `page_product_detail_product_buy_button_label` in `Resources/views/storefront/component/product/card/action.html.twig` which will be removed in v6.8.0. Use block `component_product_box_action_buy_button_label` instead.
 
 ### Disabled runtime error overlay in webpack dev server
 
@@ -637,13 +645,13 @@ The webpack dev server overlay for runtime errors has been disabled in hot-reloa
 
 As some mail clients send `HEAD` requests to links which are contained in emails, the registration double-opt-in was sometimes already confirmed, as Symfony treats `HEAD`-requests the same as `GET`-request. Now `HEAD`-requests do not trigger the registration double-opt-in anymore, only "real" `GET`-requests.
 
-
 ### Avoid excessive use of @extend in Storefront SCSS
 
 We have refactored the SCSS of the checkout related routes (cart, confirm, finish, register) to use `@include` mixins instead of `@extend` to apply the Bootstrap grid layout.
 Using `@extend` on generic tooling classes was causing very large combined selectors. We are now using the grid mixins that are documented by Bootstrap.
 
 #### Before
+
 ```scss
 .checkout-main {
     @extend .col-lg-8;
@@ -651,6 +659,7 @@ Using `@extend` on generic tooling classes was causing very large combined selec
 ```
 
 #### After
+
 ```scss
 .checkout-main {
     @include make-col-ready();
@@ -664,9 +673,9 @@ In addition, we have refactored several places to use direct CSS or SCSS variabl
 
 #### Deprecate stylings that have no usage in the DOM or no visual effect
 
-* Deprecated `@extend .btn-lg` on `.btn-buy`. The current `.btn-buy` in combination with `.btn-lg` has the same dimensions as a normal button.
-    * If you need a larger buy button, you can use the Bootstrap CSS variables or the `button-size` mixin to increase the size.
-* Deprecated custom styling on class `.offcanvas-footer`. Class is not used in the DOM.
+-   Deprecated `@extend .btn-lg` on `.btn-buy`. The current `.btn-buy` in combination with `.btn-lg` has the same dimensions as a normal button.
+    -   If you need a larger buy button, you can use the Bootstrap CSS variables or the `button-size` mixin to increase the size.
+-   Deprecated custom styling on class `.offcanvas-footer`. Class is not used in the DOM.
 
 #### New stylelint rule to avoid `@extend`
 
@@ -717,16 +726,19 @@ The repair runs automatically once per installation and is marked as completed i
 ## Critical Fixes
 
 ### Double signature verification in app-reregistration flow
+
 Introduces a secure, asynchronous app secret rotation feature to the app system, including both API and CLI interfaces.
 Added a new API endpoint and command for rotating app secrets, implemented the underlying rotation logic, and adjusted the app registration process to support secret updates and dual signature confirmation.
 This increases security by enforcing a two-step verification process during app re-registration, ensuring that only authorized parties can update app secrets.
 
 ### LoginRoute and AccountService don't throw CustomerNotFoundException
+
 The `LoginRoute` and `AccountService` have been updated to no longer throw a `CustomerNotFoundException` when a login attempt is made with an email address that does not exist in the system.
 Instead, they will now throw a generic `BadCredentialsException` without revealing whether the email address is registered or not.
 This change enhances security by preventing potential attackers from enumerating valid email addresses through error messages.
 
 ### Improve OrderRoute deepLinkCode filter type validation
+
 Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load` to ensure the `deepLinkCode` filter is an instance of `\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter`.
 
 # 6.7.8.0
@@ -734,6 +746,7 @@ Improve the logic in `\Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::loa
 ## Features
 
 ### New internal comment for state machine state history entries
+
 A new internal comment field was added to the state change modal which can be used to add additional information about a state change.
 The internal comment is only visible in the administration and not shown to customers.
 It can be found in the state machine state history modal (state change modal) on the detail page of an order.
@@ -749,22 +762,26 @@ Custom fields used in product sorting and product streams, as well as those belo
 The increment-based message queue statistics system is deprecated and will be removed in v6.8.0.0.
 
 **What's changing:**
-- The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
-- API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
+
+-   The Administration notification center will no longer show indexing progress notifications (e.g., "X products will be indexed")
+-   API endpoint `GET /api/_info/queue.json` is deprecated - use `GET /api/_info/message-stats.json` instead
 
 **Deprecated configuration options:**
-- `shopware.admin_worker.enable_queue_stats_worker`
-- `shopware.increment.message_queue`
+
+-   `shopware.admin_worker.enable_queue_stats_worker`
+-   `shopware.increment.message_queue`
 
 **Deprecated code:**
-- `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
-- Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
+
+-   `IncrementGatewayRegistry::MESSAGE_QUEUE_POOL` constant
+-   Increment-based handling in `MessageQueueStatsSubscriber::onMessageHandled()`
 
 **Why?**
 The increment-based statistics were often inaccurate due to hardcoded multipliers and missing decrements in edge cases. The replacement functionality was introduced in https://github.com/shopware/shopware/pull/8698
 
 **Immediate disable:**
 To disable the deprecated functionality before v6.8.0.0:
+
 ```yaml
 shopware:
     admin_worker:
@@ -786,9 +803,10 @@ which could be used to check the table for existence, columns, indexes, and fore
 #### Deprecation of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
 As consequence of the introduction of the new table helper class following methods are deprecated and will be removed with the next major version:
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
-- \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
+
+-   \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnExists
+-   \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::columnIsNullable
+-   \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::tableExists
 
 ### Migration generator improvements
 
@@ -828,10 +846,10 @@ The shim is activated transparently whenever an Options API override (containing
 
 **What this means for you:**
 
-- **No immediate action required.** Your existing `Shopware.Component.override()` calls continue to work, including `this.$super()` chaining, `data`, `computed`, `watch`, and `mixins`.
-- **A deprecation warning will appear** in the browser console for each affected override. This is your signal to migrate.
-- **Lifecycle hooks** (`mounted`, `created`, etc.) are supported by the shim and mapped to their Composition API equivalents.
-- Dot-notation watch paths (e.g. `watch: { 'a.b.c': handler }`) are not supported and will be skipped with a console warning.
+-   **No immediate action required.** Your existing `Shopware.Component.override()` calls continue to work, including `this.$super()` chaining, `data`, `computed`, `watch`, and `mixins`.
+-   **A deprecation warning will appear** in the browser console for each affected override. This is your signal to migrate.
+-   **Lifecycle hooks** (`mounted`, `created`, etc.) are supported by the shim and mapped to their Composition API equivalents.
+-   Dot-notation watch paths (e.g. `watch: { 'a.b.c': handler }`) are not supported and will be skipped with a console warning.
 
 To migrate proactively or to silence the warnings, see the [Composition API Extension System migration guide](UPGRADE-6.8.md#migrating-options-api-overrides-to-the-composition-api-extension-system) in `UPGRADE-6.8.md`.
 
@@ -841,8 +859,8 @@ This feature is part of the experimental Composition API Extension System (`ADMI
 
 In `sw-product-detail-variants`, the following changes were made:
 
-* **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
-* **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
+-   **`configSettingGroups`** (now computed): Previously a `data()` property set by `loadConfigSettingGroups()`. It is now a computed property derived from `productEntity.configuratorSettings` and `groups`.
+-   **`loadConfigSettingGroups()`** (deprecated): Marked as `@deprecated tag:v6.8.0`. It will be removed in 6.8.0 without replacement.
 
 ### Deprecation of `items` prop in `sw-entity-listing` component
 
@@ -850,6 +868,7 @@ The `items` prop in the `sw-entity-listing` component has been deprecated and wi
 Please use the `dataSource` prop instead to align with the parent `sw-data-grid` component.
 
 **Before (deprecated):**
+
 ```html
 <sw-entity-listing
     :items="entityList"
@@ -859,6 +878,7 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 ```
 
 **After (recommended):**
+
 ```html
 <sw-entity-listing
     :data-source="entityList"
@@ -881,8 +901,9 @@ The color picker type for custom fields now supports adding a help text. When cr
 ### `sw-select-base` clearable button default behavior changed
 
 The `showClearableButton` prop in `sw-select-base` now defaults based on the `required` attribute:
-- When `required` is `false` or not set: clearable button is shown by default
-- When `required` is `true`: clearable button is hidden by default
+
+-   When `required` is `false` or not set: clearable button is shown by default
+-   When `required` is `true`: clearable button is hidden by default
 
 Previously, the clearable button was always hidden by default (`showClearableButton: false`).
 
@@ -895,6 +916,7 @@ Previously, the clearable button was always hidden by default (`showClearableBut
 The form validation helper (`FormValidation`) now automatically validates input fields with the native HTML `pattern` attribute. This allows you to specify regex patterns for input validation without additional JavaScript code.
 
 **Example usage:**
+
 ```html
 <input
     type="text"
@@ -905,28 +927,29 @@ The form validation helper (`FormValidation`) now automatically validates input 
 ```
 
 The pattern validator will:
-- Automatically activate when a `pattern` attribute is present on an input field
-- Validate the input value against the specified regex pattern
-- Show the appropriate error message if validation fails
-- Skip validation for empty values (use the `required` validator to check for emptiness)
+
+-   Automatically activate when a `pattern` attribute is present on an input field
+-   Validate the input value against the specified regex pattern
+-   Show the appropriate error message if validation fails
+-   Skip validation for empty values (use the `required` validator to check for emptiness)
 
 **Note:** The pattern attribute is now automatically included in the validation rules when present, similar to how the `required` attribute works. You can explicitly add it to `data-validation` for clarity, but it's not required.
 
 ### Selling and packaging information in the product detail page
 
-* Display the selling and packaging information with the product that has advanced pricing.
-* Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
+-   Display the selling and packaging information with the product that has advanced pricing.
+-   Deprecated block `buy_widget_price_unit` and it childrens in `Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig`, will be moved into `Resources/views/storefront/component/buy-widget/buy-widget.html.twig`.
 
 ### Default theme breakpoints now available in theme config
 
 The default layout breakpoints in the Storefront were hard-coded before and couldn't easily be overriden. Now you will find new theme config fields in the default config, which serve as the default values. The fields are hidden in the visual configuration, so they serve as a feature for theme developers for now. You can override the following config fields in your custom `theme.json` file to change the default breakpoints. The fields are mapped to the existing hard-coded configuration. The configuration is only passed in Twig and JS currently and there is no direct usage in SCSS, as they represent the Bootstrap default breakpoints. If you want to make a full override, you can simply configure the Bootstrap breakpoints in your custom SCSS and use the theme config values for that.
 
-*  `sw-breakpoint-xs`
-*  `sw-breakpoint-sm`
-*  `sw-breakpoint-md`
-*  `sw-breakpoint-lg`
-*  `sw-breakpoint-xl`
-*  `sw-breakpoint-xxl`
+-   `sw-breakpoint-xs`
+-   `sw-breakpoint-sm`
+-   `sw-breakpoint-md`
+-   `sw-breakpoint-lg`
+-   `sw-breakpoint-xl`
+-   `sw-breakpoint-xxl`
 
 ### Make static alerts announced in the screenreader
 
@@ -997,13 +1020,13 @@ This can be useful for large catalogs that use grouped product listings and need
 
 The following HTTP cache reverse proxy configuration options have been doing nothing since 6.7.0.0 and are therefore now deprecated. They will be removed in version 6.8.0.0:
 
-- `shopware.http_cache.reverse_proxy.use_varnish_xkey`
-- `shopware.http_cache.reverse_proxy.ban_method`
-- `shopware.http_cache.reverse_proxy.ban_headers`
-- `shopware.http_cache.reverse_proxy.purge_all`
-  - `shopware.http_cache.reverse_proxy.purge_all.ban_method`
-  - `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
-  - `shopware.http_cache.reverse_proxy.purge_all.urls`
+-   `shopware.http_cache.reverse_proxy.use_varnish_xkey`
+-   `shopware.http_cache.reverse_proxy.ban_method`
+-   `shopware.http_cache.reverse_proxy.ban_headers`
+-   `shopware.http_cache.reverse_proxy.purge_all`
+    -   `shopware.http_cache.reverse_proxy.purge_all.ban_method`
+    -   `shopware.http_cache.reverse_proxy.purge_all.ban_headers`
+    -   `shopware.http_cache.reverse_proxy.purge_all.urls`
 
 If you are currently using any of these options, you can safely remove them from your configuration.
 
@@ -1012,12 +1035,14 @@ If you are currently using any of these options, you can safely remove them from
 The `number_of_shards` and `number_of_replicas` settings for Elasticsearch indices are now configurable via environment variables instead of being hardcoded.
 
 For the Storefront/Store API Elasticsearch:
-- `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
-- `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
+
+-   `SHOPWARE_ES_NUMBER_OF_SHARDS` (default: empty, meaning Elasticsearch default)
+-   `SHOPWARE_ES_NUMBER_OF_REPLICAS` (default: empty, meaning Elasticsearch default)
 
 For the Admin Elasticsearch:
-- `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
-- `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
+
+-   `SHOPWARE_ADMIN_ES_NUMBER_OF_SHARDS` (default: `3`, will also be empty with next major)
+-   `SHOPWARE_ADMIN_ES_NUMBER_OF_REPLICAS` (default: `3`, will also be empty with next major)
 
 ## Critical Fixes
 
@@ -1026,8 +1051,9 @@ For the Admin Elasticsearch:
 A new configuration option `shopware.cache.disable_stampede_protection` has been added to prevent deadlocks when using file-based sessions with Symfony's cache stampede protection.
 
 **Problem**: A deadlock (ABBA pattern) can occur when:
-- Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
-- Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
+
+-   Process 1: Acquires Session File Lock → Needs Cache → Tries to acquire Cache Lock
+-   Process 2: Acquires Cache Lock (stampede protection) → Needs Session → Tries to acquire Session File Lock
 
 **Solution**: Set `shopware.cache.disable_stampede_protection: true` in your configuration to disable file-based cache locking when file-based sessions are in use.
 
@@ -1095,14 +1121,16 @@ Click Save, and your changes are applied instantly.
 ### Improved tagged-based cache invalidation
 
 The following routes now support cache tagging, enabling automatic invalidation when relevant entities are written:
-* `/store-api/breadcrumb/{id}`
-* `/store-api/media`
-* `/store-api/product/{productId}/find-variant`
-* `/store-api/product/{productId}/cross-selling`
+
+-   `/store-api/breadcrumb/{id}`
+-   `/store-api/media`
+-   `/store-api/product/{productId}/find-variant`
+-   `/store-api/product/{productId}/cross-selling`
 
 ## Core
 
 ### Rework of DAL query generation for nested filters groups
+
 The DAL criteria builder has been adjusted to generate `EXISTS` subqueries instead of `LEFT JOIN`s for nested filter groups.
 
 Previously, each level of nested filters resulted in an additional `LEFT JOIN`, even when the join was only required to check for the existence of a related entity subject to some filter.
@@ -1110,6 +1138,7 @@ In complex criteria trees with multiple filters on the same entity, this led to 
 
 An example of this is a query such as "find orders that have a line item of type A and one of type B and one of type C".
 According to [aadr/2020-11-19-dal-join-filter.md](adr/2020-11-19-dal-join-filter.md), this would look like:
+
 ```php
 $criteria->addFilter(
     new EqualsFilter('lineItems.type', 'product'),
@@ -1117,6 +1146,7 @@ $criteria->addFilter(
     new EqualsFilter('lineItems.type', 'other'),
 );
 ```
+
 Previously, the generated query would `LEFT JOIN` `order_line_item` multiple times onto `order`, causing the query to be extremely slow. The new `EXISTS` checks prevent this, making the query much faster.
 
 ### Introduce Immutable DAL flag
@@ -1126,9 +1156,9 @@ Fields marked as immutable can be set during entity creation but cannot be updat
 This prevents accidental renames of technical identifiers that other subsystems rely on.
 Core entities now using the flag include:
 
-* `custom_field.name`
-* `custom_field.type`
-* `custom_field_set.name`
+-   `custom_field.name`
+-   `custom_field.type`
+-   `custom_field_set.name`
 
 Trying to update these columns now results in a `WriteConstraintViolationException` with the message `The field foo is immutable and cannot be updated.`, giving developers clear feedback when attempting to change these values.
 If the value is not set in the payload, or the value won't change, no exception is thrown.
@@ -1145,12 +1175,13 @@ The `product.states` field is deprecated and will be removed in the next major r
 A new field `product.type` was introduced to clearly indicate whether a product is `digital` or `physical`, or other types registered by third-party developers.
 
 As part of this change, the following deprecations were made:
-- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
-- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
-- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
-- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
-- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
-- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
+
+-   The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
+-   `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
+-   The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
+-   The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
+-   A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+-   For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
 
 If you are using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
@@ -1163,10 +1194,13 @@ The best practice is to check the explicit parameter bag, where you expect the p
 However, as we have a lot of API routes that support being called by `GET` and `POST` methods both, the helper is handy in such cases.
 
 Before:
+
 ```php
 $parameter = $request->get($parameterName, $default);
 ```
+
 After:
+
 ```php
 $parameter = RequestParameterHelper::get($request, $parameterName, $default);
 ```
@@ -1187,6 +1221,7 @@ All factory methods for domain exceptions now return specific exception classes 
 Changing the type of the thrown exception from `\RuntimeException` to a specific domain exception is not considered a breaking change, since all Domain Exceptions extend from `\RuntimeException`.
 
 This means code like this will stay valid:
+
 ```php
 try {
     $this->someService->willThrowDomainException();
@@ -1197,16 +1232,17 @@ try {
 
 Additionally all changed factory methods were marked as deprecated, because the `\RuntimeException` return type will be removed in the next major release.
 This affects the following exception factory methods:
-* `DataAbstractionLayerException::cannotBuildAccessor(...)`
-* `DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated(...)`
-* `DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition(...)`
-* `DataAbstractionLayerException::primaryKeyNotStorageAware(...)`
-* `DataAbstractionLayerException::missingTranslatedStorageAwareProperty(...)`
-* `DataAbstractionLayerException::noTranslationDefinition(...)`
-* `DataAbstractionLayerException::missingVersionField(...)`
-* `DataAbstractionLayerException::unexpectedFieldType(...)`
-* `WebhookException::invalidDataMapping(...)`
-* `WebhookException::unknownEventDataType(...)`
+
+-   `DataAbstractionLayerException::cannotBuildAccessor(...)`
+-   `DataAbstractionLayerException::onlyStorageAwareFieldsAsTranslated(...)`
+-   `DataAbstractionLayerException::onlyStorageAwareFieldsInReadCondition(...)`
+-   `DataAbstractionLayerException::primaryKeyNotStorageAware(...)`
+-   `DataAbstractionLayerException::missingTranslatedStorageAwareProperty(...)`
+-   `DataAbstractionLayerException::noTranslationDefinition(...)`
+-   `DataAbstractionLayerException::missingVersionField(...)`
+-   `DataAbstractionLayerException::unexpectedFieldType(...)`
+-   `WebhookException::invalidDataMapping(...)`
+-   `WebhookException::unknownEventDataType(...)`
 
 ### More fine-grained caching control in `HttpCacheCookieEvent`
 
@@ -1235,14 +1271,16 @@ The media modal in Shopping Experiences has been refactored from `sw-modal` to `
 The mail template index will be split into separate tabs for templates and headers/footers in v6.8.0.0.
 
 The following deprecations apply to `sw-mail-template-list` and `sw-mail-header-footer-list`:
-* `searchTerm` prop and watcher will be removed in v6.8.0.0
-* `getList()` method: `searchTerm` variable will be replaced with `this.term` in v6.8.0.0
-* `@page-change` handler will change to `onPageChange` in v6.8.0.0
+
+-   `searchTerm` prop and watcher will be removed in v6.8.0.0
+-   `getList()` method: `searchTerm` variable will be replaced with `this.term` in v6.8.0.0
+-   `@page-change` handler will change to `onPageChange` in v6.8.0.0
 
 The following deprecations apply to `sw-mail-template-index`:
-* The `listing` mixin will be removed in v6.8.0.0
-* `term` data property will be removed in v6.8.0.0
-* `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
+
+-   The `listing` mixin will be removed in v6.8.0.0
+-   `term` data property will be removed in v6.8.0.0
+-   `onChangeLanguage` method: the if/else block will be replaced with just the if-branch logic in v6.8.0.0
 
 ### Fixed `sw-entity-multi-id-select` crash when used in plugin system config with sales channel inheritance
 
@@ -1259,6 +1297,7 @@ The loading spinner shown while the admin is booting up no longer spins indefini
 The cookie consent banner now tracks cookie configuration per language. Previously, switching languages would cause the cookie banner to reappear because the configuration hash changed due to translated cookie descriptions. Now, switching back to a previously accepted language will not show the banner again.
 
 The Store API endpoint `/store-api/cookie-groups` now includes a `languageId` field in the response.
+
 ### New `window.activeNavigationPathIdList` variable
 
 A new global JavaScript variable `window.activeNavigationPathIdList` is now available, containing the IDs of parent categories for the current page. This can be used by plugins or themes to implement custom navigation highlighting.
@@ -1271,31 +1310,33 @@ The cookie consent dialog now uses toggle switches instead of checkboxes for a m
 
 The following changes are relevant when HTTP caching policies feature is enabled (`CACHE_REWORK` or `v6.8.0.0` feature flag):
 
-* HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
-* `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
+-   HTTP caching policy system now takes into account `_noStore` route attribute to apply `no-store` directive in Cache-Control header.
+-   `Cache-Control` header set by policies is sent to the client for all responses, even when no reverse proxy is enabled. Previously, headers were replaced with `no-cache` when no reverse proxy was configured. **Important**: Verify your cache policy configuration is appropriate for client-side caching, as browser caches cannot be invalidated on-demand unlike reverse proxies that use tag-based invalidation.
 
 ### First tap on iOS Safari did not trigger call-to-action buttons on product detail page
+
 Fixes an issue on iOS Safari where the first tap does not trigger the desired action on the product detail page after scrolling over the image gallery.
 The `touchmove` event listener was removed from `zoom-modal.plugin.js` because it stopped the tap/click event.
 A regular `click` event is used instead to open the Zoom-Modal. The browser itself can determine via the `click` event if the user is still scrolling or clicking/taping.
 
 ### Better handling of JS plugin initialization for async content
+
 When content was loaded asyncronously within offcanvas elements or modals, all JS plugins of the page were initialized again, causing that update methods of all plugins to be called. We added a new method `initializePluginsInParentElement()` to the plugin manager to enable plugin initialization scoped to a parent element. This creates the possibility to initlize plugins only within newly added or async fetched content. The correposnding calls were updated in the following plugins:
 
-*  `ajax-offcanvas.plugin.js`
-*  `offcanvas-cart.plugin.js`
-*  `offcanvas-menu.plugin.js`
-*  `offcanvas-tabs.plugin.js`
-*  `ajax-modal.plugin.js`
+-   `ajax-offcanvas.plugin.js`
+-   `offcanvas-cart.plugin.js`
+-   `offcanvas-menu.plugin.js`
+-   `offcanvas-tabs.plugin.js`
+-   `ajax-modal.plugin.js`
 
 ### Google Analytics 4 Integration Update
 
 The Google Analytics integration has been updated to align with `GA4` standards, enhancing e-commerce tracking capabilities.
 
-- The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
-- Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
-- The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
-- The `view_item_list` and `add_to_cart` events now fire when users navigate through product listings via pagination or apply filters, not just on initial page load.
+-   The event parameters for `add_to_cart`, `begin_checkout`, `purchase`, `view_item`, and `remove_from_cart` have been enriched with additional data such as `currency`, `value`, `item_brand`, and a hierarchical `item_category` structure.
+-   Furthermore, new events for `add_to_wishlist`, `remove_from_wishlist`, `view_cart`, `add_shipping_info`, and `add_payment_info` have been implemented to provide a more comprehensive view of user interactions.
+-   The checkout funnel now tracks shipping and payment method selections, including when users change their selections.
+-   The `view_item_list` and `add_to_cart` events now fire when users navigate through product listings via pagination or apply filters, not just on initial page load.
 
 #### New Configuration: Track Offcanvas Cart
 
@@ -1328,57 +1369,64 @@ Additionally, the cache will be passed as soon as there is a flash message that 
 
 ### HTTP caching rework
 
-- Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
-  and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
-  together with other HTTP caching improvements.
-- Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
+-   Support for HTTP caching policies was added. It allows defining HTTP cache behavior per area (storefront, store_api)
+    and per route using configuration. The feature is experimental and can be enabled with the `CACHE_REWORK` feature flag
+    together with other HTTP caching improvements.
+-   Selected Store API routes were marked as cacheable and now support HTTP caching with Cache-Control headers.
 
 ### Send email on customer password change
+
 A new flow has been introduced which sends a confirmation email whenever a customer changes their password. This helps to identify any suspicious account activity more quickly.
 
 ## API
 
 ### Video cover management `/api/_action/media/{mediaId}/video-cover`
+
 Added endpoint to assign or remove cover images for video media files. Requires `media.editor` ACL permission.
 Accepts `coverMediaId` (string or null) in request body.
 Cover image reference is stored in `metaData.video.coverMediaId`.
 When a cover image is deleted, all video references are automatically cleaned up via `VideoCoverCleanupSubscriber`.
 
 ### StoreAPI HTTP caching support
+
 HTTP caching support was added for the following Store API endpoints:
-- `/store-api/breadcrumb/{id}`
-- `/store-api/category`
-- `/store-api/category/{navigationId}`
-- `/store-api/navigation/{activeId}/{rootId}`
-- `/store-api/cms/{id}`
-- `/store-api/product`
-- `/store-api/seo-url`
-- `/store-api/country`
-- `/store-api/country-state/{countryId}`
-- `/store-api/currency`
-- `/store-api/language`
-- `/store-api/salutation`
+
+-   `/store-api/breadcrumb/{id}`
+-   `/store-api/category`
+-   `/store-api/category/{navigationId}`
+-   `/store-api/navigation/{activeId}/{rootId}`
+-   `/store-api/cms/{id}`
+-   `/store-api/product`
+-   `/store-api/seo-url`
+-   `/store-api/country`
+-   `/store-api/country-state/{countryId}`
+-   `/store-api/currency`
+-   `/store-api/language`
+-   `/store-api/salutation`
 
 `GET` methods and HTTP caching support were added for the following Store API endpoints:
-- `/store-api/media`
-- `/store-api/product/{productId}/cross-selling`
-- `/store-api/product/{productId}`
-- `/store-api/product/{productId}/find-variant`
-- `/store-api/product-listing/{categoryId}`
-- `/store-api/product/{productId}/reviews`
-- `/store-api/search`
-- `/store-api/search-suggest`
-- `/store-api/landing-page/{landingPageId}`
+
+-   `/store-api/media`
+-   `/store-api/product/{productId}/cross-selling`
+-   `/store-api/product/{productId}`
+-   `/store-api/product/{productId}/find-variant`
+-   `/store-api/product-listing/{categoryId}`
+-   `/store-api/product/{productId}/reviews`
+-   `/store-api/search`
+-   `/store-api/search-suggest`
+-   `/store-api/landing-page/{landingPageId}`
 
 It's intended to work with the new HTTP caching policy system, and should increase performance for cacheable Store API requests.
 
 ### Store API: compressed criteria parameter support
+
 Criteria can be passed in the GET requests as single query parameter, encoded as JSON -> gzip -> base64url. This allows
 sending complex criteria without hitting URL length limits. Also, ProductListingCriteria fields are supported.
 Please note that this is a temporary workaround intended to be used until `QUERY` request method is standardized and supported.
 Check the [ADR](adr/2025-09-15-store-api-cache-strategy.md) for more details.
 
 ### Document download `/store-api/document/download/`
+
 The endpoint now selects the document file type based on the `Accept` header.
 When no `Accept` header is set or with `*/*`, `PDF` will be returned. (PR #12944)
 
@@ -1391,7 +1439,7 @@ Shopware is now fully compatible with PHP 8.5.
 ### Deprecation of `sw-states` and `sw-currency` handling and new way to disable caching
 
 The `sw-states` and `sw-currency` handling is deprecated, which means by default the HTTP-Cache will also be active for logged in customers or when the cart is filled in the next major version.
-You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes),  `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
+You can opt in to the new behaviour by activating either the `v6.8.0.0` (all upcoming breaking changes), `PERFORMANCE_TWEAKS` (all performance related breaks) or `CACHE_REWORK` (only the HTTP-Cache related breaks) feature flag.
 
 Due to the rework of the contained rules in the cache hash, this becomes efficiently possible. The complete caching behaviour is now controlled by the `sw-cache-hash` cookie.
 
@@ -1399,16 +1447,18 @@ You should rework you extensions to also work with enabled cache for logged in c
 To modify the default behaviour there are several extension points you can hook into, for a detailed explanation please take a look at the [caching docs](https://developer.shopware.com/docs/guides/plugins/plugins/framework/caching/#manipulating-the-cache-key).
 
 The following classes and constants were deprecated as they will not be used anymore:
-* `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
-* `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
-* `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
+
+-   `\Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator`
+-   `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber`
+-   `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::SYSTEM_STATE_COOKIE`
+-   `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::INVALIDATION_STATES_HEADER`
+-   `\Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator::CURRENCY_COOKIE`
+-   `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_LOGGED_IN`
+-   `\Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber::STATE_CART_FILLED`
 
 Additionally, the following configuration was deprecated:
-* `shopware.cache.invalidation.http_cache`
+
+-   `shopware.cache.invalidation.http_cache`
 
 ### HTTP Caching Policies
 
@@ -1444,33 +1494,39 @@ This behaviour is now optional and can be enabled by setting the `core.listing.f
 ## Administration
 
 As part of this change, the following deprecations were made:
-- The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
-- `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
-- The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
-- The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
-- A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
-- For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
+
+-   The `order_line_item.states` field is deprecated in favor of `order_line_item.payload.product_type`.
+-   `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$states` is deprecated in favor of `\Shopware\Core\Checkout\Cart\LineItem\LineItem::$payload['productType']`.
+-   The `LineItemProductStatesRule` is deprecated in favor of the new `LineItemProductTypeRule`.
+-   The `StatesUpdater` service and its related dispatched events (`ProductStatesBeforeChangeEvent`, `ProductStatesChangedEvent`) are deprecated.
+-   A new parameter `shopware.product.allowed_types` was introduced to allow third-party developers to register additional product types.
+-   For more details, please refer to the [2025-11-14-introduce-product-type-and-deprecate-states.md](adr%2F2025-11-14-introduce-product-type-and-deprecate-states.md)
 
 If you have using the rule `LineItemProductStatesRule`, product stream filters, or product listing filters that rely on `product.states`, you should update them to use the new `product.type` field instead.
 If you create digital products using admin api, you should explicitly set the `type` field to `digital` when creating new products instead of relying on backend handling.
 
 ## Administration
+
 When the initial page takes more than two seconds to load, a loading indicator appears instead of a blank page.
+
 ### Axios upgrade with dual-client dispatcher
 
 The Administration now supports axios 1.x alongside the existing axios 0.30.2 to address security vulnerability CVE-2023-45857. A dual-client dispatcher pattern has been implemented that allows both versions to coexist, enabling a gradual migration path for plugins and custom code.
 
 **Current behavior (6.7.x):**
-- Default: axios 0.30.2 (backward compatible)
-- Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
+
+-   Default: axios 0.30.2 (backward compatible)
+-   Opt-in: Add `useAxiosV1: true` to request configuration to use axios 1.x
 
 **Future behavior (6.8.0+):**
-- Default: axios 1.x (when `V6_8_0_0` feature flag is active)
-- Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
+
+-   Default: axios 1.x (when `V6_8_0_0` feature flag is active)
+-   Opt-out: Add `useAxiosV1: false` if axios 0.30.2 is still needed
 
 **Key differences between versions:**
-- **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)
-- **Error codes**: axios 1.x provides more standardized error codes like `ERR_CANCELED`
+
+-   **Cancellation**: axios 0.x uses `CancelToken`, axios 1.x uses `AbortController` (modern standard)
+-   **Error codes**: axios 1.x provides more standardized error codes like `ERR_CANCELED`
 
 Plugin developers should test their code with `useAxiosV1: true` to ensure compatibility before the 6.8 release. The migration guide is available at `technical-docs/09-security/axios-migration-guide.md`.
 
@@ -1498,9 +1554,10 @@ The options `modalTriggerSelector` and `urlAttribute` as well as the former priv
 
 As before, app developers can control caching via in app scripts using syntax `{% do response.cache.<directive> %}`, which map to `ResponseCacheConfiguration` methods.
 Next changes were made to `ResponseCacheConfiguration` methods:
-- added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
-- added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
-- deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
+
+-   added `sharedMaxAge(seconds)` - set shared (reverse proxy/CDN) cache TTL, equivalent to `s-maxage` cache control directive.
+-   added `clientMaxAge(seconds)` - set client-side (browser) cache TTL, equivalent to `max-age` cache control directive. Has effect only if `CACHE_REWORK` feature flag is enabled.
+-   deprecated `maxAge(seconds)` - use sharedMaxAge() instead.
 
 Admins can override policies per script using `route_policies` with `route#hook` pattern in configuration (see HTTP caching policies description in the Core section).
 
@@ -1529,10 +1586,10 @@ shopware:
 
 ### Deprecated HTTP cache configuration
 
-- `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
-- `shopware.http.cache.default_ttl` parameter.
-- `shopware.http_cache.stale_while_revalidate` parameter.
-- `shopware.http_cache.stale_if_error` parameter.
+-   `SHOPWARE_HTTP_DEFAULT_TTL` environment variable.
+-   `shopware.http.cache.default_ttl` parameter.
+-   `shopware.http_cache.stale_while_revalidate` parameter.
+-   `shopware.http_cache.stale_if_error` parameter.
 
 Deprecated parameters will have no effect when `CACHE_REWORK` feature flag is enabled, and will be removed in 6.8.0.0.
 
@@ -1684,6 +1741,7 @@ Now an exception will be thrown if the referenced table does not exist, instead 
 To allow the schema updater to skip creating associations if the referenced table does not exist, improving flexibility and robustness during schema updates, a new optional attribute `ignore-missing-reference` was added to association types (`one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`).
 
 Example usage:
+
 ```xml
 <one-to-many name="custom_entity" reference="quote_comment" ignore-missing-reference="true" store-api-aware="false" on-delete="set-null" />
 ```
@@ -1702,10 +1760,11 @@ When creating a SEO URL for a product or category, the URL is now checked for av
 
 We now use the `<mt-select>` instead `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch`.
 Because of that, we deprecate these twig blocks:
-* `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
-* `sw_newsletter_recipient_list_sidebar_filter_status_direct`
-* `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
-* `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
+
+-   `sw_newsletter_recipient_list_sidebar_filter_status_not_set`
+-   `sw_newsletter_recipient_list_sidebar_filter_status_direct`
+-   `sw_newsletter_recipient_list_sidebar_filter_status_opt_in`
+-   `sw_newsletter_recipient_list_sidebar_filter_status_opt_out`
 
 These blocks will be removed in v6.8.0.0 without replacement. Use the parent blocks instead.
 We also deprecate
@@ -1723,14 +1782,15 @@ New extensible Twig blocks `layout_header_actions_language_widget_content_inner`
 The `context.token` variable is no longer available in twig rendering context to prevent potential security vulnerabilities. If you need to access the token, consider using alternative methods that do not expose it in the rendered HTML.
 Usually inside the Twig storefront there is no need to handle the context token manually, as it is handled automatically via the session handling in the Storefront.
 
-
 ### Added specific `add-product-by-number` template
+
 The `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig` are deprecated and a new template `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` was added.
 
 Instead of overwriting any of the `page_checkout_cart_add_product*` blocks inside `@Storefront/storefront/page/checkout/cart/index.html.twig`,
 extend the new `@Storefront/storefront/component/checkout/add-product-by-number.html.twig` file using the same blocks.
 
 Change:
+
 ```
 {% sw_extends '@Storefront/storefront/page/checkout/_page.html.twig' %}
 
@@ -1738,7 +1798,9 @@ Change:
     {# Your content #}
 {% endblock %}
 ```
+
 to:
+
 ```
 {% sw_extends '@Storefront/storefront/component/checkout/add-product-by-number.html.twig' %}
 
@@ -1752,6 +1814,7 @@ to:
 ### Sales Channel Replace URL Command
 
 A new `sales-channel:replace:url` command was added to replace the url of a sales channel.
+
 ```bash
 bin/console sales-channel:replace:url <previous_url> <new_url>
 ```
@@ -1762,14 +1825,17 @@ The `CACHE_CONTEXT_HASH_RULES_OPTIMIZATION` feature flag was renamed to `CACHE_R
 
 To enable the new cache behaviour, set the `CACHE_REWORK` feature flag to `1` in your `.env` file:
 Before:
+
 ```
 CACHE_CONTEXT_HASH_RULES_OPTIMIZATION=1
 ```
 
 Now:
+
 ```
 CACHE_REWORK=1
 ```
+
 To not break plugins that might check for the old flag unnecessarily, the old flag will be kept until the next major release, however, the flag has no effect anymore.
 
 ### Staging configuration
@@ -1796,9 +1862,9 @@ This makes it more consistent as otherwise the types could change when they are 
 
 The exceptions
 
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`
-* `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
+-   `\Shopware\Core\System\SystemConfig\Exception\InvalidDomainException`
+-   `\Shopware\Core\System\SystemConfig\Exception\InvalidKeyException`
+-   `\Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException`
 
 are now deprecated and will be removed in v6.8.0.0.
 Use the respective factory methods in `\Shopware\Core\System\SystemConfig\SystemConfigException` instead.
@@ -1901,10 +1967,10 @@ https://github.com/shopware/shopware/pull/12654 by ffrank913 fixes Incorrect fro
 
 ### More tech updates
 
-* Framework & API: Store-API cookie groups, new route exception handling, cleaner query parsing
-* Platform ops / DX: Environment variable improvements, cache directory configurability, profiler disabled by default in production
-* Build tooling: Admin build target updated to ES2023 (plugin authors should check compatibility)
-* Deprecations / Breaking changes:
-  * Removal of `controllerName` and `controllerAction` variables in templates
-  * Deprecation of `Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher`
-* Upgrade notes: DB migration for the new category index, admin build target upgrade, profiler defaults
+-   Framework & API: Store-API cookie groups, new route exception handling, cleaner query parsing
+-   Platform ops / DX: Environment variable improvements, cache directory configurability, profiler disabled by default in production
+-   Build tooling: Admin build target updated to ES2023 (plugin authors should check compatibility)
+-   Deprecations / Breaking changes:
+    -   Removal of `controllerName` and `controllerAction` variables in templates
+    -   Deprecation of `Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher`
+-   Upgrade notes: DB migration for the new category index, admin build target upgrade, profiler defaults

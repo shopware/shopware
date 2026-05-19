@@ -161,7 +161,7 @@
                 "inputBodyLabel": "Produktzeile",
                 "inputFooterLabel": "Fußzeile",
                 "feedLabelLabel": "Google-Feed-Label",
-                "feedLabelHelpText": "Optionales Google-Merchant-Center-Feed-Label zur Gruppierung von Produkten aus derselben Datenquelle. Erlaubt: Großbuchstaben A–Z, Ziffern 0–9, Bindestriche, Unterstriche. Maximal 20 Zeichen.",
+                "feedLabelHelpText": "Optionales Google-Merchant-Center-Feed-Label zur Gruppierung von Produkten aus derselben Datenquelle. Google verlangt Großbuchstaben A–Z, Ziffern 0–9, Bindestriche oder Unterstriche, maximal 20 Zeichen.",
                 "buttonTestLabel": "Template testen",
                 "buttonPreviewLabel": "Vorschau generieren",
                 "settings": "Produktexport",

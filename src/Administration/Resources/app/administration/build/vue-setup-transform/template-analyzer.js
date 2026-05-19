@@ -655,15 +655,22 @@ function findOpeningTagAttributeEnd(template, elementStart) {
 }
 
 /**
- * Adds a leading spacer unless the insertion point already follows whitespace.
+ * Returns the insertion point immediately after an opening tag name.
  *
  * @param {string} template
- * @param {number} insertionPoint
- * @param {string} attributeSource
- * @returns {string}
+ * @param {number} elementStart
+ * @returns {number}
  */
-function createAttributeInsertion(template, insertionPoint, attributeSource) {
-    return /\s/.test(template[insertionPoint - 1] ?? '') ? attributeSource : ` ${attributeSource}`;
+function findOpeningTagNameEnd(template, elementStart) {
+    for (let index = elementStart + 1; index < template.length; index += 1) {
+        const character = template[index];
+
+        if (/\s|\/|>/.test(character)) {
+            return index;
+        }
+    }
+
+    throw new ShopwareSetupTransformError('Unable to locate <sw-block> tag name end.', elementStart);
 }
 
 /**
@@ -935,12 +942,12 @@ function analyzeBaseTemplate(block) {
      */
     function visit(node) {
         if (isSwBlockName(node) && !hasSwBlockDataProp(node)) {
-            const insertionPoint = findOpeningTagAttributeEnd(block.template.content, node.loc.start.offset);
+            const insertionPoint = findOpeningTagNameEnd(block.template.content, node.loc.start.offset);
 
             edits.push({
                 start: block.template.contentStart + insertionPoint,
                 end: block.template.contentStart + insertionPoint,
-                replacement: createAttributeInsertion(block.template.content, insertionPoint, ':data="$dataScope"'),
+                replacement: ' :data="$dataScope"',
             });
         }
 

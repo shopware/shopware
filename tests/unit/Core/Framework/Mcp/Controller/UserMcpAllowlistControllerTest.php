@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,9 +23,29 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(UserMcpAllowlistController::class)]
 class UserMcpAllowlistControllerTest extends TestCase
 {
+    private string $userId;
+
+    private UserEntity $user;
+
+    private EntityRepository&MockObject $repository;
+
+    private UserMcpAllowlistController $controller;
+
+    private Context $context;
+
     protected function setUp(): void
     {
         $_SERVER['MCP_SERVER'] = '1';
+
+        $this->userId = Uuid::randomHex();
+        $this->user = new UserEntity();
+        $this->user->setId($this->userId);
+
+        $this->repository = $this->createMock(EntityRepository::class);
+        $this->repository->method('search')->willReturn($this->makeSearchResult([$this->user]));
+
+        $this->controller = new UserMcpAllowlistController($this->repository);
+        $this->context = Context::createDefaultContext();
     }
 
     protected function tearDown(): void
@@ -41,7 +62,7 @@ class UserMcpAllowlistControllerTest extends TestCase
             $repository->expects($this->never())->method('update');
 
             $controller = new UserMcpAllowlistController($repository);
-            $response = $controller->save('some-id', $this->makeRequest(['allowlist' => null]), Context::createDefaultContext());
+            $response = $controller->save('some-id', $this->makeRequest(['allowlist' => null]), $this->context);
 
             static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         } finally {
@@ -51,10 +72,6 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     public function testSaveStructuredAllowlist(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
-
         $allowlist = [
             'tools' => ['shopware-entity-read', 'shopware-entity-search'],
             'resources' => ['shopware://entities'],
@@ -63,21 +80,16 @@ class UserMcpAllowlistControllerTest extends TestCase
 
         $savedContext = null;
         $entityEvent = $this->createMock(EntityWrittenContainerEvent::class);
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->willReturnCallback(function (array $data, Context $context) use ($userId, $allowlist, $entityEvent, &$savedContext): EntityWrittenContainerEvent {
-                static::assertSame([['id' => $userId, 'mcpAllowlist' => $allowlist]], $data);
+            ->willReturnCallback(function (array $data, Context $context) use ($allowlist, $entityEvent, &$savedContext): EntityWrittenContainerEvent {
+                static::assertSame([['id' => $this->userId, 'mcpAllowlist' => $allowlist]], $data);
                 $savedContext = $context;
 
                 return $entityEvent;
             });
 
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => $allowlist]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertNotNull($savedContext);
@@ -86,86 +98,50 @@ class UserMcpAllowlistControllerTest extends TestCase
 
     public function testSaveAllowlistNull(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
-
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $userId, 'mcpAllowlist' => null]]);
+            ->with([['id' => $this->userId, 'mcpAllowlist' => null]]);
 
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => null]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => null]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testSaveAllowlistWithAllNullTypes(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
-
         $allowlist = ['tools' => null, 'resources' => null, 'prompts' => null];
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $userId, 'mcpAllowlist' => $allowlist]]);
+            ->with([['id' => $this->userId, 'mcpAllowlist' => $allowlist]]);
 
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => $allowlist]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testSaveAllowlistWithEmptyArraysDeniesAll(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
-
         $allowlist = ['tools' => [], 'resources' => [], 'prompts' => []];
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $userId, 'mcpAllowlist' => $allowlist]]);
+            ->with([['id' => $this->userId, 'mcpAllowlist' => $allowlist]]);
 
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => $allowlist]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testAllowlistWithSubsetOfKnownKeysIsAccepted(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
-
         $allowlist = ['tools' => null];
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->once())
+        $this->repository->expects($this->once())
             ->method('update')
-            ->with([['id' => $userId, 'mcpAllowlist' => $allowlist]]);
+            ->with([['id' => $this->userId, 'mcpAllowlist' => $allowlist]]);
 
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => $allowlist]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => $allowlist]), $this->context);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
@@ -177,117 +153,78 @@ class UserMcpAllowlistControllerTest extends TestCase
         $repository->expects($this->never())->method('update');
 
         $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => null]);
 
-        $response = $controller->save(Uuid::randomHex(), $request, Context::createDefaultContext());
+        $response = $controller->save(Uuid::randomHex(), $this->makeRequest(['allowlist' => null]), $this->context);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     public function testMissingAllowlistKeyReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest([]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest([]), $this->context);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testInvalidAllowlistTypeReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => 'not-an-array']);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save($this->userId, $this->makeRequest(['allowlist' => 'not-an-array']), $this->context);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testInvalidAllowlistWithNonStringToolsReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => ['tools' => [1, 2, 3], 'resources' => null, 'prompts' => null]]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save(
+            $this->userId,
+            $this->makeRequest(['allowlist' => ['tools' => [1, 2, 3], 'resources' => null, 'prompts' => null]]),
+            $this->context,
+        );
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testInvalidAllowlistWithNonStringResourcesReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => ['tools' => null, 'resources' => [true, false], 'prompts' => null]]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save(
+            $this->userId,
+            $this->makeRequest(['allowlist' => ['tools' => null, 'resources' => [true, false], 'prompts' => null]]),
+            $this->context,
+        );
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testAllowlistWithUnknownKeyReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => ['tools' => null, 'unknownKey' => 'value']]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save(
+            $this->userId,
+            $this->makeRequest(['allowlist' => ['tools' => null, 'unknownKey' => 'value']]),
+            $this->context,
+        );
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testInvalidAllowlistWithNonArrayTypeValueReturnsBadRequest(): void
     {
-        $userId = Uuid::randomHex();
-        $user = new UserEntity();
-        $user->setId($userId);
+        $this->repository->expects($this->never())->method('update');
 
-        $repository = $this->createMock(EntityRepository::class);
-        $repository->method('search')->willReturn($this->makeSearchResult([$user]));
-        $repository->expects($this->never())->method('update');
-
-        $controller = new UserMcpAllowlistController($repository);
-        $request = $this->makeRequest(['allowlist' => ['tools' => null, 'resources' => null, 'prompts' => 'not-valid']]);
-
-        $response = $controller->save($userId, $request, Context::createDefaultContext());
+        $response = $this->controller->save(
+            $this->userId,
+            $this->makeRequest(['allowlist' => ['tools' => null, 'resources' => null, 'prompts' => 'not-valid']]),
+            $this->context,
+        );
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }

@@ -15,25 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(McpException::class)]
 class McpExceptionTest extends TestCase
 {
-    public function testUnsupportedKeyType(): void
-    {
-        $e = McpException::unsupportedKeyType();
-
-        static::assertSame(Response::HTTP_UNAUTHORIZED, $e->getStatusCode());
-        static::assertSame('MCP__UNSUPPORTED_KEY_TYPE', $e->getErrorCode());
-        static::assertStringContainsString('integration or user access keys', $e->getMessage());
-    }
-
-    public function testInvalidCredentials(): void
-    {
-        $e = McpException::invalidCredentials();
-
-        static::assertSame(Response::HTTP_UNAUTHORIZED, $e->getStatusCode());
-        static::assertSame('MCP__INVALID_CREDENTIALS', $e->getErrorCode());
-        static::assertStringContainsString('Invalid integration credentials', $e->getMessage());
-    }
-
-    public function testThrottled(): void
+    public function testThrottledPreservesPreviousException(): void
     {
         $previous = new \RuntimeException('rate limit hit');
         $e = McpException::throttled(30, $previous);

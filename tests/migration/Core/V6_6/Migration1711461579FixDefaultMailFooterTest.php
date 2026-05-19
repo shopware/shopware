@@ -35,6 +35,11 @@ class Migration1711461579FixDefaultMailFooterTest extends TestCase
         $this->germanLanguageId = $germanLanguageId;
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1711461579, (new Migration1711461579FixDefaultMailFooter())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->ensureMailFooterHasTypo();

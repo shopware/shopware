@@ -143,16 +143,14 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: mixed, 1: array<mixed>, 2: mixed}>
+     * @return iterable<array{0: mixed, 1: array<mixed>, 2: mixed}>
      */
-    public static function paramProvider(): array
+    public static function paramProvider(): iterable
     {
-        return [
-            ['some value', [], 'some value'],
-            [1, [], 1],
-            [true, [], true],
-            [null, [], null],
-        ];
+        yield 'string profiling parameter stays unchanged' => ['some value', [], 'some value'];
+        yield 'integer profiling parameter stays unchanged' => [1, [], 1];
+        yield 'profiling enabled parameter stays true' => [true, [], true];
+        yield 'missing profiling parameter stays null' => [null, [], null];
     }
 
     public function testCollectQueryWithNoParams(): void

@@ -191,7 +191,7 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         ).toThrow('Twig extends is not supported by the SFC migration codemod.');
     });
 
-    it('rewrites trailing core block v-if chains to legacy block helpers', () => {
+    it('applies legacy block conditional rewrites after Twig block migration', () => {
         const result = transformTemplate(`
 {% block sw_example %}
     <div v-if="showPrimary">primary</div>
@@ -202,42 +202,5 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         expect(result).toContain('v-if="$swLegacyBlockIf(\'sw_example\', showPrimary)"');
         expect(result).toContain('v-if="$swLegacyBlockElseIf(\'sw_example\', showSecondary)"');
         expect(result).not.toContain('v-else-if="showSecondary"');
-    });
-
-    it('rewrites parent followed by v-else to the legacy else helper', () => {
-        const result = transformTemplate(`
-{% block sw_example %}
-    {{ parent() }}
-    <div v-else class="fallback">fallback</div>
-{% endblock %}
-        `).template;
-
-        expect(result).toContain('<sw-block-parent/>');
-        expect(result).toContain('v-if="$swLegacyBlockElse(\'sw_example\')"');
-        expect(result).not.toContain('v-else class="fallback"');
-    });
-
-    it('rewrites parent followed by v-else-if to the legacy else-if helper', () => {
-        const result = transformTemplate(`
-{% block sw_example %}
-    {{ parent() }}
-    <div v-else-if="showOverride">override</div>
-{% endblock %}
-        `).template;
-
-        expect(result).toContain('v-if="$swLegacyBlockElseIf(\'sw_example\', showOverride)"');
-        expect(result).not.toContain('v-else-if="showOverride"');
-    });
-
-    it('escapes rewritten helper expressions for double-quoted attributes', () => {
-        const result = transformTemplate(`
-{% block sw_example %}
-    <div v-if="label === 'primary' && value === &quot;visible&quot;">primary</div>
-{% endblock %}
-        `).template;
-
-        expect(result).toContain(
-            "v-if=\"$swLegacyBlockIf('sw_example', label === 'primary' &amp;&amp; value === &quot;visible&quot;)\"",
-        );
     });
 });

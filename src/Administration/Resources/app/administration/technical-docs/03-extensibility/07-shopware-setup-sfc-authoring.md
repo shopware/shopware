@@ -43,6 +43,8 @@ The preprocessor runs before Vue compiles the SFC. Base components are lowered t
 
 Base mode is auto-private by default. Supported top-level local runtime bindings become private state unless they are listed in `swDefinePublic({...})`. Public state is the public override API surface. Private state is still normal component/template state; it is only hidden from the top-level public override API and remains available to overrides through `_private`.
 
+Base mode also adds `:data="$dataScope"` to every `<sw-block name="...">` that does not already declare `data`, `:data`, or `v-bind:data`. This forwards the generated script setup data scope to block overrides without requiring every base block author to write it manually.
+
 Override mode requires `swDefineOverride({...})`. Only bindings listed there replace base state. Override-local bindings are returned under deterministic private aliases only when they are referenced inside `<sw-block extends>` template content, and the transform merges those aliases into the block's default slot scope.
 
 Runtime inputs are explicit composable-style accessors:

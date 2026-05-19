@@ -135,6 +135,88 @@ const {
         expect(transformOrFail(source, 'base.vue').code).toBe(expected);
     });
 
+    it('adds the generated data scope to base sw-block declarations', () => {
+        const source = `<template>
+<article>
+    <sw-block name="sw_example_component_headline">
+        <h2>{{ headline }}</h2>
+    </sw-block>
+
+    <sw-block :name="dynamicBlockName">
+        <p>{{ headline }}</p>
+    </sw-block>
+</article>
+</template>
+<script setup sw-component="sw-my-component">
+const dynamicBlockName = 'sw_example_component_dynamic';
+const headline = 'Headline';
+
+swDefinePublic({
+    headline,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-sw-block-data.vue').code;
+
+        expect(result).toContain('<sw-block name="sw_example_component_headline" :data="$dataScope">');
+        expect(result).toContain('<sw-block :name="dynamicBlockName" :data="$dataScope">');
+    });
+
+    it('does not override user-provided data on base sw-block declarations', () => {
+        const source = `<template>
+<article>
+    <sw-block name="static_data" data="legacy">
+        <span>{{ headline }}</span>
+    </sw-block>
+
+    <sw-block name="bound_data" :data="customData">
+        <span>{{ headline }}</span>
+    </sw-block>
+
+    <sw-block name="longhand_bound_data" v-bind:data="customData">
+        <span>{{ headline }}</span>
+    </sw-block>
+</article>
+</template>
+<script setup sw-component="sw-my-component">
+const headline = 'Headline';
+const customData = {};
+
+swDefinePublic({
+    headline,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-sw-block-existing-data.vue').code;
+
+        expect(result).toContain('<sw-block name="static_data" data="legacy">');
+        expect(result).toContain('<sw-block name="bound_data" :data="customData">');
+        expect(result).toContain('<sw-block name="longhand_bound_data" v-bind:data="customData">');
+        expect(result).not.toContain('data="legacy" :data="$dataScope"');
+        expect(result).not.toContain(':data="customData" :data="$dataScope"');
+        expect(result).not.toContain('v-bind:data="customData" :data="$dataScope"');
+    });
+
+    it('adds the generated data scope to nested and self-closing base sw-block declarations', () => {
+        const source = `<template>
+<sw-block name="outer">
+    <sw-block name="inner" />
+</sw-block>
+</template>
+<script setup sw-component="sw-my-component">
+const count = 1;
+
+swDefinePublic({
+    count,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'base-nested-sw-block-data.vue').code;
+
+        expect(result).toContain('<sw-block name="outer" :data="$dataScope">');
+        expect(result).toContain('<sw-block name="inner" :data="$dataScope"/>');
+    });
+
     it('transforms override Shopware setup blocks into hidden override components', () => {
         const source = `<script setup sw-override="sw-my-component">
 import { computed } from 'vue';
@@ -177,6 +259,26 @@ export default {
 </script>`;
 
         expect(transformOrFail(source, 'component.override.vue').code).toBe(expected);
+    });
+
+    it('does not add generated data scope to override sw-block extensions', () => {
+        const source = `<template>
+<sw-block extends="sw_example_component_headline">
+    <h2>{{ headline }}</h2>
+</sw-block>
+</template>
+<script setup sw-override="sw-my-component">
+const headline = 'Headline';
+
+swDefineOverride({
+    headline,
+});
+</script>`;
+
+        const result = transformOrFail(source, 'override-sw-block-data.vue').code;
+
+        expect(result).toContain('<sw-block extends="sw_example_component_headline" #default="{ headline }">');
+        expect(result).not.toContain(':data="$dataScope"');
     });
 
     it('keeps base defineProps() outside the extendable setup callback and passes props into the bridge', () => {

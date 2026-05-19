@@ -585,6 +585,42 @@ function isSwBlockExtends(node) {
 }
 
 /**
+ * Checks whether an element is a base sw-block declaration.
+ *
+ * @param {TemplateChildNode} node
+ * @returns {node is ElementNode}
+ */
+function isSwBlockName(node) {
+    if (node.type !== NodeTypes.ELEMENT || node.tag !== 'sw-block') {
+        return false;
+    }
+
+    return node.props.some((prop) => {
+        if (prop.type === NodeTypes.ATTRIBUTE) {
+            return prop.name === 'name';
+        }
+
+        return prop.name === 'bind' && prop.arg?.isStatic && prop.arg.content === 'name';
+    });
+}
+
+/**
+ * Checks whether a sw-block already declares its data scope.
+ *
+ * @param {ElementNode} node
+ * @returns {boolean}
+ */
+function hasSwBlockDataProp(node) {
+    return node.props.some((prop) => {
+        if (prop.type === NodeTypes.ATTRIBUTE) {
+            return prop.name === 'data';
+        }
+
+        return prop.name === 'bind' && prop.arg?.isStatic && prop.arg.content === 'data';
+    });
+}
+
+/**
  * Returns the insertion point before the closing angle bracket of an opening tag.
  *
  * @param {string} template
@@ -616,6 +652,18 @@ function findOpeningTagAttributeEnd(template, elementStart) {
     }
 
     throw new ShopwareSetupTransformError('Unable to locate <sw-block> opening tag end.', elementStart);
+}
+
+/**
+ * Adds a leading spacer unless the insertion point already follows whitespace.
+ *
+ * @param {string} template
+ * @param {number} insertionPoint
+ * @param {string} attributeSource
+ * @returns {string}
+ */
+function createAttributeInsertion(template, insertionPoint, attributeSource) {
+    return /\s/.test(template[insertionPoint - 1] ?? '') ? attributeSource : ` ${attributeSource}`;
 }
 
 /**
@@ -864,7 +912,53 @@ function analyzeOverrideTemplate(block, analysis) {
     };
 }
 
+/**
+ * Creates template edits required by base SFCs.
+ *
+ * @param {ShopwareSetupBlock} block
+ * @returns {{ edits: TemplateEdit[], privateAliases: Map<string, string> }}
+ */
+function analyzeBaseTemplate(block) {
+    if (!block.template) {
+        return {
+            edits: [],
+            privateAliases: new Map(),
+        };
+    }
+
+    const ast = parseTemplate(block.template.content);
+    const edits = [];
+
+    /**
+     * @param {TemplateChildNode} node
+     * @returns {void}
+     */
+    function visit(node) {
+        if (isSwBlockName(node) && !hasSwBlockDataProp(node)) {
+            const insertionPoint = findOpeningTagAttributeEnd(block.template.content, node.loc.start.offset);
+
+            edits.push({
+                start: block.template.contentStart + insertionPoint,
+                end: block.template.contentStart + insertionPoint,
+                replacement: createAttributeInsertion(block.template.content, insertionPoint, ':data="$dataScope"'),
+            });
+        }
+
+        if (node.type === NodeTypes.ELEMENT) {
+            node.children.forEach(visit);
+        }
+    }
+
+    ast.children.forEach(visit);
+
+    return {
+        edits,
+        privateAliases: new Map(),
+    };
+}
+
 module.exports = {
+    analyzeBaseTemplate,
     analyzeOverrideTemplate,
     createOverridePrivateAlias,
 };

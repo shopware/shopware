@@ -4,7 +4,7 @@
 
 const { parseShopwareSetupSfc } = require('./sfc-parser');
 const { analyzeShopwareSetupScript } = require('./script-analyzer');
-const { analyzeOverrideTemplate } = require('./template-analyzer');
+const { analyzeBaseTemplate, analyzeOverrideTemplate } = require('./template-analyzer');
 const { lowerShopwareSetupBlock } = require('./lower');
 const { ShopwareSetupTransformError } = require('./utils/transform-error');
 
@@ -75,6 +75,10 @@ function transformShopwareSetupSfc(source, filename = 'anonymous.vue') {
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
+        if (block.mode === 'base') {
+            templateAnalysis = analyzeBaseTemplate(block);
+        }
+
         if (block.mode === 'override') {
             templateAnalysis = analyzeOverrideTemplate(block, analysis);
             analysis.overridePrivateAliases = templateAnalysis.privateAliases;

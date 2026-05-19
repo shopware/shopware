@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -423,7 +424,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(CustomEntitySchemaUpdater::class),
             $this->createMock(CustomEntityLifecycleService::class),
             '6.5.0.0',
-            'test',
+            $this->createMock(AppFeatureValidator::class),
             $this->createMock(EntityRepository::class),
             $appSourceResolver,
             $this->createMock(ConfigReader::class),

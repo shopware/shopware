@@ -1461,69 +1461,6 @@ class AppLifecycleTest extends TestCase
         static::assertNull($flow);
     }
 
-    public function testInstallAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
-    {
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
-
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
-        $appLifeCycle->install($manifest, new AppInstallParameters(), $this->context);
-    }
-
-    public function testUpdateAppWithFeaturesThatRequireSecretButNoSecretThrowsExceptionInDevEnv(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.0.xml');
-
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
-        $appLifeCycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();
-        static::assertNotNull($app);
-
-        $updatedManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
-
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
-        $appLifeCycle->update(
-            $updatedManifest,
-            new AppUpdateParameters(),
-            [
-                'id' => $app->getId(),
-                'roleId' => $app->getAclRoleId(),
-            ],
-            $this->context
-        );
-    }
-
-    public function testInstallAppWithFeaturesThatRequireSecretInDevEnvIsSuccessfulWhenSecretIsSet(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.2.xml');
-
-        $appLifeCycle = static::getContainer()->get('app-life-cycle-dev');
-        static::assertInstanceOf(AppLifecycle::class, $appLifeCycle);
-        $appLifeCycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-
-        static::assertNotNull($app);
-        static::assertTrue($this->didRegisterApp());
-    }
-
-    public function testInstallAppWithFeaturesThatRequireSecretDoesNotThrowExceptionWhenNoSecretSetAndNotInDevEnv(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/featuresRequiringSecret/manifest-1.1.xml');
-
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-
-        static::assertNotNull($app);
-    }
-
     public function testOnUninstallCustomEntitiesAreSoftDeleted(): void
     {
         // We need to stop the transaction because create table statements commit the transaction instantly

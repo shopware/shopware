@@ -11,14 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Builds one DAL-friendly write payload from one shared import/export record.
+ * Builds one DAL write payload from one normalized `ImportExportRecord`.
  *
- * This is the reverse direction of the current export builder:
- * - export: DAL entity -> ImportExportRecord
- * - import: ImportExportRecord -> DAL write payload
+ * This is the reverse direction of `ImportExportRecordBuilder`: it takes the
+ * shared record payload produced by a reader and converts it into the field
+ * names and nesting that DAL `upsert()` expects.
  *
- * The profile still drives the shape through `recordPaths`, so the builder only
- * copies values that the profile explicitly allows.
+ * The profile still drives the shape through `recordPaths`, so only explicitly
+ * allowed paths are copied into the final write payload.
  *
  * Example record payload:
  *
@@ -70,7 +70,7 @@ class ImportPayloadBuilder
     }
 
     /**
-     * Builds one DAL write payload from one import/export record.
+     * Main import mapping entrypoint for one record.
      */
     public function build(ImportExportRecord $record, ImportExportV2ProfileEntity $profile): array
     {
@@ -79,11 +79,9 @@ class ImportPayloadBuilder
         $payload = [];
 
         if (isset($record->payload['id']) && \is_string($record->payload['id']) && $record->payload['id'] !== '') {
-            // `matchBy` injects the resolved root entity id into the mutable
-            // record payload. Preserve it here so DAL upsert performs an update
-            // instead of trying to create a new root entity.
-            // TODO: is it correct that this is always `id`? What if the entity has a different primary key?
-            // Or we can say import/export only supports root entities with `id` as primary key, which is the common case anyway
+            // `matchBy` resolves an existing root entity before import and
+            // injects its id into the shared record payload. Keeping that id in
+            // the DAL payload turns the write into an update instead of a create.
             $payload['id'] = $record->payload['id'];
         }
 
@@ -95,33 +93,24 @@ class ImportPayloadBuilder
     }
 
     /**
+     * Copies one configured `recordPath` from the shared import record into the
+     * final DAL write payload.
+     *
+     * Most paths can be written generically through `RecordPathWalker`. The two
+     * special cases are:
+     * - `translations.DEFAULT.*`, which becomes the system language id
+     * - `manyToOne.id`, which becomes the DAL foreign-key field like `taxId`
+     *
      * @param array<string, mixed> $payload
      * @param array<string, mixed> $recordPayload
      */
     private function writePayloadValue(array &$payload, array $recordPayload, EntityDefinition $definition, string $path): void
     {
-        if ($this->parseListPath($path) !== null) {
-            $values = $this->readListValues($recordPayload, $path);
-            if ($values !== []) {
-                $this->writeListValues($payload, $path, $values);
-            }
-
+        $value = RecordPathWalker::readValue($recordPayload, $path);
+        if ($value === null || $value === []) {
             return;
         }
 
-        $value = $this->readValue($recordPayload, $path);
-        if ($value === null) {
-            return;
-        }
-
-        $this->writeScalarValue($payload, $definition, $path, $value);
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function writeScalarValue(array &$payload, EntityDefinition $definition, string $path, mixed $value): void
-    {
         if (str_starts_with($path, 'translations.DEFAULT.')) {
             $path = 'translations.' . Defaults::LANGUAGE_SYSTEM . '.' . substr($path, \strlen('translations.DEFAULT.'));
         }
@@ -133,146 +122,12 @@ class ImportPayloadBuilder
         if ($field instanceof ManyToOneAssociationField && \count($segments) === 2 && $segments[1] === 'id') {
             $fkField = $definition->getFields()->getByStorageName($field->getStorageName());
             if ($fkField instanceof FkField) {
-                // Reverse of export `taxId -> tax.id`: for import we prefer the
-                // DAL foreign key field directly whenever the record path is a
-                // simple many-to-one id reference.
                 $payload[$fkField->getPropertyName()] = $value;
 
                 return;
             }
         }
 
-        $this->writeValue($payload, $path, $value);
-    }
-
-    /**
-     * @param array<string, mixed> $target
-     */
-    private function writeValue(array &$target, string $path, mixed $value): void
-    {
-        $segments = explode('.', $path);
-        $current = &$target;
-
-        foreach ($segments as $index => $segment) {
-            $segment = ctype_digit($segment) ? (int) $segment : $segment;
-            $isLast = $index === \count($segments) - 1;
-
-            if ($isLast) {
-                $current[$segment] = $value;
-
-                return;
-            }
-
-            if (!isset($current[$segment]) || !\is_array($current[$segment])) {
-                $current[$segment] = [];
-            }
-
-            $current = &$current[$segment];
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param list<string> $values
-     */
-    private function writeListValues(array &$payload, string $path, array $values): void
-    {
-        ['prefix' => $prefix, 'suffix' => $suffix] = $this->parseListPath($path) ?? ['prefix' => '', 'suffix' => ''];
-        $existingItems = $this->readValue($payload, $prefix);
-        $items = \is_array($existingItems) ? $existingItems : [];
-
-        foreach ($values as $index => $value) {
-            if ($suffix === '') {
-                $items[$index] = $value;
-
-                continue;
-            }
-
-            $item = isset($items[$index]) && \is_array($items[$index]) ? $items[$index] : [];
-            $this->writeValue($item, $suffix, $value);
-            $items[$index] = $item;
-        }
-
-        $this->writeValue($payload, $prefix, array_values($items));
-    }
-
-    /**
-     * @param array<string, mixed> $source
-     */
-    private function readValue(array $source, string $path): mixed
-    {
-        $segments = explode('.', $path);
-        $current = $source;
-
-        foreach ($segments as $segment) {
-            $segment = ctype_digit($segment) ? (int) $segment : $segment;
-
-            if (!\is_array($current) || !\array_key_exists($segment, $current)) {
-                return null;
-            }
-
-            $current = $current[$segment];
-        }
-
-        return $current;
-    }
-
-    /**
-     * @param array<string, mixed> $source
-     *
-     * @return list<string>
-     */
-    private function readListValues(array $source, string $path): array
-    {
-        ['prefix' => $prefix, 'suffix' => $suffix] = $this->parseListPath($path) ?? ['prefix' => '', 'suffix' => ''];
-
-        $list = $this->readValue($source, $prefix);
-        if (!\is_array($list)) {
-            return [];
-        }
-
-        $values = [];
-        foreach ($list as $item) {
-            if ($suffix === '') {
-                $value = $item;
-            } elseif (\is_array($item)) {
-                $value = $this->readValue($item, $suffix);
-            } else {
-                $value = null;
-            }
-
-            if ($value === null) {
-                continue;
-            }
-
-            $values[] = (string) $value;
-        }
-
-        return $values;
-    }
-
-    /**
-     * Supports both:
-     *
-     * - `association.*.field`
-     * - `plainListField.*`
-     *
-     * @return array{prefix: string, suffix: string}|null
-     */
-    private function parseListPath(string $path): ?array
-    {
-        if (str_contains($path, '.*.')) {
-            [$prefix, $suffix] = explode('.*.', $path, 2);
-
-            return $prefix !== '' ? ['prefix' => $prefix, 'suffix' => $suffix] : null;
-        }
-
-        if (str_ends_with($path, '.*')) {
-            $prefix = substr($path, 0, -2);
-
-            return $prefix !== '' ? ['prefix' => $prefix, 'suffix' => ''] : null;
-        }
-
-        return null;
+        RecordPathWalker::writeValue($payload, $path, $value);
     }
 }

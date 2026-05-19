@@ -92,6 +92,12 @@ What it does:
 - reads translated values like translations.DEFAULT.name
 - keeps list relations like categories.*.id as:
 categories: [{ id: cat-1 }, { id: cat-2 }]
+- supports nested wildcard paths for JSON payloads, for example:
+lineItems.*.tags.*.name
+
+Note:
+CSV keeps the current one-wildcard limitation, because its flat column format
+does not yet define how nested lists should be encoded
 
 Extensions can enrich the converted record here via:
 - ExportRecordConvertedEvent"]
@@ -236,6 +242,7 @@ ImportPayloadBuilder converts records into DAL-friendly payloads
 Examples:
 tax.id -> taxId
 tags.*.name stays nested
+lineItems.*.tags.*.name stays nested for JSON payloads
 customFields.exportedPrice.unitPrice stays nested
 
 Extensions can enrich the write payload here via:

@@ -3,14 +3,26 @@
 namespace Shopware\Core\Content\ImportExportV2\Format\Csv;
 
 use Shopware\Core\Content\ImportExportV2\Exception\ImportExportV2Exception;
+use Shopware\Core\Content\ImportExportV2\Record\RecordPathWalker;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Small helper for the CSV format layer.
+ * CSV-specific mapping helper between flat columns and nested record payloads.
  *
- * CSV columns are flat, but record payload arrays are nested. This helper
- * translates between those two shapes so the CSV reader and writer do not each
- * have to reimplement dotted-path payload access.
+ * JSON can carry the record tree directly. CSV cannot, so the reader and
+ * writer need a small set of conventions for:
+ * - scalar dotted paths like `tax.id`
+ * - one-level list paths like `tags.*.name`
+ * - flat list cells like `tag-1|tag-2`
+ *
+ * Important limitation: CSV currently supports only one wildcard list level.
+ * Paths like `tags.*.name` and `categoryTree.*` work, but nested wildcard
+ * paths such as `lineItems.*.tags.*.name` are intentionally not supported.
+ * JSON can represent that structure directly; CSV would require more
+ * complex conventions and parsing logic that we want to avoid for now.
+ *
+ * Scalar dotted-path access is delegated to the shared `RecordPathWalker`.
+ * This helper only keeps the CSV-specific list parsing and validation rules.
  *
  * @internal
  */
@@ -18,7 +30,7 @@ use Shopware\Core\Framework\Log\Package;
 final class CsvMappingHelper
 {
     /**
-     * Writes one value from a flat CSV column into a nested payload path.
+     * Writes one scalar CSV column value into a nested record payload path.
      *
      * Example:
      * ```php
@@ -47,41 +59,25 @@ final class CsvMappingHelper
      * ]
      * ```
      *
-     * We need this during CSV import because mappings like `product_number` ->
-     * `productNumber` and `tax_id` -> `tax.id` must rebuild the nested payload
-     * shape from flat columns.
+     * Used during CSV import for simple mappings like:
+     * - `product_number` -> `productNumber`
+     * - `tax_id` -> `tax.id`
      *
      * @param array<string, mixed> $payload
      */
     public static function writeValueToRecordPath(array &$payload, string $path, mixed $value): void
     {
-        $segments = explode('.', $path);
-        $current = &$payload;
-
-        foreach ($segments as $index => $segment) {
+        foreach (explode('.', $path) as $segment) {
             if ($segment === '*') {
                 throw ImportExportV2Exception::invalidPath($path);
             }
-
-            $segment = ctype_digit($segment) ? (int) $segment : $segment;
-            $isLast = $index === \count($segments) - 1;
-
-            if ($isLast) {
-                $current[$segment] = $value;
-
-                return;
-            }
-
-            if (!isset($current[$segment]) || !\is_array($current[$segment])) {
-                $current[$segment] = [];
-            }
-
-            $current = &$current[$segment];
         }
+
+        RecordPathWalker::writeValue($payload, $path, $value);
     }
 
     /**
-     * Writes a flat CSV list column into a nested `*` payload path.
+     * Writes one split CSV list column into a one-level `*` record path.
      *
      * Example:
      * ```php
@@ -112,9 +108,8 @@ final class CsvMappingHelper
      * ]
      * ```
      *
-     * We need this during CSV import for columns like `category_ids`, where a
-     * flat string such as `cat-1|cat-2` is split first and then rebuilt into
-     * the nested payload list structure.
+     * Used during CSV import after a cell like `cat-1|cat-2` has already been
+     * split into `['cat-1', 'cat-2']`.
      *
      * @param array<string, mixed> $payload
      * @param list<string> $values
@@ -147,8 +142,7 @@ final class CsvMappingHelper
     }
 
     /**
-     * Reads one nested value from a payload path so it can be written back into a
-     * flat CSV column.
+     * Reads one scalar value from a nested record payload for CSV export.
      *
      * Example:
      * ```php
@@ -162,32 +156,22 @@ final class CsvMappingHelper
      * self::readValueFromRecordPath($payload, 'manufacturer.id'); // null
      * ```
      *
-     * We need this during CSV export for simple one-column mappings such as
+     * Used during CSV export for simple one-column mappings such as
      * `productNumber` or `tax.id`.
      *
      * @param array<string, mixed> $payload
      */
     public static function readValueFromRecordPath(array $payload, string $path): mixed
     {
-        $segments = explode('.', $path);
-        $current = $payload;
-
-        foreach ($segments as $segment) {
-            $segment = ctype_digit($segment) ? (int) $segment : $segment;
-
-            if (!\is_array($current) || !\array_key_exists($segment, $current)) {
-                return null;
-            }
-
-            $current = $current[$segment];
+        if (in_array('*', explode('.', $path), true)) {
+            return null;
         }
 
-        return $current;
+        return RecordPathWalker::readValue($payload, $path);
     }
 
     /**
-     * Reads a nested `*` list path from a payload and flattens it into strings
-     * that can be joined into one CSV column.
+     * Reads one one-level `*` list path and flattens it into CSV cell values.
      *
      * Example:
      * ```php
@@ -212,8 +196,8 @@ final class CsvMappingHelper
      * // ['cat-1', 'cat-2']
      * ```
      *
-     * We need this during CSV export for list columns such as `category_ids`.
-     * The writer later joins the returned values with the configured separator,
+     * Used during CSV export for list columns such as `category_ids`. The
+     * caller later joins the returned values with the configured separator,
      * for example `cat-1|cat-2`.
      *
      * @param array<string, mixed> $payload
@@ -255,10 +239,11 @@ final class CsvMappingHelper
     }
 
     /**
-     * Supports both:
-     *
+     * Parses the two CSV list path shapes we currently support:
      * - `association.*.field`
      * - `plainListField.*`
+     *
+     * Nested wildcard paths are rejected here on purpose.
      *
      * @return array{prefix: string, suffix: string}|null
      */
@@ -267,7 +252,11 @@ final class CsvMappingHelper
         if (str_contains($path, '.*.')) {
             [$prefix, $suffix] = explode('.*.', $path, 2);
 
-            return $prefix !== '' ? ['prefix' => $prefix, 'suffix' => $suffix] : null;
+            if ($prefix === '' || str_contains($suffix, '.*')) {
+                return null;
+            }
+
+            return ['prefix' => $prefix, 'suffix' => $suffix];
         }
 
         if (str_ends_with($path, '.*')) {

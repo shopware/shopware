@@ -675,9 +675,7 @@ class AdminSearchRegistryTest extends TestCase
      */
     public static function refreshIndicesProvider(): iterable
     {
-        return [
-            [true],
-            [false],
-        ];
+        yield 'refresh indices' => [true];
+        yield 'do not refresh indices' => [false];
     }
 }

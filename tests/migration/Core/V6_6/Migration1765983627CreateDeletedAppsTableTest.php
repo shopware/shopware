@@ -23,6 +23,11 @@ class Migration1765983627CreateDeletedAppsTableTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1765983627, (new Migration1765983627CreateDeletedAppsTable())->getCreationTimestamp());
+    }
+
     public function testGetMigrationTimestamp(): void
     {
         $migration = new Migration1765983627CreateDeletedAppsTable();

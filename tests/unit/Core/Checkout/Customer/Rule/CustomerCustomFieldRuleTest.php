@@ -177,27 +177,27 @@ class CustomerCustomFieldRuleTest extends TestCase
             'customFieldValueInCustomer' => true,
             'result' => false,
         ];
-        yield 'testStringCustomField' => [
+        yield 'matching string custom field satisfies the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_test_value',
             'result' => true,
         ];
-        yield 'testStringCustomFieldInvalid' => [
+        yield 'different string custom field does not satisfy the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_invalid_value',
             'result' => false,
         ];
-        yield 'testMultiSelectCustomField' => [
+        yield 'overlapping multi select custom field satisfies the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [1],
             'result' => true,
         ];
-        yield 'testMultiSelectCustomFieldInvalid' => [
+        yield 'different multi select custom field does not satisfy the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
         ];
-        yield 'testMultiSelectCustomFieldNull' => [
+        yield 'null multi select rule value does not satisfy the rule' => [
             'rule' => self::setupSelectRule(null, ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
@@ -205,32 +205,28 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): iterable
     {
-        return [
-            ['yes'],
-            ['True'],
-            ['1'],
-            ['true'],
-            ['yes '],
-        ];
+        yield 'yes string is treated as true' => ['yes'];
+        yield 'uppercase true string is treated as true' => ['True'];
+        yield 'one string is treated as true' => ['1'];
+        yield 'lowercase true string is treated as true' => ['true'];
+        yield 'yes string with trailing space is treated as true' => ['yes '];
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): iterable
     {
-        return [
-            ['no'],
-            ['False'],
-            ['0'],
-            ['false'],
-            ['no '],
-            ['some string'],
-        ];
+        yield 'no string is treated as false' => ['no'];
+        yield 'uppercase false string is treated as false' => ['False'];
+        yield 'zero string is treated as false' => ['0'];
+        yield 'lowercase false string is treated as false' => ['false'];
+        yield 'no string with trailing space is treated as false' => ['no '];
+        yield 'unknown string is treated as false' => ['some string'];
     }
 
     /**

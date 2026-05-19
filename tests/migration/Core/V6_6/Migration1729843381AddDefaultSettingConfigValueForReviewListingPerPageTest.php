@@ -22,6 +22,11 @@ class Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPageTest
 
     private const CONFIG_KEY = 'core.listing.reviewsPerPage';
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1729843381, (new Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1729843381AddDefaultSettingConfigValueForReviewListingPerPage();

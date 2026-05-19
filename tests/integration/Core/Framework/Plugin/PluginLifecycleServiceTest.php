@@ -101,7 +101,7 @@ class PluginLifecycleServiceTest extends TestCase
             ->get(Connection::class)
             ->beginTransaction();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         $this->container = static::getContainer();
         $this->pluginRepo = $this->container->get('plugin.repository');
         $this->pluginService = $this->createPluginService(

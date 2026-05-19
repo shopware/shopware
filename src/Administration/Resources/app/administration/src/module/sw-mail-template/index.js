@@ -5,6 +5,7 @@ const { Module, Feature } = Shopware;
 /* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-mail-template-list', () => import('./component/sw-mail-template-list'));
 Shopware.Component.register('sw-mail-header-footer-list', () => import('./component/sw-mail-header-footer-list'));
+Shopware.Component.register('sw-mail-template-preview-modal', () => import('./component/sw-mail-template-preview-modal'));
 Shopware.Component.register('sw-mail-template-detail', () => import('./page/sw-mail-template-detail'));
 Shopware.Component.extend(
     'sw-mail-template-create',

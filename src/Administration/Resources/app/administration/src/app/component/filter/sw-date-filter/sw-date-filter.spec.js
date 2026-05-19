@@ -422,6 +422,131 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
     });
 
+    describe('lastCalendarWeek', () => {
+        beforeEach(() => {
+            jest.setSystemTime(new Date(2024, 4, 15));
+        });
+
+        afterEach(() => {
+            jest.setSystemTime(new Date(1337, 11, 31));
+        });
+
+        it('should compute previous ISO calendar week (Mon-Sun) when today is mid-week', async () => {
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '2024-05-06T00:00:00.000Z',
+                                lte: '2024-05-12T23:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '2024-05-06T00:00:00.000Z',
+                        timeframe: 'lastCalendarWeek',
+                        to: '2024-05-12T23:59:59.000Z',
+                    },
+                ],
+            ]);
+        });
+
+        it('should compute previous calendar week when today is Monday', async () => {
+            jest.setSystemTime(new Date(2024, 4, 13));
+
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '2024-05-06T00:00:00.000Z',
+                                lte: '2024-05-12T23:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '2024-05-06T00:00:00.000Z',
+                        timeframe: 'lastCalendarWeek',
+                        to: '2024-05-12T23:59:59.000Z',
+                    },
+                ],
+            ]);
+        });
+
+        it('should compute previous calendar week when today is Sunday', async () => {
+            jest.setSystemTime(new Date(2024, 4, 19));
+
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '2024-05-06T00:00:00.000Z',
+                                lte: '2024-05-12T23:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '2024-05-06T00:00:00.000Z',
+                        timeframe: 'lastCalendarWeek',
+                        to: '2024-05-12T23:59:59.000Z',
+                    },
+                ],
+            ]);
+        });
+    });
+
     describe('lastQuarter boundary when today is in Q1', () => {
         beforeEach(() => {
             jest.setSystemTime(new Date(1337, 1, 15));

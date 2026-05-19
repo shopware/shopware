@@ -58,6 +58,10 @@ export default {
                     value: -30,
                 },
                 {
+                    label: this.$t('sw-order.filters.orderDateFilter.options.lastCalendarWeek'),
+                    value: 'lastCalendarWeek',
+                },
+                {
                     label: this.$t('sw-order.filters.orderDateFilter.options.lastWeek'),
                     value: -7,
                 },
@@ -177,6 +181,8 @@ export default {
                 ({ startDate: from, endDate: to } = this.getPreviousQuarterDates());
             } else if (timeframe === 'lastCalendarMonth') {
                 ({ startDate: from, endDate: to } = this.getPreviousCalendarMonthDates());
+            } else if (timeframe === 'lastCalendarWeek') {
+                ({ startDate: from, endDate: to } = this.getPreviousCalendarWeekDates());
             }
 
             const normalizedDateValue = this.getNormalizedDateValue({
@@ -212,6 +218,19 @@ export default {
             const date = new Date();
             const startDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
             const endDate = new Date(date.getFullYear(), date.getMonth(), 0);
+
+            return {
+                startDate: startDate,
+                endDate: endDate,
+            };
+        },
+
+        getPreviousCalendarWeekDates() {
+            const date = new Date();
+            // ISO week: Monday = 0 ... Sunday = 6
+            const isoDayIndex = (date.getDay() + 6) % 7;
+            const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - isoDayIndex - 7);
+            const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - isoDayIndex - 1);
 
             return {
                 startDate: startDate,

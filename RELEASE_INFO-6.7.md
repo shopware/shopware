@@ -118,19 +118,29 @@ Custom fields on category, landing page, sales channel, customer address, and or
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
 
-### Added explicit calendar-based timeframe options to `sw-date-filter`
+### Reworked timeframe options in `sw-date-filter`
 
-The order date filter dropdown now offers two additional presets alongside the existing rolling options:
+The order date filter dropdown now offers a 15-entry list, in display order:
 
-* `Last calendar month` — the previous calendar month in the user's timezone
-* `Last calendar week` — the previous ISO week (Monday-Sunday) in the user's timezone
+1. Today
+2. Yesterday
+3. Current week
+4. Last 7 days
+5. Previous week
+6. Current month
+7. Last 30 days
+8. Previous month
+9. Current quarter
+10. Previous quarter
+11. Last 3 months
+12. Last 6 months
+13. Last 12 months
+14. Current year
+15. Previous year
 
-The existing rolling presets keep their behaviour but were relabelled to make the distinction obvious:
+"Current ..." entries span the start of the period through today (e.g., current quarter = first day of the quarter through today). "Previous ..." entries cover the full prior period (e.g., previous quarter = the three months before this one). "Last N days/months" remain rolling windows ending today, with calendar-month math (and last-day-of-month clamping) for the months variants so May 31 - 3 months lands on Feb 29 (leap) or Feb 28 (non-leap) rather than rolling forward to March 3.
 
-* `Last month` -> `Last 30 days`
-* `Last week` -> `Last 7 days`
-
-Snippet keys and persisted filter values are unchanged, so saved filter states continue to resolve the same range.
+The previous rolling `lastDay` (-1) and `lastYear` (-365) entries are no longer in the dropdown, but saved filter states keep working: the component now aliases `-1` to `yesterday` and `-365` to `last12Months` on both hydration and programmatic selection. The persisted `from`/`to` are preserved so existing filters continue to resolve the same data, while the dropdown label catches up to the new vocabulary. All boundaries continue to be normalized to the user's timezone.
 
 ### Admin menu flyout no longer overflows the viewport
 

@@ -545,13 +545,21 @@
       "orderDateFilter": {
         "label": "Order date",
         "options": {
-          "lastYear": "Last year",
-          "lastQuarter": "Last quarter",
-          "lastCalendarMonth": "Last calendar month",
-          "lastMonth": "Last 30 days",
-          "lastCalendarWeek": "Last calendar week",
+          "today": "Today",
+          "yesterday": "Yesterday",
+          "currentWeek": "Current week",
           "lastWeek": "Last 7 days",
-          "lastDay": "Last day",
+          "lastCalendarWeek": "Previous week",
+          "currentMonth": "Current month",
+          "lastMonth": "Last 30 days",
+          "lastCalendarMonth": "Previous month",
+          "currentQuarter": "Current quarter",
+          "lastQuarter": "Previous quarter",
+          "last3Months": "Last 3 months",
+          "last6Months": "Last 6 months",
+          "last12Months": "Last 12 months",
+          "currentYear": "Current year",
+          "previousYear": "Previous year",
           "custom": "Custom"
         }
       },

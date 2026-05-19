@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
@@ -68,6 +69,14 @@ class FlowActionPersister implements PersisterInterface
         }
 
         $this->deleteOldAppFlowActions(\array_values($existingFlowActions), $context->context);
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     private function getFlowActions(AppLifecycleContext $context): ?Action

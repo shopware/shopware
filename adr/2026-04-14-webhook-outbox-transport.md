@@ -88,7 +88,8 @@ The shipped behaviour:
 - **Crash-safe consumption.** Stale `RUNNING` rows are reset by the next partition claim. Workers can die mid-delivery without losing messages.
 - **Consumer contract headers.** Rework envelopes carry `X-Shopware-Event-Id`, `X-Shopware-Sequence`, `X-Shopware-Attempt`.
 - **Feature-flagged rollout.** Behind `WEBHOOKS_REWORK` (default off). Flag-off forwards to `async`, byte-identical to trunk; flag-on consumes from the outbox.
-- **Compatibility bridge.** `WebhookConsumeMessagesSubscriber` prepends `webhook` to legacy `messenger:consume async` on 6.7. Removed in 6.8.
+- **No runtime compatibility bridge.** Operators flipping the flag on must add `webhook` to their consume command (`messenger:consume webhook async ...`). A `ConsoleEvents::COMMAND` subscriber was prototyped to prepend `webhook` automatically but is not viable: `Command::run()` re-binds the input after the event fires, discarding the mutation.
+- **Rollback drain command.** `bin/console webhook:drain-to-async` recovers non-terminal `webhook_delivery` rows that were left behind when the operator flips `WEBHOOKS_REWORK` off. It rewrites those rows back to `queued` in place (preserving `webhook_event_log.sequence`) and re-publishes them on the `async` Messenger transport, where the flag-off `WebhookEventMessageHandler` path delivers them. Refuses to run while the flag is active; safe alongside live traffic; at-least-once on re-run (consumer dedupes via `X-Shopware-Event-Id`).
 
 The legacy `disable_on_threshold` behaviour is **retained as a stopgap** for Phase 1. The four-state health model that replaces it lands in Phase 2.
 
@@ -265,8 +266,6 @@ src/Core/Framework/Webhook/
 │   ├── WebhookManager.php                 # Outbox-first for both paths
 │   ├── WebhookClient.php                  # Guzzle wrapper with HMAC signing
 │   └── WebhookCleanup.php                 # Extended for delivery + stream cleanup
-├── Subscriber/
-│   └── WebhookConsumeMessagesSubscriber.php  # 6.7 bridge for legacy worker invocations
 ├── Handler/
 │   └── WebhookEventMessageHandler.php     # Refactored: delegates to WebhookDeliveryService
 └── Message/

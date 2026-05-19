@@ -357,7 +357,6 @@ class Configuration implements ConfigurationInterface
                             ->end()
                     ->end()
                 ->end()
-                ->end()
                 ->arrayNode('svg')
                     ->addDefaultsIfNotSet()
                     ->children()

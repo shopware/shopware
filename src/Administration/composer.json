@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Shopware\\Administration\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Resources/app/administration/node_modules/"
+        ]
     },
     "config": {
         "sort-packages": true,

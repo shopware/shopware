@@ -508,16 +508,14 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function methodProvider(): array
+    public static function methodProvider(): iterable
     {
-        return [
-            ['create'],
-            ['upsert'],
-            ['update'],
-            ['delete'],
-        ];
+        yield 'method create' => ['create'];
+        yield 'method upsert' => ['upsert'];
+        yield 'method update' => ['update'];
+        yield 'method delete' => ['delete'];
     }
 
     public function testEntityWriteEventSuccessCallbacksCalled(): void

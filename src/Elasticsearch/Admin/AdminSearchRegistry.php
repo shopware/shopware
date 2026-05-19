@@ -6,7 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\OpenSearchException;
+use OpenSearch\Exception\OpenSearchExceptionInterface;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -145,7 +146,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         if ($this->adminEsHelper->getRefreshIndices()) {
             try {
                 $this->refreshIndices();
-            } catch (OpenSearchException $e) {
+            } catch (ClientExceptionInterface|OpenSearchExceptionInterface $e) {
                 $this->logger->error('Could not refresh indices. Run "bin/console es:admin:mapping:update" & "bin/console es:admin:index" to update indices and reindex. Error: ' . $e->getMessage());
 
                 return;

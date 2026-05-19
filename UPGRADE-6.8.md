@@ -96,6 +96,11 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Customer default address detail routes return only the configured default address
+
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
+Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+
 </details>
 
 # Core
@@ -656,6 +661,28 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 </details>
 
+## `AbstractTranslationLoader::pluginTranslationExists()` removed
+
+The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.
+
+If you have a decorator that extends `AbstractTranslationLoader`, remove your `pluginTranslationExists()` implementation and override the replacement method instead:
+
+ ```php
+ // Before
+ public function pluginTranslationExists(Plugin $plugin): bool
+ {
+     return $this->getDecorated()->pluginTranslationExists($plugin);
+ }
+
+ // After
+ public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
+ {
+     return $this->getDecorated()->pluginTranslationExistsForLocale($plugin, $locale);
+ }
+ ```
+
+The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
 # Administration
 
 <details>
@@ -988,9 +1015,13 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
-## The following template blocks have been replaced due to a typo in their name
+## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
 * `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
 
 ## Removed .png and .jpg images
 
@@ -1526,6 +1557,27 @@ If you are still using any of these options in your configuration, you can safel
 
 OpenSearch 1.x reached end of life on 06 May 2025 is no longer supported.
 Please update OpenSearch to the latest supported Version.
+
+## Removed comma-separated multiple OpenSearch hosts
+
+Shopware no longer supports configuring multiple OpenSearch hosts as a comma-separated list in `OPENSEARCH_URL` or `ADMIN_OPENSEARCH_URL`.
+This configuration path used the deprecated OpenSearch PHP `ClientBuilder` host pool and was only kept temporarily in 6.7 for backwards compatibility while Shopware moved to the newer OpenSearch PHP client transport.
+
+Before:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+ADMIN_OPENSEARCH_URL=http://opensearch-1:9200,http://opensearch-2:9200
+```
+
+After:
+
+```dotenv
+OPENSEARCH_URL=http://opensearch.example.internal:9200
+ADMIN_OPENSEARCH_URL=http://opensearch.example.internal:9200
+```
+
+If you need failover or load distribution across multiple OpenSearch nodes, expose them through a single load-balanced endpoint and configure that endpoint in Shopware.
 
 ## Changed default Elasticsearch shard and replica counts for Admin ES
 

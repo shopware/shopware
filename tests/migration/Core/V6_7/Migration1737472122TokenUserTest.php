@@ -24,6 +24,11 @@ class Migration1737472122TokenUserTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1737472122, (new Migration1737472122TokenUser())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1737472122TokenUser();

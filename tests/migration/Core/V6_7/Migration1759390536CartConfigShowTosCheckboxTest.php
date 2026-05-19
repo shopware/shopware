@@ -21,6 +21,11 @@ class Migration1759390536CartConfigShowTosCheckboxTest extends TestCase
 
     public const SYSTEM_KEY = 'core.cart.showTosCheckbox';
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1759390536, (new Migration1759390536CartConfigShowTosCheckbox())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = self::getContainer()->get(Connection::class);

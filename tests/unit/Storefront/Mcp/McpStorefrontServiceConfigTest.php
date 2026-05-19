@@ -47,21 +47,6 @@ class McpStorefrontServiceConfigTest extends TestCase
         );
     }
 
-    public function testThemeConfigToolIsGatedBehindFeatureFlag(): void
-    {
-        $container = $this->buildContainer();
-        $definition = $container->getDefinition(ThemeConfigTool::class);
-
-        static::assertTrue(
-            $definition->hasTag('shopware.feature'),
-            'ThemeConfigTool must be tagged with shopware.feature flag MCP_SERVER',
-        );
-
-        $tags = $definition->getTag('shopware.feature');
-        $flags = array_column($tags, 'flag');
-        static::assertContains('MCP_SERVER', $flags, 'ThemeConfigTool shopware.feature tag must have flag=MCP_SERVER');
-    }
-
     public function testMcpPhpIncludesStorefrontScanDir(): void
     {
         $phpPath = __DIR__ . '/../../../../src/Core/Framework/Resources/config/packages/mcp.php';

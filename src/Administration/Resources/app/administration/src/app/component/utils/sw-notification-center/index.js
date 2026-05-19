@@ -25,6 +25,8 @@ export default {
             additionalContextMenuClasses: {
                 'sw-notification-center__context-container': true,
             },
+            emptyStateBellAnimationVariant: null,
+            isNotificationCenterOpen: false,
             showDeleteModal: false,
             unsubscribeFromStore: null,
         };
@@ -39,6 +41,19 @@ export default {
             return {
                 'sw-notification-center__context-button--new-available': this.notifications.some((n) => !n.visited),
             };
+        },
+
+        emptyStateBellAnimationClasses() {
+            const classes = {
+                'sw-notification-center__empty-state--animated':
+                    this.isNotificationCenterOpen && this.emptyStateBellAnimationVariant === null,
+            };
+
+            if (this.emptyStateBellAnimationVariant !== null) {
+                classes[`sw-notification-center__empty-state--bell-hit-${this.emptyStateBellAnimationVariant}`] = true;
+            }
+
+            return classes;
         },
     },
 
@@ -55,6 +70,9 @@ export default {
 
     methods: {
         onOpenChange(isOpen) {
+            this.isNotificationCenterOpen = isOpen;
+            this.emptyStateBellAnimationVariant = null;
+
             if (isOpen) {
                 this.onContextMenuOpen();
                 return;
@@ -78,6 +96,9 @@ export default {
         },
         onCloseDeleteModal() {
             this.showDeleteModal = false;
+        },
+        onEmptyStateBellClick() {
+            this.emptyStateBellAnimationVariant = this.emptyStateBellAnimationVariant === 'a' ? 'b' : 'a';
         },
         changeVisibility(visible) {
             const contextButton = this.$refs.notificationCenterContextButton;

@@ -71,7 +71,9 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Nicht viel los hier.",
+      "emptyText": "Du bist auf dem neuesten Stand",
+      "emptyDescription": "Neue Mitteilungen erscheinen hier.",
+      "ringBellLabel": "Mitteilungsglocke läuten",
       "deleteModal": {
         "title": "Mitteilungen löschen",
         "textConfirm": "Möchtest Du wirklich alle Mitteilungen löschen?"

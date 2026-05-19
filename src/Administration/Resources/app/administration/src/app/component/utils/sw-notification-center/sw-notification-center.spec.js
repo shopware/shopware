@@ -36,8 +36,39 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);
+        expect(wrapper.find('.sw-notification-center__empty-state').isVisible()).toBe(true);
+        expect(wrapper.find('.sw-notification-center__empty-state--animated').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('global.notification-center.emptyText');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('global.notification-center.emptyDescription');
+        expect(wrapper.find('.sw-notification-center__empty-state').attributes('role')).toBe('status');
+        expect(wrapper.find('.sw-notification-center__empty-state').attributes('aria-live')).toBe('polite');
+        expect(wrapper.find('.sw-notification-center__empty-state').attributes('aria-atomic')).toBe('true');
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(0);
+    });
+
+    it('should animate the empty state bell when clicking the icon', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.mt-icon').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-notification-center__empty-state--animated').exists()).toBe(true);
+
+        const bellButton = wrapper.find('.sw-notification-center__empty-state-bell-button');
+        expect(bellButton.exists()).toBe(true);
+        expect(bellButton.attributes('aria-label')).toBe('global.notification-center.ringBellLabel');
+
+        wrapper.vm.onEmptyStateBellClick();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-notification-center__empty-state--animated').exists()).toBe(false);
+        expect(wrapper.find('.sw-notification-center__empty-state--bell-hit-a').exists()).toBe(true);
+
+        wrapper.vm.onEmptyStateBellClick();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-notification-center__empty-state--bell-hit-b').exists()).toBe(true);
     });
 
     it('should show notifications', async () => {
@@ -59,7 +90,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(false);
+        expect(wrapper.find('.sw-notification-center__empty-state').isVisible()).toBe(false);
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(1);
     });
 
@@ -127,7 +158,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         await wrapper.find('.mt-icon').trigger('click');
         await flushPromises();
 
-        expect(wrapper.find('.sw-notification-center__empty-text').isVisible()).toBe(true);
+        expect(wrapper.find('.sw-notification-center__empty-state').isVisible()).toBe(true);
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(0);
     });
 });

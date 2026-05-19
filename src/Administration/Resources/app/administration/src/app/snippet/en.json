@@ -71,7 +71,9 @@
     },
     "notification-center": {
       "title": "Notifications",
-      "emptyText": "Nothing going on lately.",
+      "emptyText": "You're all caught up",
+      "emptyDescription": "New notifications will appear here.",
+      "ringBellLabel": "Ring notification bell",
       "deleteModal": {
         "title": "Delete notifications",
         "textConfirm": "Are you sure you really want to delete all notifications?"

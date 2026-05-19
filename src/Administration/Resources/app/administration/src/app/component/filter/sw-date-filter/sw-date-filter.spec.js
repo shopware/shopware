@@ -420,6 +420,48 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
+
+        it('should snap boundaries to user timezone day edges', async () => {
+            jest.setSystemTime(new Date(2024, 4, 15));
+            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
+
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastCalendarMonth');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '2024-03-31T22:00:00.000Z',
+                                lte: '2024-04-30T21:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '2024-03-31T22:00:00.000Z',
+                        timeframe: 'lastCalendarMonth',
+                        to: '2024-04-30T21:59:59.000Z',
+                    },
+                ],
+            ]);
+
+            jest.setSystemTime(new Date(1337, 11, 31));
+        });
     });
 
     describe('lastCalendarWeek', () => {
@@ -541,6 +583,45 @@ describe('src/app/component/filter/sw-date-filter', () => {
                         from: '2024-05-06T00:00:00.000Z',
                         timeframe: 'lastCalendarWeek',
                         to: '2024-05-12T23:59:59.000Z',
+                    },
+                ],
+            ]);
+        });
+
+        it('should snap boundaries to user timezone day edges', async () => {
+            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
+
+            const wrapper = await createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true,
+                },
+            });
+
+            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
+
+            expect(wrapper.emitted()['filter-update']).toEqual([
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: '2024-05-05T22:00:00.000Z',
+                                lte: '2024-05-12T21:59:59.000Z',
+                            },
+                            type: 'range',
+                        },
+                    ],
+                    {
+                        from: '2024-05-05T22:00:00.000Z',
+                        timeframe: 'lastCalendarWeek',
+                        to: '2024-05-12T21:59:59.000Z',
                     },
                 ],
             ]);

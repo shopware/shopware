@@ -19,6 +19,7 @@ export default {
 
     inject: [
         'mediaService',
+        'mediaPresignedUploadService',
         'repositoryFactory',
     ],
 
@@ -41,10 +42,16 @@ export default {
 
     data() {
         return {
-            uploadTag: null,
             isUploadDataSet: false,
             newFileExtension: '',
+            pendingPresignedFile: null,
         };
+    },
+
+    computed: {
+        presignedSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+        },
     },
 
     methods: {
@@ -57,6 +64,10 @@ export default {
             if (newFileExtension !== oldFileExtension) {
                 this.newFileExtension = newFileExtension;
             }
+
+            if (this.presignedSupported && data[0].src instanceof File) {
+                this.pendingPresignedFile = data[0].src;
+            }
         },
 
         emitCloseReplaceModal() {
@@ -67,11 +78,53 @@ export default {
             this.itemToReplace.isLoading = true;
             const previousName = this.itemToReplace.fileName;
 
-            await this.mediaService.runUploads(this.itemToReplace.id);
-            await this.mediaService.renameMedia(this.itemToReplace.id, previousName);
+            try {
+                if (this.pendingPresignedFile) {
+                    await this.runPresignedReplace(this.pendingPresignedFile);
+                } else {
+                    await this.mediaService.runUploads(this.itemToReplace.id);
+                }
 
-            this.itemToReplace.isLoading = false;
-            this.$emit('media-replace-modal-item-replaced');
+                await this.mediaService.renameMedia(this.itemToReplace.id, previousName);
+
+                this.$emit('media-replace-modal-item-replaced');
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('global.default.notification.unspecifiedSaveErrorMessage'),
+                });
+            } finally {
+                this.itemToReplace.isLoading = false;
+            }
+        },
+
+        async runPresignedReplace(fileHandle) {
+            const { fileReader } = Shopware.Utils;
+            const { fileName, extension } = fileReader.getNameAndExtensionFromFile(fileHandle);
+            const mimeType = fileHandle.type || 'application/octet-stream';
+
+            const [
+                result,
+                dimensions,
+            ] = await Promise.all([
+                this.mediaPresignedUploadService.prepareUpload({
+                    fileName,
+                    extension,
+                    mimeType,
+                    mediaId: this.itemToReplace.id,
+                }),
+                this.mediaPresignedUploadService.getImageDimensions(fileHandle),
+            ]);
+
+            await this.mediaPresignedUploadService.uploadToPresignedUrl(result.url, fileHandle, mimeType);
+
+            await this.mediaPresignedUploadService.finalizeUpload(this.itemToReplace.id, {
+                fileName,
+                extension,
+                mimeType,
+                path: result.path,
+                width: dimensions?.width ?? null,
+                height: dimensions?.height ?? null,
+            });
         },
     },
 };

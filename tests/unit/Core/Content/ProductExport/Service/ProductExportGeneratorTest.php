@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -23,7 +25,9 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -33,7 +37,9 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Twig\Environment;
 
 /**
@@ -76,6 +82,14 @@ class ProductExportGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CategoryDefinition::class, ProductCategoryDefinition::class, ProductDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+        $productDefinition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $productDefinition);
+
         $this->productStreamBuilder = $this->createMock(ProductStreamBuilderInterface::class);
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->productExportRender = $this->createMock(ProductExportRendererInterface::class);
@@ -87,7 +101,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->twig = $this->createMock(Environment::class);
-        $this->productDefinition = new ProductDefinition();
+        $this->productDefinition = $productDefinition;
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->parserFactory = $this->createMock(TwigVariableParserFactory::class);
     }
@@ -168,7 +182,7 @@ class ProductExportGeneratorTest extends TestCase
         $productExport = $this->getProductExportEntity();
         $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
         $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
-        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setBodyTemplate('{{ product.id }}{{ product.categories.count }}');
         $productExport->setIncludeVariants(false);
 
         $context = $this->createSalesChannelContext();
@@ -182,7 +196,7 @@ class ProductExportGeneratorTest extends TestCase
         $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
 
         $twigVariableParser = $this->createMock(TwigVariableParser::class);
-        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}{{ product.categories.count }}')->willReturn(['product.categories.count']);
         $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
 
         $this->productRepository->expects($this->exactly(2))
@@ -190,6 +204,9 @@ class ProductExportGeneratorTest extends TestCase
             ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
                 static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $criteria->getTotalCountMode());
                 static::assertSame($context, $salesChannelContext);
+                static::assertTrue($criteria->hasAssociation('categories'));
+                static::assertCount(1, $criteria->getAssociation('categories')->getFilters());
+                static::assertEquals(new EqualsFilter('active', true), $criteria->getAssociation('categories')->getFilters()[0]);
 
                 return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
             });
@@ -230,6 +247,77 @@ class ProductExportGeneratorTest extends TestCase
 
         static::assertNotNull($result);
         static::assertSame("{\"url\":\"https://example.com/product/1\",\"title\":\"Product\"}\n", $result->getContent());
+        static::assertSame(1, $result->getTotal());
+        static::assertSame([], $result->getErrors());
+    }
+
+    public function testGenerateEncodesUnescapedSpacesInJsonlRowUrls(): void
+    {
+        $productExport = $this->getProductExportEntity();
+        $productExport->setEncoding(ProductExportEntity::ENCODING_UTF8);
+        $productExport->setFileFormat(ProductExportEntity::FILE_FORMAT_JSONL);
+        $productExport->setBodyTemplate('{{ product.id }}');
+        $productExport->setIncludeVariants(false);
+
+        $context = $this->createSalesChannelContext();
+        $product = $this->createProduct('product-id');
+
+        $this->contextPersister->expects($this->once())->method('save');
+        $this->salesChannelContextService->expects($this->once())->method('get')->willReturn($context);
+        $this->languageLocaleProvider->expects($this->once())->method('getLocaleForLanguageId')->with('languageId')->willReturn('en-GB');
+        $this->translator->expects($this->once())->method('injectSettings');
+        $this->translator->expects($this->once())->method('resetInjection');
+        $this->productStreamBuilder->expects($this->once())->method('buildFilters')->with('productStreamId', $context->getContext())->willReturn([]);
+
+        $twigVariableParser = $this->createMock(TwigVariableParser::class);
+        $twigVariableParser->expects($this->once())->method('parse')->with('{{ product.id }}')->willReturn([]);
+        $this->parserFactory->expects($this->once())->method('getParser')->willReturn($twigVariableParser);
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('searchIds')
+            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
+                static::assertSame($context, $salesChannelContext);
+
+                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
+            });
+
+        $this->productRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturnOnConsecutiveCalls(
+                $this->createProductSearchResult($product, $context),
+                $this->createEmptyProductSearchResult($context)
+            );
+
+        // Body contains an http URL with a literal space (e.g. media filename "Nice Burger.jpg")
+        // and a non-URL string value with spaces that must remain untouched.
+        $this->productExportRender->expects($this->once())
+            ->method('renderBody')
+            ->willReturn('{"image_url":"https:\/\/example.com\/media\/Nice Burger.jpg","title":"Nice Burger"}');
+        $this->productExportRender->expects($this->never())->method('renderHeader');
+        $this->productExportRender->expects($this->never())->method('renderFooter');
+
+        $expectedNormalized = "{\"image_url\":\"https://example.com/media/Nice%20Burger.jpg\",\"title\":\"Nice Burger\"}\n";
+
+        $this->seoUrlPlaceholderHandler->expects($this->once())
+            ->method('replace')
+            ->with($expectedNormalized, '', $context)
+            ->willReturnArgument(0);
+
+        $this->productExportValidator = $this->createMock(ProductExportValidatorInterface::class);
+        $this->productExportValidator->expects($this->once())
+            ->method('validate')
+            ->with($productExport, $expectedNormalized)
+            ->willReturn([]);
+
+        $this->connection->expects($this->once())
+            ->method('delete')
+            ->with('sales_channel_api_context', static::arrayHasKey('token'));
+
+        $generator = $this->createGenerator();
+        $result = $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
+
+        static::assertNotNull($result);
+        static::assertSame($expectedNormalized, $result->getContent());
         static::assertSame(1, $result->getTotal());
         static::assertSame([], $result->getErrors());
     }

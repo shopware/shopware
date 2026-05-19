@@ -11,6 +11,16 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class SalutationCollection extends EntityCollection
 {
+    public function sortByPosition(): void
+    {
+        uasort($this->elements, static function (SalutationEntity $a, SalutationEntity $b): int {
+            $aPosition = $a->getPosition();
+            $bPosition = $b->getPosition();
+
+            return $aPosition <=> $bPosition;
+        });
+    }
+
     public function getApiAlias(): string
     {
         return 'salutation_collection';

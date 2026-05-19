@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path, { join } from 'node:path';
-import { findTwigFile, normaliseJsContent, runMigration } from './run-sfc-migration';
+import { findTwigFile, getCliUsage, normaliseJsContent, parseCliOptions, runMigration } from './run-sfc-migration';
 
 const FIXTURES_DIR = path.join(__dirname, '__fixtures__');
 
@@ -23,6 +23,80 @@ function makeComponent(baseDir: string, componentName: string, jsContent: string
     return dir;
 }
 
+describe('parseCliOptions', () => {
+    it('sets help when --help is provided', () => {
+        expect(parseCliOptions(['--help'])).toMatchObject({
+            help: true,
+            targetDir: undefined,
+            dryRun: true,
+        });
+    });
+
+    it('sets help when -h is provided', () => {
+        expect(parseCliOptions(['-h'])).toMatchObject({
+            help: true,
+            targetDir: undefined,
+            dryRun: true,
+        });
+    });
+
+    it('keeps dry-run mode by default', () => {
+        const result = parseCliOptions(['src/app/component/base/sw-button']);
+
+        expect(result).toMatchObject({
+            targetDir: path.resolve('src/app/component/base/sw-button'),
+            dryRun: true,
+            force: false,
+            deleteOriginals: false,
+        });
+    });
+
+    it('disables dry-run mode when --write is provided', () => {
+        const result = parseCliOptions([
+            '--write',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.dryRun).toBe(false);
+    });
+
+    it('lets --dry-run win when both --dry-run and --write are provided', () => {
+        const result = parseCliOptions([
+            '--dry-run',
+            '--write',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.dryRun).toBe(true);
+    });
+
+    it('parses --force and --delete-originals flags', () => {
+        const result = parseCliOptions([
+            '--write',
+            '--force',
+            '--delete-originals',
+            'src/app/component/base/sw-button',
+        ]);
+
+        expect(result.force).toBe(true);
+        expect(result.deleteOriginals).toBe(true);
+    });
+
+    it('leaves targetDir empty when no path is provided', () => {
+        const result = parseCliOptions(['--write']);
+
+        expect(result.targetDir).toBeUndefined();
+    });
+
+    it('builds usage output from the option definitions', () => {
+        const usage = getCliUsage();
+
+        expect(usage).toContain('SFC Migration Codemod');
+        expect(usage).toContain('--dry-run');
+        expect(usage).toContain('--delete-originals');
+    });
+});
+
 describe('findTwigFile', () => {
     let tmpDir: string;
 
@@ -36,13 +110,31 @@ describe('findTwigFile', () => {
 
     it('returns the twig file path when a .html.twig file exists', () => {
         writeFileSync(join(tmpDir, 'my-component.html.twig'), '<div/>', 'utf-8');
-        const result = findTwigFile(tmpDir);
+        const result = findTwigFile(tmpDir, 'my-component');
         expect(result).toBe(join(tmpDir, 'my-component.html.twig'));
+    });
+
+    it('prefers the twig file that matches the component name', () => {
+        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(tmpDir, 'sw-foo.html.twig'), '<div>component</div>', 'utf-8');
+
+        const result = findTwigFile(tmpDir, 'sw-foo');
+
+        expect(result).toBe(join(tmpDir, 'sw-foo.html.twig'));
+    });
+
+    it('returns null when two .html.twig files are present that do not match the component name', () => {
+        writeFileSync(join(tmpDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(tmpDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
+
+        const result = findTwigFile(tmpDir, 'sw-foo');
+
+        expect(result).toBeNull();
     });
 
     it('returns null when no .html.twig file is present', () => {
         writeFileSync(join(tmpDir, 'index.js'), 'export default {}', 'utf-8');
-        const result = findTwigFile(tmpDir);
+        const result = findTwigFile(tmpDir, 'missing-component');
         expect(result).toBeNull();
     });
 });
@@ -60,6 +152,13 @@ describe('normaliseJsContent', () => {
         expect(result).toContain(`Shopware.Component.register('sw-foo', {`);
         expect(result).toContain('});');
         expect(result).not.toContain('export default');
+    });
+
+    it('escapes component names when wrapping export default {}', () => {
+        const input = `export default {};`;
+        const result = normaliseJsContent(input, `sw-foo's-card`);
+
+        expect(result).toBe(`Shopware.Component.register('sw-foo\\'s-card', {});`);
     });
 
     it('handles a multiline export default with nested objects', () => {
@@ -88,8 +187,6 @@ describe('normaliseJsContent', () => {
     });
 
     it('does not corrupt trailing module-level code that contains `};` after the export default', () => {
-        // This is the actual bug: the old lastIndexOf('};') would have matched the
-        // TRAILING constant's closing `};` instead of the export default's.
         const input = [
             `export default {`,
             `    data() { return { x: 1 }; },`,
@@ -106,6 +203,31 @@ describe('normaliseJsContent', () => {
         expect(result).toContain('    timeout: 5000,');
         // export default keyword must be gone
         expect(result).not.toContain('export default');
+    });
+});
+
+describe('runMigration — target validation', () => {
+    let tmpDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('throws when the target path does not exist', () => {
+        const missingPath = join(tmpDir, 'missing');
+
+        expect(() => runMigration(missingPath, { dryRun: true })).toThrow(`Target path does not exist: ${missingPath}`);
+    });
+
+    it('throws when the target path is a file', () => {
+        const filePath = join(tmpDir, 'component.js');
+        writeFileSync(filePath, 'export default {};', 'utf-8');
+
+        expect(() => runMigration(filePath, { dryRun: true })).toThrow(`Target path must be a directory: ${filePath}`);
     });
 });
 
@@ -150,6 +272,59 @@ describe('runMigration — dry-run (default)', () => {
     it('report line contains fully-migrated label', () => {
         const { report } = runMigration(tmpDir, { dryRun: true });
         expect(report[0]).toContain('fully-migrated');
+    });
+});
+
+describe('runMigration — report paths', () => {
+    let originalCwd: string;
+    let tmpDir: string;
+
+    beforeEach(() => {
+        originalCwd = process.cwd();
+        tmpDir = createTempDir();
+        process.chdir(tmpDir);
+        tmpDir = process.cwd();
+    });
+
+    afterEach(() => {
+        process.chdir(originalCwd);
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('prints component report paths relative to the current working directory', () => {
+        makeComponent(
+            join(tmpDir, 'src/module/sw-dashboard/page'),
+            'sw-dashboard-index',
+            'const config = {};',
+            '<div class="sw-dashboard-index"></div>',
+        );
+        makeComponent(join(tmpDir, 'src/module'), 'sw-customer', readFixture('simple-component.index.js'));
+        makeComponent(
+            join(tmpDir, 'src/module/sw-customer/view'),
+            'sw-customer-detail-order',
+            readFixture('simple-component.index.js'),
+            readFixture('simple-component.html.twig'),
+        );
+        makeComponent(
+            join(tmpDir, 'src/module/sw-customer/view'),
+            'sw-customer-detail-addresses',
+            readFixture('mixin-component.index.js'),
+            '<div class="sw-customer-detail-addresses"></div>',
+        );
+
+        const { report } = runMigration(join(tmpDir, 'src/module'), { dryRun: true });
+
+        expect(report).toContain(
+            '✗  not-migratable      [no options object found]  ./src/module/sw-dashboard/page/sw-dashboard-index/index.js',
+        );
+        expect(report).toContain('SKIP (no twig)  ./src/module/sw-customer/index.js');
+        expect(report).toContain(
+            '✓  fully-migrated        [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-order/sw-customer-detail-order.vue',
+        );
+        expect(report).toContain(
+            '~  partially-migrated  [mixins]  [DRY RUN] Would write: ./src/module/sw-customer/view/sw-customer-detail-addresses/sw-customer-detail-addresses.vue',
+        );
+        expect(report.join('\n')).not.toContain(tmpDir);
     });
 });
 
@@ -232,6 +407,47 @@ describe('runMigration — skip (no twig file)', () => {
     });
 });
 
+describe('runMigration — skip (ambiguous twig files)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(tmpDir, 'sw-ambiguous-card', readFixture('simple-component.index.js'));
+        writeFileSync(join(componentDir, 'helper.html.twig'), '<div>helper</div>', 'utf-8');
+        writeFileSync(join(componentDir, 'sidebar.html.twig'), '<div>sidebar</div>', 'utf-8');
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments skipped count', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false });
+        expect(stats.skipped).toBe(1);
+        expect(stats.fullyMigrated).toBe(0);
+    });
+
+    it('does not write any .vue file', () => {
+        runMigration(tmpDir, { dryRun: false });
+        expect(existsSync(join(componentDir, 'sw-ambiguous-card.vue'))).toBe(false);
+    });
+
+    it('does not delete originals even when deleteOriginals is true', () => {
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
+        expect(existsSync(join(componentDir, 'helper.html.twig'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sidebar.html.twig'))).toBe(true);
+    });
+
+    it('report line contains SKIP (ambiguous twig) and the candidate files', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false });
+        expect(report[0]).toContain('SKIP (ambiguous twig)');
+        expect(report[0]).toContain('helper.html.twig');
+        expect(report[0]).toContain('sidebar.html.twig');
+    });
+});
+
 describe('runMigration — not-migratable (render function)', () => {
     let tmpDir: string;
     let componentDir: string;
@@ -266,6 +482,46 @@ describe('runMigration — not-migratable (render function)', () => {
         const { report } = runMigration(tmpDir, { dryRun: false });
         expect(report[0]).toContain('✗');
         expect(report[0]).toContain('not-migratable');
+    });
+});
+
+describe('runMigration — not-migratable (unsupported twig template)', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(
+            tmpDir,
+            'sw-extends-component',
+            readFixture('simple-component.index.js'),
+            "{% extends 'bar' %}{% block foo %}<div>content</div>{% endblock %}",
+        );
+    });
+
+    afterEach(() => {
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('increments notMigratable count without incrementing errors', () => {
+        const { stats } = runMigration(tmpDir, { dryRun: false });
+
+        expect(stats.notMigratable).toBe(1);
+        expect(stats.errors).toBe(0);
+    });
+
+    it('does not write a .vue file even in write mode', () => {
+        runMigration(tmpDir, { dryRun: false });
+
+        expect(existsSync(join(componentDir, 'sw-extends-component.vue'))).toBe(false);
+    });
+
+    it('report line contains not-migratable with the twig blocker', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false });
+
+        expect(report[0]).toContain('not-migratable');
+        expect(report[0]).toContain('twig extends');
+        expect(report[0]).not.toContain('ERROR');
     });
 });
 
@@ -372,6 +628,19 @@ describe('runMigration — partially-migrated (mixins)', () => {
         expect(report[0]).toContain('partially-migrated');
         expect(report[0]).toContain('mixins');
     });
+
+    it('skips an existing .vue file without counting it as partially migrated', () => {
+        const originalContent = 'existing content';
+        writeFileSync(join(componentDir, 'sw-mixin-list.vue'), originalContent, 'utf-8');
+
+        const { report, stats } = runMigration(tmpDir, { dryRun: false });
+        const content = readFileSync(join(componentDir, 'sw-mixin-list.vue'), 'utf-8');
+
+        expect(content).toBe(originalContent);
+        expect(stats.skippedExisting).toBe(1);
+        expect(stats.partiallyMigrated).toBe(0);
+        expect(report[0]).toContain('SKIP (already exists)');
+    });
 });
 
 describe('runMigration — partially-migrated (extends)', () => {
@@ -453,10 +722,21 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('deletes index.js and .html.twig after writing the .vue file', () => {
+    it('replaces index.js with an SFC entry point and deletes .html.twig after writing the .vue file', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
+        expect(existsSync(join(componentDir, 'index.js'))).toBe(true);
         expect(existsSync(join(componentDir, 'sw-simple-card.html.twig'))).toBe(false);
+    });
+
+    it('keeps directory imports working through the generated index.js entry point', () => {
+        writeFileSync(join(tmpDir, 'consumer.js'), "import './sw-simple-card';\n", 'utf-8');
+
+        runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
+        expect(entrypoint).toBe(
+            "import component from './sw-simple-card.vue';\n\nShopware.Component.register('sw-simple-card', component);\n",
+        );
     });
 
     it('writes the .vue file before deleting originals', () => {
@@ -470,12 +750,10 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         expect(stats.fullyMigrated).toBe(1);
     });
 
-    it('report includes deletion lines for both original files', () => {
+    it('report includes entrypoint replacement and twig deletion lines', () => {
         const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        const deletionLines = report.filter((l) => l.includes('deleted originals'));
-        expect(deletionLines).toHaveLength(2);
-        expect(deletionLines.some((l) => l.includes('index.js'))).toBe(true);
-        expect(deletionLines.some((l) => l.includes('.html.twig'))).toBe(true);
+        expect(report.some((l) => l.includes('replaced entrypoint') && l.includes('index.js'))).toBe(true);
+        expect(report.some((l) => l.includes('deleted original') && l.includes('.html.twig'))).toBe(true);
     });
 
     it('does not delete originals in dry-run mode even when deleteOriginals is true', () => {
@@ -514,16 +792,27 @@ describe('runMigration — delete-originals (partially-migrated)', () => {
         rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('deletes originals for a partially-migrated component', () => {
+    it('keeps originals for a partially-migrated component', () => {
         runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(existsSync(join(componentDir, 'index.js'))).toBe(false);
-        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(false);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.html.twig'))).toBe(true);
+        expect(existsSync(join(componentDir, 'sw-mixin-list.vue'))).toBe(true);
+
+        const entrypoint = readFileSync(join(componentDir, 'index.js'), 'utf-8');
+        expect(entrypoint).toBe(readFixture('mixin-component.index.js'));
     });
 
-    it('increments deletedOriginals stat for partially-migrated component', () => {
+    it('does not increment deletedOriginals stat for partially-migrated component', () => {
         const { stats } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
-        expect(stats.deletedOriginals).toBe(1);
+        expect(stats.deletedOriginals).toBe(0);
         expect(stats.partiallyMigrated).toBe(1);
+    });
+
+    it('reports that originals were kept for manual follow-up', () => {
+        const { report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
+
+        expect(report).toContain(
+            '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
+        );
     });
 });
 

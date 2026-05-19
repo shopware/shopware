@@ -13,6 +13,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="logger"/>
             <argument>%shopware.messenger.scheduled_task.requeue_timeout%</argument>
         </service>
 

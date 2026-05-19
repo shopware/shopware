@@ -87,10 +87,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
-            result = mergeComponentFiles(
-                readFixture('block-component.html.twig'),
-                readFixture('block-component.index.js'),
-            );
+            result = mergeComponentFiles(readFixture('block-component.html.twig'), readFixture('block-component.index.js'));
         });
 
         it('reports status fully-migrated with no blockers', () => {
@@ -126,11 +123,10 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.sfc).toContain('public:');
         });
 
-        it('defines $dataScope after createExtendableSetup so <sw-block> can pass reactive state to overrides', () => {
-            expect(result.sfc).toContain('const $dataScope = reactive({');
-            expect(result.sfc).toContain('acl,');
-            expect(result.sfc).toContain('title,');
-            expect(result.sfc).toContain('onAction,');
+        it('passes the global $dataScope to <sw-block> without generating a local data scope', () => {
+            expect(result.sfc).toContain('<sw-block name="sw_block_card" :data="$dataScope">');
+            expect(result.sfc).not.toContain('const $dataScope =');
+            expect(result.sfc).not.toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
         it('does not define $dataScope for components without twig blocks', () => {
@@ -150,10 +146,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
-            result = mergeComponentFiles(
-                '<div class="sw-mixin-list"></div>',
-                readFixture('mixin-component.index.js'),
-            );
+            result = mergeComponentFiles('<div class="sw-mixin-list"></div>', readFixture('mixin-component.index.js'));
         });
 
         it('reports status partially-migrated with mixins listed as a blocker', () => {
@@ -199,7 +192,9 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
             expect(result.blockers).toContain('watch: settings.count: nested watch paths are not supported');
             expect(result.sfc).toContain('<script setup>');
             expect(result.sfc).not.toContain('<script>');
-            expect(result.sfc).toContain('TODO: migrate watch entry manually: settings.count: nested watch paths are not supported');
+            expect(result.sfc).toContain(
+                'TODO: migrate watch entry manually: settings.count: nested watch paths are not supported',
+            );
         });
     });
 
@@ -237,10 +232,7 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         let result: ReturnType<typeof mergeComponentFiles>;
 
         beforeAll(() => {
-            result = mergeComponentFiles(
-                '',
-                readFixture('render-component.index.js'),
-            );
+            result = mergeComponentFiles('', readFixture('render-component.index.js'));
         });
 
         it('reports status not-migratable with render function as the blocker', () => {
@@ -249,6 +241,30 @@ describe('scripts/codemods/sfc-migration/generate-sfc', () => {
         });
 
         it('produces an empty SFC string — nothing is written to disk for this component', () => {
+            expect(result.sfc).toBe('');
+        });
+    });
+
+    describe('unsupported twig templates: not migratable — no SFC is produced', () => {
+        it('reports twig extends as a blocker instead of throwing a generic error', () => {
+            const result = mergeComponentFiles(
+                "{% extends 'bar' %}{% block foo %}<div>content</div>{% endblock %}",
+                readFixture('simple-component.index.js'),
+            );
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('twig extends');
+            expect(result.sfc).toBe('');
+        });
+
+        it('reports twig block syntax inside comments as a blocker', () => {
+            const result = mergeComponentFiles(
+                '{# {% block hidden %}<div>commented</div>{% endblock %} #}<div>content</div>',
+                readFixture('simple-component.index.js'),
+            );
+
+            expect(result.status).toBe('not-migratable');
+            expect(result.blockers).toContain('twig syntax inside comment');
             expect(result.sfc).toBe('');
         });
     });

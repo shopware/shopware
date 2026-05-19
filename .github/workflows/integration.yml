@@ -658,10 +658,17 @@ jobs:
                 DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
             run: bin/console theme:refresh
 
+          # Drain indexers queued by 6.6→6.7 migrations before integration tests run,
+          # otherwise stale indexes cause flakes.
+          - name: Refresh DAL index
+            env:
+                DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
+            run: bin/console dal:refresh:index
+
           - name: Run integration tests
             run: php -d memory_limit=-1 vendor/bin/phpunit --testsuite "integration" --stop-on-error --stop-on-failure
 
-  # this allows us to specifiy just one required job/check
+  # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   check:
     if: always()

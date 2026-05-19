@@ -127,7 +127,7 @@ export default {
         },
 
         modalTitle() {
-            return this.$tc(
+            return this.$t(
                 `sw-order.addressSelection.${
                     this.currentAddress?._isNew ? 'modalTitleEditAddress' : 'modalTitleSelectAddress'
                 }`,
@@ -178,7 +178,7 @@ export default {
 
             if (!this.isValidAddress(this.currentAddress)) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
+                    message: this.$t('sw-customer.notification.requiredFields'),
                 });
 
                 return Promise.reject();
@@ -195,7 +195,7 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-order.detail.messageSaveError'),
+                            message: this.$t('sw-order.detail.messageSaveError'),
                         });
                     });
             }

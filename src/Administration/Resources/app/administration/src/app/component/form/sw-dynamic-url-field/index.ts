@@ -76,12 +76,12 @@ export default Shopware.Component.wrapComponentConfig({
 
         linkCategoryOptions() {
             return [
-                { value: 'link', label: this.$tc('sw-text-editor-toolbar.link.labelUrl') },
-                { value: 'detail', label: this.$tc('sw-text-editor-toolbar.link.labelProduct') },
-                { value: 'navigation', label: this.$tc('sw-text-editor-toolbar.link.labelCategory') },
-                { value: 'media', label: this.$tc('sw-text-editor-toolbar.link.labelMedia') },
-                { value: 'email', label: this.$tc('sw-text-editor-toolbar.link.labelEmail') },
-                { value: 'phone', label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber') },
+                { value: 'link', label: this.$t('sw-text-editor-toolbar.link.labelUrl') },
+                { value: 'detail', label: this.$t('sw-text-editor-toolbar.link.labelProduct') },
+                { value: 'navigation', label: this.$t('sw-text-editor-toolbar.link.labelCategory') },
+                { value: 'media', label: this.$t('sw-text-editor-toolbar.link.labelMedia') },
+                { value: 'email', label: this.$t('sw-text-editor-toolbar.link.labelEmail') },
+                { value: 'phone', label: this.$t('sw-text-editor-toolbar.link.labelPhoneNumber') },
             ];
         },
     },

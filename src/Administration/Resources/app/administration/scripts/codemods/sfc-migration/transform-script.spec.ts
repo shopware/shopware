@@ -229,6 +229,29 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    describe('async-lifecycle-component: preserves async lifecycle hook bodies', () => {
+        let result: ReturnType<typeof transformScript>;
+
+        beforeAll(() => {
+            result = transformScript(readFixture('async-lifecycle-component.index.js'));
+        });
+
+        it('reports status fully-migratable', () => {
+            expect(result.status).toBe('fully-migratable');
+        });
+
+        it('emits async callbacks for Composition API lifecycle hooks', () => {
+            expect(result.script).toContain('onMounted(async () => {');
+            expect(result.script).toContain('await loadData();');
+        });
+
+        it('wraps async created() logic in an async setup IIFE', () => {
+            expect(result.script).toContain('void (async () => {');
+            expect(result.script).toContain('await bootstrap();');
+        });
+    });
+
+    // -------------------------------------------------------------------------
     describe('module-level-component: preserves module-level code (scss import, const declarations)', () => {
         let result: ReturnType<typeof transformScript>;
 
@@ -359,8 +382,8 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).toMatch(/import\s*\{[^}]*nextTick[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('rewrites this.$tc → tc and this.$t → t, and calls useI18n()', () => {
-            expect(result.script).toContain("tc('sw.composables.label', 2)");
+        it('rewrites this.$tc and this.$t to t, and calls useI18n()', () => {
+            expect(result.script).toContain("t('sw.composables.label', 2)");
             expect(result.script).toContain("t('sw.composables.title')");
             expect(result.script).not.toMatch(/\bthis\.\$tc\b/);
             expect(result.script).not.toMatch(/\bthis\.\$t\b/);
@@ -613,6 +636,35 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('surfaces unsupported shorthand and spread data entries with TODO comments', () => {
+        const js = `const title = 'External title';
+        const args = { count: 1 };
+
+        Shopware.Component.register('sw-test', {
+            template,
+            data() {
+                return {
+                    title,
+                    ...args,
+                    regular: 'kept',
+                };
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('data: title: shorthand data entries must be migrated manually');
+        expect(result.blockers).toContain('data: ...args: spread data entries must be migrated manually');
+        expect(result.script).toContain(
+            'TODO: migrate data entry manually: data: title: shorthand data entries must be migrated manually',
+        );
+        expect(result.script).toContain(
+            'TODO: migrate data entry manually: data: ...args: spread data entries must be migrated manually',
+        );
+        expect(result.script).toContain("const regular = ref('kept');");
+    });
+
+    // -------------------------------------------------------------------------
     it('surfaces unsupported watch entries with a TODO comment instead of silently dropping them', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
@@ -752,6 +804,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('surfaces missing string handler methods with a TODO comment', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
+            data() { return { items: [] }; },
             watch: {
                 items: 'updateCount'
             },
@@ -778,10 +831,28 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('surfaces undeclared watch targets with a TODO comment instead of generating undeclared refs', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            watch: {
+                items(newItems) {
+                    return newItems.length;
+                }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('watch: items: watch target is not declared in props, data, computed, or inject');
+        expect(result.script).toContain('TODO: migrate watch entry manually: items: watch target is not declared in props, data, computed, or inject');
+        expect(result.script).not.toContain('watch(() => items.value');
+    });
+
+    // -------------------------------------------------------------------------
     it('preserves async object-form inline watcher handlers', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { items: [], count: 0 }; },
             watch: {
                 items: {
                     async handler(newItems) {
@@ -1113,7 +1184,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('supports object-form watcher handlers declared as function expressions', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { externalCount: 0, count: 0 }; },
             watch: {
                 externalCount: {
                     handler: function(newVal, oldVal) {
@@ -1135,7 +1206,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     it('supports object-form watcher handlers declared as arrow functions', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,
-            data() { return { count: 0 }; },
+            data() { return { externalCount: 0, count: 0 }; },
             watch: {
                 externalCount: {
                     handler: (newVal) => {
@@ -1166,6 +1237,28 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('preserves object-form emits validators', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            emits: {
+                save(payload) {
+                    return payload !== null;
+                },
+            },
+            methods: {
+                onSave(payload) { this.$emit('save', payload); }
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const emit = defineEmits({');
+        expect(result.script).toContain('save(payload)');
+        expect(result.script).toContain('return payload !== null;');
+        expect(result.script).not.toContain("const emit = defineEmits(['save']);");
+    });
+
+    // -------------------------------------------------------------------------
     it('replaces this.$store with a throwing IIFE, not a bare this.$store reference', () => {
         const js = `
         Shopware.Component.register('sw-store-user', {
@@ -1175,37 +1268,131 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
     `;
         const result = transformScript(js);
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('$store usage requires manual migration to the appropriate Pinia store or composable');
         expect(result.script).not.toContain('this.$store');
         expect(result.script).toContain('throw new Error');
         expect(result.script).toContain('TODO: migrate $store');
     });
 
     // -------------------------------------------------------------------------
-    describe('block-component with useDataScope=true: reactive is in the vue import, not appended', () => {
+    it('marks unsupported top-level Options API options as partially migratable', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            provide() { return { foo: this.foo }; },
+            components: { 'sw-child': swChild },
+            directives: { focus },
+            beforeCreate() { this.bootstrap(); },
+            methods: {
+                bootstrap() {},
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('provide option requires manual migration');
+        expect(result.blockers).toContain('components option requires manual verification');
+        expect(result.blockers).toContain('directives option requires manual migration');
+        expect(result.blockers).toContain('beforeCreate hook requires manual migration');
+        expect(result.script).toContain('TODO: migrate `provide` manually');
+        expect(result.script).toContain('TODO: verify local component registrations in `components:`');
+        expect(result.script).toContain('TODO: migrate `directives` manually');
+        expect(result.script).toContain('TODO: `beforeCreate` was dropped');
+    });
+
+    // -------------------------------------------------------------------------
+    it('marks unsupported computed spread entries as partially migratable', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                ...mapPropertyErrors('product', ['name']),
+                title() {
+                    return 'Title';
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain("computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.script).toContain("TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.script).toContain('const title = computed(() => {');
+    });
+
+    // -------------------------------------------------------------------------
+    it('migrates function-valued computed entries instead of dropping them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            data() { return { title: 'Title' }; },
+            computed: {
+                label: function() {
+                    return this.title;
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const label = computed(() => {');
+        expect(result.script).toContain('return title.value;');
+    });
+
+    // -------------------------------------------------------------------------
+    it('migrates arrow-function computed entries instead of dropping them', () => {
+        const js = `Shopware.Component.register('sw-test', {
+            template,
+            computed: {
+                label: () => 'Title',
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain('const label = computed(() => {');
+        expect(result.script).toContain("return 'Title';");
+    });
+
+    // -------------------------------------------------------------------------
+    it('does not rewrite this references inside strings, comments, or static template text', () => {
+        const js = [
+            "Shopware.Component.register('sw-test', {",
+            "    data() { return { title: 'Title' }; },",
+            '    methods: {',
+            "        literalRoute() { return 'this.$route'; },",
+            '        staticTemplate(label) { return `debug: ${label} this.title`; },',
+            '        commentedEmit() {',
+            "            // this.$emit('save') must stay a comment",
+            "            return 'done';",
+            '        },',
+            '        executableTemplate() { return `${this.title}`; },',
+            '    },',
+            '});',
+        ].join('\n');
+        const result = transformScript(js);
+
+        expect(result.status).toBe('fully-migratable');
+        expect(result.script).toContain("return 'this.$route';");
+        expect(result.script).toContain('return `debug: ${label} this.title`;');
+        expect(result.script).toContain("// this.$emit('save') must stay a comment");
+        expect(result.script).toContain('return `${title.value}`;');
+        expect(result.script).not.toContain('useRoute');
+        expect(result.script).not.toContain('defineEmits');
+    });
+
+    // -------------------------------------------------------------------------
+    describe('block-component data scope handling', () => {
         let result: ReturnType<typeof transformScript>;
 
         beforeAll(() => {
-            result = transformScript(readFixture('block-component.index.js'), true);
+            result = transformScript(readFixture('block-component.index.js'));
         });
 
-        it('includes reactive in the vue import line', () => {
-            expect(result.script).toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
+        it('does not import reactive for data-scope generation', () => {
+            expect(result.script).not.toMatch(/import\s*\{[^}]*reactive[^}]*\}\s*from\s*['"]vue['"]/);
         });
 
-        it('does not have a second standalone import for reactive', () => {
-            const importMatches = result.script.match(/import\s*\{[^}]*\}\s*from\s*['"]vue['"]/g) ?? [];
-            expect(importMatches).toHaveLength(1);
-        });
-
-        it('emits $dataScope const after the createExtendableSetup closing paren', () => {
-            // Find the closing ); of createExtendableSetup by locating the setup
-            // call start and then the first ); that follows its callback.
-            const setupCallIdx = result.script.indexOf('createExtendableSetup(');
-            // The last ); before the $dataScope line is the one closing createExtendableSetup.
-            const dataScopeIdx = result.script.indexOf('const $dataScope = reactive(');
-            const setupCloseIdx = result.script.lastIndexOf(');', dataScopeIdx);
-            expect(setupCallIdx).toBeGreaterThan(-1);
-            expect(dataScopeIdx).toBeGreaterThan(setupCloseIdx);
+        it('does not emit a local $dataScope variable', () => {
+            expect(result.script).not.toContain('const $dataScope =');
         });
     });
 });

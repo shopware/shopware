@@ -9,7 +9,7 @@
             class="sw-import-export-exporter__variants-warning"
         >
             {% block sw_import_export_exporter_product_variants_warning_text %}
-            <span>{{ $tc('sw-import-export.exporter.variantsWarning') }}</span>
+            <span>{{ $t('sw-import-export.exporter.variantsWarning') }}</span>
 
             <div class="sw-import-export-exporter__variants-warning-links">
                 <mt-link
@@ -17,7 +17,7 @@
                     class="sw-import-export-exporter__link"
                     @click="setExportModalProfile('product_configurator_setting')"
                 >
-                    {{ $tc('sw-import-export.exporter.directExportVariantsLabel') }}
+                    {{ $t('sw-import-export.exporter.directExportVariantsLabel') }}
                 </mt-link>
 
                 <mt-link
@@ -25,7 +25,7 @@
                     class="sw-import-export-exporter__link"
                     @click="setExportModalProfile('property_group_option')"
                 >
-                    {{ $tc('sw-import-export.exporter.directExportPropertiesLabel') }}
+                    {{ $t('sw-import-export.exporter.directExportPropertiesLabel') }}
                 </mt-link>
             </div>
             {% endblock %}
@@ -37,7 +37,7 @@
     <sw-entity-single-select
         class="sw-import-export-exporter__profile-select"
         :disabled="isLoading"
-        :label="$tc('sw-import-export.importer.profileLabel')"
+        :label="$t('sw-import-export.importer.profileLabel')"
         :criteria="profileCriteria"
         entity="import_export_profile"
         label-property="technicalName"
@@ -53,7 +53,7 @@
         <mt-switch
             v-model="config.parameters.includeVariants"
             class="sw-import-export-exporter__variants-switch-field"
-            :label="$tc('sw-import-export.exporter.exportVariants')"
+            :label="$t('sw-import-export.exporter.exportVariants')"
         />
         {% endblock %}
     </template>
@@ -61,7 +61,7 @@
     {% block sw_import_export_exporter_modal %}
     <sw-modal
         v-if="exportModalProfile"
-        :title="$tc('sw-import-export.exporter.exportLabel')"
+        :title="$t('sw-import-export.exporter.exportLabel')"
         @modal-close="setExportModalProfile(null)"
     >
         {% block sw_import_export_exporter_modal_exporter %}
@@ -78,7 +78,7 @@
                 variant="secondary"
                 @click="setExportModalProfile(null)"
             >
-                {{ $tc('sw-import-export.exporter.close') }}
+                {{ $t('sw-import-export.exporter.close') }}
             </mt-button>
             {% endblock %}
         </template>

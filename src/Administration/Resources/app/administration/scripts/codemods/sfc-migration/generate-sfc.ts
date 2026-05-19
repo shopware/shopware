@@ -1,5 +1,6 @@
-import { transformTemplate } from './transform-template';
+import { TemplateTransformError, transformTemplate } from './transform-template';
 import { transformScript } from './transform-script';
+import type { MergeStatus } from './types';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -35,11 +36,19 @@ export interface MergeResult {
  * The `<template>` section always precedes `<script …>` in the output.
  */
 export function mergeComponentFiles(twigContent: string, jsContent: string): MergeResult {
-    // Determine useDataScope before calling transformScript so reactive is
-    // included in the vue import block, not appended after it.
-    const { template: templateSection, useDataScope } = transformTemplate(twigContent);
+    let templateSection: string;
 
-    const scriptResult = transformScript(jsContent, useDataScope);
+    try {
+        ({ template: templateSection } = transformTemplate(twigContent));
+    } catch (err) {
+        if (err instanceof TemplateTransformError) {
+            return { sfc: '', status: 'not-migratable', blockers: err.blockers, warnings: [] };
+        }
+
+        throw err;
+    }
+
+    const scriptResult = transformScript(jsContent);
 
     if (scriptResult.status === 'not-migratable') {
         return { sfc: '', status: 'not-migratable', blockers: scriptResult.blockers, warnings: [] };
@@ -48,11 +57,19 @@ export function mergeComponentFiles(twigContent: string, jsContent: string): Mer
     const scriptWrapper = scriptResult.scriptType === 'setup' ? '<script setup>' : '<script>';
 
     if (scriptResult.status === 'partially-migratable') {
-        const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
+        const sfc = [
+            templateSection,
+            '',
+            `${scriptWrapper}\n${scriptResult.script}\n</script>`,
+        ].join('\n');
         return { sfc, status: 'partially-migrated', blockers: scriptResult.blockers, warnings: [] };
     }
 
-    const sfc = [templateSection, '', `${scriptWrapper}\n${scriptResult.script}\n</script>`].join('\n');
+    const sfc = [
+        templateSection,
+        '',
+        `${scriptWrapper}\n${scriptResult.script}\n</script>`,
+    ].join('\n');
     const warnings = sfc.includes('TODO: $el')
         ? ['$el usage detected — replace with a template ref or verify getCurrentInstance() call context']
         : [];

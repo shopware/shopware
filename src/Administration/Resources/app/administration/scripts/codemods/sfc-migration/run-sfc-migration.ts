@@ -12,8 +12,8 @@
  *   --dry-run          (default) Preview what would be written without writing files
  *   --write            Write .vue files to disk
  *   --force            Overwrite existing .vue files (default: skip if already exists)
- *   --delete-originals Delete the source index.js and .html.twig after writing the .vue file
- *                      (only applies to fully- and partially-migrated components in --write mode)
+ *   --delete-originals Replace the source index.js with an SFC entry point and delete .html.twig
+ *                      (only applies to fully-migrated components in --write mode)
  *
  * Examples:
  *   npm run codemod:sfc-migration -- src/app/component/base/sw-button
@@ -22,11 +22,15 @@
  *   npm run codemod:sfc-migration -- --write --delete-originals src/Resources/app/administration/src
  */
 
-import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
+import commandLineArgs from 'command-line-args';
+import getUsage from 'command-line-usage';
 import { globSync } from 'glob';
 import { Project, ScriptKind } from 'ts-morph';
+import type { MergeResult } from './generate-sfc';
 import { mergeComponentFiles } from './generate-sfc';
+import { quoteJsString } from './string-literals';
 
 export interface RunOptions {
     dryRun?: boolean;
@@ -51,14 +55,132 @@ export interface RunResult {
     report: string[];
 }
 
-export function findTwigFile(dir: string): string | null {
+interface CliOptionDefinition {
+    name: string;
+    alias?: string;
+    type: StringConstructor | BooleanConstructor;
+    defaultOption?: boolean;
+    typeLabel?: string;
+    description: string;
+}
+
+interface RawCliOptions {
+    help?: boolean;
+    dryRun?: boolean;
+    write?: boolean;
+    force?: boolean;
+    deleteOriginals?: boolean;
+    path?: string;
+}
+
+export interface CliOptions {
+    help: boolean;
+    targetDir?: string;
+    dryRun: boolean;
+    force: boolean;
+    deleteOriginals: boolean;
+}
+
+interface MigrationContext {
+    indexPath: string;
+    twigPath: string;
+    componentName: string;
+    vuePath: string;
+}
+
+const cliOptionDefinitions: CliOptionDefinition[] = [
+    {
+        name: 'help',
+        alias: 'h',
+        type: Boolean,
+        description: 'Prints this help page.',
+    },
+    {
+        name: 'dry-run',
+        type: Boolean,
+        description: '(default) Preview what would be written without writing files.',
+    },
+    {
+        name: 'write',
+        type: Boolean,
+        description: 'Write .vue files to disk.',
+    },
+    {
+        name: 'force',
+        type: Boolean,
+        description: 'Overwrite existing .vue files (default: skip if already exists).',
+    },
+    {
+        name: 'delete-originals',
+        type: Boolean,
+        description: 'Replace source index.js and delete .html.twig for fully migrated components.',
+    },
+    {
+        name: 'path',
+        type: String,
+        defaultOption: true,
+        typeLabel: '<path>',
+        description: 'Directory to scan for index.js component files.',
+    },
+];
+
+const cliUsageSections = [
+    {
+        header: 'SFC Migration Codemod',
+        content: 'Generates .vue SFCs from Options API components.',
+    },
+    {
+        header: 'Synopsis',
+        content: [
+            '$ npm run codemod:sfc-migration -- [--dry-run | --write] [--force] [--delete-originals] <path>',
+            '$ npm run codemod:sfc-migration -- --help',
+        ],
+    },
+    {
+        header: 'Options',
+        optionList: cliOptionDefinitions,
+    },
+];
+
+export function getCliUsage(): string {
+    return getUsage(cliUsageSections);
+}
+
+export function parseCliOptions(argv: string[]): CliOptions {
+    const options = commandLineArgs(cliOptionDefinitions, { argv, camelCase: true }) as RawCliOptions;
+
+    return {
+        help: options.help ?? false,
+        targetDir: options.path ? resolve(options.path) : undefined,
+        dryRun: options.dryRun ?? !options.write,
+        force: options.force ?? false,
+        deleteOriginals: options.deleteOriginals ?? false,
+    };
+}
+
+function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
     try {
-        const entries = readdirSync(dir);
-        const twig = entries.find((f) => f.endsWith('.html.twig'));
-        return twig ? join(dir, twig) : null;
+        const candidates = readdirSync(dir)
+            .filter((entry) => entry.endsWith('.html.twig'))
+            .sort();
+        const exactMatch = `${componentName}.html.twig`;
+
+        if (candidates.includes(exactMatch)) {
+            return { path: join(dir, exactMatch), candidates };
+        }
+
+        if (candidates.length === 1) {
+            return { path: join(dir, candidates[0]), candidates };
+        }
+
+        return { path: null, candidates };
     } catch {
-        return null;
+        return { path: null, candidates: [] };
     }
+}
+
+export function findTwigFile(dir: string, componentName: string): string | null {
+    return selectTwigFile(dir, componentName).path;
 }
 
 /**
@@ -88,13 +210,186 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 
     return (
         jsContent.slice(0, start) +
-        `Shopware.Component.register('${componentName}', ${objectLiteralText});` +
+        `Shopware.Component.register(${quoteJsString(componentName)}, ${objectLiteralText});` +
         jsContent.slice(end)
     );
 }
 
+function buildIndexShim(componentName: string): string {
+    const vueImportPath = `./${componentName}.vue`;
+
+    return [
+        `import component from ${quoteJsString(vueImportPath)};`,
+        '',
+        `Shopware.Component.register(${quoteJsString(componentName)}, component);`,
+        '',
+    ].join('\n');
+}
+
+function formatReportPath(filePath: string): string {
+    const relativePath = relative(process.cwd(), filePath).replaceAll('\\', '/');
+
+    if (relativePath === '') {
+        return '.';
+    }
+
+    return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+}
+
+function replaceOriginalsWithEntryPoint(indexPath: string, twigPath: string, componentName: string): void {
+    writeFileSync(indexPath, buildIndexShim(componentName), 'utf-8');
+    rmSync(twigPath);
+}
+
+function reportSkippedTwig(indexPath: string, twigCandidates: string[], stats: RunStats, report: string[]): void {
+    stats.skipped++;
+    const displayIndexPath = formatReportPath(indexPath);
+
+    const skipMessage =
+        twigCandidates.length > 1
+            ? `SKIP (ambiguous twig)  ${displayIndexPath} [${twigCandidates.join(', ')}]`
+            : `SKIP (no twig)  ${displayIndexPath}`;
+
+    report.push(skipMessage);
+}
+
+function writeMigrationOutput(
+    context: MigrationContext,
+    result: MergeResult,
+    options: Required<RunOptions>,
+    stats: RunStats,
+    report: string[],
+): boolean {
+    if (options.dryRun) {
+        return true;
+    }
+
+    if (!options.force && existsSync(context.vuePath)) {
+        stats.skippedExisting++;
+        report.push(`SKIP (already exists)  ${formatReportPath(context.vuePath)}`);
+
+        return false;
+    }
+
+    writeFileSync(context.vuePath, result.sfc, 'utf-8');
+
+    // Partially migrated SFCs are review artifacts until their blockers are
+    // resolved. Keep the original entry point active so mixins/extends backoff
+    // components do not change runtime behavior under --delete-originals.
+    if (!options.deleteOriginals || result.status !== 'fully-migrated') {
+        return true;
+    }
+
+    replaceOriginalsWithEntryPoint(context.indexPath, context.twigPath, context.componentName);
+    stats.deletedOriginals++;
+    report.push(`  replaced entrypoint  ${formatReportPath(context.indexPath)}`);
+    report.push(`  deleted original     ${formatReportPath(context.twigPath)}`);
+
+    return true;
+}
+
+function getDryRunPrefix(options: Required<RunOptions>): string {
+    return options.dryRun ? '[DRY RUN] Would write: ' : '';
+}
+
+function reportWarnings(warnings: string[], stats: RunStats, report: string[]): void {
+    for (const warning of warnings) {
+        stats.elWarnings++;
+        report.push(`   ⚠  ${warning}`);
+    }
+}
+
+function reportFullyMigrated(
+    context: MigrationContext,
+    result: MergeResult,
+    options: Required<RunOptions>,
+    stats: RunStats,
+    report: string[],
+): void {
+    stats.fullyMigrated++;
+    report.push(`✓  fully-migrated        ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`);
+    reportWarnings(result.warnings, stats, report);
+}
+
+function reportExtendsBlocker(blockers: string[], stats: RunStats, report: string[]): void {
+    const extendsBlocker = blockers.find((blocker) => blocker.startsWith('extends'));
+
+    if (!extendsBlocker) {
+        return;
+    }
+
+    const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
+    const parentName = parentMatch ? parentMatch[1] : 'unknown';
+
+    stats.extendsComponents++;
+    report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
+}
+
+function reportPartiallyMigrated(
+    context: MigrationContext,
+    result: MergeResult,
+    options: Required<RunOptions>,
+    stats: RunStats,
+    report: string[],
+): void {
+    stats.partiallyMigrated++;
+    report.push(
+        `~  partially-migrated  [${result.blockers.join(', ')}]  ${getDryRunPrefix(options)}${formatReportPath(context.vuePath)}`,
+    );
+    if (options.deleteOriginals && !options.dryRun) {
+        report.push(
+            '   ⚠  kept originals because partial migration requires manual follow-up before replacing the entrypoint',
+        );
+    }
+    reportExtendsBlocker(result.blockers, stats, report);
+}
+
+function reportNotMigratable(context: MigrationContext, result: MergeResult, stats: RunStats, report: string[]): void {
+    stats.notMigratable++;
+    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${formatReportPath(context.indexPath)}`);
+}
+
+function handleMigrationResult(
+    context: MigrationContext,
+    result: MergeResult,
+    options: Required<RunOptions>,
+    stats: RunStats,
+    report: string[],
+): void {
+    if (result.status === 'not-migratable') {
+        reportNotMigratable(context, result, stats, report);
+
+        return;
+    }
+
+    if (!writeMigrationOutput(context, result, options, stats, report)) {
+        return;
+    }
+
+    if (result.status === 'fully-migrated') {
+        reportFullyMigrated(context, result, options, stats, report);
+
+        return;
+    }
+
+    reportPartiallyMigrated(context, result, options, stats, report);
+}
+
 export function runMigration(targetDir: string, options: RunOptions): RunResult {
-    const { dryRun = true, force = false, deleteOriginals = false } = options;
+    const runOptions: Required<RunOptions> = {
+        dryRun: options.dryRun ?? true,
+        force: options.force ?? false,
+        deleteOriginals: options.deleteOriginals ?? false,
+    };
+
+    if (!existsSync(targetDir)) {
+        throw new Error(`Target path does not exist: ${targetDir}`);
+    }
+
+    if (!statSync(targetDir).isDirectory()) {
+        throw new Error(`Target path must be a directory: ${targetDir}`);
+    }
+
     const indexFiles = globSync('**/index.js', { cwd: targetDir, absolute: true });
 
     const stats: RunStats = {
@@ -116,83 +411,27 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 
             const dir = dirname(indexPath);
             const componentName = dir.split('/').at(-1) ?? 'unknown';
-            const twigPath = findTwigFile(dir);
+            const { path: twigPath, candidates: twigCandidates } = selectTwigFile(dir, componentName);
 
             if (!twigPath) {
-                stats.skipped++;
-                report.push(`SKIP (no twig)  ${indexPath}`);
+                reportSkippedTwig(indexPath, twigCandidates, stats, report);
                 continue;
             }
 
             const twigContent = readFileSync(twigPath, 'utf-8');
             const normalisedJs = normaliseJsContent(jsContent, componentName);
             const result = mergeComponentFiles(twigContent, normalisedJs);
+            const context = {
+                indexPath,
+                twigPath,
+                componentName,
+                vuePath: join(dir, `${componentName}.vue`),
+            };
 
-            switch (result.status) {
-                case 'fully-migrated': {
-                    const vuePath = join(dir, `${componentName}.vue`);
-                    if (!dryRun && !force && existsSync(vuePath)) {
-                        stats.skippedExisting++;
-                        report.push(`SKIP (already exists)  ${vuePath}`);
-                        break;
-                    }
-                    if (!dryRun) {
-                        writeFileSync(vuePath, result.sfc, 'utf-8');
-                        if (deleteOriginals) {
-                            rmSync(indexPath);
-                            rmSync(twigPath);
-                            stats.deletedOriginals++;
-                            report.push(`  deleted originals    ${indexPath}`);
-                            report.push(`  deleted originals    ${twigPath}`);
-                        }
-                    }
-                    stats.fullyMigrated++;
-                    const fullyPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                    report.push(`✓  fully-migrated        ${fullyPrefix}${vuePath}`);
-                    for (const warning of result.warnings) {
-                        stats.elWarnings++;
-                        report.push(`   ⚠  ${warning}`);
-                    }
-                    break;
-                }
-                case 'partially-migrated': {
-                    const vuePath = join(dir, `${componentName}.vue`);
-                    if (!dryRun && !force && existsSync(vuePath)) {
-                        stats.skippedExisting++;
-                        report.push(`SKIP (already exists)  ${vuePath}`);
-                        break;
-                    }
-                    if (!dryRun) {
-                        writeFileSync(vuePath, result.sfc, 'utf-8');
-                        if (deleteOriginals) {
-                            rmSync(indexPath);
-                            rmSync(twigPath);
-                            stats.deletedOriginals++;
-                            report.push(`  deleted originals    ${indexPath}`);
-                            report.push(`  deleted originals    ${twigPath}`);
-                        }
-                    }
-                    stats.partiallyMigrated++;
-                    const partialPrefix = dryRun ? '[DRY RUN] Would write: ' : '';
-                    report.push(`~  partially-migrated  [${result.blockers.join(', ')}]  ${partialPrefix}${vuePath}`);
-                    const extendsBlocker = result.blockers.find((b) => b.startsWith('extends'));
-                    if (extendsBlocker) {
-                        const parentMatch = extendsBlocker.match(/\(parent: ([^)]+)\)/);
-                        const parentName = parentMatch ? parentMatch[1] : 'unknown';
-                        stats.extendsComponents++;
-                        report.push(`   ⚠  manually inline parent options from '${parentName}' before re-running codemod; see README.md`);
-                    }
-                    break;
-                }
-                case 'not-migratable': {
-                    stats.notMigratable++;
-                    report.push(`✗  not-migratable      [${result.blockers.join(', ')}]  ${indexPath}`);
-                    break;
-                }
-            }
+            handleMigrationResult(context, result, runOptions, stats, report);
         } catch (err) {
             stats.errors = (stats.errors ?? 0) + 1;
-            report.push(`ERROR  ${indexPath}: ${err instanceof Error ? err.message : String(err)}`);
+            report.push(`ERROR  ${formatReportPath(indexPath)}: ${err instanceof Error ? err.message : String(err)}`);
         }
     }
 
@@ -201,61 +440,61 @@ export function runMigration(targetDir: string, options: RunOptions): RunResult 
 
 // Only execute when invoked directly as a script, not when imported by tests.
 if (process.argv[1] === __filename) {
-    const args = process.argv.slice(2);
+    let cliOptions: CliOptions;
 
-    if (args.includes('--help') || args.includes('-h')) {
-        console.log('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
-        console.log('  <path>               Directory to scan for index.js component files');
-        console.log('  --dry-run            (default) Preview what would be written without writing files');
-        console.log('  --write              Write .vue files to disk');
-        console.log('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.log('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
-        process.exit(0);
-    }
-
-    const targetArg = args.find((a) => !a.startsWith('--'));
-
-    if (!targetArg) {
-        console.error('Usage: npx tsx run-sfc-migration.ts [--dry-run | --write] [--force] [--delete-originals] <path>');
-        console.error('  <path>               Directory to scan for index.js component files');
-        console.error('  --dry-run            (default) Preview what would be written without writing files');
-        console.error('  --write              Write .vue files to disk');
-        console.error('  --force              Overwrite existing .vue files (default: skip if already exists)');
-        console.error('  --delete-originals   Delete source index.js and .html.twig after writing the .vue file');
+    try {
+        cliOptions = parseCliOptions(process.argv.slice(2));
+    } catch (err) {
+        console.error(err instanceof Error ? err.message : String(err));
+        console.error(getCliUsage());
         process.exit(1);
     }
 
-    const TARGET_DIR = resolve(targetArg);
-    const dryRun = args.includes('--dry-run') || !args.includes('--write');
-    const force = args.includes('--force');
-    const deleteOriginals = args.includes('--delete-originals');
+    if (cliOptions.help) {
+        console.log(getCliUsage());
+        process.exit(0);
+    }
 
-    if (!dryRun && deleteOriginals) {
+    if (!cliOptions.targetDir) {
+        console.error(getCliUsage());
+        process.exit(1);
+    }
+
+    if (!cliOptions.dryRun && cliOptions.deleteOriginals) {
         console.warn('WARNING: --delete-originals will permanently delete source files. Ensure git is clean.');
     }
 
-    const { stats, report } = runMigration(TARGET_DIR, { dryRun, force, deleteOriginals });
+    try {
+        const { stats, report } = runMigration(cliOptions.targetDir, {
+            dryRun: cliOptions.dryRun,
+            force: cliOptions.force,
+            deleteOriginals: cliOptions.deleteOriginals,
+        });
 
-    console.log(report.join('\n'));
-    console.log(`
+        console.log(report.join('\n'));
+        console.log(`
 Migration Summary
 =================
-Fully migrated:      ${stats.fullyMigrated}
-Partially migrated:  ${stats.partiallyMigrated}
-Not migratable:      ${stats.notMigratable}
-Skipped (no twig):   ${stats.skipped}
-Skipped (exists):    ${stats.skippedExisting}
-Deleted originals:   ${stats.deletedOriginals}
-Components with $el: ${stats.elWarnings}
+Fully migrated:       ${stats.fullyMigrated}
+Partially migrated:   ${stats.partiallyMigrated}
+Not migratable:       ${stats.notMigratable}
+Skipped (no twig):    ${stats.skipped}
+Skipped (exists):     ${stats.skippedExisting}
+Deleted originals:    ${stats.deletedOriginals}
+Components with $el:  ${stats.elWarnings}
 Components (extends): ${stats.extendsComponents}
-Errors:              ${stats.errors}
+Errors:               ${stats.errors}
 `);
 
-    if (dryRun) {
-        console.log('[DRY RUN] No files were written. Run with --write to apply.');
-    }
+        if (cliOptions.dryRun) {
+            console.log('[DRY RUN] No files were written. Run with --write to apply.');
+        }
 
-    if (stats.errors > 0 || stats.notMigratable > 0) {
+        if (stats.errors > 0 || stats.notMigratable > 0) {
+            process.exit(1);
+        }
+    } catch (err) {
+        console.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
         process.exit(1);
     }
 }

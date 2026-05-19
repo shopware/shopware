@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Consent\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\System\Consent\ConsentScope;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 
@@ -28,5 +29,13 @@ class ConsentRevokedEventTest extends TestCase
         static::assertSame(ConsentScope\AdminUser::NAME, $event->consentScope);
         static::assertSame('consent-identifier', $event->identifier);
         static::assertSame('user-456', $event->actor);
+        static::assertSame('consent.my-consent.revoked', $event->getName());
+        static::assertSame([
+            'consentName' => 'my-consent',
+            'consentScope' => ConsentScope\AdminUser::NAME,
+            'identifier' => 'consent-identifier',
+        ], $event->getWebhookPayload());
+        static::assertTrue($event->isAllowed('app-id', new AclPrivilegeCollection(['consent:my-consent:read'])));
+        static::assertFalse($event->isAllowed('app-id', new AclPrivilegeCollection(['consent:other-consent:read'])));
     }
 }

@@ -336,8 +336,8 @@ class ProductExportGeneratorTest extends TestCase
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
-                'headerTemplate' => 'name,stock',
-                'bodyTemplate' => '{{ product.name }},{{ product.stock }}',
+                'headerTemplate' => 'name,stock,category',
+                'bodyTemplate' => '{{ product.name }},{{ product.stock }},{%- if product.categories.count > 0 -%}{{ product.categories.first.name }}{%- endif -%}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
@@ -430,6 +430,9 @@ class ProductExportGeneratorTest extends TestCase
                             ],
                         ],
                     ],
+                ],
+                'categories' => [
+                    ['id' => Uuid::randomHex(), 'name' => 'Foobar', 'active' => $i % 2 === 0],
                 ],
             ];
         }

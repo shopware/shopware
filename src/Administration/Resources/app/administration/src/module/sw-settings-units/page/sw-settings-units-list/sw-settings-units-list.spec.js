@@ -39,7 +39,7 @@ async function createWrapper(privileges = []) {
                             limit: 25,
                         },
                     },
-                    $tc() {
+                    $t() {
                         return 'trans';
                     },
                 },

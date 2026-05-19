@@ -116,7 +116,7 @@ async function createWrapper() {
                     'router-link': true,
                 },
                 mocks: {
-                    $tc: (snippet) => snippet,
+                    $t: (snippet) => snippet,
                 },
             },
         },

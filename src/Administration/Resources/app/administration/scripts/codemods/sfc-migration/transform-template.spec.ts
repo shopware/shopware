@@ -133,64 +133,16 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         });
     });
 
-    describe('extends-template: {% extends %} and its adjacent eslint-disable comment are stripped while block syntax is still converted', () => {
-        let result: string;
-
-        beforeAll(() => {
-            result = transformTemplate(readFixture('extends-template.html.twig')).template;
-        });
-
-        it('wraps the output in a <template> tag', () => {
-            expect(result.trimStart().startsWith('<template>')).toBe(true);
-            expect(result.trimEnd().endsWith('</template>')).toBe(true);
-        });
-
-        it('removes the {% extends %} line', () => {
-            expect(result).not.toContain('{% extends');
-            expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
-        });
-
-        it('removes the adjacent eslint-disable-next-line comment', () => {
-            expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
-        });
-
-        it('still converts block syntax to <sw-block> elements', () => {
-            expect(result).toContain('<sw-block name="sw_foo_list" :data="$dataScope">');
-            expect(result).toContain('</sw-block>');
-        });
-
-        it('leaves no twig syntax in the output', () => {
-            expect(result).not.toContain('{%');
-            expect(result).not.toContain('%}');
-        });
-
-        it('matches the complete transformed template snapshot', () => {
-            expect(result).toMatchSnapshot();
-        });
+    it('throws when the template contains {% extends %} with block syntax', () => {
+        expect(() => transformTemplate(readFixture('extends-template.html.twig'))).toThrow(
+            'Twig extends is not supported by the SFC migration codemod.',
+        );
     });
 
-    describe('extends-without-blocks: {% extends %} is stripped without introducing sw-block wrappers', () => {
-        let result: string;
-
-        beforeAll(() => {
-            result = transformTemplate(readFixture('extends-without-blocks.html.twig')).template;
-        });
-
-        it('removes the {% extends %} line and adjacent eslint-disable comment', () => {
-            expect(result).not.toContain('{% extends');
-            expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
-            expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
-        });
-
-        it('preserves the plain template content without adding sw-block wrappers', () => {
-            expect(result).toContain('<div class="sw-foo">{{ title }}</div>');
-            expect(result).not.toContain('<sw-block');
-            expect(result).not.toContain('</sw-block>');
-        });
-
-        it('matches the complete transformed template snapshot', () => {
-            expect(result).toMatchSnapshot();
-        });
+    it('throws when the template contains {% extends %} without block syntax', () => {
+        expect(() => transformTemplate(readFixture('extends-without-blocks.html.twig'))).toThrow(
+            'Twig extends is not supported by the SFC migration codemod.',
+        );
     });
 
     it('removes obsolete twig eslint-disable comments adjacent to block migration lines', () => {
@@ -220,17 +172,23 @@ describe('scripts/codemods/sfc-migration/transform-template', () => {
         expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
     });
 
-    it('removes double-quoted twig extends lines too', () => {
-        const result = transformTemplate(`
+    it('throws for double-quoted twig extends lines too', () => {
+        expect(() =>
+            transformTemplate(`
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% extends "@Administration/administration/src/module/sw-foo/page/sw-foo-index/sw-foo-index.html.twig" %}
 <div class="sw-foo">{{ title }}</div>
-        `).template;
+        `),
+        ).toThrow('Twig extends is not supported by the SFC migration codemod.');
+    });
 
-        expect(result).not.toContain('{% extends');
-        expect(result).not.toContain('@Administration/administration/src/module/sw-foo');
-        expect(result).not.toContain('eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks');
-        expect(result).toContain('<div class="sw-foo">{{ title }}</div>');
+    it('throws for dynamic twig extends expressions too', () => {
+        expect(() =>
+            transformTemplate(`
+{% extends parentTemplate %}
+<div class="sw-foo">{{ title }}</div>
+        `),
+        ).toThrow('Twig extends is not supported by the SFC migration codemod.');
     });
 
     it('rewrites trailing core block v-if chains to legacy block helpers', () => {

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-customer-list-color-error: $color-crimson-500;
-$sw-customer-list-color-success: $color-emerald-500;
+$sw-customer-list-color-error: var(--color-icon-critical-default);
+$sw-customer-list-color-success: var(--color-icon-positive-default);
 
 .sw-customer-list {
     .sw-customer-list__content {
@@ -38,8 +38,8 @@ $sw-customer-list-color-success: $color-emerald-500;
     }
 
     .sw-label.sw-customer-list__requested-group-label {
-        background: $color-module-orange-500;
-        color: $color-white;
+        background: var(--color-background-attention-default);
+        color: var(--color-text-attention-default);
         font-weight: $font-weight-semi-bold;
     }
 }

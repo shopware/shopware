@@ -174,14 +174,9 @@ class McpResourcePersisterTest extends TestCase
 
     private function createMcpWithResources(McpResources $mcpResources): Mcp
     {
-        $reflection = new \ReflectionClass(Mcp::class);
+        $mcp = $this->createMock(Mcp::class);
+        $mcp->method('getResources')->willReturn($mcpResources);
 
-        /** @var Mcp $instance */
-        $instance = $reflection->newInstanceWithoutConstructor();
-
-        $reflection->getProperty('path')->setValue($instance, '/path');
-        $reflection->getProperty('resources')->setValue($instance, $mcpResources);
-
-        return $instance;
+        return $mcp;
     }
 }

@@ -92,8 +92,7 @@ class McpAuthenticationListenerTest extends TestCase
             'sw-secret-access-key' => 'some-secret',
         ]);
 
-        static::expectException(McpException::class);
-        static::expectExceptionMessage('Only integration or user access keys are supported for MCP authentication.');
+        static::expectExceptionObject(McpException::unsupportedKeyType());
 
         $listener->authenticate($event);
     }
@@ -115,8 +114,7 @@ class McpAuthenticationListenerTest extends TestCase
             'sw-secret-access-key' => 'wrong-secret',
         ]);
 
-        static::expectException(McpException::class);
-        static::expectExceptionMessage('Invalid integration credentials');
+        static::expectExceptionObject(McpException::invalidCredentials());
 
         $listener->authenticate($event);
     }
@@ -124,12 +122,13 @@ class McpAuthenticationListenerTest extends TestCase
     public function testRateLimitExceededPropagatesException(): void
     {
         $accessKey = 'SWIAvalidintegrationkey12';
+        $expected = new RateLimitExceededException(time() + 60);
 
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::OAUTH, $accessKey)
-            ->willThrowException(new RateLimitExceededException(time() + 60));
+            ->willThrowException($expected);
 
         $listener = new McpAuthenticationListener(
             static::createStub(ClientRepository::class),
@@ -141,7 +140,7 @@ class McpAuthenticationListenerTest extends TestCase
             'sw-secret-access-key' => 'some-secret',
         ]);
 
-        $this->expectException(RateLimitExceededException::class);
+        $this->expectExceptionObject($expected);
 
         $listener->authenticate($event);
     }

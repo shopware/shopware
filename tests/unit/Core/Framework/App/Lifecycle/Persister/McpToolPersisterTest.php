@@ -259,18 +259,10 @@ class McpToolPersisterTest extends TestCase
 
     private function createMcpWithTools(McpTools $mcpTools): Mcp
     {
-        $reflection = new \ReflectionClass(Mcp::class);
+        $mcp = $this->createMock(Mcp::class);
+        $mcp->method('getTools')->willReturn($mcpTools);
 
-        /** @var Mcp $instance */
-        $instance = $reflection->newInstanceWithoutConstructor();
-
-        $pathProp = $reflection->getProperty('path');
-        $pathProp->setValue($instance, '/path');
-
-        $toolsProp = $reflection->getProperty('tools');
-        $toolsProp->setValue($instance, $mcpTools);
-
-        return $instance;
+        return $mcp;
     }
 
     private function createManifest(string $appName, ?Permissions $permissions): Manifest
@@ -286,14 +278,10 @@ class McpToolPersisterTest extends TestCase
             'privacyPolicyExtensions' => [],
         ]);
 
-        $reflection = new \ReflectionClass(Manifest::class);
+        $manifest = $this->createMock(Manifest::class);
+        $manifest->method('getMetadata')->willReturn($metadata);
+        $manifest->method('getPermissions')->willReturn($permissions);
 
-        /** @var Manifest $instance */
-        $instance = $reflection->newInstanceWithoutConstructor();
-        $reflection->getProperty('path')->setValue($instance, '/app');
-        $reflection->getProperty('metadata')->setValue($instance, $metadata);
-        $reflection->getProperty('permissions')->setValue($instance, $permissions);
-
-        return $instance;
+        return $manifest;
     }
 }

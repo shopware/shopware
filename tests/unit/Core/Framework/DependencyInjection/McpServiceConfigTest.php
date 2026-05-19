@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
@@ -39,118 +40,116 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 #[Package('framework')]
 class McpServiceConfigTest extends TestCase
 {
-    public function testMcpServicesAreRegistered(): void
+    private ContainerBuilder $container;
+
+    protected function setUp(): void
     {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
+        $this->container = new ContainerBuilder();
+        $loader = new PhpFileLoader($this->container, new FileLocator());
         $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
-
-        $expectedServices = [
-            McpServerController::class,
-            EntitySchemaTool::class,
-            EntitySearchTool::class,
-            EntityAggregateTool::class,
-            EntityReadTool::class,
-            EntityUpsertTool::class,
-            EntityDeleteTool::class,
-            SystemConfigReadTool::class,
-            SystemConfigWriteTool::class,
-            OrderStateTool::class,
-            MediaUploadTool::class,
-            ShopwareContextPrompt::class,
-            EntityListResource::class,
-            BusinessEventsResource::class,
-            FlowActionsResource::class,
-            SalesChannelListResource::class,
-            CurrencyListResource::class,
-            LanguageListResource::class,
-            StateMachineResource::class,
-            ExtensionsResource::class,
-            AppMcpCapabilityExecutor::class,
-            AppMcpToolLoader::class,
-            McpCapabilityCatalog::class,
-        ];
-
-        foreach ($expectedServices as $serviceId) {
-            static::assertTrue($container->hasDefinition($serviceId), \sprintf('Service "%s" is not registered', $serviceId));
-        }
     }
 
-    public function testToolServicesAreTagged(): void
+    #[DataProvider('expectedServiceProvider')]
+    public function testServiceIsRegistered(string $serviceId): void
     {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
+        static::assertTrue(
+            $this->container->hasDefinition($serviceId),
+            \sprintf('Service "%s" is not registered', $serviceId),
+        );
+    }
 
-        $toolServices = [
-            EntitySchemaTool::class,
-            EntitySearchTool::class,
-            EntityAggregateTool::class,
-            EntityReadTool::class,
-            EntityUpsertTool::class,
-            EntityDeleteTool::class,
-            SystemConfigReadTool::class,
-            SystemConfigWriteTool::class,
-            OrderStateTool::class,
-            MediaUploadTool::class,
-        ];
+    #[DataProvider('toolServiceProvider')]
+    public function testToolServiceIsTagged(string $serviceId): void
+    {
+        static::assertTrue(
+            $this->container->getDefinition($serviceId)->hasTag('mcp.tool'),
+            \sprintf('Service "%s" is not tagged with mcp.tool', $serviceId),
+        );
+    }
 
-        foreach ($toolServices as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            static::assertTrue($definition->hasTag('mcp.tool'), \sprintf('Service "%s" is not tagged with mcp.tool', $serviceId));
-        }
+    #[DataProvider('resourceServiceProvider')]
+    public function testResourceServiceIsTagged(string $serviceId): void
+    {
+        static::assertTrue(
+            $this->container->getDefinition($serviceId)->hasTag('mcp.resource'),
+            \sprintf('Service "%s" is not tagged with mcp.resource', $serviceId),
+        );
     }
 
     public function testPromptServiceIsTagged(): void
     {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
-
-        $definition = $container->getDefinition(ShopwareContextPrompt::class);
-        static::assertTrue($definition->hasTag('mcp.prompt'));
-    }
-
-    public function testResourceServicesAreTagged(): void
-    {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
-
-        $resourceServices = [
-            EntityListResource::class,
-            BusinessEventsResource::class,
-            FlowActionsResource::class,
-            SalesChannelListResource::class,
-            CurrencyListResource::class,
-            LanguageListResource::class,
-            StateMachineResource::class,
-            ExtensionsResource::class,
-        ];
-
-        foreach ($resourceServices as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            static::assertTrue($definition->hasTag('mcp.resource'), \sprintf('Service "%s" is not tagged with mcp.resource', $serviceId));
-        }
+        static::assertTrue($this->container->getDefinition(ShopwareContextPrompt::class)->hasTag('mcp.prompt'));
     }
 
     public function testAppMcpToolLoaderIsTaggedAsMcpLoader(): void
     {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
-
-        $definition = $container->getDefinition(AppMcpToolLoader::class);
-        static::assertTrue($definition->hasTag('mcp.loader'));
+        static::assertTrue($this->container->getDefinition(AppMcpToolLoader::class)->hasTag('mcp.loader'));
     }
 
     public function testControllerIsPublic(): void
     {
-        $container = new ContainerBuilder();
-        $loader = new PhpFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../../src/Core/Framework/DependencyInjection/mcp.php');
+        static::assertTrue($this->container->getDefinition(McpServerController::class)->isPublic());
+    }
 
-        $definition = $container->getDefinition(McpServerController::class);
-        static::assertTrue($definition->isPublic());
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function expectedServiceProvider(): iterable
+    {
+        yield McpServerController::class => [McpServerController::class];
+        yield EntitySchemaTool::class => [EntitySchemaTool::class];
+        yield EntitySearchTool::class => [EntitySearchTool::class];
+        yield EntityAggregateTool::class => [EntityAggregateTool::class];
+        yield EntityReadTool::class => [EntityReadTool::class];
+        yield EntityUpsertTool::class => [EntityUpsertTool::class];
+        yield EntityDeleteTool::class => [EntityDeleteTool::class];
+        yield SystemConfigReadTool::class => [SystemConfigReadTool::class];
+        yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
+        yield OrderStateTool::class => [OrderStateTool::class];
+        yield MediaUploadTool::class => [MediaUploadTool::class];
+        yield ShopwareContextPrompt::class => [ShopwareContextPrompt::class];
+        yield EntityListResource::class => [EntityListResource::class];
+        yield BusinessEventsResource::class => [BusinessEventsResource::class];
+        yield FlowActionsResource::class => [FlowActionsResource::class];
+        yield SalesChannelListResource::class => [SalesChannelListResource::class];
+        yield CurrencyListResource::class => [CurrencyListResource::class];
+        yield LanguageListResource::class => [LanguageListResource::class];
+        yield StateMachineResource::class => [StateMachineResource::class];
+        yield ExtensionsResource::class => [ExtensionsResource::class];
+        yield AppMcpCapabilityExecutor::class => [AppMcpCapabilityExecutor::class];
+        yield AppMcpToolLoader::class => [AppMcpToolLoader::class];
+        yield McpCapabilityCatalog::class => [McpCapabilityCatalog::class];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function toolServiceProvider(): iterable
+    {
+        yield EntitySchemaTool::class => [EntitySchemaTool::class];
+        yield EntitySearchTool::class => [EntitySearchTool::class];
+        yield EntityAggregateTool::class => [EntityAggregateTool::class];
+        yield EntityReadTool::class => [EntityReadTool::class];
+        yield EntityUpsertTool::class => [EntityUpsertTool::class];
+        yield EntityDeleteTool::class => [EntityDeleteTool::class];
+        yield SystemConfigReadTool::class => [SystemConfigReadTool::class];
+        yield SystemConfigWriteTool::class => [SystemConfigWriteTool::class];
+        yield OrderStateTool::class => [OrderStateTool::class];
+        yield MediaUploadTool::class => [MediaUploadTool::class];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function resourceServiceProvider(): iterable
+    {
+        yield EntityListResource::class => [EntityListResource::class];
+        yield BusinessEventsResource::class => [BusinessEventsResource::class];
+        yield FlowActionsResource::class => [FlowActionsResource::class];
+        yield SalesChannelListResource::class => [SalesChannelListResource::class];
+        yield CurrencyListResource::class => [CurrencyListResource::class];
+        yield LanguageListResource::class => [LanguageListResource::class];
+        yield StateMachineResource::class => [StateMachineResource::class];
+        yield ExtensionsResource::class => [ExtensionsResource::class];
     }
 }

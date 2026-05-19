@@ -168,14 +168,9 @@ class McpPromptPersisterTest extends TestCase
 
     private function createMcpWithPrompts(McpPrompts $mcpPrompts): Mcp
     {
-        $reflection = new \ReflectionClass(Mcp::class);
+        $mcp = $this->createMock(Mcp::class);
+        $mcp->method('getPrompts')->willReturn($mcpPrompts);
 
-        /** @var Mcp $instance */
-        $instance = $reflection->newInstanceWithoutConstructor();
-
-        $reflection->getProperty('path')->setValue($instance, '/path');
-        $reflection->getProperty('prompts')->setValue($instance, $mcpPrompts);
-
-        return $instance;
+        return $mcp;
     }
 }

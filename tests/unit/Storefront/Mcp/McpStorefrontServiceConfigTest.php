@@ -26,23 +26,27 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 #[Package('framework')]
 class McpStorefrontServiceConfigTest extends TestCase
 {
+    private ContainerBuilder $container;
+
+    protected function setUp(): void
+    {
+        $this->container = new ContainerBuilder();
+        $loader = new XmlFileLoader($this->container, new FileLocator());
+        $loader->load(__DIR__ . '/../../../../src/Storefront/DependencyInjection/mcp.xml');
+    }
+
     public function testThemeConfigToolIsRegistered(): void
     {
-        $container = $this->buildContainer();
-
         static::assertTrue(
-            $container->hasDefinition(ThemeConfigTool::class),
+            $this->container->hasDefinition(ThemeConfigTool::class),
             'ThemeConfigTool is not registered in Storefront mcp.xml',
         );
     }
 
     public function testThemeConfigToolIsTaggedWithMcpTool(): void
     {
-        $container = $this->buildContainer();
-        $definition = $container->getDefinition(ThemeConfigTool::class);
-
         static::assertTrue(
-            $definition->hasTag('mcp.tool'),
+            $this->container->getDefinition(ThemeConfigTool::class)->hasTag('mcp.tool'),
             'ThemeConfigTool must be tagged "mcp.tool" (not "shopware.mcp.tool") — non-Core bundle tools are not processed by McpToolCompilerPass',
         );
     }
@@ -59,14 +63,5 @@ class McpStorefrontServiceConfigTest extends TestCase
             $content,
             'mcp.php scan_dirs must include src/Storefront/Mcp so the MCP SDK discovers #[McpTool] attributes on Storefront tools',
         );
-    }
-
-    private function buildContainer(): ContainerBuilder
-    {
-        $container = new ContainerBuilder();
-        $loader = new XmlFileLoader($container, new FileLocator());
-        $loader->load(__DIR__ . '/../../../../src/Storefront/DependencyInjection/mcp.xml');
-
-        return $container;
     }
 }

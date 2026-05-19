@@ -650,10 +650,10 @@
         }
       },
       "productName": {
-        "label": "Product Name"
+        "label": "Product name"
       },
       "categoryName": {
-        "label": "Category Name"
+        "label": "Category name"
       },
       "html": {
         "label": "HTML",

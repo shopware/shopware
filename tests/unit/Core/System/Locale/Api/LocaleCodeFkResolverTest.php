@@ -50,9 +50,9 @@ class LocaleCodeFkResolverTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                $this->anything(),
+                static::anything(),
                 ['codes' => ['en-GB', 'de-DE']],
-                $this->anything()
+                static::anything()
             )
             ->willReturn([
                 'en-GB' => 'engb000000000000000000000000001',

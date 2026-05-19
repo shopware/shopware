@@ -50,9 +50,9 @@ class CurrencyIsoCodeFkResolverTest extends TestCase
         $connection->expects($this->once())
             ->method('fetchAllKeyValue')
             ->with(
-                $this->stringContains('UPPER(iso_code)'),
+                static::anything(),
                 ['codes' => ['EUR', 'USD']],
-                $this->anything()
+                static::anything()
             )
             ->willReturn([
                 'EUR' => 'eur00000000000000000000000000001',

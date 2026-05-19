@@ -26,6 +26,11 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         $this->connection = self::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1714659357, (new Migration1714659357CanonicalProductVersion())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $version = strtolower($this->connection->getServerVersion());
@@ -68,8 +73,8 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         }
 
         $m = new Migration1714659357CanonicalProductVersion();
-        $m->update($this->connection);
-        $m->update($this->connection);
+        $this->runMigrationViaRuntime($this->connection, $m);
+        $this->runMigrationViaRuntime($this->connection, $m);
 
         static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_version_id'));
         static::assertTrue(TableHelper::columnExists($this->connection, 'product', 'canonical_product_id'));
@@ -77,7 +82,7 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         static::assertSame(
             '1',
             (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-            'Migration must restore the FK guard to its previous (ON) state'
+            'Runtime must restore the FK guard to its previous (ON) state'
         );
     }
 

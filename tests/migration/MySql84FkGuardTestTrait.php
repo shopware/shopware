@@ -3,6 +3,9 @@
 namespace Shopware\Tests\Migration;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
@@ -18,7 +21,8 @@ use Doctrine\DBAL\Connection;
  *     $this->skipUnlessMysql84WithFkGuardOn($connection);
  *     $this->createNonStandardChildFkOnProduct($connection);
  *     try {
- *         // run the migration and assert its effect
+ *         $this->runMigrationViaRuntime($connection, new MigrationXxx());
+ *         // assert the migration's effect
  *     } finally {
  *         $this->dropNonStandardChildFkOnProduct($connection);
  *     }
@@ -74,5 +78,17 @@ trait MySql84FkGuardTestTrait
             'DROP TABLE IF EXISTS `%s`',
             self::NON_STD_FK_TABLE
         ));
+    }
+
+    /**
+     * Runs the migration through {@see MigrationRuntime::runMigrationStep()} so
+     * it benefits from the runtime's MySQL bug #118151 retry. Calling
+     * `$migration->update()` directly would fail on MySQL 8.4 with a
+     * non-standard child FK in place — the workaround lives at the runtime
+     * layer, not in individual migrations.
+     */
+    protected function runMigrationViaRuntime(Connection $connection, MigrationStep $migration): void
+    {
+        (new MigrationRuntime($connection, new NullLogger()))->runMigrationStep($migration);
     }
 }

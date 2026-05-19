@@ -18,6 +18,11 @@ class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
     use KernelTestBehaviour;
     use MySql84FkGuardTestTrait;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1761739065, (new Migration1761739065IncreaseProductWeightPrecision())->getCreationTimestamp());
+    }
+
     public function testUpdateIncreasesPrecision(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -70,13 +75,13 @@ class Migration1761739065IncreaseProductWeightPrecisionTest extends TestCase
             $this->setProductWeightPrecision($connection, 'DECIMAL(10,3) UNSIGNED NULL');
             $this->createNonStandardChildFkOnProduct($connection);
 
-            (new Migration1761739065IncreaseProductWeightPrecision())->update($connection);
+            $this->runMigrationViaRuntime($connection, new Migration1761739065IncreaseProductWeightPrecision());
 
             static::assertSame('decimal(15,6) unsigned', $this->getProductWeightColumnType($connection));
             static::assertSame(
                 '1',
                 (string) $connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($connection);

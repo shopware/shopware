@@ -150,7 +150,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
         $this->createNonStandardChildFkOnProduct($this->connection);
 
         try {
-            (new Migration1726049442UpdateVariantListingConfigInProductTable())->update($this->connection);
+            $this->runMigrationViaRuntime($this->connection, new Migration1726049442UpdateVariantListingConfigInProductTable());
 
             $column = $this->connection->fetchAssociative('SHOW COLUMNS FROM `product` LIKE :column', [
                 'column' => 'display_group',
@@ -160,7 +160,7 @@ class Migration1726049442UpdateVariantListingConfigInProductTableTest extends Te
             static::assertSame(
                 '1',
                 (string) $this->connection->fetchOne('SELECT @@SESSION.restrict_fk_on_non_standard_key'),
-                'Migration must restore the FK guard to its previous (ON) state'
+                'Runtime must restore the FK guard to its previous (ON) state'
             );
         } finally {
             $this->dropNonStandardChildFkOnProduct($this->connection);

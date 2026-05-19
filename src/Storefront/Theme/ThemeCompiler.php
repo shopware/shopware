@@ -33,6 +33,11 @@ use Symfony\Component\Finder\Finder;
 class ThemeCompiler implements ThemeCompilerInterface
 {
     /**
+     * @var array<string, AssetPackage>
+     */
+    private array $packages;
+
+    /**
      * @var array<string, array{
      *     manifest: array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}>,
      *     vendorMap: array<string, string>
@@ -41,14 +46,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     private array $bundleBuildMetaCache = [];
 
     /**
-     * @var array<string, AssetPackage>|null
-     */
-    private ?array $assetPackagesByKey = null;
-
-    /**
      * @internal
      *
-     * @param array<string, AssetPackage> $packages
+     * @param iterable<string, AssetPackage> $packages
      * @param array<int, string> $customAllowedRegex
      */
     public function __construct(
@@ -59,7 +59,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly bool $debug,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFilesystemResolver $themeFilesystemResolver,
-        private readonly iterable $packages,
+        iterable $packages,
         private readonly CacheInvalidator $cacheInvalidator,
         private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
@@ -68,6 +68,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly bool $validate = false,
         private readonly string $visibility = Visibility::PUBLIC,
     ) {
+        $this->packages = \is_array($packages) ? $packages : iterator_to_array($packages);
     }
 
     public function compileTheme(
@@ -517,7 +518,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         string $bundleName,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): ?AssetPackage {
-        $packages = $this->getAssetPackagesByKey();
         $isAppBundle = $this->isAppBundle($bundleName, $configurationCollection);
 
         /**
@@ -532,26 +532,12 @@ class ThemeCompiler implements ThemeCompilerInterface
             : ['global_asset', 'asset', 'public'];
 
         foreach ($preferredKeys as $key) {
-            if (isset($packages[$key])) {
-                return $packages[$key];
+            if (isset($this->packages[$key])) {
+                return $this->packages[$key];
             }
         }
 
         return null;
-    }
-
-    /**
-     * @return array<string, AssetPackage>
-     */
-    private function getAssetPackagesByKey(): array
-    {
-        if ($this->assetPackagesByKey !== null) {
-            return $this->assetPackagesByKey;
-        }
-
-        return $this->assetPackagesByKey = \is_array($this->packages)
-            ? $this->packages
-            : iterator_to_array($this->packages);
     }
 
     private function isAppBundle(

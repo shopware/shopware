@@ -548,9 +548,9 @@
           "lastYear": "Letztes Jahr",
           "lastQuarter": "Letzes Quartal",
           "lastCalendarMonth": "Letzter Kalendermonat",
-          "lastMonth": "Letzter Monat",
+          "lastMonth": "Letzte 30 Tage",
           "lastCalendarWeek": "Letzte Kalenderwoche",
-          "lastWeek": "Letzte Woche",
+          "lastWeek": "Letzte 7 Tage",
           "lastDay": "Letzter Tag",
           "custom": "Benutzerdefiniert"
         }

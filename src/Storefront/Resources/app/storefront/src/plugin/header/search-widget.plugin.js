@@ -4,6 +4,10 @@ import Debouncer from 'src/helper/debouncer.helper';
 import HttpClient from 'src/service/http-client.service';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 
+const PRODUCT_SEARCH_PERFORMED_EVENT = 'product:search-performed';
+const PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT = 'product:search-suggestion-shown';
+const PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT = 'product:search-suggestion-product-viewed';
+
 export default class SearchWidgetPlugin extends Plugin {
 
     static options = {
@@ -21,6 +25,7 @@ export default class SearchWidgetPlugin extends Plugin {
 
         searchWidgetDelay: 250,
         searchWidgetMinChars: 3,
+        searchWidgetMaxChars: 100,
     };
 
     init() {
@@ -77,6 +82,13 @@ export default class SearchWidgetPlugin extends Plugin {
         if (value.length < this.options.searchWidgetMinChars) {
             event.preventDefault();
             event.stopPropagation();
+            return;
+        }
+
+        if (value.length <= this.options.searchWidgetMaxChars) {
+            document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_PERFORMED_EVENT, {
+                detail: { term: value },
+            }));
         }
     }
 
@@ -217,6 +229,12 @@ export default class SearchWidgetPlugin extends Plugin {
                     item.addEventListener('keydown', this._handleSearchItemKeyEvent.bind(this, index));
                 });
 
+                searchSuggest.addEventListener('click', this._handleSuggestResultClick.bind(this));
+
+                document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_SUGGESTION_SHOWN_EVENT, {
+                    detail: { term: value },
+                }));
+
                 this.$emitter.publish('afterSuggest');
             })
             .catch(() => {
@@ -226,6 +244,28 @@ export default class SearchWidgetPlugin extends Plugin {
                 // clear any existing results
                 this._clearSuggestResults();
             });
+    }
+
+    /**
+     * Delegated click handler on the rendered suggest dropdown. Fires a
+     * product:search-suggestion-product-viewed event when the user clicks an
+     * actual link (a product result or the "show all results" link).
+     * @param {Event} event
+     * @private
+     */
+    _handleSuggestResultClick(event) {
+        if (!event.target.closest('a[href]')) {
+            return;
+        }
+
+        const term = this._inputField.value.trim();
+        if (term.length < this.options.searchWidgetMinChars || term.length > this.options.searchWidgetMaxChars) {
+            return;
+        }
+
+        document.dispatchEvent(new CustomEvent(PRODUCT_SEARCH_SUGGESTION_PRODUCT_VIEWED_EVENT, {
+            detail: { term },
+        }));
     }
 
     /**

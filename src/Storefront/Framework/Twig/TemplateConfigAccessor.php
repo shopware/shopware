@@ -45,17 +45,11 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<int, string> $items
+     * @return list<string> $items
      */
     public function scripts(): array
     {
-        $scripts = [];
-
-        foreach ($this->themeScripts->getThemeScripts() as $script) {
-            $scripts[] = $script;
-        }
-
-        return $scripts;
+        return array_values($this->themeScripts->getThemeScripts());
     }
 
     /**

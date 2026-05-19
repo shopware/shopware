@@ -35,10 +35,6 @@ class AssetRegistrationCompilerPassTest extends TestCase
         $container = $this->createContainerWithAssets();
 
         $themeCompilerDefinition = new Definition(ThemeCompiler::class);
-        // Pre-fill constructor args so the definition shape is valid.
-        for ($i = 0; $i <= 8; ++$i) {
-            $themeCompilerDefinition->addArgument(null);
-        }
         $themeCompilerDefinition->setPublic(true);
         $container->setDefinition(ThemeCompiler::class, $themeCompilerDefinition);
 

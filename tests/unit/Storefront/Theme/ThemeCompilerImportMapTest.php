@@ -124,7 +124,7 @@ class ThemeCompilerImportMapTest extends TestCase
         static::assertArrayNotHasKey('scopes', $result);
     }
 
-    public function testBuildComponentImportMapUsesCachedBuildMeta(): void
+    public function testBuildComponentImportMapRefreshesBuildMetaBetweenCalls(): void
     {
         $metaPath = 'bundles/cachedextension/storefront/components/.vite/build-meta.json';
         $this->writeJson(
@@ -150,7 +150,7 @@ class ThemeCompilerImportMapTest extends TestCase
             $firstResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
         );
         static::assertSame(
-            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-one.js',
+            'https://cdn.example.com/bundles/cachedextension/storefront/components/vendor/chunk-two.js',
             $secondResult['scopes']['https://cdn.example.com/bundles/cachedextension/storefront/components/CachedExtension/']['@cached/chunk']
         );
     }

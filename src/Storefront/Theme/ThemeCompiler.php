@@ -167,6 +167,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     public function buildComponentImportMap(
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
     ): ?array {
+        // Keep this cache scoped to a single import-map build.
+        $this->bundleBuildMetaCache = [];
+
         $imports = [];
         $scopes = [];
         $styles = [];
@@ -302,7 +305,9 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $manifest = array_merge($manifest, $bundleManifest);
+            foreach ($bundleManifest as $tag => $entry) {
+                $manifest[$tag] = $entry;
+            }
         }
 
         return $manifest;
@@ -321,17 +326,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $viteManifest = $buildMeta['manifest'];
-
-        /** @var array<string, list<string>> $jsToCssFiles */
-        $jsToCssFiles = [];
-        foreach ($viteManifest as $entry) {
-            if (($entry['isEntry'] ?? false) !== true || !isset($entry['name']) || $entry['name'] === '') {
-                continue;
-            }
-            if (isset($entry['css']) && $entry['css'] !== []) {
-                $jsToCssFiles[$entry['name']] = $entry['css'];
-            }
-        }
+        $jsToCssFiles = $this->collectJsToCssFiles($viteManifest);
 
         $result = [];
         $publicBase = '/bundles/' . $this->toAssetDirectory($bundleName) . '/storefront/components/';
@@ -368,6 +363,26 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<string, array{file?: string, name?: string, src?: string, isEntry?: bool, css?: list<string>}> $viteManifest
+     *
+     * @return array<string, list<string>>
+     */
+    private function collectJsToCssFiles(array $viteManifest): array
+    {
+        $jsToCssFiles = [];
+        foreach ($viteManifest as $entry) {
+            if (($entry['isEntry'] ?? false) !== true || !isset($entry['name']) || $entry['name'] === '') {
+                continue;
+            }
+            if (isset($entry['css']) && $entry['css'] !== []) {
+                $jsToCssFiles[$entry['name']] = $entry['css'];
+            }
+        }
+
+        return $jsToCssFiles;
     }
 
     /**
@@ -534,14 +549,9 @@ class ThemeCompiler implements ThemeCompilerInterface
             return $this->assetPackagesByKey;
         }
 
-        $packages = [];
-        foreach ($this->packages as $key => $package) {
-            if (\is_string($key) && $package instanceof AssetPackage) {
-                $packages[$key] = $package;
-            }
-        }
-
-        return $this->assetPackagesByKey = $packages;
+        return $this->assetPackagesByKey = \is_array($this->packages)
+            ? $this->packages
+            : iterator_to_array($this->packages);
     }
 
     private function isAppBundle(

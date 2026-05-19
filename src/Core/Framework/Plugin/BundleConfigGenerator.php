@@ -10,6 +10,7 @@ use Shopware\Core\Kernel;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -198,27 +199,16 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             return false;
         }
 
-        $directory = new \RecursiveDirectoryIterator($componentPath, \FilesystemIterator::SKIP_DOTS);
-        $iterator = new \RecursiveIteratorIterator($directory);
-        $componentPrefixLength = \strlen($componentPath) + 1;
+        $finder = (new Finder())
+            ->files()
+            ->in($componentPath)
+            ->name('/\.(js|ts|scss|css)$/')
+            ->notPath('#(^|/)node_modules/#')
+            ->notPath('/\.stories\./')
+            ->notPath('/\.test\.(js|ts)$/');
 
-        /** @var \SplFileInfo $file */
-        foreach ($iterator as $file) {
-            if (!$file->isFile()) {
-                continue;
-            }
-
-            $relativePath = str_replace('\\', '/', substr($file->getPathname(), $componentPrefixLength));
-
-            if (str_starts_with($relativePath, 'node_modules/') || str_contains($relativePath, '/node_modules/') || str_contains($relativePath, '.stories.')) {
-                continue;
-            }
-
-            if (preg_match('/\.test\.(js|ts)$/', $relativePath) === 1) {
-                continue;
-            }
-
-            if (preg_match('/\.(js|ts|scss|css)$/', $relativePath) === 1) {
+        foreach ($finder as $file) {
+            if ($file->isFile()) {
                 return true;
             }
         }

@@ -8,23 +8,23 @@ use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
 #[Package('after-sales')]
-class StaticDocumentRenderer extends AbstractDocumentRenderer
+readonly class StaticDocumentRenderer extends AbstractDocumentRenderer
 {
     /**
      * @param list<string> $documentTypes
      * @param list<string> $dependencies
      */
     public function __construct(
-        private readonly DocumentFormat $format = DocumentFormat::PDF,
-        private readonly array $documentTypes = [DocumentType::INVOICE->value],
-        private readonly array $dependencies = [],
+        private DocumentFormat $format = DocumentFormat::PDF,
+        private array $documentTypes = [DocumentType::INVOICE->value],
+        private array $dependencies = [],
     ) {
     }
 
@@ -43,7 +43,7 @@ class StaticDocumentRenderer extends AbstractDocumentRenderer
         return $this->dependencies;
     }
 
-    public function renderToString(RenderInput $input, RenderState $state): RenderResult
+    public function renderToString(RenderInput $input, RenderState $state, Context $context): RenderResult
     {
         return new RenderResult(
             $this->format->value,
@@ -52,10 +52,5 @@ class StaticDocumentRenderer extends AbstractDocumentRenderer
             $this->format->fileExtension(),
             $this->format->mimeType(),
         );
-    }
-
-    public function persistToFile(RenderInput $input, RenderResult $result): string
-    {
-        return Uuid::randomHex();
     }
 }

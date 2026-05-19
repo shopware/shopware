@@ -182,6 +182,46 @@ class WebhookManagerTest extends TestCase
         static::assertEmpty($messages);
     }
 
+    public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
+    {
+        $event = new AppFlowActionEvent('commercial_license.provided', [], ['foo' => 'bar']);
+        $inactiveWebhook = $this->getWebhook($event->getName(), appActive: false);
+        $activeWebhook = $this->getWebhook($event->getName());
+
+        $this->eventFactory
+            ->expects($this->exactly(3))
+            ->method('createHookablesFor')
+            ->with($event)
+            ->willReturn([$event]);
+
+        $this->webhookLoader->expects($this->exactly(2))
+            ->method('getWebhooks')
+            ->willReturn([$inactiveWebhook], [$activeWebhook]);
+
+        $this->webhookLoader
+            ->method('getPrivilegesForRoles')
+            ->willReturnCallback(static function (array $roleIds): array {
+                $privileges = [];
+                foreach ($roleIds as $roleId) {
+                    $privileges[$roleId] = new AclPrivilegeCollection([]);
+                }
+
+                return $privileges;
+            });
+
+        $webhookManager = $this->getWebhookManager(false);
+
+        $webhookManager->dispatch($event);
+        static::assertCount(0, $this->bus->getMessages());
+
+        $webhookManager->dispatch($event);
+        static::assertCount(0, $this->bus->getMessages());
+
+        $webhookManager->clearInternalWebhookCache();
+        $webhookManager->dispatch($event);
+        static::assertCount(1, $this->bus->getMessages());
+    }
+
     public function testWebhooksForLiveVersionOnlyAreIgnoredIfPayloadHasDifferentVersion(): void
     {
         $event = $this->prepareHookableEvent([
@@ -474,7 +514,7 @@ class WebhookManagerTest extends TestCase
         return new WebhookRequest(new Request('POST', $url, $headers, $jsonPayload), $headers, $jsonPayload, time(), $options);
     }
 
-    private function getWebhook(string $eventName, bool $onlyLiveVersion = false): Webhook
+    private function getWebhook(string $eventName, bool $onlyLiveVersion = false, bool $appActive = true): Webhook
     {
         return new Webhook(
             Uuid::randomHex(),
@@ -485,7 +525,7 @@ class WebhookManagerTest extends TestCase
             Uuid::randomHex(),
             'Cool App',
             'local',
-            true,
+            $appActive,
             '0.0.0',
             'verysecret',
             Uuid::randomHex()

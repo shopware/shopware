@@ -558,6 +558,47 @@ class SnippetFileLoaderTest extends TestCase
         static::assertEmpty($files);
     }
 
+    public function testLoadShippedSnippetsSkipsLocalFileOnlyForLocaleWithCoreTranslation(): void
+    {
+        $loader = $this->getTranslationLoader();
+
+        // Simulate a core translation installed only for locale 'de' (not 'en')
+        $this->filesystem->createDirectory($loader->getLocalePath('de') . '/Plugins/SnippetSet');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([
+            SnippetSet::class => 'Plugin Manufacturer',
+        ]);
+
+        $kernel = $this->getKernel([
+            'SnippetSet' => new SnippetSet(true, __DIR__),
+        ]);
+
+        $collection = new SnippetFileCollection();
+
+        $snippetFileLoader = new SnippetFileLoader(
+            $kernel,
+            $connection,
+            $this->createMock(AppSnippetFileLoader::class),
+            new ActiveAppsLoader(
+                $this->createMock(Connection::class),
+                $this->createMock(AppLoader::class),
+                '/'
+            ),
+            $this->config,
+            $loader,
+            $this->filesystem
+        );
+
+        $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
+
+        // Only the 'en' file should be loaded; 'de' is skipped because a core translation exists for that locale
+        static::assertCount(1, $collection);
+        $snippetFile = $collection->getSnippetFilesByIso('en')[0];
+        static::assertSame('storefront.en', $snippetFile->getName());
+        static::assertSame('en', $snippetFile->getIso());
+    }
+
     public function testLoadCoreSnippetsSkipsInvalidPathStructure(): void
     {
         $this->filesystem->write('locales/invalid-path/file.json', '{}');

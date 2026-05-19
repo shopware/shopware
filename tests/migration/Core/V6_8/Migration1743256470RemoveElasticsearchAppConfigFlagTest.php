@@ -24,6 +24,11 @@ class Migration1743256470RemoveElasticsearchAppConfigFlagTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743256470, (new Migration1743256470RemoveElasticsearchAppConfigFlag())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $storage = new MySQLKeyValueStorage($this->connection);

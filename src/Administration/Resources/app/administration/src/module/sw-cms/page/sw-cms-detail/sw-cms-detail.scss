@@ -24,11 +24,11 @@
         padding-right: 20px;
         height: 80px;
         line-height: 80px;
-        border-right: 1px solid $color-gray-300;
-        color: $color-darkgray-200;
+        border-right: 1px solid var(--color-border-primary-default);
+        color: var(--color-text-primary-default);
 
         &:hover {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
 
         .mt-icon {
@@ -45,16 +45,16 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: $color-gray-300;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-cms-detail__page-defaults {
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-xxs;
         line-height: 16px;
-        color: $color-white;
+        color: var(--color-static-white);
         padding: 4px 8px;
-        background: $color-gray-500;
+        background: var(--color-zinc-600);
         border-radius: 4px;
     }
 
@@ -68,22 +68,22 @@
         justify-items: center;
 
         .mt-icon {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-default);
             cursor: pointer;
 
             &:hover {
-                color: $color-darkgray-200;
+                color: var(--color-text-primary-default);
             }
 
             &.is--active {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
 
             &.is--disabled {
                 cursor: not-allowed;
 
                 &:hover {
-                    color: $color-gray-300;
+                    color: var(--color-icon-secondary-default);
                 }
             }
         }
@@ -138,12 +138,12 @@
             overflow-y: auto;
             overflow-x: hidden;
             position: relative;
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
         }
 
         .sw-cms-detail__empty-stage {
             height: 100%;
-            background: $color-gray-50;
+            background: var(--color-background-secondary-default);
             display: grid;
             align-items: center;
             align-content: center;
@@ -152,8 +152,8 @@
             cursor: auto;
 
             &.is--valid-drop {
-                background-color: $color-shopware-brand-50;
-                border-color: $color-shopware-brand-500;
+                background-color: var(--color-background-brand-default);
+                border-color: var(--color-border-brand-default);
             }
 
             .sw-cms-detail__empty-stage-content {
@@ -170,7 +170,7 @@
         }
 
         .sw-cms-stage {
-            background: $color-white;
+            background: var(--color-elevation-surface-raised);
             border: 0 none;
             position: relative;
             margin: auto;

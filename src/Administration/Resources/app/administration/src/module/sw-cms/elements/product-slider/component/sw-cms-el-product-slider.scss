@@ -41,7 +41,7 @@
             translate: 0 -50%;
             z-index: $z-index-overlay;
             opacity: 0.5;
-            background-color: $color-gray-200;
+            background-color: var(--color-interaction-secondary-hover);
             display: flex;
             align-items: center;
 
@@ -58,7 +58,7 @@
 
     &.has--border {
         padding: 25px;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
 
         &.has--navigation-outside {

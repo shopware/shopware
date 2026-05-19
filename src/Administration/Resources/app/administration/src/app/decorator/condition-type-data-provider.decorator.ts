@@ -940,7 +940,10 @@ export const AWARENESS_CONFIGURATIONS = (service: RuleConditionService): Awarene
     },
 ];
 
-Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
+/**
+ * @private
+ */
+export const ruleConditionTypeDataProvider = (ruleConditionService: RuleConditionService): RuleConditionService => {
     CONDITIONS.forEach(({ type, removedInFeature, ...condition }) => {
         if (removedInFeature && Shopware.Feature.isActive(removedInFeature)) {
             return;
@@ -954,4 +957,8 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     });
 
     return ruleConditionService;
+};
+
+Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
+    return ruleConditionTypeDataProvider(ruleConditionService);
 });

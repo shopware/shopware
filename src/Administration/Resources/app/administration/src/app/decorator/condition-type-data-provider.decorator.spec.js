@@ -1,7 +1,11 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { CONDITIONS, AWARENESS_CONFIGURATIONS } from 'src/app/decorator/condition-type-data-provider.decorator';
+import {
+    CONDITIONS,
+    AWARENESS_CONFIGURATIONS,
+    ruleConditionTypeDataProvider,
+} from 'src/app/decorator/condition-type-data-provider.decorator';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
 // Guardrail list: Adding or removing a condition is a deliberate change
@@ -193,7 +197,7 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
         ({ type, removedInFeature }) => {
             jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === removedInFeature);
 
-            const conditionService = new RuleConditionService();
+            const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
             expect(Object.keys(conditionService.$store)).not.toContain(type);
 
             jest.restoreAllMocks();

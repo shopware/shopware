@@ -219,6 +219,70 @@ class ConfigurationTest extends TestCase
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['allowed_types']);
     }
 
+    public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'visibility' => 'public',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'visibility' => 'private',
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame('local', $config['filesystem']['public']['type']);
+        static::assertSame('private', $config['filesystem']['public']['visibility']);
+        static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
+    }
+
+    public function testFilesystemAdapterConfigOverrideReplacesPreviousAdapterConfig(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'visibility' => 'public',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'amazon-s3',
+                        'config' => [
+                            'bucket' => 'test',
+                            'region' => 'eu-central-1',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame('amazon-s3', $config['filesystem']['public']['type']);
+        static::assertSame('public', $config['filesystem']['public']['visibility']);
+        static::assertSame(['bucket' => 'test', 'region' => 'eu-central-1'], $config['filesystem']['public']['config']);
+    }
+
     public function testValidSystemConfigKeys(): void
     {
         $configuration = new Configuration();

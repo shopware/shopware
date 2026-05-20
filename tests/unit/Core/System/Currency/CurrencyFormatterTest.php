@@ -85,15 +85,13 @@ class CurrencyFormatterTest extends TestCase
     }
 
     /**
-     * @return array<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
+     * @return iterable<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
      */
-    public static function formattingParameterProvider(): array
+    public static function formattingParameterProvider(): iterable
     {
-        return [
-            [71.01, 2, 'es-ES', ',', 'EUR', '€'],
-            [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'],
-            [0.71, 3, 'en-GB', '.', 'GBP', '£'],
-        ];
+        yield 'Spanish euro formatting uses comma decimals and euro symbol' => [71.01, 2, 'es-ES', ',', 'EUR', '€'];
+        yield 'Czech koruna formatting uses comma decimals and koruna symbol' => [7.10, 2, 'cs-CZ', ',', 'CZK', 'Kč'];
+        yield 'British pound formatting uses dot decimals and pound symbol' => [0.71, 3, 'en-GB', '.', 'GBP', '£'];
     }
 
     private function createContext(int $decimals): Context

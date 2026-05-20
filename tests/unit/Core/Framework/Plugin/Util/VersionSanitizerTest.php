@@ -22,14 +22,12 @@ class VersionSanitizerTest extends TestCase
     }
 
     /**
-     * @return list<array{string, string}>
+     * @return iterable<string, array{string, string}>
      */
-    public static function versionProvider(): array
+    public static function versionProvider(): iterable
     {
-        return [
-            ['1.2.3.4', '1.2.3'],
-            ['1.2.3.4-RC1', '1.2.3-RC1'],
-            ['1.22.333.4444-alpha', '1.22.333-alpha'],
-        ];
+        yield 'version 1 2 3 4 1 2 3' => ['1.2.3.4', '1.2.3'];
+        yield 'version 1 2 3 4 rc1 1 2 3 rc1' => ['1.2.3.4-RC1', '1.2.3-RC1'];
+        yield 'version 1 22 333 4444 alpha 1 22 333 alpha' => ['1.22.333.4444-alpha', '1.22.333-alpha'];
     }
 }

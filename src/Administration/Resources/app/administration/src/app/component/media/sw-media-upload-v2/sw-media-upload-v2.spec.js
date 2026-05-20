@@ -490,6 +490,34 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
     });
 
+    it('should show backend error notification on failed upload event', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    detail: 'SVG files with active content are not allowed.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'SVG files with active content are not allowed.',
+        });
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
     it('should able emit "media-upload-add-file" event when file type and file size are matched', async () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf',

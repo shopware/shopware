@@ -34,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -82,10 +83,11 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
-        private readonly string $env,
+        private readonly AppFeatureValidator $appFeatureValidator,
         private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
+        private readonly McpAppSyncer $mcpAppSyncer,
         private readonly DeletedAppsGateway $deletedAppsGateway,
         private readonly AppRequirementsValidator $requirementsValidator,
     ) {
@@ -244,7 +246,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $app = $this->loadApp($id, $context);
 
         try {
-            $this->assertAppSecretIsPresentForApplicableFeatures($app, $manifest);
+            $this->appFeatureValidator->validate($app, $manifest);
         } catch (AppException $e) {
             $this->removeAppAndRole($app, $context);
 
@@ -261,6 +263,10 @@ class AppLifecycle extends AbstractAppLifecycle
         ));
 
         $this->assetService->copyAssetsFromApp($app->getName(), $app->getPath());
+
+        if (Feature::isActive('MCP_SERVER')) {
+            $this->mcpAppSyncer->sync($manifest, $app, $defaultLocale, $context);
+        }
 
         $updatePayload = [
             'id' => $app->getId(),
@@ -592,44 +598,6 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         foreach ($this->persisters as $persister) {
             $persister->persist($context);
-        }
-    }
-
-    /**
-     * Certain app features require an app secret to be set, if these features are used but no app secret
-     * is set, we throw an exception in dev mode so the developer is aware
-     */
-    private function assertAppSecretIsPresentForApplicableFeatures(AppEntity $app, Manifest $manifest): void
-    {
-        if ($app->getAppSecret()) {
-            return;
-        }
-
-        if ($this->env !== 'dev') {
-            return;
-        }
-
-        $usedFeatures = [];
-
-        if (($manifest->getAdmin()?->getModules() ?? []) !== []) {
-            // if there is no app secret but the manifest specifies modules, throw an exception in dev mode
-            $usedFeatures[] = 'Admin Modules';
-        }
-
-        if (($manifest->getPayments()?->getPaymentMethods() ?? []) !== []) {
-            $usedFeatures[] = 'Payment Methods';
-        }
-
-        if (($manifest->getTax()?->getTaxProviders() ?? []) !== []) {
-            $usedFeatures[] = 'Tax providers';
-        }
-
-        if (($manifest->getWebhooks()?->getWebhooks() ?? []) !== []) {
-            $usedFeatures[] = 'Webhooks';
-        }
-
-        if ($usedFeatures !== []) {
-            throw AppException::appSecretRequiredForFeatures($app->getName(), $usedFeatures);
         }
     }
 

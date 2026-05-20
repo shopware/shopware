@@ -192,7 +192,10 @@
         position-identifier="sw-promotion-individual-codes-behavior-empty-state"
     >
 
+        {# @deprecated tag:v6.8.0 - Blocks `sw_promotion_v2_individual_codes_behavior_empty_state_icon` and `sw_promotion_v2_individual_codes_behavior_empty_state_actions` will be removed. Use `sw_promotion_v2_individual_codes_behavior_empty_state` instead. #}
         {% block sw_promotion_v2_individual_codes_behavior_empty_state %}
+        {% block sw_promotion_v2_individual_codes_behavior_empty_state_icon %}{% endblock %}
+        {% block sw_promotion_v2_individual_codes_behavior_empty_state_actions %}{% endblock %}
         <mt-empty-state
             class="sw-promotion-v2-individual-codes-behavior__empty-state"
             :headline="$t('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"

@@ -125,6 +125,7 @@ async function createWrapper(privileges = [], responseMock = createResponseMock(
                     'mt-card': {
                         template: `
                     <div class="mt-card">
+                        <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                     </div>
                 `,
@@ -141,7 +142,9 @@ async function createWrapper(privileges = [], responseMock = createResponseMock(
                                 :data-headline="headline"
                                 :data-description="description"
                                 :data-icon="icon"
-                            ></div>
+                            >
+                                <slot name="button"></slot>
+                            </div>
                         `,
                     },
                     'sw-entity-listing': {
@@ -207,7 +210,12 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     });
 
     it('should render a tag empty state', async () => {
-        const wrapper = await createWrapper([], createResponseMock([]));
+        const wrapper = await createWrapper(
+            [
+                'tag.creator',
+            ],
+            createResponseMock([]),
+        );
         await flushPromises();
 
         const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
@@ -219,6 +227,21 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.attributes('aria-live')).toBe('polite');
         expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(false);
+
+        const addButton = wrapper.get('.sw-settings-tag-list__empty-state-button-create');
+
+        expect(addButton.text()).toBe('sw-settings-tag.list.buttonAddTag');
+        expect(addButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should disable the tag empty state create button without create privileges', async () => {
+        const wrapper = await createWrapper([], createResponseMock([]));
+        await flushPromises();
+
+        const addButton = wrapper.get('.sw-settings-tag-list__empty-state-button-create');
+
+        expect(addButton.attributes('disabled')).toBeDefined();
     });
 
     it('should render a search-specific tag empty state', async () => {
@@ -237,6 +260,8 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.attributes('aria-live')).toBe('polite');
         expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-tag-list__empty-state-button-create').exists()).toBe(false);
     });
 
     it('should render a filter-specific tag empty state', async () => {
@@ -255,6 +280,8 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.attributes('aria-live')).toBe('polite');
         expect(emptyState.attributes('aria-atomic')).toBe('true');
+        expect(wrapper.findComponent({ ref: 'swCardFilter' }).exists()).toBe(true);
+        expect(wrapper.find('.sw-settings-tag-list__empty-state-button-create').exists()).toBe(false);
     });
 
     it('should be able to edit a tag', async () => {

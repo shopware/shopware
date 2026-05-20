@@ -12,8 +12,8 @@ $sw-settings-shipping-list-color-success: var(--color-icon-positive-default);
         &:has(.mt-empty-state) {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: flex-start;
         }
     }
 

@@ -183,6 +183,10 @@ export default {
             return this.filterCount > 0;
         },
 
+        hasInitialTagEmptyState() {
+            return !this.isLoading && this.total <= 0 && !this.hasTagSearchTerm && !this.hasTagFilters;
+        },
+
         tagEmptyStateHeadline() {
             if (this.hasTagFilters) {
                 return this.$t('sw-settings-tag.list.emptyState.filterTitle');

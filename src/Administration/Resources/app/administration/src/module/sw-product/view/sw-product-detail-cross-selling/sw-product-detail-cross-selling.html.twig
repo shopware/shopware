@@ -64,7 +64,18 @@
         position-identifier="sw-product-detail-cross-selling-empty-state"
         :title="$t('sw-product.crossselling.cardTitleCrossSelling')"
     >
+        {# @deprecated tag:v6.8.0 - Blocks `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited`, `sw_product_detail_cross_selling_empty_state_content_empty`, `sw_product_detail_cross_selling_empty_state_inherit_switch`, `sw_product_detail_cross_selling_empty_state_actions` and `sw_product_detail_cross_selling_empty_state_actions_add` will be removed. Use `sw_product_detail_cross_selling_empty_state` instead. #}
         {% block sw_product_detail_cross_selling_empty_state %}
+        {% block sw_product_detail_cross_selling_empty_state_icon %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content_child %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content_child_inherited_link %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content_child_not_inherited %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_content_empty %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_inherit_switch %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_actions %}{% endblock %}
+        {% block sw_product_detail_cross_selling_empty_state_actions_add %}{% endblock %}
         <mt-empty-state
             class="sw-product-detail-cross-selling__empty-state"
             :headline="$t('sw-product.crossselling.emptyStateTitle')"

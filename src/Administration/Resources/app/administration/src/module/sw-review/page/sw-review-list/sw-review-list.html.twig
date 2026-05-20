@@ -40,7 +40,7 @@
             <mt-empty-state
                 v-if="!isLoading && !total"
                 :centered="true"
-                icon="regular-comments"
+                icon="solid-star"
                 :headline="isValidTerm(term) || activeFilterNumber ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-review.list.messageEmpty')"
                 :description="isValidTerm(term) || activeFilterNumber ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-review.list.messageEmptySubline')"
                 :link-text="isValidTerm(term) || activeFilterNumber ? $t('sw-empty-state.messageNoResultLink') : ''"

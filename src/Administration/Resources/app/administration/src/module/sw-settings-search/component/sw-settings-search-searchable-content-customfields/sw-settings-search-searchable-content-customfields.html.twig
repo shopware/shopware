@@ -1,12 +1,14 @@
 {% block sw_settings_search_searchable_content_customfields %}
 <div class="sw-settings-search__searchable-content-customfields">
+    {# @deprecated tag:v6.8.0 - Blocks `sw_settings_search_searchable_content_customfields_state_image` and `sw_settings_search_searchable_content_customfields_empty_state_action` will be removed. Use `sw_settings_search_searchable_content_customfields_empty_state` instead. #}
     {% block sw_settings_search_searchable_content_customfields_empty_state %}
+    {% block sw_settings_search_searchable_content_customfields_state_image %}{% endblock %}
+    {% block sw_settings_search_searchable_content_customfields_empty_state_action %}{% endblock %}
     <mt-empty-state
         v-if="isEmpty"
         :headline="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
         description=""
         icon="regular-cog"
-        centered
     >
         <template #button>
             <mt-button

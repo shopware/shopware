@@ -104,6 +104,33 @@ class MigrationRuntimeTest extends TestCase
         static::assertSame(2, AlwaysFailingFkGuardMigration::$updateCalls, 'update() should be called twice before the second failure propagates');
     }
 
+    public function testMigrateRetryHandlesUnsupportedGuardVariableOnMariadb(): void
+    {
+        // On MariaDB / MySQL <8.4 the session variable does not exist; the
+        // SELECT inside disableNonStandardFkGuard() throws, the method
+        // returns null, the retry runs anyway, and the matching restore
+        // call no-ops. This test covers both fallback branches.
+        $connection = $this->createConnectionExecutingMigration(AlwaysFailingFkGuardMigration::class);
+        $connection->method('executeStatement')->willReturn(0);
+        $connection->method('fetchOne')->willThrowException(new \RuntimeException('Unknown system variable'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+        $logger->expects($this->atLeastOnce())->method('error');
+
+        $runtime = new MigrationRuntime($connection, $logger);
+
+        $caught = null;
+        try {
+            iterator_to_array($runtime->migrate($this->source()));
+        } catch (\Throwable $e) {
+            $caught = $e;
+        }
+
+        static::assertNotNull($caught);
+        static::assertSame(2, AlwaysFailingFkGuardMigration::$updateCalls, 'retry should still attempt update() even when the guard variable is unsupported');
+    }
+
     public static function makeFkGuardException(): \Throwable
     {
         // Mirrors the wording the runtime's looksLikeNonStandardFkGuardBug

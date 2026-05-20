@@ -237,6 +237,9 @@ export default {
                 }
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
+                    if (snippet.origin === null) {
+                        return;
+                    }
                     // If you clear the input-box, reset it to its origin value
                     snippet.value = snippet.origin;
                 }
@@ -260,13 +263,9 @@ export default {
             Promise.all(responses)
                 .then(() => {
                     this.onNewKeyRedirect(true);
-                    this.prepareContent();
-                    this.isLoading = false;
                     this.isSaveSuccessful = true;
                 })
                 .catch((error) => {
-                    this.isLoading = false;
-
                     const errorSnippet = this.$t('sw-settings-snippet.detail.messageSaveError', {
                         key: this.translationKey,
                     });
@@ -279,6 +278,10 @@ export default {
                     this.createNotificationError({
                         message: errorSnippet + errorMessage,
                     });
+                })
+                .finally(() => {
+                    this.prepareContent();
+                    this.isLoading = false;
                 });
         },
 

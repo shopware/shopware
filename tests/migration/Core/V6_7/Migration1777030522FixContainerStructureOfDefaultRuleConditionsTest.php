@@ -34,6 +34,11 @@ class Migration1777030522FixContainerStructureOfDefaultRuleConditionsTest extend
         $this->ids = new IdsCollection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1777030522, (new Migration1777030522FixContainerStructureOfDefaultRuleConditions())->getCreationTimestamp());
+    }
+
     public function testUpdateWrapsLegacyDefaultRuleConditions(): void
     {
         $this->addLegacyRule('cart', 'Cart >= 0', 100, 'cartCartAmount', ['operator' => '>=', 'amount' => 0]);

@@ -2,6 +2,7 @@
 
 /**
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - The HMR mode will be removed. Use the Vite dev server instead.
  */
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const nodeServerHttp = require('node:http');
@@ -160,6 +161,18 @@ const server = createLiveReloadServer(sslOptions).catch((e) => {
     return createLiveReloadServer({});
 }).then(() => {
     console.log(`Watcher started at ${proxyUrlEnv.origin}`);
+
+    console.warn('\x1b[33m');
+    console.warn('');
+    console.warn('  ┌─────────────────────────────────────────────────────────────────────────────────┐');
+    console.warn('  │  ⚠  Old HMR mode is DEPRECATED as of Shopware v6.8.0                            │');
+    console.warn('  │                                                                                 │');
+    console.warn('  │  Please switch to the Vite dev server:                                          │');
+    console.warn('  │                                                                                 │');
+    console.warn('  │  $ composer storefront:dev-server                                               │');
+    console.warn('  │                                                                                 │');
+    console.warn('  └─────────────────────────────────────────────────────────────────────────────────┘');
+    console.warn('\x1b[0m');
 });
 
 server.then(() => {

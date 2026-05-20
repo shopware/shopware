@@ -1,6 +1,15 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.18
+*  [GHSA-gv8p-48fr-4fxg - Privilege Escalation via Sync API Integration Admin Flag Bypass](https://github.com/shopware/shopware/security/advisories/GHSA-gv8p-48fr-4fxg)
+*  [GHSA-8v9p-g828-v98f - Admin Account Takeover via User Recovery Hash Exposure](https://github.com/shopware/shopware/security/advisories/GHSA-8v9p-g828-v98f)
+*  [GHSA-7w52-7jvm-m9vw - Timing-attack on admin panel allowing enumeration of administrator usernames](https://github.com/shopware/shopware/security/advisories/GHSA-7w52-7jvm-m9vw)
+*  [GHSA-v39m-97p8-gqg7 - Privilege escalation: non-admin user with user:create ACL can create admin accounts](https://github.com/shopware/shopware/security/advisories/GHSA-v39m-97p8-gqg7)
+*  [GHSA-f8q6-3g5w-jjr6 - Admin API ACL Bypass in Order State Transition Endpoints](https://github.com/shopware/shopware/security/advisories/GHSA-f8q6-3g5w-jjr6)
+*  [GHSA-9v5m-39wh-5chq - Unauthorized Payment Trigger for Foreign Orders via /store-api/handle-payment](https://github.com/shopware/shopware/security/advisories/GHSA-9v5m-39wh-5chq)
+*  [GHSA-xvhc-gm7j-mhmc - Stored XSS via SVG file upload - no SVG sanitization](https://github.com/shopware/shopware/security/advisories/GHSA-xvhc-gm7j-mhmc)
+
 ## 6.6.10.17
 *  [#16183 - StateMachineRegistry->transition is not protected against race conditions](https://github.com/shopware/shopware/issues/16183)
 *  [#14376 - Cart gets cleared](https://github.com/shopware/shopware/issues/14376)

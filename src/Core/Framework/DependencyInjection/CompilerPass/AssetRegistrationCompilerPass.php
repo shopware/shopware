@@ -25,7 +25,7 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
         /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
         if ($container->hasDefinition(ThemeCompiler::class)) {
             /** @phpstan-ignore phpat.restrictNamespacesInCore */
-            $container->getDefinition(ThemeCompiler::class)->replaceArgument(7, $assets);
+            $container->getDefinition(ThemeCompiler::class)->setArgument('$packages', $assets);
         }
     }
 }

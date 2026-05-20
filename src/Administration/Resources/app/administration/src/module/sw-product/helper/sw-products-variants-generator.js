@@ -40,6 +40,8 @@ export default class VariantsGenerator extends EventEmitter {
             return Promise.resolve();
         }
 
+        const configuratorSettingPositions = this.getConfiguratorSettingPositions(configuratorSettings);
+
         const newOptionIds = new Set();
         createQueue.forEach((variant) => {
             if (variant.options) {
@@ -60,6 +62,7 @@ export default class VariantsGenerator extends EventEmitter {
             .map((setting) => {
                 const settingData = deepCopyObject(setting);
                 settingData.productId = this.product.id;
+                settingData.position = configuratorSettingPositions.get(setting.optionId) ?? setting.position;
                 return settingData;
             });
 
@@ -80,10 +83,37 @@ export default class VariantsGenerator extends EventEmitter {
         );
     }
 
+    getConfiguratorSettingPositions(configuratorSettings) {
+        const positions = new Map();
+        const settingsByGroup = new Map();
+
+        configuratorSettings.forEach((setting) => {
+            if (setting.isDeleted || !setting.option?.groupId) {
+                return;
+            }
+
+            if (!settingsByGroup.has(setting.option.groupId)) {
+                settingsByGroup.set(setting.option.groupId, []);
+            }
+
+            settingsByGroup.get(setting.option.groupId).push(setting);
+        });
+
+        settingsByGroup.forEach((settings) => {
+            settings.forEach((setting, index) => {
+                positions.set(setting.optionId, index + 1);
+            });
+        });
+
+        return positions;
+    }
+
     /**
      * Saves the variants to the database via sync api.
      */
     saveVariants(queues) {
+        this.productIds = [];
+
         return new Promise((resolveDelete) => {
             // notify view to refresh progress
             this.emit('progress-max', {
@@ -112,7 +142,9 @@ export default class VariantsGenerator extends EventEmitter {
                 });
             })
             .then(() => {
-                this.indexProducts(this.productIds);
+                if (this.product?.id) {
+                    this.productIds.push(this.product.id);
+                }
             });
     }
 
@@ -499,16 +531,20 @@ export default class VariantsGenerator extends EventEmitter {
         RetryHelper.retry(() => {
             return this.syncService.sync(payload, { 'indexing-behavior': 'disable-indexing' }, header);
         }).then((response) => {
-            this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
+            this.productIds = this.productIds
+                .concat(response.data?.product ?? [])
+                .concat(response.data?.deleted?.product ?? []);
             this.processQueue(type, queue, offset + limit, limit, resolve);
         });
     }
 
     indexProducts(productIds) {
-        if (productIds.length <= 0) {
+        const ids = Array.from(new Set(productIds));
+
+        if (ids.length <= 0) {
             return;
         }
 
-        this.cacheService.indexProducts(productIds);
+        this.cacheService.indexProducts(ids);
     }
 }

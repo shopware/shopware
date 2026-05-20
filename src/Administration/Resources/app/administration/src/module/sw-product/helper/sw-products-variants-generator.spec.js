@@ -378,6 +378,66 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         });
     });
 
+    describe('saveVariants', () => {
+        it('should collect synced product ids and the parent id without indexing immediately', async () => {
+            variantsGenerator.product = {
+                id: 'parent-product-id',
+            };
+            variantsGenerator.productIds = [];
+
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({
+                data: {
+                    product: ['variant-product-id'],
+                    deleted: {
+                        product: ['deleted-product-id'],
+                    },
+                },
+            });
+            const indexProductsSpy = jest.spyOn(variantsGenerator, 'indexProducts');
+
+            await variantsGenerator.saveVariants({
+                createQueue: [
+                    {
+                        parentId: 'parent-product-id',
+                        options: [],
+                        stock: 0,
+                        productNumber: 'SW10000.1',
+                    },
+                ],
+                deleteQueue: [],
+            });
+
+            expect(variantsGenerator.productIds).toEqual([
+                'variant-product-id',
+                'deleted-product-id',
+                'parent-product-id',
+            ]);
+            expect(indexProductsSpy).not.toHaveBeenCalled();
+
+            syncSpy.mockRestore();
+            indexProductsSpy.mockRestore();
+        });
+
+        it('should deduplicate product ids before indexing', () => {
+            const indexProductsSpy = jest
+                .spyOn(variantsGenerator.cacheService, 'indexProducts')
+                .mockImplementation(() => {});
+
+            variantsGenerator.indexProducts([
+                'variant-product-id',
+                'variant-product-id',
+                'parent-product-id',
+            ]);
+
+            expect(indexProductsSpy).toHaveBeenCalledWith([
+                'variant-product-id',
+                'parent-product-id',
+            ]);
+
+            indexProductsSpy.mockRestore();
+        });
+    });
+
     describe('saveConfiguratorSettings', () => {
         it('should resolve immediately when configuratorSettings is null', async () => {
             const result = await variantsGenerator.saveConfiguratorSettings(null);
@@ -484,6 +544,65 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             await variantsGenerator.saveConfiguratorSettings(originalSettings);
 
             expect(originalSettings[0].productId).toBe('original-product-id');
+
+            syncSpy.mockRestore();
+        });
+
+        it('should persist configurator setting positions in current administration order', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            variantsGenerator.product = {
+                id: 'product-123',
+            };
+
+            const mockSettings = [
+                {
+                    id: 'setting-a',
+                    optionId: 'option-a',
+                    position: 0,
+                    option: { groupId: 'group-1' },
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-b',
+                    optionId: 'option-b',
+                    position: 0,
+                    option: { groupId: 'group-1' },
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-c',
+                    optionId: 'option-c',
+                    position: 0,
+                    option: { groupId: 'group-1' },
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-zero',
+                    optionId: 'option-zero',
+                    position: 0,
+                    option: { groupId: 'group-1' },
+                    isNew: () => false,
+                },
+            ];
+
+            await variantsGenerator.saveConfiguratorSettings(mockSettings);
+
+            const calledPayload = syncSpy.mock.calls[0][0][0].payload;
+
+            expect(calledPayload.map(({ optionId, position }) => ({ optionId, position }))).toEqual([
+                { optionId: 'option-a', position: 1 },
+                { optionId: 'option-b', position: 2 },
+                { optionId: 'option-c', position: 3 },
+                { optionId: 'option-zero', position: 4 },
+            ]);
+
+            expect(mockSettings.map((setting) => setting.position)).toEqual([
+                0,
+                0,
+                0,
+                0,
+            ]);
 
             syncSpy.mockRestore();
         });

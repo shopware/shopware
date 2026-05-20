@@ -344,6 +344,9 @@ export default {
                     );
                 })
                 .then(() => {
+                    this.variantsGenerator.indexProducts(this.variantsGenerator.productIds);
+                })
+                .then(() => {
                     this.$emit('variations-finish-generate');
                     this.$emit('modal-close');
                     this.isLoading = false;

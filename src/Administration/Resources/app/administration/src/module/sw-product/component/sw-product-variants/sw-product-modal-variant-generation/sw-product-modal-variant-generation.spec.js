@@ -672,8 +672,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             },
             variantsGenerator: {
                 ...wrapper.vm.variantsGenerator,
+                productIds: [],
                 saveVariants: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
+                indexProducts: () => {},
             },
         });
 
@@ -712,9 +714,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 ],
             },
             variantsGenerator: {
+                productIds: [],
                 generateVariants: () => Promise.resolve(),
                 saveVariants: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
+                indexProducts: () => {},
             },
         });
         await wrapper.vm.$nextTick();
@@ -723,6 +727,58 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         await flushPromises();
 
         expect(wrapper.emitted('variations-finish-generate')).toHaveLength(1);
+    });
+
+    it('should index products after saving configurator settings', async () => {
+        const wrapper = await createWrapper();
+        const calls = [];
+
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: [
+                    {
+                        id: 'random-id',
+                        downloads: [],
+                        productStates: [],
+                        type: 'physical',
+                        options: [],
+                    },
+                ],
+                deleteQueue: [],
+            },
+            variantsGenerator: {
+                productIds: [
+                    'variant-id',
+                    'parent-id',
+                ],
+                saveVariants: jest.fn(() => {
+                    calls.push('saveVariants');
+
+                    return Promise.resolve();
+                }),
+                saveConfiguratorSettings: jest.fn(() => {
+                    calls.push('saveConfiguratorSettings');
+
+                    return Promise.resolve();
+                }),
+                indexProducts: jest.fn(() => {
+                    calls.push('indexProducts');
+                }),
+            },
+        });
+
+        wrapper.vm.generateVariants();
+        await flushPromises();
+
+        expect(calls).toEqual([
+            'saveVariants',
+            'saveConfiguratorSettings',
+            'indexProducts',
+        ]);
+        expect(wrapper.vm.variantsGenerator.indexProducts).toHaveBeenCalledWith([
+            'variant-id',
+            'parent-id',
+        ]);
     });
 
     it('should show variant generation step', async () => {
@@ -1081,8 +1137,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 deleteQueue: [],
             },
             variantsGenerator: {
+                productIds: [],
                 saveVariants: () => Promise.resolve(),
                 saveConfiguratorSettings: () => Promise.resolve(),
+                indexProducts: () => {},
             },
         });
 

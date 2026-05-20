@@ -1,6 +1,8 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
+const { Mixin } = Shopware;
+
 /**
  * @sw-package framework
  *
@@ -8,6 +10,10 @@ import './sw-data-grid-settings.scss';
  */
 export default {
     template,
+
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
+    ],
 
     emits: [
         'change-compact-mode',
@@ -104,22 +110,7 @@ export default {
         },
 
         getColumnLabel(column) {
-            const label = column.label;
-
-            if (!label) {
-                return '';
-            }
-
-            if (this.$te(label)) {
-                return this.$t(label);
-            }
-
-            const fallbackLocale = Shopware.Context.app.fallbackLocale;
-            if (fallbackLocale && this.$te(label, fallbackLocale)) {
-                return this.$t(label, fallbackLocale);
-            }
-
-            return label;
+            return this.tWithFallback(column.label);
         },
     },
 };

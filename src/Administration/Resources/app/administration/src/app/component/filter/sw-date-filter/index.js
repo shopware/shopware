@@ -212,8 +212,8 @@ export default {
             const { startDate: from, endDate: to } = this.getTimeframeDates(resolved);
 
             const normalizedDateValue = this.getNormalizedDateValue({
-                from: from.toISOString(),
-                to: to.toISOString(),
+                from: this.formatDateParts(from),
+                to: this.formatDateParts(to),
                 timeframe: resolved,
             });
 
@@ -245,9 +245,8 @@ export default {
 
         getTimeframeDates(timeframe) {
             if (typeof timeframe === 'number') {
-                const startDate = new Date();
-                const endDate = new Date();
-                startDate.setDate(startDate.getDate() + timeframe);
+                const endDate = this.getTodayInUserTimezone();
+                const startDate = this.createDateParts(endDate.year, endDate.month, endDate.date + timeframe);
 
                 return { startDate, endDate };
             }
@@ -280,74 +279,73 @@ export default {
                 case 'previousYear':
                     return this.getPreviousYearDates();
                 default:
-                    return { startDate: new Date(), endDate: new Date() };
+                    return this.getTodayDates();
             }
         },
 
         getTodayDates() {
-            const today = new Date();
-            const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const day = this.getTodayInUserTimezone();
 
             return { startDate: day, endDate: day };
         },
 
         getYesterdayDates() {
-            const today = new Date();
-            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            const today = this.getTodayInUserTimezone();
+            const yesterday = this.createDateParts(today.year, today.month, today.date - 1);
 
             return { startDate: yesterday, endDate: yesterday };
         },
 
         getCurrentCalendarWeekDates() {
-            const today = new Date();
+            const today = this.getTodayInUserTimezone();
             // ISO week: Monday = 0 ... Sunday = 6
-            const isoDayIndex = (today.getDay() + 6) % 7;
-            const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - isoDayIndex);
+            const isoDayIndex = (today.day + 6) % 7;
+            const startDate = this.createDateParts(today.year, today.month, today.date - isoDayIndex);
 
             return { startDate: startDate, endDate: today };
         },
 
         getCurrentCalendarMonthDates() {
-            const today = new Date();
-            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            const today = this.getTodayInUserTimezone();
+            const startDate = this.createDateParts(today.year, today.month, 1);
 
             return { startDate: startDate, endDate: today };
         },
 
         getCurrentQuarterDates() {
-            const today = new Date();
-            const quarter = Math.floor(today.getMonth() / 3);
-            const startDate = new Date(today.getFullYear(), quarter * 3, 1);
+            const today = this.getTodayInUserTimezone();
+            const quarter = Math.floor(today.month / 3);
+            const startDate = this.createDateParts(today.year, quarter * 3, 1);
 
             return { startDate: startDate, endDate: today };
         },
 
         getLastNMonthsDates(months) {
-            const today = new Date();
-            const targetMonth = today.getMonth() - months;
-            const startDate = new Date(today.getFullYear(), targetMonth, today.getDate());
-            const expectedMonth = ((targetMonth % 12) + 12) % 12;
+            const today = this.getTodayInUserTimezone();
+            const targetMonth = today.month - months;
+            let startDate = this.createDateParts(today.year, targetMonth, today.date);
+            const expectedMonth = this.createDateParts(today.year, targetMonth, 1).month;
 
             // Clamp to the last day of the target month if JS overflowed
             // (e.g., asking for May 31 - 3 months yields Feb 31 -> Mar 3).
-            if (startDate.getMonth() !== expectedMonth) {
-                startDate.setDate(0);
+            if (startDate.month !== expectedMonth) {
+                startDate = this.createDateParts(today.year, targetMonth + 1, 0);
             }
 
             return { startDate: startDate, endDate: today };
         },
 
         getCurrentYearDates() {
-            const today = new Date();
-            const startDate = new Date(today.getFullYear(), 0, 1);
+            const today = this.getTodayInUserTimezone();
+            const startDate = this.createDateParts(today.year, 0, 1);
 
             return { startDate: startDate, endDate: today };
         },
 
         getPreviousYearDates() {
-            const today = new Date();
-            const startDate = new Date(today.getFullYear() - 1, 0, 1);
-            const endDate = new Date(today.getFullYear() - 1, 11, 31);
+            const today = this.getTodayInUserTimezone();
+            const startDate = this.createDateParts(today.year - 1, 0, 1);
+            const endDate = this.createDateParts(today.year - 1, 11, 31);
 
             return { startDate: startDate, endDate: endDate };
         },
@@ -362,9 +360,9 @@ export default {
         },
 
         getPreviousCalendarMonthDates() {
-            const date = new Date();
-            const startDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-            const endDate = new Date(date.getFullYear(), date.getMonth(), 0);
+            const today = this.getTodayInUserTimezone();
+            const startDate = this.createDateParts(today.year, today.month - 1, 1);
+            const endDate = this.createDateParts(today.year, today.month, 0);
 
             return {
                 startDate: startDate,
@@ -373,11 +371,11 @@ export default {
         },
 
         getPreviousCalendarWeekDates() {
-            const date = new Date();
+            const today = this.getTodayInUserTimezone();
             // ISO week: Monday = 0 ... Sunday = 6
-            const isoDayIndex = (date.getDay() + 6) % 7;
-            const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - isoDayIndex - 7);
-            const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() - isoDayIndex - 1);
+            const isoDayIndex = (today.day + 6) % 7;
+            const startDate = this.createDateParts(today.year, today.month, today.date - isoDayIndex - 7);
+            const endDate = this.createDateParts(today.year, today.month, today.date - isoDayIndex - 1);
 
             return {
                 startDate: startDate,
@@ -386,11 +384,11 @@ export default {
         },
 
         getPreviousQuarterDates() {
-            const date = new Date();
-            const quarter = Math.floor(date.getMonth() / 3);
+            const today = this.getTodayInUserTimezone();
+            const quarter = Math.floor(today.month / 3);
 
-            const startDate = new Date(date.getFullYear(), quarter * 3 - 3, 1);
-            const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 3, 0);
+            const startDate = this.createDateParts(today.year, quarter * 3 - 3, 1);
+            const endDate = this.createDateParts(startDate.year, startDate.month + 3, 0);
 
             return {
                 startDate: startDate,
@@ -404,6 +402,47 @@ export default {
                 to: dateValue.to ? this.getUserTimeZoneDateBoundary(dateValue.to, '23:59:59.000') : null,
                 timeframe: dateValue.timeframe,
             };
+        },
+
+        getTodayInUserTimezone() {
+            const formatter = new Intl.DateTimeFormat('en-CA', {
+                timeZone: this.userTimeZone,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            });
+
+            const parts = formatter.formatToParts(new Date());
+            const getPart = (type) => Number(parts.find((part) => part.type === type).value);
+
+            return this.createDateParts(getPart('year'), getPart('month') - 1, getPart('day'));
+        },
+
+        /**
+         * Wrapper for not using `new Date(year, month, date)` to opt out of
+         * using the browsers timezone.
+         *
+         * Still keeps js date wrapping behavior for month/day overflow calculations.
+         */
+        createDateParts(year, month, date) {
+            const utcDate = new Date(0);
+            utcDate.setUTCFullYear(year, month, date);
+            utcDate.setUTCHours(0, 0, 0, 0);
+
+            return {
+                year: utcDate.getUTCFullYear(),
+                month: utcDate.getUTCMonth(),
+                date: utcDate.getUTCDate(),
+                day: utcDate.getUTCDay(),
+            };
+        },
+
+        formatDateParts({ year, month, date }) {
+            return [
+                String(year).padStart(4, '0'),
+                String(month + 1).padStart(2, '0'),
+                String(date).padStart(2, '0'),
+            ].join('-');
         },
 
         getUserTimeZoneDateBoundary(value, time) {

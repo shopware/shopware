@@ -91,7 +91,7 @@ describe('module/sw-cms/elements/category-name/config', () => {
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
         Shopware.Store.get('cmsPage').setCurrentPage({
-            type: 'category_detail',
+            type: 'product_list',
         });
     });
 

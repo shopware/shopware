@@ -5,7 +5,7 @@
 export default {
     computed: {
         isCategoryPage() {
-            return this.cmsPageState?.currentPage?.type === 'category_detail';
+            return this.cmsPageState?.currentPage?.type === 'product_list';
         },
     },
 

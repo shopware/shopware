@@ -52,7 +52,7 @@ describe('module/sw-cms/elements/category-name/component', () => {
 
     it('maps to category.name when used on a category detail page', async () => {
         Shopware.Store.get('cmsPage').setCurrentPage({
-            type: 'category_detail',
+            type: 'product_list',
         });
         const wrapper = await createWrapper();
 
@@ -62,7 +62,7 @@ describe('module/sw-cms/elements/category-name/component', () => {
 
     it('does not overwrite an existing translated config', async () => {
         Shopware.Store.get('cmsPage').setCurrentPage({
-            type: 'category_detail',
+            type: 'product_list',
         });
         const wrapper = await createWrapper({
             element: {
@@ -97,7 +97,7 @@ describe('module/sw-cms/elements/category-name/component', () => {
 
     it('shows a placeholder when mapped to category.name and no demo entity is loaded', async () => {
         Shopware.Store.get('cmsPage').setCurrentPage({
-            type: 'category_detail',
+            type: 'product_list',
         });
         const wrapper = await createWrapper();
 

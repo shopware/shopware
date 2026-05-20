@@ -75,6 +75,7 @@
         "dompdf/dompdf": "3.1.4",
         "dragonmantank/cron-expression": "^3.3",
         "ezyang/htmlpurifier": "^4.16",
+        "fakerphp/faker": "^1.20",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "horstoeko/zugferd": "^1.0.104",

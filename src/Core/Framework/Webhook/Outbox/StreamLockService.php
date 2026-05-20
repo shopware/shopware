@@ -61,7 +61,7 @@ class StreamLockService
                   )
                 ORDER BY s.last_claimed_at ASC, s.partition_key ASC
                 LIMIT 1
-                FOR UPDATE SKIP LOCKED
+                FOR UPDATE OF s SKIP LOCKED
                 SQL;
 
             $row = $this->connection->fetchAssociative(

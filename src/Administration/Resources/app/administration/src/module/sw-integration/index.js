@@ -9,6 +9,9 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-integration-mcp-allowlist', () => import('./component/sw-integration-mcp-allowlist'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {
     type: 'core',
     name: 'integration',

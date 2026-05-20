@@ -488,11 +488,13 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return iterable<string, array<MultiFilter|string[]>>
      */
-    public static function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php';
+        foreach (require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]
@@ -1639,11 +1641,13 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, DateHistogramCase>>
+     * @return iterable<string, array<int, DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return require __DIR__ . '/Fixture/DateHistogram.php';
+        foreach (require __DIR__ . '/Fixture/DateHistogram.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]
@@ -2103,7 +2107,9 @@ class ElasticsearchProductTest extends TestCase
      */
     public function cheapestPriceSortingProvider(): iterable
     {
-        yield from require __DIR__ . '/Fixture/CheapestPriceSorting.php';
+        foreach (require __DIR__ . '/Fixture/CheapestPriceSorting.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
     #[Depends('testIndexing')]

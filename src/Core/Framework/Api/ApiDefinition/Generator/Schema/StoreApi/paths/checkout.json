@@ -343,7 +343,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/CartItems"
+                                "$ref": "#/components/schemas/CartItemsUpdate"
                             }
                         }
                     }

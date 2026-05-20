@@ -30,6 +30,11 @@ class Migration1714659357CanonicalProductVersionTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1714659357, (new Migration1714659357CanonicalProductVersion())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->connection->executeStatement('ALTER TABLE `product` DROP FOREIGN KEY `fk.product.canonical_product_id`');

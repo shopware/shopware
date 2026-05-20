@@ -245,6 +245,49 @@ class LineItemTest extends TestCase
         static::assertSame(2, $lineItem->getPayloadValue('test'));
     }
 
+    public function testSetPayloadValueCanProtectPayloadValue(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('visible', 'test', false);
+        $lineItem->setPayloadValue('protected', 'test', true);
+
+        static::assertSame('test', $lineItem->getPayloadValue('protected'));
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayHasKey('visible', $payload);
+        static::assertArrayNotHasKey('protected', $payload);
+    }
+
+    public function testSetPayloadValueCanRemovePayloadProtection(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('test', 'protected', true);
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayNotHasKey('test', $payload);
+
+        $lineItem->setPayloadValue('test', 'visible', false);
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertSame('visible', $payload['test']);
+    }
+
+    public function testSetPayloadValueKeepsProtectionWithoutThirdArgument(): void
+    {
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayloadValue('test', 'protected', true);
+        $lineItem->setPayloadValue('test', 'updated');
+
+        static::assertSame('updated', $lineItem->getPayloadValue('test'));
+
+        $payload = self::getSerializedPayload($lineItem);
+
+        static::assertArrayNotHasKey('test', $payload);
+    }
+
     public function testReplacePayloadNonRecursively(): void
     {
         $lineItem = new LineItem('abc', 'type', null, 5);
@@ -379,5 +422,18 @@ class LineItemTest extends TestCase
         ];
 
         static::assertSame($expectedArray, $parent->getHashContent());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function getSerializedPayload(LineItem $lineItem): array
+    {
+        $data = $lineItem->jsonSerialize();
+
+        static::assertArrayHasKey('payload', $data);
+        static::assertIsArray($data['payload']);
+
+        return $data['payload'];
     }
 }

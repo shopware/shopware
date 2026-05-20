@@ -1,0 +1,9 @@
+twig:
+    default_path: '%storefrontRoot%/Resources/views'
+
+twig_component:
+    anonymous_template_directory: 'components/'
+    defaults:
+        # Namespace & directory for components
+        Shopware\Storefront\Resources\views\components\: 'components/'
+

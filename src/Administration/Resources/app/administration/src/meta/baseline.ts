@@ -166,7 +166,6 @@ const missingTests = [
     'src/core/service/api/flow-actions.api.service.js',
     'src/core/service/api/import-export.api.service.js',
     'src/core/service/api/index.ts',
-    'src/core/service/api/integration.api.service.js',
     'src/core/service/api/known-ips.api.service.js',
     'src/core/service/api/language-plugin.api.service.js',
     'src/core/service/api/media-folder.api.service.js',

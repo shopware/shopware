@@ -27,6 +27,11 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1663402950, (new Migration1663402950SetDoubleOptinCustomerActive())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $customerId = Uuid::randomBytes();

@@ -1047,10 +1047,9 @@ class AppLifecycleTest extends TestCase
             'roleId' => $roleId,
         ];
 
-        $eventWasReceived = false;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
-            $eventWasReceived = true;
-            static::assertSame($appId, $event->getAppId());
+        $deletedAppIds = [];
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+            $deletedAppIds[] = $event->getAppId();
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
@@ -1060,7 +1059,7 @@ class AppLifecycleTest extends TestCase
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
         static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
+        static::assertSame([$appId], $deletedAppIds);
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1076,57 +1075,6 @@ class AppLifecycleTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
         static::assertCount(0, $apps);
-    }
-
-    public function testDeleteAppDispatchedOnce(): void
-    {
-        $appId = Uuid::randomHex();
-        $roleId = Uuid::randomHex();
-
-        $this->appRepository->create([[
-            'id' => $appId,
-            'name' => 'Test',
-            'path' => __DIR__ . '/../Manifest/_fixtures/test',
-            'version' => '0.0.1',
-            'label' => 'test',
-            'accessToken' => 'test',
-            'actionButtons' => [
-                [
-                    'entity' => 'order',
-                    'view' => 'detail',
-                    'action' => 'test',
-                    'label' => 'test',
-                    'url' => 'test.com',
-                ],
-            ],
-            'integration' => [
-                'label' => 'test',
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'id' => $roleId,
-                'name' => 'Test',
-            ],
-        ]], Context::createDefaultContext());
-
-        $app = [
-            'id' => $appId,
-            'roleId' => $roleId,
-        ];
-
-        $countEventDispatched = 0;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
-            ++$countEventDispatched;
-            static::assertSame($appId, $event->getAppId());
-        };
-        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
-
-        $this->appLifecycle->delete('Test', $app, $this->context);
-
-        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
-
-        static::assertSame(1, $countEventDispatched);
     }
 
     public function testDeleteWithCustomFields(): void

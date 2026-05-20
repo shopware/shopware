@@ -221,18 +221,16 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @return array{0: string, 1: bool}[]
+     * @return iterable<string, array{0: string, 1: bool}>
      */
-    public static function featureAllDataProvider(): array
+    public static function featureAllDataProvider(): iterable
     {
-        return [
-            ['dev', true],
-            ['dev', false],
-            ['test', true],
-            ['test', false],
-            ['prod', true],
-            ['prod', false],
-        ];
+        yield 'feature all dev true' => ['dev', true];
+        yield 'feature all dev false' => ['dev', false];
+        yield 'feature all test true' => ['test', true];
+        yield 'feature all test false' => ['test', false];
+        yield 'feature all prod true' => ['prod', true];
+        yield 'feature all prod false' => ['prod', false];
     }
 
     #[DataProvider('featureAllDataProvider')]

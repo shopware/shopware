@@ -73,15 +73,21 @@ export default class FilterService {
             }
         });
 
-        this._filterEntity.value = filterValues;
+        const filterEntity = this._filterEntity;
+
+        filterEntity.value = filterValues;
         this._storedFilters[storeKey] = savedCriteria;
 
         this._pushFiltersToUrl();
-        this._userConfigRepository.save(this._filterEntity, Shopware.Context.api).then(() => {
-            this.getStoredFilters(storeKey);
-        });
 
-        return Promise.resolve(this._filterEntity.value);
+        return this._userConfigRepository
+            .save(filterEntity, Shopware.Context.api)
+            .then(() => {
+                return this.getStoredFilters(storeKey);
+            })
+            .catch(() => {
+                return filterEntity.value;
+            });
     }
 
     async mergeWithStoredFilters(storeKey, listCriteria) {

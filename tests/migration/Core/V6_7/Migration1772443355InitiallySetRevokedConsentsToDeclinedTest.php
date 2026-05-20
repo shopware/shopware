@@ -28,6 +28,11 @@ class Migration1772443355InitiallySetRevokedConsentsToDeclinedTest extends TestC
         $this->connection->executeStatement('DELETE FROM `consent_state`');
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1772443355, (new Migration1772443355InitiallySetRevokedConsentsToDeclined())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1772443355InitiallySetRevokedConsentsToDeclined();

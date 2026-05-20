@@ -360,6 +360,12 @@ class ImportPayloadBuilder
         $priceRow = \is_array($prices[$rowIndex]) ? $prices[$rowIndex] : ['currencyId' => $currencyId];
         $priceRow['currencyId'] = $currencyId;
 
+        // TODO: `price.<currency-code>.*` paths may only provide a
+        // partial row (for example `net` and `gross` without `linked`), while
+        // DAL `PriceField` validation expects a complete row shape. Decide
+        // whether we want to validate profiles up front, auto-fill defaults,
+        // or preserve missing values from an existing row during updates.
+
         if ($segments === []) {
             if (\is_array($currencySource)) {
                 $priceRow = array_replace($priceRow, $currencySource);

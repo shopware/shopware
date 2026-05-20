@@ -7,6 +7,12 @@ import './sw-shortcut-overview.scss';
 
 const utils = Shopware.Utils;
 
+const platformShortcutSuffixes = {
+    mac: 'Mac',
+    windows: 'Windows',
+    linux: 'Linux',
+};
+
 /**
  * @private
  */
@@ -50,18 +56,22 @@ export default {
     },
 
     computed: {
-        platformShortcutSuffix() {
+        platform() {
             const platform = this.$device?.getPlatform?.() ?? window.navigator.platform;
 
             if (platform.includes('Mac')) {
-                return 'Mac';
+                return 'mac';
             }
 
             if (platform.includes('Win')) {
-                return 'Windows';
+                return 'windows';
             }
 
-            return 'Linux';
+            return 'linux';
+        },
+
+        platformShortcutSuffix() {
+            return platformShortcutSuffixes[this.platform];
         },
 
         sections() {

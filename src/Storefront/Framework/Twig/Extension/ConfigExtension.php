@@ -26,6 +26,8 @@ class ConfigExtension extends AbstractExtension
             new TwigFunction('config', $this->config(...), ['needs_context' => true]),
             new TwigFunction('theme_config', $this->theme(...), ['needs_context' => true]),
             new TwigFunction('theme_scripts', $this->scripts(...), ['needs_context' => true]),
+            new TwigFunction('import_map', $this->importMap(...), ['needs_context' => true]),
+            new TwigFunction('theme_css_vars', $this->themeCssVars(...), ['needs_context' => true]),
         ];
     }
 
@@ -50,11 +52,36 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
+     * Returns all scripts, except components.
+     *
      * @return array<int, string> $items
      */
     public function scripts(): array
     {
         return $this->config->scripts();
+    }
+
+    /**
+     * Returns the theme import map.
+     *
+     * @return array<string, mixed>
+     */
+    public function importMap(): array
+    {
+        return $this->config->importMap();
+    }
+
+    /**
+     * Returns all theme config fields that have `"scss": true` (the default) as a
+     * key/value map so templates can render CSS custom properties with escaping.
+     *
+     * @param array<string, mixed> $context
+     *
+     * @return array<string, string|int>
+     */
+    public function themeCssVars(array $context): array
+    {
+        return $this->config->themeCssVars($this->getContext($context), $this->getThemeId($context));
     }
 
     /**

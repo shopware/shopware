@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -43,7 +44,15 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/handle-payment',
+        name: 'store-api.payment.handle',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
         $data = [...$request->query->all(), ...$request->request->all()];

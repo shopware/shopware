@@ -102,7 +102,6 @@
         "tags": "Tags",
         "tax": "Steuern",
         "taxRate": "Steuerrate",
-        "type": "Typ",
         "unit": "Einheit",
         "variations": "Varianten",
         "visibilities": "Sichtbarkeit",
@@ -139,7 +138,6 @@
       "titleResult": "Produkte",
       "messageSaveSuccess": "Die Produktgruppe \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Produktgruppe \"{name}\" konnte nicht gespeichert werden.",
-      "buttonOpenPreview": "Vorschau",
       "productStreamIndexingWarning": {
         "title": "Indexierung dynamischer Produktgruppen ist deaktiviert",
         "message": "Einige Funktionen funktionieren möglicherweise nicht wie erwartet: <ul><li>Kategorieseiten werden erst aktualisiert, wenn der HTTP-Cache abläuft oder manuell geleert wird.</li><li>Die Regelbedingung \"Position in dynamischer Produktgruppe\" wird nie zutreffen.</li></ul>",

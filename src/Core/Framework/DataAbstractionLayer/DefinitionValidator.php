@@ -118,6 +118,7 @@ class DefinitionValidator
         'theme_runtime_config',
         'consent_state',
         'consent_log',
+        'mcp_tool_result_cache',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

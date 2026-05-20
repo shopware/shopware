@@ -22,6 +22,7 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -192,6 +193,14 @@ export default {
                     label: language.customLabel,
                 };
             });
+        },
+
+        mcpGrantedPrivileges() {
+            if (!this.user?.aclRoles) {
+                return [];
+            }
+
+            return [...new Set(this.user.aclRoles.flatMap((role) => role.privileges ?? []))];
         },
     },
 
@@ -484,6 +493,23 @@ export default {
             }
 
             this.onCloseDetailModal();
+        },
+
+        onMcpAllowlistUpdate(allowlist) {
+            if (!this.userId) {
+                return;
+            }
+
+            this.userService
+                .saveMcpAllowlist(this.userId, allowlist)
+                .then(() => {
+                    this.user.mcpAllowlist = allowlist;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-users-permissions.users.user-detail.mcpAllowlistSaveError'),
+                    });
+                });
         },
 
         onCloseDeleteModal() {

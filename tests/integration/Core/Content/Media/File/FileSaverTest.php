@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Core\Event\UpdateThumbnailPathEvent;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Content\Media\Event\MediaFileExtensionWhitelistEvent;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -38,6 +40,18 @@ class FileSaverTest extends TestCase
 
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
     final public const TEST_SCRIPT_FILE = __DIR__ . '/../fixtures/test.php';
+    private const SAFE_SVG = <<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <rect width="10" height="10" fill="#000"/>
+</svg>
+SVG;
+    private const UNSAFE_SVG = <<<'SVG'
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)">
+    <text x="0" y="10">Hello</text>
+</svg>
+SVG;
 
     /**
      * @var EntityRepository<MediaCollection>
@@ -93,6 +107,59 @@ class FileSaverTest extends TestCase
 
         $path = $media->getPath();
         static::assertTrue($this->getPublicFilesystem()->has($path));
+    }
+
+    public function testPersistSafeSvgToMedia(): void
+    {
+        $filesystem = new Filesystem();
+        $tempFile = $filesystem->tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+        $filesystem->dumpFile($tempFile, self::SAFE_SVG);
+
+        $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
+        $mediaFile = new MediaFile($tempFile, 'image/svg+xml', 'svg', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        try {
+            $this->fileSaver->persistFileToMedia($mediaFile, 'safe-svg', $mediaId, $context);
+        } finally {
+            $filesystem->remove($tempFile);
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$mediaId]), $context)->get($mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
+    }
+
+    public function testPersistUnsafeSvgToMediaThrowsException(): void
+    {
+        $filesystem = new Filesystem();
+        $tempFile = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($tempFile);
+        $filesystem->dumpFile($tempFile, self::UNSAFE_SVG);
+
+        $fileSize = filesize($tempFile);
+        static::assertIsInt($fileSize);
+        $mediaFile = new MediaFile($tempFile, 'image/svg+xml', 'svg', $fileSize);
+
+        $mediaId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $this->mediaRepository->create([['id' => $mediaId]], $context);
+
+        try {
+            $this->expectException(MediaException::class);
+            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+
+            $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
+        } finally {
+            $filesystem->remove($tempFile);
+        }
     }
 
     public function testPersistFileWithUpperCaseExtension(): void
@@ -693,6 +760,7 @@ class FileSaverTest extends TestCase
             $repositoryMock,
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('shopware.filesystem.private'),
+            static::getContainer()->get(FileContentValidationStrategy::class),
             static::getContainer()->get(MetadataLoader::class),
             static::getContainer()->get(TypeDetector::class),
             static::getContainer()->get('event_dispatcher'),

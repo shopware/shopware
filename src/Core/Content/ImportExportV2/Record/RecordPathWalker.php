@@ -5,23 +5,36 @@ namespace Shopware\Core\Content\ImportExportV2\Record;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Shared dotted-path helper for the in-memory record/payload builders.
+ * Shared structural dotted-path helper for normalized record payload trees.
  *
- * This is the generic tree traversal used by the JSON-side builders. Unlike
- * CSV, it can preserve nested list structures directly, so it supports
- * multiple wildcard levels such as `lineItems.*.tags.*.name`.
+ * Import/export uses two different layers of path handling:
+ * - the builders are DAL-definition-aware and apply semantic rules such as
+ *   `translations.DEFAULT.*` or `manyToOne.id -> taxId`
+ * - this helper is the generic array-tree utility that only reads and writes
+ *   normalized PHP arrays once those semantic rules have already been applied
  *
  * @internal
  */
 #[Package('fundamentals@after-sales')]
 final class RecordPathWalker
 {
+    /**
+     * Reads one dotted path from a normalized array tree.
+     *
+     * This is the generic structural reader used after any DAL-aware export
+     * logic has already selected the correct subtree or special field value.
+     */
     public static function readValue(array $source, string $path): mixed
     {
         return self::readSegments($source, explode('.', $path));
     }
 
     /**
+     * Writes one dotted path back into a normalized array tree.
+     *
+     * This is the generic structural writer used after any DAL-aware import or
+     * export logic has already decided what value belongs at that path.
+     *
      * @param array<string, mixed> $target
      */
     public static function writeValue(array &$target, string $path, mixed $value): void

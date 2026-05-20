@@ -136,6 +136,7 @@ class CsvExportWriter implements ExportWriterInterface
             }
 
             $value = CsvMappingHelper::readValueFromRecordPath($payload, $path);
+
             $row[] = \is_scalar($value) || $value === null ? $this->formatValue($value, $this->getMappingType($mapping)) : '';
         }
 

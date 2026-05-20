@@ -3,11 +3,14 @@
 namespace Shopware\Core\Content\ImportExportV2\Record;
 
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
@@ -18,6 +21,13 @@ use Shopware\Core\System\Locale\LocaleException;
  * The profile declares the export contract through `recordPaths`. This builder
  * reads exactly those paths from the serialized entity tree and rebuilds them
  * into one normalized payload array that both JSON and CSV writers can consume.
+ *
+ * Traversal is definition-aware, not just array-path-based. That allows the
+ * builder to keep the current DAL definition in sync while it walks nested
+ * associations and to apply export-specific rules exactly where they appear:
+ * - `translations.DEFAULT.*` reads from the resolved translated values
+ * - `translations.de-DE.*` reads one explicit locale translation
+ * - `manyToOne.id` prefers the stored foreign-key field like `taxId`
  *
  * Example profile record paths:
  *
@@ -111,13 +121,13 @@ class ImportExportRecordBuilder
     {
         $definition = $this->definitionInstanceRegistry->getByEntityName($profile->getEntity());
 
-        $serialized = $this->normalizeSerializedValue($entity->jsonSerialize());
+        $serializedEntity = $this->normalizeSerializedValue($entity->jsonSerialize());
 
-        \assert(\is_array($serialized));
+        \assert(\is_array($serializedEntity));
 
         $payload = [];
         foreach ($profile->getRecordPaths() as $path) {
-            $this->writePayloadValue($payload, $serialized, $definition, $path);
+            $this->writePayloadValue($payload, $serializedEntity, $definition, $path);
         }
 
         return new ImportExportRecord($profile->getEntity(), $payload);
@@ -130,12 +140,15 @@ class ImportExportRecordBuilder
      * Missing values are skipped so profiles behave like "export when present",
      * not "every path must always exist".
      *
+     * The resolved value is then written back through `RecordPathWalker`, which
+     * rebuilds the normalized export payload tree from the configured paths.
+     *
      * @param array<string, mixed> $payload
-     * @param array<string, mixed> $serialized
+     * @param array<string, mixed> $serializedEntity
      */
-    private function writePayloadValue(array &$payload, array $serialized, EntityDefinition $definition, string $path): void
+    private function writePayloadValue(array &$payload, array $serializedEntity, EntityDefinition $definition, string $path): void
     {
-        $value = $this->readExportValue($serialized, $definition, $path);
+        $value = $this->readExportValue($serializedEntity, $definition, $path);
 
         if ($value === null || $value === []) {
             return;
@@ -147,58 +160,129 @@ class ImportExportRecordBuilder
     /**
      * Reads one export value from the serialized entity tree.
      *
-     * Most paths are handled generically through `RecordPathWalker`. The two
-     * special cases are:
+     * Traversal is definition-aware so nested associations can still use
+     * special handling such as:
      * - `translations.DEFAULT.*` and `translations.de-DE.*`
      * - `manyToOne.id`, which prefers the stored foreign-key field like `taxId`
      *
-     * @param array<string, mixed> $serialized
+     * The path is split once here and then handled recursively so nested
+     * associations, nested translations, and wildcard lists all follow the same
+     * traversal model.
+     *
+     * @param array<string, mixed> $serializedEntity
      */
-    private function readExportValue(array $serialized, EntityDefinition $definition, string $path): mixed
+    private function readExportValue(array $serializedEntity, EntityDefinition $definition, string $path): mixed
     {
-        if (str_starts_with($path, 'translations.')) {
-            return $this->readTranslationValue($serialized, $path);
-        }
-
-        $segments = explode('.', $path);
-        $topLevel = $segments[0] ?? '';
-
-        $field = $definition->getField($topLevel);
-        if ($field instanceof ManyToOneAssociationField && \count($segments) === 2 && $segments[1] === 'id') {
-            $fkField = $definition->getFields()->getByStorageName($field->getStorageName());
-
-            if ($fkField instanceof FkField) {
-                return $serialized[$fkField->getPropertyName()] ?? RecordPathWalker::readValue($serialized, $path);
-            }
-        }
-
-        return RecordPathWalker::readValue($serialized, $path);
+        return $this->readExportSegments($serializedEntity, $definition, explode('.', $path));
     }
 
     /**
-     * Resolves profile translation paths in two ways:
-     * - `translations.DEFAULT.*` reads the currently resolved translated value
-     * - `translations.de-DE.*` reads the explicitly loaded translation entry
+     * Recursively traverses one export path while keeping the current DAL
+     * definition in sync with the current serialized node.
      *
-     * @param array<string, mixed> $serialized
+     * The current `$current` node always belongs to the current `$definition`.
+     * When the path enters an association, the traversal switches both to the
+     * nested serialized node and to the referenced definition.
+     *
+     * @param array<int, string> $segments
      */
-    private function readTranslationValue(array $serialized, string $path): mixed
+    private function readExportSegments(mixed $current, EntityDefinition $definition, array $segments): mixed
     {
-        $segments = explode('.', $path, 3);
+        if ($segments === []) {
+            return $current;
+        }
 
-        $translationCode = $segments[1] ?? null;
-        $fieldPath = $segments[2] ?? null;
+        $segment = array_shift($segments);
+        \assert(\is_string($segment));
 
-        if (!\is_string($translationCode) || !\is_string($fieldPath) || $fieldPath === '') {
+        if ($segment === '*') {
+            if (!\is_array($current)) {
+                return null;
+            }
+
+            // Wildcard lists are collected item by item so paths like
+            // `tags.*.id` and `tags.*.name` can later be merged by index when
+            // the normalized export payload is rebuilt.
+            $values = [];
+            foreach ($current as $item) {
+                $value = $this->readExportSegments($item, $definition, $segments);
+                if ($value === null) {
+                    continue;
+                }
+
+                $values[] = $value;
+            }
+
+            return $values;
+        }
+
+        if (!\is_array($current)) {
             return null;
         }
 
-        if ($translationCode === 'DEFAULT') {
-            return RecordPathWalker::readValue(\is_array($serialized['translated'] ?? null) ? $serialized['translated'] : [], $fieldPath)
-                ?? RecordPathWalker::readValue($serialized, $fieldPath);
+        if ($segment === 'translations') {
+            return $this->readTranslatedSegments($current, $definition, $segments);
         }
 
-        $translations = $serialized['translations'] ?? null;
+        $field = $definition->getField($segment);
+        if ($field instanceof ManyToOneAssociationField && $segments === ['id']) {
+            $fkField = $definition->getFields()->getByStorageName($field->getStorageName());
+
+            if ($fkField instanceof FkField) {
+                return $current[$fkField->getPropertyName()] ?? null;
+            }
+        }
+
+        if (!\array_key_exists($segment, $current)) {
+            return null;
+        }
+
+        if ($field instanceof AssociationField) {
+            $nextDefinition = $this->resolveAssociationDefinition($field);
+
+            if ($nextDefinition !== null) {
+                return $this->readExportSegments($current[$segment], $nextDefinition, $segments);
+            }
+        }
+
+        return $this->readExportSegments($current[$segment], $definition, $segments);
+    }
+
+    /**
+     * Resolves one `translations.<code>` segment and continues traversal inside
+     * the selected translation payload.
+     *
+     * Example:
+     * - `manufacturer.translations.DEFAULT.name`
+     *   reads from the resolved translated values first
+     * - `manufacturer.translations.de-DE.name`
+     *   reads the explicit `de-DE` translation from the loaded association
+     *
+     * @param array<string, mixed> $serializedEntity
+     * @param array<int, string> $segments
+     */
+    private function readTranslatedSegments(array $serializedEntity, EntityDefinition $definition, array $segments): mixed
+    {
+        $translationCode = array_shift($segments);
+        if (!\is_string($translationCode) || $translationCode === '') {
+            return null;
+        }
+
+        $translationDefinition = $definition->getTranslationDefinition();
+
+        if ($translationCode === 'DEFAULT') {
+            $translated = \is_array($serializedEntity['translated'] ?? null) ? $serializedEntity['translated'] : [];
+
+            $value = $this->readExportSegments($translated, $translationDefinition ?? $definition, $segments);
+
+            if ($value !== null) {
+                return $value;
+            }
+
+            return $this->readExportSegments($serializedEntity, $definition, $segments);
+        }
+
+        $translations = $serializedEntity['translations'] ?? null;
         if (!\is_array($translations)) {
             return null;
         }
@@ -223,7 +307,7 @@ class ImportExportRecordBuilder
                 continue;
             }
 
-            return RecordPathWalker::readValue($translation, $fieldPath);
+            return $this->readExportSegments($translation, $translationDefinition ?? $definition, $segments);
         }
 
         return null;
@@ -254,6 +338,19 @@ class ImportExportRecordBuilder
         }
 
         return $translationKey;
+    }
+
+    private function resolveAssociationDefinition(AssociationField $field): ?EntityDefinition
+    {
+        if ($field instanceof ManyToOneAssociationField || $field instanceof OneToManyAssociationField) {
+            return $field->getReferenceDefinition();
+        }
+
+        if ($field instanceof ManyToManyAssociationField) {
+            return $field->getToManyReferenceDefinition();
+        }
+
+        return null;
     }
 
     /**

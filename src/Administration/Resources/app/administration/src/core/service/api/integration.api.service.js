@@ -19,6 +19,16 @@ class IntegrationApiService extends ApiService {
      * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
+    saveMcpAllowlist(integrationId, allowlist, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .post(`/_action/integration/${integrationId}/mcp-allowlist`, { allowlist }, { headers })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     generateKey(additionalParams = {}, additionalHeaders = {}, user = false) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);

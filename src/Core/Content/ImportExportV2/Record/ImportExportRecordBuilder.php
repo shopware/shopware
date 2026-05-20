@@ -239,7 +239,7 @@ class ImportExportRecordBuilder
             }
         }
 
-        if ($field instanceof PriceField) {
+        if ($field instanceof PriceField && $this->isPriceSelectorSegment($segments[0] ?? null)) {
             return $this->readPriceSegments($current[$segment] ?? null, $segments);
         }
 
@@ -391,6 +391,19 @@ class ImportExportRecordBuilder
         }
 
         return $translationKey;
+    }
+
+    private function isPriceSelectorSegment(mixed $segment): bool
+    {
+        if (!\is_string($segment) || $segment === '') {
+            return false;
+        }
+
+        if ($segment === 'DEFAULT') {
+            return true;
+        }
+
+        return $this->currencyCodeProvider->hasCurrencyCode($segment);
     }
 
     private function resolveAssociationDefinition(AssociationField $field): ?EntityDefinition

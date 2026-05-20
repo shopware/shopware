@@ -198,7 +198,7 @@ class ImportPayloadBuilder
         }
 
         $field = $definition->getFields()->get($segment);
-        if ($field instanceof PriceField) {
+        if ($field instanceof PriceField && $this->isPriceSelectorSegment($segments[0] ?? null)) {
             $this->writePriceSegments($target, $segment, $value, $segments);
 
             return;
@@ -398,6 +398,19 @@ class ImportPayloadBuilder
         }
 
         return null;
+    }
+
+    private function isPriceSelectorSegment(mixed $segment): bool
+    {
+        if (!\is_string($segment) || $segment === '') {
+            return false;
+        }
+
+        if ($segment === 'DEFAULT') {
+            return true;
+        }
+
+        return $this->currencyCodeProvider->hasCurrencyCode($segment);
     }
 
     private function findPriceRowIndex(array $prices, string $currencyId): ?int

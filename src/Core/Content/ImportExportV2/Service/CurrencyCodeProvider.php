@@ -41,6 +41,13 @@ class CurrencyCodeProvider
         return $this->currencyIdsByCode[strtoupper($currencyCode)] ?? null;
     }
 
+    public function hasCurrencyCode(string $currencyCode): bool
+    {
+        $this->loadMappings();
+
+        return isset($this->currencyIdsByCode[strtoupper($currencyCode)]);
+    }
+
     public function getCodeForCurrencyId(string $currencyId): ?string
     {
         $this->loadMappings();

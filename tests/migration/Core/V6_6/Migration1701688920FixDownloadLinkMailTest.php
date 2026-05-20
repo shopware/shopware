@@ -19,6 +19,11 @@ class Migration1701688920FixDownloadLinkMailTest extends TestCase
 {
     use MigrationTestTrait;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1701688920, (new Migration1701688920FixDownloadLinkMail())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1701688920FixDownloadLinkMail();

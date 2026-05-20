@@ -209,6 +209,46 @@
                 </sw-modal>
                 {% endblock %}
 
+                {% block sw_integration_list_mcp_modal %}
+                <sw-modal
+                    v-if="feature.isActive('MCP_SERVER') && mcpIntegration"
+                    class="sw-integration-list__mcp-modal"
+                    :title="$t('sw-integration.mcp.modalTitle') + ': ' + mcpIntegration.label"
+                    @modal-close="onCloseMcpModal"
+                >
+                    {% block sw_integration_list_mcp_modal_allowlist %}
+                    <sw-integration-mcp-allowlist
+                        :allowlist="pendingMcpAllowlist"
+                        :is-admin="mcpIntegration.admin"
+                        :disabled="!acl.can('integration_mcp.editor')"
+                        :granted-privileges="mcpGrantedPrivileges"
+                        @update:allowlist="pendingMcpAllowlist = $event"
+                    />
+                    {% endblock %}
+
+                    {% block sw_integration_list_mcp_modal_footer %}
+                    <template #modal-footer>
+                        <mt-button
+                            size="small"
+                            variant="secondary"
+                            @click="onCloseMcpModal"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+
+                        <mt-button
+                            size="small"
+                            variant="primary"
+                            :disabled="!acl.can('integration_mcp.editor')"
+                            @click="onSaveMcpAllowlist"
+                        >
+                            {{ $t('sw-integration.detail.buttonApplyEdit') }}
+                        </mt-button>
+                    </template>
+                    {% endblock %}
+                </sw-modal>
+                {% endblock %}
+
                 {% block sw_integration_list_grid %}
                 <sw-entity-listing
                     v-if="integrations && integrations.length > 0"
@@ -233,11 +273,22 @@
                             />
                         </span>
                         <a
+                            v-if="!isAppIntegration(item)"
                             href="#"
                             @click.prevent="onShowDetailModal(item)"
                         >
                             {{ item.label }}
                         </a>
+                        <span v-else>{{ item.label }}</span>
+                        <sw-label
+                            v-if="item.app"
+                            size="medium"
+                            ghost
+                            caps
+                            light
+                        >
+                            {{ $t('sw-integration.list.labelManagedByApp') }}
+                        </sw-label>
                     </template>
                     {% endblock %}
 
@@ -272,10 +323,21 @@
                         {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
                         <sw-context-menu-item
                             class="sw_integration_list__edit-action"
-                            :disabled="!acl.can('integration.editor')"
+                            :disabled="!acl.can('integration.editor') || isAppIntegration(item)"
                             @click="onShowDetailModal(item)"
                         >
                             {{ $t('sw-integration.list.contextMenuEdit') }}
+                        </sw-context-menu-item>
+                        {% endblock %}
+
+                        {% block sw_integration_list_grid_inner_slot_columns_actions_edit_mcp %}
+                        <sw-context-menu-item
+                            v-if="feature.isActive('MCP_SERVER')"
+                            class="sw_integration_list__edit-mcp-action"
+                            :disabled="!acl.can('integration_mcp.editor')"
+                            @click="onShowMcpModal(item)"
+                        >
+                            {{ $t('sw-integration.list.contextMenuEditMcp') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
@@ -283,7 +345,7 @@
                         <sw-context-menu-item
                             class="sw_integration_list__delete-action"
                             variant="danger"
-                            :disabled="!acl.can('integration.deleter')"
+                            :disabled="!acl.can('integration.deleter') || isAppIntegration(item)"
                             @click="showDeleteModal = item.id"
                         >
                             {{ $t('sw-integration.list.contextMenuDelete') }}

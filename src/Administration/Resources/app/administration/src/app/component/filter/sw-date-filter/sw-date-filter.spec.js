@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectWrapperToEmitTimeframeRange"] }] */
+
 import { mount } from '@vue/test-utils';
 
 import mockTimezone from 'test/_helper_/mock-timezone';
@@ -45,6 +47,43 @@ async function createWrapper() {
             active: true,
         },
     });
+}
+
+async function createDateFilterWithTimeframe({ timezone = 'UTC' } = {}) {
+    Shopware.Store.get('session').setCurrentUser({ timeZone: timezone });
+
+    const wrapper = await createWrapper();
+
+    await wrapper.setProps({
+        filter: {
+            property: 'releaseDate',
+            name: 'releaseDate',
+            label: 'Release Date',
+            dateType: 'date',
+            showTimeframe: true,
+        },
+    });
+
+    return wrapper;
+}
+
+function expectWrapperToEmitTimeframeRange(wrapper, { timeframe, from, to }) {
+    expect(wrapper.emitted()['filter-update']).toEqual([
+        [
+            'releaseDate',
+            [
+                Criteria.range('releaseDate', {
+                    gte: from,
+                    lte: to,
+                }),
+            ],
+            {
+                from,
+                timeframe,
+                to,
+            },
+        ],
+    ]);
 }
 
 describe('src/app/component/filter/sw-date-filter', () => {
@@ -267,202 +306,152 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(timeframe.exists()).toBeTruthy();
     });
 
-    const cases = {
-        today: {
-            timeframe: 'today',
-            expectedFrom: '1337-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        yesterday: {
-            timeframe: 'yesterday',
-            expectedFrom: '1337-12-30T00:00:00.000Z',
-            expectedTo: '1337-12-30T23:59:59.000Z',
-        },
-        '7 days (rolling)': {
-            timeframe: -7,
-            expectedFrom: '1337-12-24T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        '30 days (rolling)': {
-            timeframe: -30,
-            expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'previous quarter (lastQuarter)': {
-            timeframe: 'lastQuarter',
-            expectedFrom: '1337-07-01T00:00:00.000Z',
-            expectedTo: '1337-09-30T23:59:59.000Z',
-        },
-        'current month': {
-            timeframe: 'currentMonth',
-            expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'current quarter (Q4)': {
-            timeframe: 'currentQuarter',
-            expectedFrom: '1337-10-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'current year': {
-            timeframe: 'currentYear',
-            expectedFrom: '1337-01-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'previous year': {
-            timeframe: 'previousYear',
-            expectedFrom: '1336-01-01T00:00:00.000Z',
-            expectedTo: '1336-12-31T23:59:59.000Z',
-        },
-        'last 3 months (clamps month-end overflow)': {
-            timeframe: 'last3Months',
-            expectedFrom: '1337-09-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'last 6 months (clamps month-end overflow)': {
-            timeframe: 'last6Months',
-            expectedFrom: '1337-06-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-        'last 12 months': {
-            timeframe: 'last12Months',
-            expectedFrom: '1336-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T23:59:59.000Z',
-        },
-    };
+    it.each([
+        [
+            'today',
+            {
+                timeframe: 'today',
+                expectedFrom: '1337-12-31T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'yesterday',
+            {
+                timeframe: 'yesterday',
+                expectedFrom: '1337-12-30T00:00:00.000Z',
+                expectedTo: '1337-12-30T23:59:59.000Z',
+            },
+        ],
+        [
+            '7 days (rolling)',
+            {
+                timeframe: -7,
+                expectedFrom: '1337-12-24T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            '30 days (rolling)',
+            {
+                timeframe: -30,
+                expectedFrom: '1337-12-01T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'previous quarter (lastQuarter)',
+            {
+                timeframe: 'lastQuarter',
+                expectedFrom: '1337-07-01T00:00:00.000Z',
+                expectedTo: '1337-09-30T23:59:59.000Z',
+            },
+        ],
+        [
+            'current month',
+            {
+                timeframe: 'currentMonth',
+                expectedFrom: '1337-12-01T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'current quarter (Q4)',
+            {
+                timeframe: 'currentQuarter',
+                expectedFrom: '1337-10-01T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'current year',
+            {
+                timeframe: 'currentYear',
+                expectedFrom: '1337-01-01T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'previous year',
+            {
+                timeframe: 'previousYear',
+                expectedFrom: '1336-01-01T00:00:00.000Z',
+                expectedTo: '1336-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'last 3 months (clamps month-end overflow)',
+            {
+                timeframe: 'last3Months',
+                expectedFrom: '1337-09-30T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'last 6 months (clamps month-end overflow)',
+            {
+                timeframe: 'last6Months',
+                expectedFrom: '1337-06-30T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+        [
+            'last 12 months',
+            {
+                timeframe: 'last12Months',
+                expectedFrom: '1336-12-31T00:00:00.000Z',
+                expectedTo: '1337-12-31T23:59:59.000Z',
+            },
+        ],
+    ])('should filter correctly for timeframe %s', async (key, timeCase) => {
+        const wrapper = await createDateFilterWithTimeframe();
 
-    Object.entries(cases).forEach(
-        ([
-            key,
-            timeCase,
-        ]) => {
-            it(`should filter correctly for timeframe ${key}`, async () => {
-                const expected = [
-                    [
-                        'releaseDate',
-                        [
-                            {
-                                field: 'releaseDate',
-                                parameters: {
-                                    gte: timeCase.expectedFrom,
-                                    lte: timeCase.expectedTo,
-                                },
-                                type: 'range',
-                            },
-                        ],
-                        {
-                            from: timeCase.expectedFrom,
-                            timeframe: timeCase.timeframe,
-                            to: timeCase.expectedTo,
-                        },
-                    ],
-                ];
+        const timeframe = wrapper.find('.sw-date-filter__timeframe');
+        expect(timeframe.exists()).toBe(true);
 
-                const wrapper = await createWrapper();
+        wrapper.vm.onTimeframeSelect(timeCase.timeframe);
 
-                await wrapper.setProps({
-                    filter: {
-                        property: 'releaseDate',
-                        name: 'releaseDate',
-                        label: 'Release Date',
-                        dateType: 'date',
-                        showTimeframe: true,
-                    },
-                });
-
-                const timeframe = wrapper.find('.sw-date-filter__timeframe');
-                expect(timeframe.exists()).toBe(true);
-
-                wrapper.vm.onTimeframeSelect(timeCase.timeframe);
-
-                expect(wrapper.emitted()['filter-update']).toEqual(expected);
-            });
-        },
-    );
+        expectWrapperToEmitTimeframeRange(wrapper, {
+            timeframe: timeCase.timeframe,
+            from: timeCase.expectedFrom,
+            to: timeCase.expectedTo,
+        });
+    });
 
     describe('today and yesterday', () => {
         it('should snap today boundaries to user timezone day edges', async () => {
             jest.setSystemTime(new Date(2024, 4, 15));
-            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            const wrapper = await createDateFilterWithTimeframe({
+                timezone: 'Europe/Berlin',
             });
 
             wrapper.vm.onTimeframeSelect('today');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-14T22:00:00.000Z',
-                                lte: '2024-05-15T21:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-14T22:00:00.000Z',
-                        timeframe: 'today',
-                        to: '2024-05-15T21:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'today',
+                from: '2024-05-14T22:00:00.000Z',
+                to: '2024-05-15T21:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should compute today from the user timezone when the browser timezone is ahead of UTC', async () => {
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-            Shopware.Store.get('session').setCurrentUser({ timeZone: 'UTC' });
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             const resetTimezone = mockTimezone('Europe/Berlin');
 
             try {
                 wrapper.vm.onTimeframeSelect('today');
 
-                expect(wrapper.emitted()['filter-update']).toEqual([
-                    [
-                        'releaseDate',
-                        [
-                            {
-                                field: 'releaseDate',
-                                parameters: {
-                                    gte: '2020-01-01T00:00:00.000Z',
-                                    lte: '2020-01-01T23:59:59.000Z',
-                                },
-                                type: 'range',
-                            },
-                        ],
-                        {
-                            from: '2020-01-01T00:00:00.000Z',
-                            timeframe: 'today',
-                            to: '2020-01-01T23:59:59.000Z',
-                        },
-                    ],
-                ]);
+                expectWrapperToEmitTimeframeRange(wrapper, {
+                    timeframe: 'today',
+                    from: '2020-01-01T00:00:00.000Z',
+                    to: '2020-01-01T23:59:59.000Z',
+                });
             } finally {
                 resetTimezone();
                 jest.setSystemTime(new Date(1337, 11, 31));
@@ -472,40 +461,15 @@ describe('src/app/component/filter/sw-date-filter', () => {
         it('should roll yesterday into the previous month at month boundaries', async () => {
             jest.setSystemTime(new Date(1338, 0, 1));
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('yesterday');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1337-12-31T00:00:00.000Z',
-                                lte: '1337-12-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1337-12-31T00:00:00.000Z',
-                        timeframe: 'yesterday',
-                        to: '1337-12-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'yesterday',
+                from: '1337-12-31T00:00:00.000Z',
+                to: '1337-12-31T23:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
@@ -516,121 +480,37 @@ describe('src/app/component/filter/sw-date-filter', () => {
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
-        it('should compute current ISO week (Mon-today) when today is mid-week', async () => {
-            jest.setSystemTime(new Date(2024, 4, 15));
+        it.each([
+            [
+                'when today is mid-week',
+                new Date(2024, 4, 15),
+                '2024-05-13T00:00:00.000Z',
+                '2024-05-15T23:59:59.000Z',
+            ],
+            [
+                'when today is Monday',
+                new Date(2024, 4, 13),
+                '2024-05-13T00:00:00.000Z',
+                '2024-05-13T23:59:59.000Z',
+            ],
+            [
+                'when today is Sunday',
+                new Date(2024, 4, 19),
+                '2024-05-13T00:00:00.000Z',
+                '2024-05-19T23:59:59.000Z',
+            ],
+        ])('should compute current ISO week %s', async (label, systemTime, from, to) => {
+            jest.setSystemTime(systemTime);
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
-
-            wrapper.vm.onTimeframeSelect('currentWeek');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-13T00:00:00.000Z',
-                                lte: '2024-05-15T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-13T00:00:00.000Z',
-                        timeframe: 'currentWeek',
-                        to: '2024-05-15T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should yield a single-day window when today is Monday', async () => {
-            jest.setSystemTime(new Date(2024, 4, 13));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('currentWeek');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-13T00:00:00.000Z',
-                                lte: '2024-05-13T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-13T00:00:00.000Z',
-                        timeframe: 'currentWeek',
-                        to: '2024-05-13T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should extend to a full Mon-Sun window when today is Sunday', async () => {
-            jest.setSystemTime(new Date(2024, 4, 19));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'currentWeek',
+                from,
+                to,
             });
-
-            wrapper.vm.onTimeframeSelect('currentWeek');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-13T00:00:00.000Z',
-                                lte: '2024-05-19T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-13T00:00:00.000Z',
-                        timeframe: 'currentWeek',
-                        to: '2024-05-19T23:59:59.000Z',
-                    },
-                ],
-            ]);
         });
     });
 
@@ -642,40 +522,15 @@ describe('src/app/component/filter/sw-date-filter', () => {
         it('should compute current quarter as Jan-today when today is in Q1', async () => {
             jest.setSystemTime(new Date(1337, 1, 15));
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('currentQuarter');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1337-01-01T00:00:00.000Z',
-                                lte: '1337-02-15T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1337-01-01T00:00:00.000Z',
-                        timeframe: 'currentQuarter',
-                        to: '1337-02-15T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'currentQuarter',
+                from: '1337-01-01T00:00:00.000Z',
+                to: '1337-02-15T23:59:59.000Z',
+            });
         });
     });
 
@@ -683,82 +538,33 @@ describe('src/app/component/filter/sw-date-filter', () => {
         it('should compute previous year as Jan 1 -> Dec 31 of last year', async () => {
             jest.setSystemTime(new Date(2024, 4, 15));
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('previousYear');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2023-01-01T00:00:00.000Z',
-                                lte: '2023-12-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2023-01-01T00:00:00.000Z',
-                        timeframe: 'previousYear',
-                        to: '2023-12-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'previousYear',
+                from: '2023-01-01T00:00:00.000Z',
+                to: '2023-12-31T23:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should snap currentYear boundaries to user timezone day edges', async () => {
             jest.setSystemTime(new Date(2024, 4, 15));
-            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            const wrapper = await createDateFilterWithTimeframe({
+                timezone: 'Europe/Berlin',
             });
 
             wrapper.vm.onTimeframeSelect('currentYear');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2023-12-31T23:00:00.000Z',
-                                lte: '2024-05-15T21:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2023-12-31T23:00:00.000Z',
-                        timeframe: 'currentYear',
-                        to: '2024-05-15T21:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'currentYear',
+                from: '2023-12-31T23:00:00.000Z',
+                to: '2024-05-15T21:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
@@ -769,163 +575,57 @@ describe('src/app/component/filter/sw-date-filter', () => {
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
-        it('should clamp last 3 months from May 31 to Feb 29 (not Mar 3) in a leap year', async () => {
-            jest.setSystemTime(new Date(2024, 4, 31));
+        it.each([
+            [
+                'should clamp last 3 months from May 31 to Feb 29 (not Mar 3) in a leap year',
+                new Date(2024, 4, 31),
+                'last3Months',
+                '2024-02-29T00:00:00.000Z',
+                '2024-05-31T23:59:59.000Z',
+            ],
+            [
+                'should clamp last 3 months from May 31 to Feb 28 in a non-leap year',
+                new Date(2023, 4, 31),
+                'last3Months',
+                '2023-02-28T00:00:00.000Z',
+                '2023-05-31T23:59:59.000Z',
+            ],
+            [
+                'should compute last 12 months as the same day one year back when no overflow',
+                new Date(2024, 4, 15),
+                'last12Months',
+                '2023-05-15T00:00:00.000Z',
+                '2024-05-15T23:59:59.000Z',
+            ],
+        ])('%s', async (label, systemTime, timeframe, from, to) => {
+            jest.setSystemTime(systemTime);
 
-            const wrapper = await createWrapper();
+            const wrapper = await createDateFilterWithTimeframe();
 
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            wrapper.vm.onTimeframeSelect(timeframe);
+
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe,
+                from,
+                to,
             });
-
-            wrapper.vm.onTimeframeSelect('last3Months');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-02-29T00:00:00.000Z',
-                                lte: '2024-05-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-02-29T00:00:00.000Z',
-                        timeframe: 'last3Months',
-                        to: '2024-05-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should clamp last 3 months from May 31 to Feb 28 in a non-leap year', async () => {
-            jest.setSystemTime(new Date(2023, 4, 31));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
-
-            wrapper.vm.onTimeframeSelect('last3Months');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2023-02-28T00:00:00.000Z',
-                                lte: '2023-05-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2023-02-28T00:00:00.000Z',
-                        timeframe: 'last3Months',
-                        to: '2023-05-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should compute last 12 months as the same day one year back when no overflow', async () => {
-            jest.setSystemTime(new Date(2024, 4, 15));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
-
-            wrapper.vm.onTimeframeSelect('last12Months');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2023-05-15T00:00:00.000Z',
-                                lte: '2024-05-15T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2023-05-15T00:00:00.000Z',
-                        timeframe: 'last12Months',
-                        to: '2024-05-15T23:59:59.000Z',
-                    },
-                ],
-            ]);
         });
     });
 
     describe('legacy timeframe compatibility', () => {
         it('should alias the legacy lastDay (-1) value to "yesterday" when called programmatically', async () => {
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             global.console.error = jest.fn();
 
             wrapper.vm.onTimeframeSelect(-1);
 
             expect(global.console.error).not.toHaveBeenCalled();
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1337-12-30T00:00:00.000Z',
-                                lte: '1337-12-30T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1337-12-30T00:00:00.000Z',
-                        timeframe: 'yesterday',
-                        to: '1337-12-30T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'yesterday',
+                from: '1337-12-30T00:00:00.000Z',
+                to: '1337-12-30T23:59:59.000Z',
+            });
 
             global.console.error.mockReset();
         });
@@ -933,43 +633,18 @@ describe('src/app/component/filter/sw-date-filter', () => {
         it('should alias the legacy lastYear (-365) value to "last12Months" when called programmatically', async () => {
             jest.setSystemTime(new Date(2024, 4, 15));
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             global.console.error = jest.fn();
 
             wrapper.vm.onTimeframeSelect(-365);
 
             expect(global.console.error).not.toHaveBeenCalled();
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2023-05-15T00:00:00.000Z',
-                                lte: '2024-05-15T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2023-05-15T00:00:00.000Z',
-                        timeframe: 'last12Months',
-                        to: '2024-05-15T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'last12Months',
+                from: '2023-05-15T00:00:00.000Z',
+                to: '2024-05-15T23:59:59.000Z',
+            });
 
             global.console.error.mockReset();
             jest.setSystemTime(new Date(1337, 11, 31));
@@ -1026,17 +701,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
 
         it('should leave unknown legacy timeframe values untouched so they still trigger the console-error guard', async () => {
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             global.console.error = jest.fn();
 
@@ -1051,121 +716,47 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
     describe('lastCalendarMonth', () => {
         it('should compute previous calendar month boundaries', async () => {
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('lastCalendarMonth');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1337-11-01T00:00:00.000Z',
-                                lte: '1337-11-30T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1337-11-01T00:00:00.000Z',
-                        timeframe: 'lastCalendarMonth',
-                        to: '1337-11-30T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastCalendarMonth',
+                from: '1337-11-01T00:00:00.000Z',
+                to: '1337-11-30T23:59:59.000Z',
+            });
         });
 
         it('should roll over to previous year when today is in January', async () => {
             jest.setSystemTime(new Date(1338, 0, 15));
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('lastCalendarMonth');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1337-12-01T00:00:00.000Z',
-                                lte: '1337-12-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1337-12-01T00:00:00.000Z',
-                        timeframe: 'lastCalendarMonth',
-                        to: '1337-12-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastCalendarMonth',
+                from: '1337-12-01T00:00:00.000Z',
+                to: '1337-12-31T23:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should snap boundaries to user timezone day edges', async () => {
             jest.setSystemTime(new Date(2024, 4, 15));
-            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
 
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            const wrapper = await createDateFilterWithTimeframe({
+                timezone: 'Europe/Berlin',
             });
 
             wrapper.vm.onTimeframeSelect('lastCalendarMonth');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-03-31T22:00:00.000Z',
-                                lte: '2024-04-30T21:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-03-31T22:00:00.000Z',
-                        timeframe: 'lastCalendarMonth',
-                        to: '2024-04-30T21:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastCalendarMonth',
+                from: '2024-03-31T22:00:00.000Z',
+                to: '2024-04-30T21:59:59.000Z',
+            });
 
             jest.setSystemTime(new Date(1337, 11, 31));
         });
@@ -1180,158 +771,36 @@ describe('src/app/component/filter/sw-date-filter', () => {
             jest.setSystemTime(new Date(1337, 11, 31));
         });
 
-        it('should compute previous ISO calendar week (Mon-Sun) when today is mid-week', async () => {
-            const wrapper = await createWrapper();
+        it.each([
+            ['when today is mid-week', new Date(2024, 4, 15)],
+            ['when today is Monday', new Date(2024, 4, 13)],
+            ['when today is Sunday', new Date(2024, 4, 19)],
+        ])('should compute previous calendar week %s', async (label, systemTime) => {
+            jest.setSystemTime(systemTime);
 
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('lastCalendarWeek');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-06T00:00:00.000Z',
-                                lte: '2024-05-12T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-06T00:00:00.000Z',
-                        timeframe: 'lastCalendarWeek',
-                        to: '2024-05-12T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should compute previous calendar week when today is Monday', async () => {
-            jest.setSystemTime(new Date(2024, 4, 13));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastCalendarWeek',
+                from: '2024-05-06T00:00:00.000Z',
+                to: '2024-05-12T23:59:59.000Z',
             });
-
-            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-06T00:00:00.000Z',
-                                lte: '2024-05-12T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-06T00:00:00.000Z',
-                        timeframe: 'lastCalendarWeek',
-                        to: '2024-05-12T23:59:59.000Z',
-                    },
-                ],
-            ]);
-        });
-
-        it('should compute previous calendar week when today is Sunday', async () => {
-            jest.setSystemTime(new Date(2024, 4, 19));
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
-
-            wrapper.vm.onTimeframeSelect('lastCalendarWeek');
-
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-06T00:00:00.000Z',
-                                lte: '2024-05-12T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-06T00:00:00.000Z',
-                        timeframe: 'lastCalendarWeek',
-                        to: '2024-05-12T23:59:59.000Z',
-                    },
-                ],
-            ]);
         });
 
         it('should snap boundaries to user timezone day edges', async () => {
-            Shopware.Store.get('session').setCurrentUser({ timeZone: 'Europe/Berlin' });
-
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
+            const wrapper = await createDateFilterWithTimeframe({
+                timezone: 'Europe/Berlin',
             });
 
             wrapper.vm.onTimeframeSelect('lastCalendarWeek');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '2024-05-05T22:00:00.000Z',
-                                lte: '2024-05-12T21:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '2024-05-05T22:00:00.000Z',
-                        timeframe: 'lastCalendarWeek',
-                        to: '2024-05-12T21:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastCalendarWeek',
+                from: '2024-05-05T22:00:00.000Z',
+                to: '2024-05-12T21:59:59.000Z',
+            });
         });
     });
 
@@ -1345,55 +814,20 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
 
         it('should compute last quarter as Oct-Dec of the previous year', async () => {
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                },
-            });
+            const wrapper = await createDateFilterWithTimeframe();
 
             wrapper.vm.onTimeframeSelect('lastQuarter');
 
-            expect(wrapper.emitted()['filter-update']).toEqual([
-                [
-                    'releaseDate',
-                    [
-                        {
-                            field: 'releaseDate',
-                            parameters: {
-                                gte: '1336-10-01T00:00:00.000Z',
-                                lte: '1336-12-31T23:59:59.000Z',
-                            },
-                            type: 'range',
-                        },
-                    ],
-                    {
-                        from: '1336-10-01T00:00:00.000Z',
-                        timeframe: 'lastQuarter',
-                        to: '1336-12-31T23:59:59.000Z',
-                    },
-                ],
-            ]);
+            expectWrapperToEmitTimeframeRange(wrapper, {
+                timeframe: 'lastQuarter',
+                from: '1336-10-01T00:00:00.000Z',
+                to: '1336-12-31T23:59:59.000Z',
+            });
         });
     });
 
     it('should console.error for invalid timeframe', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setProps({
-            filter: {
-                property: 'releaseDate',
-                name: 'releaseDate',
-                label: 'Release Date',
-                dateType: 'date',
-                showTimeframe: true,
-            },
-        });
+        const wrapper = await createDateFilterWithTimeframe();
 
         const timeframe = wrapper.find('.sw-date-filter__timeframe');
         expect(timeframe.exists()).toBeTruthy();

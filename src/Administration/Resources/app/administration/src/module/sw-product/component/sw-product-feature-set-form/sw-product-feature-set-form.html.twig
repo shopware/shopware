@@ -8,6 +8,9 @@
         class="sw-product-feature-set-form__description"
     >
 
+        {% block sw_product_feature_set_form_description_title %}
+        {% endblock %}
+
         {% block sw_product_feature_set_form_description_body %}
         <p class="sw-product-feature-set-form__description-body">
             {{ $t('sw-product.featureSets.descriptionBody') }}

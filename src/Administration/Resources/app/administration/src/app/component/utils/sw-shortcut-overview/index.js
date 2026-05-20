@@ -99,8 +99,7 @@ export default {
                         id: utils.createId(),
                         title: this.$t('sw-shortcut-overview.functionSpecialShortcutClearCache'),
                         content: this.$t(
-                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCache' +
-                                this.platformShortcutSuffix,
+                            'sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCache' + this.platformShortcutSuffix,
                         ),
                         privilege: 'system.clear_cache',
                     },

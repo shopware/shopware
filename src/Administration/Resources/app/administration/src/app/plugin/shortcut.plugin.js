@@ -3,8 +3,6 @@
  */
 
 const keystrokeDelay = 1000;
-const debounce = Shopware.Utils.debounce;
-
 /**
  * @private
  */
@@ -25,7 +23,7 @@ export default {
             };
         }
 
-        const resetShortcutStateDebounced = debounce(resetShortcutState, keystrokeDelay);
+        const resetShortcutStateDebounced = Shopware.Utils.debounce(resetShortcutState, keystrokeDelay);
 
         function isSystemShortcut(shortcutKey) {
             return /SYSTEMKEY/.test(shortcutKey);
@@ -69,11 +67,7 @@ export default {
             const hasLongerSequence = activeShortcuts.some((shortcut) => {
                 const registeredKey = shortcut.key.toUpperCase();
 
-                return (
-                    !isSystemShortcut(registeredKey) &&
-                    registeredKey.startsWith(sequence) &&
-                    registeredKey !== sequence
-                );
+                return !isSystemShortcut(registeredKey) && registeredKey.startsWith(sequence) && registeredKey !== sequence;
             });
 
             if (hasLongerSequence) {

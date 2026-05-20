@@ -48,6 +48,7 @@
         </section>
         {% endblock %}
 
+        {% block sw_shortcut_overview_modal_section_special_shortcuts %}
         {% block sw_shortcut_overview_modal_section_accessibility %}
         <section class="sw-shortcut-overview__section sw-shortcut-overview__section-accessibility">
             <h3>{{ $t('sw-shortcut-overview.sectionAccessibility') }}</h3>
@@ -59,6 +60,7 @@
                 :privilege="section.privilege"
             />
         </section>
+        {% endblock %}
         {% endblock %}
 
         {% block sw_shortcut_overview_modal_footer %}

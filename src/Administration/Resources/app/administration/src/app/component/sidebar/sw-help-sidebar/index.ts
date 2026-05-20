@@ -83,9 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
 
             return [
-                '<b class="sw-help-sidebar__tooltip-title">' +
-                    this.$t('sw-shortcut-overview.title') +
-                    '</b>',
+                '<b class="sw-help-sidebar__tooltip-title">' + this.$t('sw-shortcut-overview.title') + '</b>',
                 shortcutKeys.join(' '),
             ].join(' ');
         },

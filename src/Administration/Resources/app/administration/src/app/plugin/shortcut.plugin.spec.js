@@ -19,10 +19,11 @@ import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-button';
 
-Shopware.Utils.debounce = function debounce(fn) {
-    return function execFunction(...args) {
-        fn.apply(this, args);
-    };
+Shopware.Utils.debounce = function debounce() {
+    const execFunction = jest.fn();
+    execFunction.cancel = jest.fn();
+
+    return execFunction;
 };
 
 const createWrapper = async (componentOverride = {}) => {

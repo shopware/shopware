@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_7;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -35,9 +34,9 @@ class Migration1779173129RepairRevocationRequestCmsPageVersion extends Migration
 
     public function update(Connection $connection): void
     {
-        // Re-run the fixed migration first. It now writes
+        // Re-run a copy of the fixed migration first. It now writes
         // all CMS version columns explicitly with Defaults::LIVE_VERSION.
-        (new Migration1768545320RevocationRequestCmsForm())->update($connection);
+        $this->fixMigration($connection);
 
         $liveRevocationPageByteId = $this->getLiveRevocationPageId($connection);
         if ($liveRevocationPageByteId === null) {
@@ -99,7 +98,6 @@ SQL,
                 'name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'],
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
-            ['versionId' => ParameterType::BINARY]
         );
 
         if (!\is_string($pageByteId)) {
@@ -110,7 +108,7 @@ SQL,
     }
 
     /**
-     * @return array{id: mixed, configuration_value: mixed}|null
+     * @return array{id: string, configuration_value: mixed}|null
      */
     private function getGlobalRevocationPageConfiguration(Connection $connection): ?array
     {
@@ -123,8 +121,13 @@ SQL,
             return null;
         }
 
+        $id = $configuration['id'] ?? null;
+        if (!\is_string($id)) {
+            return null;
+        }
+
         return [
-            'id' => $configuration['id'] ?? null,
+            'id' => $id,
             'configuration_value' => $configuration['configuration_value'] ?? null,
         ];
     }
@@ -164,10 +167,6 @@ SQL,
                 'id' => Uuid::fromHexToBytes($cmsPageId),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
-            [
-                'id' => ParameterType::BINARY,
-                'versionId' => ParameterType::BINARY,
-            ]
         );
     }
 
@@ -205,5 +204,282 @@ SQL,
     private function createPageConfigurationValue(string $pageByteId): string
     {
         return json_encode(['_value' => Uuid::fromBytesToHex($pageByteId)], \JSON_THROW_ON_ERROR);
+    }
+
+    private function fixMigration(Connection $connection): void
+    {
+        $enLanguageByteId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLanguageByteId = $this->getLanguageIdByLocale($connection, 'de-DE');
+        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteId, $deLanguageByteId);
+        $cmsSectionByteId = $this->createCmsSection($connection, $cmsPageByteId, $versionByteId);
+        $cmsBlockByteId = $this->createCmsBlock($connection, $cmsSectionByteId, $versionByteId);
+        $this->createCmsSlot($connection, $cmsBlockByteId, $versionByteId, $enLanguageByteId, $deLanguageByteId);
+    }
+
+    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
+    {
+        $sql = <<<'SQL'
+SELECT `language`.`id`
+FROM `language`
+INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
+WHERE `locale`.`code` = :code
+SQL;
+
+        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchOne();
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
+        if (!$languageId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        }
+
+        return $languageId;
+    }
+
+    private function createCmsPage(Connection $connection, string $versionByteId, ?string $enLanguageByteId, ?string $deLanguageByteId): string
+    {
+        $cmsPageByteId = $this->getCmsPageId($connection, $versionByteId);
+        if ($cmsPageByteId !== null) {
+            return $cmsPageByteId;
+        }
+
+        $cmsPageByteId = Uuid::randomBytes();
+
+        $connection->insert(
+            'cms_page',
+            [
+                'id' => $cmsPageByteId,
+                'version_id' => $versionByteId,
+                'type' => 'page',
+                'locked' => 1,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        if ($enLanguageByteId !== null) {
+            $connection->insert(
+                'cms_page_translation',
+                [
+                    'cms_page_id' => $cmsPageByteId,
+                    'cms_page_version_id' => $versionByteId,
+                    'language_id' => $enLanguageByteId,
+                    'name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
+            $connection->insert(
+                'cms_page_translation',
+                [
+                    'cms_page_id' => $cmsPageByteId,
+                    'cms_page_version_id' => $versionByteId,
+                    'language_id' => $deLanguageByteId,
+                    'name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['de_name'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        return $cmsPageByteId;
+    }
+
+    private function createCmsSection(Connection $connection, string $cmsPageByteId, string $versionByteId): string
+    {
+        $cmsSectionByteId = $this->getCmsSectionId($connection, $cmsPageByteId, $versionByteId);
+        if ($cmsSectionByteId !== null) {
+            return $cmsSectionByteId;
+        }
+        $cmsSectionByteId = Uuid::randomBytes();
+
+        $connection->insert(
+            'cms_section',
+            [
+                'id' => $cmsSectionByteId,
+                'version_id' => $versionByteId,
+                'cms_page_id' => $cmsPageByteId,
+                'cms_page_version_id' => $versionByteId,
+                'position' => 0,
+                'type' => 'default',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        return $cmsSectionByteId;
+    }
+
+    private function createCmsBlock(Connection $connection, string $cmsSectionByteId, string $versionByteId): string
+    {
+        $cmsBlockByteId = $this->getCmsBlockId($connection, $cmsSectionByteId, $versionByteId);
+        if ($cmsBlockByteId !== null) {
+            return $cmsBlockByteId;
+        }
+        $cmsBlockByteId = Uuid::randomBytes();
+
+        $connection->insert(
+            'cms_block',
+            [
+                'id' => $cmsBlockByteId,
+                'version_id' => $versionByteId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'cms_section_id' => $cmsSectionByteId,
+                'cms_section_version_id' => $versionByteId,
+                'locked' => 1,
+                'position' => 1,
+                'type' => 'form',
+                'name' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME,
+                'margin_top' => '20px',
+                'margin_bottom' => '20px',
+                'margin_left' => '20px',
+                'margin_right' => '20px',
+                'background_media_mode' => 'cover',
+            ]
+        );
+
+        return $cmsBlockByteId;
+    }
+
+    private function createCmsSlot(
+        Connection $connection,
+        string $cmsBlockByteId,
+        string $versionByteId,
+        ?string $enLanguageByteId,
+        ?string $deLanguageByteId
+    ): void {
+        $cmsSlotByteId = $this->getCmsSlotId($connection, $cmsBlockByteId, $versionByteId);
+        if ($cmsSlotByteId !== null) {
+            return;
+        }
+        $cmsSlotByteId = Uuid::randomBytes();
+
+        $connection->insert(
+            'cms_slot',
+            [
+                'id' => $cmsSlotByteId,
+                'locked' => 1,
+                'cms_block_id' => $cmsBlockByteId,
+                'cms_block_version_id' => $versionByteId,
+                'type' => 'form',
+                'slot' => 'content',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'version_id' => $versionByteId,
+            ]
+        );
+
+        if ($enLanguageByteId !== null) {
+            $connection->insert(
+                'cms_slot_translation',
+                [
+                    'cms_slot_id' => $cmsSlotByteId,
+                    'cms_slot_version_id' => $versionByteId,
+                    'language_id' => $enLanguageByteId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'config' => json_encode([
+                        'type' => ['source' => 'static', 'value' => Migration1768545320RevocationRequestCmsForm::CMS_SLOT_TYPE],
+                        'mailReceiver' => ['source' => 'static', 'value' => []],
+                        'confirmationText' => ['source' => 'static', 'value' => ''],
+                    ], \JSON_THROW_ON_ERROR),
+                ]
+            );
+        }
+
+        if ($deLanguageByteId !== null && $deLanguageByteId !== $enLanguageByteId) {
+            $connection->insert(
+                'cms_slot_translation',
+                [
+                    'cms_slot_id' => $cmsSlotByteId,
+                    'cms_slot_version_id' => $versionByteId,
+                    'language_id' => $deLanguageByteId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'config' => json_encode([
+                        'type' => ['source' => 'static', 'value' => Migration1768545320RevocationRequestCmsForm::CMS_SLOT_TYPE],
+                        'mailReceiver' => ['source' => 'static', 'value' => []],
+                        'confirmationText' => ['source' => 'static', 'value' => ''],
+                    ], \JSON_THROW_ON_ERROR),
+                ]
+            );
+        }
+    }
+
+    private function getCmsPageId(Connection $connection, string $versionByteId): ?string
+    {
+        $sql = <<<'SQL'
+SELECT `id` 
+FROM `cms_page` AS `page`
+INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_translation`.`cms_page_id`
+    AND `page`.`version_id` = `page_translation`.`cms_page_version_id`
+WHERE `page`.`version_id` = :versionId
+    AND page_translation.name = :name
+SQL;
+
+        $cmsPageByteId = $connection->executeQuery(
+            $sql,
+            [
+                'name' => Migration1768545320RevocationRequestCmsForm::CMS_PAGE_TRANSLATIONS['en_name'],
+                'versionId' => $versionByteId,
+            ]
+        )->fetchOne();
+
+        if (!\is_string($cmsPageByteId)) {
+            return null;
+        }
+
+        return $cmsPageByteId;
+    }
+
+    private function getCmsSectionId(Connection $connection, string $cmsPageByteId, string $versionByteId): ?string
+    {
+        $cmsSectionByteId = $connection->executeQuery(
+            'SELECT `id` FROM `cms_section` WHERE `cms_page_id` = :cmsPageId AND `cms_page_version_id` = :versionId AND `version_id` = :versionId',
+            [
+                'cmsPageId' => $cmsPageByteId,
+                'versionId' => $versionByteId,
+            ]
+        )->fetchOne();
+
+        if (!\is_string($cmsSectionByteId)) {
+            return null;
+        }
+
+        return $cmsSectionByteId;
+    }
+
+    private function getCmsBlockId(Connection $connection, string $cmsSectionByteId, string $versionByteId): ?string
+    {
+        $cmsBlockByteId = $connection->executeQuery(
+            'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName AND `cms_section_id` = :cmsSectionId AND `cms_section_version_id` = :versionId AND `version_id` = :versionId',
+            [
+                'cmsBlockName' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME,
+                'cmsSectionId' => $cmsSectionByteId,
+                'versionId' => $versionByteId,
+            ]
+        )->fetchOne();
+
+        if (!\is_string($cmsBlockByteId)) {
+            return null;
+        }
+
+        return $cmsBlockByteId;
+    }
+
+    private function getCmsSlotId(Connection $connection, string $cmsBlockByteId, string $versionByteId): ?string
+    {
+        $cmsSlotByteId = $connection->executeQuery(
+            'SELECT `id` FROM `cms_slot` WHERE `cms_block_id` = :cmsBlockId AND `cms_block_version_id` = :versionId AND `version_id` = :versionId',
+            [
+                'cmsBlockId' => $cmsBlockByteId,
+                'versionId' => $versionByteId,
+            ]
+        )->fetchOne();
+
+        if (!\is_string($cmsSlotByteId)) {
+            return null;
+        }
+
+        return $cmsSlotByteId;
     }
 }

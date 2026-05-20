@@ -113,11 +113,13 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -578,5 +580,24 @@
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener">
+            <argument>%kernel.environment%</argument>
+            <tag name="kernel.event_listener" />
+        </service>
+
+        <service id="Shopware\Storefront\Storybook\StorybookService">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
     </services>
 </container>

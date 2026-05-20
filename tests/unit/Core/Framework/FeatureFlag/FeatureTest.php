@@ -61,14 +61,6 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($this->registeredFeaturesBackup);
     }
 
-    private function unsetFixtureEnv(): void
-    {
-        foreach ($this->fixtureFlags as $flag) {
-            unset($_SERVER[$flag], $_ENV[$flag]);
-            putenv($flag);
-        }
-    }
-
     public function testABoolGetsReturned(): void
     {
         $this->setUpFixtures();
@@ -139,6 +131,7 @@ class FeatureTest extends TestCase
     public function testTwigFeatureFlag(): void
     {
         $this->setUpFixtures();
+        $this->registerTwigOptimizationFlag();
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
             'cache' => false,
@@ -153,6 +146,8 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
+        $this->registerTwigOptimizationFlag();
+
         set_error_handler(static function (int $errno, string $errstr): never {
             throw new \Exception($errstr, $errno);
         }, \E_USER_WARNING);
@@ -178,6 +173,7 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
     {
+        $this->registerTwigOptimizationFlag();
         $this->setEnvVars(['APP_ENV' => 'prod']);
 
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
@@ -586,6 +582,23 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($featureConfig);
 
         static::assertSame(Feature::isActive($feature), $expected);
+    }
+
+    private function unsetFixtureEnv(): void
+    {
+        foreach ($this->fixtureFlags as $flag) {
+            unset($_SERVER[$flag], $_ENV[$flag]);
+            putenv($flag);
+        }
+    }
+
+    private function registerTwigOptimizationFlag(): void
+    {
+        if (Feature::has('TWIG_COMPILE_TIME_OPTIMIZATION')) {
+            return;
+        }
+
+        Feature::registerFeature('TWIG_COMPILE_TIME_OPTIMIZATION', ['default' => false]);
     }
 
     private function setUpFixtures(): void

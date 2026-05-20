@@ -49,19 +49,24 @@ async function createWrapper() {
     });
 }
 
+function createDateTimeframeFilter(overrides = {}) {
+    return {
+        property: 'releaseDate',
+        name: 'releaseDate',
+        label: 'Release Date',
+        dateType: 'date',
+        showTimeframe: true,
+        ...overrides,
+    };
+}
+
 async function createDateFilterWithTimeframe({ timezone = 'UTC' } = {}) {
     Shopware.Store.get('session').setCurrentUser({ timeZone: timezone });
 
     const wrapper = await createWrapper();
 
     await wrapper.setProps({
-        filter: {
-            property: 'releaseDate',
-            name: 'releaseDate',
-            label: 'Release Date',
-            dateType: 'date',
-            showTimeframe: true,
-        },
+        filter: createDateTimeframeFilter(),
     });
 
     return wrapper;
@@ -94,6 +99,10 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
     beforeEach(() => {
         Shopware.Store.get('session').setCurrentUser({ timeZone: 'UTC' });
+    });
+
+    afterEach(() => {
+        jest.setSystemTime(new Date(1337, 11, 31));
     });
 
     afterAll(() => {
@@ -199,40 +208,34 @@ describe('src/app/component/filter/sw-date-filter', () => {
         ]);
     });
 
-    it('should emit `filter-reset` event when user clicks Reset button when from value exists', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            dateValue: {
+    it.each([
+        [
+            'from',
+            {
                 from: '2021-01-22',
                 to: null,
                 timeframe: null,
             },
-        });
-
-        // Trigger click Reset button
-        await wrapper.find('.sw-base-filter__reset').trigger('click');
-
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-        expect(wrapper.vm.dateValue.from).toBeNull();
-    });
-
-    it('should emit `filter-reset` event when user clicks Reset button when to value exists', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setData({
-            dateValue: {
+        ],
+        [
+            'to',
+            {
                 from: null,
                 to: '2021-02-01',
                 timeframe: null,
             },
+        ],
+    ])('should emit `filter-reset` event when user clicks Reset button when %s value exists', async (property, dateValue) => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            dateValue,
         });
 
-        // Trigger click Reset button
         await wrapper.find('.sw-base-filter__reset').trigger('click');
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-        expect(wrapper.vm.dateValue.to).toBeNull();
+        expect(wrapper.vm.dateValue[property]).toBeNull();
     });
 
     it('should return default dateType of sw-datepicker', async () => {
@@ -292,13 +295,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            filter: {
-                property: 'releaseDate',
-                name: 'releaseDate',
-                label: 'Release Date',
-                dateType: 'date',
-                showTimeframe: true,
-            },
+            filter: createDateTimeframeFilter(),
         });
 
         const timeframe = wrapper.find('.sw-date-filter__timeframe');
@@ -434,7 +431,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '2024-05-15T21:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should compute today from the user timezone when the browser timezone is ahead of UTC', async () => {
@@ -454,7 +450,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 });
             } finally {
                 resetTimezone();
-                jest.setSystemTime(new Date(1337, 11, 31));
             }
         });
 
@@ -471,15 +466,10 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '1337-12-31T23:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
     });
 
     describe('currentWeek', () => {
-        afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
-        });
-
         it.each([
             [
                 'when today is mid-week',
@@ -515,10 +505,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
     });
 
     describe('currentQuarter', () => {
-        afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
-        });
-
         it('should compute current quarter as Jan-today when today is in Q1', async () => {
             jest.setSystemTime(new Date(1337, 1, 15));
 
@@ -548,7 +534,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '2023-12-31T23:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should snap currentYear boundaries to user timezone day edges', async () => {
@@ -566,15 +551,10 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '2024-05-15T21:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
     });
 
     describe('lastNMonths month-end overflow', () => {
-        afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
-        });
-
         it.each([
             [
                 'should clamp last 3 months from May 31 to Feb 29 (not Mar 3) in a leap year',
@@ -647,57 +627,43 @@ describe('src/app/component/filter/sw-date-filter', () => {
             });
 
             global.console.error.mockReset();
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
-        it('should rewrite a persisted lastDay (-1) timeframe to "yesterday" without touching from/to', async () => {
+        it.each([
+            [
+                'lastDay (-1)',
+                {
+                    from: '1337-12-30T00:00:00.000Z',
+                    to: '1337-12-31T23:59:59.000Z',
+                    timeframe: -1,
+                },
+                {
+                    from: '1337-12-30T00:00:00.000Z',
+                    to: '1337-12-31T23:59:59.000Z',
+                    timeframe: 'yesterday',
+                },
+            ],
+            [
+                'lastYear (-365)',
+                {
+                    from: '1336-12-31T00:00:00.000Z',
+                    to: '1337-12-31T23:59:59.000Z',
+                    timeframe: -365,
+                },
+                {
+                    from: '1336-12-31T00:00:00.000Z',
+                    to: '1337-12-31T23:59:59.000Z',
+                    timeframe: 'last12Months',
+                },
+            ],
+        ])('should rewrite a persisted %s timeframe without touching from/to', async (label, value, expectedDateValue) => {
             const wrapper = await createWrapper();
 
             await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                    value: {
-                        from: '1337-12-30T00:00:00.000Z',
-                        to: '1337-12-31T23:59:59.000Z',
-                        timeframe: -1,
-                    },
-                },
+                filter: createDateTimeframeFilter({ value }),
             });
 
-            expect(wrapper.vm.dateValue).toEqual({
-                from: '1337-12-30T00:00:00.000Z',
-                to: '1337-12-31T23:59:59.000Z',
-                timeframe: 'yesterday',
-            });
-        });
-
-        it('should rewrite a persisted lastYear (-365) timeframe to "last12Months" without touching from/to', async () => {
-            const wrapper = await createWrapper();
-
-            await wrapper.setProps({
-                filter: {
-                    property: 'releaseDate',
-                    name: 'releaseDate',
-                    label: 'Release Date',
-                    dateType: 'date',
-                    showTimeframe: true,
-                    value: {
-                        from: '1336-12-31T00:00:00.000Z',
-                        to: '1337-12-31T23:59:59.000Z',
-                        timeframe: -365,
-                    },
-                },
-            });
-
-            expect(wrapper.vm.dateValue).toEqual({
-                from: '1336-12-31T00:00:00.000Z',
-                to: '1337-12-31T23:59:59.000Z',
-                timeframe: 'last12Months',
-            });
+            expect(wrapper.vm.dateValue).toEqual(expectedDateValue);
         });
 
         it('should leave unknown legacy timeframe values untouched so they still trigger the console-error guard', async () => {
@@ -740,7 +706,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '1337-12-31T23:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should snap boundaries to user timezone day edges', async () => {
@@ -758,17 +723,12 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 to: '2024-04-30T21:59:59.000Z',
             });
 
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
     });
 
     describe('lastCalendarWeek', () => {
         beforeEach(() => {
             jest.setSystemTime(new Date(2024, 4, 15));
-        });
-
-        afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it.each([
@@ -807,10 +767,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
     describe('lastQuarter boundary when today is in Q1', () => {
         beforeEach(() => {
             jest.setSystemTime(new Date(1337, 1, 15));
-        });
-
-        afterEach(() => {
-            jest.setSystemTime(new Date(1337, 11, 31));
         });
 
         it('should compute last quarter as Oct-Dec of the previous year', async () => {

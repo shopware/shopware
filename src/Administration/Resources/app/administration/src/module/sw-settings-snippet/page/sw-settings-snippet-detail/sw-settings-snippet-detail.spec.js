@@ -92,6 +92,8 @@ function getSnippets() {
     return data;
 }
 
+const saveMock = jest.fn(() => Promise.resolve());
+
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     async function createWrapper(privileges = []) {
         return mount(
@@ -123,7 +125,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                             create: () => ({
                                 search: () => Promise.resolve(getSnippetSets()),
                                 create: () => Promise.resolve(),
-                                save: () => Promise.resolve(),
+                                save: saveMock,
                             }),
                         },
                         acl: {
@@ -276,5 +278,31 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                 page: 1,
             }),
         );
+    });
+
+    it('should skip non-saveable snippets', async () => {
+        const wrapper = await createWrapper('snippet.viewer');
+        wrapper.vm.snippets = [
+            {
+                value: 'foo',
+                origin: null,
+            },
+            {
+                value: null,
+                origin: null,
+            },
+            {
+                value: null,
+                origin: 'bar',
+            },
+            {
+                value: ' ',
+                origin: null,
+            },
+        ];
+
+        wrapper.vm.onSave();
+
+        expect(saveMock).toHaveBeenCalledTimes(3);
     });
 });

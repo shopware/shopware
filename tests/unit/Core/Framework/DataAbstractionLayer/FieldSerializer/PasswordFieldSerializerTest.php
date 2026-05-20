@@ -27,6 +27,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -67,6 +68,43 @@ class PasswordFieldSerializerTest extends TestCase
         $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
 
         $this->serializer->encode($field, $existence, $kv, $params)->getReturn();
+    }
+
+    public function testEncodeAllowsNullForOptionalField(): void
+    {
+        $field = new PasswordField('password', 'password');
+        $kv = new KeyValuePair($field->getPropertyName(), null, true);
+        $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+
+        $encoded = iterator_to_array($this->createSerializerWithRealValidator()->encode(
+            $field,
+            EntityExistence::createEmpty(),
+            $kv,
+            $params
+        ));
+
+        static::assertSame(['password' => null], $encoded);
+    }
+
+    #[DataProvider('requiredExistenceProvider')]
+    public function testRequiredPasswordReportsNotBlankViolation(bool $exists): void
+    {
+        $field = (new PasswordField('password', 'password'))->addFlags(new Required());
+        $kv = new KeyValuePair($field->getPropertyName(), null, true);
+        $params = new WriteParameterBag(new ProductDefinition(), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+
+        try {
+            iterator_to_array($this->createSerializerWithRealValidator()->encode(
+                $field,
+                new EntityExistence(null, [], $exists, false, false, []),
+                $kv,
+                $params
+            ));
+
+            static::fail(WriteConstraintViolationException::class . ' not thrown.');
+        } catch (WriteConstraintViolationException $exception) {
+            static::assertCount(1, $exception->getViolations()->findByCodes(NotBlank::IS_BLANK_ERROR));
+        }
     }
 
     /**
@@ -176,5 +214,25 @@ class PasswordFieldSerializerTest extends TestCase
             false,
             password_hash('over8characters', \PASSWORD_DEFAULT),
         ];
+    }
+
+    /**
+     * @return array<string, array{bool}>
+     */
+    public static function requiredExistenceProvider(): array
+    {
+        return [
+            'insert' => [false],
+            'update' => [true],
+        ];
+    }
+
+    private function createSerializerWithRealValidator(): PasswordFieldSerializer
+    {
+        return new PasswordFieldSerializer(
+            Validation::createValidator(),
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->systemConfigService
+        );
     }
 }

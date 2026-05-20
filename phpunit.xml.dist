@@ -143,6 +143,7 @@
             <directory>tests/integration/Core/Framework/Api</directory>
             <directory>tests/integration/Core/Framework/App</directory>
             <directory>tests/integration/Core/Framework/CustomField</directory>
+            <directory>tests/integration/Core/Framework/Mcp</directory>
             <directory>tests/integration/Core/Framework/Validation</directory>
         </testsuite>
 
@@ -170,7 +171,6 @@
             <directory>tests/integration/Core/Framework/Telemetry</directory>
             <directory>tests/integration/Core/Framework/TestCaseBase</directory>
             <directory>tests/integration/Core/Framework/Translation</directory>
-            <directory>tests/integration/Core/Framework/Update</directory>
             <directory>tests/integration/Core/Framework/Util</directory>
             <directory>tests/integration/Core/Framework/Webhook</directory>
         </testsuite>

@@ -44,6 +44,11 @@ class Migration1691662140MigrateAvailableStockTest extends TestCase
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1691662140, (new Migration1691662140MigrateAvailableStock())->getCreationTimestamp());
+    }
+
     public function testStockMigration(): void
     {
         $expected = [

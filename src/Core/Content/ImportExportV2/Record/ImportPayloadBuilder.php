@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExportV2\Record;
 
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
+use Shopware\Core\Content\ImportExportV2\Service\CurrencyCodeProvider;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -28,6 +30,7 @@ use Shopware\Core\Framework\Log\Package;
  * associations and to apply import-specific rules exactly where they appear:
  * - `translations.DEFAULT.*` becomes the system language id
  * - locale-code translations like `translations.de-DE.*` are kept because DAL already normalizes them
+ * - `price.EUR.*` and `price.DEFAULT.*` rebuild one `PriceField` row list
  * - `manyToOne.id` becomes the foreign-key field like `taxId`
  *
  * Example record payload:
@@ -75,8 +78,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class ImportPayloadBuilder
 {
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly CurrencyCodeProvider $currencyCodeProvider
+    ) {
     }
 
     /**
@@ -126,6 +131,7 @@ class ImportPayloadBuilder
      * nested associations can still use special handling such as:
      * - `translations.DEFAULT.*`, which becomes the system language id
      * - `translations.de-DE.*`, which is left as a locale-code key for DAL
+     * - `price.EUR.*` and `price.DEFAULT.*` for real `PriceField`s
      * - `manyToOne.id`, which becomes the DAL foreign-key field like `taxId`
      *
      * The current `$source` node always belongs to the current `$definition`.
@@ -192,6 +198,12 @@ class ImportPayloadBuilder
         }
 
         $field = $definition->getFields()->get($segment);
+        if ($field instanceof PriceField) {
+            $this->writePriceSegments($target, $segment, $value, $segments);
+
+            return;
+        }
+
         if ($field instanceof ManyToOneAssociationField && $segments === ['id']) {
             $fkField = $definition->getFields()->getByStorageName($field->getStorageName());
 
@@ -300,6 +312,81 @@ class ImportPayloadBuilder
         $target['translations'] = $translations;
     }
 
+    /**
+     * Rewrites one `price.<currency-code>` segment into the DAL `PriceField`
+     * row-list shape with `currencyId`.
+     *
+     * Example:
+     * - `price.DEFAULT.net`
+     *   becomes `price[0].currencyId = <default-currency-id>, price[0].net = ...`
+     * - `price.EUR.gross`
+     *   becomes one EUR row with `currencyId = <eur-id>`
+     *
+     * @param array<string, mixed> $target
+     * @param array<int, string> $segments
+     */
+    private function writePriceSegments(array &$target, string $fieldName, mixed $source, array $segments): void
+    {
+        if (!\is_array($source)) {
+            return;
+        }
+
+        $currencyCode = array_shift($segments);
+        if (!\is_string($currencyCode) || $currencyCode === '' || !\array_key_exists($currencyCode, $source)) {
+            return;
+        }
+
+        $currencyId = $currencyCode === 'DEFAULT'
+            ? Defaults::CURRENCY
+            : $this->currencyCodeProvider->getCurrencyIdByCode($currencyCode);
+
+        if ($currencyId === null) {
+            return;
+        }
+
+        $currencySource = $source[$currencyCode];
+        if ($currencySource === null || $currencySource === []) {
+            return;
+        }
+
+        $prices = isset($target[$fieldName]) && \is_array($target[$fieldName]) ? $target[$fieldName] : [];
+        $rowIndex = $this->findPriceRowIndex($prices, $currencyId);
+
+        if ($rowIndex === null) {
+            $rowIndex = \count($prices);
+            $prices[$rowIndex] = ['currencyId' => $currencyId];
+        }
+
+        $priceRow = \is_array($prices[$rowIndex]) ? $prices[$rowIndex] : ['currencyId' => $currencyId];
+        $priceRow['currencyId'] = $currencyId;
+
+        if ($segments === []) {
+            if (\is_array($currencySource)) {
+                $priceRow = array_replace($priceRow, $currencySource);
+                $priceRow['currencyId'] = $currencyId;
+            }
+
+            $prices[$rowIndex] = $priceRow;
+            $target[$fieldName] = array_values($prices);
+
+            return;
+        }
+
+        if (!\is_array($currencySource)) {
+            return;
+        }
+
+        $value = RecordPathWalker::readValue($currencySource, implode('.', $segments));
+        if ($value === null || $value === []) {
+            return;
+        }
+
+        RecordPathWalker::writeValue($priceRow, implode('.', $segments), $value);
+
+        $prices[$rowIndex] = $priceRow;
+        $target[$fieldName] = array_values($prices);
+    }
+
     private function resolveAssociationDefinition(AssociationField $field): ?EntityDefinition
     {
         if ($field instanceof ManyToOneAssociationField || $field instanceof OneToManyAssociationField) {
@@ -308,6 +395,23 @@ class ImportPayloadBuilder
 
         if ($field instanceof ManyToManyAssociationField) {
             return $field->getToManyReferenceDefinition();
+        }
+
+        return null;
+    }
+
+    private function findPriceRowIndex(array $prices, string $currencyId): ?int
+    {
+        foreach ($prices as $index => $priceRow) {
+            if (!\is_array($priceRow)) {
+                continue;
+            }
+
+            if (($priceRow['currencyId'] ?? null) !== $currencyId) {
+                continue;
+            }
+
+            return $index;
         }
 
         return null;

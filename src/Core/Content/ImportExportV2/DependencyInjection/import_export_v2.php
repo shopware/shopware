@@ -24,6 +24,7 @@ use Shopware\Core\Content\ImportExportV2\Run\ImportExportV2RunDefinition;
 use Shopware\Core\Content\ImportExportV2\Service\ExportCriteriaEnricher;
 use Shopware\Core\Content\ImportExportV2\Service\ExportFilterApplier;
 use Shopware\Core\Content\ImportExportV2\Service\FailedImportRecordExporter;
+use Shopware\Core\Content\ImportExportV2\Service\CurrencyCodeProvider;
 use Shopware\Core\Content\ImportExportV2\Service\ImportEntityMatchResolver;
 use Shopware\Core\Content\ImportExportV2\Service\ImportRecordValidator;
 use Shopware\Core\Content\ImportExportV2\Service\RunService;
@@ -89,11 +90,18 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             new Reference(DefinitionInstanceRegistry::class),
             new Reference(LanguageLocaleCodeProvider::class),
+            new Reference(CurrencyCodeProvider::class),
+        ]);
+
+    $services->set(CurrencyCodeProvider::class)
+        ->args([
+            new Reference(\Doctrine\DBAL\Connection::class),
         ]);
 
     $services->set(ImportPayloadBuilder::class)
         ->args([
             new Reference(DefinitionInstanceRegistry::class),
+            new Reference(CurrencyCodeProvider::class),
         ]);
 
     $services->set(ImportRecordValidator::class);

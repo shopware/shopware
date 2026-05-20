@@ -48,6 +48,7 @@ ExportCriteriaEnricher reads profile.recordPaths
 Example recordPaths:
 - productNumber
 - tax.id
+- price.DEFAULT.net
 - translations.DEFAULT.name
 - categories.*.id
 
@@ -84,16 +85,6 @@ J --> K["11. Build export records
 
 ImportExportRecordBuilder maps each DAL entity
 to ImportExportRecord(entity, payload)
-
-What it does:
-- reads only the paths from profile.recordPaths
-- copies scalar values like productNumber
-- turns foreign keys into nested objects like tax.id -> tax: { id: ... }
-- reads translated values like translations.DEFAULT.name
-- keeps list relations like categories.*.id as:
-categories: [{ id: cat-1 }, { id: cat-2 }]
-- supports nested wildcard paths for JSON payloads, for example:
-lineItems.*.tags.*.name
 
 Note:
 CSV keeps the current one-wildcard limitation, because its flat column format
@@ -136,10 +127,11 @@ productNumber = SW10001
 active = true
 translated.name = Demo product
 taxId = tax-123
+price = default currency row + EUR row
 categories = [cat-1, cat-2]"] --> B["ImportExportRecordBuilder"]
 
     B --> C["ExportRecordConvertedEvent<br/><br/>Extensions can add extra payload values<br/>before the format writer serializes the record"]
-    C --> D["ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;translations: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { name: Demo product }<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;categories: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-1 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-2 }<br/>&nbsp;&nbsp;],<br/>&nbsp;&nbsp;customFields: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;myExtensionFlag: true<br/>&nbsp;&nbsp;}<br/>}"]
+    C --> D["ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;price: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { net: 10.00, gross: 11.90 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;EUR: { net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;translations: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { name: Demo product }<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;categories: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-1 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-2 }<br/>&nbsp;&nbsp;]<br/>}"]
 
     style C width:420px,text-align:left
     style D width:520px,text-align:left
@@ -147,8 +139,8 @@ categories = [cat-1, cat-2]"] --> B["ImportExportRecordBuilder"]
     D --> E["JsonExportWriter"]
     D --> F["CsvExportWriter"]
 
-    E --> G["JSON output<br/><br/>[<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;translations: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { name: Demo product }<br/>&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;categories: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-1 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-2 }<br/>&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;customFields: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;myExtensionFlag: true<br/>&nbsp;&nbsp;&nbsp;&nbsp;}<br/>&nbsp;&nbsp;}<br/>]"]
-    F --> H["CSV output<br/><br/>product_number,active,tax_id,category_ids,my_extension_flag<br/>SW10001,1,tax-123,cat-1|cat-2,1"]
+    E --> G["JSON output<br/><br/>[<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;price: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { net: 10.00, gross: 11.90 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EUR: { net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;translations: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { name: Demo product }<br/>&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;categories: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-1 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ id: cat-2 }<br/>&nbsp;&nbsp;&nbsp;&nbsp;]<br/>&nbsp;&nbsp;}<br/>]"]
+    F --> H["CSV output<br/><br/>product_number,active,tax_id,default_price_net,default_price_gross,category_ids<br/>SW10001,1,tax-123,10.00,11.90,cat-1|cat-2"]
 
     style G width:520px,text-align:left
     style H width:520px,text-align:left
@@ -239,12 +231,6 @@ H --> I["9. Build DAL write payloads
 
 ImportPayloadBuilder converts records into DAL-friendly payloads
 
-Examples:
-tax.id -> taxId
-tags.*.name stays nested
-lineItems.*.tags.*.name stays nested for JSON payloads
-customFields.exportedPrice.unitPrice stays nested
-
 Extensions can enrich the write payload here via:
 - ImportPayloadBuiltEvent"]
 
@@ -290,11 +276,11 @@ O -- "no" --> Q["Mark run completed"]
 ```mermaid
 
 flowchart TD
-    A["JSON input<br/><br/>[<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;&nbsp;&nbsp;]<br/>&nbsp;&nbsp;}<br/>]"]
-    B["CSV input<br/><br/>product_number,active,stock,tax_id,tag_names<br/>SW10001,1,10,tax-123,Featured|Sale"]
+    A["JSON input<br/><br/>[<br/>&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;&nbsp;&nbsp;price: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;&nbsp;&nbsp;]<br/>&nbsp;&nbsp;}<br/>]"]
+    B["CSV input<br/><br/>product_number,active,stock,tax_id,default_price_net,default_price_gross,tag_names<br/>SW10001,1,10,tax-123,10.00,11.90,Featured|Sale"]
     C["JsonImportReader"]
     D["CsvImportReader"]
-    E["ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;]<br/>}"]
+    E["ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;price: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;]<br/>}"]
 
     style A width:500px,text-align:left
     style B width:500px,text-align:left
@@ -311,14 +297,14 @@ Example:
 matchBy = productNumber
 SW10001 -> existing product id"]
 
-    F --> G["Matched ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;id: existing-product-id,<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;]<br/>}"]
+    F --> G["Matched ImportExportRecord<br/><br/>entity = product<br/>payload = {<br/>&nbsp;&nbsp;id: existing-product-id,<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;tax: { id: tax-123 },<br/>&nbsp;&nbsp;price: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;DEFAULT: { net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;]<br/>}"]
 
     style G width:500px,text-align:left
 
     G --> H["ImportPayloadBuilder"]
 
     H --> I["ImportPayloadBuiltEvent<br/><br/>Extensions can add extra DAL payload values<br/>before the repository write"]
-    I --> J["DAL write payload<br/><br/>{<br/>&nbsp;&nbsp;id: existing-product-id,<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;taxId: tax-123,<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;],<br/>&nbsp;&nbsp;customFields: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;myExtensionFlag: true<br/>&nbsp;&nbsp;}<br/>}"]
+    I --> J["DAL write payload<br/><br/>{<br/>&nbsp;&nbsp;id: existing-product-id,<br/>&nbsp;&nbsp;productNumber: SW10001,<br/>&nbsp;&nbsp;active: true,<br/>&nbsp;&nbsp;stock: 10,<br/>&nbsp;&nbsp;taxId: tax-123,<br/>&nbsp;&nbsp;price: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ currencyId: <default-currency-id>, net: 10.00, gross: 11.90 }<br/>&nbsp;&nbsp;],<br/>&nbsp;&nbsp;tags: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Featured },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: Sale }<br/>&nbsp;&nbsp;]<br/>}"]
 
     style I width:420px,text-align:left
     style J width:520px,text-align:left

@@ -14,6 +14,8 @@ function buildProductImportExportV2Profiles(): array
         'active',
         'stock',
         'tax.id',
+        'price.DEFAULT.net',
+        'price.DEFAULT.gross',
         'translations.DEFAULT.name',
         'tags.*.id',
         'tags.*.name',
@@ -71,6 +73,14 @@ function buildProductImportExportV2Profiles(): array
         [
             'column' => 'tax_id',
             'path' => 'tax.id',
+        ],
+        [
+            'column' => 'default_price_net',
+            'path' => 'price.DEFAULT.net',
+        ],
+        [
+            'column' => 'default_price_gross',
+            'path' => 'price.DEFAULT.gross',
         ],
         [
             'column' => 'name',

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\ImportExportV2\Record;
 
 use Shopware\Core\Content\ImportExportV2\Profile\ImportExportV2ProfileEntity;
+use Shopware\Core\Content\ImportExportV2\Service\CurrencyCodeProvider;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Locale\LocaleException;
@@ -27,6 +30,7 @@ use Shopware\Core\System\Locale\LocaleException;
  * associations and to apply export-specific rules exactly where they appear:
  * - `translations.DEFAULT.*` reads from the resolved translated values
  * - `translations.de-DE.*` reads one explicit locale translation
+ * - `price.EUR.*` and `price.DEFAULT.*` read one explicit `PriceField` row
  * - `manyToOne.id` prefers the stored foreign-key field like `taxId`
  *
  * Example profile record paths:
@@ -85,7 +89,8 @@ class ImportExportRecordBuilder
 {
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
-        private readonly LanguageLocaleCodeProvider $languageLocaleCodeProvider
+        private readonly LanguageLocaleCodeProvider $languageLocaleCodeProvider,
+        private readonly CurrencyCodeProvider $currencyCodeProvider
     ) {
     }
 
@@ -163,6 +168,7 @@ class ImportExportRecordBuilder
      * Traversal is definition-aware so nested associations can still use
      * special handling such as:
      * - `translations.DEFAULT.*` and `translations.de-DE.*`
+     * - `price.EUR.*` and `price.DEFAULT.*` for real `PriceField`s
      * - `manyToOne.id`, which prefers the stored foreign-key field like `taxId`
      *
      * The path is split once here and then handled recursively so nested
@@ -231,6 +237,10 @@ class ImportExportRecordBuilder
             if ($fkField instanceof FkField) {
                 return $current[$fkField->getPropertyName()] ?? null;
             }
+        }
+
+        if ($field instanceof PriceField) {
+            return $this->readPriceSegments($current[$segment] ?? null, $segments);
         }
 
         if (!\array_key_exists($segment, $current)) {
@@ -314,6 +324,49 @@ class ImportExportRecordBuilder
     }
 
     /**
+     * Resolves one `price.<currency-code>` segment and continues traversal
+     * inside the selected `PriceField` row.
+     *
+     * Example:
+     * - `price.DEFAULT.net`
+     *   reads the default-currency price row
+     * - `price.EUR.gross`
+     *   reads the explicit EUR price row
+     *
+     * @param array<int, string> $segments
+     */
+    private function readPriceSegments(mixed $serializedPrice, array $segments): mixed
+    {
+        if (!\is_array($serializedPrice)) {
+            return null;
+        }
+
+        $currencyCode = array_shift($segments);
+        if (!\is_string($currencyCode) || $currencyCode === '') {
+            return null;
+        }
+
+        $currencyId = $currencyCode === 'DEFAULT'
+            ? Defaults::CURRENCY
+            : $this->currencyCodeProvider->getCurrencyIdByCode($currencyCode);
+
+        if ($currencyId === null) {
+            return null;
+        }
+
+        $priceRow = $this->findPriceRow($serializedPrice, $currencyId);
+        if (!\is_array($priceRow)) {
+            return null;
+        }
+
+        if ($segments === []) {
+            return $priceRow;
+        }
+
+        return RecordPathWalker::readValue($priceRow, implode('.', $segments));
+    }
+
+    /**
      * Translation collections are usually keyed by language id, but we prefer
      * the serialized `languageId` field when it is present because that works
      * regardless of the collection key shape.
@@ -348,6 +401,38 @@ class ImportExportRecordBuilder
 
         if ($field instanceof ManyToManyAssociationField) {
             return $field->getToManyReferenceDefinition();
+        }
+
+        return null;
+    }
+
+    /**
+     * `PriceField` values can reach us either as the decoded row list shape
+     * (`[['currencyId' => ...], ...]`) or in DB-style keyed form
+     * (`['c<currencyId>' => [...]]`). Support both so export paths stay robust
+     * regardless of the current serialization shape.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findPriceRow(array $serializedPrice, string $currencyId): ?array
+    {
+        $storageKey = 'c' . $currencyId;
+        $keyedRow = $serializedPrice[$storageKey] ?? $serializedPrice[$currencyId] ?? null;
+
+        if (\is_array($keyedRow)) {
+            return $keyedRow;
+        }
+
+        foreach ($serializedPrice as $priceRow) {
+            if (!\is_array($priceRow)) {
+                continue;
+            }
+
+            if (($priceRow['currencyId'] ?? null) !== $currencyId) {
+                continue;
+            }
+
+            return $priceRow;
         }
 
         return null;

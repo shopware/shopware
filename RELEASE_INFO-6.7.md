@@ -25,6 +25,10 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
+### Migration runtime auto-recovers from MySQL 8.4 FK-guard failures
+
+`MigrationRuntime` now retries a failing migration once with `restrict_fk_on_non_standard_key=OFF` for the session when the first attempt fails with MySQL's `<unknown key name>` foreign-key constraint error, then restores the previous value. The behavior applies to every migration and is a transparent no-op on MariaDB and MySQL versions where the variable does not exist. When the retry path is exercised, a warning is logged with the migration class name so administrators can audit non-standard foreign keys against parent tables in their schema.
+
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.

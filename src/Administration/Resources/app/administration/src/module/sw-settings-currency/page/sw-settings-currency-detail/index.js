@@ -189,10 +189,10 @@ export default {
             }
 
             if (this.currency.id && this.currency.isNew()) {
-                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrencyDescription');
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
             }
 
-            return this.$t('sw-settings-currency.detail.emptyCountryRoundingsDescription');
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundings');
         },
 
         /**

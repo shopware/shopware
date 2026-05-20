@@ -245,26 +245,25 @@
                 </sw-modal>
                 {% endblock %}
 
-                {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_integration_list_delete_modal instead. #}
-                {% block sw_integration_list_grid_inner_slot_delete_modal %}
+                {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_integration_list_delete_modal` instead. #}
+                {% block sw_integration_list_grid_inner_slot_delete_modal %}{% endblock %}
                 {% block sw_integration_list_delete_modal %}
                 <sw-modal
                     v-if="deleteIntegration"
                     :title="$t('sw-integration.detail.deleteModalTitle')"
                     @modal-close="onCloseDeleteModal"
                 >
-                    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_integration_list_delete_modal_confirmtext instead. #}
-                    {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_integration_list_delete_modal_confirmtext` instead. #}
+                    {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}{% endblock %}
                     {% block sw_integration_list_delete_modal_confirmtext %}
                     <p>
                         {{ $t('sw-integration.detail.confirmDelete') }}
                         <strong>"{{ deleteIntegration.label }}"</strong>
                     </p>
                     {% endblock %}
-                    {% endblock %}
 
-                    {# @deprecated tag:v6.8.0 - Block will be removed. Use sw_integration_list_delete_modal_footer instead. #}
-                    {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}
+                    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_integration_list_delete_modal_footer` instead. #}
+                    {% block sw_integration_list_grid_inner_slot_delete_modal_footer %}{% endblock %}
                     {% block sw_integration_list_delete_modal_footer %}
                     <template #modal-footer>
                         <mt-button
@@ -284,9 +283,7 @@
                         </mt-button>
                     </template>
                     {% endblock %}
-                    {% endblock %}
                 </sw-modal>
-                {% endblock %}
                 {% endblock %}
 
                 {% block sw_integration_list_grid %}

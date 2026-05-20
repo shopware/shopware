@@ -12,16 +12,16 @@
                 columns="1fr auto"
                 gap="0 10px"
             >
-            {% block sw_users_permissions_role_listing_toolbar_search_field %}
+                {% block sw_users_permissions_role_listing_toolbar_search_field %}
                 <sw-simple-search-field
                     v-model:value="term"
                     size="small"
                     variant="form"
                     @search-term-change="onSearch"
                 />
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
+                {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
                 <mt-button
                     ghost
                     size="small"
@@ -32,7 +32,7 @@
                 >
                     {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
                 </mt-button>
-            {% endblock %}
+                {% endblock %}
             </sw-container>
         </div>
     </template>
@@ -59,9 +59,9 @@
             @column-sort="onSortColumn"
         >
 
-        {% block sw_users_permissions_role_listing_grid_actions %}
+            {% block sw_users_permissions_role_listing_grid_actions %}
             <template #actions="{ item }">
-            {% block sw_users_permissions_role_listing_grid_actions_edit %}
+                {% block sw_users_permissions_role_listing_grid_actions_edit %}
                 <sw-context-menu-item
                     :router-link="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
                     class="sw-users-permissions-role-listing__context-menu-edit"
@@ -69,9 +69,9 @@
                 >
                     {{ $t('sw-users-permissions.roles.role-grid.contextMenuEdit') }}
                 </sw-context-menu-item>
-            {% endblock %}
+                {% endblock %}
 
-            {% block sw_users_permissions_role_listing_grid_actions_delete %}
+                {% block sw_users_permissions_role_listing_grid_actions_delete %}
                 <sw-context-menu-item
                     variant="danger"
                     class="sw-users-permissions-role-listing__context-menu-delete"
@@ -80,38 +80,38 @@
                 >
                     {{ $t('sw-users-permissions.roles.role-grid.contextMenuDelete') }}
                 </sw-context-menu-item>
-            {% endblock %}
+                {% endblock %}
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_users_permissions_role_listing_grid_columns %}
+            {% block sw_users_permissions_role_listing_grid_columns %}
             <template #column-name="{ item }">
-            {% block sw_users_permissions_role_listing_grid_columns_name %}
+                {% block sw_users_permissions_role_listing_grid_columns_name %}
                 <router-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
                     {{ item.name }}
                 </router-link>
-            {% endblock %}
+                {% endblock %}
             </template>
-        {% endblock %}
+            {% endblock %}
 
-        {% block sw_users_permissions_role_listing_grid_action_modals %}
+            {% block sw_users_permissions_role_listing_grid_action_modals %}
             <template #action-modals="{ item }">
-            {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
+                {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
                 <sw-modal
                     v-if="isConfirmDeleteModalOpen"
                     :title="$t('sw-users-permissions.roles.role-grid.titleModalDelete')"
                     variant="small"
                     @modal-close="onCloseDeleteModal"
                 >
-                {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
+                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_delete_text %}
                     <p class="sw-users-permissions-role-listing__confirm-delete-text">
                         {{ $t('sw-users-permissions.roles.role-grid.textModalDelete', { name: item.name }, 0) }}
                     </p>
-                {% endblock %}
+                    {% endblock %}
 
-                {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
+                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_footer %}
                     <template #modal-footer>
-                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
+                        {% block sw_users_permissions_role_listing_grid_actions_modals_modal_close_delete %}
                         <mt-button
                             size="small"
                             variant="secondary"
@@ -119,9 +119,9 @@
                         >
                             {{ $t('global.default.cancel') }}
                         </mt-button>
-                    {% endblock %}
+                        {% endblock %}
 
-                    {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
+                        {% block sw_users_permissions_role_listing_grid_actions_modals_modal_confirm_delete %}
                         <mt-button
                             class="sw-users-permissions-role-listing__confirm-delete-button"
                             variant="critical"
@@ -130,16 +130,16 @@
                         >
                             {{ $t('global.default.delete') }}
                         </mt-button>
-                    {% endblock %}
+                        {% endblock %}
                     </template>
-                {% endblock %}
+                    {% endblock %}
                 </sw-modal>
-            {% endblock %}
+                {% endblock %}
             </template>
-        {% endblock %}
+            {% endblock %}
 
             <template #pagination>
-            {% block sw_users_permissions_role_listing_grid_pagination %}
+                {% block sw_users_permissions_role_listing_grid_pagination %}
                 <sw-pagination
                     :page="page"
                     :limit="limit"
@@ -147,7 +147,7 @@
                     :auto-hide="true"
                     @page-change="onPageChange"
                 />
-            {% endblock %}
+                {% endblock %}
             </template>
         </sw-data-grid>
     {% endblock %}

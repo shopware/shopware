@@ -122,7 +122,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
 
         expect(emptyState.attributes('icon')).toBe('regular-globe');
         expect(emptyState.attributes('headline')).toBe('sw-settings-currency.detail.emptyCountryRoundingsTitle');
-        expect(emptyState.attributes('description')).toBe('sw-settings-currency.detail.emptyCountryRoundingsDescription');
+        expect(emptyState.attributes('description')).toBe('sw-settings-currency.detail.emptyCountryRoundings');
         expect(emptyState.attributes('role')).toBe('status');
         expect(emptyState.attributes('aria-live')).toBe('polite');
         expect(emptyState.attributes('aria-atomic')).toBe('true');

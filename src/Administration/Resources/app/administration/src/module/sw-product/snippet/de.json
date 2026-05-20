@@ -496,7 +496,7 @@
       "deleteConfirmText": "Möchtest Du die Cross-Selling-Konfiguration wirklich löschen?",
       "deleteButtonDelete": "Löschen",
       "linkOpenStreamPreview": "Vorschau öffnen",
-      "emptyStateTitle": "Noch kein Cross-Selling vorhanden",
+      "emptyStateTitle": "Noch kein Cross Selling vorhanden",
       "emptyStateDescription": "Füge Cross-Selling-Gruppen hinzu, um passende Produkte im Storefront zu empfehlen.",
       "inheritedEmptyStateDescription": "Dieses Produkt nutzt die Cross-Selling-Konfiguration des Hauptprodukts.",
       "notInheritedEmptyStateDescription": "Erstelle eine eigene Cross-Selling-Konfiguration für diese Variante.",

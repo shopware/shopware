@@ -5,6 +5,7 @@ namespace Shopware\Core\System\User\Aggregate\UserRecovery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -48,7 +49,7 @@ class UserRecoveryDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('hash', 'hash'))->addFlags(new Required()),
+            (new StringField('hash', 'hash'))->removeFlag(ApiAware::class)->addFlags(new Required()),
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
             (new CreatedAtField())->addFlags(new Required()),
 

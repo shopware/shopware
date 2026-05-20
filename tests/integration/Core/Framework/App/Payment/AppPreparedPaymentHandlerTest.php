@@ -28,8 +28,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('prepared');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = ValidateResponse::create(['preOrderPayment' => ['test' => 'response']]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
@@ -78,8 +78,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('sync');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $this->paymentProcessor->validate($cart, new RequestDataBag(), $salesChannelContext);
 
@@ -90,8 +90,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('prepared');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = (new ValidateResponse())->assign([
             'message' => self::ERROR_MESSAGE,
@@ -107,8 +107,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('prepared');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new ValidateResponse();
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -125,8 +125,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('prepared');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $response = new ValidateResponse();
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
@@ -143,8 +143,8 @@ class AppPreparedPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
     {
         $paymentMethodId = $this->getPaymentMethodId('prepared');
         $cart = Generator::createCart();
-        $customerId = $this->createCustomer();
-        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId, $customerId);
+        $this->createCustomer();
+        $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
         $this->appendNewResponse(new Response(500));
 

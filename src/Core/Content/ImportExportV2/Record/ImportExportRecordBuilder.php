@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * Projects one loaded DAL entity into the shared `ImportExportRecord` shape.
@@ -71,8 +73,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('fundamentals@after-sales')]
 class ImportExportRecordBuilder
 {
-    public function __construct(private readonly DefinitionInstanceRegistry $definitionInstanceRegistry)
-    {
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly LanguageLocaleCodeProvider $languageLocaleCodeProvider
+    ) {
     }
 
     /**
@@ -145,7 +149,7 @@ class ImportExportRecordBuilder
      *
      * Most paths are handled generically through `RecordPathWalker`. The two
      * special cases are:
-     * - `translations.DEFAULT.*`, which reads from Shopware's `translated` data
+     * - `translations.DEFAULT.*` and `translations.de-DE.*`
      * - `manyToOne.id`, which prefers the stored foreign-key field like `taxId`
      *
      * @param array<string, mixed> $serialized
@@ -153,10 +157,7 @@ class ImportExportRecordBuilder
     private function readExportValue(array $serialized, EntityDefinition $definition, string $path): mixed
     {
         if (str_starts_with($path, 'translations.')) {
-            $segments = explode('.', $path);
-            $fieldName = $segments[2] ?? null;
-
-            return \is_string($fieldName) ? ($serialized['translated'][$fieldName] ?? $serialized[$fieldName] ?? null) : null;
+            return $this->readTranslationValue($serialized, $path);
         }
 
         $segments = explode('.', $path);
@@ -172,6 +173,87 @@ class ImportExportRecordBuilder
         }
 
         return RecordPathWalker::readValue($serialized, $path);
+    }
+
+    /**
+     * Resolves profile translation paths in two ways:
+     * - `translations.DEFAULT.*` reads the currently resolved translated value
+     * - `translations.de-DE.*` reads the explicitly loaded translation entry
+     *
+     * @param array<string, mixed> $serialized
+     */
+    private function readTranslationValue(array $serialized, string $path): mixed
+    {
+        $segments = explode('.', $path, 3);
+
+        $translationCode = $segments[1] ?? null;
+        $fieldPath = $segments[2] ?? null;
+
+        if (!\is_string($translationCode) || !\is_string($fieldPath) || $fieldPath === '') {
+            return null;
+        }
+
+        if ($translationCode === 'DEFAULT') {
+            return RecordPathWalker::readValue(\is_array($serialized['translated'] ?? null) ? $serialized['translated'] : [], $fieldPath)
+                ?? RecordPathWalker::readValue($serialized, $fieldPath);
+        }
+
+        $translations = $serialized['translations'] ?? null;
+        if (!\is_array($translations)) {
+            return null;
+        }
+
+        foreach ($translations as $translationKey => $translation) {
+            if (!\is_array($translation)) {
+                continue;
+            }
+
+            $languageId = $this->resolveTranslationLanguageId($translationKey, $translation);
+            if ($languageId === null) {
+                continue;
+            }
+
+            try {
+                $localeCode = $this->languageLocaleCodeProvider->getLocaleForLanguageId($languageId);
+            } catch (LocaleException) {
+                continue;
+            }
+
+            if (mb_strtolower($localeCode) !== mb_strtolower($translationCode)) {
+                continue;
+            }
+
+            return RecordPathWalker::readValue($translation, $fieldPath);
+        }
+
+        return null;
+    }
+
+    /**
+     * Translation collections are usually keyed by language id, but we prefer
+     * the serialized `languageId` field when it is present because that works
+     * regardless of the collection key shape.
+     *
+     * @param array<string, mixed> $translation
+     */
+    private function resolveTranslationLanguageId(int|string $translationKey, array $translation): ?string
+    {
+        $languageId = $translation['languageId'] ?? null;
+        if (\is_string($languageId) && $languageId !== '') {
+            return $languageId;
+        }
+
+        if (!\is_string($translationKey) || $translationKey === '') {
+            return null;
+        }
+
+        try {
+            $this->languageLocaleCodeProvider->getLocaleForLanguageId($translationKey);
+        } catch (LocaleException) {
+            return null;
+        }
+
+        return $translationKey;
     }
 
     /**

@@ -99,6 +99,8 @@ class ImportPayloadBuilder
      * Most paths can be written generically through `RecordPathWalker`. The two
      * special cases are:
      * - `translations.DEFAULT.*`, which becomes the system language id
+     * - `translations.de-DE.*`, which is left as a locale-code key and later
+     *   normalized by DAL itself
      * - `manyToOne.id`, which becomes the DAL foreign-key field like `taxId`
      *
      * @param array<string, mixed> $payload

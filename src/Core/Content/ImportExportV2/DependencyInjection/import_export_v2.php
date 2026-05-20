@@ -28,6 +28,7 @@ use Shopware\Core\Content\ImportExportV2\Service\ImportEntityMatchResolver;
 use Shopware\Core\Content\ImportExportV2\Service\ImportRecordValidator;
 use Shopware\Core\Content\ImportExportV2\Service\RunService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -87,6 +88,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(ImportExportRecordBuilder::class)
         ->args([
             new Reference(DefinitionInstanceRegistry::class),
+            new Reference(LanguageLocaleCodeProvider::class),
         ]);
 
     $services->set(ImportPayloadBuilder::class)

@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 use Shopware\Core\Framework\Context;
@@ -93,6 +94,16 @@ class PaymentMethodPersister implements PersisterInterface
         $this->deactivatePaymentMethods($existingPaymentMethods, $context->context);
     }
 
+    public function activate(AppEntity $app, Context $context): void
+    {
+        $this->updateActiveState($app->getId(), $context, false, true);
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
+        $this->updateActiveState($app->getId(), $context, true, false);
+    }
+
     private function deactivatePaymentMethods(PaymentMethodCollection $toBeDisabled, Context $context): void
     {
         $updates = array_reduce($toBeDisabled->getElements(), static function (array $acc, PaymentMethodEntity $paymentMethod): array {
@@ -137,6 +148,19 @@ class PaymentMethodPersister implements PersisterInterface
         return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
             return $this->paymentMethodRepository->search($criteria, $context)->getEntities();
         });
+    }
+
+    private function updateActiveState(string $appId, Context $context, bool $currentActiveState, bool $newActiveState): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
+
+        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
+
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $paymentMethods);
+
+        $this->paymentMethodRepository->update($updateSet, $context);
     }
 
     private function getMediaId(Filesystem $fs, string $appName, PaymentMethod $paymentMethod, Context $context, ?AppPaymentMethodEntity $existing): ?string

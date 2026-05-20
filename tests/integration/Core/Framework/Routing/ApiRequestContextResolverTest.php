@@ -148,54 +148,46 @@ class ApiRequestContextResolverTest extends TestCase
     }
 
     /**
-     * @return list<array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
+     * @return iterable<string, array{0: array<string, bool>, 1: array<string, list<string>>, 2: bool}>
      */
-    public static function userRoleProvider(): array
+    public static function userRoleProvider(): iterable
     {
-        return [
+        yield 'user role product detail true product create true product product creator product' => [
+            ['product:detail' => true, 'product:create' => true, 'product:delete' => false],
+            ['product-creator' => ['product:detail', 'product:create']],
+            false,
+        ];
+        yield 'user role admin' => [
+            ['product:detail' => true, 'product:create' => true],
+            [],
+            true,
+        ];
+        yield 'user role multiple roles' => [
             [
-                ['product:detail' => true, 'product:create' => true, 'product:delete' => false],
-                ['product-creator' => ['product:detail', 'product:create']],
-                false,
+                'product:detail' => true,
+                'product:create' => true,
+                'media:detail' => true,
+                'media:create' => true,
+                'media:delete' => false,
+                'product:delete' => false,
             ],
-
-            // test admin
             [
-                ['product:detail' => true, 'product:create' => true],
-                [],
-                true,
+                'product-creator' => ['product:detail', 'product:create'],
+                'media-admin' => ['media:detail', 'media:create'],
             ],
-
-            // test multiple roles
+            false,
+        ];
+        yield 'user role no roles' => [
             [
-                [
-                    'product:detail' => true,
-                    'product:create' => true,
-                    'media:detail' => true,
-                    'media:create' => true,
-                    'media:delete' => false,
-                    'product:delete' => false,
-                ],
-                [
-                    'product-creator' => ['product:detail', 'product:create'],
-                    'media-admin' => ['media:detail', 'media:create'],
-                ],
-                false,
+                'product:detail' => false,
+                'product:create' => false,
+                'media:detail' => false,
+                'media:create' => false,
+                'media:delete' => false,
+                'product:delete' => false,
             ],
-
-            // test no roles
-            [
-                [
-                    'product:detail' => false,
-                    'product:create' => false,
-                    'media:detail' => false,
-                    'media:create' => false,
-                    'media:delete' => false,
-                    'product:delete' => false,
-                ],
-                [],
-                false,
-            ],
+            [],
+            false,
         ];
     }
 

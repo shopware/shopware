@@ -25,6 +25,7 @@ class ElasticsearchException extends HttpException
     public const EMPTY_INDEXING_REQUEST = 'ELASTICSEARCH__EMPTY_INDEXING_REQUEST';
 
     public const AWS_CREDENTIALS_NOT_FOUND = 'ELASTICSEARCH__AWS_CREDENTIALS_NOT_FOUND';
+    public const INVALID_HOST_CONFIGURATION = 'ELASTICSEARCH__INVALID_HOST_CONFIGURATION';
 
     public const OPERATOR_NOT_ALLOWED = 'ELASTICSEARCH__OPERATOR_NOT_ALLOWED';
 
@@ -140,6 +141,16 @@ class ElasticsearchException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::AWS_CREDENTIALS_NOT_FOUND,
             'Could not get AWS credentials'
+        );
+    }
+
+    public static function invalidHostConfiguration(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_HOST_CONFIGURATION,
+            'Invalid OpenSearch host configuration. Reason: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 

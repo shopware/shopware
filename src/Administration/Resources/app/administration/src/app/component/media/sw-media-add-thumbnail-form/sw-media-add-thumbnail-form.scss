@@ -10,9 +10,15 @@ $sw-media-add-thumbnail-form-lock-color-locked: $color-shopware-brand-500;
     margin: 4px 0 16px;
 
     .sw-media-add-thumbnail-form__form-container {
-        display: grid;
-        grid-template-columns: 1fr 30px 1fr;
+        display: flex;
         align-items: end;
+        gap: 8px;
+
+        .sw-media-add-thumbnail-form__input-width,
+        .sw-media-add-thumbnail-form__input-height {
+            flex: 1 1 0;
+            min-width: 0;
+        }
 
         .sw-field {
             margin-bottom: 0;
@@ -23,6 +29,7 @@ $sw-media-add-thumbnail-form-lock-color-locked: $color-shopware-brand-500;
         }
 
         .sw-media-add-thumbnail-form__lock {
+            flex: 0 0 30px;
             height: 32px;
             background: none;
             border: none;

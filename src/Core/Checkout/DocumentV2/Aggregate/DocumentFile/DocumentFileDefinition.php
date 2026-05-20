@@ -52,8 +52,10 @@ class DocumentFileDefinition extends EntityDefinition
     }
 
     /**
-     * TODO: Intentionally disabled default timestamps for now so `createdAt` / `updatedAt` stay non-ApiAware while `document_file` is still internal.
-     * Remove this override `defaultFields()` and remove explicit timestamp fields (CreatedAtField, UpdatedAtField) once the public API fields are finalized.
+     * TODO: Intentionally disabled default timestamps for now so `createdAt` / `updatedAt` stay
+     * non-ApiAware while `document_file` is still internal.
+     * Remove this override `defaultFields()` and remove explicit timestamp fields
+     * (CreatedAtField, UpdatedAtField) once the public API fields are finalized.
      */
     protected function defaultFields(): array
     {

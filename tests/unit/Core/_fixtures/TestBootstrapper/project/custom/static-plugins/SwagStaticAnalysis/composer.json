@@ -1,0 +1,7 @@
+{
+    "autoload-dev": {
+        "psr-4": {
+            "SwagStaticAnalysis\\Tests\\": "tests/"
+        }
+    }
+}

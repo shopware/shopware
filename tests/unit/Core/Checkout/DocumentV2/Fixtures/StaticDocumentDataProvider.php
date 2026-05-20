@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('after-sales')]
-class StaticDocumentDataProvider extends AbstractDocumentDataProvider
+readonly class StaticDocumentDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'fixture';
 
@@ -21,8 +22,8 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
      * @param list<string> $documentTypes
      */
     public function __construct(
-        private readonly array $documentTypes = [DocumentType::INVOICE->value],
-        private readonly string $key = self::KEY,
+        private array $documentTypes = [DocumentType::INVOICE->value],
+        private string $key = self::KEY,
     ) {
     }
 
@@ -43,7 +44,8 @@ class StaticDocumentDataProvider extends AbstractDocumentDataProvider
 
     public function provideRenderingData(
         OrderEntity $order,
-        DocumentGenerationRequest $generationRequest
+        DocumentGenerationRequest $generationRequest,
+        Context $context,
     ): StaticRenderData {
         return new StaticRenderData();
     }

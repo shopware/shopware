@@ -175,5 +175,10 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="currency.repository"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Payment\Api\PaymentMethodTechnicalNameFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

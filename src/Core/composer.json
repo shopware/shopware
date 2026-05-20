@@ -14,7 +14,10 @@
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
-        }
+        },
+        "exclude-from-classmap": [
+            "Framework/Adapter/Doctrine/Patch/"
+        ]
     },
     "support": {
         "issues": "https://github.com/shopware/shopware/issues",
@@ -93,7 +96,7 @@
         "ramsey/uuid": "^4.7",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.0",
+        "shopware/conflicts": "0.6.1",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.0",
@@ -146,6 +149,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.0",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
         "symfony/yaml": "~7.4.0",

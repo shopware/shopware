@@ -14,6 +14,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
@@ -42,7 +44,7 @@ class InstallTranslationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $locales = $this->getLocales($input);
+        $locales = $this->getLocales($input, $output);
 
         try {
             $metadata = $this->metadataLoader->getUpdatedLocalMetadata($locales);
@@ -83,7 +85,7 @@ class InstallTranslationCommand extends Command
     /**
      * @return list<string>
      */
-    private function getLocales(InputInterface $input): array
+    private function getLocales(InputInterface $input, OutputInterface $output): array
     {
         if ($input->getOption('all')) {
             return $this->config->locales;
@@ -92,6 +94,10 @@ class InstallTranslationCommand extends Command
         $locales = $input->getOption('locales');
 
         if (!$locales) {
+            if ($input->isInteractive()) {
+                return $this->askLocales($input, $output);
+            }
+
             throw SnippetException::noArgumentsProvided();
         }
 
@@ -100,6 +106,55 @@ class InstallTranslationCommand extends Command
         $this->validateLocales($locales);
 
         return $locales;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function askLocales(InputInterface $input, OutputInterface $output): array
+    {
+        $choices = [];
+        foreach ($this->config->languages as $language) {
+            $choices[$language->locale] = $language->name;
+        }
+
+        if ($choices === []) {
+            foreach ($this->config->locales as $locale) {
+                $choices[$locale] = $locale;
+            }
+        }
+
+        ksort($choices);
+
+        $question = new ChoiceQuestion(
+            'Select one or more locales to install (comma-separated locale codes, e.g. "de-AT,fr-FR")',
+            $choices,
+        );
+        $question->setMultiselect(true);
+        $question->setErrorMessage('Locale "%s" is invalid.');
+
+        $locales = array_keys($choices);
+        $question->setAutocompleterCallback(static function (string $userInput) use ($locales): array {
+            $trailingComma = strrpos($userInput, ',');
+            $prefix = $trailingComma === false ? '' : substr($userInput, 0, $trailingComma + 1);
+            $current = ltrim($trailingComma === false ? $userInput : substr($userInput, $trailingComma + 1));
+
+            $suggestions = [];
+            foreach ($locales as $locale) {
+                if ($current === '' || str_starts_with($locale, $current)) {
+                    $suggestions[] = $prefix . $locale;
+                }
+            }
+
+            return $suggestions;
+        });
+
+        /** @var list<string> $selected */
+        $selected = (new SymfonyStyle($input, $output))->askQuestion($question);
+
+        $this->validateLocales($selected);
+
+        return $selected;
     }
 
     /**

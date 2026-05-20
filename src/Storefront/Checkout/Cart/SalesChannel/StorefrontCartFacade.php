@@ -118,12 +118,12 @@ class StorefrontCartFacade
     {
         $cartErrors = $gatewayResponse->getErrors();
 
-        $contextShippingMethod = $this->blockedShippingMethodSwitcher->switchFromShippingMethods(
+        $contextShippingMethod = $this->blockedShippingMethodSwitcher->switch(
             $cartErrors,
             $context,
             $gatewayResponse->getShippingMethods()
         );
-        $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switchFromPaymentMethods(
+        $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switch(
             $cartErrors,
             $context,
             $gatewayResponse->getPaymentMethods()

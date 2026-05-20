@@ -199,7 +199,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         ], $error->getParameters());
     }
 
-    public function testSwitchFromShippingMethodsUsesProvidedMethodsWithoutLoadingRoute(): void
+    public function testSwitchWithProvidedShippingMethodsDoesNotLoadRoute(): void
     {
         $errorCollection = $this->getErrorCollection([
             ['id' => 'original-shipping-method-id', 'name' => 'original-shipping-method-name'],
@@ -216,7 +216,7 @@ class BlockedShippingMethodSwitcherTest extends TestCase
         static::assertInstanceOf(ShippingMethodEntity::class, $anyOtherShippingMethod);
         static::assertInstanceOf(ShippingMethodEntity::class, $defaultShippingMethod);
 
-        $newShippingMethod = $switcher->switchFromShippingMethods(
+        $newShippingMethod = $switcher->switch(
             $errorCollection,
             $this->salesChannelContext,
             new ShippingMethodCollection([

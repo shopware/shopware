@@ -763,16 +763,20 @@ class StorefrontCartFacadeTest extends TestCase
         $cartService = $this->createMock(CartService::class);
         $cartService->method('getCart')->willReturn($cart);
 
+        $shippingCallback = $shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...);
+        $realShippingSwitcher = new BlockedShippingMethodSwitcher($this->createMock(ShippingMethodRoute::class));
         $blockedShippingMethodSwitcher = $this->createMock(BlockedShippingMethodSwitcher::class);
-        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback($shippingSwitcherCallbackMethod ?? $this->callbackShippingMethodSwitcherReturnOriginalMethod(...));
-        $blockedShippingMethodSwitcher->method('switchFromShippingMethods')->willReturnCallback(
-            (new BlockedShippingMethodSwitcher($this->createMock(ShippingMethodRoute::class)))->switchFromShippingMethods(...)
+        $blockedShippingMethodSwitcher->method('switch')->willReturnCallback(
+            static fn (ErrorCollection $errors, SalesChannelContext $context, ?ShippingMethodCollection $methods = null): ShippingMethodEntity
+                => $methods === null ? $shippingCallback($errors, $context) : $realShippingSwitcher->switch($errors, $context, $methods),
         );
 
+        $paymentCallback = $paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...);
+        $realPaymentSwitcher = new BlockedPaymentMethodSwitcher($this->createMock(PaymentMethodRoute::class));
         $blockedPaymentMethodSwitcher = $this->createMock(BlockedPaymentMethodSwitcher::class);
-        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback($paymentSwitcherCallbackMethod ?? $this->callbackPaymentMethodSwitcherReturnOriginalMethod(...));
-        $blockedPaymentMethodSwitcher->method('switchFromPaymentMethods')->willReturnCallback(
-            (new BlockedPaymentMethodSwitcher($this->createMock(PaymentMethodRoute::class)))->switchFromPaymentMethods(...)
+        $blockedPaymentMethodSwitcher->method('switch')->willReturnCallback(
+            static fn (ErrorCollection $errors, SalesChannelContext $context, ?PaymentMethodCollection $methods = null): PaymentMethodEntity
+                => $methods === null ? $paymentCallback($errors, $context) : $realPaymentSwitcher->switch($errors, $context, $methods),
         );
 
         $contextSwitchRoute = $this->createMock(ContextSwitchRoute::class);

@@ -199,7 +199,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         ], $error->getParameters());
     }
 
-    public function testSwitchFromPaymentMethodsUsesProvidedMethodsWithoutLoadingRoute(): void
+    public function testSwitchWithProvidedPaymentMethodsDoesNotLoadRoute(): void
     {
         $errorCollection = $this->getErrorCollection([
             ['id' => 'original-payment-method-id', 'name' => 'original-payment-method-name'],
@@ -216,7 +216,7 @@ class BlockedPaymentMethodSwitcherTest extends TestCase
         static::assertInstanceOf(PaymentMethodEntity::class, $anyOtherPaymentMethod);
         static::assertInstanceOf(PaymentMethodEntity::class, $defaultPaymentMethod);
 
-        $newPaymentMethod = $switcher->switchFromPaymentMethods(
+        $newPaymentMethod = $switcher->switch(
             $errorCollection,
             $this->salesChannelContext,
             new PaymentMethodCollection([

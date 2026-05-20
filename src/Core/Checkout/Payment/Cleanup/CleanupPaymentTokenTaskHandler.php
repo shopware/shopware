@@ -28,9 +28,9 @@ final class CleanupPaymentTokenTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly Connection $connection,
-        ClockInterface $clock,
+        private readonly ClockInterface $clock,
     ) {
-        parent::__construct($scheduledTaskRepository, $logger, $clock);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void

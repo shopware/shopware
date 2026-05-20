@@ -107,6 +107,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

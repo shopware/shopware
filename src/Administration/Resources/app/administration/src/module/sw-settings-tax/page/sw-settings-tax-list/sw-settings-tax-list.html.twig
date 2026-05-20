@@ -258,8 +258,12 @@
                     <template v-if="!isLoading">
                         <mt-empty-state
                             v-if="noTaxProvidersFound"
-                            :icon="$route.meta.$module.icon"
+                            icon="regular-globe"
                             :headline="$t('sw-settings-tax.list.taxProvider.messageEmptyTitle')"
+                            :description="$t('sw-settings-tax.list.taxProvider.messageEmptyDescription')"
+                            role="status"
+                            aria-live="polite"
+                            aria-atomic="true"
                         />
 
                         <div

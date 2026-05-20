@@ -12,6 +12,7 @@
         position-identifier="sw-flow-list-card"
     >
         <sw-entity-listing
+            v-if="isLoading || total"
             class="sw-flow-list__grid"
             show-selection
             :show-settings="false"
@@ -148,22 +149,13 @@
         </sw-entity-listing>
 
         {% block sw_flow_list_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="!total && !isLoading"
             class="sw-flow-list__empty-state"
-            :absolute="false"
-            :title="$t('sw-flow.list.emptyStateTitle')"
-            :subline="$t('sw-flow.list.emptyStateSubTitle')"
-        >
-            {% block sw_flow_list_empty_state_icon %}
-            <template #icon>
-                <img
-                    :alt="$t('sw-flow.list.emptyStateTitle')"
-                    :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                >
-            </template>
-            {% endblock %}
-        </sw-empty-state>
+            icon="regular-cog"
+            :headline="searchTerm ? $t('sw-flow.list.emptySearchTitle') : $t('sw-flow.list.emptyStateTitle')"
+            :description="searchTerm ? $t('sw-flow.list.emptySearchSubTitle') : $t('sw-flow.list.emptyStateSubTitle')"
+        />
         {% endblock %}
 
         {% block sw_flow_list_modal_content_custom %}

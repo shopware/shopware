@@ -143,6 +143,9 @@ export default Shopware.Component.wrapComponentConfig({
             return this.page.type === 'product_detail';
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

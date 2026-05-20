@@ -6,7 +6,7 @@
     <div class="sw-flow-list-my-templates">
         <div class="sw-flow-list-my-templates__content">
             <sw-entity-listing
-                v-if="total"
+                v-if="isLoading || total"
                 class="sw-flow-list-my-templates__grid"
                 :show-settings="false"
                 :allow-column-edit="false"
@@ -52,11 +52,11 @@
             </sw-entity-listing>
 
             <mt-empty-state
-                v-else
-                class="sw-flow-list-my_templates__empty-state"
+                v-else-if="!isLoading"
+                class="sw-flow-list-my-templates__empty-state"
                 :icon="$route.meta.$module.icon"
-                :headline="$t('sw-flow.list.emptyStateTitle')"
-                :description="$t('sw-flow.list.emptyStateSubTitle')"
+                :headline="searchTerm ? $t('sw-flow.list.emptyTemplateSearchTitle') : $t('sw-flow.list.emptyStateTitle')"
+                :description="searchTerm ? $t('sw-flow.list.emptyTemplateSearchSubTitle') : $t('sw-flow.list.emptyStateSubTitle')"
             />
         </div>
     </div>

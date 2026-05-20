@@ -3,8 +3,8 @@
     align-self: center;
 
     &__bubble {
-        width: var(--scale-size-40);
-        height: var(--scale-size-40);
+        width: var(--scale-size-48);
+        height: var(--scale-size-48);
         border-radius: 50%;
         flex-shrink: 0;
         display: inline-flex;
@@ -33,7 +33,11 @@
         font-weight: var(--font-weight-regular);
         color: var(--color-text-primary-default);
         text-align: center;
-        margin-bottom: var(--scale-size-20) 0;
+        margin: 0 0 var(--scale-size-20);
+
+        &__line {
+            display: block;
+        }
     }
 
     .headline-useful-links {

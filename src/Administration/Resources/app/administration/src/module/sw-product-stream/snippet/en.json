@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Dynamic product groups",
       "placeholderSearchBar": "Search dynamic product groups...",
-      "descriptionTextModule": "Manage dynamic product groups here.",
+      "descriptionTextModule": "Create dynamic product groups to automatically collect products that match your rules.",
       "errorCategory": "\"{name}\" provides product assignments for a category and thus cannot be deleted. | \"{name}\" provides product assignments for {count} categories and thus cannot be deleted."
     },
     "acl": {
@@ -22,7 +22,8 @@
         "valid": "Valid",
         "invalid": "Invalid"
       },
-      "messageEmpty": "No dynamic product groups yet"
+      "messageEmpty": "No dynamic product groups yet",
+      "messageEmptySubline": "Use rules to automatically collect products for listings, categories, and promotions."
     },
     "filter": {
       "placeholderFieldSelect": "Choose a property...",

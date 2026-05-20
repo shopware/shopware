@@ -1,24 +1,14 @@
 {% block sw_settings_search_searchable_content_customfields %}
 <div class="sw-settings-search__searchable-content-customfields">
     {% block sw_settings_search_searchable_content_customfields_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="isEmpty"
-        :title="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-        :show-description="false"
-        :has-action-slot="true"
-        :absolute="false"
+        :headline="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+        description=""
+        icon="regular-cog"
+        centered
     >
-        <template #icon>
-            {% block sw_settings_search_searchable_content_customfields_state_image %}
-            <img
-                :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
-            >
-            {% endblock %}
-        </template>
-
-        <template #actions>
-            {% block sw_settings_search_searchable_content_customfields_empty_state_action %}
+        <template #button>
             <mt-button
                 ghost
                 size="small"
@@ -28,9 +18,8 @@
             >
                 {{ $t('sw-settings-search.generalTab.buttonAddContent') }}
             </mt-button>
-            {% endblock %}
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
 
     {% block sw_settings_search_searchable_content_customfields_grid %}

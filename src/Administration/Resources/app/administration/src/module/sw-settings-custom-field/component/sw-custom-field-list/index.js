@@ -61,6 +61,26 @@ export default {
         globalCustomFieldRepository() {
             return this.repositoryFactory.create('custom_field');
         },
+
+        hasCustomFieldSearchTerm() {
+            return typeof this.term === 'string' && this.term.trim().length > 0;
+        },
+
+        customFieldEmptyStateHeadline() {
+            if (this.hasCustomFieldSearchTerm) {
+                return this.$t('sw-settings-custom-field.set.detail.emptyCustomFieldsSearchTitle');
+            }
+
+            return this.$t('sw-settings-custom-field.set.detail.emptyCustomFieldsTitle');
+        },
+
+        customFieldEmptyStateDescription() {
+            if (this.hasCustomFieldSearchTerm) {
+                return this.$t('sw-settings-custom-field.set.detail.emptyCustomFieldsSearchDescription');
+            }
+
+            return this.$t('sw-settings-custom-field.set.detail.emptyCustomFieldsDescription');
+        },
     },
 
     watch: {

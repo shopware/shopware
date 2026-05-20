@@ -30,8 +30,12 @@ const flowData = [
     },
 ];
 
-async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData) {
+async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData, props = {}) {
+    const flowSearchResult = [...customFlowData];
+    flowSearchResult.total = customFlowData.length;
+
     return mount(await wrapTestComponent('sw-flow-list', { sync: true }), {
+        props,
         global: {
             plugins: [createPinia()],
             stubs: {
@@ -65,7 +69,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 `,
                 },
                 'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                'sw-empty-state': true,
+                'mt-empty-state': true,
                 'sw-search-bar': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
@@ -77,7 +81,7 @@ async function createWrapper(privileges = [], hasSnippetFromApp = false, customF
                 repositoryFactory: {
                     create: () => ({
                         search: () => {
-                            return Promise.resolve(customFlowData);
+                            return Promise.resolve(flowSearchResult);
                         },
                         clone: jest.fn(() =>
                             Promise.resolve({
@@ -247,6 +251,44 @@ describe('module/sw-flow/view/listing/sw-flow-list', () => {
 
         const item = wrapper.find('.sw-data-grid__row');
         expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');
+    });
+
+    it('should hide the grid when showing the empty state', async () => {
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            false,
+            [],
+        );
+
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.attributes('centered')).toBeUndefined();
+        expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
+    });
+
+    it('should show search-specific empty state copy', async () => {
+        const wrapper = await createWrapper(
+            [
+                'flow.viewer',
+            ],
+            false,
+            [],
+            {
+                searchTerm: 'missing flow',
+            },
+        );
+
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.attributes('headline')).toBe('sw-flow.list.emptySearchTitle');
+        expect(emptyState.attributes('description')).toBe('sw-flow.list.emptySearchSubTitle');
     });
 
     it('should be show the success message after duplicate flow', async () => {

@@ -5,16 +5,19 @@ let repositoryFactoryMock;
 /**
  * @sw-package inventory
  */
-async function createWrapper(privileges = []) {
+async function createWrapper(
+    privileges = [],
+    units = [
+        {
+            id: '1a2b3c',
+            name: 'Gramm',
+            shortCode: 'g',
+        },
+    ],
+) {
     repositoryFactoryMock = {
         search() {
-            return Promise.resolve([
-                {
-                    id: '1a2b3c',
-                    name: 'Gramm',
-                    shortCode: 'g',
-                },
-            ]);
+            return Promise.resolve(units);
         },
         save(unit) {
             if (unit.id !== 'success') {
@@ -94,6 +97,7 @@ async function createWrapper(privileges = []) {
                         </div>
                     `,
                     },
+                    'mt-empty-state': true,
                     'sw-empty-state': true,
                     'sw-context-menu-item': true,
                     'sw-context-menu-divider': true,
@@ -176,6 +180,15 @@ describe('module/sw-settings-units/page/sw-settings-units-list', () => {
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');
 
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should use a product-unit specific empty state icon', async () => {
+        const wrapper = await createWrapper([], []);
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.attributes('icon')).toBe('regular-boxes');
     });
 
     it('should save unit', async () => {

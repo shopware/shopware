@@ -171,12 +171,35 @@ export default {
             return criteria;
         },
 
-        emptyStateText() {
-            if (this.currency.id && this.currency.isNew()) {
-                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
+        emptyStateHeadline() {
+            if (this.searchTerm) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsSearchTitle');
             }
 
-            return this.$t('sw-settings-currency.detail.emptyCountryRoundings');
+            if (this.currency.id && this.currency.isNew()) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrencyTitle');
+            }
+
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundingsTitle');
+        },
+
+        emptyStateDescription() {
+            if (this.searchTerm) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsSearchDescription');
+            }
+
+            if (this.currency.id && this.currency.isNew()) {
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrencyDescription');
+            }
+
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundingsDescription');
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use emptyStateDescription instead.
+         */
+        emptyStateText() {
+            return this.emptyStateDescription;
         },
 
         showCustomFields() {

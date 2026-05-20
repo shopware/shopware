@@ -153,6 +153,36 @@ export default {
             return !this.isLoading && this.currencies && this.taxes && this.product;
         },
 
+        advancedPricesEmptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.advancedPrices.advancedPricesNotExisting');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.advancedPrices.advancedPricesInherited');
+            }
+
+            return this.$t('sw-product.advancedPrices.advancedPricesNotInherited');
+        },
+
+        advancedPricesParentLinkHref() {
+            if (!this.isChild || !this.isInherited || !this.$router?.resolve) {
+                return '';
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.prices',
+                params: { id: this.product.parentId },
+            }).href;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         currencyColumns() {
             this.sortCurrencies();
 
@@ -204,10 +234,6 @@ export default {
                 ...priceColumns,
                 ...this.currencyColumns,
             ];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

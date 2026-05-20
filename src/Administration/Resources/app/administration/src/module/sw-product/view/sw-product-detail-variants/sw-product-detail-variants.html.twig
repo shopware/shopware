@@ -52,7 +52,6 @@
             :description="$t('sw-product.variations.emptyStatePropertyDescription')"
         >
             <template #button>
-                {% block sw_product_properties_empty_state_button_property %}
                 <mt-button
                     v-tooltip="{
                         message: $t('sw-privileges.tooltip.warning'),
@@ -66,7 +65,6 @@
                 >
                     {{ $t('sw-product.properties.buttonAddProperties') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
         {% endblock %}
@@ -95,7 +93,6 @@
             :description="$t('sw-product.variations.emptyStateDescription')"
         >
             <template #button>
-                {% block sw_product_properties_empty_state_button %}
                 <mt-button
                     v-tooltip="{
                         message: $t('sw-privileges.tooltip.warning'),
@@ -110,7 +107,6 @@
                 >
                     {{ $t('sw-product.variations.emptyStateButton') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
         {% endblock %}

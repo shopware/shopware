@@ -32,8 +32,11 @@ async function createWrapper(privileges = []) {
             },
             stubs: {
                 'mt-card': {
+                    props: [
+                        'title',
+                    ],
                     template: `
-                    <div class="mt-card">
+                    <div class="mt-card" :data-title="title">
                         <slot name="grid"></slot>
                         <slot></slot>
                     </div>
@@ -60,6 +63,19 @@ async function createWrapper(privileges = []) {
 `,
                 },
                 'sw-skeleton': true,
+                'mt-empty-state': {
+                    props: [
+                        'headline',
+                        'description',
+                    ],
+                    template: `
+                        <div class="mt-empty-state">
+                            <div class="mt-empty-state__headline">{{ headline }}</div>
+                            <div class="mt-empty-state__description">{{ description }}</div>
+                            <slot name="button"></slot>
+                        </div>
+                    `,
+                },
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
@@ -220,5 +236,20 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
             // eslint-disable-next-line jest/no-conditional-expect
             expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         }
+    });
+
+    it('should render the Meteor empty state without legacy empty-module styling', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ dataSource: [], total: 0 });
+
+        const card = wrapper.find('.mt-card');
+        const emptyState = wrapper.find('.sw-product-detail-reviews__empty-state');
+
+        expect(card.attributes('data-title')).toBe('sw-product.reviews.cardTitleReviews');
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes('empty-module')).toBeUndefined();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-product.reviewForm.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-product.reviewForm.messageEmptySubline');
     });
 });

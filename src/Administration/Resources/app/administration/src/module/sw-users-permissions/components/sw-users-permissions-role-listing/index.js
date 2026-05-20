@@ -71,11 +71,19 @@ export default {
         },
 
         showListingResults() {
-            if (this.isLoading) {
-                return false;
-            }
+            return this.roles && this.roles.length > 0;
+        },
 
-            return (this.roles && this.roles.length > 0) || (this.term && this.term.length <= 0);
+        roleEmptyStateTitle() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultTitle')
+                : this.$t('sw-users-permissions.roles.role-grid.messageEmptyTitle');
+        },
+
+        roleEmptyStateDescription() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultSublineSimple')
+                : this.$t('sw-users-permissions.roles.role-grid.messageEmptySubline');
         },
     },
 

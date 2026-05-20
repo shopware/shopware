@@ -28,8 +28,8 @@ async function createWrapper(additionalPromotionData = {}) {
                         template: '<div class="sw-promotion-v2-generate-codes-modal"></div>',
                     },
                     'sw-one-to-many-grid': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"><slot></slot><slot name="actions"></slot></div>',
+                    'mt-empty-state': {
+                        template: '<div class="mt-empty-state"><slot name="button"></slot></div>',
                     },
                     'sw-context-menu-item': true,
                     'sw-button-process': {

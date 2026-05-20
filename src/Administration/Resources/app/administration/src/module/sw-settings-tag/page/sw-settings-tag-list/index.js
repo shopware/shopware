@@ -174,6 +174,38 @@ export default {
 
             return count;
         },
+
+        hasTagSearchTerm() {
+            return typeof this.term === 'string' && this.term.trim().length > 0;
+        },
+
+        hasTagFilters() {
+            return this.filterCount > 0;
+        },
+
+        tagEmptyStateHeadline() {
+            if (this.hasTagFilters) {
+                return this.$t('sw-settings-tag.list.emptyState.filterTitle');
+            }
+
+            if (this.hasTagSearchTerm) {
+                return this.$t('sw-settings-tag.list.emptyState.searchTitle');
+            }
+
+            return this.$t('sw-settings-tag.list.emptyState.title');
+        },
+
+        tagEmptyStateDescription() {
+            if (this.hasTagFilters) {
+                return this.$t('sw-settings-tag.list.emptyState.filterDescription');
+            }
+
+            if (this.hasTagSearchTerm) {
+                return this.$t('sw-settings-tag.list.emptyState.searchDescription');
+            }
+
+            return this.$t('sw-settings-tag.list.emptyState.description');
+        },
     },
 
     methods: {

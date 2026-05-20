@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import template from './sw-settings-custom-field-set-create.html.twig';
+import './sw-settings-custom-field-set-create.scss';
 
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;

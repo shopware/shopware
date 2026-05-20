@@ -505,7 +505,7 @@
       "customerGrid": {
         "buttonAddNewCustomer": "Kunden anlegen",
         "placeholderSearchCustomer": "Kundennamen eingeben ...",
-        "textEmptySearch": "Keine Daten für {name} vorhanden",
+        "textEmptySearch": "Keine Kunden für \"{name}\" gefunden.",
         "contextOpenButton": "Öffnen",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Kundennummer",

@@ -56,6 +56,10 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-card
                         'sw-meteor-card': {
                             template: '<div><slot></slot></div>',
                         },
+                        'mt-empty-state': {
+                            props: ['headline'],
+                            template: '<div>{{ headline }}</div>',
+                        },
                     },
                 },
                 props: {

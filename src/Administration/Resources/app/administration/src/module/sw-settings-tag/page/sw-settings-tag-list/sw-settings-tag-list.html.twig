@@ -64,6 +64,7 @@
             {% block sw_settings_tag_list_content_card %}
             <mt-card
                 class="sw-settings-tag-list__content"
+                :class="{ 'is--empty': !isLoading && total <= 0 }"
                 position-identifier="sw-settings-tag-list-content"
             >
                 <template #toolbar>
@@ -466,8 +467,13 @@
                     {% block sw_settings_tag_list_empty_state %}
                     <mt-empty-state
                         v-else
-                        :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-settings-tag.list.titleEmptyStateList')"
+                        class="sw-settings-tag-list__empty-state"
+                        icon="regular-tag"
+                        :headline="tagEmptyStateHeadline"
+                        :description="tagEmptyStateDescription"
+                        role="status"
+                        aria-live="polite"
+                        aria-atomic="true"
                     />
                     {% endblock %}
 

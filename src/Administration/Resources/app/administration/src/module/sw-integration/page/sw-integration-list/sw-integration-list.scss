@@ -6,38 +6,76 @@ $sw-field-help-color: $color-darkgray-200;
 $sw-field-icon-border-radius: $border-radius-default;
 
 .sw-integration-list {
-    .sw-card.sw-card--hero .sw-card__content {
-        text-align: left;
-        line-height: 25px;
-        padding-left: 0;
-        padding-right: 0;
-        padding-bottom: 0;
+    &__overview-table.mt-data-table__layout-default {
+        height: auto;
     }
 
-    p {
-        margin-bottom: 22px;
-    }
-
-    .sw-integration-list__overview {
-        .sw-card__content {
-            padding: 0;
-
-            .sw-data-grid {
-                border-radius: 3px;
-            }
-
-            .sw-empty-state {
-                padding: 30px;
-            }
+    &__overview-table {
+        .mt-data-table__table-wrapper {
+            height: auto;
+            max-height: 480px;
         }
     }
 
-    .sw-empty-state {
-        position: relative;
+    &__overview-table--hide-pagination {
+        .mt-card__footer {
+            display: none;
+        }
+    }
+
+    &__introduction-description {
+        margin: 0;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        line-height: var(--line-height-sm);
+    }
+
+    &__overview-empty {
+        .mt-empty-state {
+            padding: var(--scale-size-24);
+        }
+    }
+
+    &__integration-name-cell,
+    &__permissions {
+        display: flex;
+        align-items: center;
+    }
+
+    &__integration-name-cell {
+        gap: var(--scale-size-12);
+
+        .sw-label {
+            margin-bottom: 0;
+        }
+    }
+
+    &__integration-name,
+    &__integration-name-text {
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__integration-name {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--color-text-primary-default);
+        cursor: pointer;
+        text-align: left;
+
+        &:hover,
+        &:focus-visible {
+            color: var(--color-text-brand-default);
+            text-decoration: underline;
+        }
+    }
+
+    &__permissions {
+        flex-wrap: wrap;
+        gap: var(--scale-size-8);
     }
 
     .sw-integration-list__app-icon {
-        margin-right: 16px;
         background-color: $color-darkgray-500;
         border-radius: $sw-field-icon-border-radius;
         width: 20px;
@@ -51,22 +89,6 @@ $sw-field-icon-border-radius: $border-radius-default;
             width: 10px;
             height: 10px;
         }
-
-        + a {
-            font-weight: bold;
-        }
-    }
-
-    .sw-label {
-        margin-bottom: 0;
-    }
-
-    span + .sw-label {
-        margin-left: 8px;
-    }
-
-    .sw-grid .sw-grid__content.sw-grid__content--pagination {
-        grid-template-rows: auto;
     }
 }
 

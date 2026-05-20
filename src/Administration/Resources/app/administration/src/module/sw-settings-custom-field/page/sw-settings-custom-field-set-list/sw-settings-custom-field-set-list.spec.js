@@ -30,7 +30,7 @@ function mockCustomFieldSetData() {
     return _customFieldSets;
 }
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], customFieldSets = mockCustomFieldSetData()) {
     const { Mixin } = Shopware;
 
     return mount(
@@ -58,7 +58,9 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => {
-                                return Promise.resolve(mockCustomFieldSetData());
+                                customFieldSets.total = customFieldSets.length;
+
+                                return Promise.resolve(customFieldSets);
                             },
                         }),
                     },
@@ -92,6 +94,24 @@ async function createWrapper(privileges = []) {
                     </div>`,
                     },
                     'sw-search-bar': true,
+                    'mt-card': {
+                        template: '<div><slot name="grid"></slot><slot></slot></div>',
+                    },
+                    'mt-empty-state': {
+                        props: [
+                            'headline',
+                            'description',
+                            'icon',
+                        ],
+                        template: `
+                            <div
+                                class="mt-empty-state"
+                                :data-headline="headline"
+                                :data-description="description"
+                                :data-icon="icon"
+                            ></div>
+                        `,
+                    },
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
@@ -187,5 +207,40 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
         expect(wrapper.vm.listingCriteria.page).toBe(1);
         expect(wrapper.vm.listingCriteria.limit).toBe(25);
+    });
+
+    it('should render a custom field set empty state', async () => {
+        const wrapper = await createWrapper([], []);
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-custom-field-set-list__empty-state');
+
+        expect(emptyState.attributes('data-icon')).toBe('regular-bars-square');
+        expect(emptyState.attributes('data-headline')).toBe('sw-settings-custom-field.set.list.emptyState.title');
+        expect(emptyState.attributes('data-description')).toBe('sw-settings-custom-field.set.list.emptyState.description');
+        expect(emptyState.attributes('centered')).toBeUndefined();
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
+    });
+
+    it('should render a search-specific custom field set empty state', async () => {
+        const wrapper = await createWrapper([], []);
+        await flushPromises();
+
+        await wrapper.setData({
+            term: 'does-not-exist',
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-custom-field-set-list__empty-state');
+
+        expect(emptyState.attributes('data-headline')).toBe('sw-settings-custom-field.set.list.emptyState.searchTitle');
+        expect(emptyState.attributes('data-description')).toBe(
+            'sw-settings-custom-field.set.list.emptyState.searchDescription',
+        );
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 });

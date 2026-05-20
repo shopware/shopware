@@ -6,25 +6,15 @@
 >
     <template #grid>
         {% block sw_settings_search_excluded_search_terms_empty_state %}
-        <sw-empty-state
+        <mt-empty-state
             v-if="showEmptyState"
-            :title="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
-            :show-description="false"
-            :has-action-slot="true"
-            :absolute="false"
-            class="sw-empty-state"
+            :headline="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
+            description=""
+            icon="regular-cog"
+            centered
+            class="sw-settings-search-excluded-search-terms__empty-state"
         >
-            <template #icon>
-                {% block sw_settings_search_excluded_search_terms_empty_state_image %}
-                <img
-                    :src="assetFilter('administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                    :alt="$t('sw-settings-search.generalTab.textEmptyStateExcludedSearchTerms')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
-                {% block sw_settings_search_excluded_search_terms_empty_state_action %}
+            <template #button>
                 <mt-button
                     class="sw-settings-search-excluded-search-terms__action-add"
                     ghost
@@ -35,9 +25,8 @@
                 >
                     {{ $t('sw-settings-search.generalTab.buttonAddExcludedSearch') }}
                 </mt-button>
-                {% endblock %}
             </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_settings_search_excluded_search_terms_grid %}
@@ -139,11 +128,16 @@
                     </template>
                 </sw-data-grid>
                 {% block sw_search_excliuded_terms_no_results %}
-                <div v-if="items.length === 0">
-                    <p class="sw-settings-search__no-data-results">
-                        {{ $t('sw-settings-search.generalTab.labelExcludedSearchTermsNoResults') }}
-                    </p>
-                </div>
+                <mt-empty-state
+                    v-if="showNoResultsEmptyState"
+                    :headline="$t('sw-settings-search.generalTab.textExcludedSearchTermsNoResultsTitle')"
+                    :description="$t('sw-settings-search.generalTab.textExcludedSearchTermsNoResultsDescription')"
+                    icon="regular-search"
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    class="sw-settings-search-excluded-search-terms__no-results-empty-state"
+                />
                 {% endblock %}
             </sw-container>
             {% endblock %}

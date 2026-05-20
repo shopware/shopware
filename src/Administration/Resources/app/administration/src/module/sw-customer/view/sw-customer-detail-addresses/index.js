@@ -40,8 +40,10 @@ export default {
             showDeleteAddressModal: false,
             addressSortProperty: null,
             addressSortDirection: '',
+            term: '',
             currentAddress: null,
             customerAddressCustomFieldSets: null,
+            showEmptyState: false,
         };
     },
 
@@ -60,6 +62,22 @@ export default {
 
         addressColumns() {
             return this.getAddressColumns();
+        },
+
+        addressEmptyTitle() {
+            return this.term
+                ? this.$t('sw-customer.detailAddresses.emptySearchTitle')
+                : this.$t('sw-customer.detailAddresses.emptyTitle');
+        },
+
+        addressEmptyDescription() {
+            return this.term
+                ? this.$t('sw-empty-state.messageNoResultSublineSimple')
+                : this.$t('sw-customer.detailAddresses.emptySubline');
+        },
+
+        showAddressEmptyStateAction() {
+            return !this.term;
         },
 
         addressRepository() {
@@ -351,6 +369,7 @@ export default {
         },
 
         onChange(term) {
+            this.term = term;
             this.activeCustomer.addresses.criteria.setPage(1);
             this.activeCustomer.addresses.criteria.setTerm(term);
 
@@ -359,6 +378,10 @@ export default {
 
         refreshList() {
             this.$refs.addressGrid.load();
+        },
+
+        checkEmptyState() {
+            this.showEmptyState = this.$refs.addressGrid?.total === 0;
         },
 
         createPrefix(string, replace) {

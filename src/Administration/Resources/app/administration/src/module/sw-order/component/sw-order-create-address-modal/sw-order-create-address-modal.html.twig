@@ -92,14 +92,12 @@
                 v-if="!isLoading && !addresses.length"
                 class="sw-order-create-address-modal__card is--empty"
             >
-                <sw-empty-state
-                    :title="$t('sw-order.addressSelection.emptySearchResults')"
-                    :icon="'regular-book-user'"
-                >
-                    {% block sw_order_create_address_modal_empty_state_content %}
-                    <span></span>
-                    {% endblock %}
-                </sw-empty-state>
+                <mt-empty-state
+                    :headline="$t('sw-order.addressSelection.emptySearchResults')"
+                    description=""
+                    icon="regular-book-user"
+                    centered
+                />
             </div>
             <div
                 v-for="(address, index) in addresses"

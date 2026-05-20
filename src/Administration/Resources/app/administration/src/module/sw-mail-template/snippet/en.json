@@ -30,7 +30,7 @@
       "errorMediaItemDuplicated": "Media item already assigned",
       "columnFilename": "File name",
       "emptyStateTitle": "No email templates yet",
-      "emptyStateSubTitle": "Add email templates by clicking the \"add\" button."
+      "emptyStateSubTitle": "Create email templates to send consistent messages to customers."
     },
     "detail": {
       "basic": {
@@ -111,8 +111,8 @@
       "buttonDelete": "Delete",
       "titleSidebarItemRefresh": "Refresh",
       "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured.",
-      "emptyStateTitle": "No email header and footer yet",
-      "emptyStateSubTitle": "Add email header and footer by clicking the \"add\" button."
+      "emptyStateTitle": "No email headers and footers yet",
+      "emptyStateSubTitle": "Create headers and footers to keep email templates consistent."
     },
     "detail": {
       "basic": {

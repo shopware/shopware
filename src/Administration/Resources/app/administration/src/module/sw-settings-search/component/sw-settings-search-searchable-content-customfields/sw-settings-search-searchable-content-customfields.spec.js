@@ -53,7 +53,7 @@ async function createWrapper() {
                 },
 
                 stubs: {
-                    'sw-empty-state': true,
+                    'mt-empty-state': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-pagination': true,
@@ -107,7 +107,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
 
         await flushPromises();
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('mt-empty-state-stub').exists()).toBeTruthy();
     });
 
     it('Should not able to remove item without editor privilege', async () => {

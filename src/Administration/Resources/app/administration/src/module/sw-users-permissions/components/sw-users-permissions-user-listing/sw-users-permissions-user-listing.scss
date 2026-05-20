@@ -1,17 +1,26 @@
 @import "~scss/variables";
 
 .sw-users-permissions-user-listing {
-    &.sw-card .sw-card__content {
-        padding: 0;
+    .mt-card__toolbar {
+        padding: 25px 35px;
+        background-color: $color-gray-100;
+        border-bottom: 1px solid $color-gray-300;
     }
 
     &__add-user-button {
+        justify-self: end;
         text-align: center;
     }
 
     &__toolbar {
-        padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        width: 100%;
+
+        .sw-container {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0 10px;
+            align-items: center;
+            width: 100%;
+        }
     }
 }

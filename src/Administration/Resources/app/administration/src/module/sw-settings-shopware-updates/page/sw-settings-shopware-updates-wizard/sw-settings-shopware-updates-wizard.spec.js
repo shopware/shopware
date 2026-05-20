@@ -148,6 +148,16 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                         'sw-loader': {
                             template: '<div></div>',
                         },
+                        'mt-empty-state': {
+                            name: 'mt-empty-state',
+                            props: [
+                                'centered',
+                                'icon',
+                                'headline',
+                                'description',
+                            ],
+                            template: '<div class="mt-empty-state"></div>',
+                        },
                         'router-link': {
                             template: '<a></a>',
                         },
@@ -200,6 +210,21 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         const button = wrapper.findByText('button', 'sw-settings-shopware-updates.infos.startUpdate');
 
         expect(button.attributes('disabled')).toBeDefined();
+    });
+
+    it('should show the current version in the up-to-date empty state', async () => {
+        wrapper.vm.isLoading = false;
+        wrapper.vm.updateInfo = {
+            version: null,
+            changelog: null,
+        };
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.findComponent({ name: 'mt-empty-state' });
+
+        expect(emptyState.props('icon')).toBe('regular-check-circle');
+        expect(emptyState.props('headline')).toBe('sw-settings-shopware-updates.general.emptyState');
+        expect(emptyState.props('description')).toBe(Shopware.Context.app.config.version);
     });
 
     it('should show the correct error message, when theme deactivation fails', async () => {

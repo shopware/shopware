@@ -61,7 +61,7 @@ async function createWrapper() {
                 },
                 'sw-card-section': true,
                 'sw-simple-search-field': true,
-                'sw-empty-state': true,
+                'mt-empty-state': true,
                 'sw-entity-listing': true,
                 'sw-pagination': true,
             },

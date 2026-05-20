@@ -97,13 +97,12 @@
 
         <mt-empty-state
             v-if="!total"
+            class="sw-product-detail-reviews__empty-state"
             :icon="$route.meta.$module.icon"
             :headline="$t('sw-product.reviewForm.messageEmptyTitle')"
             :description="$t('sw-product.reviewForm.messageEmptySubline')"
-            empty-module
         >
             <template #button>
-                {% block sw_product_detail_reviews_empty_state_button %}
                 <mt-button
                     ghost
                     variant="secondary"
@@ -111,7 +110,6 @@
                 >
                     {{ $t('sw-product.reviewForm.emptyStateButton') }}
                 </mt-button>
-                {% endblock %}
             </template>
         </mt-empty-state>
         {% endblock %}

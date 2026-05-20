@@ -4,7 +4,7 @@
       "mainMenuItemList": "Reviews",
       "mainMenuItemGeneral": "Reviews",
       "placeholderSearchBar": "Search reviews...",
-      "descriptionTextModule": "Manage reviews here."
+      "descriptionTextModule": "Review and moderate customer feedback on products."
     },
     "list": {
       "textReviewOverview": "Reviews",
@@ -17,7 +17,7 @@
       "columnTitle": "Review title",
       "placeholderSearchBar": "Search reviews...",
       "messageEmpty": "No reviews yet",
-      "messageEmptySubline": "Manage reviews here",
+      "messageEmptySubline": "Product reviews from your sales channels will appear here for moderation.",
       "titleSidebarItemRefresh": "Refresh"
     },
     "filters": {

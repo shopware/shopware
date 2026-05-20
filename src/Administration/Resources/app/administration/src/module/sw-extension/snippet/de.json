@@ -314,12 +314,12 @@
         "apps": {
           "noActivePlugins": "Keine aktiven Erweiterungen gefunden",
           "titleEmptyState": "Noch keine Apps installiert",
-          "textEmptyState": "Wenn Du Apps installierst, werden sie hier aufgelistet."
+          "textEmptyState": "Installiere Apps, um Deinem Shop Funktionen hinzuzufügen."
         },
         "themes": {
           "noActivePlugins": "Keine aktiven Themes gefunden.",
           "titleEmptyState": "Noch keine Themes installiert",
-          "textEmptyState": "Wenn Du Themes installierst, werden sie hier aufgelistet."
+          "textEmptyState": "Installiere Themes, um das Aussehen Deiner Storefront zu ändern."
         },
         "btnOpenStore": "Store öffnen",
         "alertExtensionManagement": {

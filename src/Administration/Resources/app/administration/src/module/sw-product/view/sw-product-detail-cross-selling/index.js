@@ -61,6 +61,32 @@ export default {
             return this.$t('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
 
+        crossSellingEmptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.crossselling.emptyStateDescription');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.crossselling.inheritedEmptyStateDescription');
+            }
+
+            return this.$t('sw-product.crossselling.notInheritedEmptyStateDescription');
+        },
+
+        crossSellingParentLinkHref() {
+            if (!this.isChild || !this.isInherited || !this.$router?.resolve) {
+                return '';
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.crossSelling',
+                params: { id: this.product.parentId },
+            }).href;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

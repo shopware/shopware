@@ -1,15 +1,19 @@
 {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
 <mt-card
-    class="sw-settings-set-create__option-list-empty-state__wrapper"
+    class="sw-settings-custom-field-set-create__custom-fields-card sw-settings-set-create__option-list-empty-state-wrapper"
     position-identifier="sw-settings-custom-field-set-create"
+    :title="$t('sw-settings-custom-field.set.detail.titleCardCustomFields')"
 >
 
     {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list_empty_state %}
     <mt-empty-state
-        class="sw-settings-set-create__option-list-empty-state__empty-state"
-        :icon="$route.meta.$module.icon"
-        :headhline="$t('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
-        :description="$t('sw-settings-custom-field.set.detail.emptyStateDescription')"
+        class="sw-settings-custom-field-set-create__custom-fields-empty-state sw-settings-set-create__option-list-empty-state-empty-state"
+        icon="regular-bars-square"
+        :headline="$t('sw-settings-custom-field.set.detail.createStateTitle')"
+        :description="$t('sw-settings-custom-field.set.detail.createStateDescription')"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
     />
     {% endblock %}
 </mt-card>

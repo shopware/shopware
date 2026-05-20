@@ -42,7 +42,7 @@ async function createWrapper() {
                 },
 
                 stubs: {
-                    'sw-empty-state': true,
+                    'mt-empty-state': true,
                     'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-pagination': true,
@@ -85,7 +85,7 @@ describe('module/sw-settings-search/component/sw-settings-search-searchable-cont
             isEmpty: true,
         });
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('mt-empty-state-stub').exists()).toBeTruthy();
     });
 
     it('should call to reset ranking function when click to reset ranking action', async () => {

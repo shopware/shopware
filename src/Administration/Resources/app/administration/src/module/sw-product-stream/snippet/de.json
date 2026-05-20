@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Dynamische Produktgruppen",
       "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen ...",
-      "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen.",
+      "descriptionTextModule": "Erstelle dynamische Produktgruppen, um passende Produkte automatisch nach Regeln zusammenzustellen.",
       "errorCategory": "\"{name}\" stellt Produkt-Zuweisungen für eine Kategorie zur Verfügung und kann daher nicht gelöscht werden. | \"{name}\" stellt Produkt-Zuweisungen für {count} Kategorien zur Verfügung und kann daher nicht gelöscht werden."
     },
     "acl": {
@@ -22,7 +22,8 @@
         "valid": "Gültig",
         "invalid": "Ungültig"
       },
-      "messageEmpty": "Noch keine Produktgruppen"
+      "messageEmpty": "Noch keine dynamischen Produktgruppen",
+      "messageEmptySubline": "Nutze Regeln, um Produkte automatisch für Listings, Kategorien und Promotions zusammenzustellen."
     },
     "filter": {
       "placeholderFieldSelect": "Wähle eine Eigenschaft ...",

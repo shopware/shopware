@@ -505,7 +505,7 @@
       "customerGrid": {
         "buttonAddNewCustomer": "Add new customer",
         "placeholderSearchCustomer": "Enter the customer name...",
-        "textEmptySearch": "No data for {name}",
+        "textEmptySearch": "No customers found for \"{name}\".",
         "contextOpenButton": "Open",
         "columnCustomerName": "Name",
         "columnCustomerNumber": "Customer number",

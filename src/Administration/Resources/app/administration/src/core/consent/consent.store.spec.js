@@ -85,9 +85,14 @@ describe('/core/consent/consent.store', () => {
             expect(acceptSpy).toHaveBeenCalledWith('test_consent');
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
-            expect(consentEventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
-            );
+            const emittedConsentEvent = consentEventHandler.mock.calls[0][0];
+
+            expect(emittedConsentEvent).toBeInstanceOf(ConsentEvent);
+            expect(emittedConsentEvent).toMatchObject({
+                eventName: 'consent_status_change',
+                eventProperties: expectedUpdatedValue,
+                timestamp: expect.any(Date),
+            });
         });
 
         it('throws error if consent to accept does not exist', async () => {
@@ -186,9 +191,14 @@ describe('/core/consent/consent.store', () => {
                 expect(revokeSpy).toHaveBeenCalledWith('test_consent');
                 expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
-                expect(consentEventHandler).toHaveBeenCalledWith(
-                    new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
-                );
+                const emittedConsentEvent = consentEventHandler.mock.calls[0][0];
+
+                expect(emittedConsentEvent).toBeInstanceOf(ConsentEvent);
+                expect(emittedConsentEvent).toMatchObject({
+                    eventName: 'consent_status_change',
+                    eventProperties: expectedUpdatedValue,
+                    timestamp: expect.any(Date),
+                });
             });
 
             it('throws error if consent to accept does not exist', async () => {

@@ -9,20 +9,9 @@
         }
 
         .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
-            text-align: center;
             padding: 56px 32px;
-
-            h3 {
-                margin-bottom: 8px;
-            }
-
-            .mt-button {
-                margin-block-start: 1em;
-            }
-
-            img {
-                margin: 0 auto 24px;
-            }
+            display: flex;
+            justify-content: center;
         }
 
         .sw-extension-my-extensions-listing__app-url-warning {

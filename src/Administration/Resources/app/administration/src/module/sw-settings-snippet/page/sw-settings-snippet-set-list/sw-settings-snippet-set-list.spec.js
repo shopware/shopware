@@ -210,4 +210,14 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
 
         expect(toggleSpy).toHaveBeenCalledWith(getSnippetSetData()[0].id);
     });
+
+    it('should render the snippet set listing inside the card', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const snippetSetList = wrapper.findComponent('.sw-snippet-set-list__list');
+
+        expect(snippetSetList.exists()).toBeTruthy();
+        expect(snippetSetList.props('fullPage')).toBe(false);
+    });
 });

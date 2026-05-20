@@ -9,7 +9,7 @@ Shopware.Service().register('filterService', () => {
     };
 });
 
-async function createWrapper() {
+async function createWrapper(total = 1) {
     return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
         global: {
             mocks: {
@@ -36,7 +36,7 @@ async function createWrapper() {
                         },
                         search: () => {
                             return Promise.resolve({
-                                total: 1,
+                                total,
                             });
                         },
                     }),
@@ -62,6 +62,7 @@ async function createWrapper() {
                 'sw-search-bar': true,
                 'sw-entity-listing': true,
                 'sw-language-switch': true,
+                'mt-empty-state': true,
                 'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'sw-data-grid-column-boolean': true,
@@ -136,5 +137,15 @@ describe('module/sw-review/page/sw-review-list', () => {
         defaultFilters.forEach((filterKey) => {
             expect(wrapper.vm.listFilterOptions).toHaveProperty(filterKey);
         });
+    });
+
+    it('should center the empty state', async () => {
+        const wrapper = await createWrapper(0);
+        await flushPromises();
+
+        const emptyState = wrapper.find('mt-empty-state-stub');
+
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes().centered).toBe('true');
     });
 });

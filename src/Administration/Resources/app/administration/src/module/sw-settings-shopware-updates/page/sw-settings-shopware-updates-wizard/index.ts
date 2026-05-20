@@ -80,6 +80,10 @@ export default Component.wrapComponentConfig({
             };
         },
 
+        shopwareVersion() {
+            return Shopware.Context.app.config.version;
+        },
+
         displayIncompatiblePluginsWarning() {
             return this.plugins.some((plugin) => {
                 return plugin.statusName !== 'compatible' && plugin.statusName !== 'notInStore';

@@ -91,6 +91,29 @@ export default {
             return this.productSortingOptions.total;
         },
 
+        hasProductSortingOptionsSearchTerm() {
+            return (
+                typeof this.productSortingOptionsSearchTerm === 'string' &&
+                this.productSortingOptionsSearchTerm.trim() !== ''
+            );
+        },
+
+        productSortingOptionsEmptyStateHeadline() {
+            if (this.hasProductSortingOptionsSearchTerm) {
+                return this.$t('sw-settings-listing.index.productSorting.emptyState.searchTitle');
+            }
+
+            return this.$t('sw-settings-listing.index.productSorting.emptyState.title');
+        },
+
+        productSortingOptionsEmptyStateDescription() {
+            if (this.hasProductSortingOptionsSearchTerm) {
+                return this.$t('sw-settings-listing.index.productSorting.emptyState.searchSubline');
+            }
+
+            return this.$t('sw-settings-listing.index.productSorting.emptyState.subline');
+        },
+
         customFieldCriteria() {
             return new Criteria(1, 25);
         },
@@ -115,6 +138,9 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

@@ -63,7 +63,7 @@
 
             {% block sw_customer_list_empty_state %}
             <mt-empty-state
-                v-if="!isLoading && !total"
+                v-if="!isLoading && isCustomerListEmpty"
                 :centered="true"
                 :icon="$route.meta.$module.icon"
                 :headline="filterCriteria.length || isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-customer.list.messageEmpty')"

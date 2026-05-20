@@ -97,6 +97,15 @@ async function createWrapper() {
                     getCustomFieldSets: jest.fn(() => Promise.resolve([])),
                 },
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-products',
+                        },
+                    },
+                },
+            },
             stubs: {
                 'sw-ignore-class': true,
                 'sw-container': await wrapTestComponent('sw-container', {
@@ -281,5 +290,19 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         expect(wrapper.vm.optionRepository.delete).toHaveBeenCalledWith(selectedOption.id);
         expect(wrapper.vm.selection).toBeNull();
         expect(wrapper.vm.deleteButtonDisabled).toBe(true);
+    });
+
+    it('should hide the grid header when no options were found', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-data-grid__header').exists()).toBe(true);
+
+        wrapper.vm.$refs.grid.total = 0;
+        wrapper.vm.checkEmptyState();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.showEmptyState).toBe(true);
+        expect(wrapper.find('.sw-data-grid__header').exists()).toBe(false);
     });
 });

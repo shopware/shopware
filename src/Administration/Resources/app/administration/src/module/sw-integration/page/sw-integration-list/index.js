@@ -9,6 +9,8 @@ const {
     Data: { Criteria },
 } = Shopware;
 
+const DEFAULT_LIMIT = 25;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -27,6 +29,13 @@ export default {
     data() {
         return {
             integrations: null,
+            page: 1,
+            limit: DEFAULT_LIMIT,
+            sortBy: 'label',
+            sortDirection: 'ASC',
+            searchTerm: '',
+            appliedIntegrationFilters: [],
+            hasLoadedLargeIntegrationList: false,
             isLoading: false,
             isModalLoading: false,
             showDeleteModal: null,
@@ -49,7 +58,7 @@ export default {
         },
 
         integrationCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('deletedAt', null));
             criteria.addFilter(
@@ -58,9 +67,17 @@ export default {
                     Criteria.equals('app.active', true),
                 ]),
             );
-            criteria.addSorting(Criteria.sort('label', 'ASC'));
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.addAssociation('aclRoles');
             criteria.addAssociation('app');
+
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            }
+
+            this.integrationFilterCriteria.forEach((filter) => {
+                criteria.addFilter(filter);
+            });
 
             return criteria;
         },
@@ -86,11 +103,104 @@ export default {
                 {
                     property: 'label',
                     label: this.$t('sw-integration.list.integrationName'),
+                    renderer: 'text',
                     primary: true,
+                    position: 0,
+                    sortable: true,
                 },
                 {
-                    property: 'writeAccess',
+                    property: 'permissions',
                     label: this.$t('sw-integration.list.permissions'),
+                    renderer: 'text',
+                    position: 1,
+                },
+            ];
+        },
+
+        hasIntegrations() {
+            return this.integrations?.length > 0;
+        },
+
+        integrationTotalItems() {
+            return this.integrations?.total ?? this.integrations?.length ?? 0;
+        },
+
+        hasActiveIntegrationTableCriteria() {
+            return this.searchTerm.length > 0 || this.appliedIntegrationFilters.length > 0;
+        },
+
+        showIntegrationTableControls() {
+            return (
+                this.hasLoadedLargeIntegrationList ||
+                this.integrationTotalItems > DEFAULT_LIMIT ||
+                this.hasActiveIntegrationTableCriteria
+            );
+        },
+
+        showIntegrationPagination() {
+            return this.showIntegrationTableControls;
+        },
+
+        integrationFilters() {
+            if (!this.showIntegrationTableControls) {
+                return [];
+            }
+
+            return [
+                {
+                    id: 'permissions',
+                    label: this.$t('sw-integration.list.permissions'),
+                    type: {
+                        id: 'options',
+                        options: [
+                            {
+                                id: 'admin',
+                                label: this.$t('sw-users-permissions.users.user-detail.labelAdministrator'),
+                            },
+                            {
+                                id: 'read',
+                                label: this.$t('sw-integration.list.readAccess'),
+                            },
+                        ],
+                    },
+                },
+            ];
+        },
+
+        integrationFilterCriteria() {
+            const permissionFilter = this.appliedIntegrationFilters.find((filter) => filter.id === 'permissions');
+            const permissionOptions = permissionFilter?.type?.options?.map((option) => option.id) ?? [];
+
+            if (permissionOptions.length !== 1) {
+                return [];
+            }
+
+            return [
+                Criteria.equals('admin', permissionOptions.includes('admin')),
+            ];
+        },
+
+        canViewIntegration() {
+            return this.acl.can('integration.viewer') || this.acl.can('integration.editor');
+        },
+
+        deleteIntegration() {
+            if (!this.showDeleteModal || !this.integrations) {
+                return null;
+            }
+
+            return this.integrations.find((integration) => integration.id === this.showDeleteModal) ?? null;
+        },
+
+        integrationContextButtons() {
+            if (!this.feature.isActive('MCP_SERVER') || !this.acl.can('integration_mcp.editor')) {
+                return [];
+            }
+
+            return [
+                {
+                    key: 'edit-mcp',
+                    label: this.$t('sw-integration.list.contextMenuEditMcp'),
                 },
             ];
         },
@@ -112,6 +222,10 @@ export default {
                 .search(this.integrationCriteria)
                 .then((integrations) => {
                     this.integrations = integrations;
+
+                    if (!this.hasActiveIntegrationTableCriteria && this.integrationTotalItems > DEFAULT_LIMIT) {
+                        this.hasLoadedLargeIntegrationList = true;
+                    }
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -207,7 +321,19 @@ export default {
         },
 
         onShowDetailModal(integration) {
+            if (this.isAppIntegration(integration)) {
+                return;
+            }
+
             this.currentIntegration = integration;
+        },
+
+        onShowDeleteModal(integration) {
+            if (this.isAppIntegration(integration)) {
+                return;
+            }
+
+            this.showDeleteModal = integration.id;
         },
 
         onCreateIntegration() {
@@ -249,8 +375,14 @@ export default {
                 });
         },
 
+        onIntegrationContextSelect({ key, data }) {
+            if (key === 'edit-mcp') {
+                this.onShowMcpModal(data);
+            }
+        },
+
         isAppIntegration(integration) {
-            return !!integration.app;
+            return !!integration?.app;
         },
 
         onCloseDeleteModal() {
@@ -267,6 +399,35 @@ export default {
             this.integrationRepository.delete(id).then(() => {
                 this.getList();
             });
+        },
+
+        onPageChange(page) {
+            this.page = page;
+            this.getList();
+        },
+
+        onLimitChange(limit) {
+            this.limit = limit;
+            this.page = 1;
+            this.getList();
+        },
+
+        onSearchValueChange(searchTerm) {
+            this.searchTerm = searchTerm;
+            this.page = 1;
+            this.getList();
+        },
+
+        onUpdateAppliedFilters(filters) {
+            this.appliedIntegrationFilters = filters;
+            this.page = 1;
+            this.getList();
+        },
+
+        onSortChange(sortBy, sortDirection) {
+            this.sortBy = sortBy;
+            this.sortDirection = sortDirection;
+            this.getList();
         },
     },
 };

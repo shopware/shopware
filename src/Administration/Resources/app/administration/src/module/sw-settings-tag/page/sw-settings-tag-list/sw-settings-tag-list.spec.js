@@ -18,8 +18,8 @@ const connections = {
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 const cloneEndpoint = jest.fn(() => Promise.resolve());
 
-async function createWrapper(privileges = []) {
-    const responseMock = [
+function createResponseMock(
+    tags = [
         {
             id: '1',
             name: 'ExampleTag',
@@ -28,10 +28,14 @@ async function createWrapper(privileges = []) {
             id: '2',
             name: 'AnotherExampleTag',
         },
+    ],
+) {
+    const responseMock = [
+        ...tags,
     ];
 
     responseMock.aggregations = {};
-    responseMock.total = 2;
+    responseMock.total = tags.length;
 
     Object.keys(connections).forEach((connection) => {
         responseMock.aggregations[connection] = {
@@ -46,6 +50,10 @@ async function createWrapper(privileges = []) {
         };
     });
 
+    return responseMock;
+}
+
+async function createWrapper(privileges = [], responseMock = createResponseMock()) {
     return mount(
         await wrapTestComponent('sw-settings-tag-list', {
             sync: true,
@@ -121,6 +129,21 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                     },
+                    'mt-empty-state': {
+                        props: [
+                            'headline',
+                            'description',
+                            'icon',
+                        ],
+                        template: `
+                            <div
+                                class="mt-empty-state"
+                                :data-headline="headline"
+                                :data-description="description"
+                                :data-icon="icon"
+                            ></div>
+                        `,
+                    },
                     'sw-entity-listing': {
                         props: [
                             'items',
@@ -181,6 +204,57 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         const duplicateMenuItem = wrapper.find('.sw-settings-tag-list__duplicate-action');
 
         expect(duplicateMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should render a tag empty state', async () => {
+        const wrapper = await createWrapper([], createResponseMock([]));
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
+
+        expect(emptyState.attributes('data-icon')).toBe('regular-tag');
+        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.title');
+        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.description');
+        expect(emptyState.attributes('centered')).toBeUndefined();
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
+    });
+
+    it('should render a search-specific tag empty state', async () => {
+        const wrapper = await createWrapper([], createResponseMock([]));
+        await flushPromises();
+
+        await wrapper.setData({
+            term: 'does-not-exist',
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
+
+        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.searchTitle');
+        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.searchDescription');
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
+    });
+
+    it('should render a filter-specific tag empty state', async () => {
+        const wrapper = await createWrapper([], createResponseMock([]));
+        await flushPromises();
+
+        await wrapper.setData({
+            emptyFilter: true,
+        });
+        await flushPromises();
+
+        const emptyState = wrapper.get('.sw-settings-tag-list__empty-state');
+
+        expect(emptyState.attributes('data-headline')).toBe('sw-settings-tag.list.emptyState.filterTitle');
+        expect(emptyState.attributes('data-description')).toBe('sw-settings-tag.list.emptyState.filterDescription');
+        expect(emptyState.attributes('role')).toBe('status');
+        expect(emptyState.attributes('aria-live')).toBe('polite');
+        expect(emptyState.attributes('aria-atomic')).toBe('true');
     });
 
     it('should be able to edit a tag', async () => {

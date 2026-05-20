@@ -75,8 +75,19 @@
             >
                 {% block sw_settings_country_list_grid %}
                 <template #grid>
+                    {% block sw_settings_country_list_empty_state %}
+                    <mt-empty-state
+                        v-if="!isLoading && !total"
+                        class="sw-settings-country-list__empty-state"
+                        icon="regular-map"
+                        :headline="$t('sw-empty-state.messageNoResultTitle')"
+                        :description="$t('sw-empty-state.messageNoResultSublineSimple')"
+                    />
+                    {% endblock %}
+
                     {% block sw_settings_country_list_grid_inner %}
                     <sw-entity-listing
+                        v-else
                         ref="swSettingsCountryGrid"
                         class="sw-settings-country-list-grid"
                         :data-source="country"

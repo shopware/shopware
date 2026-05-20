@@ -156,9 +156,6 @@
                     icon="solid-products"
                     :headline="$t('sw-sales-channel.detail.products.titleEmptyStateTable')"
                 />
-
-                {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
-                {% block sw_sales_channel_detail_products_card_section_primary_image %}{% endblock %}
                 {% endblock %}
             </sw-card-section>
             {% endblock %}
@@ -174,7 +171,6 @@
         :headline="$t('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #button>
-            {% block sw_sales_channel_detail_products_empty_state_button %}
             <mt-button
                 v-tooltip="{
                     message: $t('sw-privileges.tooltip.warning'),
@@ -188,12 +184,8 @@
             >
                 {{ $t('sw-sales-channel.detail.products.buttonAddProducts') }}
             </mt-button>
-            {% endblock %}
         </template>
     </mt-empty-state>
-
-    {# @deprecated tag:v6.8.0 - Will be removed, use mt-button icon property of mt-empty-state instead #}
-    {% block sw_sales_channel_detail_products_empty_state_image %}{% endblock %}
     {% endblock %}
 
     {% block sw_sales_channel_detail_products_assignment_modal %}

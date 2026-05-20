@@ -71,7 +71,7 @@
     },
     "notification-center": {
       "title": "Notifications",
-      "emptyText": "You're all caught up",
+      "emptyText": "Nothing going on lately.",
       "emptyDescription": "New notifications will appear here.",
       "ringBellLabel": "Ring notification bell",
       "deleteModal": {

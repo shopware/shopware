@@ -117,6 +117,7 @@ runs:
           uses: shopware/setup-shopware@main
           with:
               mysql-version: "builtin"
+              npm-version: 11.8.0
               shopware-version: ${{ github.ref }}
               shopware-repository: ${{ github.repository }}
               install: ${{ inputs.install }}
@@ -150,6 +151,10 @@ runs:
         - uses: actions/setup-node@v4
           with:
               node-version: 22
+
+        - name: Install npm
+          shell: bash
+          run: npm install -g npm@11.8.0
 
         - name: Cache npm packages
           uses: actions/cache@v4

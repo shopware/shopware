@@ -66,7 +66,7 @@ class TestBootstrapperTest extends TestCase
         static::assertSame(['Test'], $activePlugins);
     }
 
-    public function testGetClassLoaderRegistersActivePluginAutoloadDev(): void
+    public function testGetClassLoaderRegistersActivePluginAutoloadDevFromKernelPluginLoader(): void
     {
         $previousKernel = KernelLifecycleAccessor::currentKernel();
         $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
@@ -129,6 +129,47 @@ class TestBootstrapperTest extends TestCase
 
         try {
             static::assertSame($projectDir . '/' . $vendorPluginPath, (new TestBootstrapper())->setProjectDir($projectDir)->getPluginPath('SwagCmsElements'));
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
+    }
+
+    public function testGetPluginPathFallsBackToFilesystemForLocalPlugins(): void
+    {
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+        $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
+        $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
+
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            static::assertSame($pluginPath, (new TestBootstrapper())->setProjectDir($projectDir)->getPluginPath('SwagStaticAnalysis'));
+        } finally {
+            KernelLifecycleAccessor::setKernel($previousKernel);
+        }
+    }
+
+    public function testGetClassLoaderRegistersActivePluginAutoloadDevFromFilesystemFallback(): void
+    {
+        $previousKernel = KernelLifecycleAccessor::currentKernel();
+        $projectDir = __DIR__ . '/_fixtures/TestBootstrapper/project';
+        $pluginPath = $projectDir . '/custom/static-plugins/SwagStaticAnalysis';
+
+        $kernel = $this->createMock(Kernel::class);
+        $kernel->method('getPluginLoader')->willThrowException(new \RuntimeException('Kernel plugin loader is not available.'));
+
+        KernelLifecycleAccessor::setKernel($kernel);
+
+        try {
+            $classLoader = (new TestBootstrapper())
+                ->setProjectDir($projectDir)
+                ->addActivePlugins('SwagStaticAnalysis')
+                ->getClassLoader();
+
+            static::assertSame([$pluginPath . '/tests/'], $classLoader->getPrefixesPsr4()['SwagStaticAnalysis\\Tests\\']);
         } finally {
             KernelLifecycleAccessor::setKernel($previousKernel);
         }

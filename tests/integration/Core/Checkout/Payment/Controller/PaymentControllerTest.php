@@ -64,6 +64,8 @@ class PaymentControllerTest extends TestCase
 
     private PaymentProcessor $paymentProcessor;
 
+    private ?string $orderCustomerId = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -223,10 +225,15 @@ class PaymentControllerTest extends TestCase
 
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
+        $options = [
+            SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
+        ];
+        if ($this->orderCustomerId !== null) {
+            $options[SalesChannelContextService::CUSTOMER_ID] = $this->orderCustomerId;
+        }
+
         return static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
-                SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
-            ]);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
     }
 
     private function createTransaction(
@@ -252,8 +259,9 @@ class PaymentControllerTest extends TestCase
     private function createOrder(Context $context): string
     {
         $orderId = Uuid::randomHex();
+        $this->orderCustomerId = Uuid::randomHex();
 
-        $order = $this->getOrderData($orderId, $context);
+        $order = $this->getOrderData($orderId, $context, $this->orderCustomerId);
         $this->orderRepository->upsert($order, $context);
 
         return $orderId;

@@ -96,17 +96,15 @@ class StructNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<list<mixed>>
+     * @return iterable<list<mixed>>
      */
-    public static function denormalizeShouldReturnNonArraysProvider(): array
+    public static function denormalizeShouldReturnNonArraysProvider(): iterable
     {
-        return [
-            ['string'],
-            [1],
-            [null],
-            [false],
-            [new \stdClass()],
-        ];
+        yield 'string input is returned unchanged' => ['string'];
+        yield 'integer input is returned unchanged' => [1];
+        yield 'null input is returned unchanged' => [null];
+        yield 'false input is returned unchanged' => [false];
+        yield 'object input is returned unchanged' => [new \stdClass()];
     }
 
     #[DataProvider('denormalizeShouldReturnNonArraysProvider')]

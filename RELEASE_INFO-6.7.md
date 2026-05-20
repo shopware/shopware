@@ -2,7 +2,36 @@
 
 ## Features
 
+### [Experimental] MCP Server for AI tool integration
+
+Shopware now includes an experimental MCP (Model Context Protocol) server that lets AI clients like Claude Desktop or Cursor interact with your Shopware instance through a standardized protocol.
+
+The server exposes the full MCP capability set:
+- **Tools** for entity management (search, read, create, update, delete), system configuration, state machine transitions, cache management, and storefront product search with sales channel context.
+- **Prompts** that give the AI client context about Shopware's data model, criteria format, and best practices.
+- **Resources** that expose static reference data (entity list, sales channels, state machines, business events, flow actions) as readable URIs.
+
+All operations respect the authenticated user's ACL permissions and integrate with the Admin API authentication. Integration credentials can be passed directly via `sw-access-key` and `sw-secret-access-key` headers. No separate OAuth token exchange is required. Per-integration allowlists are configurable under Settings -> Integrations to limit which tools, prompts, and resources a given client can see.
+
+To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and uses the Streamable HTTP transport. Plugins register additional MCP capabilities by tagging services with `mcp.tool`, `mcp.prompt`, or `mcp.resource`. Apps can declare them in their app manifest.
+
+A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
+
 ## API
+
+### New foreign key resolvers for the Sync API
+
+The Sync API now ships seven additional foreign key resolvers, allowing payloads to reference entities by stable human-readable keys instead of UUIDs:
+
+* `currency.iso_code` — resolves a `currency` by its `isoCode` (e.g. `EUR`).
+* `locale.code` — resolves a `locale` by its `code` (e.g. `en-GB`). The `en_GB` underscore variant is also accepted.
+* `payment_method.technical_name` — resolves a `payment_method` by its `technicalName`.
+* `shipping_method.technical_name` — resolves a `shipping_method` by its `technicalName`.
+* `document_type.technical_name` — resolves a `document_type` by its `technicalName`.
+* `salutation.salutation_key` — resolves a `salutation` by its `salutationKey` (e.g. `mr`).
+* `tax.tax_rate` — resolves a `tax` by its `taxRate`. Because `tax_rate` is not unique, the resolver only resolves a value when exactly one tax row matches the given rate; ambiguous rates are left unresolved (combine with `nullOnMissing: true` if appropriate).
+
+Use these inside a Sync payload anywhere a UUID is expected, e.g. `{"currencyId": {"resolver": "currency.iso_code", "value": "EUR"}}`.
 
 ### Mail template preview and send routes support richer rendering context
 
@@ -69,6 +98,8 @@ The old `pluginTranslationExists(Plugin $plugin)` is deprecated and will be remo
 
 `TestBootstrapper::addActivePlugins()` can now be used with Composer-managed plugins installed below `vendor/`.
 Plugins no longer need to be copied into `custom/plugins` or `custom/static-plugins` just to be installed and activated during test bootstrap.
+When `TestBootstrapper::getPluginPath()` or `getClassLoader()` is used without bootstrapping the full application, local plugins below `custom/plugins` and `custom/static-plugins` are still resolved from the filesystem.
+This keeps static analysis and other tooling that only needs plugin paths or `autoload-dev` registration working without a database-backed kernel.
 
 ### Requirement-aware plugin installation order
 
@@ -91,6 +122,15 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 
 ## Administration
 
+### Block renaming
+
+Due to misleading block names, the following blocks have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
+
+* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
+
 ### Mail template preview is now sales-channel-aware and uses isolated HTML rendering
 
 The mail template detail page can now preview mails with the selected sales channel and its configured mail header and footer.
@@ -98,6 +138,7 @@ This helps developers and merchants validate the final rendered output more accu
 
 The HTML preview is now rendered in a sandboxed iframe instead of being injected directly into the Administration DOM.
 This keeps the preview close to the actual mail output while reducing the risk of script execution from rendered template content.
+
 ### Custom fields respect read-only permissions in Administration detail views
 
 Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
@@ -132,11 +173,124 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
+### New Component System
+
+We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.
+
+To dive into the full possibilities, please refer to the [official documentation](https://developer.shopware.com/docs/concepts/framework/storefront-components.html).
+
+### New Dev-Server for development based on Vite
+
+With the new component system we introduced a separate build process based on Vite. With that there is also a new dev-server feature available that also supports usual theme file updates for SCSS and JS. It offers a better developer experience, because it does not need a proxy. You can simply work in your normal Storefront while the dev-server is active.
+
+```
+composer storefront:dev-server
+```
+
+The current `composer watch:storefront` command is deprecated for the next major version. Use the new dev-server instead.
+
+### Theme config available as native CSS custom properties
+
+With the new content system we want to move away from the PHP-based SCSS compilation. As a first step, we made the theme configuration available as native CSS custom properties. You can start using them instead of SCSS variables for colors and other visual settings in CSS. The CSS custom properties are available under the same name as the SCSS variables.
+
+**Example**
+```CSS
+.btn-primary {
+    background: var(--sw-color-brand-primary);
+}
+```
+
+Available are all config fields that does not have set `scss: false` in the theme configuration.
+
+### Single file references in theme.json
+
+The `theme.json` file now supports single file references, allowing you to include individual files from other bundles rather than pulling in an entire theme or plugin. This gives themes fine-grained control over exactly which files are compiled.
+
+This is available for both `style` and `script` entries:
+
+**Bundle-relative references** — Include a single specific file from another bundle or theme using `@BundleName/path/to/file`:
+
+```json
+{
+  "style": [
+    "@MyTheme/app/storefront/src/scss/overrides.scss",
+    "@MyTheme"
+  ],
+  "script": [
+    "@MyPlugin/app/storefront/dist/storefront/my-plugin.js",
+    "@Plugins"
+  ]
+}
+```
+
+### New global JavaScript event system
+
+With the new component system we also start to improve the general possibilities in the Storefront. One of these improvements is a new global event system that is available via a new central `Shopware` object. This system is easier to use than the instance scoped events from the current JS plugin system. The event system is based on the native Node [event emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter) and can be used in a similar way. You will find some additional features, like interceptable events which can be used to hook into certain methods, like changing request parameters before they get send. We want to offer this as a new extension system, especially for the new component system.
+
+```JavaScript
+window.Shopware.emit('Filter:Change', { foo: 'bar' });
+```
+
+```JavaScript
+window.Shopware.on('Filter:Change', ({ foo }) => {
+    // do something
+});
+```
+
+For more detailed information, refer to the [documentation](./src/Storefront/Resources/app/storefront/src/component-system/README.md).
+
+### New plugin manager function to call plugin methods
+
+We added a new method to the Storefront plugin manager which allows to call a specific plugin method on all existing instances of that plugin.
+
+```JavaScript
+window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
+```
+
+### Single-hit search redirect now matches EAN and manufacturer number
+
+The storefront search already redirected to the product detail page when a search term exactly matched a product's number and produced a single result.
+The same redirect now triggers when the term exactly matches the product's `ean` or `manufacturerNumber`.
+The condition still requires exactly one matching product, so listings with multiple hits remain unaffected.
+
+The set of fields that trigger the redirect is configurable via the `shopware.storefront.redirect_on_single_hit_fields` container parameter (defaults to `['productNumber', 'ean', 'manufacturerNumber']`).
+Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
+Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
+
 ## App System
 
 ## Hosting & Configuration
 
+### Local filesystem permission enforcement can be disabled
+
+Local filesystem adapters now support `config.enforce_file_permissions: false` to preserve existing file permissions after writes.
+This is useful for installations that manage permissions outside Shopware, for example with ACLs or shared deployment users, where writes are allowed but `chmod()` calls should not be enforced by the application.
+
+### Partial filesystem visibility overrides preserve adapter configuration
+
+Partial filesystem visibility overrides now keep the previously configured adapter `type` and `config`.
+Replacing the adapter `config` block still replaces it as a whole, so adapter-specific config from a previous definition is not mixed into the new adapter.
+
 ## Critical Fixes
+
+# 6.7.10.1
+
+## Critical Fixes
+
+### SVG uploads validate against a strict passive allowlist
+
+SVG uploads in the media subsystem are now validated against a strict passive SVG allowlist before persistence.
+Active content such as scripts, event handlers, processing instructions, external references, and URL-based references in attributes are rejected.
+
+The default allowlist covers the W3C SVG2 presentation attribute set (https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes), ARIA accessibility attributes, the `lang` and `xml:lang` accessibility attributes, and the common safe structural elements `a`, `image`, `marker`, `metadata`, `switch`, `symbol`, and `view`. Anchor `href` / `xlink:href` references remain restricted to local document fragments (`#id`), so `javascript:`, `data:`, and remote URLs are rejected. Active content (scripts, event handlers, animations, foreign objects, processing instructions, DOCTYPEs, entities) and any external `url(...)` / `@import` references remain blocked regardless of the attribute that carries them.
+
+The accepted SVG subset can be adjusted on installation level via `shopware.media.svg.allowed_elements`, `shopware.media.svg.allowed_attributes`, and `shopware.media.svg.allowed_reference_attributes` in `shopware.yaml`.
+
+### `external-link` endpoint URL validation aligned with `upload-from-url`
+
+The URL validation for the `external-link` endpoint is now in line with the existing validation in the `upload-from-url` flow.
+The static `MediaUploadService::validateExternalUrl()` is deprecated in favour of the new `assertValidExternalUrl()` method on the service.
+See `UPGRADE-6.8.md` for migration details.
 
 # 6.7.10.0
 

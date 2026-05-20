@@ -166,7 +166,30 @@ export default {
         openMenu() {
             this.$emit('on-open-change', true);
             this.showMenu = true;
+
+            if (this.autoCloseOutsideClick) {
+                document.addEventListener('click', this.handleOutsideClickEvent, true);
+            }
+
             document.addEventListener('click', this.handleClickEvent);
+        },
+
+        handleOutsideClickEvent(event) {
+            if (!this.autoCloseOutsideClick || !this.showMenu) {
+                return false;
+            }
+
+            const contextButton = this.$refs.swContextButton;
+            const contextMenu = this.$refs.swContextMenu?.$el;
+
+            const clickedInsideButton = contextButton?.contains(event.target) ?? false;
+            const clickedInsideMenu = contextMenu?.contains(event.target) ?? false;
+
+            if (!event?.target || (!clickedInsideButton && !clickedInsideMenu)) {
+                return this.closeMenu();
+            }
+
+            return false;
         },
 
         handleClickEvent(event) {
@@ -207,6 +230,7 @@ export default {
         closeMenu() {
             this.$emit('on-open-change', false);
             this.showMenu = false;
+            document.removeEventListener('click', this.handleOutsideClickEvent, true);
             document.removeEventListener('click', this.handleClickEvent);
         },
     },

@@ -2,22 +2,53 @@
 
 namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 
+use League\Flysystem\Config;
+use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 #[Package('framework')]
-class LocalFactory implements AdapterFactoryInterface
+class LocalFactory implements FilesystemOperatorFactoryInterface
 {
     /**
      * @param array<string, mixed> $config
      */
     public function create(array $config): FilesystemAdapter
     {
+        return $this->createAdapter($this->resolveOptions($config));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @param array<string, mixed> $filesystemOptions
+     */
+    public function createFilesystem(array $config, array $filesystemOptions): FilesystemOperator
+    {
         $options = $this->resolveOptions($config);
 
+        if (!$options['enforce_file_permissions']) {
+            // The local adapter maps visibility to chmod calls after writes, moves, and copies.
+            unset($filesystemOptions[Config::OPTION_VISIBILITY]);
+            $filesystemOptions[Config::OPTION_RETAIN_VISIBILITY] = false;
+        }
+
+        return new LeagueFilesystem($this->createAdapter($options), $filesystemOptions);
+    }
+
+    public function getType(): string
+    {
+        return 'local';
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function createAdapter(array $options): FilesystemAdapter
+    {
         return new LocalFilesystemAdapter(
             $options['root'],
             PortableVisibilityConverter::fromArray([
@@ -34,11 +65,6 @@ class LocalFactory implements AdapterFactoryInterface
         );
     }
 
-    public function getType(): string
-    {
-        return 'local';
-    }
-
     /**
      * @param array<string, mixed> $config
      *
@@ -49,14 +75,16 @@ class LocalFactory implements AdapterFactoryInterface
         $options = new OptionsResolver();
 
         $options->setRequired(['root']);
-        $options->setDefined(['file', 'dir', 'url']);
+        $options->setDefined(['file', 'dir', 'url', 'enforce_file_permissions']);
 
         $options->setAllowedTypes('root', 'string');
         $options->setAllowedTypes('file', 'array');
         $options->setAllowedTypes('dir', 'array');
+        $options->setAllowedTypes('enforce_file_permissions', 'bool');
 
         $options->setDefault('file', []);
         $options->setDefault('dir', []);
+        $options->setDefault('enforce_file_permissions', true);
 
         $config = $options->resolve($config);
         $config['file'] = $this->resolveFilePermissions($config['file']);

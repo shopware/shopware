@@ -71,5 +71,4 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
             expect(codeEditor.attributes().disabled).toBeUndefined();
         });
     });
-
 });

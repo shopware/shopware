@@ -71,7 +71,7 @@
     },
     "notification-center": {
       "title": "Mitteilungen",
-      "emptyText": "Du bist auf dem neuesten Stand",
+      "emptyText": "Nicht viel los hier.",
       "emptyDescription": "Neue Mitteilungen erscheinen hier.",
       "ringBellLabel": "Mitteilungsglocke läuten",
       "deleteModal": {

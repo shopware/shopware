@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryTime;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -25,10 +27,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -211,6 +216,79 @@ class DeliveryCalculatorTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $newCosts);
         static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
         static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
+    }
+
+    public function testCalculateWithoutShippingCostsAddsBlockedShippingMethodError(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId($shippingMethodId);
+        $shippingMethod->setTranslated(['name' => 'Test shipping']);
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection());
+
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                10,
+                12.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $price = $lineItem->getPrice();
+        static::assertNotNull($price);
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(
+                    Uuid::randomHex(),
+                    $lineItem,
+                    1,
+                    $price,
+                    new DeliveryDate(new \DateTime(), new \DateTime())
+                ),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context
+            ->expects($this->once())
+            ->method('getRuleIds')
+            ->willReturn([]);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethodId), $shippingMethod);
+
+        $cart = new Cart('test');
+
+        $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
+        $quantityPriceCalculatorMock
+            ->expects($this->never())
+            ->method('calculate');
+
+        $deliveryCalculator = new DeliveryCalculator(
+            $quantityPriceCalculatorMock,
+            $this->createMock(PercentageTaxRuleBuilder::class),
+            $this->createMock(CashRounding::class),
+        );
+
+        $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
+
+        $error = $cart->getErrors()->first();
+
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+        static::assertSame([
+            'id' => $shippingMethodId,
+            'name' => 'Test shipping',
+            'reason' => 'no shipping costs found',
+        ], $error->getParameters());
     }
 
     public function testCalculateManualShippingCost(): void

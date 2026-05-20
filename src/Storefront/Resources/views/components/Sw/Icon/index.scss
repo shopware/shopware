@@ -53,8 +53,8 @@ Basic styling for icon component plus helper classes for sizing and colors.
 
 @for $i from 1 through 10 {
     .sw-icon-#{$i}x {
-        width: $i * $icon-base-size;
-        height: $i * $icon-base-size;
+        width: calc(#{$i} * var(--icon-base-size));
+        height: calc(#{$i} * var(--icon-base-size));
     }
 }
 

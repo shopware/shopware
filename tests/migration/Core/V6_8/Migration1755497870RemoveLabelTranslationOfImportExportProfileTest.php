@@ -27,6 +27,11 @@ class Migration1755497870RemoveLabelTranslationOfImportExportProfileTest extends
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1755497870, (new Migration1755497870RemoveLabelTranslationOfImportExportProfile())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         if (!TableHelper::tableExists($this->connection, 'import_export_profile_translation')) {

@@ -401,23 +401,21 @@ class OrderStockSubscriberTest extends TestCase
     }
 
     /**
-     * @return array<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
+     * @return iterable<string, array{fromStateName: string, toStateName: string, quantityBefore: int, quantityAfter: int}>
      */
-    public static function orderStateTransitionProvider(): array
+    public static function orderStateTransitionProvider(): iterable
     {
-        return [
-            'order-cancelled' => [
-                'fromStateName' => OrderStates::STATE_OPEN,
-                'toStateName' => OrderStates::STATE_CANCELLED,
-                'quantityBefore' => 10,
-                'quantityAfter' => 0,
-            ],
-            'order-reopened' => [
-                'fromStateName' => OrderStates::STATE_CANCELLED,
-                'toStateName' => OrderStates::STATE_OPEN,
-                'quantityBefore' => 0,
-                'quantityAfter' => 10,
-            ],
+        yield 'order-cancelled' => [
+            'fromStateName' => OrderStates::STATE_OPEN,
+            'toStateName' => OrderStates::STATE_CANCELLED,
+            'quantityBefore' => 10,
+            'quantityAfter' => 0,
+        ];
+        yield 'order-reopened' => [
+            'fromStateName' => OrderStates::STATE_CANCELLED,
+            'toStateName' => OrderStates::STATE_OPEN,
+            'quantityBefore' => 0,
+            'quantityAfter' => 10,
         ];
     }
 

@@ -389,16 +389,13 @@ class ThumbnailServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string, int>|bool>>
+     * @return iterable<array<array<string, int>|bool>>
      */
-    public static function thumbnailSizeProvider(): array
+    public static function thumbnailSizeProvider(): iterable
     {
-        return [
-            // image size, keep aspect ratio, preferred size, expected size
-            [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]],
-            [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]],
-            [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]],
-        ];
+        yield 'landscape image keeps aspect ratio for a smaller thumbnail' => [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]];
+        yield 'landscape image uses preferred size when aspect ratio is disabled' => [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]];
+        yield 'smaller source image is kept when aspect ratio is disabled' => [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]];
     }
 
     public function testThumbnailGenerationThrowExceptionWhenRemoteThumbnailEnabled(): void

@@ -61,6 +61,10 @@ $sw-field-icon-border-radius: $border-radius-default;
         margin-bottom: 0;
     }
 
+    span + .sw-label {
+        margin-left: 8px;
+    }
+
     .sw-grid .sw-grid__content.sw-grid__content--pagination {
         grid-template-rows: auto;
     }

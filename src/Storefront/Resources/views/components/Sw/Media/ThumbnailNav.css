@@ -4,9 +4,9 @@
     --sw-thumbnail-nav-thumbnail-hover-border-color: var(--bs-primary);
     --sw-thumbnail-nav-thumbnail-border-width: 2px;
     --sw-thumbnail-nav-scroll-control-size: 40px;
-    --sw-thumbnail-nav-gap: #{map-get($spacers, 2)};
+    --sw-thumbnail-nav-gap: 0.5rem;
     --sw-thumbnail-nav-padding: calc(var(--sw-thumbnail-nav-thumbnail-border-width) * 2);
-    align-self: stretch; 
+    align-self: stretch;
     height: 100%;
     position: relative;
     width: var(--sw-thumbnail-nav-thumbnail-size);

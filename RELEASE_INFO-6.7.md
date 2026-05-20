@@ -267,6 +267,16 @@ Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath
 When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
 See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
 
+### Local filesystem permission enforcement can be disabled
+
+Local filesystem adapters now support `config.enforce_file_permissions: false` to preserve existing file permissions after writes.
+This is useful for installations that manage permissions outside Shopware, for example with ACLs or shared deployment users, where writes are allowed but `chmod()` calls should not be enforced by the application.
+
+### Partial filesystem visibility overrides preserve adapter configuration
+
+Partial filesystem visibility overrides now keep the previously configured adapter `type` and `config`.
+Replacing the adapter `config` block still replaces it as a whole, so adapter-specific config from a previous definition is not mixed into the new adapter.
+
 ## Critical Fixes
 
 # 6.7.10.1

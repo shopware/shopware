@@ -17,6 +17,5 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
  *   'https://github.com/advisories/GHSA-xxxx-xxxx-xxxx', // pkg-name issue, severity, devDep only, no fix available
  */
 runNpmAudit({
-    ignoredGHSAs: [
-    ],
+    ignoredGHSAs: [],
 });

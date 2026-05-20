@@ -149,6 +149,7 @@
         "symfony/translation-contracts": "~3.6.0",
         "symfony/twig-bridge": "~7.4.0",
         "symfony/twig-bundle": "~7.4.0",
+        "symfony/ux-twig-component": "~2.35.0",
         "symfony/validator": "~7.4.0",
         "symfony/var-exporter": "~7.4.0",
         "symfony/yaml": "~7.4.0",

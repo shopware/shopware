@@ -40,6 +40,7 @@ class FileSaver
         private readonly EntityRepository $mediaRepository,
         private readonly FilesystemOperator $filesystemPublic,
         private readonly FilesystemOperator $filesystemPrivate,
+        private readonly FileContentValidationStrategy $fileContentValidationStrategy,
         private readonly MetadataLoader $metadataLoader,
         private readonly TypeDetector $typeDetector,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -71,6 +72,7 @@ class FileSaver
         );
 
         $this->extensionValidator->validate($mediaFile->getFileExtension(), $currentMedia->isPrivate(), $context, $mediaId);
+        $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->cleanup->removeOldMediaData($currentMedia, $context);
 

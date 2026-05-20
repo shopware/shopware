@@ -217,15 +217,13 @@ class PromotionValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: float}>
+     * @return iterable<string, array{0: string, 1: float}>
      */
-    public static function invalidProvider(): array
+    public static function invalidProvider(): iterable
     {
-        return [
-            'negative percentage' => ['percentage', -0.01],
-            'percentage over 100' => ['percentage', 100.01],
-            'negative absolute' => ['absolute', -0.01],
-        ];
+        yield 'negative percentage' => ['percentage', -0.01];
+        yield 'percentage over 100' => ['percentage', 100.01];
+        yield 'negative absolute' => ['absolute', -0.01];
     }
 
     /**
@@ -268,16 +266,14 @@ class PromotionValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: float}>
+     * @return iterable<string, array{0: string, 1: float}>
      */
-    public static function validProvider(): array
+    public static function validProvider(): iterable
     {
-        return [
-            'zero percentage' => ['percentage', -0.00],
-            '100 percentage' => ['percentage', 100.00],
-            'zero absolute' => ['absolute', 0.00],
-            'positive absolute' => ['absolute', 260.00],
-        ];
+        yield 'zero percentage' => ['percentage', -0.00];
+        yield '100 percentage' => ['percentage', 100.00];
+        yield 'zero absolute' => ['absolute', 0.00];
+        yield 'positive absolute' => ['absolute', 260.00];
     }
 
     /**

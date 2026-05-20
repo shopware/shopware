@@ -20,7 +20,7 @@
 
         .sw-cms-el-config-cross-selling__select-product-number {
             display: inline;
-            color: $color-gray-400;
+            color: var(--color-text-secondary-default);
             margin-left: 10px;
         }
     }

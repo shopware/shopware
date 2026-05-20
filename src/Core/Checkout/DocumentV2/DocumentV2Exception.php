@@ -44,6 +44,14 @@ class DocumentV2Exception extends HttpException
 
     public const TEMPLATE_RENDER_FAILED = 'DOCUMENT_V2__TEMPLATE_RENDER_FAILED';
 
+    public const LEGACY_CONFIG_MISSING_REQUIRED_FIELDS = 'DOCUMENT_V2__LEGACY_CONFIG_MISSING_REQUIRED_FIELDS';
+
+    public const TEMPLATE_CONTEXT_READ_ONLY = 'DOCUMENT_V2__TEMPLATE_CONTEXT_READ_ONLY';
+
+    public const UNSUPPORTED_CONFIG_CAST_TYPE = 'DOCUMENT_V2__UNSUPPORTED_CONFIG_CAST_TYPE';
+
+    public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -194,6 +202,46 @@ class DocumentV2Exception extends HttpException
             'Failed to render document template "{{ view }}": {{ reason }}.',
             ['view' => $view, 'reason' => $previous->getMessage()],
             $previous,
+        );
+    }
+
+    public static function legacyConfigMissingRequiredFields(string $target, string $documentType, string $field): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LEGACY_CONFIG_MISSING_REQUIRED_FIELDS,
+            'Legacy document configuration for document type "{{ documentType }}" is missing required field "{{ field }}" for "{{ target }}".',
+            ['documentType' => $documentType, 'target' => $target, 'field' => $field],
+        );
+    }
+
+    public static function templateContextReadOnly(string $offset): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_CONTEXT_READ_ONLY,
+            'TemplateContext is read-only; cannot mutate offset "{{ offset }}".',
+            ['offset' => $offset],
+        );
+    }
+
+    public static function unsupportedConfigCastType(string $type): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNSUPPORTED_CONFIG_CAST_TYPE,
+            'Unsupported document config cast type "{{ type }}".',
+            ['type' => $type],
+        );
+    }
+
+    public static function missingDocumentNumber(string $documentType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_DOCUMENT_NUMBER,
+            'Document number is missing for document type "{{ documentType }}".',
+            ['documentType' => $documentType],
         );
     }
 }

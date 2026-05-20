@@ -110,6 +110,7 @@
     .sw-data-grid__cell-value {
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: normal;
     }
 
     .sw-data-grid__cell--align-right {

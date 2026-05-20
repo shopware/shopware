@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\RevocationRequest\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -46,6 +47,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $cmsSlotRepository,
         private readonly EntityRepository $categoryRepository,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -62,7 +64,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
         }
 
         EmailIdnConverter::encodeDataBag($dataBag);
-        $dataBag->set('submitTime', new \DateTimeImmutable());
+        $dataBag->set('submitTime', $this->clock->now());
 
         $this->validateRevocationRequestForm($dataBag, $context);
 

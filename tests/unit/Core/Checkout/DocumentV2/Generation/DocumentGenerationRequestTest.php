@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -25,6 +26,7 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            new MockClock(),
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
@@ -36,21 +38,22 @@ class DocumentGenerationRequestTest extends TestCase
         static::assertSame('2026-05-05T12:00:00+00:00', $request->documentDate);
     }
 
-    public function testDocumentDateDefaultsToNow(): void
+    public function testDocumentDateDefaultsToClockNow(): void
     {
-        $before = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $clock = new MockClock('2026-05-18 10:00:00');
 
         $request = new DocumentGenerationRequest(
             Uuid::randomHex(),
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            $clock,
         );
 
-        $after = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-
-        static::assertGreaterThanOrEqual($before, $request->documentDate);
-        static::assertLessThanOrEqual($after, $request->documentDate);
+        static::assertSame(
+            $clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $request->documentDate
+        );
     }
 
     public function testExplicitDocumentDateIsPreserved(): void
@@ -60,6 +63,7 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            new MockClock(),
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
@@ -73,6 +77,7 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::HTML],
+            new MockClock(),
         );
 
         static::assertSame([DocumentFormat::HTML->value], $request->requestedFormats);
@@ -83,6 +88,7 @@ class DocumentGenerationRequestTest extends TestCase
             Uuid::randomHex(),
             DocumentType::INVOICE->value,
             [DocumentFormat::HTML->value],
+            new MockClock(),
         );
 
         static::assertSame([DocumentFormat::HTML->value], $request->requestedFormats);

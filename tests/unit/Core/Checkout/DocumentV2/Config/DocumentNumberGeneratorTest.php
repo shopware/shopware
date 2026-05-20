@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -32,6 +33,7 @@ class DocumentNumberGeneratorTest extends TestCase
             orderVersionId: Uuid::randomHex(),
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::PDF],
+            clock: new NativeClock(),
         );
 
         $order = new OrderEntity();

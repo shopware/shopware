@@ -146,6 +146,7 @@
         "symfony/intl": "~7.4.0",
         "symfony/lock": "~7.4.0",
         "symfony/mailer": "~7.4.0",
+        "symfony/mcp-bundle": "~0.9.0",
         "symfony/messenger": "~7.4.0",
         "symfony/mime": "~7.4.0",
         "symfony/monolog-bridge": "~7.4.0",

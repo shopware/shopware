@@ -13,7 +13,7 @@
         margin-left: auto;
         text-decoration: none;
         font-size: $font-size-xs;
-        color: $color-crimson-500;
+        color: var(--color-text-critical-default);
         background: 0 none;
         cursor: pointer;
         border: none;

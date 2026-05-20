@@ -19,6 +19,11 @@ class Migration1720603803RemoveDefaultPaymentMethodFlowsTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720603803, (new Migration1720603803RemoveDefaultPaymentMethodFlows())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $initialInvalidFlows = $this->getInvalidFlows();

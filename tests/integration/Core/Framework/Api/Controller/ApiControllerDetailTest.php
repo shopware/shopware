@@ -6,6 +6,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -75,16 +76,16 @@ class ApiControllerDetailTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
 
-        // Returns 500 (FRAMEWORK__MISSING_REVERSE_ASSOCIATION) due to broken association
-        // see https://github.com/shopware/shopware/issues/14018
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $content);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
 
-        // Once #14018 is fixed, these should be the correct assertions:
-        // static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        // $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
-        // static::assertArrayHasKey('data', $decoded);
-        // static::assertCount(1, $decoded['data']);
-        // static::assertSame($ids->get('address2'), $decoded['data'][0]['id']);
+            $decoded = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertArrayHasKey('data', $decoded);
+            static::assertCount(1, $decoded['data']);
+            static::assertSame($ids->get('address2'), $decoded['data'][0]['id']);
+        } else {
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode(), $content);
+        }
     }
 
     private function createCustomer(): IdsCollection

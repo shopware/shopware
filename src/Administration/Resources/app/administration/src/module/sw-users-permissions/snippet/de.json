@@ -67,13 +67,19 @@
             },
             "grid": {
                 "title": "Berechtigungen",
-                "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst andere aktive Optionen deaktivieren."
+                "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst andere aktive Optionen deaktivieren.",
+                "tooltipParentRole": "Alle {role}-Rechte für {parent}",
+                "tooltipParentAll": "Alle Rechte für {parent} ({roles})",
+                "tooltipEntityAll": "Alle Rechte für {entity} ({roles})"
             },
             "additional-permissions": {
                 "title": "Zusätzliche Berechtigungen"
             },
             "detailed-additional-permissions": {
                 "title": "Zusätzliche Berechtigungen"
+            },
+            "detailed-grid": {
+                "coveredByGeneralMessage": "Bereits über den Tab \"Allgemein\" gewährt."
             },
             "view": {
                 "detailed": {
@@ -83,6 +89,29 @@
             "tabs": {
                 "general": "Allgemein",
                 "detailed": "Detaillierte Privilegien"
+            },
+            "mcpHint": {
+                "text": "Diese Rolle ist {count} MCP-aktivierten Integration(en) zugewiesen. ",
+                "linkText": "MCP Tool-Anforderungen anzeigen"
+            },
+            "mcpModal": {
+                "title": "MCP Tool-Anforderungen",
+                "description": "Die folgenden Tools sind in Integrationen erlaubt, die diese Rolle verwenden.",
+                "legendLabel": "Legende:",
+                "legendGranted": "vorhanden",
+                "legendGrantedHint": "Diese Berechtigung ist der Rolle bereits zugewiesen.",
+                "legendMissing": "fehlt",
+                "legendMissingHint": "Diese Berechtigung ist der Rolle noch nicht zugewiesen.",
+                "legendDynamic": "dynamisch",
+                "legendDynamicHint": "Diese Berechtigung hängt vom zur Laufzeit übergebenen Entitätsparameter ab.",
+                "noToolsHeadline": "Keine Tools gefunden",
+                "noToolsDescription": "Für die Integrationen, die diese Rolle verwenden, sind derzeit keine Tools erlaubt.",
+                "dynamicPrivilegeHint": "Diese Berechtigung hängt vom zur Laufzeit übergebenen Entitätsparameter ab.",
+                "viewByPermission": "Nach Berechtigung",
+                "viewByTool": "Nach Tool",
+                "grantAllMissing": "Alle fehlenden vergeben",
+                "grant": "Vergeben",
+                "saveReminder": "Berechtigungen vorausgewählt — Rolle speichern, um sie zu übernehmen."
             }
         },
         "users": {
@@ -144,7 +173,7 @@
                 "labelButtonSave": "Speichern",
                 "writeAccess": "Schreiben",
                 "readAccess": "Lesen",
-                "contextMenuEdit": "Bearbeiten",
+                "contextMenuEdit": "Integration bearbeiten",
                 "contextMenuDelete": "Löschen",
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
@@ -178,6 +207,8 @@
                     "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
                     "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
                 },
+                "mcpAllowlistTitle": "MCP-Tool-Allowlist",
+                "mcpAllowlistSaveError": "Die MCP-Allowlist konnte nicht gespeichert werden.",
                 "notification": {
                     "saveError": {
                         "message": "Der Benutzer \"{name}\" konnte nicht gespeichert werden."

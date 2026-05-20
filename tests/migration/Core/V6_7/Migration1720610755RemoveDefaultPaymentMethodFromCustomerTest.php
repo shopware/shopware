@@ -27,6 +27,11 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomerTest extends Test
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720610755, (new Migration1720610755RemoveDefaultPaymentMethodFromCustomer())->getCreationTimestamp());
+    }
+
     public function testUpdateMakesColumnNullable(): void
     {
         if (!TableHelper::columnExists($this->connection, 'customer', 'default_payment_method_id')) {

@@ -67,106 +67,97 @@ class ExternalAuthUserTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed>
+     * @return iterable<string, mixed>
      */
-    public static function createTestDataProvider(): array
+    public static function createTestDataProvider(): iterable
     {
-        return [
-            'all is null' => [
-                'data' => [
-                    'id' => null,
-                    'user_id' => null,
-                    'user_sub' => null,
-                    'token' => null,
-                    'expiry' => null,
-                    'email' => null,
-                ],
-                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [email]: is required',
+        yield 'all is null' => [
+            'data' => [
+                'id' => null,
+                'user_id' => null,
+                'user_sub' => null,
+                'token' => null,
+                'expiry' => null,
+                'email' => null,
             ],
-
-            'all is blank' => [
-                'data' => [
-                    'id' => '',
-                    'user_id' => '',
-                    'user_sub' => '',
-                    'token' => '',
-                    'expiry' => '',
-                    'email' => '',
-                ],
-                'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess)., [expiry]: Needs to be a DateTimeInterface, [email]: is required',
+            'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [email]: is required',
+        ];
+        yield 'all is blank' => [
+            'data' => [
+                'id' => '',
+                'user_id' => '',
+                'user_sub' => '',
+                'token' => '',
+                'expiry' => '',
+                'email' => '',
             ],
-
-            'id is invalid' => [
-                'data' => [
-                    'id' => 12,
-                    'user_id' => 'user_id',
-                    'user_sub' => 'user_sub',
-                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
-                    'expiry' => new \DateTimeImmutable(),
-                    'email' => 'test@example.com',
-                ],
-                'expected' => 'Login user invalid: [id]: This value should be of type string.',
+            'expected' => 'Login user invalid: [id]: is required, [user_id]: is required, [user_sub]: is required, [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess)., [expiry]: Needs to be a DateTimeInterface, [email]: is required',
+        ];
+        yield 'id is invalid' => [
+            'data' => [
+                'id' => 12,
+                'user_id' => 'user_id',
+                'user_sub' => 'user_sub',
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
+                'expiry' => new \DateTimeImmutable(),
+                'email' => 'test@example.com',
             ],
-
-            'user_id is invalid' => [
-                'data' => [
-                    'id' => 'id',
-                    'user_id' => 12,
-                    'user_sub' => 'user_sub',
-                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
-                    'expiry' => new \DateTimeImmutable(),
-                    'email' => 'test@example.com',
-                ],
-                'expected' => 'Login user invalid: [user_id]: Needs to be a string',
+            'expected' => 'Login user invalid: [id]: This value should be of type string.',
+        ];
+        yield 'user_id is invalid' => [
+            'data' => [
+                'id' => 'id',
+                'user_id' => 12,
+                'user_sub' => 'user_sub',
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
+                'expiry' => new \DateTimeImmutable(),
+                'email' => 'test@example.com',
             ],
-
-            'user_sub is invalid' => [
-                'data' => [
-                    'id' => 'id',
-                    'user_id' => 'user_id',
-                    'user_sub' => 12,
-                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
-                    'expiry' => new \DateTimeImmutable(),
-                    'email' => 'test@example.com',
-                ],
-                'expected' => 'Login user invalid: [user_sub]: Needs to be a string',
+            'expected' => 'Login user invalid: [user_id]: Needs to be a string',
+        ];
+        yield 'user_sub is invalid' => [
+            'data' => [
+                'id' => 'id',
+                'user_id' => 'user_id',
+                'user_sub' => 12,
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
+                'expiry' => new \DateTimeImmutable(),
+                'email' => 'test@example.com',
             ],
-
-            'token is invalid' => [
-                'data' => [
-                    'id' => 'id',
-                    'user_id' => 'user_id',
-                    'user_sub' => 'user_sub',
-                    'token' => 12,
-                    'expiry' => new \DateTimeImmutable(),
-                    'email' => 'test@example.com',
-                ],
-                'expected' => 'Login user invalid: [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess).',
+            'expected' => 'Login user invalid: [user_sub]: Needs to be a string',
+        ];
+        yield 'token is invalid' => [
+            'data' => [
+                'id' => 'id',
+                'user_id' => 'user_id',
+                'user_sub' => 'user_sub',
+                'token' => 12,
+                'expiry' => new \DateTimeImmutable(),
+                'email' => 'test@example.com',
             ],
-
-            'expiry is invalid' => [
-                'data' => [
-                    'id' => 'id',
-                    'user_id' => 'user_id',
-                    'user_sub' => 'user_sub',
-                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
-                    'expiry' => '12-12-1212',
-                    'email' => 'test@example.com',
-                ],
-                'expected' => 'Login user invalid: [expiry]: Needs to be a DateTimeInterface',
+            'expected' => 'Login user invalid: [token]: Needs to be an array, [token]: This value should be of type array|(Traversable&ArrayAccess).',
+        ];
+        yield 'expiry is invalid' => [
+            'data' => [
+                'id' => 'id',
+                'user_id' => 'user_id',
+                'user_sub' => 'user_sub',
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
+                'expiry' => '12-12-1212',
+                'email' => 'test@example.com',
             ],
-
-            'email is invalid' => [
-                'data' => [
-                    'id' => 'id',
-                    'user_id' => 'user_id',
-                    'user_sub' => 'user_sub',
-                    'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
-                    'expiry' => new \DateTimeImmutable(),
-                    'email' => 'test.com',
-                ],
-                'expected' => 'Login user invalid: [email]: Needs to be a valid email address',
+            'expected' => 'Login user invalid: [expiry]: Needs to be a DateTimeInterface',
+        ];
+        yield 'email is invalid' => [
+            'data' => [
+                'id' => 'id',
+                'user_id' => 'user_id',
+                'user_sub' => 'user_sub',
+                'token' => ['token' => Uuid::randomHex(), 'refreshToken' => Uuid::randomHex()],
+                'expiry' => new \DateTimeImmutable(),
+                'email' => 'test.com',
             ],
+            'expected' => 'Login user invalid: [email]: Needs to be a valid email address',
         ];
     }
 

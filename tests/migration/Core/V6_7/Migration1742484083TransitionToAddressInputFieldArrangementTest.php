@@ -31,6 +31,11 @@ class Migration1742484083TransitionToAddressInputFieldArrangementTest extends Te
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1742484083, (new Migration1742484083TransitionToAddressInputFieldArrangement())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->revertMigration();

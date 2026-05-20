@@ -96,6 +96,11 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Customer default address detail routes return only the configured default address
+
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
+Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+
 </details>
 
 # Core
@@ -677,6 +682,17 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+## `MediaUploadService::validateExternalUrl()` deprecated
+
+Use the new `assertValidExternalUrl()` instance method instead:
+
+```php
+// Before
+MediaUploadService::validateExternalUrl($url);
+
+// After
+$this->mediaUploadService->assertValidExternalUrl($url);
+```
 
 # Administration
 

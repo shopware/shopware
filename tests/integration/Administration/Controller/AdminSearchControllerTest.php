@@ -98,186 +98,184 @@ class AdminSearchControllerTest extends TestCase
      */
     public static function searchDataProvider(): iterable
     {
-        return [
-            'basic test with query' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'name',
-                                    'value' => 'Fancy Product ABC',
-                                ],
+        yield 'basic test with query' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'name',
+                                'value' => 'Fancy Product ABC',
                             ],
                         ],
                     ],
-                ], true, ['product' => 1],
-            ],
-            'basic test with term' => [
-                [
-                    'product' => [
-                        'term' => 'ABC123',
-                    ],
-                ], true, ['product' => 1],
-            ],
-            'empty payload' => [
-                [
-                ], false, [],
-            ],
-            'empty result' => [
-                [
-                    'product' => [
-                        'term' => 'TheTermThatNotHappens',
-                    ],
-                ], true, ['product' => 0],
-            ],
-            'not found entity payload' => [
-                [
-                    'not-found-entity' => [
-                        'term' => 'ABC',
-                    ],
-                ], false, [],
-            ],
-            'duplicate entities in payload (the later one will be used)' => [
-                json_decode('{"product":{"term":"ABC"},"product":{"term":"XYZ"}}', true), true, ['product' => 0],
-            ],
-            'multiple entities in payload' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'name',
-                                    'value' => 'Fancy',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'product_manufacturer' => [
-                        'term' => 'Cheapest ever 2nd',
-                    ],
-                ], true, ['product' => 2, 'product_manufacturer' => 1],
-            ],
-            'non-granted privilege entities in payload' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'name',
-                                    'value' => 'Fancy',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'customer' => [
-                        'term' => 'John doe',
-                    ],
-                ], true, ['product' => 2], [
-                    'customer' => '{"message":"Missing privilege","missingPrivileges":["customer:read"]}',
                 ],
-            ],
-            'Only non-granted privilege entities in payload' => [
-                [
-                    'category' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'name',
-                                    'value' => 'Fancy',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'customer' => [
-                        'term' => 'John doe',
-                    ],
-                ], true, [], [
-                    'category' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}',
-                    'customer' => '{"message":"Missing privilege","missingPrivileges":["customer:read"]}',
+            ], true, ['product' => 1],
+        ];
+        yield 'basic test with term' => [
+            [
+                'product' => [
+                    'term' => 'ABC123',
                 ],
-            ],
-            'search with association field' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'manufacturer.name',
-                                    'value' => 'Manufacturer',
-                                ],
+            ], true, ['product' => 1],
+        ];
+        yield 'empty payload' => [
+            [
+            ], false, [],
+        ];
+        yield 'empty result' => [
+            [
+                'product' => [
+                    'term' => 'TheTermThatNotHappens',
+                ],
+            ], true, ['product' => 0],
+        ];
+        yield 'not found entity payload' => [
+            [
+                'not-found-entity' => [
+                    'term' => 'ABC',
+                ],
+            ], false, [],
+        ];
+        yield 'duplicate entities in payload (the later one will be used)' => [
+            json_decode('{"product":{"term":"ABC"},"product":{"term":"XYZ"}}', true), true, ['product' => 0],
+        ];
+        yield 'multiple entities in payload' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'name',
+                                'value' => 'Fancy',
                             ],
                         ],
                     ],
-                ], true, ['product' => 4],
-            ],
-            'search with non-granted priviledge association field' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'categories.name',
-                                    'value' => 'test',
-                                ],
+                ],
+                'product_manufacturer' => [
+                    'term' => 'Cheapest ever 2nd',
+                ],
+            ], true, ['product' => 2, 'product_manufacturer' => 1],
+        ];
+        yield 'non-granted privilege entities in payload' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'name',
+                                'value' => 'Fancy',
                             ],
                         ],
                     ],
-                    'product_manufacturer' => [
-                        'term' => 'Cheapest ever 2nd',
-                    ],
-                ], true, ['product_manufacturer' => 1], ['product' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}'],
+                ],
+                'customer' => [
+                    'term' => 'John doe',
+                ],
+            ], true, ['product' => 2], [
+                'customer' => '{"message":"Missing privilege","missingPrivileges":["customer:read"]}',
             ],
-            'load association with granted privilege entities' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'manufacturer.name',
-                                    'value' => 'Manufacturer',
-                                ],
+        ];
+        yield 'Only non-granted privilege entities in payload' => [
+            [
+                'category' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'name',
+                                'value' => 'Fancy',
                             ],
                         ],
-                        'associations' => [
-                            'manufacturer' => ['total-count-mode' => 1],
-                        ],
                     ],
-                ], true, ['product' => 4],
+                ],
+                'customer' => [
+                    'term' => 'John doe',
+                ],
+            ], true, [], [
+                'category' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}',
+                'customer' => '{"message":"Missing privilege","missingPrivileges":["customer:read"]}',
             ],
-            'load association with non-granted privilege entities' => [
-                [
-                    'product' => [
-                        'query' => [
-                            [
-                                'score' => 2500,
-                                'query' => [
-                                    'type' => 'contains',
-                                    'field' => 'manufacturer.name',
-                                    'value' => 'Manufacturer',
-                                ],
+        ];
+        yield 'search with association field' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'manufacturer.name',
+                                'value' => 'Manufacturer',
                             ],
                         ],
-                        'associations' => [
-                            'categories' => ['total-count-mode' => 1],
+                    ],
+                ],
+            ], true, ['product' => 4],
+        ];
+        yield 'search with non-granted priviledge association field' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'categories.name',
+                                'value' => 'test',
+                            ],
                         ],
                     ],
-                ], true, [], ['product' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}'],
-            ],
+                ],
+                'product_manufacturer' => [
+                    'term' => 'Cheapest ever 2nd',
+                ],
+            ], true, ['product_manufacturer' => 1], ['product' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}'],
+        ];
+        yield 'load association with granted privilege entities' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'manufacturer.name',
+                                'value' => 'Manufacturer',
+                            ],
+                        ],
+                    ],
+                    'associations' => [
+                        'manufacturer' => ['total-count-mode' => 1],
+                    ],
+                ],
+            ], true, ['product' => 4],
+        ];
+        yield 'load association with non-granted privilege entities' => [
+            [
+                'product' => [
+                    'query' => [
+                        [
+                            'score' => 2500,
+                            'query' => [
+                                'type' => 'contains',
+                                'field' => 'manufacturer.name',
+                                'value' => 'Manufacturer',
+                            ],
+                        ],
+                    ],
+                    'associations' => [
+                        'categories' => ['total-count-mode' => 1],
+                    ],
+                ],
+            ], true, [], ['product' => '{"message":"Missing privilege","missingPrivileges":["category:read"]}'],
         ];
     }
 

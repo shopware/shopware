@@ -12,8 +12,10 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -73,6 +75,7 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->filesystemPublic,
             $filesystemPrivate,
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $metadataLoader,
             $typeDetector,
             $eventDispatcher,
@@ -202,6 +205,7 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -431,6 +435,7 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
             $this->createMock(EventDispatcherInterface::class),
@@ -489,5 +494,10 @@ class FileSaverTest extends TestCase
         static::assertCount(1, $update);
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foobar', $update[0]['fileName']);
+    }
+
+    private function createSvgContentValidator(): SvgContentValidator
+    {
+        return SvgValidatorTestDefaults::createValidator();
     }
 }

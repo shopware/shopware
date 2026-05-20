@@ -44,6 +44,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
         expect(wrapper.find('.sw-notification-center__empty-state').attributes('aria-live')).toBe('polite');
         expect(wrapper.find('.sw-notification-center__empty-state').attributes('aria-atomic')).toBe('true');
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(0);
+        expect(wrapper.find('.sw-notification-center__header .sw-context-button').exists()).toBe(false);
     });
 
     it('should animate the empty state bell when clicking the icon', async () => {
@@ -92,6 +93,7 @@ describe('src/app/component/utils/sw-notification-center', () => {
 
         expect(wrapper.find('.sw-notification-center__empty-state').isVisible()).toBe(false);
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(1);
+        expect(wrapper.find('.sw-notification-center__header .sw-context-button').exists()).toBe(true);
     });
 
     it('should close notifications when clicking outside the flyout', async () => {
@@ -160,5 +162,6 @@ describe('src/app/component/utils/sw-notification-center', () => {
 
         expect(wrapper.find('.sw-notification-center__empty-state').isVisible()).toBe(true);
         expect(wrapper.findAll('.sw-notification-center-item')).toHaveLength(0);
+        expect(wrapper.find('.sw-notification-center__header .sw-context-button').exists()).toBe(false);
     });
 });

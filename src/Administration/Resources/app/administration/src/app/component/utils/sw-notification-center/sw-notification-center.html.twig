@@ -30,7 +30,7 @@
             </h3>
 
             {% block sw_notification_center_content_context_menu %}
-            <sw-context-button>
+            <sw-context-button v-if="notifications.length > 0">
                 <sw-context-menu-item
                     variant="danger"
                     @click="openDeleteModal"

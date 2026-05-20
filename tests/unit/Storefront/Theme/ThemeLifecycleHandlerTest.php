@@ -264,4 +264,23 @@ class ThemeLifecycleHandlerTest extends TestCase
             $context,
         );
     }
+
+    public function testRefreshAllActiveThemeImportMaps(): void
+    {
+        $configurationCollection = new StorefrontPluginConfigurationCollection();
+
+        $this->connectionMock
+            ->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([
+                ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => Uuid::randomHex()],
+                ['sales_channel_id' => Uuid::randomHex(), 'theme_id' => Uuid::randomHex()],
+            ]);
+
+        $this->themeServiceMock
+            ->expects($this->exactly(2))
+            ->method('refreshThemeImportMap');
+
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($this->context, $configurationCollection);
+    }
 }

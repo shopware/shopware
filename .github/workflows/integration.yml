@@ -307,6 +307,7 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: 6.7.9999999-dev
         with:
+          npm-version: 11.8.0
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install-admin: true
@@ -369,6 +370,8 @@ jobs:
       - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
         with:
           node-version: 22
+      - name: Install npm
+        run: npm install -g npm@11.8.0
 
       - name: Install dependencies
         working-directory: new-shopware/tests/acceptance

@@ -38,7 +38,11 @@ class BlockedShippingMethodSwitcher
         $shippingMethod = $this->getShippingMethodToChangeTo(
             $errors,
             $salesChannelContext,
-            $shippingMethods ?? $this->loadShippingMethodsToChangeTo($salesChannelContext),
+            $shippingMethods ?? $this->shippingMethodRoute->load(
+                new Request(['onlyAvailable' => true]),
+                $salesChannelContext,
+                new Criteria(),
+            )->getShippingMethods(),
         );
         if ($shippingMethod === null) {
             return $originalShippingMethod;
@@ -58,15 +62,6 @@ class BlockedShippingMethodSwitcher
         }
 
         return false;
-    }
-
-    private function loadShippingMethodsToChangeTo(SalesChannelContext $salesChannelContext): ShippingMethodCollection
-    {
-        return $this->shippingMethodRoute->load(
-            new Request(['onlyAvailable' => true]),
-            $salesChannelContext,
-            new Criteria(),
-        )->getShippingMethods();
     }
 
     private function getShippingMethodToChangeTo(

@@ -38,7 +38,11 @@ class BlockedPaymentMethodSwitcher
         $paymentMethod = $this->getPaymentMethodToChangeTo(
             $errors,
             $salesChannelContext,
-            $paymentMethods ?? $this->loadPaymentMethodsToChangeTo($salesChannelContext),
+            $paymentMethods ?? $this->paymentMethodRoute->load(
+                new Request(['onlyAvailable' => true]),
+                $salesChannelContext,
+                new Criteria(),
+            )->getPaymentMethods(),
         );
         if ($paymentMethod === null) {
             return $originalPaymentMethod;
@@ -58,15 +62,6 @@ class BlockedPaymentMethodSwitcher
         }
 
         return false;
-    }
-
-    private function loadPaymentMethodsToChangeTo(SalesChannelContext $salesChannelContext): PaymentMethodCollection
-    {
-        return $this->paymentMethodRoute->load(
-            new Request(['onlyAvailable' => true]),
-            $salesChannelContext,
-            new Criteria(),
-        )->getPaymentMethods();
     }
 
     private function getPaymentMethodToChangeTo(

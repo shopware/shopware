@@ -1,3 +1,5 @@
+import { QuickView, QuickViewDefaultSettings } from '@shopware-ag/dive/quickview';
+
 export default class MediaGallery extends ShopwareComponent {
     static options = {
         showMagnifier: true,
@@ -142,14 +144,14 @@ export default class MediaGallery extends ShopwareComponent {
             scrollTop = container.scrollTop;
         });
 
-        container.addEventListener('mouseleave', () => { 
-            isDown = false; 
-            container.style.cursor = 'zoom-out'; 
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.style.cursor = 'zoom-out';
         });
 
-        container.addEventListener('mouseup', () => { 
-            isDown = false; 
-            container.style.cursor = 'zoom-out'; 
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.style.cursor = 'zoom-out';
         });
 
         container.addEventListener('mousemove', (e) => {
@@ -228,7 +230,7 @@ export default class MediaGallery extends ShopwareComponent {
     updateCounter(index) {
         if (!this.counterBadge) {
             return;
-        }    
+        }
         this.counterBadge.textContent = `${index + 1} ${this.options.counterDeviderLabel} ${this.previewItems.length}`;
     }
 

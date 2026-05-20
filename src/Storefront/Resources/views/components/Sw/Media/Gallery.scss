@@ -1,3 +1,11 @@
+@use "sass:color";
+@use "sass:map";
+@use "sass:math";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+
 .sw-media-gallery {
     --sw-media-thumbnail-border-color: var(--bs-gray-300);
     --sw-media-thumbnail-hover-border-color: var(--bs-primary);
@@ -6,7 +14,7 @@
 
     display: grid;
     grid-template-columns: max-content 1fr;
-    grid-gap: map-get($spacers, 2);
+    grid-gap: 0.5rem;
 }
 
 .sw-media-gallery--thumbnail-nav-bottom {

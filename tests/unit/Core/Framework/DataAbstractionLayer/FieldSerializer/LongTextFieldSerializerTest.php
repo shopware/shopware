@@ -133,24 +133,22 @@ class LongTextFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool|string|null, ?string, bool, 3?: list<Flag>}>
+     * @return iterable<string, array{bool|string|null, ?string, bool, 3?: list<Flag>}>
      */
-    public static function validationProvider(): array
+    public static function validationProvider(): iterable
     {
-        return [
-            'required HTML-only content throws after tag stripping' => ['<test>', null, true, [new Required()]],
-            'required null content throws' => [null, null, true, [new Required()]],
-            'required empty content throws' => ['', null, true, [new Required()]],
-            'wrong type throws' => [true, null, true, [new Required()]],
-            'required and allow empty throws with null' => [null, null, true, [new Required(), new AllowEmptyString()]],
-            'string values are passed through' => ['test12-B', 'test12-B', false, [new Required()]],
-            'null is allowed without required flag' => [null, null, false],
-            'sanitation can be turned off' => ['<test>', '<test>', false, [new Required(), new AllowHtml(false)]],
-            'empty string is treated as null without allow empty flag' => ['', null, false],
-            'empty string is passed through with allow empty flag' => ['', '', false, [new AllowEmptyString()]],
-            'empty string is allowed with required and allow empty flags' => ['', '', false, [new Required(), new AllowEmptyString()]],
-            'HTML content is sanitized' => ['<script></script>test12-B', 'test12-B', false, [new Required(), new AllowHtml()]],
-        ];
+        yield 'required HTML-only content throws after tag stripping' => ['<test>', null, true, [new Required()]];
+        yield 'required null content throws' => [null, null, true, [new Required()]];
+        yield 'required empty content throws' => ['', null, true, [new Required()]];
+        yield 'wrong type throws' => [true, null, true, [new Required()]];
+        yield 'required and allow empty throws with null' => [null, null, true, [new Required(), new AllowEmptyString()]];
+        yield 'string values are passed through' => ['test12-B', 'test12-B', false, [new Required()]];
+        yield 'null is allowed without required flag' => [null, null, false];
+        yield 'sanitation can be turned off' => ['<test>', '<test>', false, [new Required(), new AllowHtml(false)]];
+        yield 'empty string is treated as null without allow empty flag' => ['', null, false];
+        yield 'empty string is passed through with allow empty flag' => ['', '', false, [new AllowEmptyString()]];
+        yield 'empty string is allowed with required and allow empty flags' => ['', '', false, [new Required(), new AllowEmptyString()]];
+        yield 'HTML content is sanitized' => ['<script></script>test12-B', 'test12-B', false, [new Required(), new AllowHtml()]];
     }
 
     public function testDecodeThrowExceptionOnWrongField(): void

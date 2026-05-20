@@ -22,84 +22,80 @@ use Shopware\Core\Test\Stub\Doctrine\FakeResultFactory;
 class SeoResolverTest extends TestCase
 {
     /**
-     * @return array<string, array{0: string, 1: string}>
+     * @return iterable<string, array{0: string, 1: string}>
      */
-    public static function resolveDataProvider(): array
+    public static function resolveDataProvider(): iterable
     {
-        return [
-            'null case' => [
-                '',
-                '/',
-            ],
-            'same content, leading, but trailing slash' => [
-                '/seo-url',
-                '/seo-url',
-            ],
-            'same content, leading and trailing slash' => [
-                '/seo-url/',
-                '/seo-url/',
-            ],
-            'no trailing slash' => [
-                'seo-url',
-                '/seo-url',
-            ],
-            'trailing slash' => [
-                'seo-url/',
-                '/seo-url/',
-            ],
-            '2 levels, no trailing slash' => [
-                'seo-url/nice-addition',
-                '/seo-url/nice-addition',
-            ],
-            '2 levels, trailing slash' => [
-                'seo-url/nice-addition/',
-                '/seo-url/nice-addition/',
-            ],
-            'lots of levels, no trailing slash' => [
-                'seo-url/nice-addition/with/something/really/really/reaaaaally/long',
-                '/seo-url/nice-addition/with/something/really/really/reaaaaally/long',
-            ],
-            'lots of levels, trailing slash' => [
-                'seo-url/nice-addition/with/something/really/really/reaaaaally/long/',
-                '/seo-url/nice-addition/with/something/really/really/reaaaaally/long/',
-            ],
+        yield 'null case' => [
+            '',
+            '/',
+        ];
+        yield 'same content, leading, but trailing slash' => [
+            '/seo-url',
+            '/seo-url',
+        ];
+        yield 'same content, leading and trailing slash' => [
+            '/seo-url/',
+            '/seo-url/',
+        ];
+        yield 'no trailing slash' => [
+            'seo-url',
+            '/seo-url',
+        ];
+        yield 'trailing slash' => [
+            'seo-url/',
+            '/seo-url/',
+        ];
+        yield '2 levels, no trailing slash' => [
+            'seo-url/nice-addition',
+            '/seo-url/nice-addition',
+        ];
+        yield '2 levels, trailing slash' => [
+            'seo-url/nice-addition/',
+            '/seo-url/nice-addition/',
+        ];
+        yield 'lots of levels, no trailing slash' => [
+            'seo-url/nice-addition/with/something/really/really/reaaaaally/long',
+            '/seo-url/nice-addition/with/something/really/really/reaaaaally/long',
+        ];
+        yield 'lots of levels, trailing slash' => [
+            'seo-url/nice-addition/with/something/really/really/reaaaaally/long/',
+            '/seo-url/nice-addition/with/something/really/really/reaaaaally/long/',
         ];
     }
 
     /**
-     * @return array<string, array{0: string, 1: string}>
+     * @return iterable<string, array{0: string, 1: string}>
      */
-    public static function resolveCanonicalDataProvider(): array
+    public static function resolveCanonicalDataProvider(): iterable
     {
-        return [
-            'null case' => [
-                '',
-                '/',
-            ],
-            'same content, leading, but trailing slash' => [
-                '/Industrial-Kids',
-                '/Industrial-Kids',
-            ],
-            'same content, leading and trailing slash' => [
-                '/Industrial-Kids/',
-                '/Industrial-Kids/',
-            ],
-            'no trailing slash' => [
-                'Industrial-Kids',
-                '/Industrial-Kids',
-            ],
-            'trailing slash' => [
-                'Industrial-Kids/',
-                '/Industrial-Kids/',
-            ],
-            'lots of levels, no trailing slash' => [
-                'Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books',
-                '/Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books',
-            ],
-            'lots of levels, trailing slash' => [
-                'Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books/',
-                '/Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books/',
-            ],
+        yield 'null case' => [
+            '',
+            '/',
+        ];
+        yield 'same content, leading, but trailing slash' => [
+            '/Industrial-Kids',
+            '/Industrial-Kids',
+        ];
+        yield 'same content, leading and trailing slash' => [
+            '/Industrial-Kids/',
+            '/Industrial-Kids/',
+        ];
+        yield 'no trailing slash' => [
+            'Industrial-Kids',
+            '/Industrial-Kids',
+        ];
+        yield 'trailing slash' => [
+            'Industrial-Kids/',
+            '/Industrial-Kids/',
+        ];
+        yield 'lots of levels, no trailing slash' => [
+            'Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books',
+            '/Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books',
+        ];
+        yield 'lots of levels, trailing slash' => [
+            'Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books/',
+            '/Industrial-Kids/Automotive/Outdoors-Books-Beauty/Shoes-Beauty-Books/',
         ];
     }
 

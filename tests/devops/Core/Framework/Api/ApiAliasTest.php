@@ -19,12 +19,6 @@ class ApiAliasTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    // TODO: fix these duplicate aliases — known bugs to be treated
-    private const KNOWN_DUPLICATE_ALIASES = [
-        'dal_field_sorting',
-        'calculated_price',
-    ];
-
     public function testUniqueAliases(): void
     {
         $classMap = KernelLifecycleManager::getClassLoader()->getClassMap();
@@ -70,10 +64,6 @@ class ApiAliasTest extends TestCase
             $alias = $instance->getApiAlias();
 
             if ($alias === 'aggregation-' || $alias === 'dal_entity_search_result') {
-                continue;
-            }
-
-            if (\in_array($alias, self::KNOWN_DUPLICATE_ALIASES, true)) {
                 continue;
             }
 

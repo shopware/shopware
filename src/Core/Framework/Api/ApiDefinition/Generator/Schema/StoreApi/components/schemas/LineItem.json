@@ -213,11 +213,7 @@
                 },
                 "required": [
                     "id",
-                    "type",
-                    "deliveryInformation",
-                    "payload",
-                    "quantity",
-                    "states"
+                    "type"
                 ]
             }
         }

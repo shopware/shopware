@@ -25,6 +25,11 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545320, (new Migration1768545320RevocationRequestCmsForm())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
         $this->deletePageSectionBlockAndSlot();

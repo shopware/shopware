@@ -132,11 +132,13 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateWithoutShippingMethodPrices(): void
     {
+        $shippingMethodName = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setPrices(new ShippingMethodPriceCollection());
-        $shippingMethod->setName(Uuid::randomHex());
+        $shippingMethod->setName($shippingMethodName);
+        $shippingMethod->addTranslated('name', $shippingMethodName);
 
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -184,7 +186,13 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame($costs, $delivery->getShippingCosts());
 
         static::assertGreaterThan(0, $cart->getErrors()->count());
-        static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
+        static::assertSame([
+            'id' => $shippingMethod->getId(),
+            'name' => $shippingMethodName,
+            'reason' => 'no shipping costs found',
+        ], $error->getParameters());
     }
 
     public function testCalculateWithoutShippingMethodPricesWithFreeDeliveryItem(): void

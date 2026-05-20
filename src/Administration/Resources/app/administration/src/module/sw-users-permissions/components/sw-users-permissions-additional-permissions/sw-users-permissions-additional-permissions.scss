@@ -1,19 +1,21 @@
 .sw-users-permissions-additional-permissions {
+    h4 {
+        margin: 12px 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
     .sw-users-permissions-additional-permissions__switches {
         display: flex;
         flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
     }
 
-    .sw-field--switch {
-        width: calc(50% - 15px);
+    .mt-switch {
         margin-top: 0;
-
-        &:nth-child(even) {
-            margin-left: 15px;
-        }
-
-        &:nth-child(odd) {
-            margin-right: 15px;
-        }
+        margin-bottom: 0;
     }
 }

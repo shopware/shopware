@@ -195,6 +195,7 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 Previously, the Google Analytics integration was only included on page load when the `google-analytics-enabled` cookie was present.
 If a customer had accepted only the Google Ads cookie (`google-ads-enabled`), the integration would not start.
+
 ### Storefront XHR login failures now keep HTTP 403
 
 Storefront requests that require a logged-in customer no longer redirect to the login page for XMLHttpRequests when the customer session is no longer valid.

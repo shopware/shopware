@@ -1105,6 +1105,14 @@ class StoreApiGeneratorTest extends TestCase
         );
         static::assertCount(1, $noHeaderRefs, 'sw-language-id should be injected exactly once into operations without it');
 
+        $noParametersKey = $schema['paths']['/no-parameters-key']['get'];
+        static::assertIsArray($noParametersKey['parameters']);
+        $noParametersKeyRefs = array_filter(
+            array_column($noParametersKey['parameters'], '$ref'),
+            static fn (string $ref): bool => $ref === '#/components/parameters/swLanguageId'
+        );
+        static::assertCount(1, $noParametersKeyRefs, 'sw-language-id should be injected when the operation omits the parameters key');
+
         $inline = $schema['paths']['/predeclared-by-name']['get'];
         $inlineNames = array_filter(
             $inline['parameters'],

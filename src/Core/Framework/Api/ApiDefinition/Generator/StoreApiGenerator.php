@@ -351,10 +351,6 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
      */
     private function injectLanguageIdHeader(array &$specs): void
     {
-        if (!isset($specs['paths']) || !\is_array($specs['paths'])) {
-            return;
-        }
-
         foreach ($specs['paths'] as &$pathDefinition) {
             foreach (self::OPERATION_KEYS as $key) {
                 if (!isset($pathDefinition[$key])) {

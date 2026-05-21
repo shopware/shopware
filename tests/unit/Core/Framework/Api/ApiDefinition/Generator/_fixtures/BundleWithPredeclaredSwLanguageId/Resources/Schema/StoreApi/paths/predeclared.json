@@ -77,6 +77,18 @@
                     }
                 }
             }
+        },
+        "/no-parameters-key": {
+            "get": {
+                "tags": ["Predeclared"],
+                "summary": "Operation that omits the parameters key entirely",
+                "operationId": "readNoParametersKey",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     }
 }

@@ -37,6 +37,14 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 
 <details>
 
+## Type-based number range preview Admin API removed
+
+The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
+It resolved number ranges only by technical type and could only preview global number range state.
+When previewing or editing an existing persisted number range, call `/api/_action/number-range/{numberRangeId}/preview-pattern` with the concrete `number_range.id` instead.
+
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged and should still be used when reserving the next number for a business context.
+
 ## Mail payload custom data must use `extensions`
 
 When calling `/api/_action/mail-template/send`, arbitrary unknown top-level payload keys are no longer forwarded to the mail service in Shopware 6.8.
@@ -106,6 +114,19 @@ Previously, these routes could return all customer addresses because the underly
 # Core
 
 <details>
+
+## Number range value generator interface removed
+
+`Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.
+Use `Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator` instead.
+
+If your extension implemented the old interface, update the service to extend `AbstractNumberRangeValueGenerator`.
+Implement `getValue()` for actual number allocation and `previewPatternByNumberRangeId()` for persisted number-range previews.
+
+If your extension decorates the number range value generator, decorate `AbstractNumberRangeValueGenerator`, implement `getDecorated()`, and forward `getValue()` and `previewPatternByNumberRangeId()` to the decorated service where appropriate.
+
+The type-based `previewPattern()` method is removed.
+Replace calls to `previewPattern($type, ...)` with `previewPatternByNumberRangeId($numberRangeId, ...)` when previewing or editing an existing number range.
 
 ## Changed behaviour of default fields in EntityDefinition
 

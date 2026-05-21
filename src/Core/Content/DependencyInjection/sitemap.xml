@@ -17,6 +17,7 @@
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapLister">
             <argument type="service" id="shopware.filesystem.sitemap"/>
             <argument type="service" id="shopware.asset.sitemap"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Sitemap\Service\ConfigHandler">

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Defaults;
@@ -45,6 +46,7 @@ class UnusedMediaPurger
         private readonly EntityRepository $mediaRepo,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -158,7 +160,7 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $maxUploadedAt = (new \DateTime())->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
+        $maxUploadedAt = $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
         $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         $criteria = new Criteria($mediaIds);

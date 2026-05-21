@@ -6,6 +6,7 @@ use AsyncAws\S3\Input\DeleteObjectRequest;
 use AsyncAws\S3\Input\HeadObjectRequest;
 use AsyncAws\S3\Input\PutObjectRequest;
 use AsyncAws\S3\S3Client;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
@@ -26,6 +27,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         private ?string $bucket,
         private string $root,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
         private int $expirationMinutes,
         private bool $enabled,
     ) {
@@ -38,11 +40,12 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         AbstractMediaPathStrategy $mediaPathStrategy,
         array $filesystemConfig,
         LoggerInterface $logger,
+        ClockInterface $clock,
         ?HttpClientInterface $httpClient = null,
         int $expirationMinutes = 5,
         bool $enabled = true,
     ): self {
-        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $expirationMinutes, $enabled);
+        $nonSupported = new self($mediaPathStrategy, null, null, '', $logger, $clock, $expirationMinutes, $enabled);
 
         if (!$enabled || ($filesystemConfig['type'] ?? null) !== 'amazon-s3') {
             return $nonSupported;
@@ -65,6 +68,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
             $result['bucket'],
             trim($result['root'], '/'),
             $logger,
+            $clock,
             $expirationMinutes,
             $enabled,
         );
@@ -96,7 +100,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
         $mediaPath = $paths[$location->id] ?? throw MediaException::strategyNotFound($this->mediaPathStrategy->name());
         $s3Key = $this->ensureRootPrefix($mediaPath);
 
-        $expiresAt = new \DateTimeImmutable(\sprintf('+%d minutes', $this->expirationMinutes));
+        $expiresAt = $this->clock->now()->modify(\sprintf('+%d minutes', $this->expirationMinutes));
 
         try {
             $request = new PutObjectRequest([
@@ -150,7 +154,7 @@ readonly class PresignedUploadUrlGenerator implements PresignedUrlGeneratorInter
 
             return new FileMetadataResult(
                 size: (int) ($result->getContentLength()),
-                lastModified: $result->getLastModified() ?? new \DateTimeImmutable(),
+                lastModified: $result->getLastModified() ?? $this->clock->now(),
                 etag: $etag,
                 contentType: $result->getContentType(),
             );

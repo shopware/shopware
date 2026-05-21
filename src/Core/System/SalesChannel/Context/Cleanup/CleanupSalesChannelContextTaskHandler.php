@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,15 +28,15 @@ final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
         EntityRepository $repository,
         LoggerInterface $logger,
         private readonly Connection $connection,
-        private readonly int $days
+        private readonly int $days,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $time = new \DateTime();
-        $time->modify(\sprintf('-%d day', $this->days));
+        $time = $this->clock->now()->modify(\sprintf('-%d day', $this->days));
 
         $this->connection->executeStatement(
             'DELETE FROM sales_channel_api_context WHERE updated_at <= :timestamp',

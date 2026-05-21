@@ -12,17 +12,29 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             privileges: [
                 'sales_channel:read',
                 'sales_channel_domain:read',
+                'ucp_sales_channel_config:read',
+                'ucp_signing_key:read',
+                'ucp_platform_profile_cache:read',
+                'ucp_negotiation_session:read',
             ],
             dependencies: [],
         },
         editor: {
-            privileges: [],
+            privileges: [
+                'ucp_sales_channel_config:create',
+                'ucp_sales_channel_config:update',
+                'ucp_platform_profile_cache:delete',
+            ],
             dependencies: [
                 'ucp.viewer',
             ],
         },
         key_rotator: {
-            privileges: [],
+            privileges: [
+                'ucp_signing_key:create',
+                'ucp_signing_key:update',
+                'ucp_signing_key:delete',
+            ],
             dependencies: [
                 'ucp.editor',
             ],

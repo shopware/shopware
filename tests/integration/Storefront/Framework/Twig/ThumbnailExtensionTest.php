@@ -242,7 +242,8 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(AbstractResolvedConfigLoader::class),
                 $this->createMock(CacheTagCollector::class)
             ),
-            $this->createMock(ThemeScripts::class)
+            static::createStub(ThemeScripts::class),
+            'test',
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

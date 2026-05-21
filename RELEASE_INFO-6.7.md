@@ -2,7 +2,45 @@
 
 ## Features
 
+### [Experimental] MCP Server for AI tool integration
+
+Shopware now includes an experimental MCP (Model Context Protocol) server that lets AI clients like Claude Desktop or Cursor interact with your Shopware instance through a standardized protocol.
+
+The server exposes the full MCP capability set:
+- **Tools** for entity management (search, read, create, update, delete), system configuration, state machine transitions, cache management, and storefront product search with sales channel context.
+- **Prompts** that give the AI client context about Shopware's data model, criteria format, and best practices.
+- **Resources** that expose static reference data (entity list, sales channels, state machines, business events, flow actions) as readable URIs.
+
+All operations respect the authenticated user's ACL permissions and integrate with the Admin API authentication. Integration credentials can be passed directly via `sw-access-key` and `sw-secret-access-key` headers. No separate OAuth token exchange is required. Per-integration allowlists are configurable under Settings -> Integrations to limit which tools, prompts, and resources a given client can see.
+
+To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP endpoint is available at `/api/_mcp` and uses the Streamable HTTP transport. Plugins register additional MCP capabilities by tagging services with `mcp.tool`, `mcp.prompt`, or `mcp.resource`. Apps can declare them in their app manifest.
+
+A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
+
 ## API
+
+### Number range previews can target a concrete number range
+
+The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
+Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
+
+The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
+It can only resolve global number ranges and therefore does not support non-global number range state.
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+
+### New foreign key resolvers for the Sync API
+
+The Sync API now ships seven additional foreign key resolvers, allowing payloads to reference entities by stable human-readable keys instead of UUIDs:
+
+* `currency.iso_code` — resolves a `currency` by its `isoCode` (e.g. `EUR`).
+* `locale.code` — resolves a `locale` by its `code` (e.g. `en-GB`). The `en_GB` underscore variant is also accepted.
+* `payment_method.technical_name` — resolves a `payment_method` by its `technicalName`.
+* `shipping_method.technical_name` — resolves a `shipping_method` by its `technicalName`.
+* `document_type.technical_name` — resolves a `document_type` by its `technicalName`.
+* `salutation.salutation_key` — resolves a `salutation` by its `salutationKey` (e.g. `mr`).
+* `tax.tax_rate` — resolves a `tax` by its `taxRate`. Because `tax_rate` is not unique, the resolver only resolves a value when exactly one tax row matches the given rate; ambiguous rates are left unresolved (combine with `nullOnMissing: true` if appropriate).
+
+Use these inside a Sync payload anywhere a UUID is expected, e.g. `{"currencyId": {"resolver": "currency.iso_code", "value": "EUR"}}`.
 
 ### Mail template preview and send routes support richer rendering context
 
@@ -24,6 +62,15 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
 
 ### Backward compatible invalid locales
 
@@ -109,6 +156,7 @@ This helps developers and merchants validate the final rendered output more accu
 
 The HTML preview is now rendered in a sandboxed iframe instead of being injected directly into the Administration DOM.
 This keeps the preview close to the actual mail output while reducing the risk of script execution from rendered template content.
+
 ### Custom fields respect read-only permissions in Administration detail views
 
 Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
@@ -143,6 +191,93 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
+### Google Analytics now starts when only the Google Ads cookie is accepted
+
+Previously, the Google Analytics integration was only included on page load when the `google-analytics-enabled` cookie was present.
+If a customer had accepted only the Google Ads cookie (`google-ads-enabled`), the integration would not start.
+
+### Storefront XHR login failures now keep HTTP 403
+
+Storefront requests that require a logged-in customer no longer redirect to the login page for XMLHttpRequests when the customer session is no longer valid.
+The original `403 Forbidden` response is preserved.
+Regular page requests still redirect to the login page.
+This prevents expired sessions from creating redirect chains from XHR endpoints to page controllers and fixes the follow-up failure where the redirected XHR request reaches the login page, which does not allow XHR access.
+JavaScript clients can now handle the failed unauthenticated XHR response explicitly.
+
+### New Component System
+
+We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.
+
+To dive into the full possibilities, please refer to the [official documentation](https://developer.shopware.com/docs/concepts/framework/storefront-components.html).
+
+### New Dev-Server for development based on Vite
+
+With the new component system we introduced a separate build process based on Vite. With that there is also a new dev-server feature available that also supports usual theme file updates for SCSS and JS. It offers a better developer experience, because it does not need a proxy. You can simply work in your normal Storefront while the dev-server is active.
+
+```
+composer storefront:dev-server
+```
+
+The current `composer watch:storefront` command is deprecated for the next major version. Use the new dev-server instead.
+
+### Theme config available as native CSS custom properties
+
+With the new content system we want to move away from the PHP-based SCSS compilation. As a first step, we made the theme configuration available as native CSS custom properties. You can start using them instead of SCSS variables for colors and other visual settings in CSS. The CSS custom properties are available under the same name as the SCSS variables.
+
+**Example**
+```CSS
+.btn-primary {
+    background: var(--sw-color-brand-primary);
+}
+```
+
+Available are all config fields that does not have set `scss: false` in the theme configuration.
+
+### Single file references in theme.json
+
+The `theme.json` file now supports single file references, allowing you to include individual files from other bundles rather than pulling in an entire theme or plugin. This gives themes fine-grained control over exactly which files are compiled.
+
+This is available for both `style` and `script` entries:
+
+**Bundle-relative references** — Include a single specific file from another bundle or theme using `@BundleName/path/to/file`:
+
+```json
+{
+  "style": [
+    "@MyTheme/app/storefront/src/scss/overrides.scss",
+    "@MyTheme"
+  ],
+  "script": [
+    "@MyPlugin/app/storefront/dist/storefront/my-plugin.js",
+    "@Plugins"
+  ]
+}
+```
+
+### New global JavaScript event system
+
+With the new component system we also start to improve the general possibilities in the Storefront. One of these improvements is a new global event system that is available via a new central `Shopware` object. This system is easier to use than the instance scoped events from the current JS plugin system. The event system is based on the native Node [event emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter) and can be used in a similar way. You will find some additional features, like interceptable events which can be used to hook into certain methods, like changing request parameters before they get send. We want to offer this as a new extension system, especially for the new component system.
+
+```JavaScript
+window.Shopware.emit('Filter:Change', { foo: 'bar' });
+```
+
+```JavaScript
+window.Shopware.on('Filter:Change', ({ foo }) => {
+    // do something
+});
+```
+
+For more detailed information, refer to the [documentation](./src/Storefront/Resources/app/storefront/src/component-system/README.md).
+
+### New plugin manager function to call plugin methods
+
+We added a new method to the Storefront plugin manager which allows to call a specific plugin method on all existing instances of that plugin.
+
+```JavaScript
+window.PluginManager.callPluginMethod(pluginName, methodName, ...args)
+```
+
 ### Single-hit search redirect now matches EAN and manufacturer number
 
 The storefront search already redirected to the product detail page when a search term exactly matched a product's number and produced a single result.
@@ -155,9 +290,61 @@ Set the parameter to a narrower list (for example `['productNumber']`) to restor
 
 ## App System
 
+### [Opt-in] Webhook delivery rework
+
+Webhook delivery moves to a new dedicated `webhook` Messenger transport, rolled out behind the `WEBHOOKS_REWORK` feature flag.
+When the flag is disabled (which is the default), the `webhook` transport forwards to `async` and Messenger owns retries.
+When the flag is enabled, every webhook is persisted to a database-backed outbox before the first HTTP attempt, and Shopware controls when and how often each delivery is retried.
+
+With the flag enabled:
+
+- **Failed deliveries are retried for up to four hours.** Failures back off on a fixed `5s → 30s → 5min → 30min → 4h` schedule, so a brief DNS outage or upstream restart does not exhaust retries before the endpoint recovers.
+- **Synchronous deliveries are audited.** Deliveries that bypass the queue — those triggered by the admin worker or by forced-sync app lifecycle calls — produce the same audit row as async deliveries, so failures on those paths are inspectable in the database and via the Admin API.
+- **In-flight deliveries survive worker crashes.** If a worker dies while sending a webhook, the next worker picks up the in-flight delivery and retries it.
+- **Identity headers on every HTTP POST.** Every request carries `X-Shopware-Event-Id`, `X-Shopware-Sequence`, and `X-Shopware-Attempt` headers plus a `source.sequence` field in the body. Consumers can use them to deduplicate retries and reorder events independent of HTTP arrival order. The same headers ship for every webhook, regardless of how it is delivered.
+
+Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
+
+Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
+
 ## Hosting & Configuration
 
+### Local filesystem permission enforcement can be disabled
+
+Local filesystem adapters now support `config.enforce_file_permissions: false` to preserve existing file permissions after writes.
+This is useful for installations that manage permissions outside Shopware, for example with ACLs or shared deployment users, where writes are allowed but `chmod()` calls should not be enforced by the application.
+
+### Partial filesystem visibility overrides preserve adapter configuration
+
+Partial filesystem visibility overrides now keep the previously configured adapter `type` and `config`.
+Replacing the adapter `config` block still replaces it as a whole, so adapter-specific config from a previous definition is not mixed into the new adapter.
+
 ## Critical Fixes
+
+### Transient Elasticsearch outages no longer break order placement
+
+`ElasticsearchHelper::allowIndexing()` now catches transport-level exceptions thrown from `Client::ping()` (e.g. DNS failures, connection refused, timeouts) and routes them through `logAndThrowException()`.
+
+Previously, a transient Elasticsearch / OpenSearch outage during checkout caused a `ConnectException` to bubble out of `ProductUpdater::update()` (triggered by `ProductStockAlteredEvent` after stock decrement), aborting the request after the order had already been written to the database. With `SHOPWARE_ES_THROW_EXCEPTION=0`, the indexing call is now logged at `critical` and skipped for that request; order placement completes normally. With `SHOPWARE_ES_THROW_EXCEPTION=1` (the default) behavior is unchanged — the exception is still re-thrown.
+
+# 6.7.10.1
+
+## Critical Fixes
+
+### SVG uploads validate against a strict passive allowlist
+
+SVG uploads in the media subsystem are now validated against a strict passive SVG allowlist before persistence.
+Active content such as scripts, event handlers, processing instructions, external references, and URL-based references in attributes are rejected.
+
+The default allowlist covers the W3C SVG2 presentation attribute set (https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes), ARIA accessibility attributes, the `lang` and `xml:lang` accessibility attributes, and the common safe structural elements `a`, `image`, `marker`, `metadata`, `switch`, `symbol`, and `view`. Anchor `href` / `xlink:href` references remain restricted to local document fragments (`#id`), so `javascript:`, `data:`, and remote URLs are rejected. Active content (scripts, event handlers, animations, foreign objects, processing instructions, DOCTYPEs, entities) and any external `url(...)` / `@import` references remain blocked regardless of the attribute that carries them.
+
+The accepted SVG subset can be adjusted on installation level via `shopware.media.svg.allowed_elements`, `shopware.media.svg.allowed_attributes`, and `shopware.media.svg.allowed_reference_attributes` in `shopware.yaml`.
+
+### `external-link` endpoint URL validation aligned with `upload-from-url`
+
+The URL validation for the `external-link` endpoint is now in line with the existing validation in the `upload-from-url` flow.
+The static `MediaUploadService::validateExternalUrl()` is deprecated in favour of the new `assertValidExternalUrl()` method on the service.
+See `UPGRADE-6.8.md` for migration details.
 
 # 6.7.10.0
 

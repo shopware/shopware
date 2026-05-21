@@ -600,7 +600,13 @@ export default {
 
     methods: {
         onFeedLabelInput(value) {
-            this.productExport.feedLabel = value === '' ? null : value;
+            if (value === '') {
+                this.productExport.feedLabel = null;
+
+                return;
+            }
+
+            this.productExport.feedLabel = value.toUpperCase();
         },
 
         onGenerateKeys() {

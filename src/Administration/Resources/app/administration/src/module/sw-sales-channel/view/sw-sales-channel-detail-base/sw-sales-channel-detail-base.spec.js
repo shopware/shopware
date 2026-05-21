@@ -182,6 +182,26 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
         });
 
+        it.each([
+            ['summer224', 'SUMMER224'],
+            ['Summer-2026', 'SUMMER-2026'],
+            ['eu_de', 'EU_DE'],
+        ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue(typed);
+
+            expect(wrapper.vm.productExport.feedLabel).toBe(stored);
+            expect(input.element.value).toBe(stored);
+        });
+
         it('writes null back when the input is cleared', async () => {
             const wrapper = await createWrapper({
                 props: {

@@ -68,6 +68,50 @@ class ElasticsearchHelperTest extends TestCase
         $helper->logAndThrowException(new \RuntimeException('test'));
     }
 
+    public function testAllowIndexingCatchesTransportFailures(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->method('ping')->willThrowException(new \RuntimeException('cURL error 6: Could not resolve host'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('critical');
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            false,
+            $client,
+            $this->createMock(ElasticsearchRegistry::class),
+            $this->createMock(CriteriaParser::class),
+            $logger
+        );
+
+        static::assertFalse($helper->allowIndexing());
+    }
+
+    public function testAllowIndexingRethrowsTransportFailuresWhenConfigured(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->method('ping')->willThrowException(new \RuntimeException('cURL error 6: Could not resolve host'));
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            true,
+            $client,
+            $this->createMock(ElasticsearchRegistry::class),
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(LoggerInterface::class)
+        );
+
+        static::expectException(\RuntimeException::class);
+        $helper->allowIndexing();
+    }
+
     public function testGetIndexName(): void
     {
         $helper = new ElasticsearchHelper(

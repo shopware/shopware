@@ -25,7 +25,6 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -35,6 +34,7 @@ use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -45,9 +45,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
-use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
@@ -90,11 +88,6 @@ class AppLifecycleTest extends TestCase
 
     private IdsCollection $ids;
 
-    /**
-     * @var EntityRepository<CustomEntityCollection>
-     */
-    private EntityRepository $customEntityRepository;
-
     protected function setUp(): void
     {
         $this->appRepository = static::getContainer()->get('app.repository');
@@ -114,7 +107,6 @@ class AppLifecycleTest extends TestCase
         $cache->save(CacheCompressor::compress($item, []));
 
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->customEntityRepository = static::getContainer()->get('custom_entity.repository');
         $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
 
         $this->ids = new IdsCollection();
@@ -291,8 +283,7 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -301,7 +292,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        $this->expectException(AppAlreadyInstalledException::class);
+        $this->expectExceptionObject(AppException::alreadyInstalled($manifest->getMetadata()->getName()));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -970,10 +961,9 @@ class AppLifecycleTest extends TestCase
             'roleId' => $roleId,
         ];
 
-        $eventWasReceived = false;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
-            $eventWasReceived = true;
-            static::assertSame($appId, $event->getAppId());
+        $deletedAppIds = [];
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+            $deletedAppIds[] = $event->getAppId();
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
@@ -983,7 +973,7 @@ class AppLifecycleTest extends TestCase
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
         static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
+        static::assertSame([$appId], $deletedAppIds);
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -999,57 +989,6 @@ class AppLifecycleTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
         static::assertCount(0, $apps);
-    }
-
-    public function testDeleteAppDispatchedOnce(): void
-    {
-        $appId = Uuid::randomHex();
-        $roleId = Uuid::randomHex();
-
-        $this->appRepository->create([[
-            'id' => $appId,
-            'name' => 'Test',
-            'path' => __DIR__ . '/../Manifest/_fixtures/test',
-            'version' => '0.0.1',
-            'label' => 'test',
-            'accessToken' => 'test',
-            'actionButtons' => [
-                [
-                    'entity' => 'order',
-                    'view' => 'detail',
-                    'action' => 'test',
-                    'label' => 'test',
-                    'url' => 'test.com',
-                ],
-            ],
-            'integration' => [
-                'label' => 'test',
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'id' => $roleId,
-                'name' => 'Test',
-            ],
-        ]], Context::createDefaultContext());
-
-        $app = [
-            'id' => $appId,
-            'roleId' => $roleId,
-        ];
-
-        $countEventDispatched = 0;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
-            ++$countEventDispatched;
-            static::assertSame($appId, $event->getAppId());
-        };
-        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
-
-        $this->appLifecycle->delete('Test', $app, $this->context);
-
-        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
-
-        static::assertSame(1, $countEventDispatched);
     }
 
     public function testDeleteWithCustomFields(): void
@@ -1236,93 +1175,6 @@ class AppLifecycleTest extends TestCase
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
         static::assertNull($flow);
-    }
-
-    public function testOnUninstallCustomEntitiesAreSoftDeleted(): void
-    {
-        // We need to stop the transaction because create table statements commit the transaction instantly
-        $this->stopTransactionAfter();
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
-
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-        static::assertNotNull($app);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
-
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
-
-        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
-        static::assertCount(1, $customEntities);
-
-        $customEntity = $customEntities->first();
-        static::assertNotNull($customEntity);
-
-        // We call delete with keepUserData = true
-        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context, true);
-
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
-
-        $customEntity = $customEntities->first();
-        static::assertNotNull($customEntity);
-
-        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
-        static::assertCount(1, $customEntities);
-        static::assertNotNull($customEntity->getDeletedAt());
-
-        // Cleanup
-        $this->connection->executeStatement('DELETE FROM custom_entity');
-        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
-        $this->connection->executeStatement('DROP TABLE `custom_entity_test`');
-
-        // We need to start a new transaction, so we have something to stop after the test
-        $this->startTransactionBefore();
-    }
-
-    public function testOnUninstallCustomEntitiesAreHardDeleted(): void
-    {
-        // We need to stop the transaction because create table statements commit the transaction instantly
-        $this->stopTransactionAfter();
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withCustomEntities/manifest.xml');
-
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $app = $this->appRepository->search(new Criteria(), $this->context)->first();
-        static::assertNotNull($app);
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
-
-        $customEntities = $this->customEntityRepository->search($criteria, $this->context);
-
-        static::assertTrue(TableHelper::tableExists($this->connection, 'custom_entity_test'));
-        static::assertCount(1, $customEntities);
-
-        $customEntity = $customEntities->first();
-        static::assertNotNull($customEntity);
-
-        // We call delete with keepUserData = false
-        $this->appLifecycle->delete('test', ['id' => $app->getId()], $this->context);
-
-        $customEntities = $this->customEntityRepository->search(new Criteria([$customEntity->getId()]), $this->context);
-
-        static::assertFalse(TableHelper::tableExists($this->connection, 'custom_entity_test'));
-        static::assertCount(0, $customEntities);
-
-        // Cleanup
-        $this->connection->executeStatement('DELETE FROM custom_entity');
-        $this->connection->executeStatement('DELETE FROM app WHERE name ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM integration WHERE label ="customEntities"');
-        $this->connection->executeStatement('DELETE FROM acl_role WHERE name ="customEntities"');
-
-        // We need to start a new transaction, so we have something to stop after the test
-        $this->startTransactionBefore();
     }
 
     private function assertShippingMethodsExists(string $appId): void

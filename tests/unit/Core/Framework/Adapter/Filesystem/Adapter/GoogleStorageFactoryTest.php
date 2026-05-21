@@ -28,11 +28,7 @@ class GoogleStorageFactoryTest extends TestCase
             'root' => '/',
         ];
 
-        try {
-            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
-        } catch (\Exception $e) {
-            static::fail($e->getMessage());
-        }
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
     }
 
     public function testCreateGoogleStorageFromConfigFile(): void
@@ -46,10 +42,19 @@ class GoogleStorageFactoryTest extends TestCase
             'root' => '/',
         ];
 
-        try {
-            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
-        } catch (\Exception $e) {
-            static::fail($e->getMessage());
-        }
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
+    }
+
+    public function testCreateGoogleStorageWithoutExplicitCredentials(): void
+    {
+        $googleStorageFactory = new GoogleStorageFactory();
+
+        $config = [
+            'projectId' => 'TestGoogleStorage',
+            'bucket' => 'TestBucket',
+            'root' => '/',
+        ];
+
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
     }
 }

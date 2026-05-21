@@ -83,12 +83,11 @@
                         :key="cap.id"
                         class="sw-settings-ucp-detail__capability-row"
                     >
-                        <!-- TODO Codemod: Converted from sw-switch-field - please check if everything works correctly -->
                         <mt-switch
                             :model-value="isEnabled(cap.id)"
                             :label="$t(`sw-settings-ucp.detail.capabilityLabels.${cap.labelKey}`)"
                             :help-text="$t(`sw-settings-ucp.detail.capabilityHelp.${cap.helpKey}`)"
-                            @update:value="toggleCapability(cap.id)"
+                            @update:model-value="toggleCapability(cap.id)"
                         />
                         <sw-label
                             v-if="cap.type === 'extension'"

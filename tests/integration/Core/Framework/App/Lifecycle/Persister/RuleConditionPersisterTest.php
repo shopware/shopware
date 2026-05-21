@@ -38,8 +38,8 @@ class RuleConditionPersisterTest extends TestCase
         $this->persister = static::getContainer()->get(RuleConditionPersister::class);
         $this->scriptConditionRepository = static::getContainer()->get('app_script_condition.repository');
 
+        /** @var AppFixture $appFixture */
         $appFixture = static::getContainer()->get(AppFixture::class);
-        \assert($appFixture instanceof AppFixture);
         $this->appFixture = $appFixture;
     }
 

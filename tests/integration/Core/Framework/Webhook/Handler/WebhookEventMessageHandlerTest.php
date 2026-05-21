@@ -398,10 +398,10 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventId = Uuid::randomHex();
         $webhookEventMessage = $this->createWebhookEventMessage($webhookEventId, $appId, $webhookId);
 
-        $this->appendNewResponse(new ConnectException('Connection refused', new Request('POST', 'https://test.com')));
+        $connectException = new ConnectException('Connection refused', new Request('POST', 'https://www.shopware.com'));
+        $this->appendNewResponse($connectException);
 
-        $this->expectException(WebhookException::class);
-        $this->expectExceptionMessage('Connection refused');
+        $this->expectExceptionObject(WebhookException::webhookFailedException($webhookId, $connectException));
 
         ($this->webhookEventMessageHandler)($webhookEventMessage);
     }

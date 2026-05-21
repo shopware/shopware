@@ -4,6 +4,8 @@ import type { MethodProp } from './types';
 
 export function extractMethodProps(optionsObj: ObjectLiteralExpression): MethodProp[] {
     const methodsProp = optionsObj.getProperty('methods');
+    // TODO: Silent ignore: shorthand/non-object `methods` declarations are
+    // treated as absent, dropping methods without a blocker.
     if (!methodsProp?.isKind(SyntaxKind.PropertyAssignment)) return [];
 
     const methodsObj = methodsProp
@@ -29,6 +31,10 @@ export function extractMethodProps(optionsObj: ObjectLiteralExpression): MethodP
             const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const name = pa.getName();
             const initializerText = pa.getInitializer()?.getText() ?? '';
+            // TODO: Silent ignore: property-assignment methods can be external
+            // references or wrapper expressions that depend on Vue instance
+            // binding; they are emitted as setup constants without reporting
+            // whether that binding is still equivalent.
             result.push({
                 name,
                 paramsText: '',

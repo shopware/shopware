@@ -99,6 +99,9 @@ export function transformTemplate(twigContent: string): { template: string } {
             .map((line) => line.replace(PARENT_RE, '<sw-block-parent/>'))
             .join('\n');
     }
+    // TODO: Silent ignore: `{{ parent() }}` outside a detected Twig block is
+    // left as a Vue method call, which is syntactically valid but loses Twig
+    // parent-content semantics.
 
     const transformed = `<template>\n${body}\n</template>`;
     return { template: transformed };

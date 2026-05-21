@@ -122,6 +122,9 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
 
 export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): string {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, kind);
+    // TODO: Silent ignore: only property accesses are inspected. Bare `this`,
+    // element access (`this[key]`), destructuring, aliases, and `.bind(this)`
+    // can remain in generated setup code without a blocker.
     const replacements = sourceFile
         .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
         .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
@@ -193,6 +196,8 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge that must be reviewed after generation.
+            // TODO: Silent ignore: $el placeholder usage still reports fully
+            // migratable unless a separate blocker is added.
             return '/* TODO: $el */ getCurrentInstance()?.proxy?.$el';
         case '$store':
             // Vuex access needs a store-specific Pinia/composable migration.
@@ -200,12 +205,24 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
             // non-functional placeholder.
             return "/* TODO: migrate $store to composable */\n        (() => { throw new Error('$store used here — replace with the appropriate Pinia store or composable before shipping'); })()";
         case '$parent':
+            // TODO: Silent ignore: placeholder rewrites for instance APIs
+            // change runtime behavior but do not currently force partial
+            // migration status.
             return '/* TODO: $parent */ undefined';
         case '$root':
+            // TODO: Silent ignore: placeholder rewrites for instance APIs
+            // change runtime behavior but do not currently force partial
+            // migration status.
             return '/* TODO: $root */ undefined';
         case '$options':
+            // TODO: Silent ignore: placeholder rewrites for instance APIs
+            // change runtime behavior but do not currently force partial
+            // migration status.
             return '/* TODO: $options */ {}';
         case '$forceUpdate':
+            // TODO: Silent ignore: placeholder rewrites for instance APIs
+            // change runtime behavior but do not currently force partial
+            // migration status.
             return '/* TODO: $forceUpdate */ (() => {})';
         default:
             break;
@@ -223,5 +240,7 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
         return name;
     }
 
+    // TODO: Silent ignore: unknown `this.<name>` accesses are left in setup
+    // output instead of becoming a blocker.
     return null;
 }

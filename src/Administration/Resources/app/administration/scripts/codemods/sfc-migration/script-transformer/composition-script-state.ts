@@ -180,6 +180,9 @@ export function collectCompositionScriptState(
     const effectiveEmitsKeys =
         emitsDefinition.keys.length > 0 || emitsDefinition.objectText !== null
             ? emitsDefinition.keys
+            // TODO: Silent ignore: unsupported emits definitions can be
+            // replaced by inferred `$emit()` names instead of reporting the
+            // original `emits` shape as unsupported.
             : collectEmittedEventNames(allSnippets);
 
     const supportedWatchProps = watchProps.filter((watchProp) => {
@@ -261,13 +264,22 @@ export function collectCompositionScriptState(
         manualMigrationReasons.push('beforeCreate hook requires manual migration');
         todoComments.push('// TODO: `beforeCreate` was dropped — move logic to top of setup if needed');
     }
+    // TODO: Silent ignore: other runtime-relevant top-level options
+    // (route guards, metaInfo, shortcuts, errorCaptured, expose,
+    // extensionApiDevtoolInformation, saveFinish, root spreads, and dynamic
+    // option keys) are not surfaced as manual migration reasons.
 
     manualMigrationReasons.push(...unsupportedWatchEntries.map((entry) => `watch: ${sanitizeTodoCommentText(entry)}`));
 
     const componentNameProp = optionsObj.getProperty('name');
+    // TODO: Silent ignore: dynamic component `name` options are passed to
+    // defineOptions instead of being reported as unsupported.
     const componentNameValue = componentNameProp?.isKind(SyntaxKind.PropertyAssignment)
         ? componentNameProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()?.getText()
         : undefined;
+
+    // TODO: Silent ignore: duplicate public names across inject/data/computed/
+    // methods are not detected before generating duplicate setup declarations.
 
     return {
         registration,

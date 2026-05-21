@@ -10,6 +10,8 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
 
     if (dataProp.isKind(SyntaxKind.MethodDeclaration)) {
         const body = dataProp.asKindOrThrow(SyntaxKind.MethodDeclaration).getBody();
+        // TODO: Silent ignore: getDescendantsOfKind can pick nested returns,
+        // so helper function return objects may be migrated as component data.
         const returnStmt = body?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
         returnExpr = returnStmt?.getExpression()?.isKind(SyntaxKind.ObjectLiteralExpression)
             ? returnStmt.getExpression()!.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
@@ -34,6 +36,9 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
         }
     }
 
+    // TODO: Silent ignore: unsupported data declarations or non-object return
+    // expressions are treated as no data instead of marking the component
+    // partially migratable.
     if (!returnExpr) return { dataProps: [], unsupportedEntries: [] };
 
     const dataProps: DataProp[] = [];
@@ -43,6 +48,9 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
         if (p.isKind(SyntaxKind.PropertyAssignment)) {
             const prop = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
+            // TODO: Silent ignore: data initializers can call component methods
+            // through `this`; after migration those methods are declared later
+            // in setup, which can create non-equivalent execution order.
             dataProps.push({
                 name: prop.getName(),
                 valueText: prop.getInitializer()?.getText() ?? 'undefined',

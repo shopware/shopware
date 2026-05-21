@@ -5,6 +5,8 @@ import type { ComputedProp, ExtractComputedPropsResult } from './types';
 
 export function extractComputedProps(optionsObj: ObjectLiteralExpression): ExtractComputedPropsResult {
     const computedProp = optionsObj.getProperty('computed');
+    // TODO: Silent ignore: shorthand/non-property `computed` declarations are
+    // treated as absent instead of being reported as unsupported.
     if (!computedProp?.isKind(SyntaxKind.PropertyAssignment)) return { computedProps: [], unsupportedEntries: [] };
 
     const computedObj = computedProp
@@ -51,6 +53,8 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
                     name: pa.getName(),
                     kind: 'getter-setter',
                     getterBodyText: getter.getBodyText() ?? '',
+                    // TODO: Silent ignore: getName() drops default/rest/
+                    // destructuring syntax from computed setter parameters.
                     setterParam: setter.getParameters()[0]?.getName() ?? 'val',
                     setterBodyText: setter.getBodyText() ?? '',
                 });

@@ -33,6 +33,8 @@ function parseWatchBooleanOption(
 
 export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractWatchPropsResult {
     const watchProp = optionsObj.getProperty('watch');
+    // TODO: Silent ignore: shorthand/non-property `watch` declarations are
+    // treated as absent instead of being reported as unsupported.
     if (!watchProp?.isKind(SyntaxKind.PropertyAssignment)) {
         return { watchProps: [], unsupportedEntries: [] };
     }
@@ -53,6 +55,8 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
                 name: getPropertyName(method),
                 paramsText: method
                     .getParameters()
+                    // TODO: Silent ignore: getName() drops destructuring,
+                    // default values, and rest syntax from watcher parameters.
                     .map((param) => param.getName())
                     .join(', '),
                 bodyText: method.getBodyText() ?? '',
@@ -110,6 +114,9 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
                 const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
                 watchEntry.paramsText = handler
                     .getParameters()
+                    // TODO: Silent ignore: getName() drops destructuring,
+                    // default values, and rest syntax from object-form watcher
+                    // handler parameters.
                     .map((param) => param.getName())
                     .join(', ');
                 watchEntry.bodyText = handler.getBodyText() ?? '';

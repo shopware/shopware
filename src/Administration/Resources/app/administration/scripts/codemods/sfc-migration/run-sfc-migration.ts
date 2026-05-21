@@ -218,6 +218,10 @@ export function normaliseJsContent(jsContent: string, componentName: string): st
 function buildIndexShim(componentName: string): string {
     const vueImportPath = `./${componentName}.vue`;
 
+    // TODO: Silent ignore: delete-originals uses the directory name for the
+    // shim registration. If the original index.js registered a different
+    // literal component name, the generated entrypoint silently registers a
+    // different component.
     return [
         `import component from ${quoteJsString(vueImportPath)};`,
         '',

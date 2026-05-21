@@ -89,6 +89,9 @@ export function findComponentRegistration(sourceFile: SourceFile): ComponentRegi
     return {
         call,
         isExtend,
+        // TODO: Silent ignore: non-literal component names are rewritten to
+        // `unknown-component`; the migration should report this edge case
+        // instead of silently changing the registered component name.
         componentName: componentNameArg?.isKind(SyntaxKind.StringLiteral)
             ? componentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
             : 'unknown-component',

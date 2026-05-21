@@ -5,6 +5,9 @@ import { getPropertyName, isSafeIdentifier, sanitizeTodoCommentText, serializeMe
 
 export function extractInjectProps(optionsObj: ObjectLiteralExpression): ExtractInjectPropsResult {
     const prop = optionsObj.getProperty('inject');
+    // TODO: Silent ignore: shorthand/non-property root `inject` declarations
+    // are treated as absent instead of backing off like other unsupported
+    // inject shapes.
     if (!prop?.isKind(SyntaxKind.PropertyAssignment)) return { injectProps: [], unsupportedEntries: [] };
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);

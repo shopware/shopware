@@ -390,50 +390,49 @@ class FieldSerializerTest extends TestCase
     }
 
     #[DataProvider('deserializeShouldThrowExceptionTestDataProvider')]
-    public function testDeserializeShouldThrowException(Field $field, ?string $value, string $expectedMessage): void
+    public function testDeserializeShouldThrowException(Field $field, ?string $value, ImportExportException $expectedException): void
     {
         $fieldSerializer = new FieldSerializer();
         $config = new Config([new Mapping('bar')], [], []);
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage($expectedMessage);
+        $this->expectExceptionObject($expectedException);
 
         $fieldSerializer->deserialize($config, $field, $value);
     }
 
     /**
-     * @return iterable<string, array{field: Field, value: string|null, expectedMessage: string}>
+     * @return iterable<string, array{field: Field, value: string|null, expectedException: ImportExportException}>
      */
     public static function deserializeShouldThrowExceptionTestDataProvider(): iterable
     {
         yield 'int field with not parsable value' => [
             'field' => new IntField('foo', 'bar'),
             'value' => 'foo1Bar',
-            'expectedMessage' => 'Deserialization failed for field "bar" with value "foo1Bar" to type "integer"',
+            'expectedException' => ImportExportException::deserializationFailed('bar', 'foo1Bar', 'integer'),
         ];
 
         yield 'date field with not parsable value' => [
             'field' => new DateField('foo', 'bar'),
             'value' => '45-13-22517',
-            'expectedMessage' => 'Deserialization failed for field "bar" with value "45-13-22517" to type "date"',
+            'expectedException' => ImportExportException::deserializationFailed('bar', '45-13-22517', 'date'),
         ];
 
         yield 'bool field with not parsable value' => [
             'field' => new BoolField('foo', 'bar'),
             'value' => 'of course',
-            'expectedMessage' => 'Deserialization failed for field "bar" with value "of course" to type "boolean"',
+            'expectedException' => ImportExportException::deserializationFailed('bar', 'of course', 'boolean'),
         ];
 
         yield 'json field with not parsable value' => [
             'field' => new JsonField('foo', 'bar'),
             'value' => '{FooBar',
-            'expectedMessage' => 'Deserialization failed for field "bar" with value "{FooBar" to type "json"',
+            'expectedException' => ImportExportException::deserializationFailed('bar', '{FooBar', 'json'),
         ];
 
         yield 'id field with not parsable value' => [
             'field' => new IdField('foo', 'bar'),
             'value' => '1ab98a64fcb64d|2cb08321a122deacc1',
-            'expectedMessage' => 'Deserialization failed for field "bar" with value "1ab98a64fcb64d|2cb08321a122deacc1" to type "uuid"',
+            'expectedException' => ImportExportException::deserializationFailed('bar', '1ab98a64fcb64d|2cb08321a122deacc1', 'uuid'),
         ];
     }
 

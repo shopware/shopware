@@ -1323,8 +1323,7 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));
 
-        $this->expectException(InvalidAggregationQueryException::class);
-        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+        $this->expectExceptionObject(new InvalidAggregationQueryException('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported'));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
@@ -1336,8 +1335,7 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Backtick not allowed in identifier');
+        static::expectExceptionObject(new \InvalidArgumentException('Backtick not allowed in identifier'));
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 

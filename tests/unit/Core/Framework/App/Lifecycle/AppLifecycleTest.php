@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +34,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -500,6 +498,10 @@ class AppLifecycleTest extends TestCase
             $deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
         }
 
+        $customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
+        $customEntityLifecycleService->method('allowsDisabling')->willReturn(true);
+        $customEntityLifecycleService->method('canRemoveAppData')->willReturn(true);
+
         return new AppLifecycle(
             [],
             $appRepository,
@@ -515,12 +517,9 @@ class AppLifecycleTest extends TestCase
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,
-            $this->createMock(Connection::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(CustomEntityLifecycleService::class),
+            $customEntityLifecycleService,
             '6.5.0.0',
             $this->createMock(AppFeatureValidator::class),
-            $this->createMock(EntityRepository::class),
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
             $mcpAppSyncer ?? $this->createMock(McpAppSyncer::class),

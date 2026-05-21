@@ -203,11 +203,10 @@ class TaskSchedulerTest extends TestCase
 
     public function testScheduleTasksThrowsExceptionWhenTryingToScheduleWrongClass(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(\sprintf(
+        $this->expectExceptionObject(new \RuntimeException(\sprintf(
             'Tried to schedule "%s", but class does not extend ScheduledTask',
             FooMessage::class
-        ));
+        )));
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
         $context = Context::createDefaultContext();

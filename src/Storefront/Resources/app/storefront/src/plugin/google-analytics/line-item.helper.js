@@ -24,16 +24,21 @@ export default class LineItemHelper
     }
 
     /**
+     * @param {string|null} productId
      * @returns { Object[] }
      */
-    static getLineItems() {
+    static getLineItems(productId = null) {
         const lineItemsContainer = document.querySelector('.hidden-line-items-information');
-        const lineItemDataElements = lineItemsContainer.querySelectorAll('.hidden-line-item');
+        const lineItemDataElements = lineItemsContainer?.querySelectorAll('.hidden-line-item') ?? [];
         const lineItems = [];
 
         lineItemDataElements.forEach(itemEl => {
+            if (productId && itemEl.getAttribute('data-id') !== productId) {
+                return;
+            }
+
             const itemData = {
-                id: itemEl.getAttribute('data-id'),
+                id: itemEl.getAttribute('data-sku') ?? itemEl.getAttribute('data-id'),
                 name: itemEl.getAttribute('data-name'),
                 quantity: itemEl.getAttribute('data-quantity'),
                 price: itemEl.getAttribute('data-price'),
@@ -73,8 +78,8 @@ export default class LineItemHelper
             return null;
         }
 
-        const lineItems = LineItemHelper.getLineItems();
-        const lineItem = lineItems.find(item => item.id === productId);
+        const lineItems = LineItemHelper.getLineItems(productId);
+        const lineItem = lineItems.find(() => true);
         if (!lineItem) {
             return null;
         }
@@ -90,6 +95,7 @@ export default class LineItemHelper
         }
 
         return {
+            id: lineItem.id,
             name: lineItem.name,
             brand: lineItem.brand,
             value: lineItem.price,

@@ -116,16 +116,28 @@ class ManifestFixture extends Manifest
 
     public function withWebhook(?Webhook $webhook = null): self
     {
-        $webhooks = $this->webhooks?->getWebhooks() ?? [];
-        $webhooks[] = $webhook ?? Webhook::fromArray([
+        return $this->withWebhooks($webhook ?? Webhook::fromArray([
             'name' => 'test-webhook',
             'url' => 'https://example.com/webhook',
             'event' => 'product.written',
-        ]);
+        ]));
+    }
 
+    public function withWebhooks(Webhook ...$webhooks): self
+    {
+        $existingWebhooks = $this->webhooks?->getWebhooks() ?? [];
+        $webhooks = [
+            ...$existingWebhooks,
+            ...$webhooks,
+        ];
         $this->webhooks = Webhooks::fromArray(['webhooks' => $webhooks]);
 
         return $this;
+    }
+
+    public function getPath(): string
+    {
+        return 'test';
     }
 
     public function getMetadata(): Metadata

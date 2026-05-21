@@ -68,8 +68,7 @@ class TaxDetectorTest extends TestCase
     {
         $detector = new TaxDetector();
 
-        $this->expectException(DecorationPatternException::class);
-        $this->expectExceptionMessage('The getDecorated() function of core class ' . TaxDetector::class . ' cannot be used. This class is the base class.');
+        $this->expectExceptionObject(new DecorationPatternException(TaxDetector::class));
 
         $detector->getDecorated();
     }

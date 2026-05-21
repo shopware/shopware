@@ -151,7 +151,7 @@ class ThumbnailExtensionTest extends TestCase
             static::assertMatchesRegularExpression(
                 '/^\(min-width:[^)]*\)\s+\S+/',
                 $entry,
-                sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
+                \sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
             );
         }
     }

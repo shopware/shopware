@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1768545320RevocationRequestCmsForm;
 use Shopware\Core\Migration\V6_6\Migration1768545322AssignRevocationPageToSystemConfigSetting;
-use Shopware\Core\Migration\V6_7\Migration1779173129RepairRevocationRequestCmsPageVersion;
+use Shopware\Core\Migration\V6_6\Migration1779173129RepairRevocationRequestCmsPageVersion;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Migration\MigrationTestTrait;
 

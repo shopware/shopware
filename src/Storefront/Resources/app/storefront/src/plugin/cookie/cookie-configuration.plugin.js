@@ -551,6 +551,14 @@ export default class CookieConfiguration extends Plugin {
     }
 
     /**
+     * @private
+     * @returns {boolean}
+     */
+    _isLastStateEmpty() {
+        return this.lastState.active.length === 0 && this.lastState.inactive.length === 0;
+    }
+
+    /**
      * Compare the current in-/active cookies to the initialState and return updated cookies only
      *
      * @param active
@@ -562,8 +570,8 @@ export default class CookieConfiguration extends Plugin {
         const updated = {};
 
         // When accepting all cookies from the cookie bar, the offcanvas was never opened
-        // and therefore lastState is empty fix is, we treat all cookies as changed
-        if (lastState.active.length === 0 && lastState.inactive.length === 0) {
+        // and therefore lastState is empty. Treat all cookies as changed in that case.
+        if (this._isLastStateEmpty()) {
             active.forEach(cookie => { updated[cookie] = true; });
             inactive.forEach(cookie => { updated[cookie] = false; });
 

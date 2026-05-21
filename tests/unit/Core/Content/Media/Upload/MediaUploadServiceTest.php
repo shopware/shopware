@@ -375,8 +375,7 @@ class MediaUploadServiceTest extends TestCase
 
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Upload failed');
+        $this->expectExceptionObject(new \Exception('Upload failed'));
 
         try {
             $this->mediaUploadService->uploadFromLocalPath($filePath, $this->context, $params);

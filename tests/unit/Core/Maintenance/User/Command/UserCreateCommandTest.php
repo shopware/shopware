@@ -37,8 +37,7 @@ class UserCreateCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('The password must have at least 8 characters.');
+        $this->expectExceptionObject(MaintenanceException::passwordTooShort(8));
 
         $commandTester->execute([
             'username' => self::TEST_USERNAME,

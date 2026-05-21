@@ -234,8 +234,7 @@ class AccountServiceTest extends TestCase
             new NativeClock()
         );
 
-        $this->expectException(PasswordPoliciesUpdatedException::class);
-        $this->expectExceptionMessage('Password policies updated.');
+        $this->expectExceptionObject(new PasswordPoliciesUpdatedException());
         $accountService->getCustomerByLogin('user', 'password', $salesChannelContext);
     }
 

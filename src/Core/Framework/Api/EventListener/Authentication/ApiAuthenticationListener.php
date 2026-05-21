@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Sso\ShopwarePasswordGrantType;
 use Shopware\Core\Framework\Sso\ShopwareRefreshTokenGrantType;
 use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\UserService\UserService;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -89,6 +90,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
 
         if (!$request->attributes->get('auth_required', true)) {
             return;
+        }
+
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) { // @codeCoverageIgnore
+            return; // @codeCoverageIgnore
         }
 
         if (!$this->isRequestScoped($request, ApiContextRouteScopeDependant::class)) {

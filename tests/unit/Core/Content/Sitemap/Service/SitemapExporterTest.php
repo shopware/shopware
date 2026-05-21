@@ -128,8 +128,7 @@ class SitemapExporterTest extends TestCase
         $salesChannel = $this->createSalesChannel('testSalesChannel');
         $salesChannelContext = $this->createSalesChannelContext($salesChannel, []);
 
-        $this->expectException(SitemapException::class);
-        $this->expectExceptionMessage('Invalid domain');
+        $this->expectExceptionObject(SitemapException::invalidDomain());
         $exporter->generate($salesChannelContext, true);
     }
 
@@ -143,8 +142,7 @@ class SitemapExporterTest extends TestCase
         $salesChannel = $this->createSalesChannel('testSalesChannel');
         $salesChannelContext = $this->createSalesChannelContext($salesChannel, []);
 
-        $this->expectException(SitemapException::class);
-        $this->expectExceptionMessage('Cannot acquire lock for sales channel testSalesChannel and language ' . $salesChannel->getLanguageId());
+        $this->expectExceptionObject(SitemapException::sitemapAlreadyLocked($salesChannelContext));
         $exporter->generate($salesChannelContext);
     }
 

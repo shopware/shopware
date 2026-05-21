@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Consent\ConsentStatus;
 use Shopware\Core\System\Consent\Log\DatabaseLog;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -35,7 +36,7 @@ class DatabaseLogTest extends TestCase
             )
             ->willReturn(1);
 
-        $logger = new DatabaseLog($connection);
+        $logger = new DatabaseLog($connection, new NativeClock());
 
         $logger->log(ConsentStatus::ACCEPTED, 'test-consent', 'identifier-123', 'actor-456');
     }

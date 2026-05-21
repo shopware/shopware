@@ -154,32 +154,6 @@ class ProductExportRepositoryTest extends TestCase
         static::assertSame('PRODUCT_EXPORT__INVALID_FEED_LABEL_FORMAT', $violation->getCode());
     }
 
-    private function upsertWithFeedLabel(?string $feedLabel): string
-    {
-        $id = Uuid::randomHex();
-
-        $this->productExportRepository->upsert([
-            [
-                'id' => $id,
-                'fileName' => 'feed-' . $id,
-                'accessKey' => Uuid::randomHex(),
-                'encoding' => ProductExportEntity::ENCODING_UTF8,
-                'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
-                'interval' => 0,
-                'bodyTemplate' => 'test',
-                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
-                'salesChannelId' => $this->getSalesChannelId(),
-                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
-                'generateByCronjob' => false,
-                'currencyId' => Defaults::CURRENCY,
-                'feedLabel' => $feedLabel,
-            ],
-        ], $this->context);
-
-        return $id;
-    }
-
     public function testUpdateEntity(): void
     {
         $id = Uuid::randomHex();
@@ -347,6 +321,32 @@ class ProductExportRepositoryTest extends TestCase
         $salesChannelDomain = $entity->getSalesChannelDomain();
         static::assertNotNull($salesChannelDomain);
         static::assertSame($this->getSalesChannelDomainId(), $salesChannelDomain->getId());
+    }
+
+    private function upsertWithFeedLabel(?string $feedLabel): string
+    {
+        $id = Uuid::randomHex();
+
+        $this->productExportRepository->upsert([
+            [
+                'id' => $id,
+                'fileName' => 'feed-' . $id,
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
+                'interval' => 0,
+                'bodyTemplate' => 'test',
+                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'feedLabel' => $feedLabel,
+            ],
+        ], $this->context);
+
+        return $id;
     }
 
     private function getSalesChannelId(): string

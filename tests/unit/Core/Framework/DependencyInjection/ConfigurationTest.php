@@ -283,6 +283,42 @@ class ConfigurationTest extends TestCase
         static::assertSame(['bucket' => 'test', 'region' => 'eu-central-1'], $config['filesystem']['public']['config']);
     }
 
+    public function testInheritingFilesystemNullOverrideRemovesPreviousConfig(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => $this->createS3FilesystemConfig('public'),
+                    'theme' => $this->createS3FilesystemConfig('theme'),
+                    'asset' => $this->createS3FilesystemConfig('asset'),
+                    'sitemap' => $this->createS3FilesystemConfig('sitemap'),
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                    'theme' => null,
+                    'asset' => null,
+                    'sitemap' => null,
+                ],
+            ],
+        ]);
+
+        static::assertSame('local', $config['filesystem']['public']['type']);
+        static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
+
+        static::assertArrayNotHasKey('theme', $config['filesystem']);
+        static::assertArrayNotHasKey('asset', $config['filesystem']);
+        static::assertArrayNotHasKey('sitemap', $config['filesystem']);
+    }
+
     public function testValidSystemConfigKeys(): void
     {
         $configuration = new Configuration();
@@ -324,5 +360,24 @@ class ConfigurationTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    /**
+     * @return array{type: string, url: string, visibility: string, config: array{bucket: string, region: string, root: string, endpoint: string, use_path_style_endpoint: bool}}
+     */
+    private function createS3FilesystemConfig(string $bucket): array
+    {
+        return [
+            'type' => 'amazon-s3',
+            'url' => 'https://cdn.example.test/' . $bucket,
+            'visibility' => 'private',
+            'config' => [
+                'bucket' => $bucket,
+                'region' => 'eu-central-1',
+                'root' => 'asdf',
+                'endpoint' => 'localhost/public',
+                'use_path_style_endpoint' => true,
+            ],
+        ];
     }
 }

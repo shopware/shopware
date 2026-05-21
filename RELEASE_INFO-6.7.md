@@ -144,6 +144,10 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 
 ## Administration
 
+The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
+
+New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
+
 ### Block renaming
 
 Due to misleading block names, the following blocks have been deprecated and will be removed in v6.8.0. Use the respective replacements instead:
@@ -194,6 +198,14 @@ Also the checkbox field is now positionally aligned with the other components.
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
 ## Storefront
+
+### Google Ads Enhanced Conversions
+
+A new Enhanced Conversions option was added to the Google Analytics integration. When enabled in the sales channel analytics settings, the checkout finish page sends the SHA256-hashed customer email address via `gtag('set', 'user_data', ...)` to support Google Ads Enhanced Conversions. Email addresses are normalized according to Google's requirements before hashing.
+
+A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDefinition` and `SalesChannelAnalyticsEntity`.
+
+New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 
 ### Google Analytics now starts when only the Google Ads cookie is accepted
 
@@ -765,23 +777,6 @@ Two new events are dispatched when the product slider CMS element resolves its p
 - `Shopware\Core\Content\Product\Events\ProductSliderStaticCriteriaEvent` is fired by the `StaticProductProcessor` when resolving a static product list.
 - `Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent` is fired by the `ProductStreamProcessor` when resolving a product stream.
 
-## Administration
-
-### Analytics settings restructured
-
-The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
-
-New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
-
-## Storefront
-
-### Google Ads Enhanced Conversions
-
-A new Enhanced Conversions option was added to the Google Analytics integration. When enabled in the sales channel analytics settings, the checkout finish page sends the SHA256-hashed customer email address via `gtag('set', 'user_data', ...)` to support Google Ads Enhanced Conversions. Email addresses are normalized according to Google's requirements before hashing.
-
-A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDefinition` and `SalesChannelAnalyticsEntity`.
-
-New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 ### Allow custom HTTP client injection for S3 client creation
 
 The S3 client creation flow (`S3ClientFactory`, `AwsS3v3Factory`, `PresignedUploadUrlGenerator`)

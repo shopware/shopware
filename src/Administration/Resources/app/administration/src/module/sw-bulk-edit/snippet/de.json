@@ -327,8 +327,7 @@
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
-          "labelTextarea": "Kommentar",
-          "placeholderTextarea": ""
+          "labelTextarea": "Kommentar"
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

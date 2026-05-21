@@ -24,6 +24,11 @@ class Migration1717572627RemoveImportExportProfileNameTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1717572627, (new Migration1717572627RemoveImportExportProfileName())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $exists = TableHelper::columnExists($this->connection, 'import_export_profile', 'name');

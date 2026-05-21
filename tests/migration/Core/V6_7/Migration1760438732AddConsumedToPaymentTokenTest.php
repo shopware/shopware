@@ -22,6 +22,11 @@ class Migration1760438732AddConsumedToPaymentTokenTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1760438732, (new Migration1760438732AddConsumedToPaymentToken())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1760438732AddConsumedToPaymentToken();

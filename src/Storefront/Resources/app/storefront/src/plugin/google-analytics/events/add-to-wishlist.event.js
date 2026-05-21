@@ -45,7 +45,7 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             'currency': productData.currency,
             'value': productData.value,
             'items': [{
-                'id': productId,
+                'id': productData.id ?? productId,
                 'name': productData.name,
                 'brand': productData.brand,
                 ...categories,

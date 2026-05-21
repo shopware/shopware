@@ -37,13 +37,13 @@ trait OrderFixture
      *
      * @return list<array<string, mixed>>
      */
-    private function getOrderData(string $orderId, Context $context): array
+    private function getOrderData(string $orderId, Context $context, ?string $customerId = null): array
     {
         $orderCustomerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
-        $customerId = Uuid::randomHex();
+        $customerId = $customerId ?? Uuid::randomHex();
         $orderNumber = Uuid::randomHex();
         $deliveryId = Uuid::randomHex();
 

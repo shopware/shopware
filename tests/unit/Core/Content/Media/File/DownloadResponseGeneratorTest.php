@@ -91,8 +91,7 @@ class DownloadResponseGeneratorTest extends TestCase
         $media->setPrivate(true);
         $media->setPath('foobar.txt');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The file "foobar." does not exist');
+        $this->expectExceptionObject(MediaException::fileNotFound('foobar.'));
         $this->downloadResponseGenerator->getResponse($media, $this->salesChannelContext);
     }
 

@@ -1,0 +1,57 @@
+{% block sw_settings_ucp_index %}
+<sw-page class="sw-settings-ucp-index">
+
+    {% block sw_settings_ucp_index_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-settings-ucp.list.headline') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_ucp_index_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_ucp_index_intro %}
+            <sw-alert variant="info">
+                {{ $tc('sw-settings-ucp.list.intro') }}
+            </sw-alert>
+            {% endblock %}
+
+            {% block sw_settings_ucp_index_table %}
+            <sw-card :is-loading="isLoading" position-identifier="sw-settings-ucp-list">
+                <sw-data-grid
+                    :data-source="items"
+                    :columns="[
+                        { property: 'salesChannelName', label: $tc('sw-settings-ucp.list.columns.salesChannel') },
+                        { property: 'active', label: $tc('sw-settings-ucp.list.columns.status') },
+                        { property: 'ucpVersion', label: $tc('sw-settings-ucp.list.columns.version') },
+                        { property: 'enabledCapabilities', label: $tc('sw-settings-ucp.list.columns.capabilities') },
+                    ]"
+                    :allow-inline-edit="false"
+                    :show-selection="false"
+                    :show-actions="true"
+                    :is-loading="isLoading"
+                    plain-appearance>
+
+                    <template #column-active="{ item }">
+                        <sw-label :variant="statusVariant(item)">
+                            {{ statusLabel(item) }}
+                        </sw-label>
+                    </template>
+
+                    <template #column-enabledCapabilities="{ item }">
+                        {{ capabilityCount(item) }}
+                    </template>
+
+                    <template #actions="{ item }">
+                        <sw-context-menu-item @click="editItem(item)">
+                            {{ $tc('sw-settings-ucp.list.actions.configure') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-data-grid>
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

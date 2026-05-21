@@ -19,5 +19,10 @@
     <import resource="../../Sso/Controller/**/*Controller.php" type="attribute" />
     <import resource="../../Mcp/Controller/*Controller.php" type="attribute" />
     <import resource="../../Validation/Api/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Discovery/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Capability/**/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Api/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Transport/Mcp/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Capability/IdentityLinking/Controller/*Controller.php" type="attribute" />
 
 </routes>

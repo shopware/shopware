@@ -1,0 +1,234 @@
+name: UCP Conformance
+
+on:
+  push:
+    branches: [trunk]
+    paths:
+      - 'src/Core/Framework/Ucp/**'
+      - 'src/Core/Migration/V6_8/Migration1779600*Ucp*.php'
+      - '.github/workflows/ucp-conformance.yml'
+  pull_request:
+    paths:
+      - 'src/Core/Framework/Ucp/**'
+      - 'src/Core/Migration/V6_8/Migration1779600*Ucp*.php'
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: UCP Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout shopware
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, openssl, intl, pdo_mysql, redis, zip, json, fileinfo, dom, xml, gd
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run UCP unit tests
+        env:
+          APP_ENV: test
+          APP_SECRET: ucp-conformance-app-secret-32-chars-long
+          UCP_SERVER: '1'
+        run: |
+          # The UCP unit tests have no DB requirement. They are the
+          # fast-feedback gate; if they fail, no point continuing.
+          vendor/bin/phpunit \
+            --colors=always \
+            --testdox \
+            tests/unit/Core/Framework/Ucp
+
+      - name: Run AP2 plugin unit tests
+        env:
+          APP_ENV: test
+          APP_SECRET: ucp-conformance-app-secret-32-chars-long
+        run: |
+          if [ -d custom/plugins/SwagUcpAp2Mandates/tests ]; then
+            vendor/bin/phpunit \
+              --colors=always \
+              --testdox \
+              custom/plugins/SwagUcpAp2Mandates/tests
+          fi
+
+  conformance:
+    name: UCP Official Conformance Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: unit
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: shopware
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout shopware
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, openssl, intl, pdo_mysql, redis, zip, json, fileinfo, dom, xml, gd
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: 'latest'
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h 127.0.0.1 -P 3306 -uroot -proot && break
+            sleep 2
+          done
+
+      - name: Install Shopware
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/shopware
+          APP_ENV: test
+          APP_SECRET: ${{ github.run_id }}-conformance-secret-32-chars-long
+          UCP_SERVER: '1'
+        run: |
+          bin/console system:install --create-database --basic-setup --shop-name="UCP Conformance" --shop-email="ucp@example.test" --shop-locale=en-GB
+          bin/console feature:enable UCP_SERVER
+          bin/console database:migrate --all core.V6_8
+
+      - name: Enable UCP for default Sales Channel
+        env:
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/shopware
+          UCP_SIMULATION_SECRET: ${{ github.run_id }}-sim-secret
+          UCP_CONFORMANCE_MODE: '1'
+        run: |
+          mysql -h127.0.0.1 -uroot -proot shopware <<SQL
+          INSERT INTO ucp_sales_channel_config (id, sales_channel_id, active, ucp_version, profile_uri_strategy,
+            enabled_capabilities, enabled_transports, signature_policy, idempotency_required, created_at)
+          SELECT UNHEX(REPLACE(UUID(),'-','')), id, 1, '2026-01-23', 'domain',
+            JSON_ARRAY('dev.ucp.shopping.catalog.search','dev.ucp.shopping.catalog.lookup',
+                      'dev.ucp.shopping.cart','dev.ucp.shopping.checkout','dev.ucp.shopping.order'),
+            JSON_ARRAY('rest','mcp'),
+            'strict', 1, NOW(3)
+          FROM sales_channel LIMIT 1;
+          SQL
+          bin/console ucp:keys:create --sales-channel=$(mysql -h127.0.0.1 -uroot -proot shopware -e "SELECT LOWER(HEX(id)) FROM sales_channel LIMIT 1" -s -N)
+          bin/console ucp:conformance:seed --sales-channel=$(mysql -h127.0.0.1 -uroot -proot shopware -e "SELECT LOWER(HEX(id)) FROM sales_channel LIMIT 1" -s -N)
+
+      - name: Start built-in PHP server
+        env:
+          APP_ENV: dev
+          UCP_SERVER: '1'
+          UCP_SIMULATION_SECRET: ${{ github.run_id }}-sim-secret
+          UCP_CONFORMANCE_MODE: '1'
+          DATABASE_URL: mysql://root:root@127.0.0.1:3306/shopware
+        run: |
+          php -S 127.0.0.1:8000 -t public >server.log 2>&1 &
+          echo $! > server.pid
+          sleep 5
+          curl -fsS http://127.0.0.1:8000/.well-known/ucp >/dev/null
+
+      # The official suite has a relative-path dependency on the python-sdk
+      # repo (`ucp-sdk = { path = "../python-sdk/", editable = true }` in
+      # pyproject.toml). We check both repos out side-by-side so uv can
+      # resolve the editable install.
+      - name: Check out UCP conformance suite
+        uses: actions/checkout@v4
+        with:
+          repository: Universal-Commerce-Protocol/conformance
+          path: ucp-conformance
+          ref: main
+
+      - name: Check out UCP python SDK (sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: Universal-Commerce-Protocol/python-sdk
+          path: python-sdk
+          ref: main
+
+      - name: Install conformance suite
+        run: |
+          cd ucp-conformance
+          uv sync
+
+      - name: Run conformance suite
+        env:
+          UCP_TARGET_URL: http://127.0.0.1:8000
+          UCP_SIMULATION_SECRET: ${{ github.run_id }}-sim-secret
+          UCP_CONFORMANCE_MODE: '1'
+        run: |
+          cd ucp-conformance
+          mkdir -p ../conformance-logs
+          set +e
+          failures=0
+          for test_file in *_test.py; do
+            echo "=== $test_file ===" | tee -a ../conformance-logs/run.log
+            uv run "$test_file" \
+              --server_url="$UCP_TARGET_URL" \
+              --simulation_secret="$UCP_SIMULATION_SECRET" \
+              --conformance_input=test_data/flower_shop/conformance_input.json \
+              2>&1 | tee -a ../conformance-logs/run.log
+            code=${PIPESTATUS[0]}
+            if [ "$code" -ne 0 ]; then
+              failures=$((failures+1))
+            fi
+          done
+          echo "Conformance files with failures: $failures" | tee -a ../conformance-logs/run.log
+          exit "$failures"
+
+      - name: Capture Shopware server log
+        if: always()
+        run: cp server.log conformance-logs/server.log || true
+
+      - name: Stop PHP server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill -TERM "$(cat server.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload conformance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ucp-conformance-logs
+          path: conformance-logs/

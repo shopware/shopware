@@ -2,6 +2,35 @@
 
 ## Features
 
+### [Experimental] Universal Commerce Protocol (UCP) server
+
+Shopware now ships a server-side implementation of the Universal Commerce Protocol (UCP) — an open standard that lets agentic commerce platforms (ChatGPT, Perplexity, Gemini, Claude, custom buyer agents) discover a sales channel, negotiate supported capabilities, search products, build carts, complete checkouts, receive signed order webhooks and optionally link a buyer identity through OAuth 2.0.
+
+The integration is gated behind the `UCP_SERVER` feature flag and is configured per sales channel under **Settings → System → Integrations → Universal Commerce Protocol**. Activate the flag via `bin/console feature:enable UCP_SERVER` or by setting `SHOPWARE_UCP_SERVER=1` in your `.env`. Once active, the `/.well-known/ucp` profile becomes available on every sales-channel domain whose UCP configuration is set to `active`.
+
+The implementation covers the full published UCP capability surface:
+- **Discovery & negotiation** at `/.well-known/ucp` plus version-pinned variants, with EC signing keys published as JWKs.
+- **REST transport** at `/ucp/v1/*` for catalog search/lookup, cart, checkout, order read, tokenization and discount application.
+- **MCP transport** at `/ucp/mcp` exposing every UCP capability as an MCP tool.
+- **A2A transport** at `/ucp/a2a` with an Agent Card at `/.well-known/agent-card.json`.
+- **Embedded Protocol transport** at `/ucp/embedded/{cart|checkout}/{cartId}` with origin-pinned `postMessage` bridges.
+- **OAuth 2.0 Authorization Server per sales channel** at `/.well-known/oauth-authorization-server` for `dev.ucp.common.identity_linking` — supports Authorization Code, PKCE S256, Refresh Token, `client_secret_post`/`_basic`, `private_key_jwt` and `tls_client_auth`.
+- **Signed outbound order webhooks** triggered by state-machine transitions.
+- **Capability extensions** for discount, fulfillment, buyer consent, and a hook for plugin-provided loyalty providers.
+
+Inbound RFC 9421 HTTP Message Signatures and RFC 9530 Content-Digest are verified per request; `Idempotency-Key` is honoured on every non-idempotent route with same-key-different-body returning HTTP 409. SSRF protection rejects private/loopback/metadata hosts when fetching platform profiles outside dev environments.
+
+A dedicated Admin module `sw-settings-ucp` ships under **Settings → System → Integrations** with three ACL privileges: `ucp.viewer`, `ucp.editor`, `ucp.key_rotator`. Admin-API endpoints under `/api/_admin/ucp/*` cover configuration, signing-key rotation, profile preview and platform-profile cache management.
+
+Three new CLI commands are available: `debug:ucp`, `ucp:keys:create`, `ucp:keys:list`.
+
+Three stable extension points are reserved from this release on:
+- Plugins implement `Shopware\Core\Framework\Ucp\Capability\UcpCapability` and tag their service with `ucp.capability` to register a new capability.
+- Payment plugins (Stripe, Mollie, Adyen, PayPal, Klarna, …) opt in by additionally implementing `UcpPaymentHandlerInterface` and tagging their service with `ucp.payment_handler`.
+- The `UcpEvents::PROFILE_BUILT`, `UcpEvents::CHECKOUT_REQUEST` and `UcpEvents::CHECKOUT_RESPONSE` Symfony events allow plugins to mutate the published profile and the per-request checkout payload before/after persistence.
+
+All other Ucp classes are marked `@internal` and remain subject to change while the feature flag is experimental.
+
 ### [Experimental] MCP Server for AI tool integration
 
 Shopware now includes an experimental MCP (Model Context Protocol) server that lets AI clients like Claude Desktop or Cursor interact with your Shopware instance through a standardized protocol.
@@ -27,6 +56,23 @@ Use this route when editing an existing number range, because it reads the state
 The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
 It can only resolve global number ranges and therefore does not support non-global number range state.
 The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+### [Experimental] UCP Admin API under `/api/_admin/ucp/*`
+
+Eleven new Admin API endpoints back the `sw-settings-ucp` module:
+
+- `GET /api/_admin/ucp/sales-channels` — lists every sales channel together with its UCP-activation state.
+- `GET /api/_admin/ucp/sales-channels/{id}/config` — reads the per-channel UCP configuration including `signaturePolicy` and `idempotencyRequired`.
+- `PUT/POST /api/_admin/ucp/sales-channels/{id}/config` — upserts the configuration; `signaturePolicy` is whitelist-normalized (`strict` / `log` / `off`) so a malformed payload cannot push an unknown enum value into the database.
+- `GET /api/_admin/ucp/sales-channels/{id}/profile-preview` — renders the `/.well-known/ucp` profile preview for the given channel.
+- `GET/POST /api/_admin/ucp/sales-channels/{id}/keys` — lists or creates EC signing keys.
+- `POST /api/_admin/ucp/sales-channels/{id}/keys/{kid}/retire` — moves a key into the `retiring` state.
+- `DELETE /api/_admin/ucp/sales-channels/{id}/keys/{kid}` — removes a retired key.
+- `GET /api/_admin/ucp/platform-profiles` — inspects the cached platform profiles.
+- `DELETE /api/_admin/ucp/platform-profiles/{id}` — invalidates a cached entry.
+
+Read endpoints require the new `ucp.viewer` ACL privilege. Configuration writes require `ucp.editor`. Key rotation operations require the dedicated `ucp.key_rotator` privilege so that an editor cannot rotate signing material without a separate authorization. All endpoints return 404 when the `UCP_SERVER` feature flag is disabled.
+
+OpenAPI schemas for every Admin endpoint ship under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/ucp.json` and are tagged with `Experimental`.
 
 ### New foreign key resolvers for the Sync API
 
@@ -71,6 +117,17 @@ Implement `previewPatternByNumberRangeId()` for persisted number-range previews 
 
 The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
 Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+### [Experimental] UCP foundation classes under `Core/Framework/Ucp/`
+
+A new `Shopware\Core\Framework\Ucp\` namespace contains the protocol foundation: discovery, capability negotiation, RFC 9421 signature builder/verifier, RFC 9530 content-digest calculator, EC key generation, JCS canonicalization, idempotency store, REST/MCP/A2A/Embedded transports, capability controllers and the OAuth 2.0 Authorization Server.
+
+Three compiler passes (`UcpCapabilityCompilerPass`, `UcpPaymentHandlerCompilerPass`, `UcpMcpToolCompilerPass`) collect plugin-registered services through the DI tags `ucp.capability`, `ucp.payment_handler`, `ucp.mcp_tool` and `ucp.loyalty_provider`. The contract for these tags, the `UcpPaymentHandlerInterface`, and the `UcpEvents` constants are the stable public API surface from this release on; everything else carries an `@internal` marker.
+
+Fifteen new tables under the `ucp_*` prefix (plus `swag_ucp_ap2_mandate_log` from the optional AP2 plugin) store sales-channel configuration, signing keys, platform-profile caches, negotiation sessions, OAuth clients/codes/tokens/assertions, idempotency keys, buyer consents, A2A tasks, embedded sessions and signature replay nonces. All tables are scoped per `sales_channel_id` with `ON DELETE CASCADE` where applicable; private signing keys are encrypted at rest via `PrivateKeyEncryptor` (AES-256-GCM, HKDF-SHA256 from `APP_SECRET`). A dedicated `KeyMaterialGuard` Monolog processor strips known private-key context keys defensively.
+
+Three scheduled tasks (`UcpKeyRetirementTask`, `UcpProfileCacheCleanupTask`, `UcpNegotiationSessionCleanupTask`) keep retired keys, expired platform-profile caches and stale negotiation sessions tidy.
+
+The conformance helper routes `GET /orders/{id}` and `POST /testing/simulate-shipping/{id}` only respond when `APP_ENV` is not `prod` and `UCP_CONFORMANCE_MODE=1`. They are required by the upstream `Universal-Commerce-Protocol/conformance` Python suite and have no effect on production deployments.
 
 ### Backward compatible invalid locales
 
@@ -149,6 +206,18 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
 
 New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
+### [Experimental] `sw-settings-ucp` module
+
+A new Administration module `sw-settings-ucp` ships under **Settings → System → Integrations → Universal Commerce Protocol** and is hidden until the `UCP_SERVER` feature flag is active (`Shopware.Feature.isActive('UCP_SERVER')`).
+
+The module provides:
+- A list view of every sales channel with its UCP-activation state.
+- A detail view per sales channel with three cards: capability/transport selection, signing-key management (list, create, retire, delete) and a "Security" card surfacing `signaturePolicy` and `idempotencyRequired` with an explicit warning when the policy is not `strict`.
+- A profile preview card that renders the `/.well-known/ucp` payload before the operator exposes it publicly.
+
+A dedicated Admin API service `ucpAdminApiService` wraps the eleven new `/api/_admin/ucp/*` endpoints, and snippets for the module are provided in `en-GB.json` and `de-DE.json`.
+
+The module respects the three new ACL privileges (`ucp.viewer`, `ucp.editor`, `ucp.key_rotator`) so users without the appropriate role do not see the corresponding actions.
 
 ### Block renaming
 
@@ -346,6 +415,17 @@ This is useful for installations that manage permissions outside Shopware, for e
 
 Partial filesystem visibility overrides now keep the previously configured adapter `type` and `config`.
 Replacing the adapter `config` block still replaces it as a whole, so adapter-specific config from a previous definition is not mixed into the new adapter.
+### [Experimental] UCP feature flag and runtime configuration
+
+The experimental UCP server is enabled via the new `UCP_SERVER` feature flag (default off). Once enabled, every sales channel needs an explicit `ucp_sales_channel_config` row before its `/.well-known/ucp` endpoint becomes reachable.
+
+Production deployments must keep `signature_policy = 'strict'` and `idempotency_required = 1` on every UCP sales-channel configuration. Both columns default to the secure setting; the Admin UI surfaces a warning when the policy is relaxed.
+
+EC signing private keys are encrypted at rest with `APP_SECRET`-derived material. Rotating `APP_SECRET` therefore requires re-encrypting existing UCP signing keys (`bin/console ucp:keys:create` followed by `ucp:keys:retire`); a future minor will ship a dedicated key-migration command.
+
+Outbound platform-profile fetching enforces SSRF protection: private, loopback, link-local, reserved and cloud-metadata hosts are rejected outside dev environments, redirects are disabled, the resolved IP is pinned with `CURLOPT_RESOLVE`, and responses are capped at 256 KiB. Operators that need additional egress restrictions can use Symfony's standard HTTP client decorators or layer 7 firewalls.
+
+The conformance helper routes `GET /orders/{id}` and `POST /testing/simulate-shipping/{id}` are gated by `APP_ENV != prod` *and* the `UCP_CONFORMANCE_MODE` environment variable. They are intended exclusively for the upstream `Universal-Commerce-Protocol/conformance` Python suite and are unreachable in production.
 
 ## Critical Fixes
 

@@ -25,6 +25,9 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCom
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
+use Shopware\Core\Framework\Ucp\DependencyInjection\UcpCapabilityCompilerPass;
+use Shopware\Core\Framework\Ucp\DependencyInjection\UcpMcpToolCompilerPass;
+use Shopware\Core\Framework\Ucp\DependencyInjection\UcpPaymentHandlerCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
@@ -100,6 +103,7 @@ class Framework extends Bundle
         $loader->load('telemetry.xml');
         $loader->load('notification.xml');
         $loader->load('sso.xml');
+        $loader->load('ucp.xml');
 
         // @codeCoverageIgnoreStart
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
@@ -148,6 +152,9 @@ class Framework extends Bundle
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
         $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new UcpCapabilityCompilerPass());
+        $container->addCompilerPass(new UcpPaymentHandlerCompilerPass());
+        $container->addCompilerPass(new UcpMcpToolCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

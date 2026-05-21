@@ -1,0 +1,600 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- ============ DAL Definitions ============
+             Shopware auto-registers <entity_name>.repository services from these definitions. -->
+
+        <service id="Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition\UcpSalesChannelConfigDefinition">
+            <tag name="shopware.entity.definition" entity="ucp_sales_channel_config"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition\UcpSigningKeyDefinition">
+            <tag name="shopware.entity.definition" entity="ucp_signing_key"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition\UcpPlatformProfileCacheDefinition">
+            <tag name="shopware.entity.definition" entity="ucp_platform_profile_cache"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition\UcpNegotiationSessionDefinition">
+            <tag name="shopware.entity.definition" entity="ucp_negotiation_session"/>
+        </service>
+
+        <!-- ============ Security / Encryption / Logging ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Security\PrivateKeyEncryptor"/>
+        <service id="Shopware\Core\Framework\Ucp\Security\KeyMaterialGuard">
+            <tag name="monolog.processor"/>
+        </service>
+
+        <!-- ============ JWT + Signatures ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Jwt\EcKeyGenerator"/>
+        <service id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider">
+            <argument type="service" id="ucp_signing_key.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Security\PrivateKeyEncryptor"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\EcKeyGenerator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\ContentDigestCalculator"/>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureBase"/>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureInputParser"/>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\Rfc9421SignatureBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureBase"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\ContentDigestCalculator"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureReplayGuard">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Signature\Rfc9421SignatureVerifier">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureInputParser"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureBase"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\ContentDigestCalculator"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\SignatureReplayGuard"/>
+        </service>
+
+        <!-- ============ Capability framework ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\CapabilityRegistry">
+            <argument key="$capabilities" type="collection"/>
+        </service>
+
+        <!-- All UCP capabilities (services tagged with `ucp.capability`) are also
+             made public so the compiler-pass-built collection on CapabilityRegistry
+             can resolve them when the container is dumped. -->
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\CapabilityNegotiator"/>
+
+        <!-- ============ Payment handler registry ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry">
+            <argument key="$handlers" type="collection"/>
+            <argument key="$salesChannelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+        </service>
+
+        <!-- Default payment handlers -->
+        <service id="Shopware\Core\Framework\Ucp\Payment\DefaultHandler\InvoicePaymentHandler">
+            <tag name="ucp.payment_handler" handler_id="com.shopware.invoice"/>
+        </service>
+
+        <!-- ============ Profile fetcher / validator / cache ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileValidator"/>
+        <service id="Shopware\Core\Framework\Ucp\Profile\UrlSafetyValidator"/>
+        <service id="Shopware\Core\Framework\Ucp\Profile\DiscoveryBudgetEnforcer">
+            <argument type="service" id="cache.app"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileFetcher">
+            <argument type="service" id="ucp_platform_profile_cache.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\DiscoveryBudgetEnforcer"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\UrlSafetyValidator"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+
+        <!-- ============ Discovery ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider">
+            <argument type="service" id="ucp_sales_channel_config.repository"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Discovery\SupportedVersionsRegistry"/>
+        <service id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver">
+            <argument type="service" id="sales_channel_domain.repository"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Discovery\UcpProfileBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\CapabilityRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SupportedVersionsRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Discovery\WellKnownUcpController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpProfileBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Negotiation ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Negotiation\NegotiationOrchestrator">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileFetcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\CapabilityNegotiator"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\CapabilityRegistry"/>
+        </service>
+
+        <!-- ============ Transport: REST ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\Rest\UcpRouteScope">
+            <tag name="shopware.route_scope"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Idempotency\IdempotencyStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Transport\Rest\UcpAgentRequestResolver">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Negotiation\NegotiationOrchestrator"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\Rfc9421SignatureVerifier"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileFetcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Idempotency\IdempotencyStore"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Embedded\EmbeddedSessionFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\UrlSafetyValidator"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpAccessTokenAuthenticator" on-invalid="null"/>
+            <argument>%kernel.environment%</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Rest\UcpResponseEnvelopeListener">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\ContinueUrlBuilder"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Rest\UcpExceptionListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- ============ Capabilities ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\CatalogSearchCapability">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.catalog.search"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\CatalogLookupCapability">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.catalog.lookup"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Cart\CartCapability">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.cart"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutCapability">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Order\OrderCapability">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.order"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Discount\DiscountExtension">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.discount"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Discount\DiscountController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpScopeGuard"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Fulfillment\FulfillmentExtension">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.fulfillment"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\BuyerConsent\BuyerConsentExtension">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.buyer_consent"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Loyalty\LoyaltyExtension">
+            <tag name="ucp.capability" capability="dev.ucp.shopping.loyalty"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\IdentityLinkingCapability">
+            <tag name="ucp.capability" capability="dev.ucp.common.identity_linking"/>
+        </service>
+
+        <!-- ============ Identity Linking (OAuth 2.0 per Sales Channel) ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Scope\UcpScopeRegistry"/>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpScopeRepository">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Scope\UcpScopeRegistry"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpClientRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">00000000000000000000000000000000</argument>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpAccessTokenRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">00000000000000000000000000000000</argument>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpRefreshTokenRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpAuthCodeRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">00000000000000000000000000000000</argument>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpUserRepository">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">00000000000000000000000000000000</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Server\UcpAuthorizationServerFactory">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpClientRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpAccessTokenRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpAuthCodeRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpRefreshTokenRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpScopeRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Server\UcpResourceServerFactory">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Repository\UcpAccessTokenRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\CustomerSessionResolver">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpAccessTokenAuthenticator">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Server\UcpResourceServerFactory"/>
+            <argument type="service" id="logger"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpScopeGuard"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Auth\ClientAuthenticator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileFetcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Controller\OAuthDiscoveryController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Scope\UcpScopeRegistry"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Controller\OAuthAuthorizeController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Server\UcpAuthorizationServerFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Scope\UcpScopeRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\CustomerSessionResolver"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Controller\OAuthTokenController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Server\UcpAuthorizationServerFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Auth\ClientAuthenticator"/>
+            <argument type="service" id="logger"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Mappers ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Discount\DiscountMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Loyalty\LoyaltyAggregator"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Signals\SignalsExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Attribution\AttributionExtractor"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStatusResolver"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\ContinueUrlBuilder"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStatusResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\ContinueUrlBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Fulfillment\FulfillmentMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\BuyerConsent\BuyerConsentMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Attribution\AttributionExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\AvailableInstrumentResolver"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\GuestCustomerProvisioner">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+            <argument type="service" id="salutation.repository"/>
+            <argument type="service" id="country.repository"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductMapper"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver">
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Order\OrderMapper"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Discount\DiscountMapper"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Fulfillment\FulfillmentMapper">
+            <argument type="service" id="shipping_method.repository"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\BuyerConsent\ConsentStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\BuyerConsent\BuyerConsentMapper">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\BuyerConsent\ConsentStore"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Attribution\AttributionExtractor"/>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Signals\SignalsExtractor"/>
+        <service id="Shopware\Core\Framework\Ucp\Payment\AvailableInstrumentResolver">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Loyalty\LoyaltyAggregator">
+            <argument key="$providers" type="tagged_iterator" tag="ucp.loyalty_provider"/>
+        </service>
+
+        <!-- ============ Capability Controllers ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\Cart\CartController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpScopeGuard"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\CursorCodec"/>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\Catalog\CatalogController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\CursorCodec"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Fulfillment\FulfillmentMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\GuestCustomerProvisioner"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Capability\Order\OrderController" public="true">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Order\OrderMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\IdentityLinking\Bridge\UcpScopeGuard"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Order webhooks ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Capability\Order\Webhook\OrderWebhookPublisher">
+            <argument type="service" id="ucp_negotiation_session.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Order\OrderMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Signature\Rfc9421SignatureBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\PlatformProfileFetcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Profile\UrlSafetyValidator"/>
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Capability\Order\Webhook\OrderStateChangeSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Order\Webhook\OrderWebhookPublisher"/>
+            <argument type="service" id="order.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- ============ Admin API ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Api\UcpAdminConfigController" public="true">
+            <argument type="service" id="ucp_sales_channel_config.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Api\UcpAdminKeyController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Api\UcpAdminProfilePreviewController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpProfileBuilder"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Api\UcpAdminPlatformCacheController" public="true">
+            <argument type="service" id="ucp_platform_profile_cache.repository"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Transport: MCP ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\UcpMcpToolDispatcher">
+            <argument key="$tools" type="collection"/>
+            <argument key="$capabilityMap" type="collection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\UcpMcpServerController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Mcp\UcpMcpToolDispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Idempotency\IdempotencyStore"/>
+            <argument type="service" id="logger"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- MCP Tools (13 total — one per UCP operation) -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\SearchCatalogTool">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\CursorCodec"/>
+            <tag name="ucp.mcp_tool" tool_name="search_catalog" capability="dev.ucp.shopping.catalog.search"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\LookupProductsTool">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="lookup_catalog" capability="dev.ucp.shopping.catalog.lookup"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\GetProductTool">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="get_product" capability="dev.ucp.shopping.catalog.lookup"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\CreateCartTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="create_cart" capability="dev.ucp.shopping.cart"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\GetCartTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="get_cart" capability="dev.ucp.shopping.cart"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\UpdateCartTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Cart\CartMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="update_cart" capability="dev.ucp.shopping.cart"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\CancelCartTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartDeleteRoute"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <tag name="ucp.mcp_tool" tool_name="cancel_cart" capability="dev.ucp.shopping.cart"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\CreateCheckoutTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
+            <tag name="ucp.mcp_tool" tool_name="create_checkout" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\GetCheckoutTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="get_checkout" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\UpdateCheckoutTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="update_checkout" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\CompleteCheckoutTool">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\GuestCustomerProvisioner"/>
+            <tag name="ucp.mcp_tool" tool_name="complete_checkout" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\CancelCheckoutTool">
+            <tag name="ucp.mcp_tool" tool_name="cancel_checkout" capability="dev.ucp.shopping.checkout"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Mcp\Tool\GetOrderTool">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Order\OrderMapper"/>
+            <tag name="ucp.mcp_tool" tool_name="get_order" capability="dev.ucp.shopping.order"/>
+        </service>
+
+        <!-- ============ CLI ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpDebugCommand">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\CapabilityRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="ucp_sales_channel_config.repository"/>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpKeysCreateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpKeysListCommand">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpConformanceSeedCommand">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="console.command"/>
+        </service>
+
+        <!-- ============ Scheduled tasks ============ -->
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpKeyRetirementTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpKeyRetirementTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpProfileCacheCleanupTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpProfileCacheCleanupTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpNegotiationSessionCleanupTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpNegotiationSessionCleanupTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
+        <!-- ============ Transport: A2A ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AAgentCard">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\CapabilityRegistry"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AAgentCardController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\SalesChannelDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Discovery\UcpConfigProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AAgentCard"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\A2A\A2ATaskStore">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AMessageTranslator"/>
+        <service id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\A2A\A2AMessageTranslator"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\A2A\A2ATaskStore"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Mcp\UcpMcpToolDispatcher"/>
+            <argument type="service" id="logger"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Transport: Embedded ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\Embedded\EmbeddedSessionFactory">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Transport\Embedded\EmbeddedController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Transport\Embedded\EmbeddedSessionFactory"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Tokenization ============ -->
+        <service id="Shopware\Core\Framework\Ucp\Transport\Tokenization\TokenizationController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
+            <argument type="service" id="logger"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+    </services>
+</container>

@@ -1,0 +1,678 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_admin\/ucp\/sales-channels": {
+            "get": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "List sales channels with UCP activation state",
+                "description": "Returns every sales channel together with its UCP-activation state, enabled capabilities and enabled transports. Requires the `ucp.viewer` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminListSalesChannels",
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of sales channels with UCP activation state.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["items"],
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["salesChannelId", "configured", "active"],
+                                                "properties": {
+                                                    "salesChannelId": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+                                                    "salesChannelName": {"type": ["string", "null"]},
+                                                    "configured": {"type": "boolean"},
+                                                    "active": {"type": "boolean"},
+                                                    "ucpVersion": {"type": ["string", "null"], "example": "2026-01-23"},
+                                                    "enabledCapabilities": {
+                                                        "type": "array",
+                                                        "items": {"type": "string"}
+                                                    },
+                                                    "enabledTransports": {
+                                                        "type": "array",
+                                                        "items": {"type": "string", "enum": ["rest", "mcp", "a2a", "embedded"]}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.viewer` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/sales-channels\/{id}\/config": {
+            "get": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Read the UCP configuration for a sales channel",
+                "description": "Reads the per-channel UCP configuration. When no row exists yet the response carries platform defaults so the Admin UI can prefill the create form. Requires the `ucp.viewer` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminReadConfig",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "UCP configuration for the requested sales channel.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["salesChannelId", "active", "ucpVersion", "profileUriStrategy", "enabledCapabilities", "enabledTransports", "signaturePolicy", "idempotencyRequired"],
+                                    "properties": {
+                                        "id": {"type": ["string", "null"], "pattern": "^[0-9a-f]{32}$"},
+                                        "salesChannelId": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+                                        "active": {"type": "boolean"},
+                                        "ucpVersion": {"type": "string", "example": "2026-01-23"},
+                                        "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                        "customProfileUri": {"type": ["string", "null"]},
+                                        "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
+                                        "enabledTransports": {"type": "array", "items": {"type": "string", "enum": ["rest", "mcp", "a2a", "embedded"]}},
+                                        "continueUrlTemplate": {"type": ["string", "null"]},
+                                        "platformAllowlist": {"type": ["array", "null"], "items": {"type": "string"}},
+                                        "discoveryBudget": {"type": ["object", "null"], "additionalProperties": true},
+                                        "webhookUrlOverride": {"type": ["string", "null"]},
+                                        "signaturePolicy": {"type": "string", "enum": ["strict", "log", "off"], "default": "strict"},
+                                        "idempotencyRequired": {"type": "boolean", "default": true}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.viewer` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Upsert the UCP configuration for a sales channel",
+                "description": "Upserts the per-channel UCP configuration. The `signaturePolicy` field is whitelist-normalized to one of `strict`, `log`, `off`; unrecognised input is silently coerced to the secure default `strict`. Requires the `ucp.editor` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminWriteConfig",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "active": {"type": "boolean"},
+                                    "ucpVersion": {"type": "string", "example": "2026-01-23"},
+                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                    "customProfileUri": {"type": ["string", "null"]},
+                                    "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
+                                    "enabledTransports": {"type": "array", "items": {"type": "string", "enum": ["rest", "mcp", "a2a", "embedded"]}},
+                                    "continueUrlTemplate": {"type": ["string", "null"]},
+                                    "platformAllowlist": {"type": ["array", "null"], "items": {"type": "string"}},
+                                    "discoveryBudget": {"type": ["object", "null"], "additionalProperties": true},
+                                    "webhookUrlOverride": {"type": ["string", "null"]},
+                                    "signaturePolicy": {"type": "string", "enum": ["strict", "log", "off"]},
+                                    "idempotencyRequired": {"type": "boolean"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuration saved successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["id", "salesChannelId"],
+                                    "properties": {
+                                        "id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+                                        "salesChannelId": {"type": "string", "pattern": "^[0-9a-f]{32}$"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.editor` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Upsert the UCP configuration for a sales channel (POST alias)",
+                "description": "POST alias of the upsert operation \u2014 functionally identical to PUT, accepted so admin clients that prefer POST for create-or-update can call the same endpoint. Requires the `ucp.editor` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminWriteConfigPost",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "active": {"type": "boolean"},
+                                    "ucpVersion": {"type": "string"},
+                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                    "customProfileUri": {"type": ["string", "null"]},
+                                    "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
+                                    "enabledTransports": {"type": "array", "items": {"type": "string"}},
+                                    "continueUrlTemplate": {"type": ["string", "null"]},
+                                    "platformAllowlist": {"type": ["array", "null"], "items": {"type": "string"}},
+                                    "discoveryBudget": {"type": ["object", "null"], "additionalProperties": true},
+                                    "webhookUrlOverride": {"type": ["string", "null"]},
+                                    "signaturePolicy": {"type": "string", "enum": ["strict", "log", "off"]},
+                                    "idempotencyRequired": {"type": "boolean"}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Configuration saved successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["id", "salesChannelId"],
+                                    "properties": {
+                                        "id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+                                        "salesChannelId": {"type": "string", "pattern": "^[0-9a-f]{32}$"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.editor` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/sales-channels\/{id}\/profile-preview": {
+            "get": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Render the public `\/.well-known\/ucp` profile preview",
+                "description": "Renders the public `\/.well-known\/ucp` profile preview as it would appear to a UCP-compliant platform agent. Lets operators verify the configuration before exposing it publicly. Requires the `ucp.viewer` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled or when the sales channel has no UCP configuration. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminProfilePreview",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rendered UCP profile (shape mirrors the public `\/.well-known\/ucp` payload).",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "properties": {
+                                        "ucp": {
+                                            "type": "object",
+                                            "additionalProperties": true,
+                                            "properties": {
+                                                "version": {"type": "string", "example": "2026-01-23"},
+                                                "services": {"type": "array", "items": {"type": "object", "additionalProperties": true}},
+                                                "capabilities": {"type": "array", "items": {"type": "object", "additionalProperties": true}}
+                                            }
+                                        },
+                                        "signing_keys": {"type": "array", "items": {"type": "object", "additionalProperties": true}}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.viewer` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled or no UCP configuration exists for the sales channel."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/sales-channels\/{id}\/keys": {
+            "get": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "List EC signing keys for a sales channel",
+                "description": "Returns every publishable EC signing key for the given sales channel, in the same shape used in the `signing_keys` block of the public `\/.well-known\/ucp` profile. Requires the `ucp.viewer` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminListKeys",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of EC signing keys for the sales channel.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["items"],
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["kid", "algorithm", "status", "publicJwk"],
+                                                "properties": {
+                                                    "kid": {"type": "string"},
+                                                    "algorithm": {"type": "string", "enum": ["ES256", "ES384"]},
+                                                    "status": {"type": "string", "enum": ["active", "retiring", "retired"]},
+                                                    "publicJwk": {"type": "object", "additionalProperties": true},
+                                                    "activatedAt": {"type": ["string", "null"], "format": "date-time"},
+                                                    "retiringAt": {"type": ["string", "null"], "format": "date-time"}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.viewer` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Create a new EC signing key",
+                "description": "Generates a new EC signing key for the sales channel. When `rotate` is `true` (default) the current active key is moved into the `retiring` state so its public part keeps being published until existing platform clients have refreshed their profile cache. Requires the dedicated `ucp.key_rotator` ACL privilege, distinct from `ucp.editor`, so that an editor cannot rotate signing material without a separate authorization. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminCreateKey",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "algorithm": {"type": "string", "enum": ["ES256", "ES384"], "default": "ES256"},
+                                    "rotate": {"type": "boolean", "default": true, "description": "When true, retires the previously active key once the new key has been activated."}
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Key created successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["kid", "algorithm", "status", "publicJwk"],
+                                    "properties": {
+                                        "kid": {"type": "string"},
+                                        "algorithm": {"type": "string", "enum": ["ES256", "ES384"]},
+                                        "status": {"type": "string", "enum": ["active"]},
+                                        "publicJwk": {"type": "object", "additionalProperties": true}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.key_rotator` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    },
+                    "422": {
+                        "description": "Unprocessable \u2014 algorithm is unsupported."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/sales-channels\/{id}\/keys\/{kid}\/retire": {
+            "post": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Retire an EC signing key",
+                "description": "Moves the key identified by `{kid}` into the `retiring` state. The key remains in the public `signing_keys` block of `\/.well-known\/ucp` until the scheduled `UcpKeyRetirementTask` removes it. Requires the dedicated `ucp.key_rotator` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminRetireKey",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "kid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The signing key identifier (`kid`).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Key retired successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["kid", "status"],
+                                    "properties": {
+                                        "kid": {"type": "string"},
+                                        "status": {"type": "string", "enum": ["retiring", "retired"]}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.key_rotator` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled or the key was not found."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/sales-channels\/{id}\/keys\/{kid}": {
+            "delete": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Delete a retired EC signing key",
+                "description": "Permanently removes the key identified by `{kid}`. The key must already be in the `retired` state \u2014 deleting an active key is rejected. Requires the dedicated `ucp.key_rotator` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminDeleteKey",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sales channel UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "kid",
+                        "in": "path",
+                        "required": true,
+                        "description": "The signing key identifier (`kid`).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Key deleted successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.key_rotator` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled or the key was not found."
+                    },
+                    "409": {
+                        "description": "Conflict \u2014 the key is still in `active` or `retiring` state and cannot be deleted."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/platform-profiles": {
+            "get": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "List cached platform profiles",
+                "description": "Lists every cached platform profile that the Shopware UCP server has fetched from external UCP platform agents (ChatGPT, Perplexity, Gemini, Claude, custom agents). Requires the `ucp.viewer` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminListPlatformProfiles",
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of cached platform profiles.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["items"],
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["id", "profileUri", "fetchedAt", "expiresAt", "verificationStatus", "failureCount"],
+                                                "properties": {
+                                                    "id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+                                                    "profileUri": {"type": "string"},
+                                                    "fetchedAt": {"type": "string", "format": "date-time"},
+                                                    "expiresAt": {"type": "string", "format": "date-time"},
+                                                    "verificationStatus": {"type": "string", "enum": ["pending", "verified", "failed"]},
+                                                    "failureCount": {"type": "integer", "minimum": 0}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.viewer` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled."
+                    }
+                }
+            }
+        },
+        "\/_admin\/ucp\/platform-profiles\/{id}": {
+            "delete": {
+                "tags": [
+                    "UCP",
+                    "Experimental"
+                ],
+                "summary": "Invalidate a cached platform profile",
+                "description": "Removes the cached platform profile entry identified by `{id}`. Useful when the upstream platform has rotated its signing keys and the operator needs to force a re-fetch instead of waiting for the natural TTL to expire. Requires the `ucp.editor` ACL privilege. Returns HTTP 404 when the `UCP_SERVER` feature flag is disabled. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "ucpAdminDeletePlatformProfile",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The platform profile cache row UUID.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "security": [
+                    {"oAuth": ["write"]}
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Cache entry removed successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized \u2014 missing or invalid credentials."
+                    },
+                    "403": {
+                        "description": "Forbidden \u2014 caller lacks `ucp.editor` privilege."
+                    },
+                    "404": {
+                        "description": "Feature flag `UCP_SERVER` is disabled or the cache entry was not found."
+                    }
+                }
+            }
+        }
+    }
+}

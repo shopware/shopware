@@ -81,6 +81,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable MCP (Model Context Protocol) server for AI tool integration"
+      - name: UCP_SERVER
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable UCP (Universal Commerce Protocol) endpoints, signed discovery, and agentic-commerce capabilities (cart, checkout, order, catalog, identity linking)."
       - name: JSON_LD_DATA
         default: false
         major: true

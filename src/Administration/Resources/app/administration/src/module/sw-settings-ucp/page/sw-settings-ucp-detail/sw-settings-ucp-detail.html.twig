@@ -1,0 +1,196 @@
+{% block sw_settings_ucp_detail %}
+<sw-page class="sw-settings-ucp-detail">
+
+    {% block sw_settings_ucp_detail_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings-ucp.detail.headline') }}
+            <span v-if="salesChannelName"> — {{ salesChannelName }}</span>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_ucp_detail_smart_bar_actions %}
+    <template #smart-bar-actions>
+        <sw-button-process
+            class="sw-settings-ucp-detail__save-action"
+            variant="primary"
+            :is-loading="isSaving"
+            :process-success="false"
+            @click="save">
+            {{ $tc('sw-settings-ucp.detail.save') }}
+        </sw-button-process>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_ucp_detail_content %}
+    <template #content>
+        <sw-card-view v-if="config">
+            {% block sw_settings_ucp_detail_general_card %}
+            <sw-card position-identifier="sw-settings-ucp-general"
+                     :title="$tc('sw-settings-ucp.detail.general')">
+
+                <sw-switch-field
+                    v-model:value="config.active"
+                    :label="$tc('sw-settings-ucp.detail.active')"
+                    :help-text="$tc('sw-settings-ucp.detail.activeHelp')"/>
+
+                <sw-text-field
+                    v-model:value="config.ucpVersion"
+                    :label="$tc('sw-settings-ucp.detail.version')"
+                    :help-text="$tc('sw-settings-ucp.detail.versionHelp')"
+                    placeholder="2026-01-23"/>
+
+                <sw-text-field
+                    v-model:value="config.continueUrlTemplate"
+                    :label="$tc('sw-settings-ucp.detail.continueUrlTemplate')"
+                    :help-text="$tc('sw-settings-ucp.detail.continueUrlTemplateHelp')"
+                    placeholder="{domainUrl}/checkout/confirm?ucp_token={cartToken}"/>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_ucp_detail_capabilities_card %}
+            <sw-card position-identifier="sw-settings-ucp-capabilities"
+                     :title="$tc('sw-settings-ucp.detail.capabilities')">
+
+                <sw-alert variant="info" appearance="notification">
+                    {{ $tc('sw-settings-ucp.detail.capabilitiesIntro') }}
+                </sw-alert>
+
+                <div v-for="group in capabilityGroups"
+                     :key="group.id"
+                     class="sw-settings-ucp-detail__capability-group">
+                    <h3>{{ $tc(`sw-settings-ucp.detail.capabilityGroups.${group.id}.title`) }}</h3>
+                    <p>{{ $tc(`sw-settings-ucp.detail.capabilityGroups.${group.id}.description`) }}</p>
+
+                    <div v-for="cap in group.items" :key="cap.id" class="sw-settings-ucp-detail__capability-row">
+                        <sw-switch-field
+                            :value="isEnabled(cap.id)"
+                            :label="$tc(`sw-settings-ucp.detail.capabilityLabels.${cap.labelKey}`)"
+                            :help-text="$tc(`sw-settings-ucp.detail.capabilityHelp.${cap.helpKey}`)"
+                            @update:value="toggleCapability(cap.id)"/>
+                        <sw-label
+                            v-if="cap.type === 'extension'"
+                            size="small"
+                            variant="neutral">
+                            {{ $tc('sw-settings-ucp.detail.extensionLabel') }}
+                        </sw-label>
+                    </div>
+                </div>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_ucp_detail_transports_card %}
+            <sw-card position-identifier="sw-settings-ucp-transports"
+                     :title="$tc('sw-settings-ucp.detail.transports')">
+                <sw-alert variant="info" appearance="notification">
+                    {{ $tc('sw-settings-ucp.detail.transportsHelp') }}
+                </sw-alert>
+
+                <sw-multi-select
+                    v-model:value="config.enabledTransports"
+                    :options="localizedTransports"
+                    label-property="label"
+                    value-property="id"
+                    :label="$tc('sw-settings-ucp.detail.transportsLabel')"/>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_ucp_detail_security_card %}
+            <sw-card position-identifier="sw-settings-ucp-security"
+                     :title="$tc('sw-settings-ucp.detail.security')">
+
+                <sw-single-select
+                    v-model:value="config.signaturePolicy"
+                    :options="localizedSignaturePolicyOptions"
+                    label-property="label"
+                    value-property="id"
+                    :label="$tc('sw-settings-ucp.detail.signaturePolicy')"
+                    :help-text="$tc('sw-settings-ucp.detail.signaturePolicyHelp')"/>
+
+                <sw-alert
+                    v-if="config.signaturePolicy !== 'strict'"
+                    variant="warning"
+                    class="sw-settings-ucp-detail__signature-warning">
+                    {{ $tc('sw-settings-ucp.detail.signaturePolicyNonStrictWarning') }}
+                </sw-alert>
+
+                <sw-switch-field
+                    v-model:value="config.idempotencyRequired"
+                    :label="$tc('sw-settings-ucp.detail.idempotencyRequired')"
+                    :help-text="$tc('sw-settings-ucp.detail.idempotencyRequiredHelp')"/>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_ucp_detail_keys_card %}
+            <sw-card position-identifier="sw-settings-ucp-keys"
+                     :title="$tc('sw-settings-ucp.detail.signingKeys')">
+                <template #toolbar>
+                    <sw-button
+                        variant="primary"
+                        size="small"
+                        :is-loading="isRotatingKey"
+                        :disabled="!canRotateKey"
+                        @click="rotateKey">
+                        {{ $tc('sw-settings-ucp.detail.rotateKey') }}
+                    </sw-button>
+                </template>
+
+                <sw-alert v-if="!canRotateKey" variant="warning">
+                    {{ $tc('sw-settings-ucp.detail.noKeyPrivilege') }}
+                </sw-alert>
+
+                <sw-alert variant="info" appearance="notification">
+                    {{ $tc('sw-settings-ucp.detail.signingKeysHelp') }}
+                </sw-alert>
+
+                <sw-data-grid
+                    :data-source="keys"
+                    :columns="[
+                        { property: 'kid', label: 'Key ID' },
+                        { property: 'algorithm', label: 'Algorithm' },
+                        { property: 'status', label: 'Status' },
+                        { property: 'activatedAt', label: 'Activated' },
+                    ]"
+                    :show-actions="canRotateKey"
+                    :show-selection="false"
+                    plain-appearance>
+                    <template #column-status="{ item }">
+                        <sw-label
+                            size="small"
+                            :variant="item.status === 'active' ? 'positive' : 'neutral'">
+                            {{ item.status }}
+                        </sw-label>
+                    </template>
+                    <template #actions="{ item }">
+                        <sw-context-menu-item
+                            v-if="item.status === 'active'"
+                            @click="retireKey(item.kid)">
+                            {{ $tc('sw-settings-ucp.detail.retireKey') }}
+                        </sw-context-menu-item>
+                    </template>
+                </sw-data-grid>
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_settings_ucp_detail_preview_card %}
+            <sw-card position-identifier="sw-settings-ucp-preview"
+                     :title="$tc('sw-settings-ucp.detail.profilePreview')">
+                <template #toolbar>
+                    <sw-button size="small" @click="loadProfilePreview">
+                        {{ $tc('sw-settings-ucp.detail.loadPreview') }}
+                    </sw-button>
+                </template>
+
+                <pre v-if="profilePreview"
+                     class="sw-settings-ucp-detail__preview">{{ JSON.stringify(profilePreview, null, 2) }}</pre>
+                <sw-alert v-else variant="info">
+                    {{ $tc('sw-settings-ucp.detail.previewHint') }}
+                </sw-alert>
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

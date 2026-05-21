@@ -43,5 +43,10 @@
             <argument type="service" id="sales_channel.currency.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
+
+        <service id="Shopware\Core\System\Currency\Api\CurrencyIsoCodeFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

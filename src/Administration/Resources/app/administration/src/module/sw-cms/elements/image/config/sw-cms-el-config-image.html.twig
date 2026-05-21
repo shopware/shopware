@@ -135,7 +135,7 @@
                 <mt-select
                     v-model:model-value="element.config.horizontalAlign.value"
                     :placeholder="$t('sw-cms.elements.general.config.label.horizontalAlign')"
-                    :disabled="isInherited || element.config.displayMode.value === 'cover'"
+                    :disabled="isInherited || ['cover', 'stretch'].includes(element.config.displayMode.value)"
                     :options="horizontalAlignOptions"
                 />
             </template>

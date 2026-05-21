@@ -20,7 +20,6 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -187,10 +186,7 @@ class ProductBoxCmsElementResolverTest extends TestCase
         $product->setId($productId);
         $product->setStock($availableStock);
         $product->setIsCloseout($closeout);
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $product->setAvailableStock($availableStock);
-        }
+        $product->setAvailableStock($availableStock);
 
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
@@ -236,16 +232,14 @@ class ProductBoxCmsElementResolverTest extends TestCase
     }
 
     /**
-     * @return array<array<bool|int>> closeout, hidden, availableStock
+     * @return iterable<array<bool|int>> closeout, hidden, availableStock
      */
-    public static function enrichDataProvider(): array
+    public static function enrichDataProvider(): iterable
     {
-        return [
-            [false, false, 1],
-            [false, true, 1],
-            [true, false, 1],
-            [true, true, 1],
-            [true, true, 0],
-        ];
+        yield 'visible product with stock is enriched' => [false, false, 1];
+        yield 'hidden product with stock is enriched when closeout is disabled' => [false, true, 1];
+        yield 'closeout product with stock is enriched when it is visible' => [true, false, 1];
+        yield 'hidden closeout product with stock is enriched' => [true, true, 1];
+        yield 'hidden closeout product without stock is not enriched' => [true, true, 0];
     }
 }

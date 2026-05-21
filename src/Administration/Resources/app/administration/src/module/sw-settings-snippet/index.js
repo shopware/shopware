@@ -29,7 +29,7 @@ Module.register('sw-settings-snippet', {
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
+    color: 'var(--color-icon-secondary-default)',
     icon: 'regular-cog',
     favicon: 'icon-module-settings.png',
     entity: 'snippet',

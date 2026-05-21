@@ -32,7 +32,6 @@ class DocumentNumberGeneratorTest extends TestCase
             orderVersionId: Uuid::randomHex(),
             documentType: DocumentType::INVOICE,
             requestedFormats: [DocumentFormat::PDF],
-            apiContext: $context,
         );
 
         $order = new OrderEntity();
@@ -52,6 +51,6 @@ class DocumentNumberGeneratorTest extends TestCase
 
         $generator = new DocumentNumberGenerator($numberRangeValueGenerator);
 
-        static::assertSame($documentNumber, $generator->generate($generationRequest, $order));
+        static::assertSame($documentNumber, $generator->generate($generationRequest, $order, $context));
     }
 }

@@ -17,14 +17,15 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentDependencyResolver;
-use Shopware\Core\Checkout\DocumentV2\Generation\DocumentEntityPersister;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
 use Shopware\Core\Checkout\DocumentV2\Provider\DocumentDataProviderRegistry;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -57,7 +58,6 @@ class DocumentGeneratorTest extends TestCase
             $orderVersionId,
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
-            $context,
         );
 
         $order = new OrderEntity();
@@ -67,7 +67,10 @@ class DocumentGeneratorTest extends TestCase
 
         /** @var StaticEntityRepository<OrderCollection> $orderRepository */
         $orderRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId): EntitySearchResult {
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame('document-v2-generator::load-order-language', $criteria->getTitle());
                 static::assertSame(['languageId'], $criteria->getFields());
@@ -82,7 +85,10 @@ class DocumentGeneratorTest extends TestCase
                     $searchContext,
                 );
             },
-            function (Criteria $criteria, Context $searchContext) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
+            function (
+                Criteria $criteria,
+                Context $searchContext,
+            ) use ($order, $orderId, $orderVersionId, $orderLanguageId): EntitySearchResult {
                 static::assertSame([$orderId], $criteria->getIds());
                 static::assertSame('document-v2-generator::load-order', $criteria->getTitle());
                 static::assertSame($orderVersionId, $searchContext->getVersionId());
@@ -120,15 +126,14 @@ class DocumentGeneratorTest extends TestCase
             $document,
         );
 
-        $result = $generator->generate($generationRequest);
+        $result = $generator->generate($generationRequest, $context);
 
         static::assertSame($document, $result);
         static::assertCount(1, $documentRepository->creates);
         static::assertSame($orderId, $documentRepository->creates[0][0]['orderId']);
         static::assertSame($orderVersionId, $documentRepository->creates[0][0]['orderVersionId']);
         static::assertSame($documentTypeId, $documentRepository->creates[0][0]['documentTypeId']);
-        static::assertSame('generated-number', $documentRepository->creates[0][0]['documentNumber']);
-
+        static::assertSame('generated-number', $documentRepository->creates[0][0]['config']['documentNumber']);
         static::assertCount(1, $documentFileRepository->creates);
         static::assertSame(DocumentFormat::PDF->value, $documentFileRepository->creates[0][0]['documentFormat']);
         static::assertIsString($documentFileRepository->creates[0][0]['mediaId']);
@@ -152,7 +157,7 @@ class DocumentGeneratorTest extends TestCase
 
         static::expectExceptionObject($exception);
 
-        $generator->generate($generationRequest);
+        $generator->generate($generationRequest, Context::createDefaultContext());
     }
 
     /**
@@ -166,7 +171,6 @@ class DocumentGeneratorTest extends TestCase
                 Uuid::randomHex(),
                 DocumentType::INVOICE,
                 [],
-                Context::createDefaultContext(),
             ),
             'exception' => DocumentV2Exception::missingFormats(),
         ];
@@ -177,7 +181,6 @@ class DocumentGeneratorTest extends TestCase
                 Defaults::LIVE_VERSION,
                 DocumentType::INVOICE,
                 [DocumentFormat::PDF],
-                Context::createDefaultContext(),
             ),
             'exception' => DocumentV2Exception::liveVersionNotAllowed(),
         ];
@@ -201,7 +204,11 @@ class DocumentGeneratorTest extends TestCase
         /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             [],
-            function (Criteria $criteria, Context $context, StaticEntityRepository $repository) use ($document): DocumentCollection {
+            function (
+                Criteria $criteria,
+                Context $context,
+                StaticEntityRepository $repository,
+            ) use ($document): DocumentCollection {
                 static::assertCount(1, $repository->creates);
                 $document->setId($repository->creates[0][0]['id']);
 
@@ -236,14 +243,18 @@ class DocumentGeneratorTest extends TestCase
             ),
         ]);
 
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
+
         $generator = new DocumentGenerator(
             $providerRegistry,
             $rendererRegistry,
             new DocumentNumberGenerator($numberRangeValueGenerator),
-            new DocumentEntityPersister(
+            new DocumentPersister(
                 $documentRepository,
                 $documentFileRepository,
                 $documentTypeRepository,
+                $mediaService,
             ),
             new DocumentDependencyResolver($rendererRegistry),
             $orderRepository,

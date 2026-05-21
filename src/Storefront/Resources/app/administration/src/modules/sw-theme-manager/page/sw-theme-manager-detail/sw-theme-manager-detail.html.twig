@@ -420,14 +420,15 @@
                                                         :custom-inheritation-check-function="checkInheritanceFunction(fieldName)"
                                                         @update:value="handleInheritanceInput($event, fieldName)"
                                                     >
-                                                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                                                        <template #content="inheritance">
                                                             <sw-form-field-renderer
-                                                                v-bind="getBind(field)"
-                                                                :value="currentValue"
-                                                                :disabled="isInherited || !acl.can('theme.editor')"
+                                                                v-bind="getBind(field, inheritance, baseThemeConfig[fieldName].value)"
+                                                                :value="inheritance.currentValue"
+                                                                :disabled="inheritance.isInherited || !acl.can('theme.editor')"
                                                                 :error="themeConfigErrors[fieldName]"
                                                                 bordered
-                                                                @update:value="updateCurrentValue"
+                                                                v-on="getElementEventListeners(field, inheritance)"
+                                                                @update:value="inheritance.updateCurrentValue"
                                                             />
                                                         </template>
                                                     </sw-inherit-wrapper>

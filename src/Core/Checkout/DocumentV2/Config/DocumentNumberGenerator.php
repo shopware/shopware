@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Config;
 
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
@@ -24,13 +25,16 @@ final readonly class DocumentNumberGenerator
     ) {
     }
 
-    public function generate(DocumentGenerationRequest $generationRequest, OrderEntity $order): string
-    {
+    public function generate(
+        DocumentGenerationRequest $generationRequest,
+        OrderEntity $order,
+        Context $context,
+    ): string {
         $type = self::NUMBER_RANGE_DOCUMENT_TYPE_PREFIX . $generationRequest->documentType;
 
         return $this->numberRangeValueGenerator->getValue(
             type: $type,
-            context: $generationRequest->apiContext,
+            context: $context,
             salesChannelId: $order->getSalesChannelId(),
         );
     }

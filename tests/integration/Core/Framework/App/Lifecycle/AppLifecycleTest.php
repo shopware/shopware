@@ -48,13 +48,8 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
-use Shopware\Core\System\CustomField\CustomFieldCollection;
-use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -79,16 +74,9 @@ class AppLifecycleTest extends TestCase
      */
     private EntityRepository $actionButtonRepository;
 
-    /**
-     * @var EntityRepository<CustomFieldSetCollection>
-     */
-    private EntityRepository $customFieldSetRepository;
-
     private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
-
-    private IdsCollection $ids;
 
     protected function setUp(): void
     {
@@ -109,9 +97,6 @@ class AppLifecycleTest extends TestCase
         $cache->save(CacheCompressor::compress($item, []));
 
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
-
-        $this->ids = new IdsCollection();
     }
 
     public function testInstall(): void
@@ -168,7 +153,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($appEntity->getId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -362,26 +346,6 @@ class AppLifecycleTest extends TestCase
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
-            'customFieldSets' => [
-                [
-                    'name' => 'custom_field_test',
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test2',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
-                [
-                    'name' => 'custom_field_test', // same name used twice, sets should be deleted and recreated
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
-            ],
             'aclRole' => [
                 'id' => $roleId,
                 'name' => 'test',
@@ -486,7 +450,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId(), false);
         $this->assertDefaultScript($appEntity->getId(), false);
@@ -499,11 +462,8 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateActiveApp(): void
     {
-        $this->createCustomFieldSet();
-
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $customFieldSetId = $this->ids->get('custom_field_set_id');
 
         $context = Context::createDefaultContext();
         $this->appRepository->create([[
@@ -544,20 +504,6 @@ class AppLifecycleTest extends TestCase
                 'label' => 'test',
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
-            ],
-            'customFieldSets' => [
-                [
-                    'id' => $customFieldSetId,
-                ],
-                [
-                    'name' => 'to_be_deleted',
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test2',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
             ],
             'aclRole' => [
                 'id' => $roleId,
@@ -664,7 +610,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id, $customFieldSetId);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -693,11 +638,6 @@ class AppLifecycleTest extends TestCase
                 'label' => 'test',
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
-            ],
-            'customFieldSets' => [
-                [
-                    'name' => 'test',
-                ],
             ],
             'aclRole' => [
                 'id' => $roleId,
@@ -750,7 +690,6 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($app1);
         $this->assertDefaultModules($app1);
         $this->assertDefaultPrivileges($app1->getAclRoleId());
-        $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($app1->getId());
         $this->assertDefaultTemplate($app1->getId());
         $this->assertDefaultScript($app1->getId());
@@ -1493,60 +1432,6 @@ class AppLifecycleTest extends TestCase
         static::assertContains('user_change_me', $privileges);
     }
 
-    private function assertDefaultCustomFields(string $appId, ?string $expectedFieldSetId = null): void
-    {
-        /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
-        $customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
-        $criteria->addAssociation('relations');
-        $criteria->addAssociation('customFields');
-
-        $customFieldSets = $customFieldSetRepository->search($criteria, $this->context)->getEntities();
-
-        static::assertCount(1, $customFieldSets);
-
-        $customFieldSet = $customFieldSets->first();
-        static::assertNotNull($customFieldSet);
-        if ($expectedFieldSetId) {
-            static::assertSame($expectedFieldSetId, $customFieldSet->getId());
-        }
-        static::assertSame('custom_field_test', $customFieldSet->getName());
-        static::assertCount(2, $customFieldSet->getRelations() ?? []);
-
-        $relations = $customFieldSet->getRelations();
-        static::assertNotNull($relations);
-
-        $relatedEntities = array_map(static fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
-        static::assertContains('product', $relatedEntities);
-        static::assertContains('customer', $relatedEntities);
-
-        static::assertEquals([
-            'label' => [
-                'de-DE' => 'Zusatzfeld Test',
-                'en-GB' => 'Custom field test',
-            ],
-            'translated' => true,
-        ], $customFieldSet->getConfig());
-        static::assertTrue($customFieldSet->isGlobal());
-
-        $customFieldCollection = $customFieldSet->getCustomFields();
-        static::assertInstanceOf(CustomFieldCollection::class, $customFieldCollection);
-
-        static::assertCount(2, $customFieldCollection);
-
-        $fieldWithoutAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test')->first();
-        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithoutAllowWrite);
-
-        static::assertFalse($fieldWithoutAllowWrite->isAllowCustomerWrite());
-
-        $fieldWithAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test2')->first();
-        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithAllowWrite);
-
-        static::assertTrue($fieldWithAllowWrite->isAllowCustomerWrite());
-    }
-
     private function assertDefaultWebhooks(string $appId): void
     {
         $webhooks = $this->connection->fetchAllAssociative('SELECT url, event_name FROM webhook WHERE app_id = ?', [Uuid::fromHexToBytes($appId)]);
@@ -1923,33 +1808,5 @@ class AppLifecycleTest extends TestCase
             ],
             $aware
         );
-    }
-
-    private function createCustomFieldSet(): void
-    {
-        $customFieldSetData = [
-            'id' => $this->ids->create('custom_field_set_id'),
-            'name' => 'custom_field_test',
-            'relations' => [
-                [
-                    'entityName' => 'product',
-                ],
-                [
-                    'entityName' => 'to be deleted',
-                ],
-            ],
-            'customFields' => [
-                [
-                    'name' => 'bla_test',
-                    'type' => 'text',
-                ],
-                [
-                    'name' => 'to_be_deleted',
-                    'type' => 'text',
-                ],
-            ],
-        ];
-
-        $this->customFieldSetRepository->upsert([$customFieldSetData], $this->context);
     }
 }

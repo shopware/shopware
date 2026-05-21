@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -76,8 +78,8 @@ class WellKnownUcpControllerIntegrationTest extends TestCase
         \assert($configRepo instanceof EntityRepository);
 
         $existing = $configRepo->searchIds(
-            (new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria())
-                ->addFilter(new \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter('salesChannelId', $salesChannelId))
+            (new Criteria())
+                ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
                 ->setLimit(1),
             $context
         )->firstId();

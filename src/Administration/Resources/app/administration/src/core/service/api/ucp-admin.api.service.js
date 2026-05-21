@@ -44,18 +44,14 @@ class UcpAdminApiService extends ApiService {
             .post(
                 `/_admin/ucp/sales-channels/${salesChannelId}/keys`,
                 { algorithm, rotate },
-                { headers: this.getBasicHeaders() }
+                { headers: this.getBasicHeaders() },
             )
             .then((r) => ApiService.handleResponse(r));
     }
 
     retireKey(salesChannelId, kid) {
         return this.httpClient
-            .post(
-                `/_admin/ucp/sales-channels/${salesChannelId}/keys/${kid}/retire`,
-                {},
-                { headers: this.getBasicHeaders() }
-            )
+            .post(`/_admin/ucp/sales-channels/${salesChannelId}/keys/${kid}/retire`, {}, { headers: this.getBasicHeaders() })
             .then((r) => ApiService.handleResponse(r));
     }
 

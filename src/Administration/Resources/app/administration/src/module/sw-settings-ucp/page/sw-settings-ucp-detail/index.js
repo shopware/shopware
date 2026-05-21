@@ -31,14 +31,24 @@ const CAPABILITY_GROUPS = [
         items: [
             { id: 'dev.ucp.shopping.discount', labelKey: 'discount', helpKey: 'discountHelp', type: 'extension' },
             { id: 'dev.ucp.shopping.fulfillment', labelKey: 'fulfillment', helpKey: 'fulfillmentHelp', type: 'extension' },
-            { id: 'dev.ucp.shopping.buyer_consent', labelKey: 'buyerConsent', helpKey: 'buyerConsentHelp', type: 'extension' },
+            {
+                id: 'dev.ucp.shopping.buyer_consent',
+                labelKey: 'buyerConsent',
+                helpKey: 'buyerConsentHelp',
+                type: 'extension',
+            },
             { id: 'dev.ucp.shopping.loyalty', labelKey: 'loyalty', helpKey: 'loyaltyHelp', type: 'extension' },
         ],
     },
     {
         id: 'identity',
         items: [
-            { id: 'dev.ucp.common.identity_linking', labelKey: 'identityLinking', helpKey: 'identityLinkingHelp', type: 'root' },
+            {
+                id: 'dev.ucp.common.identity_linking',
+                labelKey: 'identityLinking',
+                helpKey: 'identityLinkingHelp',
+                type: 'root',
+            },
         ],
     },
 ];
@@ -61,7 +71,10 @@ const SIGNATURE_POLICY_OPTIONS = [
 export default {
     template,
 
-    inject: ['ucpAdminService', 'repositoryFactory'],
+    inject: [
+        'ucpAdminService',
+        'repositoryFactory',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -117,7 +130,11 @@ export default {
         async loadAll() {
             this.isLoading = true;
             try {
-                const [sc, cfg, keys] = await Promise.all([
+                const [
+                    sc,
+                    cfg,
+                    keys,
+                ] = await Promise.all([
                     this.salesChannelRepository.get(this.salesChannelId, Shopware.Context.api),
                     this.ucpAdminService.getConfig(this.salesChannelId),
                     this.ucpAdminService.listKeys(this.salesChannelId).catch(() => ({ items: [] })),

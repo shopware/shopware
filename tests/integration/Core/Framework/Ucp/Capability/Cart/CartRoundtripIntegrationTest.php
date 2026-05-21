@@ -7,8 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Entity\UcpSalesChannelConfigEntity;
 use Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -105,8 +108,8 @@ class CartRoundtripIntegrationTest extends TestCase
         $configRepo = $this->getContainer()->get('ucp_sales_channel_config.repository');
         \assert($configRepo instanceof EntityRepository);
         $existing = $configRepo->searchIds(
-            (new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria())
-                ->addFilter(new \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter('salesChannelId', $salesChannelId))
+            (new Criteria())
+                ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
                 ->setLimit(1),
             $context
         )->firstId();
@@ -185,7 +188,7 @@ class CartRoundtripIntegrationTest extends TestCase
         // resolution to fire correctly.
         $host = $this->hostHeaderForSalesChannel($salesChannelId);
         [$hostName, $port] = $this->splitHostHeader($host);
-        $kernel = \Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager::bootKernel(true);
+        $kernel = KernelLifecycleManager::bootKernel(true);
         $browser = new KernelBrowser($kernel);
         $browser->setServerParameter('HTTP_HOST', $host);
         $browser->setServerParameter('SERVER_NAME', $hostName);

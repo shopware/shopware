@@ -67,9 +67,7 @@ export default {
             if (!item.configured) {
                 return this.$t('sw-settings-ucp.status.notConfigured');
             }
-            return item.active
-                ? this.$t('sw-settings-ucp.status.active')
-                : this.$t('sw-settings-ucp.status.inactive');
+            return item.active ? this.$t('sw-settings-ucp.status.active') : this.$t('sw-settings-ucp.status.inactive');
         },
     },
 };

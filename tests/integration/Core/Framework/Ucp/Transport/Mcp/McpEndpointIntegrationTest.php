@@ -2,11 +2,15 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Ucp\Transport\Mcp;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Entity\UcpSalesChannelConfigEntity;
 use Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider;
 use Shopware\Core\Framework\Ucp\Transport\Mcp\UcpMcpServerController;
@@ -111,8 +115,8 @@ class McpEndpointIntegrationTest extends TestCase
         $configRepo = $this->getContainer()->get('ucp_sales_channel_config.repository');
         \assert($configRepo instanceof EntityRepository);
         $existing = $configRepo->searchIds(
-            (new \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria())
-                ->addFilter(new \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter('salesChannelId', $salesChannelId))
+            (new Criteria())
+                ->addFilter(new EqualsFilter('salesChannelId', $salesChannelId))
                 ->setLimit(1),
             $context
         )->firstId();
@@ -142,7 +146,7 @@ class McpEndpointIntegrationTest extends TestCase
 
     private function resolveSalesChannelWithHttpDomain(Context $context): string
     {
-        $row = $this->getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
+        $row = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url LIKE "http%://%" LIMIT 1'
         );
         if (!\is_string($row) || $row === '') {
@@ -154,7 +158,7 @@ class McpEndpointIntegrationTest extends TestCase
 
     private function hostHeaderForSalesChannel(string $salesChannelId): string
     {
-        $row = $this->getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
+        $row = $this->getContainer()->get(Connection::class)->fetchOne(
             'SELECT url FROM sales_channel_domain WHERE sales_channel_id = ? LIMIT 1',
             [Uuid::fromHexToBytes($salesChannelId)]
         );
@@ -180,7 +184,7 @@ class McpEndpointIntegrationTest extends TestCase
         // identify the sales-channel domain.
         $host = $this->hostHeaderForSalesChannel($salesChannelId);
         [$hostName, $port] = $this->splitHostHeader($host);
-        $kernel = \Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager::bootKernel(true);
+        $kernel = KernelLifecycleManager::bootKernel(true);
         $browser = new KernelBrowser($kernel);
         $browser->setServerParameter('HTTP_HOST', $host);
         $browser->setServerParameter('SERVER_NAME', $hostName);

@@ -1,110 +1,110 @@
 {
-  "sw-settings-ucp": {
-    "general": {
-      "mainMenuItemGeneral": "Universal Commerce Protocol",
-      "descriptionTextModule": "Verwalte UCP — den offenen Standard für agentisches Commerce. Konfiguriere Capabilities, Signing-Keys und Plattform-Whitelists pro Verkaufskanal."
-    },
-    "list": {
-      "headline": "UCP-Konfiguration",
-      "intro": "UCP macht deinen Shop für KI-Commerce-Agents (ChatGPT, Perplexity, Gemini, …) auffindbar. Aktiviere UCP pro Verkaufskanal und konfiguriere, welche Capabilities exposed werden.",
-      "columns": {
-        "salesChannel": "Verkaufskanal",
-        "status": "Status",
-        "version": "Protokoll-Version",
-        "capabilities": "Capabilities"
-      },
-      "actions": {
-        "configure": "UCP konfigurieren"
-      }
-    },
-    "status": {
-      "active": "Aktiv",
-      "inactive": "Inaktiv",
-      "notConfigured": "Nicht konfiguriert"
-    },
-    "detail": {
-      "headline": "UCP-Konfiguration",
-      "general": "Allgemein",
-      "active": "UCP aktiv",
-      "activeHelp": "Wenn aktiv, wird /.well-known/ucp auf jeder Domain dieses Verkaufskanals ausgeliefert.",
-      "version": "Protokoll-Version",
-      "versionHelp": "Datums-basierte UCP-Version, die dieser Kanal bewirbt (YYYY-MM-DD).",
-      "continueUrlTemplate": "Continue-URL-Template",
-      "continueUrlTemplateHelp": "Optional: Fallback-URL für Agents, die den Käufer ans Storefront zurückgeben sollen. Platzhalter: {domainUrl}, {cartToken}.",
-      "capabilities": "Capabilities",
-      "capabilitiesIntro": "Capabilities beschreiben, welche UCP-Funktionen ein Agent mit diesem Verkaufskanal nutzen darf. Root-Capabilities sind eigenständige Bereiche; Extensions erweitern bestehende Flows wie Cart oder Checkout.",
-      "capabilityGroups": {
-        "catalog": {
-          "title": "Katalog",
-          "description": "Funktionen, mit denen Agents Produkte finden und konkrete Produktdetails abrufen."
+    "sw-settings-ucp": {
+        "general": {
+            "mainMenuItemGeneral": "Universal Commerce Protocol",
+            "descriptionTextModule": "Verwalte UCP — den offenen Standard für agentisches Commerce. Konfiguriere Capabilities, Signing-Keys und Plattform-Whitelists pro Verkaufskanal."
         },
-        "commerce": {
-          "title": "Warenkorb, Checkout und Bestellung",
-          "description": "Der Kernfluss vom Warenkorb über die Kaufabwicklung bis zur Bestellung und Order-Webhooks."
+        "list": {
+            "headline": "UCP-Konfiguration",
+            "intro": "UCP macht deinen Shop für KI-Commerce-Agents (ChatGPT, Perplexity, Gemini, …) auffindbar. Aktiviere UCP pro Verkaufskanal und konfiguriere, welche Capabilities exposed werden.",
+            "columns": {
+                "salesChannel": "Verkaufskanal",
+                "status": "Status",
+                "version": "Protokoll-Version",
+                "capabilities": "Capabilities"
+            },
+            "actions": {
+                "configure": "UCP konfigurieren"
+            }
         },
-        "extensions": {
-          "title": "Checkout-Erweiterungen",
-          "description": "Optionale Erweiterungen, die bestehende Cart- oder Checkout-Antworten mit Rabatten, Fulfillment, Consent oder Loyalty-Daten anreichern."
+        "status": {
+            "active": "Aktiv",
+            "inactive": "Inaktiv",
+            "notConfigured": "Nicht konfiguriert"
         },
-        "identity": {
-          "title": "Identität und OAuth",
-          "description": "OAuth 2.0 Account-Linking, damit Agents mit Zustimmung des Käufers personenbezogene oder bestellbezogene Daten nutzen können."
+        "detail": {
+            "headline": "UCP-Konfiguration",
+            "general": "Allgemein",
+            "active": "UCP aktiv",
+            "activeHelp": "Wenn aktiv, wird /.well-known/ucp auf jeder Domain dieses Verkaufskanals ausgeliefert.",
+            "version": "Protokoll-Version",
+            "versionHelp": "Datums-basierte UCP-Version, die dieser Kanal bewirbt (YYYY-MM-DD).",
+            "continueUrlTemplate": "Continue-URL-Template",
+            "continueUrlTemplateHelp": "Optional: Fallback-URL für Agents, die den Käufer ans Storefront zurückgeben sollen. Platzhalter: {domainUrl}, {cartToken}.",
+            "capabilities": "Capabilities",
+            "capabilitiesIntro": "Capabilities beschreiben, welche UCP-Funktionen ein Agent mit diesem Verkaufskanal nutzen darf. Root-Capabilities sind eigenständige Bereiche; Extensions erweitern bestehende Flows wie Cart oder Checkout.",
+            "capabilityGroups": {
+                "catalog": {
+                    "title": "Katalog",
+                    "description": "Funktionen, mit denen Agents Produkte finden und konkrete Produktdetails abrufen."
+                },
+                "commerce": {
+                    "title": "Warenkorb, Checkout und Bestellung",
+                    "description": "Der Kernfluss vom Warenkorb über die Kaufabwicklung bis zur Bestellung und Order-Webhooks."
+                },
+                "extensions": {
+                    "title": "Checkout-Erweiterungen",
+                    "description": "Optionale Erweiterungen, die bestehende Cart- oder Checkout-Antworten mit Rabatten, Fulfillment, Consent oder Loyalty-Daten anreichern."
+                },
+                "identity": {
+                    "title": "Identität und OAuth",
+                    "description": "OAuth 2.0 Account-Linking, damit Agents mit Zustimmung des Käufers personenbezogene oder bestellbezogene Daten nutzen können."
+                }
+            },
+            "capabilityLabels": {
+                "catalogSearch": "Katalogsuche",
+                "catalogLookup": "Produktdetails abrufen",
+                "cart": "Warenkorb",
+                "checkout": "Checkout",
+                "order": "Bestellung und Webhooks",
+                "discount": "Rabatte",
+                "fulfillment": "Fulfillment und Versandoptionen",
+                "buyerConsent": "Buyer Consent / DSGVO",
+                "loyalty": "Loyalty",
+                "identityLinking": "Identity Linking (OAuth 2.0)"
+            },
+            "capabilityHelp": {
+                "catalogSearchHelp": "Erlaubt Agents, Produkte über Textsuche oder Filter zu entdecken. Das ist meist der Einstiegspunkt für Shopping-Flows.",
+                "catalogLookupHelp": "Erlaubt den gezielten Abruf von Produktdetails und Varianten, z. B. nachdem ein Agent eine Suchliste erhalten hat.",
+                "cartHelp": "Erlaubt Agents, Warenkörbe anzulegen, zu lesen, zu aktualisieren und zu stornieren.",
+                "checkoutHelp": "Erlaubt Agents, aus einem Warenkorb eine Checkout-Session zu erstellen, Käuferdaten zu ergänzen und den Checkout abzuschließen.",
+                "orderHelp": "Erlaubt Order-Status-Abfragen und Order-Webhooks an die Plattform, z. B. nach erfolgreichem Checkout oder Versandereignissen.",
+                "discountHelp": "Erweitert Cart und Checkout um Rabattcodes und angewendete Rabatte. Benötigt Cart oder Checkout als Basis.",
+                "fulfillmentHelp": "Erweitert den Checkout um Lieferadressen, Versandmethoden, Optionen und spätere Fulfillment-Events.",
+                "buyerConsentHelp": "Speichert und spiegelt Käufer-Einwilligungen wie Marketing oder Analytics im Checkout-Kontext.",
+                "loyaltyHelp": "Extension Point für Loyalty-Programme. Ohne angebundenen Provider werden keine Programm-Daten ausgeliefert.",
+                "identityLinkingHelp": "Aktiviert OAuth 2.0 Authorization Code + PKCE, damit Käufer ihr Shop-Konto kontrolliert mit einer Plattform verbinden können."
+            },
+            "extensionLabel": "Erweiterung",
+            "transports": "Transporte",
+            "transportsLabel": "Aktive Transporte",
+            "transportsHelp": "Transporte bestimmen, über welche technischen Protokolle Agents diesen Verkaufskanal ansprechen. REST ist die HTTP-Basis-API. MCP stellt dieselben Commerce-Operationen als JSON-RPC Tools für agentische Clients bereit.",
+            "transportOptions": {
+                "rest": "REST (Basis-API)",
+                "mcp": "MCP (JSON-RPC Tools)"
+            },
+            "signingKeys": "Signing Keys (ES256)",
+            "signingKeysHelp": "Signing-Keys sind die öffentlichen/privaten Schlüssel dieses Verkaufskanals. Shopware signiert damit UCP-Antworten, Order-Webhooks und AP2 Merchant Authorizations; Plattformen verifizieren die Signaturen über /.well-known/ucp. Bei Rotation bleibt der alte Key kurzzeitig im Retiring-Status, damit laufende Plattformen noch verifizieren können.",
+            "rotateKey": "Neuen Key generieren (rotiert aktiven)",
+            "retireKey": "Key in Rente schicken",
+            "noKeyPrivilege": "Du brauchst das ucp.key_rotator-Recht, um Signing-Keys zu verwalten.",
+            "profilePreview": "/.well-known/ucp-Vorschau",
+            "loadPreview": "Vorschau laden",
+            "previewHint": "Klicke auf \"Vorschau laden\", um das JSON-Profil zu sehen, das unter /.well-known/ucp ausgeliefert wird.",
+            "save": "Speichern",
+            "saved": "Konfiguration gespeichert",
+            "keyRotated": "Signing-Key rotiert. Vorheriger Key ist 24 Stunden lang im Retiring-Status.",
+            "security": "Sicherheit",
+            "signaturePolicy": "Inbound-Signature-Policy",
+            "signaturePolicyOptions": {
+                "strict": "strict (Produktion — bei Signaturfehler ablehnen)",
+                "log": "log (prüfen und Fehler protokollieren, Request akzeptieren — nur Staging)",
+                "off": "off (keine Prüfung — nur lokale Entwicklung)"
+            },
+            "signaturePolicyHelp": "Wie streng RFC-9421-Signaturen auf eingehenden Plattform-Requests geprüft werden. In Produktion muss \"strict\" verwendet werden — ungültige oder fehlende Signaturen führen dann zur Ablehnung.",
+            "signaturePolicyNonStrictWarning": "Die Signature-Policy ist nicht \"strict\". Das ist für den lokalen Simulator OK, aber Produktiv-Installationen müssen \"strict\" verwenden, damit unsignierte Requests nicht durchrutschen.",
+            "idempotencyRequired": "Idempotency-Key-Header erzwingen",
+            "idempotencyRequiredHelp": "Lehnt nicht-idempotente UCP-Requests (Cart-Create, Checkout-Complete, …) ab, wenn der Idempotency-Key-Header fehlt. Für Produktion empfohlen."
         }
-      },
-      "capabilityLabels": {
-        "catalogSearch": "Katalogsuche",
-        "catalogLookup": "Produktdetails abrufen",
-        "cart": "Warenkorb",
-        "checkout": "Checkout",
-        "order": "Bestellung und Webhooks",
-        "discount": "Rabatte",
-        "fulfillment": "Fulfillment und Versandoptionen",
-        "buyerConsent": "Buyer Consent / DSGVO",
-        "loyalty": "Loyalty",
-        "identityLinking": "Identity Linking (OAuth 2.0)"
-      },
-      "capabilityHelp": {
-        "catalogSearchHelp": "Erlaubt Agents, Produkte über Textsuche oder Filter zu entdecken. Das ist meist der Einstiegspunkt für Shopping-Flows.",
-        "catalogLookupHelp": "Erlaubt den gezielten Abruf von Produktdetails und Varianten, z. B. nachdem ein Agent eine Suchliste erhalten hat.",
-        "cartHelp": "Erlaubt Agents, Warenkörbe anzulegen, zu lesen, zu aktualisieren und zu stornieren.",
-        "checkoutHelp": "Erlaubt Agents, aus einem Warenkorb eine Checkout-Session zu erstellen, Käuferdaten zu ergänzen und den Checkout abzuschließen.",
-        "orderHelp": "Erlaubt Order-Status-Abfragen und Order-Webhooks an die Plattform, z. B. nach erfolgreichem Checkout oder Versandereignissen.",
-        "discountHelp": "Erweitert Cart und Checkout um Rabattcodes und angewendete Rabatte. Benötigt Cart oder Checkout als Basis.",
-        "fulfillmentHelp": "Erweitert den Checkout um Lieferadressen, Versandmethoden, Optionen und spätere Fulfillment-Events.",
-        "buyerConsentHelp": "Speichert und spiegelt Käufer-Einwilligungen wie Marketing oder Analytics im Checkout-Kontext.",
-        "loyaltyHelp": "Extension Point für Loyalty-Programme. Ohne angebundenen Provider werden keine Programm-Daten ausgeliefert.",
-        "identityLinkingHelp": "Aktiviert OAuth 2.0 Authorization Code + PKCE, damit Käufer ihr Shop-Konto kontrolliert mit einer Plattform verbinden können."
-      },
-      "extensionLabel": "Erweiterung",
-      "transports": "Transporte",
-      "transportsLabel": "Aktive Transporte",
-      "transportsHelp": "Transporte bestimmen, über welche technischen Protokolle Agents diesen Verkaufskanal ansprechen. REST ist die HTTP-Basis-API. MCP stellt dieselben Commerce-Operationen als JSON-RPC Tools für agentische Clients bereit.",
-      "transportOptions": {
-        "rest": "REST (Basis-API)",
-        "mcp": "MCP (JSON-RPC Tools)"
-      },
-      "signingKeys": "Signing Keys (ES256)",
-      "signingKeysHelp": "Signing-Keys sind die öffentlichen/privaten Schlüssel dieses Verkaufskanals. Shopware signiert damit UCP-Antworten, Order-Webhooks und AP2 Merchant Authorizations; Plattformen verifizieren die Signaturen über /.well-known/ucp. Bei Rotation bleibt der alte Key kurzzeitig im Retiring-Status, damit laufende Plattformen noch verifizieren können.",
-      "rotateKey": "Neuen Key generieren (rotiert aktiven)",
-      "retireKey": "Key in Rente schicken",
-      "noKeyPrivilege": "Du brauchst das ucp.key_rotator-Recht, um Signing-Keys zu verwalten.",
-      "profilePreview": "/.well-known/ucp-Vorschau",
-      "loadPreview": "Vorschau laden",
-      "previewHint": "Klicke auf \"Vorschau laden\", um das JSON-Profil zu sehen, das unter /.well-known/ucp ausgeliefert wird.",
-      "save": "Speichern",
-      "saved": "Konfiguration gespeichert",
-      "keyRotated": "Signing-Key rotiert. Vorheriger Key ist 24 Stunden lang im Retiring-Status.",
-      "security": "Sicherheit",
-      "signaturePolicy": "Inbound-Signature-Policy",
-      "signaturePolicyOptions": {
-        "strict": "strict (Produktion — bei Signaturfehler ablehnen)",
-        "log": "log (prüfen und Fehler protokollieren, Request akzeptieren — nur Staging)",
-        "off": "off (keine Prüfung — nur lokale Entwicklung)"
-      },
-      "signaturePolicyHelp": "Wie streng RFC-9421-Signaturen auf eingehenden Plattform-Requests geprüft werden. In Produktion muss \"strict\" verwendet werden — ungültige oder fehlende Signaturen führen dann zur Ablehnung.",
-      "signaturePolicyNonStrictWarning": "Die Signature-Policy ist nicht \"strict\". Das ist für den lokalen Simulator OK, aber Produktiv-Installationen müssen \"strict\" verwenden, damit unsignierte Requests nicht durchrutschen.",
-      "idempotencyRequired": "Idempotency-Key-Header erzwingen",
-      "idempotencyRequiredHelp": "Lehnt nicht-idempotente UCP-Requests (Cart-Create, Checkout-Complete, …) ab, wenn der Idempotency-Key-Header fehlt. Für Produktion empfohlen."
     }
-  }
 }

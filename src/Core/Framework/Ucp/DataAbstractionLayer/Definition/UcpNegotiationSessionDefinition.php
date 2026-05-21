@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpNegotiationSessionCollection;
@@ -60,8 +62,14 @@ class UcpNegotiationSessionDefinition extends EntityDefinition
             (new JsonField('active_capabilities', 'activeCapabilities'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StringField('protocol_version', 'protocolVersion'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new DateTimeField('last_used_at', 'lastUsedAt'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
-            new DateTimeField('created_at', 'createdAt'),
-            new DateTimeField('updated_at', 'updatedAt'),
         ]);
+    }
+
+    protected function defaultFields(): array
+    {
+        return [
+            (new CreatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+            (new UpdatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+        ];
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpPlatformProfileCacheCollection;
@@ -60,8 +62,14 @@ class UcpPlatformProfileCacheDefinition extends EntityDefinition
             (new DateTimeField('expires_at', 'expiresAt'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new StringField('verification_status', 'verificationStatus'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             (new IntField('failure_count', 'failureCount'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
-            new DateTimeField('created_at', 'createdAt'),
-            new DateTimeField('updated_at', 'updatedAt'),
         ]);
+    }
+
+    protected function defaultFields(): array
+    {
+        return [
+            (new CreatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+            (new UpdatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+        ];
     }
 }

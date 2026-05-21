@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpSigningKeyCollection;
@@ -66,11 +68,17 @@ class UcpSigningKeyDefinition extends EntityDefinition
             (new StringField('status', 'status'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             new DateTimeField('activated_at', 'activatedAt'),
             new DateTimeField('retiring_at', 'retiringAt'),
-            new DateTimeField('created_at', 'createdAt'),
-            new DateTimeField('updated_at', 'updatedAt'),
 
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))
                 ->addFlags(new ApiAware(AdminApiSource::class)),
         ]);
+    }
+
+    protected function defaultFields(): array
+    {
+        return [
+            (new CreatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+            (new UpdatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+        ];
     }
 }

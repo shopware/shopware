@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpSalesChannelConfigCollection;
@@ -78,13 +79,19 @@ class UcpSalesChannelConfigDefinition extends EntityDefinition
             // Required Idempotency-Key for non-idempotent UCP operations.
             (new BoolField('idempotency_required', 'idempotencyRequired'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             new CustomFields(),
-            new DateTimeField('created_at', 'createdAt'),
-            new DateTimeField('updated_at', 'updatedAt'),
 
             (new OneToOneAssociationField('salesChannel', 'sales_channel_id', 'id', SalesChannelDefinition::class, false))
                 ->addFlags(new ApiAware(AdminApiSource::class)),
             (new OneToManyAssociationField('signingKeys', UcpSigningKeyDefinition::class, 'sales_channel_id', 'sales_channel_id'))
                 ->addFlags(new ApiAware(AdminApiSource::class), new CascadeDelete()),
         ]);
+    }
+
+    protected function defaultFields(): array
+    {
+        return [
+            (new CreatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+            (new UpdatedAtField())->addFlags(new ApiAware(AdminApiSource::class)),
+        ];
     }
 }

@@ -88,7 +88,6 @@
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">

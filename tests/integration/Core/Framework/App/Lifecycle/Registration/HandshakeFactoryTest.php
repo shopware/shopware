@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\Clock\NativeClock;
 
 /**

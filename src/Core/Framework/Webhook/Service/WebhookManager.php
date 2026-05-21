@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Webhook\Service;
 
-use Doctrine\DBAL\Connection;
-use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -63,7 +61,6 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
-        private readonly ClockInterface $clock,
     ) {
     }
 

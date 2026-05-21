@@ -85,6 +85,12 @@
             },
             "signingKeys": "Signing Keys (ES256)",
             "signingKeysHelp": "Signing-Keys sind die öffentlichen/privaten Schlüssel dieses Verkaufskanals. Shopware signiert damit UCP-Antworten, Order-Webhooks und AP2 Merchant Authorizations; Plattformen verifizieren die Signaturen über /.well-known/ucp. Bei Rotation bleibt der alte Key kurzzeitig im Retiring-Status, damit laufende Plattformen noch verifizieren können.",
+            "keysColumns": {
+                "kid": "Schlüssel-ID",
+                "algorithm": "Algorithmus",
+                "status": "Status",
+                "activated": "Aktiviert"
+            },
             "rotateKey": "Neuen Key generieren (rotiert aktiven)",
             "retireKey": "Key in Rente schicken",
             "noKeyPrivilege": "Du brauchst das ucp.key_rotator-Recht, um Signing-Keys zu verwalten.",

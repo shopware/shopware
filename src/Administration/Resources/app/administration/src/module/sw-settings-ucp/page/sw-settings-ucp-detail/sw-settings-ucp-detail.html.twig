@@ -187,10 +187,10 @@
                 <sw-data-grid
                     :data-source="keys"
                     :columns="[
-                        { property: 'kid', label: 'Key ID' },
-                        { property: 'algorithm', label: 'Algorithm' },
-                        { property: 'status', label: 'Status' },
-                        { property: 'activatedAt', label: 'Activated' },
+                        { property: 'kid', label: $t('sw-settings-ucp.detail.keysColumns.kid') },
+                        { property: 'algorithm', label: $t('sw-settings-ucp.detail.keysColumns.algorithm') },
+                        { property: 'status', label: $t('sw-settings-ucp.detail.keysColumns.status') },
+                        { property: 'activatedAt', label: $t('sw-settings-ucp.detail.keysColumns.activated') },
                     ]"
                     :show-actions="canRotateKey"
                     :show-selection="false"

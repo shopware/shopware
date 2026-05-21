@@ -5,16 +5,16 @@
 describe('module/sw-settings-ucp', () => {
     beforeAll(async () => {
         // `./acl` registers privileges via Shopware.Service('privileges'). The default
-        // test bootstrap does not provide that service, so the module bootstrap would
-        // otherwise crash before the module ever reaches the registry. Stub it for
-        // the test scope (the acl/index.spec.js already pins the privilege content).
-        const originalService = Shopware.Service;
-        Shopware.Service = jest.fn((key) => {
-            if (key === 'privileges') {
-                return { addPrivilegeMappingEntry: jest.fn() };
-            }
-            return originalService(key);
-        });
+        // test bootstrap does not provide that service, so register a no-op stub in
+        // the same service container that Shopware.Module.register() also uses. We
+        // must not replace `Shopware.Service` wholesale, because that would also
+        // override the no-arg `Shopware.Service().register()` API and silently break
+        // the module-registry registration the test then asserts on.
+        if (!Shopware.Service('privileges')) {
+            Shopware.Service().register('privileges', () => ({
+                addPrivilegeMappingEntry: jest.fn(),
+            }));
+        }
 
         await import('./');
     });

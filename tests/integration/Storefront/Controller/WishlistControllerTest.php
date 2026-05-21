@@ -75,9 +75,9 @@ class WishlistControllerTest extends TestCase
 
     public function testWishlistGuestIndex(): void
     {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist');
+        $browser->request('GET', '/wishlist');
 
         $response = $browser->getResponse();
 
@@ -88,20 +88,22 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', $_SERVER['APP_URL']);
+        $browser->request('GET', '/');
 
         $productId = $this->createProduct(TestDefaults::SALES_CHANNEL);
 
-        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
+        $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
 
         static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode());
     }
 
     public function testWishlistGuestPagelet(): void
     {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
+        $salesChannelId = $browser->getServerParameter('test-sales-channel-id');
+        static::assertIsString($salesChannelId);
 
-        $productId = $this->createProduct($this->getSalesChannelId());
+        $productId = $this->createProduct($salesChannelId);
 
         $this->addEventListener(static::getContainer()->get('event_dispatcher'), StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use ($productId): void {
             static::assertInstanceOf(EntitySearchResult::class, $result = $event->getParameters()['searchResult']);
@@ -110,7 +112,7 @@ class WishlistControllerTest extends TestCase
             static::assertSame($productId, $result->first()->get('id'));
         });
 
-        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
+        $browser->request('POST', '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
 
         $response = $browser->getResponse();
 
@@ -143,12 +145,23 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/list');
+        $browser->request('GET', '/wishlist/list');
 
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
         static::assertEmpty(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testAjaxListWithoutLoggedInCustomerReturnsForbidden(): void
+    {
+        $browser = $this->createCustomSalesChannelBrowser();
+
+        $browser->xmlHttpRequest('GET', '/wishlist/list');
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
     }
 
     public function testAjaxAdd(): void
@@ -157,7 +170,7 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($this->getSalesChannelId());
 
-        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
+        $browser->request('POST', '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
 
         $response = $browser->getResponse();
 
@@ -173,7 +186,7 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/list');
+        $browser->request('GET', '/wishlist/list');
 
         $response = $browser->getResponse();
 
@@ -186,13 +199,13 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($this->getSalesChannelId());
 
-        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
+        $browser->request('POST', '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
 
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/remove/' . $productId, $this->tokenize('frontend.wishlist.product.remove', []));
+        $browser->request('POST', '/wishlist/remove/' . $productId, $this->tokenize('frontend.wishlist.product.remove', []));
 
         $response = $browser->getResponse();
 
@@ -210,7 +223,7 @@ class WishlistControllerTest extends TestCase
 
         $productId = $this->createProduct($this->getSalesChannelId());
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
+        $browser->request('GET', '/wishlist/add-after-login/' . $productId);
 
         /** @var RedirectResponse $response */
         $response = $browser->getResponse();
@@ -226,7 +239,7 @@ class WishlistControllerTest extends TestCase
         static::assertNotEmpty($successFlash = $flashBag->get('success'));
         static::assertSame('You have successfully added the product to your wishlist.', $successFlash[0]);
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
+        $browser->request('GET', '/wishlist/add-after-login/' . $productId);
 
         static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
         static::assertSame('Product has already been added to your wishlist.', $warningFlash[0]);
@@ -261,7 +274,7 @@ class WishlistControllerTest extends TestCase
 
         $browser->xmlHttpRequest(
             'POST',
-            $_SERVER['APP_URL'] . '/wishlist/guest-pagelet'
+            '/wishlist/guest-pagelet'
         );
         $response = $browser->getResponse();
 

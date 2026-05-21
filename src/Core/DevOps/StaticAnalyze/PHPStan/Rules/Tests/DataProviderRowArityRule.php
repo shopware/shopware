@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @internal
  *
- * @deprecated tag:v6.9.0 - will be removed once PHPUnit 12 is the baseline; the runtime error then supersedes this static check.
+ * @deprecated tag:v6.8.0 - will be removed once PHPUnit 12 is the baseline; the runtime error then supersedes this static check.
  */
 #[Package('framework')]
 class DataProviderRowArityRule implements Rule

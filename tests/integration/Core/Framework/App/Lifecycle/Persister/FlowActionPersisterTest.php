@@ -1,21 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle;
+namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
+use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
  * @internal
@@ -24,22 +19,35 @@ class FlowActionPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private const APP_DIR = __DIR__ . '/_fixtures/withFlowExtension';
+
+    private const APP_DIR_V2 = __DIR__ . '/_fixtures/withFlowExtensionV2';
+
+    private const APP_DIR_V3 = __DIR__ . '/_fixtures/withFlowExtensionV3';
+
     private FlowActionPersister $persister;
 
     private Connection $connection;
+
+    private AppFixture $appFixture;
 
     protected function setUp(): void
     {
         $this->persister = static::getContainer()->get(FlowActionPersister::class);
         $this->connection = static::getContainer()->get(Connection::class);
+
+        /** @var AppFixture $appFixture */
+        $appFixture = static::getContainer()->get(AppFixture::class);
+        $this->appFixture = $appFixture;
     }
 
     public function testPersistAddsNewFlowActions(): void
     {
-        $appId = $this->createApp();
-        $app = $this->getApp($appId);
+        $manifest = ManifestFixture::empty();
+        $app = $this->appFixture->createApp($manifest);
+        $appId = $app->getId();
 
-        $context = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtension');
+        $context = $this->appFixture->createInstallContext($app, $manifest, new Filesystem(self::APP_DIR));
 
         $this->persister->persist($context);
 
@@ -48,18 +56,40 @@ class FlowActionPersisterTest extends TestCase
         static::assertSame('telegram.send.message', $flowActions[0]['name']);
     }
 
+    public function testPersistPreservesExistingFlowActionsOnAppUpdate(): void
+    {
+        $manifest = ManifestFixture::empty();
+        $app = $this->appFixture->createApp($manifest);
+        $context = $this->appFixture->createInstallContext($app, $manifest, new Filesystem(self::APP_DIR));
+        $this->persister->persist($context);
+
+        $appFlowActions = $this->getAppFlowActions($app->getId());
+        static::assertIsArray($appFlowActions);
+        static::assertArrayHasKey(0, $appFlowActions);
+
+        $updateContext = $this->appFixture->createUpdateContext($app, $manifest, new Filesystem(self::APP_DIR));
+        $this->persister->persist($updateContext);
+
+        $newAppFlowActions = $this->getAppFlowActions($app->getId());
+        static::assertIsArray($newAppFlowActions);
+        static::assertArrayHasKey(0, $newAppFlowActions);
+
+        static::assertSame($appFlowActions[0], $newAppFlowActions[0]);
+    }
+
     public function testPersistUpdatesExistingFlowActions(): void
     {
-        $appId = $this->createApp();
-        $app = $this->getApp($appId);
+        $manifest = ManifestFixture::empty();
+        $app = $this->appFixture->createApp($manifest);
+        $appId = $app->getId();
 
-        $context = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtension');
+        $context = $this->appFixture->createInstallContext($app, $manifest, new Filesystem(self::APP_DIR));
         $this->persister->persist($context);
 
         $flowActions = $this->getAppFlowActions($appId);
         static::assertCount(1, $flowActions);
 
-        $contextV2 = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtensionV2');
+        $contextV2 = $this->appFixture->createUpdateContext($app, $manifest, new Filesystem(self::APP_DIR_V2));
         $this->persister->persist($contextV2);
 
         $newFlowActions = $this->getAppFlowActions($appId);
@@ -72,16 +102,17 @@ class FlowActionPersisterTest extends TestCase
 
     public function testPersistDeletesRemovedFlowActions(): void
     {
-        $appId = $this->createApp();
-        $app = $this->getApp($appId);
+        $manifest = ManifestFixture::empty();
+        $app = $this->appFixture->createApp($manifest);
+        $appId = $app->getId();
 
-        $context = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtension');
+        $context = $this->appFixture->createInstallContext($app, $manifest, new Filesystem(self::APP_DIR));
         $this->persister->persist($context);
 
         $flowActions = $this->getAppFlowActions($appId);
         static::assertCount(1, $flowActions);
 
-        $contextV3 = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtensionV3');
+        $contextV3 = $this->appFixture->createUpdateContext($app, $manifest, new Filesystem(self::APP_DIR_V3));
         $this->persister->persist($contextV3);
 
         $newFlowActions = $this->getAppFlowActions($appId);
@@ -94,10 +125,11 @@ class FlowActionPersisterTest extends TestCase
 
     public function testPersistPreservesFlowActionUsedInFlowBuilder(): void
     {
-        $appId = $this->createApp();
-        $app = $this->getApp($appId);
+        $manifest = ManifestFixture::empty();
+        $app = $this->appFixture->createApp($manifest);
+        $appId = $app->getId();
 
-        $context = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtension');
+        $context = $this->appFixture->createInstallContext($app, $manifest, new Filesystem(self::APP_DIR));
         $this->persister->persist($context);
 
         $flowActions = $this->getAppFlowActions($appId);
@@ -109,63 +141,11 @@ class FlowActionPersisterTest extends TestCase
         $sequenceId = Uuid::randomHex();
         $this->createSequence($sequenceId, $flowId, $flowActions[0]['id']);
 
-        $contextV2 = $this->buildContext($app, __DIR__ . '/_fixtures/withFlowExtensionV2');
+        $contextV2 = $this->appFixture->createUpdateContext($app, $manifest, new Filesystem(self::APP_DIR_V2));
         $this->persister->persist($contextV2);
 
         $appFlowActionId = $this->getAppFlowActionIdFromSequence($sequenceId);
         static::assertSame($flowActions[0]['id'], $appFlowActionId);
-    }
-
-    private function buildContext(AppEntity $app, string $appDir): AppLifecycleContext
-    {
-        $manifest = $this->createMock(Manifest::class);
-
-        return new AppLifecycleContext(
-            manifest: $manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new Filesystem($appDir),
-            defaultLocale: 'en-GB',
-            isInstall: false,
-        );
-    }
-
-    private function createApp(): string
-    {
-        $id = Uuid::randomHex();
-        $app = [
-            'id' => $id,
-            'name' => 'FlowActionTestApp',
-            'active' => true,
-            'path' => __DIR__ . '/_fixtures/withFlowExtension',
-            'version' => '0.0.1',
-            'label' => 'test',
-            'accessToken' => 'test',
-            'appSecret' => 's3cr3t',
-            'integration' => [
-                'label' => 'test',
-                'accessKey' => 'api access key',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'name' => 'FlowActionTestApp',
-            ],
-        ];
-
-        static::getContainer()->get('app.repository')->create([$app], Context::createDefaultContext());
-
-        return $id;
-    }
-
-    private function getApp(string $appId): AppEntity
-    {
-        /** @var EntityRepository<AppCollection> $appRepository */
-        $appRepository = static::getContainer()->get('app.repository');
-        $app = $appRepository->search(new Criteria([$appId]), Context::createDefaultContext())->first();
-
-        static::assertInstanceOf(AppEntity::class, $app);
-
-        return $app;
     }
 
     /**

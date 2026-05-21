@@ -28,7 +28,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
  * deletion to match the matching `CascadeDelete` flag on the `sales_channel_id`
  * foreign keys in the migrations.
  *
- * @experimental stableVersion:v6.7.11.0 feature:UCP_SERVER
+ * @experimental stableVersion:v6.8.0 feature:UCP_SERVER
  *
  * @internal
  */

@@ -344,8 +344,7 @@ class PresignedMediaUploadServiceTest extends TestCase
             ->method('deleteFromStorage')
             ->with($path);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -374,8 +373,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not verify uploaded file for media');
+        $this->expectExceptionObject(MediaException::presignedUploadFinalizeFailed($mediaId));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'test-file',
@@ -405,8 +403,7 @@ class PresignedMediaUploadServiceTest extends TestCase
         $this->presignedUrlGenerator->expects($this->never())->method('deleteFromStorage');
         $this->presignedUrlGenerator->expects($this->never())->method('getFileMetadata');
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('not supported');
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported($mediaId, 'php'));
 
         $payload = new PresignedUploadFinalizePayload(
             fileName: 'malicious',

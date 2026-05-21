@@ -150,6 +150,48 @@ class FeatureTest extends TestCase
         static::assertArrayNotHasKey('v6.4.5.0', $_SERVER);
     }
 
+    public function testWithFeatureEnabledPreservesOtherEnvFlags(): void
+    {
+        $this->setEnvVars([
+            'V6_7_0_0' => true,
+            'FEATURE_NEXT_0000' => true,
+        ]);
+
+        Feature::withFeatureEnabled('v6.4.5.0', static function (): void {
+            static::assertTrue(Feature::isActive('v6.4.5.0'));
+            static::assertTrue(Feature::isActive('v6.7.0.0'));
+            static::assertTrue(Feature::isActive('FEATURE_NEXT_0000'));
+        });
+
+        static::assertArrayNotHasKey('V6_4_5_0', $_SERVER);
+        static::assertTrue(Feature::isActive('v6.7.0.0'));
+    }
+
+    public function testWithFeatureDisabledPreservesOtherEnvFlags(): void
+    {
+        $this->setEnvVars([
+            'V6_7_0_0' => true,
+            'V6_8_0_0' => true,
+        ]);
+
+        Feature::withFeatureDisabled('v6.8.0.0', static function (): void {
+            static::assertFalse(Feature::isActive('v6.8.0.0'));
+            static::assertTrue(Feature::isActive('v6.7.0.0'));
+        });
+
+        static::assertTrue(Feature::isActive('v6.8.0.0'));
+        static::assertTrue(Feature::isActive('v6.7.0.0'));
+    }
+
+    public function testWithFeatureHelpersReturnClosureResult(): void
+    {
+        $result = Feature::withFeatureEnabled('v6.4.5.0', static fn (): string => 'enabled');
+        static::assertSame('enabled', $result);
+
+        $result = Feature::withFeatureDisabled('v6.4.5.0', static fn (): string => 'disabled');
+        static::assertSame('disabled', $result);
+    }
+
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {

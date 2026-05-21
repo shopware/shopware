@@ -183,9 +183,18 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
 
         it.each([
-            ['summer224', 'SUMMER224'],
-            ['Summer-2026', 'SUMMER-2026'],
-            ['eu_de', 'EU_DE'],
+            [
+                'summer224',
+                'SUMMER224',
+            ],
+            [
+                'Summer-2026',
+                'SUMMER-2026',
+            ],
+            [
+                'eu_de',
+                'EU_DE',
+            ],
         ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
             const wrapper = await createWrapper({
                 props: {

@@ -373,7 +373,8 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async", "low_priority"]
+        # Keep webhook before async so inline admin-worker failures scheduled for retry are drained.
+        transports: ["webhook", "async", "low_priority"]
 
     auto_update:
         enabled: true

@@ -22,6 +22,7 @@ export function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): Emi
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
+    // Example: `{ emits: ['save', 'cancel'] }`
     const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
     if (arrayInit) {
         return {
@@ -35,6 +36,7 @@ export function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): Emi
         };
     }
 
+    // Example: `{ emits: { save: null, cancel(payload) { return Boolean(payload); } } }`
     const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (objInit) {
         return {
@@ -43,6 +45,7 @@ export function extractEmitsDefinition(optionsObj: ObjectLiteralExpression): Emi
             // passed through to defineEmits.
             keys: objInit
                 .getProperties()
+                // Examples: `{ emits: { save: null } }` and `{ emits: { save(payload) { return true; } } }`
                 .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
                 .map((p) =>
                     p.isKind(SyntaxKind.MethodDeclaration)
@@ -91,6 +94,7 @@ export function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): s
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
+    // Example: `{ props: ['product', 'loading'] }`
     const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
     if (arrayInit) {
         // TODO: Silent ignore: non-string prop array entries such as spreads are
@@ -101,14 +105,19 @@ export function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): s
             .map((el) => el.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue());
     }
 
+    // Example: `{ props: { product: { type: Object, required: true } } }`
     const initializer = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
 
+    // TODO: Silent ignore: non-literal props initializers return an empty
+    // prop-name set, which hides unsupported prop extraction from the
+    // migration status.
     return (
         initializer
             ?.getProperties()
             // TODO: Silent ignore: prop object spreads and computed property
             // names are filtered out instead of making the component partially
             // migratable.
+            // Examples: `{ props: { product: Object } }` and `{ props: { product() { return null; } } }`
             .filter((p) => p.isKind(SyntaxKind.PropertyAssignment) || p.isKind(SyntaxKind.MethodDeclaration))
             .map((p) =>
                 getPropertyName(
@@ -116,9 +125,6 @@ export function extractPropNamesFromText(optionsObj: ObjectLiteralExpression): s
                         ? p.asKindOrThrow(SyntaxKind.PropertyAssignment)
                         : p.asKindOrThrow(SyntaxKind.MethodDeclaration),
                 ),
-            // TODO: Silent ignore: non-literal props initializers return an
-            // empty prop-name set, which hides unsupported prop extraction from
-            // the migration status.
             ) ?? []
     );
 }

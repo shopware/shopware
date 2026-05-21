@@ -11,6 +11,7 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
 
     const computedObj = computedProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
+        // Example: `{ computed: { productName() { return this.product.name; } } }`
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (!computedObj) {
         return { computedProps: [], unsupportedEntries: ['computed must be an object literal'] };
@@ -20,6 +21,7 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
     const unsupportedEntries: string[] = [];
 
     for (const prop of computedObj.getProperties()) {
+        // Example: `{ computed: { productName() { return this.product.name; } } }`
         if (prop.isKind(SyntaxKind.MethodDeclaration)) {
             const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);
             result.push({ name: method.getName(), kind: 'getter', bodyText: method.getBodyText() ?? '' });
@@ -30,12 +32,14 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
             const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const initializer = pa.getInitializer();
 
+            // Examples: `{ computed: { productName: function () {} } }` and `{ productName: () => '' }`
             if (initializer?.isKind(SyntaxKind.FunctionExpression) || initializer?.isKind(SyntaxKind.ArrowFunction)) {
                 const { bodyText } = extractInlineFunctionHandler(initializer);
                 result.push({ name: pa.getName(), kind: 'getter', bodyText });
                 continue;
             }
 
+            // Example: `{ computed: { productName: { get() {}, set(value) {} } } }`
             const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
             if (!innerObj) {
                 unsupportedEntries.push(`${pa.getName()}: unsupported computed definition`);
@@ -45,6 +49,7 @@ export function extractComputedProps(optionsObj: ObjectLiteralExpression): Extra
             const getterProp = innerObj.getProperty('get');
             const setterProp = innerObj.getProperty('set');
 
+            // Example: `{ computed: { productName: { get() {}, set(value) {} } } }`
             if (getterProp?.isKind(SyntaxKind.MethodDeclaration) && setterProp?.isKind(SyntaxKind.MethodDeclaration)) {
                 const getter = getterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
                 const setter = setterProp.asKindOrThrow(SyntaxKind.MethodDeclaration);

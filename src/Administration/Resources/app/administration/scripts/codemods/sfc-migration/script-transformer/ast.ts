@@ -31,6 +31,7 @@ export function isNodeInsideSnippet(node: Node, snippetStart: number, snippetEnd
 }
 
 export function getDirectThisPropertyName(node: PropertyAccessExpression): string | null {
+    // Example: `this.product` has a `ThisKeyword` expression and `product` as the property name.
     return node.getExpression().isKind(SyntaxKind.ThisKeyword) ? node.getName() : null;
 }
 
@@ -47,17 +48,23 @@ export function getThisRefName(node: PropertyAccessExpression): string | null {
 export function getSnippetPropertyAccesses(snippet: CodeSnippet): PropertyAccessExpression[] {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
 
-    return sourceFile
-        .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
-        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd));
+    return (
+        sourceFile
+            // Example: `this.product.name` contains `this.product` and `this.product.name` property accesses.
+            .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
+            .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
+    );
 }
 
 export function getSnippetCallExpressions(snippet: CodeSnippet): CallExpression[] {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(snippet.text, snippet.kind);
 
-    return sourceFile
-        .getDescendantsOfKind(SyntaxKind.CallExpression)
-        .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd));
+    return (
+        sourceFile
+            // Example: `this.$emit('save')`
+            .getDescendantsOfKind(SyntaxKind.CallExpression)
+            .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
+    );
 }
 
 export function parseSource(jsContent: string): SourceFile {
@@ -72,6 +79,7 @@ export function parseSource(jsContent: string): SourceFile {
 
 export function findComponentRegistration(sourceFile: SourceFile): ComponentRegistration | undefined {
     const call = sourceFile
+        // Example: `Shopware.Component.register('sw-card', { ... })`
         .getDescendantsOfKind(SyntaxKind.CallExpression)
         .find((candidate) => /Shopware\.Component\.(register|extend)/.test(candidate.getExpression().getText()));
 
@@ -95,6 +103,7 @@ export function findComponentRegistration(sourceFile: SourceFile): ComponentRegi
         componentName: componentNameArg?.isKind(SyntaxKind.StringLiteral)
             ? componentNameArg.asKindOrThrow(SyntaxKind.StringLiteral).getLiteralValue()
             : 'unknown-component',
+        // Example: the second argument in `Shopware.Component.register('sw-card', { props: {} })`.
         optionsObject: optionsArg?.asKind(SyntaxKind.ObjectLiteralExpression),
         parentComponentName:
             isExtend && parentComponentNameArg?.isKind(SyntaxKind.StringLiteral)

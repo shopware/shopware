@@ -12,12 +12,16 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
 
     const pa = prop.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
+    // Example: `{ inject: ['repositoryFactory'] }`
     const arrayInit = pa.getInitializerIfKind(SyntaxKind.ArrayLiteralExpression);
     if (arrayInit) {
         const injectProps: InjectProp[] = [];
         const unsupportedEntries: string[] = [];
 
         arrayInit.getElements().forEach((el) => {
+            // Array inject declarations must be plain string keys. Expressions,
+            // spreads, and other dynamic entries cannot be mapped safely to a
+            // local setup binding.
             if (!el.isKind(SyntaxKind.StringLiteral)) {
                 unsupportedEntries.push(`${el.getText()}: unsupported inject entry`);
                 return;
@@ -36,17 +40,28 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
         };
     }
 
+    // Example: `{ inject: { repositoryFactory: 'repositoryFactory' } }`
     const objInit = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (objInit) {
         const injectProps: InjectProp[] = [];
         const unsupportedEntries: string[] = [];
 
         objInit.getProperties().forEach((p) => {
+            // Object inject declarations are only supported when the local key
+            // is explicit and the value is either a source key string or an
+            // object with `from` and/or `default`. Shorthand, accessors,
+            // spreads, computed members, and custom option members need manual
+            // migration because they can change the provided key, default
+            // semantics, or generated local binding.
+            // Example: `{ inject: { repositoryFactory } }`
             if (p.isKind(SyntaxKind.ShorthandPropertyAssignment)) {
                 unsupportedEntries.push(`${getPropertyName(p)}: shorthand inject entries must be migrated manually`);
                 return;
             }
 
+            // Example: `{ inject: { repositoryFactory: 'repositoryFactory' } }`;
+            // computed keys like `{ inject: { ['repositoryFactory']: 'repositoryFactory' } }`
+            // are also `PropertyAssignment` nodes.
             if (!p.isKind(SyntaxKind.PropertyAssignment)) {
                 unsupportedEntries.push(`${p.getText()}: unsupported inject entry`);
                 return;
@@ -54,6 +69,7 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
 
             const assignment = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const localName = getPropertyName(assignment);
+            // Example: `{ inject: { repositoryFactory: 'repositoryFactory' } }`
             const stringInit = assignment.getInitializerIfKind(SyntaxKind.StringLiteral);
 
             if (stringInit) {
@@ -64,6 +80,7 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
                 return;
             }
 
+            // Example: `{ inject: { repositoryFactory: { from: 'repositoryFactory', default: null } } }`
             const objectInit = assignment.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
 
             if (!objectInit) {
@@ -72,12 +89,14 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
             }
 
             const hasUnsupportedObjectMembers = objectInit.getProperties().some((member) => {
+                // Example: `{ inject: { repositoryFactory: { from: 'repositoryFactory' } } }`
                 if (member.isKind(SyntaxKind.PropertyAssignment)) {
                     const memberName = getPropertyName(member);
 
                     return memberName !== 'from' && memberName !== 'default';
                 }
 
+                // Example: `{ inject: { repositoryFactory: { default() { return null; } } } }`
                 return !(member.isKind(SyntaxKind.MethodDeclaration) && member.getName() === 'default');
             });
 
@@ -105,9 +124,11 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
             }
 
             const defaultProp = objectInit.getProperty('default');
+            // Example: `{ inject: { repositoryFactory: { default: () => createRepositoryFactory() } } }`
             const defaultInitializer = defaultProp?.isKind(SyntaxKind.PropertyAssignment)
                 ? defaultProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer()
                 : undefined;
+            // Example: `{ inject: { repositoryFactory: { default() { return createRepositoryFactory(); } } } }`
             const defaultMethod = defaultProp?.isKind(SyntaxKind.MethodDeclaration)
                 ? defaultProp.asKindOrThrow(SyntaxKind.MethodDeclaration)
                 : undefined;
@@ -131,6 +152,11 @@ export function extractInjectProps(optionsObj: ObjectLiteralExpression): Extract
     return { injectProps: [], unsupportedEntries: ['inject must be an array or object literal'] };
 }
 
+/**
+ * Unsupported inject entries are declaration shapes that the codemod cannot
+ * translate into deterministic Composition API `inject()` bindings without
+ * risking a changed source key, local name, or default-value behavior.
+ */
 export function analyzeUnsupportedInjectEntries(optionsObj: ObjectLiteralExpression): UnsupportedInjectAnalysis {
     const { injectProps, unsupportedEntries } = extractInjectProps(optionsObj);
     const reasons = [

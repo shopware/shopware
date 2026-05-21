@@ -23,6 +23,7 @@ export function extractLifecycleHooks(optionsObj: ObjectLiteralExpression): Life
         // TODO: Silent ignore: function-valued or shorthand lifecycle hooks are
         // skipped, so hooks such as `created: function () {}` can be dropped
         // while the component is still marked fully migratable.
+        // Example: `{ mounted() { this.loadProduct(); } }`
         if (!prop.isKind(SyntaxKind.MethodDeclaration)) continue;
 
         const method = prop.asKindOrThrow(SyntaxKind.MethodDeclaration);

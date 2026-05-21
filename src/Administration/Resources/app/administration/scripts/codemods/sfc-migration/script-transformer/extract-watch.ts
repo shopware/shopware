@@ -41,6 +41,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
 
     const watchObj = watchProp
         .asKindOrThrow(SyntaxKind.PropertyAssignment)
+        // Example: `{ watch: { productId(newId) { this.loadProduct(newId); } } }`
         .getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
     if (!watchObj) {
         return { watchProps: [], unsupportedEntries: ['watch must be an object literal'] };
@@ -49,6 +50,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
     const result: WatchProp[] = [];
     const unsupportedEntries: string[] = [];
     for (const p of watchObj.getProperties()) {
+        // Example: `{ watch: { productId(newId) { this.loadProduct(newId); } } }`
         if (p.isKind(SyntaxKind.MethodDeclaration)) {
             const method = p.asKindOrThrow(SyntaxKind.MethodDeclaration);
             result.push({
@@ -64,6 +66,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
         } else if (p.isKind(SyntaxKind.PropertyAssignment)) {
             const pa = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
             const name = getPropertyName(pa);
+            // Example: `{ watch: { productId: 'loadProduct' } }`
             const stringHandler = pa.getInitializerIfKind(SyntaxKind.StringLiteral);
 
             if (stringHandler) {
@@ -75,6 +78,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
                 continue;
             }
 
+            // Example: `{ watch: { productId: { handler: 'loadProduct', immediate: true } } }`
             const innerObj = pa.getInitializerIfKind(SyntaxKind.ObjectLiteralExpression);
             if (!innerObj) {
                 unsupportedEntries.push(`${name}: unsupported watcher definition`);
@@ -110,6 +114,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
                 immediate: immediateOption.value,
             };
 
+            // Example: `{ watch: { productId: { handler(newId) { this.loadProduct(newId); } } } }`
             if (handlerProp.isKind(SyntaxKind.MethodDeclaration)) {
                 const handler = handlerProp.asKindOrThrow(SyntaxKind.MethodDeclaration);
                 watchEntry.paramsText = handler
@@ -127,6 +132,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
 
             if (handlerProp.isKind(SyntaxKind.PropertyAssignment)) {
                 const handlerAssignment = handlerProp.asKindOrThrow(SyntaxKind.PropertyAssignment);
+                // Example: `{ watch: { productId: { handler: 'loadProduct' } } }`
                 const handlerValue = handlerAssignment.getInitializerIfKind(SyntaxKind.StringLiteral);
 
                 if (handlerValue) {
@@ -137,6 +143,7 @@ export function extractWatchProps(optionsObj: ObjectLiteralExpression): ExtractW
 
                 const inlineHandler = handlerAssignment.getInitializer();
 
+                // Examples: `{ handler: function (value) {} }` and `{ handler: (value) => {} }`
                 if (
                     inlineHandler?.isKind(SyntaxKind.FunctionExpression) ||
                     inlineHandler?.isKind(SyntaxKind.ArrowFunction)

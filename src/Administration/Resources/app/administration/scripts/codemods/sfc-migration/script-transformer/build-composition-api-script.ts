@@ -16,3 +16,4 @@ export function buildCompositionApiScript(
         manualMigrationReasons: [...new Set(state.manualMigrationReasons)],
     };
 }
+

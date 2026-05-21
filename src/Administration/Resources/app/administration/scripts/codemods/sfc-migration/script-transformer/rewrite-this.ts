@@ -110,6 +110,7 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
             const expression = node.getExpression();
             const firstArgument = node.getArguments()[0];
 
+            // Example: `this.$emit('save')`
             if (
                 Node.isPropertyAccessExpression(expression) &&
                 getDirectThisPropertyName(expression) === '$emit' &&
@@ -129,6 +130,7 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
     // element access (`this[key]`), destructuring, aliases, and `.bind(this)`
     // can remain in generated setup code without a blocker.
     const replacements = sourceFile
+        // Example: `this.product.name` contains `this.product` and `this.product.name` property accesses.
         .getDescendantsOfKind(SyntaxKind.PropertyAccessExpression)
         .filter((node) => isNodeInsideSnippet(node, snippetStart, snippetEnd))
         .map((node) => {

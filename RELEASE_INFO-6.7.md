@@ -19,6 +19,15 @@ A `debug:mcp` CLI command is available to list all registered MCP tools, prompts
 
 ## API
 
+### Number range previews can target a concrete number range
+
+The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
+Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
+
+The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
+It can only resolve global number ranges and therefore does not support non-global number range state.
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+
 ### New foreign key resolvers for the Sync API
 
 The Sync API now ships seven additional foreign key resolvers, allowing payloads to reference entities by stable human-readable keys instead of UUIDs:
@@ -53,6 +62,15 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
 
 ### Backward compatible invalid locales
 
@@ -177,6 +195,14 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 Previously, the Google Analytics integration was only included on page load when the `google-analytics-enabled` cookie was present.
 If a customer had accepted only the Google Ads cookie (`google-ads-enabled`), the integration would not start.
+### Storefront XHR login failures now keep HTTP 403
+
+Storefront requests that require a logged-in customer no longer redirect to the login page for XMLHttpRequests when the customer session is no longer valid.
+The original `403 Forbidden` response is preserved.
+Regular page requests still redirect to the login page.
+This prevents expired sessions from creating redirect chains from XHR endpoints to page controllers and fixes the follow-up failure where the redirected XHR request reaches the login page, which does not allow XHR access.
+JavaScript clients can now handle the failed unauthenticated XHR response explicitly.
+
 ### New Component System
 
 We introduced a new component system to the Storefront, which makes it easier to create reusable templates. It is one foundation of a new content system, which will be released at a later stage, but components can also be used anywhere in existing templates. The component system is based on [Twig UX components](https://symfony.com/bundles/ux-twig-component/current/index.html), plus some additional features like SCSS and JS handling for your components.

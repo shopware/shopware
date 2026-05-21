@@ -5,6 +5,7 @@
 // eslint-disable
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import transformLegacyBlockConditionals from './transform-legacy-block-conditionals';
 
 /**
  * @module core/factory/async-template
@@ -233,6 +234,7 @@ function registerNormalizedTemplate(item) {
     // Apply overrides
     templateDefinition = applyTemplateOverrides(templateDefinition.name);
     templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
+    templateDefinition.html = transformLegacyBlockConditionals(templateDefinition.html);
 
     // Final template will be written to the registry
     normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);

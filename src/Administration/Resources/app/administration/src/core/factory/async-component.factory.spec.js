@@ -3342,7 +3342,7 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.text()).toBe('kept');
         });
 
-        it('renders statically rewritten native legacy else branches', async () => {
+        it('renders the legacy else branch without compiler errors', async () => {
             ComponentFactory.register('native-block-legacy-else', {
                 data() {
                     return {
@@ -3352,12 +3352,12 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: `
                     <div>
                         <sw-block name="test-block" :data="{}">
-                            <div v-if="$swLegacyBlockIf('test-block', isConditionTrue)" class="true-branch">true</div>
+                            <div v-if="isConditionTrue" class="true-branch">true</div>
                         </sw-block>
 
                         <sw-block extends="test-block">
                             <sw-block-parent />
-                            <div v-if="$swLegacyBlockElse('test-block')" class="false-branch">false</div>
+                            <div v-else class="false-branch">false</div>
                         </sw-block>
                     </div>
                 `,
@@ -3386,12 +3386,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: `
                     <div>
                         <sw-block name="twig_shim_test_block" :data="dataScope">
-                            <div
-                                v-if="$swLegacyBlockIf('twig_shim_test_block', isConditionTrue)"
-                                class="true-branch"
-                            >
-                                true
-                            </div>
+                            <div v-if="isConditionTrue" class="true-branch">true</div>
                         </sw-block>
                     </div>
                 `,
@@ -3423,7 +3418,7 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.find('.false-branch').exists()).toBe(false);
         });
 
-        it('evaluates statically rewritten v-else-if chains that end inside a native block', async () => {
+        it('preserves v-else-if chains that end inside a native block', async () => {
             const registerNativeBlockChain = (componentName, initialState) => {
                 const blockName = `${componentName}-block`;
 
@@ -3434,23 +3429,18 @@ describe('core/factory/async-component.factory.ts', () => {
                     template: `
                         <div>
                             <sw-block name="${blockName}" :data="{}">
-                                <div v-if="$swLegacyBlockIf('${blockName}', showBlue)" class="blue-branch">blue</div>
-                                <div
-                                    v-if="$swLegacyBlockElseIf('${blockName}', showGreen)"
-                                    class="green-branch"
-                                >
-                                    green
-                                </div>
+                                <div v-if="showBlue" class="blue-branch">blue</div>
+                                <div v-else-if="showGreen" class="green-branch">green</div>
                             </sw-block>
 
                             <sw-block extends="${blockName}">
                                 <sw-block-parent />
-                                <div v-if="$swLegacyBlockElseIf('${blockName}', showRed)" class="red-branch">red</div>
+                                <div v-else-if="showRed" class="red-branch">red</div>
                             </sw-block>
 
                             <sw-block extends="${blockName}">
                                 <sw-block-parent />
-                                <div v-if="$swLegacyBlockElse('${blockName}')" class="fallback-branch">fallback</div>
+                                <div v-else class="fallback-branch">fallback</div>
                             </sw-block>
                         </div>
                     `,

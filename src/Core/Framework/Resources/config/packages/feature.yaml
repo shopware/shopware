@@ -91,3 +91,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enables the new breadcrumb loading and adds the possibility to build the product breadcrumb using the referrer category."
+      - name: WEBHOOKS_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."

@@ -132,8 +132,12 @@ class LockValidator implements EventSubscriberInterface
         $payloadFields = array_keys($command->getPayload());
 
         $allowedFields = $definition->getFields()
-            ->filter(fn (Field $field) => $field instanceof StorageAware && $field instanceof UpdatedAtField)
-            ->map(fn (StorageAware $field) => $field->getStorageName());
+            ->filter(fn (Field $field): bool => $field instanceof StorageAware && $field instanceof UpdatedAtField)
+            ->map(static function (Field $field): string {
+                \assert($field instanceof StorageAware);
+
+                return $field->getStorageName();
+            });
 
         if (\count(array_diff($payloadFields, $allowedFields)) > 0) {
             return false;

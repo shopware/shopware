@@ -7,11 +7,13 @@ namespace Shopware\Tests\Unit\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
  * @internal
@@ -78,6 +80,37 @@ class KernelTest extends TestCase
         static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
     }
 
+    public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->writeBundlesConfig([]);
+        $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
+
+        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+
+        static::assertSame([TwigComponentBundle::class], array_values(array_map(
+            static fn (object $bundle): string => $bundle::class,
+            $bundles
+        )));
+    }
+
+    public function testRegisterBundlesDoesNotDuplicateTwigComponentBundleWhenConfiguredPreV68(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->writeBundlesConfig([
+            TwigComponentBundle::class => ['all' => true],
+        ]);
+
+        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+
+        static::assertSame([TwigComponentBundle::class], array_values(array_map(
+            static fn (object $bundle): string => $bundle::class,
+            $bundles
+        )));
+    }
+
     private function createKernel(): Kernel
     {
         return new Kernel(
@@ -88,6 +121,19 @@ class KernelTest extends TestCase
             '6.6.6',
             $this->createMock(Connection::class),
             $this->tmpProjectDir,
+        );
+    }
+
+    /**
+     * @param array<string, array<string, bool>> $bundles
+     */
+    private function writeBundlesConfig(array $bundles): void
+    {
+        $configDir = $this->tmpProjectDir . '/config';
+        $this->filesystem->mkdir($configDir);
+        $this->filesystem->dumpFile(
+            $configDir . '/bundles.php',
+            "<?php\n\nreturn " . var_export($bundles, true) . ";\n"
         );
     }
 }

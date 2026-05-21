@@ -50,4 +50,9 @@
     .sw-text-editor.is--disabled .sw-text-editor__content {
         background-color: var(--color-elevation-surface-raised);
     }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
 }

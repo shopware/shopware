@@ -54,7 +54,7 @@
     "@shopware-ag/dive": "2.3.4",
     "@shopware-ag/meteor-admin-sdk": "6.9.0",
     "@shopware-ag/meteor-component-library": "4.28.6",
-    "@shopware-ag/meteor-icon-kit": "5.4.0",
+    "@shopware-ag/meteor-icon-kit": "5.7.0",
     "@swc/core": "1.10.7",
     "@types/fs-extra": "11.0.4",
     "@types/punycode": "2.1.4",
@@ -68,8 +68,8 @@
     "apexcharts": "4.4.0",
     "app-module-path": "2.2.0",
     "autoprefixer": "10.4.20",
-    "axios": "0.31.0",
-    "axios-v1": "npm:axios@1.15.0",
+    "axios": "0.31.1",
+    "axios-v1": "npm:axios@1.16.1",
     "bottlejs": "2.0.1",
     "cli-progress": "3.12.0",
     "command-line-args": "6.0.1",
@@ -223,8 +223,9 @@
     "vuex": "Vuex is deprecated and will be removed with Shopware 6.8.0"
   },
   "overrides": {
+    "@babel/plugin-transform-modules-systemjs": "7.29.4",
     "@tootallnate/once": "^3.0.1",
-    "brace-expansion": "5.0.5",
+    "brace-expansion": "5.0.6",
     "brace-expansion@1": "1.1.13",
     "handlebars": "4.7.9",
     "locutus": "3.0.25",
@@ -253,7 +254,9 @@
       "jest": "$jest"
     },
     "tmp": "0.2.5",
-    "basic-ftp": "^5.3.0",
+    "fast-uri": "3.1.2",
+    "ip-address": "10.2.0",
+    "basic-ftp": "5.3.1",
     "follow-redirects": "1.16.0"
   }
 }

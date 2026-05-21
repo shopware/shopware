@@ -186,6 +186,7 @@ valid-filters = [
     "strval",
     "boolval",
     "md5",
+    "sha256",
 ]
 
 # Valid twig tests that are allowed to be used with the `is` operator.
@@ -313,7 +314,8 @@ valid-functions = [
     "config",
     "theme_config",
     "theme_scripts",
-    "component_import_map",
+    "theme_css_vars",
+    "import_map",
     "sw_icon_cache_enable",
     "sw_icon_cache_disable",
     "preg_match",

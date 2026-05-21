@@ -66,21 +66,19 @@ class ConfigJsonFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{string|int|float|false|array<string, mixed>|list<int>|null}>
+     * @return iterable<string, array{string|int|float|false|array<string, mixed>|list<int>|null}>
      */
-    public static function serializerProvider(): array
+    public static function serializerProvider(): iterable
     {
-        return [
-            'string' => ['string'],
-            'integer' => [11234],
-            'float' => [11234.123243],
-            'associative array' => [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]],
-            'list' => [[1, 2, 3]],
-            'null' => [null],
-            'false' => [false],
-            'zero' => [0],
-            'empty string' => [''],
-        ];
+        yield 'string config value round-trips' => ['string'];
+        yield 'integer config value round-trips' => [11234];
+        yield 'float config value round-trips' => [11234.123243];
+        yield 'nested associative config value round-trips' => [['foo' => 'sadfsadf', 'bar' => ['a' => 1234]]];
+        yield 'list config value round-trips' => [[1, 2, 3]];
+        yield 'null config value round-trips' => [null];
+        yield 'false config value round-trips' => [false];
+        yield 'zero config value round-trips' => [0];
+        yield 'empty string config value round-trips' => [''];
     }
 
     private function createWriteParameterBag(): WriteParameterBag

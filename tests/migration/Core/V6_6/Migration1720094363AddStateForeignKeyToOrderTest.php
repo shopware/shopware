@@ -34,6 +34,11 @@ class Migration1720094363AddStateForeignKeyToOrderTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1720094363, (new Migration1720094363AddStateForeignKeyToOrder())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         try {

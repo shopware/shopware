@@ -30,6 +30,7 @@ yalc.lock
 .codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -41,6 +42,9 @@ yalc.lock
 
 # GIT worktrees
 .worktrees
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar

@@ -315,7 +315,15 @@
                     "trackOffcanvasCart": {
                         "label": "Offcanvas-Warenkorb tracken",
                         "helpText": "Wenn aktiviert, wird ein 'view_cart'-Event auch beim Öffnen des Offcanvas-Warenkorbs ausgelöst, nicht nur auf der Warenkorb-Seite. Nützlich für detaillierte Funnel-Analyse, kann aber die Warenkorb-Ansichten erhöhen."
+                    },
+                    "enhancedConversions": {
+                        "label": "Enhanced Conversions",
+                        "helpText": "Wenn aktiviert, wird die SHA256-gehashte E-Mail-Adresse des Kunden mit dem Kauf-Event gesendet, um Google Ads Enhanced Conversions zu unterstützen. Dies hilft, Conversion-Zuordnungen wiederherzustellen, die durch Browser-Cookie-Einschränkungen oder geräteübergreifendes Verhalten verloren gehen."
                     }
+                },
+                "tracking": {
+                    "cardTitle": "Tracking",
+                    "description": "Konfiguriere, welche E-Commerce-Interaktionen erfasst und an Google Analytics gesendet werden."
                 }
             },
             "titleShippingPayment": "Zahlung und Versand",

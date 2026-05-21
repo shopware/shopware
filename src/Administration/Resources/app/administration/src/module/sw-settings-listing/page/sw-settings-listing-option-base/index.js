@@ -56,6 +56,13 @@ export default {
             return new Criteria(1, 25);
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+         */
+        productSortingEntityCriteria() {
+            return new Criteria(1, 25);
+        },
+
         isSaveButtonDisabled() {
             return (
                 !this.productSortingEntity ||

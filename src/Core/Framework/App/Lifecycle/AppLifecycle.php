@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Composer\Semver\VersionParser;
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
@@ -40,10 +39,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
-use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -61,7 +57,6 @@ class AppLifecycle extends AbstractAppLifecycle
      * @param EntityRepository<LanguageCollection> $languageRepository
      * @param EntityRepository<IntegrationCollection> $integrationRepository
      * @param EntityRepository<AclRoleCollection> $aclRoleRepository
-     * @param EntityRepository<CustomEntityCollection> $customEntityRepository
      * @param iterable<PersisterInterface> $persisters
      */
     public function __construct(
@@ -79,12 +74,9 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly AssetService $assetService,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly string $projectDir,
-        private readonly Connection $connection,
-        private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
         private readonly CustomEntityLifecycleService $customEntityLifecycleService,
         private readonly string $shopwareVersion,
         private readonly AppFeatureValidator $appFeatureValidator,
-        private readonly EntityRepository $customEntityRepository,
         private readonly SourceResolver $sourceResolver,
         private readonly ConfigReader $configReader,
         private readonly McpAppSyncer $mcpAppSyncer,
@@ -163,9 +155,9 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         $appEntity = $this->loadApp($app['id'], $context);
 
-        // if we do not keep user data, or the app has no restrict delete data,
+        // if we do not keep user data, or the app has no restrict delete data with rows,
         // we can safely delete the app as no references in the DB will be left over
-        $isSafeToDeleteCustomFields = !$keepUserData || !$this->appHasRestrictDeleteData($appEntity);
+        $isSafeToDeleteCustomFields = !$keepUserData || $this->customEntityLifecycleService->canRemoveAppData($appEntity);
         if ($appEntity->isActive()) {
             $this->appStateService->deactivateApp($appEntity->getId(), $context, $isSafeToDeleteCustomFields);
         }
@@ -271,7 +263,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $updatePayload = [
             'id' => $app->getId(),
             'configurable' => $this->handleConfigUpdates($app, $manifest, $install),
-            'allowDisable' => $this->doesAllowDisabling($app),
+            'allowDisable' => $this->customEntityLifecycleService->allowsDisabling($app),
         ];
         $this->updateMetadata($updatePayload, $context);
 
@@ -308,7 +300,7 @@ class AppLifecycle extends AbstractAppLifecycle
                 }
             }
 
-            $this->handleCustomEntityRemoval($app->getId(), $keepUserData, $context);
+            $this->customEntityLifecycleService->removeApp($app, $context, $keepUserData);
 
             $this->appRepository->delete([['id' => $app->getId()]], $context);
 
@@ -325,44 +317,6 @@ class AppLifecycle extends AbstractAppLifecycle
 
             $this->deleteAclRole($app->getName(), $context);
         });
-    }
-
-    private function handleCustomEntityRemoval(string $appId, bool $keepUserData, Context $context): void
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
-
-        $customEntities = $this->customEntityRepository->search($criteria, $context)->getEntities();
-        if ($customEntities->count() === 0) {
-            return;
-        }
-
-        $update = [];
-        foreach ($customEntities as $customEntity) {
-            if ($keepUserData) {
-                // If we keep user data, we only set the appId to null and mark the custom entities as deleted
-                $update[] = [
-                    'id' => $customEntity->getId(),
-                    'appId' => null,
-                    'deletedAt' => new \DateTimeImmutable(),
-                ];
-            } else {
-                $update[] = [
-                    'id' => $customEntity->getId(),
-                ];
-            }
-        }
-
-        if ($update === []) {
-            return;
-        }
-
-        if ($keepUserData) {
-            $this->customEntityRepository->update($update, $context);
-        } else {
-            $this->customEntityRepository->delete($update, $context);
-            $this->customEntitySchemaUpdater->update();
-        }
     }
 
     /**
@@ -528,59 +482,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->systemConfigService->saveConfig($config, $app->getName() . '.config.', $install);
 
         return true;
-    }
-
-    private function doesAllowDisabling(AppEntity $app): bool
-    {
-        $entities = $this->connection->fetchFirstColumn(
-            'SELECT fields FROM custom_entity WHERE app_id = :id',
-            ['id' => Uuid::fromHexToBytes($app->getId())]
-        );
-
-        foreach ($entities as $fields) {
-            $fields = json_decode((string) $fields, true, 512, \JSON_THROW_ON_ERROR);
-
-            foreach ($fields as $field) {
-                $restricted = $field['onDelete'] ?? null;
-
-                if ($restricted === AssociationField::RESTRICT) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private function appHasRestrictDeleteData(AppEntity $app): bool
-    {
-        $entities = $this->connection->fetchAllKeyValue(
-            'SELECT name, fields FROM custom_entity WHERE app_id = :id',
-            ['id' => Uuid::fromHexToBytes($app->getId())]
-        );
-
-        foreach ($entities as $table => $fields) {
-            $fields = json_decode((string) $fields, true, 512, \JSON_THROW_ON_ERROR);
-
-            foreach ($fields as $field) {
-                $restricted = $field['onDelete'] ?? null;
-
-                if ($restricted !== AssociationField::RESTRICT) {
-                    continue;
-                }
-
-                $hasData = (int) $this->connection->createQueryBuilder()
-                    ->select('COUNT(*)')
-                    ->from($table)
-                    ->fetchOne();
-
-                if ($hasData > 0) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     private function getIcon(Manifest $manifest): ?string

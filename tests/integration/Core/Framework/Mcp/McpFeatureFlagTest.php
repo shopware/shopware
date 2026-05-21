@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpPersister;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
@@ -49,7 +48,6 @@ class McpFeatureFlagTest extends TestCase
      */
     public static function mcpServiceProvider(): iterable
     {
-        yield McpPersister::class => [McpPersister::class];
         yield McpContextProvider::class => [McpContextProvider::class];
         yield McpServerController::class => [McpServerController::class];
         yield DebugMcpCommand::class => [DebugMcpCommand::class];

@@ -510,6 +510,7 @@
             :help-text="$t('sw-sales-channel.detail.productComparison.feedLabelHelpText')"
             :disabled="!acl.can('sales_channel.editor') || undefined"
             :max-length="20"
+            :error="productExportFeedLabelError"
             @update:model-value="value => { productExport.feedLabel = value === '' ? null : value; }"
         />
         {% endblock %}

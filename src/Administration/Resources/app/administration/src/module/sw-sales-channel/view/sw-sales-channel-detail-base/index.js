@@ -459,6 +459,7 @@ export default {
             'encoding',
             'fileName',
             'fileFormat',
+            'feedLabel',
             'storefrontSalesChannelId',
             'salesChannelDomainId',
             'currencyId',

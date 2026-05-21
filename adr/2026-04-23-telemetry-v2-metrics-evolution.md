@@ -361,7 +361,7 @@ $this->telemetry->emit(new ConfiguredMetric('order.placed.count', 1, ['channel' 
   histogram in YAML config. `Telemetry` delegates to `Meter::emit()`, which resolves the type from
   config.
 - **Class, not interface.** `Telemetry` is a concrete class (not an interface) so new methods can
-  be added in minor versions without BC breaks. It is non-final to allow mocking in unit tests.
+  be added in minor versions without BC breaks.
 - **`instrument()` with both `metric: null` and `span: null`** is a no-op beyond executing the
   callback. In dev/test environments this should throw (it likely indicates a misconfiguration).
 

@@ -14,6 +14,8 @@ use Shopware\Core\Profiling\Profiler;
  * service. Use `emit()` for regular pre-computed metrics and `instrument()` to measure operation
  * duration and/or create a profiler span around a callback.
  *
+ * @final
+ *
  * @experimental feature:TELEMETRY_METRICS stableVersion:v6.8.0
  */
 #[Package('framework')]
@@ -60,6 +62,10 @@ class Telemetry
             return $callback();
         }
 
+        // Profiler::start/stop is used instead of Profiler::trace() so that span and metric
+        // remain orthogonal: the span brackets only the callback (metric emission stays outside
+        // the span), and the duration timer brackets only the callback (profiler overhead stays
+        // outside the metric). Wrapping the callback in Profiler::trace() would couple the two.
         if ($span !== null) {
             Profiler::start($span->name, $span->category, $span->tags);
         }

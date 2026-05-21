@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Telemetry\Metrics\Subscriber;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
@@ -19,7 +20,7 @@ class TelemetryFlushListener implements EventSubscriberInterface
 {
     private const DEFAULT_WORKER_FLUSH_INTERVAL_SECONDS = 60;
 
-    private float $lastFlushAt;
+    private \DateTimeImmutable $lastFlushAt;
 
     private readonly int $workerFlushIntervalSeconds;
 
@@ -29,10 +30,11 @@ class TelemetryFlushListener implements EventSubscriberInterface
     public function __construct(
         private readonly TransportCollection $transports,
         private readonly LoggerInterface $logger,
+        private readonly ClockInterface $clock,
         ?int $workerFlushIntervalSeconds = null,
     ) {
         $this->workerFlushIntervalSeconds = $workerFlushIntervalSeconds ?? self::DEFAULT_WORKER_FLUSH_INTERVAL_SECONDS;
-        $this->lastFlushAt = microtime(true);
+        $this->lastFlushAt = $this->clock->now();
     }
 
     public static function getSubscribedEvents(): array
@@ -46,7 +48,7 @@ class TelemetryFlushListener implements EventSubscriberInterface
 
     public function flush(): void
     {
-        $this->lastFlushAt = microtime(true);
+        $this->lastFlushAt = $this->clock->now();
 
         foreach ($this->transports as $transport) {
             try {
@@ -62,7 +64,7 @@ class TelemetryFlushListener implements EventSubscriberInterface
 
     public function flushIfStale(WorkerRunningEvent $event): void
     {
-        if (microtime(true) - $this->lastFlushAt < $this->workerFlushIntervalSeconds) {
+        if ($this->clock->now()->getTimestamp() - $this->lastFlushAt->getTimestamp() < $this->workerFlushIntervalSeconds) {
             return;
         }
 

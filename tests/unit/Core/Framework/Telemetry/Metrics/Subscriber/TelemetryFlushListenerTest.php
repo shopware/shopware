@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\Framework\Telemetry\Metrics\Subscriber\TelemetryFlushListener;
 use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerRunningEvent;
@@ -41,7 +42,11 @@ class TelemetryFlushListenerTest extends TestCase
         $collection = $this->createMock(TransportCollection::class);
         $collection->expects($this->never())->method('getIterator');
 
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), 60);
+        $clock = new MockClock();
+        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), $clock, 60);
+
+        // advance less than the interval — still fresh
+        $clock->sleep(30);
         $listener->flushIfStale($this->createWorkerRunningEvent());
     }
 
@@ -52,8 +57,11 @@ class TelemetryFlushListenerTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport]);
 
-        // interval=0 => stale on first call
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), 0);
+        $clock = new MockClock();
+        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), $clock, 60);
+
+        // advance past the interval — stale
+        $clock->sleep(61);
         $listener->flushIfStale($this->createWorkerRunningEvent());
     }
 
@@ -66,7 +74,7 @@ class TelemetryFlushListenerTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
-        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class));
+        $listener = new TelemetryFlushListener($collection, $this->createMock(LoggerInterface::class), new MockClock());
         $listener->flush();
     }
 
@@ -89,7 +97,7 @@ class TelemetryFlushListenerTest extends TestCase
 
         $collection = $this->createTransportCollectionMock([$transport1, $transport2]);
 
-        $listener = new TelemetryFlushListener($collection, $logger);
+        $listener = new TelemetryFlushListener($collection, $logger, new MockClock());
         $listener->flush();
     }
 

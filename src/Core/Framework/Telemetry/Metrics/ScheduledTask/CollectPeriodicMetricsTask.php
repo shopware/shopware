@@ -19,7 +19,7 @@ class CollectPeriodicMetricsTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 300;
+        return 5 * self::MINUTELY;
     }
 
     public static function shouldRun(ParameterBagInterface $bag): bool

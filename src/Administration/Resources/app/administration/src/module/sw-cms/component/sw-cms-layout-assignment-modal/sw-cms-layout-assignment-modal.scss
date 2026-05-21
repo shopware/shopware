@@ -6,12 +6,12 @@
     }
 
     .sw-cms-layout-assignment-modal__headline {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
     }
 
     .sw-cms-layout-assignment-modal__info-text {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
         margin-bottom: 20px;
     }

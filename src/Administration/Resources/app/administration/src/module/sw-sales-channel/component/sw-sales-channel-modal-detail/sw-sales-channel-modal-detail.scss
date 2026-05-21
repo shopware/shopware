@@ -10,13 +10,13 @@
     }
 
     .sw-sales-channel-modal-detail__header-icon {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         width: 64px;
         height: 64px;
         border-radius: 8px;
 
         .mt-icon {
-            color: $color-gray-900;
+            color: var(--color-icon-secondary-default);
             height: 24px;
             width: 24px;
             margin: 20px;
@@ -29,14 +29,14 @@
 
     .sw-sales-channel-modal-detail__header-name {
         font-size: $font-size-m;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
         margin: 6px 0;
     }
 
     .sw-sales-channel-modal-detail__header-manufacturer {
         font-size: $font-size-xs;
-        color: lighten($color-darkgray-200, 25%);
+        color: var(--color-text-secondary-default);
     }
 
     .sw-sales-channel-modal-detail__description {
@@ -46,10 +46,10 @@
     .sw-sales-channel-modal-detail__description-title {
         margin-bottom: 20px;
         font-weight: $font-weight-semi-bold;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     .sw-sales-channel-modal-detail__description-text {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 }

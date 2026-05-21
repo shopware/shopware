@@ -73,7 +73,7 @@ class CoreSubscriberTest extends TestCase
         }
 
         $browser = $this->getBrowser();
-        $browser->request('GET', $_SERVER['APP_URL'] . '/admin');
+        $browser->request('GET', '/admin');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));

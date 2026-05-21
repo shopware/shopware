@@ -4,6 +4,7 @@
         {% set name = product.translated.name %}
         {% set brand = product.manufacturer.translated.name|default('') %}
         {% set price = product.calculatedPrice.unitPrice %}
+        {% set sku = product.productNumber %}
 
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
@@ -19,7 +20,7 @@
             {% set routeArguments = routeArguments|merge({ referrerCategoryId: referrerCategoryId }) %}
         {% endif %}
 
-        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price}|json_encode }}">
+        <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name, brand, price, sku}|json_encode }}">
             {% block component_product_box_content %}
                 <div class="card-body">
                     {% block component_product_box_badges %}

@@ -4,7 +4,37 @@
 
 <details>
 
-### Minimum value constraints added to quantity fields in ProductPriceDefinition
+## Webhook Messenger transport — explicit receiver configuration required
+
+Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
+
+> [!NOTE]
+> Already opted into `WEBHOOKS_REWORK` on 6.7? No action needed — the flag is gone and the new transport is permanent.
+
+> [!IMPORTANT]
+> Workers that don't list `webhook` will stop consuming webhooks after upgrading.
+
+### Consume command
+
+Put `webhook` first so retries do not wait behind async backlog:
+
+```bash
+bin/console messenger:consume webhook async low_priority --{other-options}....
+```
+
+The webhook transport has built-in fairness, so it never starves async. You can run multiple `messenger:consume webhook` processes in parallel — delivery is IO-bound and scales up to `num_apps + 1` partitions (one per app, plus the `default`). Beyond that, extra workers sit idle. Most installs need only one or two.
+
+### Admin worker transports
+
+If you override `shopware.admin_worker.transports`, prepend `webhook`:
+
+```yaml
+shopware:
+    admin_worker:
+        transports: ["webhook", "async", "low_priority"]
+```
+
+## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
@@ -36,6 +66,14 @@ To partly comply with old behaviour, primary deliveries are ordered first and pr
 # API
 
 <details>
+
+## Type-based number range preview Admin API removed
+
+The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
+It resolved number ranges only by technical type and could only preview global number range state.
+When previewing or editing an existing persisted number range, call `/api/_action/number-range/{numberRangeId}/preview-pattern` with the concrete `number_range.id` instead.
+
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged and should still be used when reserving the next number for a business context.
 
 ## Mail payload custom data must use `extensions`
 
@@ -96,11 +134,29 @@ The following methods are now abstract and must be implemented by extensions. Th
 
 The `/api/_action/mail-template/validate` route has been removed without replacement, as it was not used and did not provide any significant value.
 
+## Customer default address detail routes return only the configured default address
+
+The Admin API detail routes `/api/customer/{customerId}/default-billing-address` and `/api/customer/{customerId}/default-shipping-address` now resolve the configured default address only.
+Previously, these routes could return all customer addresses because the underlying DAL associations were not modeled as one-to-one associations.
+
 </details>
 
 # Core
 
 <details>
+
+## Number range value generator interface removed
+
+`Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.
+Use `Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator` instead.
+
+If your extension implemented the old interface, update the service to extend `AbstractNumberRangeValueGenerator`.
+Implement `getValue()` for actual number allocation and `previewPatternByNumberRangeId()` for persisted number-range previews.
+
+If your extension decorates the number range value generator, decorate `AbstractNumberRangeValueGenerator`, implement `getDecorated()`, and forward `getValue()` and `previewPatternByNumberRangeId()` to the decorated service where appropriate.
+
+The type-based `previewPattern()` method is removed.
+Replace calls to `previewPattern($type, ...)` with `previewPatternByNumberRangeId($numberRangeId, ...)` when previewing or editing an existing number range.
 
 ## Changed behaviour of default fields in EntityDefinition
 
@@ -663,6 +719,39 @@ Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CH
 
 </details>
 
+## `AbstractTranslationLoader::pluginTranslationExists()` removed
+
+The locale-agnostic method `pluginTranslationExists(Plugin $plugin): bool` has been removed from `Shopware\Core\System\Snippet\Service\AbstractTranslationLoader`.
+
+If you have a decorator that extends `AbstractTranslationLoader`, remove your `pluginTranslationExists()` implementation and override the replacement method instead:
+
+ ```php
+ // Before
+ public function pluginTranslationExists(Plugin $plugin): bool
+ {
+     return $this->getDecorated()->pluginTranslationExists($plugin);
+ }
+
+ // After
+ public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
+ {
+     return $this->getDecorated()->pluginTranslationExistsForLocale($plugin, $locale);
+ }
+ ```
+
+The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+## `MediaUploadService::validateExternalUrl()` deprecated
+
+Use the new `assertValidExternalUrl()` instance method instead:
+
+```php
+// Before
+MediaUploadService::validateExternalUrl($url);
+
+// After
+$this->mediaUploadService->assertValidExternalUrl($url);
+```
+
 # Administration
 
 <details>
@@ -995,9 +1084,13 @@ Use the parent blocks instead
 ## File accessibility changed from public to private
 `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
 
-## The following template blocks have been replaced due to a typo in their name
+## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
 * `sw_cms_detail_stage_empty_stade_content` -> `sw_cms_detail_stage_empty_stage_content`
+* `sw_settings_listing_option_base_smart_content` -> `sw_settings_listing_option_base_content`
+* `sw_settings_listing_option_base_smart_content_general_info` -> `sw_settings_listing_option_base_content_general_info`
+* `sw_settings_listing_option_base_smart_bar_actions_grid` -> `sw_settings_listing_option_base_content_criteria_grid`
+* `sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal` -> `sw_settings_listing_option_base_content_delete_modal`
 
 ## Removed .png and .jpg images
 

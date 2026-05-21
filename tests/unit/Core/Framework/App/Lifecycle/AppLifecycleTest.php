@@ -2,8 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Administration\Snippet\AppLifecycleSubscriber;
@@ -15,7 +15,9 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\McpAppSyncer;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
@@ -32,7 +34,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
-use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
@@ -285,6 +286,98 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
+    #[TestDox('skips MCP syncing when MCP_SERVER feature flag is off')]
+    public function testInstallSkipsMcpAppSyncerWhenFeatureFlagIsOff(): void
+    {
+        $_SERVER['MCP_SERVER'] = false;
+
+        try {
+            /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+            $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+            $appEntities = [
+                [],
+                [[
+                    'id' => Uuid::randomHex(),
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ]],
+                [[
+                    'id' => Uuid::randomHex(),
+                    'name' => 'test',
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ]],
+            ];
+
+            $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+            $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
+            $appRepository = $this->getAppRepositoryMock($appEntities);
+
+            $mcpAppSyncer = $this->createMock(McpAppSyncer::class);
+            $mcpAppSyncer->expects($this->never())->method('sync');
+
+            $this->registerSubscriber($sourceResolver, $appEntities[2]);
+
+            $appLifecycle = $this->getAppLifecycle(
+                $appRepository,
+                $languageRepository,
+                $sourceResolver,
+                mcpAppSyncer: $mcpAppSyncer,
+            );
+            $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
+        } finally {
+            $_SERVER['MCP_SERVER'] = '1';
+        }
+    }
+
+    #[TestDox('delegates MCP syncing to McpAppSyncer on install')]
+    public function testInstallDelegatesToMcpAppSyncer(): void
+    {
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+        $appEntities = [
+            [],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ],
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'test',
+                    'path' => '',
+                    'configurable' => false,
+                    'allowDisable' => true,
+                ],
+            ],
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
+        $appRepository = $this->getAppRepositoryMock($appEntities);
+
+        $mcpAppSyncer = $this->createMock(McpAppSyncer::class);
+        $mcpAppSyncer->expects($this->once())->method('sync');
+
+        $this->registerSubscriber($sourceResolver, $appEntities[2]);
+
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            $sourceResolver,
+            mcpAppSyncer: $mcpAppSyncer,
+        );
+        $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
+    }
+
     public function testInstallThrowsWhenRequirementsNotMet(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
@@ -395,7 +488,8 @@ class AppLifecycleTest extends TestCase
         EntityRepository $languageRepository,
         StaticSourceResolver $appSourceResolver,
         ?DeletedAppsGateway $deletedAppsGateway = null,
-        ?AppRequirementsValidator $requirementsValidator = null
+        ?AppRequirementsValidator $requirementsValidator = null,
+        ?McpAppSyncer $mcpAppSyncer = null,
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
         $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
@@ -403,6 +497,10 @@ class AppLifecycleTest extends TestCase
         if (!$deletedAppsGateway) {
             $deletedAppsGateway = $this->createMock(DeletedAppsGateway::class);
         }
+
+        $customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
+        $customEntityLifecycleService->method('allowsDisabling')->willReturn(true);
+        $customEntityLifecycleService->method('canRemoveAppData')->willReturn(true);
 
         return new AppLifecycle(
             [],
@@ -419,14 +517,12 @@ class AppLifecycleTest extends TestCase
             $this->createMock(AssetService::class),
             $this->createMock(ScriptExecutor::class),
             __DIR__,
-            $this->createMock(Connection::class),
-            $this->createMock(CustomEntitySchemaUpdater::class),
-            $this->createMock(CustomEntityLifecycleService::class),
+            $customEntityLifecycleService,
             '6.5.0.0',
-            'test',
-            $this->createMock(EntityRepository::class),
+            $this->createMock(AppFeatureValidator::class),
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
+            $mcpAppSyncer ?? $this->createMock(McpAppSyncer::class),
             $deletedAppsGateway,
             $requirementsValidator ?? static::createStub(AppRequirementsValidator::class)
         );

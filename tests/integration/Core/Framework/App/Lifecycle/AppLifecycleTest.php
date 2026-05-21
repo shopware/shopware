@@ -25,7 +25,6 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
-use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -37,6 +36,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
+use Shopware\Core\Framework\App\Validation\Error\ConfigurationError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -314,8 +314,7 @@ class AppLifecycleTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
+        $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 
@@ -324,7 +323,7 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
-        $this->expectException(AppAlreadyInstalledException::class);
+        $this->expectExceptionObject(AppException::alreadyInstalled($manifest->getMetadata()->getName()));
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
     }
 

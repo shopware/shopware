@@ -99,7 +99,7 @@
                                         "salesChannelId": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
                                         "active": {"type": "boolean"},
                                         "ucpVersion": {"type": "string", "example": "2026-01-23"},
-                                        "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                        "profileUriStrategy": {"type": "string", "enum": ["domain", "config"]},
                                         "customProfileUri": {"type": ["string", "null"]},
                                         "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
                                         "enabledTransports": {"type": "array", "items": {"type": "string", "enum": ["rest", "mcp", "a2a", "embedded"]}},
@@ -157,7 +157,7 @@
                                 "properties": {
                                     "active": {"type": "boolean"},
                                     "ucpVersion": {"type": "string", "example": "2026-01-23"},
-                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "config"]},
                                     "customProfileUri": {"type": ["string", "null"]},
                                     "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
                                     "enabledTransports": {"type": "array", "items": {"type": "string", "enum": ["rest", "mcp", "a2a", "embedded"]}},
@@ -231,7 +231,7 @@
                                 "properties": {
                                     "active": {"type": "boolean"},
                                     "ucpVersion": {"type": "string"},
-                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "custom"]},
+                                    "profileUriStrategy": {"type": "string", "enum": ["domain", "config"]},
                                     "customProfileUri": {"type": ["string", "null"]},
                                     "enabledCapabilities": {"type": "array", "items": {"type": "string"}},
                                     "enabledTransports": {"type": "array", "items": {"type": "string"}},

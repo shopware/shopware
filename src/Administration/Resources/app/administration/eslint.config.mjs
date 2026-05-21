@@ -363,6 +363,12 @@ export default [
             'vue/no-use-v-if-with-v-for': 'off',
         },
     },
+    {
+        files: ['src/**/sw-settings-rule-tree-item/sw-settings-rule-tree-item.html.twig'],
+        rules: {
+            'vue/no-multi-spaces': 'off',
+        },
+    },
 
     // Test files
     {

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelRepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -116,6 +117,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
         foreach ($associations as $association) {
             $criteria->addAssociation($association);
+        }
+
+        if ($criteria->hasAssociation('categories')) {
+            $criteria->getAssociation('categories')
+                ->addFilter(new EqualsFilter('active', true));
         }
 
         $this->eventDispatcher->dispatch(
@@ -272,6 +278,14 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     {
         try {
             $decoded = json_decode($renderedBody, true, 512, \JSON_THROW_ON_ERROR);
+
+            // URLs from media filenames may contain unescaped spaces; encode them so
+            // the row passes downstream RFC 3986 validation (FILTER_VALIDATE_URL).
+            array_walk_recursive($decoded, static function (mixed &$value): void {
+                if (\is_string($value) && preg_match('#^https?://#i', $value)) {
+                    $value = str_replace(' ', '%20', $value);
+                }
+            });
 
             return (string) json_encode($decoded, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
         } catch (\JsonException $exception) {

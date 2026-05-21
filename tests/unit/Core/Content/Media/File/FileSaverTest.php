@@ -12,8 +12,10 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
+use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaLocationBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -23,6 +25,8 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Upload\MediaFileCleanupService;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -71,15 +75,14 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->filesystemPublic,
             $filesystemPrivate,
-            $thumbnailService,
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $metadataLoader,
             $typeDetector,
-            $this->messageBus,
             $eventDispatcher,
             $this->locationBuilder,
             $this->mediaPathStrategy,
-            ['png'],
-            ['png']
+            new MediaFileCleanupService($this->filesystemPublic, $filesystemPrivate, $thumbnailService, $this->messageBus, false),
+            new MediaFileExtensionValidator($eventDispatcher, ['png'], ['png']),
         );
     }
 
@@ -202,16 +205,15 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(SqlMediaLocationBuilder::class),
             $this->createMock(AbstractMediaPathStrategy::class),
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            true,
         );
 
         $media = new MediaEntity();
@@ -433,16 +435,15 @@ class FileSaverTest extends TestCase
             $this->mediaRepository,
             $this->createMock(FilesystemOperator::class),
             $this->createMock(FilesystemOperator::class),
-            $this->createMock(ThumbnailService::class),
+            new FileContentValidationStrategy([$this->createSvgContentValidator()]),
             $this->createMock(MetadataLoader::class),
             $this->createMock(TypeDetector::class),
-            $this->messageBus,
             $this->createMock(EventDispatcherInterface::class),
             $locationBuilder,
             $mediaPathStrategy,
-            ['png'],
-            ['png'],
-            true
+            $this->createMock(MediaFileCleanupService::class),
+            $this->createMock(MediaFileExtensionValidator::class),
+            true,
         );
 
         $mediaId = Uuid::randomHex();
@@ -493,5 +494,10 @@ class FileSaverTest extends TestCase
         static::assertCount(1, $update);
         static::assertSame($mediaId, $update[0]['id']);
         static::assertSame('foobar', $update[0]['fileName']);
+    }
+
+    private function createSvgContentValidator(): SvgContentValidator
+    {
+        return SvgValidatorTestDefaults::createValidator();
     }
 }

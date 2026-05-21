@@ -15,6 +15,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'salutation:read',
                 'sales_channel:read',
                 'sales_channel_domain:read',
+                'sales_channel_tracking_customer:read',
                 'payment_method:read',
                 'country:read',
                 'country_state:read',

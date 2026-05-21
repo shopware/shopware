@@ -50,7 +50,7 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = static::getContainer()->get('plugin.repository');

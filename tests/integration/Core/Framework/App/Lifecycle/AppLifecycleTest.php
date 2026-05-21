@@ -1022,7 +1022,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps);
     }
 
-    public function testDeleteWithCustomFields(): void
+    public function testDeleteRemovesInstalledAppAssets(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);

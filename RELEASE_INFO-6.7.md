@@ -144,6 +144,8 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 
 ## Administration
 
+### Analytics settings split into Configuration and Tracking cards
+
 The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
 
 New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.

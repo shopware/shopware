@@ -25,8 +25,11 @@ describe('module/sw-settings-ucp', () => {
         expect(module).toBeDefined();
         expect(module.manifest.name).toBe('settings-ucp');
         expect(module.manifest.type).toBe('core');
-        expect(module.manifest.routes.index.component).toBe('sw-settings-ucp-index');
-        expect(module.manifest.routes.detail.component).toBe('sw-settings-ucp-detail');
+
+        // Module.register() moves `route.component: 'foo'` to `route.components.default: 'foo'`
+        // and deletes the original `component` key — see createRouteComponentList in module.factory.ts.
+        expect(module.manifest.routes.index.components.default).toBe('sw-settings-ucp-index');
+        expect(module.manifest.routes.detail.components.default).toBe('sw-settings-ucp-detail');
     });
 
     it('gates both routes behind the ucp.viewer ACL privilege', () => {
@@ -39,9 +42,13 @@ describe('module/sw-settings-ucp', () => {
     it('hides the settings entry until the UCP_SERVER feature flag is active', () => {
         const module = Shopware.Module.getModuleRegistry().get('sw-settings-ucp');
 
-        expect(module.manifest.settingsItem.flag).toBe('UCP_SERVER');
-        expect(module.manifest.settingsItem.group).toBe('system');
-        expect(module.manifest.settingsItem.privilege).toBe('ucp.viewer');
+        // Module.register() wraps a single settingsItem object into an array — see
+        // addSettingsItemsToStore in module.factory.ts.
+        const [settingsItem] = module.manifest.settingsItem;
+
+        expect(settingsItem.flag).toBe('UCP_SERVER');
+        expect(settingsItem.group).toBe('system');
+        expect(settingsItem.privilege).toBe('ucp.viewer');
     });
 
     it('passes the detail route salesChannelId param through props', () => {

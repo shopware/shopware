@@ -441,8 +441,7 @@ export default {
 
         validateAgenticCommerceExportConfig() {
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
-            const activeProvider = this.productExport?.provider
-                ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
+            const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
             let isValid = true;
 
             const activeEntries = this.agenticCommerceExportConfig.filter((entry) => {

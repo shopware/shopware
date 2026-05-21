@@ -4,6 +4,18 @@
 
 describe('module/sw-settings-ucp', () => {
     beforeAll(async () => {
+        // `./acl` registers privileges via Shopware.Service('privileges'). The default
+        // test bootstrap does not provide that service, so the module bootstrap would
+        // otherwise crash before the module ever reaches the registry. Stub it for
+        // the test scope (the acl/index.spec.js already pins the privilege content).
+        const originalService = Shopware.Service;
+        Shopware.Service = jest.fn((key) => {
+            if (key === 'privileges') {
+                return { addPrivilegeMappingEntry: jest.fn() };
+            }
+            return originalService(key);
+        });
+
         await import('./');
     });
 

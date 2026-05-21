@@ -77,7 +77,7 @@ class UcpRoutesRegistrationTest extends TestCase
             return [];
         }
 
-        return array_values($matches[1]);
+        return $matches[1];
     }
 
     /**
@@ -96,6 +96,9 @@ class UcpRoutesRegistrationTest extends TestCase
 
         $controllers = [];
         foreach ($iterator as $fileInfo) {
+            if (!$fileInfo instanceof \SplFileInfo) {
+                continue;
+            }
             if (!$fileInfo->isFile()) {
                 continue;
             }

@@ -13,16 +13,6 @@
                 "operationId": "readCategoryList",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "name": "sw-include-search-info",
                         "in": "header",
                         "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
@@ -72,16 +62,6 @@
                 "operationId": "readCategoryListGet",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "x-parameter-group": "criteria",
                         "x-help": "This is a custom extension that will be replaced by the set of parameters defined in the components.x-parameter-groups.<groupName> (see components/parameters folder)."
                     }
@@ -115,16 +95,6 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -207,16 +177,6 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {

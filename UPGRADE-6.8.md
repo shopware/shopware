@@ -288,6 +288,13 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Fixed `ListField` overwrites during entity clone
+
+`VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.
+For entity fields declared as `ListField` (including `ListField` properties nested inside a `JsonField`), this produced incorrect results: an overwrite like `['value2']` against `['value1', 'value2', 'value3']` yielded `['value2', 'value2', 'value3']` instead of replacing the list.
+Overwrites are now applied with a field-aware merge that fully replaces `ListField` values and recurses through nested property mappings.
+Behaviour for all other field types is unchanged.
+
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
 Following helper methods have been removed from the `EntityDefinitionQueryHelper`:

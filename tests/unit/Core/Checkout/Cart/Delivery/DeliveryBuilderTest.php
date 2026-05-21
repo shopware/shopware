@@ -42,8 +42,7 @@ class DeliveryBuilderTest extends TestCase
                 ])
             );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Could not find shipping method with id "shipping-method-id"');
+        $this->expectExceptionObject(CartException::shippingMethodNotFound('shipping-method-id'));
         (new DeliveryBuilder())->build(
             new Cart('cart-token'),
             new CartDataCollection([]),

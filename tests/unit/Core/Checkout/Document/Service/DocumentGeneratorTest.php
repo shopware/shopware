@@ -314,8 +314,7 @@ class DocumentGeneratorTest extends TestCase
             new NativeClock()
         );
 
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('Unable to generate document. Some Error Message.');
+        $this->expectExceptionObject(DocumentException::generationError('Some Error Message.'));
 
         $generator->preview('invoice', $operation, 'deepLinkCode', $context);
     }

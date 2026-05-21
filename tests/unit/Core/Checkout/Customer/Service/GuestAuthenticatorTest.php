@@ -59,8 +59,7 @@ class GuestAuthenticatorTest extends TestCase
         $order->setOrderCustomer($orderCustomer);
         $request = new Request();
 
-        $this->expectException(CustomerException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
         (new GuestAuthenticator())->validate($order, $request);
     }
 

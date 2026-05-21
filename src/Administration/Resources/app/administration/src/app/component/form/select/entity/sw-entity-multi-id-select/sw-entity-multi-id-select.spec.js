@@ -180,4 +180,24 @@ describe('components/sw-entity-multi-id-select', () => {
 
         expect(search).not.toHaveBeenCalled();
     });
+
+    it('should display product variant information for product entities', async () => {
+        const wrapper = await createWrapper({
+            repository: {
+                route: '/product',
+                entityName: 'product',
+                search: () => {
+                    return Promise.resolve(getCollection());
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.vm.displayVariants).toBe(true);
+        expect(wrapper.vm.selectCriteria.associations).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ association: 'options' }),
+            ]),
+        );
+    });
 });

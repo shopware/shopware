@@ -90,6 +90,20 @@ export default {
         normalizedValue() {
             return this.value ?? [];
         },
+
+        displayVariants() {
+            return this.repository.entityName === 'product';
+        },
+
+        selectCriteria() {
+            const criteria = Criteria.fromCriteria(this.criteria);
+
+            if (this.displayVariants) {
+                criteria.addAssociation('options.group');
+            }
+
+            return criteria;
+        },
     },
 
     methods: {
@@ -106,7 +120,7 @@ export default {
                 return Promise.resolve(this.collection);
             }
 
-            const criteria = Criteria.fromCriteria(this.criteria);
+            const criteria = Criteria.fromCriteria(this.selectCriteria);
             criteria.setIds(this.normalizedValue);
             criteria.setTerm('');
             criteria.queries = [];
@@ -126,6 +140,14 @@ export default {
             this.collection = collection;
 
             this.$emit('update:value', collection.getIds());
+        },
+
+        displayLabelProperty(item, labelProperty, getKey) {
+            const labelProperties = Array.isArray(labelProperty) ? labelProperty : [labelProperty];
+
+            return labelProperties
+                .map((property) => getKey(item, property) || getKey(item, `translated.${property}`))
+                .join(' ');
         },
     },
 };

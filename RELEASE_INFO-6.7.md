@@ -66,6 +66,31 @@ Also the checkbox field is now positionally aligned with the other components.
 
 ## Critical Fixes
 
+### Transient Elasticsearch outages no longer break order placement
+
+`ElasticsearchHelper::allowIndexing()` now catches transport-level exceptions thrown from `Client::ping()` (e.g. DNS failures, connection refused, timeouts) and routes them through `logAndThrowException()`.
+
+Previously, a transient Elasticsearch / OpenSearch outage during checkout caused a `ConnectException` to bubble out of `ProductUpdater::update()` (triggered by `ProductStockAlteredEvent` after stock decrement), aborting the request after the order had already been written to the database. With `SHOPWARE_ES_THROW_EXCEPTION=0`, the indexing call is now logged at `critical` and skipped for that request; order placement completes normally. With `SHOPWARE_ES_THROW_EXCEPTION=1` (the default) behavior is unchanged — the exception is still re-thrown.
+
+# 6.7.10.1
+
+## Critical Fixes
+
+### SVG uploads validate against a strict passive allowlist
+
+SVG uploads in the media subsystem are now validated against a strict passive SVG allowlist before persistence.
+Active content such as scripts, event handlers, processing instructions, external references, and URL-based references in attributes are rejected.
+
+The default allowlist covers the W3C SVG2 presentation attribute set (https://www.w3.org/TR/SVG2/attindex.html#PresentationAttributes), ARIA accessibility attributes, the `lang` and `xml:lang` accessibility attributes, and the common safe structural elements `a`, `image`, `marker`, `metadata`, `switch`, `symbol`, and `view`. Anchor `href` / `xlink:href` references remain restricted to local document fragments (`#id`), so `javascript:`, `data:`, and remote URLs are rejected. Active content (scripts, event handlers, animations, foreign objects, processing instructions, DOCTYPEs, entities) and any external `url(...)` / `@import` references remain blocked regardless of the attribute that carries them.
+
+The accepted SVG subset can be adjusted on installation level via `shopware.media.svg.allowed_elements`, `shopware.media.svg.allowed_attributes`, and `shopware.media.svg.allowed_reference_attributes` in `shopware.yaml`.
+
+### `external-link` endpoint URL validation aligned with `upload-from-url`
+
+The URL validation for the `external-link` endpoint is now in line with the existing validation in the `upload-from-url` flow.
+The static `MediaUploadService::validateExternalUrl()` is deprecated in favour of the new `assertValidExternalUrl()` method on the service.
+See `UPGRADE-6.8.md` for migration details.
+
 # 6.7.10.0
 
 ## Features

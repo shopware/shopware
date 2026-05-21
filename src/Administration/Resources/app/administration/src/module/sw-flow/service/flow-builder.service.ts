@@ -47,7 +47,7 @@ type ActionData = {
 
 type ActionTranslator = {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    $tc: I18n<{}, {}, {}, string, true>['global']['t'];
+    $t: I18n<{}, {}, {}, string, true>['global']['t'];
     currentLocale: string;
     getInlineSnippet(value: { [key: string]: string }): string;
 };
@@ -301,7 +301,7 @@ export default class FlowBuilderService {
                     return;
                 }
 
-                const snippet = translator.$tc(this.$labelSnippet[key]);
+                const snippet = translator.$t(this.$labelSnippet[key]);
 
                 if (!snippet) {
                     return;
@@ -479,7 +479,7 @@ export default class FlowBuilderService {
     }
 
     public getStopFlowActionDescription(context: ActionContext) {
-        return context.translator.$tc('sw-flow.actions.textStopFlowDescription');
+        return context.translator.$t('sw-flow.actions.textStopFlowDescription');
     }
 
     public getCustomerStatusDescription(context: ActionContext) {
@@ -489,8 +489,8 @@ export default class FlowBuilderService {
         } = context;
 
         return config.active
-            ? translator.$tc('sw-flow.modals.customerStatus.active')
-            : translator.$tc('sw-flow.modals.customerStatus.inactive');
+            ? translator.$t('sw-flow.modals.customerStatus.active')
+            : translator.$t('sw-flow.modals.customerStatus.inactive');
     }
 
     public getAffiliateAndCampaignCodeDescription(context: ActionContext) {
@@ -499,7 +499,7 @@ export default class FlowBuilderService {
             sequence: { config },
         } = context;
 
-        let description = translator.$tc(
+        let description = translator.$t(
             'sw-flow.actions.labelTo',
             {
                 entity: capitalizeString(config?.entity),
@@ -508,7 +508,7 @@ export default class FlowBuilderService {
         );
 
         if (config?.affiliateCode?.upsert || config?.affiliateCode?.value != null) {
-            description = `${description}<br>${translator.$tc(
+            description = `${description}<br>${translator.$t(
                 'sw-flow.actions.labelAffiliateCode',
                 {
                     affiliateCode: config.affiliateCode.value || '',
@@ -518,7 +518,7 @@ export default class FlowBuilderService {
         }
 
         if (config.campaignCode?.upsert || config?.campaignCode?.value != null) {
-            description = `${description}<br>${translator.$tc(
+            description = `${description}<br>${translator.$t(
                 'sw-flow.actions.labelCampaignCode',
                 {
                     campaignCode: config?.campaignCode?.value || '',
@@ -568,19 +568,19 @@ export default class FlowBuilderService {
             return '';
         }
 
-        return `${translator.$tc(
+        return `${translator.$t(
             'sw-flow.actions.labelCustomFieldSet',
             {
                 customFieldSet: translator.getInlineSnippet(customField.config.label) || customFieldSet.name,
             },
             0,
-        )}<br>${translator.$tc(
+        )}<br>${translator.$t(
             'sw-flow.actions.labelCustomField',
             {
                 customField: translator.getInlineSnippet(customField.config.label) || customField.name,
             },
             0,
-        )}<br>${translator.$tc(
+        )}<br>${translator.$t(
             'sw-flow.actions.labelCustomFieldOption',
             {
                 customFieldOption: config.optionLabel,
@@ -602,7 +602,7 @@ export default class FlowBuilderService {
                 (item) => item.technicalName === config.order && item.stateMachine?.technicalName === 'order.state',
             );
             const orderStatusName = orderStatus?.translated?.name || '';
-            description.push(`${translator.$tc('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
+            description.push(`${translator.$t('sw-flow.modals.status.labelOrderStatus')}: ${orderStatusName}`);
         }
 
         if (config.order_delivery) {
@@ -613,7 +613,7 @@ export default class FlowBuilderService {
             );
             const deliveryStatusName = deliveryStatus?.translated?.name || '';
             description.push(`
-                ${translator.$tc('sw-flow.modals.status.labelDeliveryStatus')}: ${deliveryStatusName}
+                ${translator.$t('sw-flow.modals.status.labelDeliveryStatus')}: ${deliveryStatusName}
             `);
         }
 
@@ -624,14 +624,14 @@ export default class FlowBuilderService {
                     item.stateMachine?.technicalName === 'order_transaction.state',
             );
             const paymentStatusName = paymentStatus?.translated?.name || '';
-            description.push(`${translator.$tc('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
+            description.push(`${translator.$t('sw-flow.modals.status.labelPaymentStatus')}: ${paymentStatusName}`);
         }
 
         const forceTransition = config.force_transition
-            ? translator.$tc('global.default.yes')
-            : translator.$tc('global.default.no');
+            ? translator.$t('global.default.yes')
+            : translator.$t('global.default.no');
 
-        description.push(`${translator.$tc('sw-flow.modals.status.forceTransition')}: ${forceTransition}`);
+        description.push(`${translator.$t('sw-flow.modals.status.forceTransition')}: ${forceTransition}`);
 
         return description.join('<br>');
     }
@@ -672,7 +672,7 @@ export default class FlowBuilderService {
 
         const mailTemplateData = data.mailTemplates.find((item) => item.id === config.mailTemplateId);
 
-        let mailSendDescription = translator.$tc(
+        let mailSendDescription = translator.$t(
             'sw-flow.actions.labelTemplate',
             {
                 template: mailTemplateData?.mailTemplateType?.name,
@@ -686,7 +686,7 @@ export default class FlowBuilderService {
             // Truncate description string
             mailDescription = mailDescription.length > 60 ? `${mailDescription.substring(0, 60)}...` : mailDescription;
 
-            mailSendDescription = `${mailSendDescription}<br>${translator.$tc(
+            mailSendDescription = `${mailSendDescription}<br>${translator.$t(
                 'sw-flow.actions.labelDescription',
                 {
                     description: mailDescription,
@@ -705,8 +705,8 @@ export default class FlowBuilderService {
         } = context;
 
         return config.value
-            ? translator.$tc('sw-flow.actions.downloadAccessLabel.granted')
-            : translator.$tc('sw-flow.actions.downloadAccessLabel.revoked');
+            ? translator.$t('sw-flow.actions.downloadAccessLabel.granted')
+            : translator.$t('sw-flow.actions.downloadAccessLabel.revoked');
     }
 
     public getAvailableEntities(

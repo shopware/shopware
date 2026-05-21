@@ -28,9 +28,13 @@
     </template>
     {% endblock %}
 
+    {% block sw_settings_listing_option_base_content %}
+    {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content` instead. #}
     {% block sw_settings_listing_option_base_smart_content %}
     <template #content>
 
+        {% block sw_settings_listing_option_base_content_general_info %}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content_general_info` instead. #}
         {% block sw_settings_listing_option_base_smart_content_general_info %}
         <sw-settings-listing-option-general-info
             v-if="productSortingEntity"
@@ -40,7 +44,10 @@
             :technical-name-error="sortingOptionTechnicalNameError"
         />
         {% endblock %}
+        {% endblock %}
 
+        {% block sw_settings_listing_option_base_content_criteria_grid %}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content_criteria_grid` instead. #}
         {% block sw_settings_listing_option_base_smart_bar_actions_grid %}
         <sw-settings-listing-option-criteria-grid
             v-if="productSortingEntity"
@@ -51,17 +58,22 @@
             @inline-edit-cancel="onCancelEditCriteria"
         />
         {% endblock %}
+        {% endblock %}
 
+        {% block sw_settings_listing_option_base_content_delete_modal %}
+        {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_settings_listing_option_base_content_delete_modal` instead. #}
         {% block sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal %}
         <sw-settings-listing-delete-modal
             v-if="toBeDeletedCriteria"
-            :title="$tc('sw-settings-listing.base.delete.modalTitle')"
-            :description="$tc('sw-settings-listing.base.delete.modalDescription')"
+            :title="$t('sw-settings-listing.base.delete.modalTitle')"
+            :description="$t('sw-settings-listing.base.delete.modalDescription')"
             @cancel="toBeDeletedCriteria = null"
             @delete="onConfirmDeleteCriteria"
         />
         {% endblock %}
+        {% endblock %}
     </template>
+    {% endblock %}
     {% endblock %}
 </sw-page>
 {% endblock %}

@@ -88,27 +88,27 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturer'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturer'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -124,11 +124,11 @@ export default {
 
         emptyStateMessage() {
             if (!this.filters) {
-                return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoStream');
+                return this.$t('global.entity-components.productStreamPreview.emptyMessageNoStream');
             }
 
             if (this.searchTerm.length) {
-                return this.$tc(
+                return this.$t(
                     'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
@@ -137,7 +137,7 @@ export default {
                 );
             }
 
-            return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
+            return this.$t('global.entity-components.productStreamPreview.emptyMessageNoProducts');
         },
 
         assetFilter() {

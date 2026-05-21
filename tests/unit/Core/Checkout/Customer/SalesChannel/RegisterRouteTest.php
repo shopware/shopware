@@ -1011,6 +1011,66 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    public function testRegisterPreservesShippingAddressSalutation(): void
+    {
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(false);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+
+        $result = $this->createMock(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new CustomerCollection([$customerEntity]));
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
+        $customerRepository->method('search')->willReturn($result);
+        $customerRepository
+            ->expects($this->once())
+            ->method('create')
+            ->willReturnCallback(static function (array $create) {
+                static::assertCount(1, $create);
+                static::assertCount(2, $create[0]['addresses']);
+                $billingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'John'
+                ))[0];
+                $shippingAddress = array_values(array_filter(
+                    $create[0]['addresses'],
+                    static fn (array $address): bool => $address['firstName'] === 'Jane'
+                ))[0];
+
+                static::assertSame('billing-salutation', $billingAddress['salutationId']);
+                static::assertSame('shipping-salutation', $shippingAddress['salutationId']);
+
+                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
+            });
+
+        $dataValidator = $this->createMock(DataValidator::class);
+        $dataValidator
+            ->expects($this->once())
+            ->method('getViolations')
+            ->willReturn(new ConstraintViolationList());
+
+        $registerRoute = $this->createRegisterRoute(
+            dataValidator: $dataValidator,
+            customerRepository: $customerRepository
+        );
+
+        $registerRoute->register(
+            new RequestDataBag($this->createRegistrationData([
+                'salutationId' => 'billing-salutation',
+                'shippingAddress' => [
+                    'firstName' => 'Jane',
+                    'lastName' => 'Doe',
+                    'countryId' => Uuid::randomHex(),
+                    'salutationId' => 'shipping-salutation',
+                ],
+            ])),
+            Generator::generateSalesChannelContext(),
+            false
+        );
+    }
+
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */

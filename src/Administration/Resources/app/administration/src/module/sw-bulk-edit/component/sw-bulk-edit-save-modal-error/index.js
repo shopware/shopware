@@ -23,14 +23,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.error.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.error.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'close',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.sw-modal.labelClose'),
                     position: 'right',
                     variant: 'primary',
                     action: '',

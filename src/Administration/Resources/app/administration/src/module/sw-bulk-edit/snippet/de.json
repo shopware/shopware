@@ -83,7 +83,9 @@
       },
       "property": {
         "cardTitle": "Eigenschaften",
-        "changeLabel": "Ändern: Eigenschaften"
+        "changeLabel": "Ändern: Eigenschaften",
+        "titleEmptyState": "Es wurden noch keine Eigenschaftsänderungen ausgewählt.",
+        "descriptionEmptyState": "Die Mehrfachänderung zeigt hier nur Eigenschaften an, die geändert werden. Bereits zugewiesene Produkteigenschaften werden hier nicht angezeigt."
       },
       "deliverability": {
         "cardTitle": "Lieferbarkeit",
@@ -327,8 +329,7 @@
           "label": "Erstellen: Rechnung",
           "helpText": "Diese Aktion erhöht den Wert des zugehörigen Nummernkreises.",
           "labelDatePicker": "Datum",
-          "labelTextarea": "Kommentar",
-          "placeholderTextarea": ""
+          "labelTextarea": "Kommentar"
         },
         "generateCancellationInvoice": {
           "label": "Erstellen: Stornorechnung",

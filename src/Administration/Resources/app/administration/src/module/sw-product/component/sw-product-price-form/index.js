@@ -78,13 +78,13 @@ export default {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc(
+            return this.$t(
                 'sw-product.priceForm.taxRateHelpText.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
-                           ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
+                           ${this.$t('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`,
                 },
                 0,
@@ -180,7 +180,7 @@ export default {
 
         getTaxLabel(tax) {
             if (this.$te(`global.tax-rates.${tax.name}`)) {
-                return this.$tc(`global.tax-rates.${tax.name}`);
+                return this.$t(`global.tax-rates.${tax.name}`);
             }
 
             return tax.name;

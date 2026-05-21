@@ -58,7 +58,7 @@ test('As an admin user, I want to create a rule', { tag: '@Rule' }, async ({
         await ShopAdmin.expects(AdminRuleDetail.conditionLineItemGoodsTotalValue).toHaveValue(testConfig.quantity.toString());
         await AdminRuleDetail.conditionLineItemGoodsTotalFilter.click();
         await ShopAdmin.expects(AdminRuleDetail.conditionFilterModal).toBeVisible();
-        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Item available')).toBeVisible();
+        await ShopAdmin.expects(AdminRuleDetail.conditionSelectField.getByText('Item in stock')).toBeVisible();
         await ShopAdmin.expects(AdminRuleDetail.conditionCartLineItemInStockOperator).toHaveText('Is greater than / equal to');
         await ShopAdmin.expects(AdminRuleDetail.conditionCartLineItemInStockValue).toHaveValue(testConfig.stock.toString());
         await AdminRuleDetail.conditionFilterModalCloseButtonX.click();

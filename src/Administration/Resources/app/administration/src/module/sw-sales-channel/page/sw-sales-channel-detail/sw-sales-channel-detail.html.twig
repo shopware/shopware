@@ -3,7 +3,7 @@
     {% block sw_sales_channel_detail_header %}
     <template #smart-bar-header>
         {% block sw_sales_channel_detail_header_headline %}
-        <h2>{{ placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline')) }}</h2>
+        <h2>{{ placeholder(salesChannel, 'name', $t('sw-sales-channel.detail.textHeadline')) }}</h2>
         {% endblock %}
     </template>
     {% endblock %}
@@ -18,10 +18,13 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSaving || isLoading || productComparison.invalidFileName"
             variant="primary"
+            data-analytics-id="sw_sales_channel.detail.sales_channel_save"
+            :data-analytics-sales-channel-type-id="salesChannel?.typeId ?? ''"
+            :data-analytics-sales-channel-is-new="salesChannel?.isNew?.() ?? false"
             @update:process-success="saveFinish"
             @click.prevent="onSave"
         >
-            {{ $tc('sw-sales-channel.detail.buttonSave') }}
+            {{ $t('sw-sales-channel.detail.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -43,7 +46,7 @@
 
             {% block sw_sales_channel_detail_content_language_info %}
             <sw-language-info
-                :entity-description="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.textHeadline'))"
+                :entity-description="placeholder(salesChannel, 'name', $t('sw-sales-channel.detail.textHeadline'))"
             />
             {% endblock %}
 
@@ -55,9 +58,19 @@
                 {%  block sw_sales_channel_detail_content_tab_general %}
                 <sw-tabs-item
                     :route="{ name: 'sw.sales.channel.detail.base', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabBase')"
+                    :title="$t('sw-sales-channel.detail.tabBase')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabBase') }}
+                    {{ $t('sw-sales-channel.detail.tabBase') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_content_tab_product_export_insights %}
+                <sw-tabs-item
+                    v-if="isAgenticCommerce && !isLoading"
+                    :route="{ name: 'sw.sales.channel.detail.productExportInsights', params: { id: $route.params.id } }"
+                    :title="$t('sw-sales-channel.detail.productExport.tabInsights')"
+                >
+                    {{ $t('sw-sales-channel.detail.productExport.tabInsights') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -65,31 +78,44 @@
                 <sw-tabs-item
                     v-if="isHeadless || isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.products', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabProducts')"
+                    :title="$t('sw-sales-channel.detail.tabProducts')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabProducts') }}
+                    {{ $t('sw-sales-channel.detail.tabProducts') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_content_tab_theme %}{% endblock %}
 
+                {% block sw_sales_channel_detail_content_tab_agentic_commerce_integration %}
+                <sw-tabs-item
+                    v-if="isAgenticCommerce && !isLoading"
+                    :route="{ name: 'sw.sales.channel.detail.agenticCommerceIntegration', params: { id: $route.params.id } }"
+                    :title="$t('sw-sales-channel.detail.agenticCommerce.tabIntegration')"
+                >
+                    {{ $t('sw-sales-channel.detail.agenticCommerce.tabIntegration') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_sales_channel_detail_content_tab_export_template %}
+                {# @deprecated tag:v6.8.0 - Block will be removed. Use `sw_sales_channel_detail_content_tab_export_template` instead. #}
                 {%  block sw_sales_channel_detail_content_tab_product_comparison %}
                 <sw-tabs-item
-                    v-if="isProductComparison && !isLoading"
+                    v-if="isProductExportChannel && !isLoading"
                     :route="{ name: 'sw.sales.channel.detail.productComparison', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabProductComparison')"
+                    :title="$t('sw-sales-channel.detail.tabProductComparison')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabProductComparison') }}
+                    {{ $t('sw-sales-channel.detail.tabProductComparison') }}
                 </sw-tabs-item>
+                {% endblock %}
                 {% endblock %}
 
                 {%  block sw_sales_channel_detail_content_tab_analytics %}
                 <sw-tabs-item
                     v-if="isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.analytics', params: { id: $route.params.id } }"
-                    :title="$tc('sw-sales-channel.detail.tabAnalytics')"
+                    :title="$t('sw-sales-channel.detail.tabAnalytics')"
                 >
-                    {{ $tc('sw-sales-channel.detail.tabAnalytics') }}
+                    {{ $t('sw-sales-channel.detail.tabAnalytics') }}
                 </sw-tabs-item>
                 {% endblock %}
             </sw-tabs>
@@ -110,6 +136,7 @@
                         :is="Component"
                         :sales-channel="salesChannel"
                         :product-export="productExport"
+                        :agentic-commerce-export-config="agenticCommerceExportConfig"
                         :storefront-sales-channel-criteria="storefrontSalesChannelCriteria"
                         :custom-field-sets="customFieldSets"
                         :is-loading="isLoading"

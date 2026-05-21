@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
-$sw-order-address-modal-highlight: #edf8ff;
-$sw-order-address-modal-link: $color-shopware-brand-500;
+$sw-order-address-modal-highlight: var(--color-background-brand-default);
+$sw-order-address-modal-link: var(--color-text-brand-default);
 
 .sw-order-create-address-modal {
     &__card {
@@ -19,13 +19,13 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
 
             .sw-address {
                 &__body {
-                    color: $color-shopware-brand-500;
+                    color: var(--color-text-brand-default);
                 }
             }
         }
 
         &.is--selected {
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: $border-radius-default;
         }
 
@@ -37,7 +37,7 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
     }
 
     &__card-label {
-        color: $color-darkgray-300;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
         font-size: $font-size-s;
     }
@@ -51,7 +51,7 @@ $sw-order-address-modal-link: $color-shopware-brand-500;
         position: relative;
         margin: 0;
         line-height: $font-size-m;
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
         cursor: pointer;
 
         &:hover {

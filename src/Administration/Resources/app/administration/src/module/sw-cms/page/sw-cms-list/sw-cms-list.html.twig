@@ -12,7 +12,7 @@
 
     {% block sw_cms_list_toolbar %}
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-cms.general.moduleTitle') }}</h2>
+        <h2>{{ $t('sw-cms.general.moduleTitle') }}</h2>
     </template>
 
     <template #language-switch>
@@ -22,7 +22,7 @@
     <template #smart-bar-actions>
         <mt-button
             v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
+                message: $t('sw-privileges.tooltip.warning'),
                 disabled: acl.can('cms.creator'),
                 showOnDisabledElements: true
             }"
@@ -31,7 +31,7 @@
             size="default"
             @click="onCreateNewLayout"
         >
-            {{ $tc('sw-cms.general.createNewLayout') }}
+            {{ $t('sw-cms.general.createNewLayout') }}
         </mt-button>
     </template>
     {% endblock %}
@@ -71,7 +71,7 @@
                     {% block sw_cms_list_listing_actions %}
                     <div class="sw-cms-list__actions">
                         {% block sw_cms_list_listing_title %}
-                        <h3>{{ $tc('sw-cms.general.greeting') }}</h3>
+                        <h3>{{ $t('sw-cms.general.greeting') }}</h3>
                         {% endblock %}
 
                         {% block sw_cms_list_listing_actions_sorting %}
@@ -115,7 +115,7 @@
                     <mt-empty-state
                         v-if="isValidTerm(term) && !isLoading && !total"
                         :icon="$route.meta.$module.icon"
-                        :headline="$tc('sw-empty-state.messageNoResultTitle')"
+                        :headline="$t('sw-empty-state.messageNoResultTitle')"
                         :style="{ minHeight: '200px' }"
                         :link-text="$t('sw-empty-state.messageNoResultLink')"
                         :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
@@ -148,13 +148,25 @@
                                     >
                                         <template #contextMenu>
                                             <sw-context-button class="sw-cms-list-item__options">
+                                                <template #button>
+                                                    <mt-button
+                                                        variant="secondary"
+                                                        size="x-small"
+                                                    >
+                                                        <mt-icon
+                                                            name="regular-ellipsis-h"
+                                                            size="16"
+                                                        />
+                                                    </mt-button>
+                                                </template>
+
                                                 {% block sw_cms_list_listing_list_item_option_add_preview %}
                                                 <sw-context-menu-item
                                                     class="sw-cms-list-item__option-preview"
                                                     :disabled="!acl.can('cms.editor') || undefined"
                                                     @click="onPreviewChange(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
+                                                    {{ $t('sw-cms.components.cmsListItem.addPreviewImage') }}
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
@@ -165,10 +177,10 @@
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
                                                     <template v-if="cmsPage.type == 'product_detail'">
-                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                        {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                                     </template>
                                                     <template v-else>
-                                                        {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                        {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                                     </template>
                                                 </sw-context-menu-item>
 
@@ -178,7 +190,7 @@
                                                     class="sw-cms-list-item__option-duplicate"
                                                     @click="onDuplicateCmsPage(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                                    {{ $t('sw-cms.components.cmsListItem.duplicate') }}
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
@@ -190,7 +202,7 @@
                                                     :disabled="!acl.can('cms.editor') || undefined"
                                                     @click="onPreviewImageRemove(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
+                                                    {{ $t('sw-cms.components.cmsListItem.removePreviewImage') }}
                                                 </sw-context-menu-item>
                                                 {% endblock %}
 
@@ -203,7 +215,7 @@
                                                     :disabled="optionContextDeleteDisabled(cmsPage) || undefined"
                                                     @click="onDeleteCmsPage(cmsPage)"
                                                 >
-                                                    {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                                    {{ $t('sw-cms.components.cmsListItem.delete') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}
 
@@ -323,10 +335,10 @@
                                             :disabled="!acl.can('cms.editor') || undefined"
                                         >
                                             <template v-if="item.locked">
-                                                {{ $tc('sw-cms.components.cmsListItem.view') }}
+                                                {{ $t('sw-cms.components.cmsListItem.view') }}
                                             </template>
                                             <template v-else>
-                                                {{ $tc('sw-cms.components.cmsListItem.edit') }}
+                                                {{ $t('sw-cms.components.cmsListItem.edit') }}
                                             </template>
                                         </sw-context-menu-item>
                                         {% endblock %}
@@ -338,10 +350,10 @@
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
                                             <template v-if="item.type == 'product_detail'">
-                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
+                                                {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                             </template>
                                             <template v-else>
-                                                {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
+                                                {{ $t('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
                                             </template>
                                         </sw-context-menu-item>
 
@@ -351,7 +363,7 @@
                                             class="sw-cms-list__context-menu-item-duplicate"
                                             @click="onDuplicateCmsPage(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
+                                            {{ $t('sw-cms.components.cmsListItem.duplicate') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
@@ -362,7 +374,7 @@
                                             class="sw-cms-list__context-menu-item-rename"
                                             @click="onRenameCmsPage(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.rename') }}
+                                            {{ $t('sw-cms.components.cmsListItem.rename') }}
                                         </sw-context-menu-item>
                                         {% endblock %}
 
@@ -375,7 +387,7 @@
                                             :disabled="optionContextDeleteDisabled(item) || undefined"
                                             @click="onDeleteCmsPage(item)"
                                         >
-                                            {{ $tc('sw-cms.components.cmsListItem.delete') }}
+                                            {{ $t('sw-cms.components.cmsListItem.delete') }}
 
                                         </sw-context-menu-item>
                                         {% endblock %}
@@ -409,7 +421,7 @@
             {% block sw_cms_list_media_modal %}
             <sw-media-modal-v2
                 v-if="showMediaModal"
-                :caption="$tc('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
+                :caption="$t('sw-cms.components.cmsListItem.modal.captionMediaUpload')"
                 :entity-context="'cms_page'"
                 :allow-multi-select="false"
                 @media-modal-selection-change="onPreviewImageChange"
@@ -420,8 +432,8 @@
             <sw-confirm-modal
                 v-if="showLayoutSetAsDefaultModal"
                 class="sw-cms-list__confirm-set-as-default-modal"
-                :title="$tc('sw-cms.components.setDefaultLayoutModal.title')"
-                :text="$tc('sw-cms.components.setDefaultLayoutModal.infoText', {}, newDefaultLayout.type === 'product_detail')"
+                :title="$t('sw-cms.components.setDefaultLayoutModal.title')"
+                :text="$t('sw-cms.components.setDefaultLayoutModal.infoText', {}, newDefaultLayout.type === 'product_detail')"
                 @confirm="onConfirmLayoutSetAsDefault"
                 @cancel="onCloseLayoutSetAsDefault"
                 @close="onCloseLayoutSetAsDefault"
@@ -430,14 +442,14 @@
             {% block sw_cms_list_rename_modal %}
             <sw-modal
                 v-if="showRenameModal"
-                :title="$tc('sw-cms.components.cmsListItem.modal.renameModalTitle')"
+                :title="$t('sw-cms.components.cmsListItem.modal.renameModalTitle')"
                 variant="small"
                 @modal-close="onCloseRenameModal"
             >
 
                 {% block sw_cms_list_rename_modal_confirm_rename_input %}
                 <div class="sw_tree__confirm-rename-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
+                    {{ $t('sw-cms.components.cmsListItem.modal.textRenameConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
 
                 <mt-text-field
@@ -455,7 +467,7 @@
                         variant="secondary"
                         @click="onCloseRenameModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -465,7 +477,7 @@
                         variant="primary"
                         @click="onConfirmPageRename"
                     >
-                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonRename') }}
+                        {{ $t('sw-cms.components.cmsListItem.modal.buttonRename') }}
                     </mt-button>
                     {% endblock %}
                 </template>
@@ -476,14 +488,14 @@
             {% block sw_cms_list_delete_modal %}
             <sw-modal
                 v-if="showDeleteModal"
-                :title="$tc('global.default.warning')"
+                :title="$t('global.default.warning')"
                 variant="small"
                 @modal-close="onCloseDeleteModal"
             >
 
                 {% block sw_cms_list_delete_modal_confirm_delete_text %}
                 <div class="sw_tree__confirm-delete-text">
-                    {{ $tc('sw-cms.components.cmsListItem.modal.textDeleteConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
+                    {{ $t('sw-cms.components.cmsListItem.modal.textDeleteConfirm', { pageName: currentPage.translated.name || currentPage.name }, 0) }}
                 </div>
                 {% endblock %}
 
@@ -495,7 +507,7 @@
                         variant="secondary"
                         @click="onCloseDeleteModal"
                     >
-                        {{ $tc('global.default.cancel') }}
+                        {{ $t('global.default.cancel') }}
                     </mt-button>
                     {% endblock %}
 
@@ -505,7 +517,7 @@
                         size="small"
                         @click="onConfirmPageDelete"
                     >
-                        {{ $tc('sw-cms.components.cmsListItem.modal.buttonDelete') }}
+                        {{ $t('sw-cms.components.cmsListItem.modal.buttonDelete') }}
                     </mt-button>
                     {% endblock %}
                 </template>

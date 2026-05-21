@@ -32,12 +32,12 @@
     &__placeholder {
         height: 8px;
         border-radius: $border-radius-default;
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
     }
 
     &__action {
-        background: $color-gray-300;
-        color: $color-darkgray-200;
+        background: var(--color-background-tertiary-default);
+        color: var(--color-text-primary-default);
         border-radius: $border-radius-default;
         text-align: center;
         font-size: $font-size-xxs;

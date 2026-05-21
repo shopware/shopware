@@ -26,6 +26,10 @@ export default function initializeSidebar(): void {
         Shopware.Store.get('sidebar').closeSidebar(locationId);
     });
 
+    Shopware.ExtensionAPI.handle('uiSidebarSetActive', ({ locationId }: { locationId: string }) => {
+        Shopware.Store.get('sidebar').setActiveSidebar(locationId);
+    });
+
     Shopware.ExtensionAPI.handle('uiSidebarRemove', ({ locationId }) => {
         Shopware.Store.get('sidebar').removeSidebar(locationId);
     });

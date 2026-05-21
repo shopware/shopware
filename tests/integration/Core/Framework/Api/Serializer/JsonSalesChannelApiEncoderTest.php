@@ -35,18 +35,16 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
-            [null],
-            ['string'],
-            [1],
-            [false],
-            [new \DateTime()],
-            [1.1],
-        ];
+        yield 'empty input null' => [null];
+        yield 'empty input string' => ['string'];
+        yield 'empty input 1' => [1];
+        yield 'empty input false' => [false];
+        yield 'empty input date time' => [new \DateTime()];
+        yield 'empty input 1 point 1' => [1.1];
     }
 
     /**
@@ -68,15 +66,13 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     }
 
     /**
-     * @return list<array{class-string<EntityDefinition>, SerializationFixture}>
+     * @return iterable<string, array{class-string<EntityDefinition>, SerializationFixture}>
      */
-    public static function complexStructsProvider(): array
+    public static function complexStructsProvider(): iterable
     {
-        return [
-            [MediaDefinition::class, new TestBasicStruct()],
-            [MediaDefinition::class, new TestBasicWithToOneRelationship()],
-            [MediaDefinition::class, new TestCollectionWithToOneRelationship()],
-        ];
+        yield 'media resource with basic struct is encoded' => [MediaDefinition::class, new TestBasicStruct()];
+        yield 'media resource with to one relationship is encoded' => [MediaDefinition::class, new TestBasicWithToOneRelationship()];
+        yield 'media resource with collection to one relationship is encoded' => [MediaDefinition::class, new TestCollectionWithToOneRelationship()];
     }
 
     /**

@@ -62,8 +62,7 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage('The base snippet file for locale de-AT is not registered.');
+        $this->expectExceptionObject(SnippetException::snippetFileNotRegistered('de-AT'));
 
         $collection->getBaseFileByIso('de-AT');
     }

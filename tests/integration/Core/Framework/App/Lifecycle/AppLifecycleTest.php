@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
-use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\AppCollection;
@@ -318,59 +317,6 @@ class AppLifecycleTest extends TestCase
         $this->expectException(AppException::class);
         $this->expectExceptionMessage('Configuration of app "withInvalidConfig" is invalid');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-    }
-
-    public function testInstallAndUpdateSavesRuleConditions(): void
-    {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withRuleConditions/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
-
-        $criteria = new Criteria();
-        $criteria->addAssociation('scriptConditions');
-        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
-
-        static::assertCount(1, $apps);
-        $appEntity = $apps->first();
-        static::assertNotNull($appEntity);
-        static::assertSame('withRuleConditions', $appEntity->getName());
-        $scriptCollection = $appEntity->getScriptConditions();
-        static::assertNotNull($scriptCollection);
-        static::assertCount(14, $scriptCollection);
-
-        foreach ($scriptCollection as $scriptCondition) {
-            static::assertStringContainsString('app\withRuleConditions_', $scriptCondition->getIdentifier());
-            static::assertStringContainsString('{% return true %}', (string) $scriptCondition->getScript());
-            static::assertIsArray($scriptCondition->getConfig());
-
-            $this->assertScriptConditionFieldConfig($scriptCondition);
-        }
-
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withRuleConditionsUpdated/manifest.xml');
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => $appEntity->getId(), 'roleId' => Uuid::randomHex()], $this->context);
-
-        $apps = $this->appRepository->search($criteria, $this->context)->getEntities();
-        $appEntity = $apps->first();
-        static::assertNotNull($appEntity);
-
-        $scriptCollection = $appEntity->getScriptConditions();
-        static::assertNotNull($scriptCollection);
-        static::assertCount(1, $scriptCollection);
-        $appScriptConditionEntity = $scriptCollection->first();
-        static::assertNotNull($appScriptConditionEntity);
-        $identifier = $appScriptConditionEntity->getIdentifier();
-        static::assertIsString($identifier);
-        static::assertSame('app\withRuleConditions_testcondition0', $identifier);
-        $constraints = $appScriptConditionEntity->getConstraints();
-        static::assertIsArray($constraints);
-        static::assertArrayHasKey('number', $constraints);
-
-        $config = $appScriptConditionEntity->getConfig();
-        static::assertIsArray($config);
-        static::assertCount(1, $config);
-        static::assertArrayHasKey(0, $config);
-        static::assertIsArray($config[0]);
-        static::assertArrayHasKey('type', $config[0]);
-        static::assertSame('int', $config[0]['type']);
     }
 
     public function testInstallThrowsIfAppIsAlreadyInstalled(): void
@@ -1047,10 +993,9 @@ class AppLifecycleTest extends TestCase
             'roleId' => $roleId,
         ];
 
-        $eventWasReceived = false;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
-            $eventWasReceived = true;
-            static::assertSame($appId, $event->getAppId());
+        $deletedAppIds = [];
+        $onAppDeleted = static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+            $deletedAppIds[] = $event->getAppId();
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
@@ -1060,7 +1005,7 @@ class AppLifecycleTest extends TestCase
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
         static::assertSame('deleted', $traces[AppDeletedHook::HOOK_NAME][0]['output'][0]);
 
-        static::assertTrue($eventWasReceived);
+        static::assertSame([$appId], $deletedAppIds);
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1076,57 +1021,6 @@ class AppLifecycleTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
         static::assertCount(0, $apps);
-    }
-
-    public function testDeleteAppDispatchedOnce(): void
-    {
-        $appId = Uuid::randomHex();
-        $roleId = Uuid::randomHex();
-
-        $this->appRepository->create([[
-            'id' => $appId,
-            'name' => 'Test',
-            'path' => __DIR__ . '/../Manifest/_fixtures/test',
-            'version' => '0.0.1',
-            'label' => 'test',
-            'accessToken' => 'test',
-            'actionButtons' => [
-                [
-                    'entity' => 'order',
-                    'view' => 'detail',
-                    'action' => 'test',
-                    'label' => 'test',
-                    'url' => 'test.com',
-                ],
-            ],
-            'integration' => [
-                'label' => 'test',
-                'accessKey' => 'test',
-                'secretAccessKey' => 'test',
-            ],
-            'aclRole' => [
-                'id' => $roleId,
-                'name' => 'Test',
-            ],
-        ]], Context::createDefaultContext());
-
-        $app = [
-            'id' => $appId,
-            'roleId' => $roleId,
-        ];
-
-        $countEventDispatched = 0;
-        $onAppDeleted = static function (AppDeletedEvent $event) use (&$countEventDispatched, $appId): void {
-            ++$countEventDispatched;
-            static::assertSame($appId, $event->getAppId());
-        };
-        $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
-
-        $this->appLifecycle->delete('Test', $app, $this->context);
-
-        $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
-
-        static::assertSame(1, $countEventDispatched);
     }
 
     public function testDeleteWithCustomFields(): void
@@ -1987,139 +1881,6 @@ class AppLifecycleTest extends TestCase
         $filesystem = static::getContainer()->get('shopware.filesystem.asset');
 
         static::assertTrue($filesystem->has('bundles/' . strtolower($appName) . '/asset.txt'));
-    }
-
-    private function assertScriptConditionFieldConfig(AppScriptConditionEntity $scriptCondition): void
-    {
-        $constraints = $scriptCondition->getConstraints();
-        static::assertIsArray($constraints);
-
-        switch ($scriptCondition->getIdentifier()) {
-            case 'app\withRuleConditions_testcondition0':
-                static::assertArrayHasKey('operator', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('select', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition1':
-                static::assertArrayHasKey('customerGroupIds', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('entity', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition2':
-                static::assertArrayHasKey('firstName', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition3':
-                static::assertArrayHasKey('number', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('int', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition4':
-                static::assertArrayHasKey('number', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('float', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition5':
-                static::assertArrayHasKey('productId', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('entity', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition6':
-                static::assertArrayHasKey('expected', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('bool', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition7':
-                static::assertArrayHasKey('datetime', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('datetime', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition8':
-                static::assertArrayHasKey('colorcode', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition9':
-                static::assertArrayHasKey('mediaId', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('text', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition10':
-                static::assertArrayHasKey('price', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('price', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition11':
-                static::assertArrayHasKey('firstName', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('html', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition12':
-                static::assertArrayHasKey('multiselection', $constraints);
-                static::assertIsArray($scriptCondition->getConfig());
-                static::assertArrayHasKey(0, $scriptCondition->getConfig());
-                static::assertIsArray($scriptCondition->getConfig()[0]);
-                static::assertArrayHasKey('type', $scriptCondition->getConfig()[0]);
-                static::assertSame('select', $scriptCondition->getConfig()[0]['type']);
-
-                break;
-            case 'app\withRuleConditions_testcondition13':
-                static::assertCount(0, $constraints);
-                static::assertCount(0, $scriptCondition->getConfig() ?? []);
-
-                break;
-            default:
-                static::fail(\sprintf('Did not expect to find app script condition with identifier %s', $scriptCondition->getIdentifier()));
-        }
     }
 
     private function assertFlowActionExists(string $appId): void

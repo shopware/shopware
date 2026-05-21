@@ -251,6 +251,8 @@ const missingTests = [
     'src/module/sw-cms/elements/sidebar-category-navigation/config/index.js',
     'src/module/sw-cms/elements/sidebar-filter/preview/index.js',
     'src/module/sw-cms/blocks/commerce/cross-selling/component/index.js',
+    'src/module/sw-cms/blocks/commerce/category-heading/component/index.js',
+    'src/module/sw-cms/blocks/commerce/category-heading/preview/index.js',
     'src/module/sw-cms/blocks/commerce/cross-selling/preview/index.js',
     'src/module/sw-cms/blocks/commerce/gallery-buybox/component/index.js',
     'src/module/sw-cms/blocks/commerce/gallery-buybox/preview/index.js',

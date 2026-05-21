@@ -130,24 +130,43 @@ class UcpAdminConfigController
         $existing = $this->loadConfig($id, $context);
         $entityId = $existing?->getId() ?? Uuid::randomHex();
 
-        $writeData = array_filter([
+        // Use array_key_exists (rather than `??`) so a client can clear a
+        // nullable field by explicitly sending `"key": null` in the payload.
+        // `??` would treat that as "key not supplied" and silently fall back
+        // to the existing value, making the nullable columns unclearable
+        // through the API once they were set.
+        $pick = static fn (string $key, callable $fallback): mixed => \array_key_exists($key, $payload) ? $payload[$key] : $fallback();
+
+        $writeData = [
             'id' => $entityId,
             'salesChannelId' => $id,
-            'active' => (bool) ($payload['active'] ?? $existing?->isActive() ?? false),
-            'ucpVersion' => $payload['ucpVersion'] ?? $existing?->getUcpVersion() ?? UcpVersion::CURRENT,
-            'profileUriStrategy' => $payload['profileUriStrategy'] ?? $existing?->getProfileUriStrategy() ?? UcpSalesChannelConfigEntity::STRATEGY_DOMAIN,
-            'customProfileUri' => $payload['customProfileUri'] ?? $existing?->getCustomProfileUri(),
-            'enabledCapabilities' => $payload['enabledCapabilities'] ?? $existing?->getEnabledCapabilities() ?? $this->defaultCapabilities(),
-            'enabledTransports' => $payload['enabledTransports'] ?? $existing?->getEnabledTransports() ?? ['rest'],
-            'continueUrlTemplate' => $payload['continueUrlTemplate'] ?? $existing?->getContinueUrlTemplate(),
-            'platformAllowlist' => $payload['platformAllowlist'] ?? $existing?->getPlatformAllowlist(),
-            'discoveryBudget' => $payload['discoveryBudget'] ?? $existing?->getDiscoveryBudget(),
-            'webhookUrlOverride' => $payload['webhookUrlOverride'] ?? $existing?->getWebhookUrlOverride(),
-            'signaturePolicy' => $this->normaliseSignaturePolicy($payload['signaturePolicy'] ?? $existing?->getSignaturePolicy()),
-            'idempotencyRequired' => isset($payload['idempotencyRequired'])
-                ? (bool) $payload['idempotencyRequired']
-                : ($existing?->isIdempotencyRequired() ?? true),
-        ], static fn (mixed $v): bool => $v !== null);
+            'active' => (bool) $pick('active', static fn (): bool => $existing?->isActive() ?? false),
+            'ucpVersion' => $pick('ucpVersion', static fn (): string => $existing?->getUcpVersion() ?? UcpVersion::CURRENT),
+            'profileUriStrategy' => $pick(
+                'profileUriStrategy',
+                static fn (): string => $existing?->getProfileUriStrategy() ?? UcpSalesChannelConfigEntity::STRATEGY_DOMAIN
+            ),
+            'customProfileUri' => $pick('customProfileUri', static fn (): ?string => $existing?->getCustomProfileUri()),
+            'enabledCapabilities' => $pick(
+                'enabledCapabilities',
+                fn (): array => $existing?->getEnabledCapabilities() ?? $this->defaultCapabilities()
+            ),
+            'enabledTransports' => $pick(
+                'enabledTransports',
+                static fn (): array => $existing?->getEnabledTransports() ?? ['rest']
+            ),
+            'continueUrlTemplate' => $pick('continueUrlTemplate', static fn (): ?string => $existing?->getContinueUrlTemplate()),
+            'platformAllowlist' => $pick('platformAllowlist', static fn (): ?array => $existing?->getPlatformAllowlist()),
+            'discoveryBudget' => $pick('discoveryBudget', static fn (): ?array => $existing?->getDiscoveryBudget()),
+            'webhookUrlOverride' => $pick('webhookUrlOverride', static fn (): ?string => $existing?->getWebhookUrlOverride()),
+            'signaturePolicy' => $this->normaliseSignaturePolicy(
+                $pick('signaturePolicy', static fn (): ?string => $existing?->getSignaturePolicy())
+            ),
+            'idempotencyRequired' => (bool) $pick(
+                'idempotencyRequired',
+                static fn (): bool => $existing?->isIdempotencyRequired() ?? true
+            ),
+        ];
 
         $this->configRepository->upsert([$writeData], $context);
 

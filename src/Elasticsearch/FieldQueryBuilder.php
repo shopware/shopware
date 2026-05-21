@@ -29,6 +29,9 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
 #[Package('inventory')]
 class FieldQueryBuilder extends AbstractFieldQueryBuilder
 {
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly int $minGram = 4,
         private readonly bool $useLanguageAnalyzer = true,

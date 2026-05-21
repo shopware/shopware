@@ -108,67 +108,66 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
     describe('feed label input', () => {
         const productComparisonSalesChannel = { typeId: PRODUCT_COMPARISON_TYPE_ID };
+        const FEED_LABEL_SELECTOR = '.sw-sales-channel-detail-base__feed-label';
 
-        it('renders only when product comparison and google template is selected', async () => {
+        beforeEach(() => {
             global.activeAclRoles = ['sales_channel.editor'];
+        });
 
+        it.each([
+            {
+                case: 'product comparison + google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'google-product-search-de',
+                expected: true,
+            },
+            {
+                case: 'product comparison + non-google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'idealo-de',
+                expected: false,
+            },
+            {
+                case: 'non-product-comparison + google template',
+                salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
+                templateName: 'google-product-search-de',
+                expected: false,
+            },
+            {
+                case: 'product comparison + no template selected',
+                salesChannel: productComparisonSalesChannel,
+                templateName: null,
+                expected: false,
+            },
+        ])('visibility on $case → $expected', async ({ salesChannel, templateName, expected }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel,
+                    productExport: { feedLabel: null },
+                    templateName,
+                },
+            });
+
+            expect(wrapper.find(FEED_LABEL_SELECTOR).exists()).toBe(expected);
+        });
+
+        it.each([
+            { case: 'null', feedLabel: null },
+            { case: 'empty string', feedLabel: '' },
+        ])('passes empty string to mt-text-field when feedLabel is $case', async ({ feedLabel }) => {
             const wrapper = await createWrapper({
                 props: {
                     salesChannel: productComparisonSalesChannel,
-                    productExport: { feedLabel: null },
+                    productExport: { feedLabel },
                     templateName: 'google-product-search-de',
                 },
             });
 
-            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(true);
-        });
-
-        it('is hidden when the selected template is not google', async () => {
-            global.activeAclRoles = ['sales_channel.editor'];
-
-            const wrapper = await createWrapper({
-                props: {
-                    salesChannel: productComparisonSalesChannel,
-                    productExport: { feedLabel: null },
-                    templateName: 'idealo-de',
-                },
-            });
-
-            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(false);
-        });
-
-        it('is hidden on non-product-comparison sales channels even when templateName equals google', async () => {
-            global.activeAclRoles = ['sales_channel.editor'];
-
-            const wrapper = await createWrapper({
-                props: {
-                    salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
-                    productExport: { feedLabel: null },
-                    templateName: 'google-product-search-de',
-                },
-            });
-
-            expect(wrapper.find('.sw-sales-channel-detail-base__feed-label').exists()).toBe(false);
-        });
-
-        it('coerces null to empty string for mt-text-field so the counter does not show 4/20', async () => {
-            global.activeAclRoles = ['sales_channel.editor'];
-
-            const wrapper = await createWrapper({
-                props: {
-                    salesChannel: productComparisonSalesChannel,
-                    productExport: { feedLabel: null },
-                    templateName: 'google-product-search-de',
-                },
-            });
-
-            const field = wrapper.findComponent('.sw-sales-channel-detail-base__feed-label');
+            const field = wrapper.findComponent(FEED_LABEL_SELECTOR);
             expect(field.props('modelValue')).toBe('');
         });
 
         it('writes the typed value back to productExport.feedLabel', async () => {
-            global.activeAclRoles = ['sales_channel.editor'];
-
             const wrapper = await createWrapper({
                 props: {
                     salesChannel: productComparisonSalesChannel,
@@ -177,15 +176,13 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                 },
             });
 
-            const input = wrapper.find('.sw-sales-channel-detail-base__feed-label input');
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
             await input.setValue('SUMMER-2026');
 
             expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
         });
 
         it('writes null back when the input is cleared', async () => {
-            global.activeAclRoles = ['sales_channel.editor'];
-
             const wrapper = await createWrapper({
                 props: {
                     salesChannel: productComparisonSalesChannel,
@@ -194,7 +191,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
                 },
             });
 
-            const input = wrapper.find('.sw-sales-channel-detail-base__feed-label input');
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
             await input.setValue('');
 
             expect(wrapper.vm.productExport.feedLabel).toBeNull();

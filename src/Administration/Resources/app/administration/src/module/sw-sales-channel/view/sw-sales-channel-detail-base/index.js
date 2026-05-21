@@ -595,6 +595,10 @@ export default {
     },
 
     methods: {
+        onFeedLabelInput(value) {
+            this.productExport.feedLabel = value === '' ? null : value;
+        },
+
         onGenerateKeys() {
             this.salesChannelService
                 .generateKey()

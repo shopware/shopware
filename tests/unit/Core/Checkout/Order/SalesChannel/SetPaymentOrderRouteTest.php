@@ -407,20 +407,18 @@ class SetPaymentOrderRouteTest extends TestCase
     }
 
     /**
-     * @return array<string, Request[]>
+     * @return iterable<string, Request[]>
      */
-    public static function requestDataProvider(): array
+    public static function requestDataProvider(): iterable
     {
-        return [
-            'empty' => [
-                self::getRequest([]),
-            ],
-            'invalid payment method' => [
-                self::getRequest(['paymentMethodId' => 'some payment method id']),
-            ],
-            'invalid order' => [
-                self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => 'some order id']),
-            ],
+        yield 'request without payment method or order ids' => [
+            self::getRequest([]),
+        ];
+        yield 'request with malformed payment method id' => [
+            self::getRequest(['paymentMethodId' => 'some payment method id']),
+        ];
+        yield 'request with valid payment method id and malformed order id' => [
+            self::getRequest(['paymentMethodId' => Uuid::randomHex(), 'orderId' => 'some order id']),
         ];
     }
 

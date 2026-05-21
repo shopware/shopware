@@ -59,17 +59,17 @@ class DateFieldSerializerTest extends TestCase
      */
     public static function dateProvider(): iterable
     {
-        yield 'utc date' => [
+        yield 'midnight UTC date stays on the same storage day' => [
             new \DateTimeImmutable('2020-05-15 00:00:00', new \DateTimeZone('UTC')),
             '2020-05-15',
         ];
 
-        yield 'future utc date' => [
+        yield 'future UTC date stays on the same storage day' => [
             new \DateTimeImmutable('2099-05-18 00:00:00', new \DateTimeZone('UTC')),
             '2099-05-18',
         ];
 
-        yield 'timezone moves date to next utc day' => [
+        yield 'New York evening date is stored as the next UTC day' => [
             new \DateTimeImmutable('2020-05-15 22:00:00', new \DateTimeZone('America/New_York')),
             '2020-05-16',
         ];

@@ -101,18 +101,16 @@ class MailServiceTest extends TestCase
     }
 
     /**
-     * @return array<int, mixed[]>
+     * @return iterable<string, mixed[]>
      */
-    public static function senderEmailDataProvider(): array
+    public static function senderEmailDataProvider(): iterable
     {
-        return [
-            ['basic@example.com', 'basic@example.com', null, null],
-            ['config@example.com', null, 'config@example.com', null],
-            ['basic@example.com', 'basic@example.com', 'config@example.com', null],
-            ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'],
-            ['data@example.com', 'basic@example.com', null, 'data@example.com'],
-            ['data@example.com', null, 'config@example.com', 'data@example.com'],
-        ];
+        yield 'basic sender is used when no config or mail data sender exists' => ['basic@example.com', 'basic@example.com', null, null];
+        yield 'configured sender is used when basic sender is missing' => ['config@example.com', null, 'config@example.com', null];
+        yield 'basic sender has priority over configured sender' => ['basic@example.com', 'basic@example.com', 'config@example.com', null];
+        yield 'mail data sender has priority over basic and configured sender' => ['data@example.com', 'basic@example.com', 'config@example.com', 'data@example.com'];
+        yield 'mail data sender has priority over basic sender' => ['data@example.com', 'basic@example.com', null, 'data@example.com'];
+        yield 'mail data sender has priority over configured sender' => ['data@example.com', null, 'config@example.com', 'data@example.com'];
     }
 
     #[DataProvider('senderEmailDataProvider')]

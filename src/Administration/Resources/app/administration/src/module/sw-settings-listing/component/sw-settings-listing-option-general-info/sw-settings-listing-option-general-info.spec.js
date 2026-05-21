@@ -31,13 +31,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                         'sw-container': {
                             template: '<div><slot></slot></div>',
                         },
-                        'sw-text-field': await wrapTestComponent('sw-text-field'),
-                        'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
-
-                        'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
-                        'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', {
-                            sync: true,
-                        }),
                         'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                         'sw-base-field': await wrapTestComponent('sw-base-field'),
                         'sw-block-field': await wrapTestComponent('sw-block-field'),
@@ -130,14 +123,15 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         });
 
         const untranslatedFields = [
-            '.sw-settings-listing-option-general-info__field-technical-name',
-            '.sw-settings-listing-option-general-info__field-active',
+            '.sw-settings-listing-option-general-info__field-technical-name input',
+            '.sw-settings-listing-option-general-info__field-active input',
         ];
 
         untranslatedFields.forEach((field) => {
-            const isDisabled = wrapper.findComponent(field).vm.$attrs.disabled;
+            const fieldInput = wrapper.find(field);
+            const isDisabled = fieldInput.attributes('disabled');
 
-            expect(isDisabled).toBe(true);
+            expect(isDisabled).toBeDefined();
         });
     });
 });

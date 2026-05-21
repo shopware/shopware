@@ -289,6 +289,15 @@
                                 {% if footerItem.category.cmsPageId == shippingCmsPageId and footerItem.category.seoUrl %}
                                     {% set shippingUrl = footerItem.category.seoUrl %}
                                 {% endif %}
+
+                                {# Also check for children and use the seoUrl if present. (No recursion because footer navigation supports one level) #}
+                                {% if footerItem.children|length > 0 %}
+                                    {% for child in footerItem.children %}
+                                        {% if child.category.cmsPageId == shippingCmsPageId and child.category.seoUrl %}
+                                            {% set shippingUrl = child.category.seoUrl %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
 

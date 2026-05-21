@@ -78,8 +78,7 @@ class ThemeMergedConfigBuilderTest extends TestCase
             )
         );
 
-        $this->expectException(ThemeException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find theme with id "%s"', $themeId));
+        $this->expectExceptionObject(ThemeException::couldNotFindThemeById($themeId));
 
         $this->mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context);
     }

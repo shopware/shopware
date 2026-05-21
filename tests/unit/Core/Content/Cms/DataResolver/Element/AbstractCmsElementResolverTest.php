@@ -137,8 +137,7 @@ class AbstractCmsElementResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setUniqueIdentifier('product');
 
-        $this->expectException(PropertyNotFoundException::class);
-        $this->expectExceptionMessage('Property "doesntActuallyExist" does not exist in entity "Shopware\Core\Content\Product\ProductEntity".');
+        $this->expectExceptionObject(new PropertyNotFoundException('doesntActuallyExist', ProductEntity::class));
         (new TestCmsElementResolver())->runResolveEntityValue($product, 'that.doesntActuallyExist');
     }
 

@@ -84,7 +84,6 @@ src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 /tests/unit/Core/Framework/Ucp/ @shopware/product-ct-core
 /tests/integration/Core/Framework/Ucp/ @shopware/product-ct-core
 /tests/migration/Core/V6_8/Migration1779600*UcpTest.php @shopware/product-ct-core
-/.github/workflows/ucp-conformance.yml @shopware/product-ct-core @shopware/product-operations
 /src/Core/Profiling/ @shopware/product-ct-core
 /src/Core/DevOps/ @shopware/product-ct-core
 /src/Core/System/CustomEntity/ @shopware/product-ct-core

@@ -3,7 +3,7 @@
 
     {% block sw_settings_ucp_index_smart_bar_header %}
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-settings-ucp.list.headline') }}</h2>
+        <h2>{{ $t('sw-settings-ucp.list.headline') }}</h2>
     </template>
     {% endblock %}
 
@@ -11,26 +11,30 @@
     <template #content>
         <sw-card-view>
             {% block sw_settings_ucp_index_intro %}
-            <sw-alert variant="info">
-                {{ $tc('sw-settings-ucp.list.intro') }}
-            </sw-alert>
+            <mt-banner variant="info">
+                {{ $t('sw-settings-ucp.list.intro') }}
+            </mt-banner>
             {% endblock %}
 
             {% block sw_settings_ucp_index_table %}
-            <sw-card :is-loading="isLoading" position-identifier="sw-settings-ucp-list">
+            <mt-card
+                :is-loading="isLoading"
+                position-identifier="sw-settings-ucp-list"
+            >
                 <sw-data-grid
                     :data-source="items"
                     :columns="[
-                        { property: 'salesChannelName', label: $tc('sw-settings-ucp.list.columns.salesChannel') },
-                        { property: 'active', label: $tc('sw-settings-ucp.list.columns.status') },
-                        { property: 'ucpVersion', label: $tc('sw-settings-ucp.list.columns.version') },
-                        { property: 'enabledCapabilities', label: $tc('sw-settings-ucp.list.columns.capabilities') },
+                        { property: 'salesChannelName', label: $t('sw-settings-ucp.list.columns.salesChannel') },
+                        { property: 'active', label: $t('sw-settings-ucp.list.columns.status') },
+                        { property: 'ucpVersion', label: $t('sw-settings-ucp.list.columns.version') },
+                        { property: 'enabledCapabilities', label: $t('sw-settings-ucp.list.columns.capabilities') },
                     ]"
                     :allow-inline-edit="false"
                     :show-selection="false"
                     :show-actions="true"
                     :is-loading="isLoading"
-                    plain-appearance>
+                    plain-appearance
+                >
 
                     <template #column-active="{ item }">
                         <sw-label :variant="statusVariant(item)">
@@ -44,11 +48,11 @@
 
                     <template #actions="{ item }">
                         <sw-context-menu-item @click="editItem(item)">
-                            {{ $tc('sw-settings-ucp.list.actions.configure') }}
+                            {{ $t('sw-settings-ucp.list.actions.configure') }}
                         </sw-context-menu-item>
                     </template>
                 </sw-data-grid>
-            </sw-card>
+            </mt-card>
             {% endblock %}
         </sw-card-view>
     </template>

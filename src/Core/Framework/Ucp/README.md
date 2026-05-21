@@ -619,7 +619,7 @@ The implementation is now broad and exercises every UCP surface in live tests, b
 | OAuth metadata | Discovery advertises only implemented token endpoint auth methods and no longer publishes unimplemented introspection/revocation endpoints. |
 | Strict inbound signatures | Local simulator runs with `signature_policy='log'` because simulator REST calls are unsigned. Production should use `strict`. |
 | Simulator matrix | REST and MCP were both verified through every simulator scenario: 34/34 runs passed against the Dockware shop. |
-| Full official conformance | `.github/workflows/ucp-conformance.yml` is wired against the upstream Python suite at `Universal-Commerce-Protocol/conformance`. Shopware now ships a non-production simulation-signature adapter plus `ucp:conformance:seed` for the `flower_shop` fixture. Local full suite result: `TOTAL=13 FAILURES=0`. |
+| Full official conformance | Shopware ships a non-production simulation-signature adapter plus `ucp:conformance:seed` for the `flower_shop` fixture so the upstream Python suite at `Universal-Commerce-Protocol/conformance` can be run against a UCP-enabled shop. Local full suite result: `TOTAL=13 FAILURES=0`. A wired CI workflow is intentionally deferred to a follow-up PR. |
 
 ## Related Documents
 

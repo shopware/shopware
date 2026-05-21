@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -51,14 +52,14 @@ class UcpNegotiationSessionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))
-                ->addFlags(new ApiAware(), new Required()),
-            (new LongTextField('platform_profile_uri', 'platformProfileUri'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('platform_profile_hash', 'platformProfileHash'))->addFlags(new ApiAware(), new Required()),
-            (new JsonField('active_capabilities', 'activeCapabilities'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('protocol_version', 'protocolVersion'))->addFlags(new ApiAware(), new Required()),
-            (new DateTimeField('last_used_at', 'lastUsedAt'))->addFlags(new ApiAware(), new Required()),
+                ->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new LongTextField('platform_profile_uri', 'platformProfileUri'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('platform_profile_hash', 'platformProfileHash'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new JsonField('active_capabilities', 'activeCapabilities'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('protocol_version', 'protocolVersion'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new DateTimeField('last_used_at', 'lastUsedAt'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             new DateTimeField('created_at', 'createdAt'),
             new DateTimeField('updated_at', 'updatedAt'),
         ]);

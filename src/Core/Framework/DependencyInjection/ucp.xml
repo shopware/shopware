@@ -66,7 +66,7 @@
         <!-- ============ Payment handler registry ============ -->
         <service id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry">
             <argument key="$handlers" type="collection"/>
-            <argument key="$salesChannelContextFactory" type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" key="$salesChannelContextFactory"/>
         </service>
 
         <!-- Default payment handlers -->

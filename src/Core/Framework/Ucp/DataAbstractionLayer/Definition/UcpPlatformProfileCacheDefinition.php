@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -50,15 +51,15 @@ class UcpPlatformProfileCacheDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new LongTextField('profile_uri', 'profileUri'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('profile_uri_hash', 'profileUriHash'))->addFlags(new ApiAware(), new Required()),
-            (new JsonField('profile_json', 'profileJson'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('etag', 'etag'))->addFlags(new ApiAware()),
-            (new DateTimeField('fetched_at', 'fetchedAt'))->addFlags(new ApiAware(), new Required()),
-            (new DateTimeField('expires_at', 'expiresAt'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('verification_status', 'verificationStatus'))->addFlags(new ApiAware(), new Required()),
-            (new IntField('failure_count', 'failureCount'))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
+            (new LongTextField('profile_uri', 'profileUri'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('profile_uri_hash', 'profileUriHash'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new JsonField('profile_json', 'profileJson'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('etag', 'etag'))->addFlags(new ApiAware(AdminApiSource::class)),
+            (new DateTimeField('fetched_at', 'fetchedAt'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new DateTimeField('expires_at', 'expiresAt'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('verification_status', 'verificationStatus'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new IntField('failure_count', 'failureCount'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             new DateTimeField('created_at', 'createdAt'),
             new DateTimeField('updated_at', 'updatedAt'),
         ]);

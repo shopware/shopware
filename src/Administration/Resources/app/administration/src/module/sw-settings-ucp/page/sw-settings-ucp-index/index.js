@@ -27,7 +27,7 @@ export default {
 
     metaInfo() {
         return {
-            title: this.$tc('sw-settings-ucp.general.mainMenuItemGeneral'),
+            title: this.$t('sw-settings-ucp.general.mainMenuItemGeneral'),
         };
     },
 
@@ -65,11 +65,11 @@ export default {
 
         statusLabel(item) {
             if (!item.configured) {
-                return this.$tc('sw-settings-ucp.status.notConfigured');
+                return this.$t('sw-settings-ucp.status.notConfigured');
             }
             return item.active
-                ? this.$tc('sw-settings-ucp.status.active')
-                : this.$tc('sw-settings-ucp.status.inactive');
+                ? this.$t('sw-settings-ucp.status.active')
+                : this.$t('sw-settings-ucp.status.inactive');
         },
     },
 };

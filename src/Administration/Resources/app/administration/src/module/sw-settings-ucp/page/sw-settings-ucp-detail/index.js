@@ -94,13 +94,13 @@ export default {
         localizedTransports() {
             return this.allTransports.map((transport) => ({
                 ...transport,
-                label: this.$tc(`sw-settings-ucp.detail.transportOptions.${transport.labelKey}`),
+                label: this.$t(`sw-settings-ucp.detail.transportOptions.${transport.labelKey}`),
             }));
         },
         localizedSignaturePolicyOptions() {
             return SIGNATURE_POLICY_OPTIONS.map((option) => ({
                 ...option,
-                label: this.$tc(`sw-settings-ucp.detail.signaturePolicyOptions.${option.labelKey}`),
+                label: this.$t(`sw-settings-ucp.detail.signaturePolicyOptions.${option.labelKey}`),
             }));
         },
     },
@@ -137,7 +137,7 @@ export default {
             try {
                 await this.ucpAdminService.writeConfig(this.salesChannelId, this.config);
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-ucp.detail.saved'),
+                    message: this.$t('sw-settings-ucp.detail.saved'),
                 });
                 await this.loadAll();
             } catch (e) {
@@ -152,7 +152,7 @@ export default {
             try {
                 await this.ucpAdminService.createKey(this.salesChannelId, { algorithm: 'ES256', rotate: true });
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-ucp.detail.keyRotated'),
+                    message: this.$t('sw-settings-ucp.detail.keyRotated'),
                 });
                 const refreshed = await this.ucpAdminService.listKeys(this.salesChannelId);
                 this.keys = refreshed.items ?? [];

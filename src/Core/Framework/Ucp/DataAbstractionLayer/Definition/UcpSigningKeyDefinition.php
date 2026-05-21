@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Ucp\DataAbstractionLayer\Definition;
 
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -52,24 +53,24 @@ class UcpSigningKeyDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new PrimaryKey(), new Required()),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))
-                ->addFlags(new ApiAware(), new Required()),
-            (new StringField('kid', 'kid'))->addFlags(new ApiAware(), new Required()),
-            (new StringField('algorithm', 'algorithm'))->addFlags(new ApiAware(), new Required()),
-            (new JsonField('public_jwk', 'publicJwk'))->addFlags(new ApiAware(), new Required()),
+                ->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('kid', 'kid'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new StringField('algorithm', 'algorithm'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
+            (new JsonField('public_jwk', 'publicJwk'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             // private_key_pem_encrypted is encrypted at rest and MUST NEVER be ApiAware.
             // Internal services (UcpSigningKeyProvider) write via system-scoped context.
             (new BlobField('private_key_pem_encrypted', 'privateKeyPemEncrypted'))
                 ->addFlags(new Required()),
-            (new StringField('status', 'status'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('status', 'status'))->addFlags(new ApiAware(AdminApiSource::class), new Required()),
             new DateTimeField('activated_at', 'activatedAt'),
             new DateTimeField('retiring_at', 'retiringAt'),
             new DateTimeField('created_at', 'createdAt'),
             new DateTimeField('updated_at', 'updatedAt'),
 
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))
-                ->addFlags(new ApiAware()),
+                ->addFlags(new ApiAware(AdminApiSource::class)),
         ]);
     }
 }

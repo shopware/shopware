@@ -193,33 +193,34 @@ SQL,
 
     private function getGlobalRevocationPageConfigValue(): mixed
     {
-        return $this->getRevocationPageConfigValue('`sales_channel_id` IS NULL');
+        return $this->getRevocationPageConfigValue();
     }
 
     private function getSalesChannelRevocationPageConfigValue(): mixed
     {
-        return $this->getRevocationPageConfigValue('`sales_channel_id` = :salesChannelId', [
-            'salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
-        ], [
-            'salesChannelId' => ParameterType::BINARY,
-        ]);
+        return $this->getRevocationPageConfigValue(TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     * @param array<string, ParameterType> $types
-     */
-    private function getRevocationPageConfigValue(string $salesChannelCondition, array $parameters = [], array $types = []): mixed
+    private function getRevocationPageConfigValue(?string $salesChannelId = null): mixed
     {
+        $salesChannelCondition = '`sales_channel_id` IS NULL';
+        $parameters = [
+            'configKey' => Migration1768545322AssignRevocationPageToSystemConfigSetting::REVOCATION_PAGE_CONFIG_KEY,
+        ];
+        $types = [];
+
+        if ($salesChannelId !== null) {
+            $salesChannelCondition = '`sales_channel_id` = :salesChannelId';
+            $parameters['salesChannelId'] = Uuid::fromHexToBytes($salesChannelId);
+            $types['salesChannelId'] = ParameterType::BINARY;
+        }
+
         $configurationValue = $this->connection->fetchOne(
             \sprintf(
                 'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :configKey AND %s LIMIT 1',
                 $salesChannelCondition
             ),
-            [
-                'configKey' => Migration1768545322AssignRevocationPageToSystemConfigSetting::REVOCATION_PAGE_CONFIG_KEY,
-                ...$parameters,
-            ],
+            $parameters,
             $types
         );
 

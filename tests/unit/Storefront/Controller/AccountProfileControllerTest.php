@@ -29,8 +29,7 @@ class AccountProfileControllerTest extends TestCase
         $controller = $this->createAccountProfileController();
         $dataBag = new RequestDataBag();
 
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "password" is missing.');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('password'));
 
         $controller->savePassword(
             $dataBag,

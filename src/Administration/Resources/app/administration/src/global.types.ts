@@ -10,7 +10,6 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
-import type { LoginService } from 'src/core/service/login.service';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';

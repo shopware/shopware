@@ -18,6 +18,10 @@ const importSSOError = () => {
     });
 };
 
+const importTours = () => {
+    return import.meta.glob('./**/*.tour.{j,t}s', { eager: true });
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default async () => {
     const context = await import.meta.glob([
@@ -31,6 +35,9 @@ export default async () => {
     // Normal login is not needed here because after redirection to the login page,
     // the whole app is reloaded.
     importInactivityLogin();
+
+    // Eagerly load module tour files so they self-register with the tour service.
+    importTours();
 
     const modules = Object.values(context)
         .reverse()

@@ -2,7 +2,9 @@
  * @sw-package discovery
  */
 
-const swCategoryTourSteps = {
+import { registerTour } from 'src/app/service/tour.service';
+
+registerTour('sw-category', {
     default: [
         {
             selector: '.sw-category-detail-page__tabs',
@@ -49,9 +51,4 @@ const swCategoryTourSteps = {
             text: 'Switch between base, products, layout and SEO.',
         },
     ],
-};
-
-/**
- * @private
- */
-export default swCategoryTourSteps;
+});

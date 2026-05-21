@@ -1,12 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\V6_7;
+namespace Shopware\Core\Migration\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_6\Migration1768545320RevocationRequestCmsForm;
+use Shopware\Core\Migration\V6_6\Migration1768545322AssignRevocationPageToSystemConfigSetting;
 
 /**
  * Repairs revocation CMS page assignments for systems where the original

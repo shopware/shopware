@@ -14,10 +14,16 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
 /**
  * Helpers for testing app lifecycle components in unit tests
+ *
+ * @internal
  */
-trait AppFixtureTestBehaviour
+final class AppFixture
 {
-    protected function createAppEntity(string $name = 'testApp', ?string $id = null): AppEntity
+    private function __construct()
+    {
+    }
+
+    public static function createAppEntity(string $name = 'testApp', ?string $id = null): AppEntity
     {
         $app = new AppEntity();
         $app->setId($id ?? Uuid::randomHex());
@@ -31,7 +37,7 @@ trait AppFixtureTestBehaviour
     /**
      * @return StaticEntityRepository<AppCollection>
      */
-    protected function createAppRepository(AppEntity ...$apps): StaticEntityRepository
+    public static function createAppRepository(AppEntity ...$apps): StaticEntityRepository
     {
         /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection($apps)]);
@@ -39,26 +45,31 @@ trait AppFixtureTestBehaviour
         return $repository;
     }
 
-    protected function createInstallContext(
+    public static function createInstallContext(
         AppEntity $app,
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
     ): AppLifecycleContext {
-        return $this->createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, true);
+        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, true);
     }
 
-    protected function createUpdateContext(
+    public static function createUpdateContext(
         AppEntity $app,
         Manifest $manifest,
         ?Filesystem $appFilesystem = null,
         string $defaultLocale = 'en-GB'
     ): AppLifecycleContext {
-        return $this->createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, false);
+        return self::createContext($app, $manifest, $appFilesystem ?? new StaticFilesystem(), $defaultLocale, false);
     }
 
-    private function createContext(AppEntity $app, Manifest $manifest, Filesystem $fs, string $defaultLocale, bool $isInstall): AppLifecycleContext
-    {
+    private static function createContext(
+        AppEntity $app,
+        Manifest $manifest,
+        Filesystem $fs,
+        string $defaultLocale,
+        bool $isInstall
+    ): AppLifecycleContext {
         return new AppLifecycleContext(
             manifest: $manifest,
             app: $app,

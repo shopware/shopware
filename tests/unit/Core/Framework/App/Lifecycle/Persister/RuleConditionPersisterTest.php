@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Core\Framework\App\AppFixtureTestBehaviour;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
@@ -21,8 +21,6 @@ use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 #[CoversClass(RuleConditionPersister::class)]
 class RuleConditionPersisterTest extends TestCase
 {
-    use AppFixtureTestBehaviour;
-
     public function testPersistCreatesRuleConditionsFromManifest(): void
     {
         $app = $this->createAppWithRuleConditions();
@@ -42,10 +40,10 @@ class RuleConditionPersisterTest extends TestCase
         $persister = new RuleConditionPersister(
             $scriptReader,
             $conditionRepository,
-            $this->createAppRepository($app),
+            AppFixture::createAppRepository($app),
         );
 
-        $persister->persist($this->createInstallContext($app, $manifest));
+        $persister->persist(AppFixture::createInstallContext($app, $manifest));
 
         $payloads = $this->indexPayloadsByIdentifier($conditionRepository->getPayloads(StaticEntityRepository::UPSERT));
 
@@ -84,10 +82,10 @@ class RuleConditionPersisterTest extends TestCase
         $persister = new RuleConditionPersister(
             $scriptReader,
             $conditionRepository,
-            $this->createAppRepository($app),
+            AppFixture::createAppRepository($app),
         );
 
-        $persister->persist($this->createUpdateContext($app, $manifest));
+        $persister->persist(AppFixture::createUpdateContext($app, $manifest));
 
         $upserts = $conditionRepository->getPayloads(StaticEntityRepository::UPSERT);
 
@@ -108,7 +106,7 @@ class RuleConditionPersisterTest extends TestCase
         $persister = new RuleConditionPersister(
             $this->createMock(ScriptFileReader::class),
             $conditionRepository,
-            $this->createAppRepository($app),
+            AppFixture::createAppRepository($app),
         );
 
         $persister->activate($app, Context::createDefaultContext());
@@ -128,7 +126,7 @@ class RuleConditionPersisterTest extends TestCase
         $persister = new RuleConditionPersister(
             $this->createMock(ScriptFileReader::class),
             $conditionRepository,
-            $this->createAppRepository($app),
+            AppFixture::createAppRepository($app),
         );
 
         $persister->deactivate($app, Context::createDefaultContext());
@@ -153,7 +151,7 @@ class RuleConditionPersisterTest extends TestCase
 
     private function createAppWithRuleConditions(AppScriptConditionEntity ...$conditions): AppEntity
     {
-        $app = $this->createAppEntity('withRuleConditions');
+        $app = AppFixture::createAppEntity('withRuleConditions');
         $app->setScriptConditions(new AppScriptConditionCollection($conditions));
 
         return $app;

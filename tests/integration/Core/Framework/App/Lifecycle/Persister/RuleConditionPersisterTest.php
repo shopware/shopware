@@ -11,14 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\App\AppFixtureTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 
 /**
  * @internal
  */
 class RuleConditionPersisterTest extends TestCase
 {
-    use AppFixtureTestBehaviour;
     use IntegrationTestBehaviour;
 
     private const MANIFEST = __DIR__ . '/_fixtures/rule-condition-constraints/manifest.xml';
@@ -26,6 +25,8 @@ class RuleConditionPersisterTest extends TestCase
     private const UPDATED_MANIFEST = __DIR__ . '/_fixtures/rule-condition-constraints-updated/manifest.xml';
 
     private RuleConditionPersister $persister;
+
+    private AppFixture $appFixture;
 
     /**
      * @var EntityRepository<AppScriptConditionCollection>
@@ -36,15 +37,19 @@ class RuleConditionPersisterTest extends TestCase
     {
         $this->persister = static::getContainer()->get(RuleConditionPersister::class);
         $this->scriptConditionRepository = static::getContainer()->get('app_script_condition.repository');
+
+        $appFixture = static::getContainer()->get(AppFixture::class);
+        \assert($appFixture instanceof AppFixture);
+        $this->appFixture = $appFixture;
     }
 
     public function testPersistAndUpdateSavesRuleConditions(): void
     {
-        $manifest = $this->loadManifest(self::MANIFEST);
-        $app = $this->createApp($manifest);
+        $manifest = $this->appFixture->loadManifest(self::MANIFEST);
+        $app = $this->appFixture->createApp($manifest);
         $appId = $app->getId();
 
-        $this->persister->persist($this->createInstallContext($app, $manifest));
+        $this->persister->persist($this->appFixture->createInstallContext($app, $manifest));
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('appId', $appId));
         $scriptConditions = $this->scriptConditionRepository->search($criteria, Context::createDefaultContext())->getEntities();
@@ -59,8 +64,8 @@ class RuleConditionPersisterTest extends TestCase
             $this->assertScriptConditionFieldConfig($scriptCondition);
         }
 
-        $updatedManifest = $this->loadManifest(self::UPDATED_MANIFEST);
-        $this->persister->persist($this->createUpdateContext($app, $updatedManifest));
+        $updatedManifest = $this->appFixture->loadManifest(self::UPDATED_MANIFEST);
+        $this->persister->persist($this->appFixture->createUpdateContext($app, $updatedManifest));
 
         $scriptConditions = $this->scriptConditionRepository->search($criteria, Context::createDefaultContext())->getEntities();
 

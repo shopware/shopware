@@ -121,6 +121,22 @@ class DefinitionValidator
         'mcp_tool_result_cache',
         'webhook_delivery',
         'webhook_stream',
+        // UCP server-internal infrastructure tables: ephemeral key-value
+        // caches and OAuth-server state tables that are accessed exclusively
+        // via raw SQL or the league/oauth2-server repositories — they have
+        // no DAL entity definition because exposing them through the entity
+        // repository would add no value (no admin write surface, no
+        // cross-entity associations, no read API) but adds boilerplate.
+        'ucp_a2a_task',
+        'ucp_buyer_consent',
+        'ucp_embedded_session',
+        'ucp_idempotency_key',
+        'ucp_oauth_access_token',
+        'ucp_oauth_auth_code',
+        'ucp_oauth_client',
+        'ucp_oauth_client_assertion',
+        'ucp_oauth_refresh_token',
+        'ucp_signature_nonce',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

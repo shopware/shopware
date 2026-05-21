@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpSigningKeyCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
@@ -75,10 +76,7 @@ class UcpSalesChannelConfigEntity extends Entity
 
     protected ?SalesChannelEntity $salesChannel = null;
 
-    /**
-     * @var UcpSigningKeyEntity[]|null
-     */
-    protected ?array $signingKeys = null;
+    protected ?UcpSigningKeyCollection $signingKeys = null;
 
     public function getSalesChannelId(): string
     {
@@ -224,18 +222,12 @@ class UcpSalesChannelConfigEntity extends Entity
         $this->salesChannel = $salesChannel;
     }
 
-    /**
-     * @return UcpSigningKeyEntity[]|null
-     */
-    public function getSigningKeys(): ?array
+    public function getSigningKeys(): ?UcpSigningKeyCollection
     {
         return $this->signingKeys;
     }
 
-    /**
-     * @param UcpSigningKeyEntity[]|null $signingKeys
-     */
-    public function setSigningKeys(?array $signingKeys): void
+    public function setSigningKeys(UcpSigningKeyCollection $signingKeys): void
     {
         $this->signingKeys = $signingKeys;
     }

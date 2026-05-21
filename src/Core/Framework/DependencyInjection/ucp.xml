@@ -21,6 +21,15 @@
             <tag name="shopware.entity.definition" entity="ucp_negotiation_session"/>
         </service>
 
+        <!-- Reverse one-to-one and one-to-many associations on SalesChannelDefinition
+             so the DefinitionValidator stops reporting "Missing reverse association"
+             for UcpSalesChannelConfigDefinition.salesChannel and
+             UcpSigningKeyDefinition.salesChannel, and admin clients can eager-load
+             UCP data via Criteria::addAssociation('ucpConfig' / 'ucpSigningKeys'). -->
+        <service id="Shopware\Core\Framework\Ucp\DataAbstractionLayer\Extension\UcpSalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
         <!-- ============ Security / Encryption / Logging ============ -->
         <service id="Shopware\Core\Framework\Ucp\Security\PrivateKeyEncryptor"/>
         <service id="Shopware\Core\Framework\Ucp\Security\KeyMaterialGuard">

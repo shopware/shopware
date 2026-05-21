@@ -183,6 +183,21 @@ class PluginManagerSingleton {
     }
 
     /**
+     * Calls a method on all plugin instances.
+     * 
+     * @param {string} pluginName 
+     * @param {*} methodName 
+     * @param  {...any} args 
+     */
+    callPluginMethod(pluginName, methodName, ...args) {
+        const instances = this.getPluginInstances(pluginName);
+
+        instances.forEach(instance => {
+            instance[methodName](...args);
+        });
+    }
+
+    /**
      * Returns the plugin instance from the passed element selected by plugin Name.
      *
      * @param {HTMLElement} el
@@ -707,6 +722,18 @@ export default class PluginManager {
      */
     static initializePlugin(pluginName, selector, options) {
         return PluginManagerInstance.initializePlugin(pluginName, selector, options);
+    }
+
+    /**
+     * Calls a method on all plugin instances.
+     * 
+     * @param {string} pluginName 
+     * @param {string} methodName 
+     * @param  {...any} args 
+     * @returns 
+     */
+    static callPluginMethod(pluginName, methodName, ...args) {
+        return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);
     }
 }
 

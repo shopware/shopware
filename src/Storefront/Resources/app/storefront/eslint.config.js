@@ -90,4 +90,14 @@ module.exports = tseslint.config(
             '@typescript-eslint/no-misused-promises': 'off',
         },
     },
+
+    {
+        // Test files and manual mocks: relax rules that are overly strict in
+        // the context of a test runner where vi.fn() mock references are passed
+        // as arguments and this-binding is irrelevant.
+        files: ['**/*.test.{js,ts}', 'test/**/*.{js,ts}', '__mocks__/**/*.ts'],
+        rules: {
+            '@typescript-eslint/unbound-method': 'off',
+        },
+    },
 );

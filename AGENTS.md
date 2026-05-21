@@ -58,6 +58,5 @@ shopware/
 | **JS/TS** (Storefront) | `composer eslint:storefront`  | `composer eslint:storefront:fix`             |
 | **SCSS**               | `composer stylelint`          | `composer stylelint:[admin\|storefront]:fix` |
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
-| **Changelog**          | `composer lint:changelog`     | Manual fix required                          |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |

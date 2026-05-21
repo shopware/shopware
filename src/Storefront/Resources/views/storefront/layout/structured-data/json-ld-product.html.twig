@@ -286,6 +286,12 @@
             url: savedData.url,
             offers: savedData.offers
         } %}
+        {% if savedData.description is defined %}
+            {% set variantProduct = variantProduct|merge({description: savedData.description}) %}
+        {% endif %}
+        {% if savedData.image is defined %}
+            {% set variantProduct = variantProduct|merge({image: savedData.image}) %}
+        {% endif %}
         {% if savedData.gtin13 is defined %}
             {% set variantProduct = variantProduct|merge({gtin13: savedData.gtin13}) %}
         {% endif %}

@@ -9,6 +9,7 @@ use League\Flysystem\Visibility;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
+use Shopware\Core\Framework\Adapter\Filesystem\Adapter\FilesystemOperatorFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -64,6 +65,10 @@ class FilesystemFactory
 
         if (!$config['private']) {
             $fsOptions['public_url'] = $config['url'] ?? $this->getFallbackUrl();
+        }
+
+        if ($factory instanceof FilesystemOperatorFactoryInterface) {
+            return $factory->createFilesystem($config['config'], $fsOptions);
         }
 
         return new LeagueFilesystem(

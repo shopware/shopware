@@ -36,7 +36,7 @@
 
     .sw-users-permissions-detailed-permissions-grid__title,
     .sw-users-permissions-detailed-permissions-grid__all,
-    .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper, {
+    .sw-users-permissions-detailed-permissions-grid__checkbox-wrapper {
         min-width: 100px;
         min-height: 40px;
         display: flex;
@@ -46,10 +46,6 @@
 
         .sw-field--checkbox {
             margin-bottom: 0;
-        }
-
-        .sw-field--checkbox .mt-icon {
-            padding: 0;
         }
     }
 

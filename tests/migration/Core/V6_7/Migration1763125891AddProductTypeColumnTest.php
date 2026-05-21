@@ -24,6 +24,11 @@ class Migration1763125891AddProductTypeColumnTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763125891, (new Migration1763125891AddProductTypeColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateAddsTypeColumnAndIndex(): void
     {
         $this->ensureStatesColumnExists();

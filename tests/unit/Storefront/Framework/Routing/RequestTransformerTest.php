@@ -183,6 +183,46 @@ class RequestTransformerTest extends TestCase
             'expectedStorefrontUrl' => 'http://shopware.com/de',
             'expectedResolvedUri' => '/outdoor',
         ];
+
+        yield 'punycode to punycode direct hit' => [
+            'requestUrl' => 'http://xn--shpwre-eua5l.com',
+            'serverVars' => [],
+            'domainUrl' => 'http://xn--shpwre-eua5l.com',
+            'expectedBaseUrl' => '',
+            'expectedAbsoluteBaseUrl' => 'http://shöpwäre.com',
+            'expectedStorefrontUrl' => 'http://shöpwäre.com',
+            'expectedResolvedUri' => '/',
+        ];
+
+        yield 'punycode to unicode direct hit' => [
+            'requestUrl' => 'http://xn--shpwre-eua5l.com',
+            'serverVars' => [],
+            'domainUrl' => 'http://shöpwäre.com',
+            'expectedBaseUrl' => '',
+            'expectedAbsoluteBaseUrl' => 'http://shöpwäre.com',
+            'expectedStorefrontUrl' => 'http://shöpwäre.com',
+            'expectedResolvedUri' => '/',
+        ];
+
+        yield 'punycode to punycode filter hit' => [
+            'requestUrl' => 'http://xn--shpwre-eua5l.com/de/outdoor',
+            'serverVars' => [],
+            'domainUrl' => 'http://xn--shpwre-eua5l.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shöpwäre.com',
+            'expectedStorefrontUrl' => 'http://shöpwäre.com/de',
+            'expectedResolvedUri' => '/outdoor',
+        ];
+
+        yield 'punycode to unicode filter hit' => [
+            'requestUrl' => 'http://xn--shpwre-eua5l.com/de/outdoor',
+            'serverVars' => [],
+            'domainUrl' => 'http://shöpwäre.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shöpwäre.com',
+            'expectedStorefrontUrl' => 'http://shöpwäre.com/de',
+            'expectedResolvedUri' => '/outdoor',
+        ];
     }
 
     /**

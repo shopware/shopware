@@ -45,12 +45,14 @@
             <sw-customer-address-form
                 :address="currentAddress"
                 :customer="activeCustomer"
+                :disabled="!customerEditMode"
             >
 
                 <sw-customer-address-form-options
                     :address="currentAddress"
                     :customer="activeCustomer"
                     :custom-field-sets="customerAddressCustomFieldSets"
+                    :disabled="!customerEditMode"
                     @default-address-change="onChangeDefaultAddress"
                 />
 
@@ -73,6 +75,7 @@
                 <mt-button
                     variant="primary"
                     size="small"
+                    :disabled="!customerEditMode"
                     @click="onSaveAddress"
                 >
                     {{ $t('global.default.apply') }}

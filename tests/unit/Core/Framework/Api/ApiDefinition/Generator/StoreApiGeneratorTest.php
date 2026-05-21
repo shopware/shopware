@@ -174,16 +174,29 @@ class StoreApiGeneratorTest extends TestCase
         static::assertCount(3, $operation['parameters']);
     }
 
-    public function testSwLanguageIdIsInjectedIntoEveryOperation(): void
+    public function testSwLanguageIdIsInjectedIntoEveryNonDeleteOperationOutsideInfo(): void
     {
-        $schema = $this->generator->generate(
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([$bundle]),
+        );
+
+        $schema = $generator->generate(
             $this->definitionRegistry->getDefinitions(),
             DefinitionService::STORE_API,
             DefinitionService::TYPE_JSON_API,
-            null
+            $bundle->getName(),
         );
 
         static::assertArrayHasKey('swLanguageId', $schema['components']['parameters']);
+
+        $assertedInjectedOperation = false;
+        $assertedSkippedOperation = false;
 
         foreach ($schema['paths'] as $path => $pathDefinition) {
             foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
@@ -191,14 +204,41 @@ class StoreApiGeneratorTest extends TestCase
                     continue;
                 }
 
-                $refs = array_column($pathDefinition[$method]['parameters'], '$ref');
-                static::assertContains(
-                    '#/components/parameters/swLanguageId',
-                    $refs,
-                    \sprintf('%s %s is missing the sw-language-id header', strtoupper($method), $path)
-                );
+                $operationId = $pathDefinition[$method]['operationId'] ?? 'no-operation-id';
+                $parameters = $pathDefinition[$method]['parameters'] ?? [];
+                $hasHeader = false;
+                foreach ($parameters as $parameter) {
+                    if (
+                        (isset($parameter['name']) && strtolower((string) $parameter['name']) === 'sw-language-id')
+                        || (isset($parameter['$ref']) && $parameter['$ref'] === '#/components/parameters/swLanguageId')
+                    ) {
+                        $hasHeader = true;
+
+                        break;
+                    }
+                }
+
+                $shouldBeInjected = $method !== 'delete'
+                    && !str_starts_with((string) $path, '/_info/');
+
+                if ($shouldBeInjected) {
+                    $assertedInjectedOperation = true;
+                    static::assertTrue(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) should advertise sw-language-id', strtoupper($method), $path, $operationId)
+                    );
+                } else {
+                    $assertedSkippedOperation = true;
+                    static::assertFalse(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) must not advertise sw-language-id', strtoupper($method), $path, $operationId)
+                    );
+                }
             }
         }
+
+        static::assertTrue($assertedInjectedOperation, 'Schema should contain at least one non-DELETE operation outside /_info/ to test');
+        static::assertTrue($assertedSkippedOperation, 'Schema should contain at least one DELETE or /_info/ operation to test');
     }
 
     public function testGetSchemaThrowsUnsupportedException(): void
@@ -1143,6 +1183,22 @@ class StoreApiGeneratorTest extends TestCase
         );
         static::assertCount(1, $mixedCaseNames, 'Mixed-case sw-language-id declaration should remain');
         static::assertCount(0, $mixedCaseRefs, 'No $ref should be injected next to a mixed-case sw-language-id declaration');
+
+        $mutation = $schema['paths']['/mutation']['delete'];
+        $mutationRefs = array_column($mutation['parameters'] ?? [], '$ref');
+        static::assertNotContains(
+            '#/components/parameters/swLanguageId',
+            $mutationRefs,
+            'sw-language-id should not be injected into non-GET operations',
+        );
+
+        $infoSample = $schema['paths']['/_info/sample']['get'];
+        $infoRefs = array_column($infoSample['parameters'] ?? [], '$ref');
+        static::assertNotContains(
+            '#/components/parameters/swLanguageId',
+            $infoRefs,
+            'sw-language-id should not be injected into /_info/* GET operations',
+        );
     }
 
     public function testGetAssociationsDocumentationSupportsOptionalDescription(): void

@@ -89,6 +89,30 @@
                     }
                 }
             }
+        },
+        "/mutation": {
+            "delete": {
+                "tags": ["Predeclared"],
+                "summary": "Pure mutation that must not advertise sw-language-id",
+                "operationId": "deleteMutation",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/_info/sample": {
+            "get": {
+                "tags": ["Predeclared"],
+                "summary": "Meta endpoint under /_info/ must not advertise sw-language-id",
+                "operationId": "readInfoSample",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     }
 }

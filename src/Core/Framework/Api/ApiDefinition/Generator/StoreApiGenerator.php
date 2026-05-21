@@ -343,25 +343,39 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * Injects the sw-language-id header into every Store API operation.
-     * Skips operations that already declare it (as a named parameter or $ref) so that
-     * bundle-provided schemas with an explicit declaration are never duplicated.
+     * Injects the sw-language-id header into Store API operations whose
+     * responses can surface translated content. DELETE operations are skipped
+     * because they only confirm removal and do not return localised payloads,
+     * and tooling endpoints under /_info/* are skipped because they serve
+     * schema and routing metadata. The HTTP-method filter is portable across
+     * third-party plugins and apps that contribute their own Store API
+     * endpoints. Operations that already declare the header (by name or $ref)
+     * are left untouched so bundle-provided schemas with an explicit
+     * declaration are never duplicated.
      *
      * @param OpenApiSpec $specs
      */
     private function injectLanguageIdHeader(array &$specs): void
     {
-        foreach ($specs['paths'] as &$pathDefinition) {
-            foreach (self::OPERATION_KEYS as $key) {
-                if (!isset($pathDefinition[$key])) {
+        foreach ($specs['paths'] as $path => &$pathDefinition) {
+            if (str_starts_with((string) $path, '/_info/')) {
+                continue;
+            }
+
+            foreach (self::OPERATION_KEYS as $method) {
+                if ($method === 'delete') {
                     continue;
                 }
 
-                if (!\is_array($pathDefinition[$key]['parameters'] ?? null)) {
-                    $pathDefinition[$key]['parameters'] = [];
+                if (!isset($pathDefinition[$method])) {
+                    continue;
                 }
 
-                foreach ($pathDefinition[$key]['parameters'] as $param) {
+                if (!\is_array($pathDefinition[$method]['parameters'] ?? null)) {
+                    $pathDefinition[$method]['parameters'] = [];
+                }
+
+                foreach ($pathDefinition[$method]['parameters'] as $param) {
                     if (
                         (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
                         || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
@@ -370,7 +384,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     }
                 }
 
-                $pathDefinition[$key]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
+                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
             }
         }
     }

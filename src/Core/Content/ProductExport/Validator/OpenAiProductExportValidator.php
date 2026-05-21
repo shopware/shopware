@@ -25,6 +25,9 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
         'pre_order',
     ];
 
+    /**
+     * @internal
+     */
     public function __construct(
         private readonly JsonlRowParser $jsonlRowParser,
     ) {

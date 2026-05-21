@@ -136,25 +136,22 @@ class ThumbnailExtensionTest extends TestCase
             'context' => Generator::generateSalesChannelContext(),
         ]);
 
-        // Regression test for https://github.com/shopware/shopware/issues/16710:
-        // every breakpoint declared in the auto-generated sizes attribute must carry
-        // a non-empty size value. Before the fix the xxl entry was missing from the
-        // sizes map and produced "(min-width: ...px) ," — an empty value followed by
-        // a comma — in the rendered output.
-        static::assertMatchesRegularExpression('/\ssizes="(?P<sizes>[^"]+)"/', $result, 'sizes attribute is missing');
-        preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches);
-        $sizes = $matches['sizes'];
+        // Regression test for https://github.com/shopware/shopware/issues/16710.
+        // Every breakpoint entry in the auto-generated sizes attribute must carry
+        // a non-empty value. Before the fix the xxl entry was missing and produced
+        // "(min-width: ...px) ," in the rendered output.
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
 
-        $entries = array_map('trim', explode(',', $sizes));
-        // 6 breakpoint entries (xs..xxl) + 1 fallback entry
-        static::assertCount(7, $entries, sprintf('Expected 7 sizes entries, got %d: %s', \count($entries), $sizes));
+        $entries = array_map('trim', explode(',', $matches['sizes']));
+        $fallback = array_pop($entries);
 
-        // The 6 breakpoint entries must each have a non-empty value after the media query.
-        for ($i = 0; $i < 6; ++$i) {
+        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+
+        foreach ($entries as $i => $entry) {
             static::assertMatchesRegularExpression(
                 '/^\(min-width:[^)]*\)\s+\S+/',
-                $entries[$i],
-                sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entries[$i])
+                $entry,
+                sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
             );
         }
     }

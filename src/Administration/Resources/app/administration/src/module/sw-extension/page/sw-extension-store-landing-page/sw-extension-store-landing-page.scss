@@ -10,7 +10,9 @@
     .sw-extension-store-landing-page__wrapper {
         display: flex;
         justify-content: center;
-        background-color: white;
+        background-color: var(--color-elevation-surface-raised);
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-card);
         text-align: center;
         padding: 44px;
         width: 960px;
@@ -43,8 +45,8 @@
     }
 
     .sw-extension-store-landing-page__wrapper-label {
-        color: $color-emerald-500;
-        background-color: $color-emerald-50;
+        color: var(--color-text-positive-default);
+        background-color: var(--color-background-positive-default);
         border-radius: $border-radius-default;
         font-size: $font-size-xs;
         padding: 3px 5px;

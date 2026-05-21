@@ -124,11 +124,10 @@ class TaskRegistryTest extends TestCase
 
     public function testWithWrongClass(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage(\sprintf(
+        $this->expectExceptionObject(new \RuntimeException(\sprintf(
             'Tried to register "%s" as scheduled task, but class does not extend ScheduledTask',
             FooMessage::class
-        ));
+        )));
         $registry = new TaskRegistry(
             /** @phpstan-ignore argument.type (for test purpose) */
             [

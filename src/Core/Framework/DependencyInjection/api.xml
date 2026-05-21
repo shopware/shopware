@@ -182,6 +182,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Stats\StatsService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Upload\PresignedMediaUploadService" on-invalid="null"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

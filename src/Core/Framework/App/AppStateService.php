@@ -6,11 +6,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
-use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
-use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
-use Shopware\Core\Framework\App\Template\TemplateStateService;
+use Shopware\Core\Framework\App\Lifecycle\Persister\PersisterInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -26,17 +22,14 @@ class AppStateService
 {
     /**
      * @param EntityRepository<AppCollection> $appRepo
+     * @param iterable<PersisterInterface> $persisters
      */
     public function __construct(
         private readonly EntityRepository $appRepo,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ActiveAppsLoader $activeAppsLoader,
-        private readonly TemplateStateService $templateStateService,
-        private readonly ScriptPersister $scriptPersister,
-        private readonly PaymentMethodStateService $paymentMethodStateService,
         private readonly ScriptExecutor $scriptExecutor,
-        private readonly RuleConditionPersister $ruleConditionPersister,
-        private readonly FlowEventPersister $flowEventPersister
+        private readonly iterable $persisters
     ) {
     }
 
@@ -52,13 +45,13 @@ class AppStateService
         }
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
-        $this->templateStateService->activateAppTemplates($appId, $context);
-        $this->scriptPersister->activateAppScripts($appId, $context);
-        $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
-        $this->ruleConditionPersister->activateConditionScripts($appId, $context);
-        $this->activeAppsLoader->reset();
         // manually set active flag to true, so we don't need to re-fetch the app from DB
         $app->setActive(true);
+        foreach ($this->persisters as $persister) {
+            $persister->activate($app, $context);
+        }
+
+        $this->activeAppsLoader->reset();
 
         $event = new AppActivatedEvent($app, $context);
         $this->eventDispatcher->dispatch($event);
@@ -85,11 +78,11 @@ class AppStateService
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
-        $this->templateStateService->deactivateAppTemplates($appId, $context);
-        $this->scriptPersister->deactivateAppScripts($appId, $context);
-        $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
-        $this->ruleConditionPersister->deactivateConditionScripts($appId, $context);
-        $this->flowEventPersister->deactivateFlow($appId);
+        $app->setActive(false);
+        foreach ($this->persisters as $persister) {
+            $persister->deactivate($app, $context);
+        }
+
         // reset only after new state is in the DB
         $this->activeAppsLoader->reset();
     }

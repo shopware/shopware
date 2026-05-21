@@ -84,14 +84,12 @@ class FeatureDisableCommandTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string>}>
+     * @return iterable<string, array{0: array<string>, 1: array<string>}>
      */
-    public static function featureProvider(): array
+    public static function featureProvider(): iterable
     {
-        return [
-            'one-feature' => [['FEATURE_ONE'], ['FEATURE_ONE']],
-            'multiple-feature' => [['FEATURE_ONE', 'FEATURE_TWO'], ['FEATURE_ONE', 'FEATURE_TWO']],
-            'duplicate-features' => [['FEATURE_ONE', 'FEATURE_ONE'], ['FEATURE_ONE']],
-        ];
+        yield 'one-feature' => [['FEATURE_ONE'], ['FEATURE_ONE']];
+        yield 'multiple-feature' => [['FEATURE_ONE', 'FEATURE_TWO'], ['FEATURE_ONE', 'FEATURE_TWO']];
+        yield 'duplicate-features' => [['FEATURE_ONE', 'FEATURE_ONE'], ['FEATURE_ONE']];
     }
 }

@@ -1,12 +1,10 @@
-@import "~scss/variables";
-
-$sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
+$sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
 
 .sw-text-editor-toolbar {
     padding: 0 6px;
-    background: linear-gradient(-180deg, $color-menu-start 0%, $color-menu-end 100%);
+    background: var(--color-elevation-floating-default);
     border-radius: 4px;
-    color: $color-gray-300;
+    color: var(--color-icon-inverse-default);
     display: grid;
     grid-auto-flow: column dense;
     grid-auto-columns: min-content;
@@ -25,9 +23,9 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         height: 8px;
         width: 8px;
         transform: rotate(45deg);
-        background: $color-menu-end;
-        border-top: 1px solid $color-menu-end;
-        border-left: 1px solid $color-menu-end;
+        background: var(--color-elevation-floating-default);
+        border-top: 1px solid var(--color-elevation-floating-default);
+        border-left: 1px solid var(--color-elevation-floating-default);
     }
 
     &.is--boxedEdit {
@@ -35,8 +33,8 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         top: 0;
         left: 0;
         position: initial;
-        background: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background: var(--color-background-secondary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
         color: $sw-text-editor-toolbar-item-color-boxed;
         display: grid;
         grid-template-columns: auto;
@@ -47,11 +45,11 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
 
         .sw-text-editor-buttons {
             &.is--middle {
-                border-left: 1px solid $color-gray-300;
+                border-left: 1px solid var(--color-border-primary-default);
             }
 
             &.is--right {
-                border-left: 1px solid $color-gray-300;
+                border-left: 1px solid var(--color-border-primary-default);
             }
         }
     }
@@ -65,12 +63,12 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         }
 
         &.is--middle {
-            border-left: 1px solid $color-darkgray-200;
+            border-left: 1px solid var(--color-border-primary-default);
             padding-left: 1px;
         }
 
         &.is--right {
-            border-left: 1px solid $color-darkgray-200;
+            border-left: 1px solid var(--color-border-primary-default);
             padding-left: 1px;
             justify-self: end;
         }

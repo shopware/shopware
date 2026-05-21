@@ -11,7 +11,7 @@ class LockedField extends BoolField
     private bool $lockTranslation;
 
     /**
-     * @deprecated tag:v6.7.0 - reason:new-optional-parameter - Parameter bool $lockTranslation = true will be added
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - Parameter bool $lockTranslation = true will be added
      */
     public function __construct(/* bool $lockTranslation = true */)
     {

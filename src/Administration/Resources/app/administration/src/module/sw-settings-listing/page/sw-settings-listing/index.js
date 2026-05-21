@@ -439,7 +439,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: this.$tc(snippetKey),
+                message: this.$t(snippetKey),
                 disabled: this.allowProductSortingOptionDelete(item),
             };
         },

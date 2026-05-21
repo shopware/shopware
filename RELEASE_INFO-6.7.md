@@ -215,7 +215,7 @@ The module provides:
 - A detail view per sales channel with three cards: capability/transport selection, signing-key management (list, create, retire, delete) and a "Security" card surfacing `signaturePolicy` and `idempotencyRequired` with an explicit warning when the policy is not `strict`.
 - A profile preview card that renders the `/.well-known/ucp` payload before the operator exposes it publicly.
 
-A dedicated Admin API service `ucpAdminApiService` wraps the eleven new `/api/_admin/ucp/*` endpoints, and snippets for the module are provided in `en-GB.json` and `de-DE.json`.
+A dedicated Admin API service `ucpAdminApiService` wraps the eleven new `/api/_admin/ucp/*` endpoints, and snippets for the module are provided in `en.json` and `de.json` to align with the administration language-layer convention.
 
 The module respects the three new ACL privileges (`ucp.viewer`, `ucp.editor`, `ucp.key_rotator`) so users without the appropriate role do not see the corresponding actions.
 

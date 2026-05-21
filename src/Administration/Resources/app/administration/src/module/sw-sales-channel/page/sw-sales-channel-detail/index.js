@@ -171,6 +171,12 @@ export default {
                     titleSnippet: 'sw-sales-channel.detail.agenticCommerce.openAiSettingsTitle',
                     positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai',
                 },
+                {
+                    provider: 'google',
+                    systemConfigDomain: 'core.googleProductExport',
+                    titleSnippet: 'sw-sales-channel.detail.agenticCommerce.googleSettingsTitle',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-google',
+                },
             ];
         },
     },
@@ -435,9 +441,15 @@ export default {
 
         validateAgenticCommerceExportConfig() {
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
+            const activeProvider = this.productExport?.provider
+                ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
             let isValid = true;
 
-            for (const entry of this.agenticCommerceExportConfig.filter((e) => e.isLoaded)) {
+            const activeEntries = this.agenticCommerceExportConfig.filter((entry) => {
+                return entry.isLoaded && entry.provider === activeProvider;
+            });
+
+            for (const entry of activeEntries) {
                 for (const el of entry.elements.filter((el) => el.config?.required && !entry.values[el.name])) {
                     entry.errors[el.name] = requiredError;
                     isValid = false;

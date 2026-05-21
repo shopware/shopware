@@ -155,15 +155,22 @@ export default {
         },
 
         resolvedAgenticCommerceExportConfig() {
+            let entries = [];
+
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
-                return this.agenticCommerceExportConfig;
+                entries = this.agenticCommerceExportConfig;
+            } else if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
+                entries = this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
             }
 
-            if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
-                return this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
+            if (entries.length === 0) {
+                return [];
             }
 
-            return [];
+            const activeProvider = this.productExport?.provider || entries[0]?.provider;
+            const filtered = entries.filter((entry) => entry.provider === activeProvider);
+
+            return filtered.length > 0 ? filtered : [entries[0]];
         },
 
         isHeadlessSalesChannel() {

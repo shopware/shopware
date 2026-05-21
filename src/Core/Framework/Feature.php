@@ -83,6 +83,37 @@ class Feature
     }
 
     /**
+     * Temporarily enables a single feature while preserving the rest of the environment.
+     * Prefer this over {@see fake} when a test wants to flip one flag without replicating
+     * the full production baseline.
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function withFeatureEnabled(string $feature, \Closure $closure)
+    {
+        return self::withFeatureValue($feature, true, $closure);
+    }
+
+    /**
+     * Mirror of {@see withFeatureEnabled} — disables a single feature while preserving
+     * the rest of the environment.
+     *
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    public static function withFeatureDisabled(string $feature, \Closure $closure)
+    {
+        return self::withFeatureValue($feature, false, $closure);
+    }
+
+    /**
      * Determines weather a feature is active or not.
      *
      * A feature is either active by being in the environment (specified in the .env file for example)
@@ -376,6 +407,26 @@ class Feature
     public static function getRegisteredFeatures(): array
     {
         return self::$registeredFeatures;
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
+    private static function withFeatureValue(string $feature, bool $enabled, \Closure $closure)
+    {
+        $serverVarsBackup = $_SERVER;
+
+        try {
+            $_SERVER[self::normalizeName($feature)] = $enabled;
+
+            return $closure();
+        } finally {
+            $_SERVER = $serverVarsBackup;
+        }
     }
 
     private static function isTrue(string $value): bool

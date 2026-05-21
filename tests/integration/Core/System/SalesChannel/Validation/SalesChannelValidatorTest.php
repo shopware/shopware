@@ -315,12 +315,48 @@ class SalesChannelValidatorTest extends TestCase
         static::assertCount(0, $result);
     }
 
-    public function testOnlyStorefrontAndHeadlessSalesChannelsWillBeSupported(): void
+    public function testAgenticCommerceSalesChannelValidationFailsWithoutLanguageEntry(): void
     {
         $id = Uuid::randomHex();
-        $languageId = Defaults::LANGUAGE_SYSTEM;
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
+        $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
 
-        $data = $this->getSalesChannelData($id, $languageId);
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+
+        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+    }
+
+    public function testAgenticCommerceSalesChannelValidationSucceedsWithLanguageEntry(): void
+    {
+        $id = Uuid::randomHex();
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
+        $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
+
+        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+
+        $count = (int) static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT COUNT(*) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        static::assertSame(1, $count);
+    }
+
+    public function testProductComparisonSalesChannelValidationFailsWithoutLanguageEntry(): void
+    {
+        $id = Uuid::randomHex();
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
+        $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
+
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+
+        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+    }
+
+    public function testProductComparisonSalesChannelValidationSucceedsWithLanguageEntry(): void
+    {
+        $id = Uuid::randomHex();
+        $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
         $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
@@ -328,11 +364,7 @@ class SalesChannelValidatorTest extends TestCase
         $count = (int) static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM sales_channel_language WHERE sales_channel_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
 
-        static::assertSame(0, $count);
-
-        $this->getSalesChannelRepository()->delete([[
-            'id' => $id,
-        ]], Context::createDefaultContext());
+        static::assertSame(1, $count);
     }
 
     /**

@@ -120,8 +120,7 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('A file with the name "foo.png" already exists.');
+        $this->expectExceptionObject(MediaException::duplicatedMediaFileName('foo', 'png'));
 
         $this->fileSaver->persistFileToMedia($mediaFile, 'foo', $mediaId, $context);
     }
@@ -270,8 +269,7 @@ class FileSaverTest extends TestCase
         $mediaCollection = new MediaCollection([$media]);
         $this->mediaRepository->addSearch($mediaCollection);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not find file for media with id \"{$media->getId()}\"");
+        $this->expectExceptionObject(MediaException::missingFile($media->getId()));
         $this->fileSaver->renameMedia($media->getId(), 'foo.png', $context);
     }
 
@@ -284,8 +282,7 @@ class FileSaverTest extends TestCase
 
         $this->mediaRepository->addSearch($mediaCollection);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not find media with id \"{$mediaId}\"");
+        $this->expectExceptionObject(MediaException::mediaNotFound($mediaId));
         $this->fileSaver->renameMedia($mediaId, 'foo.png', $context);
     }
 
@@ -424,8 +421,7 @@ class FileSaverTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage("Could not rename file for media with id: {$mediaId}. Rollback to filename: \"foo\"");
+        $this->expectExceptionObject(MediaException::couldNotRenameFile($mediaId, 'foo'));
 
         $this->fileSaver->renameMedia($mediaId, 'foobar', $context);
     }

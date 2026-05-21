@@ -399,7 +399,6 @@ Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsL
 ### Elasticsearch: Extracted field query builders from TokenQueryBuilder
 
 The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
-- 
 - base field matching (`FieldQueryBuilder`)
 - translated field handling (`TranslatedFieldQueryBuilder`)
 - nested field wrapping (`NestedFieldQueryBuilder`)

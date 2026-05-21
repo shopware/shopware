@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,9 +47,10 @@ class MySQLWebhookReceiverTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->clock = new MockClock(new \DateTimeImmutable('2026-04-20 10:00:00'));
-        $this->outbox = new WebhookOutboxStore($this->connection, $this->clock);
-        $this->lockService = new StreamLockService($this->connection, $this->clock);
-        $this->receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger());
+        $meter = static::getContainer()->get(Meter::class);
+        $this->outbox = new WebhookOutboxStore($this->connection, $this->clock, $meter);
+        $this->lockService = new StreamLockService($this->connection, $this->clock, $meter);
+        $this->receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, new NullLogger(), $meter);
         $this->ids = new IdsCollection();
         $this->clearWebhookTables();
     }
@@ -294,7 +296,7 @@ class MySQLWebhookReceiverTest extends TestCase
                         && $context['webhookId'] === $this->ids->get('wh-1')
                 )
             );
-        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger);
+        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger, static::getContainer()->get(Meter::class));
 
         $envelopes = iterator_to_array($this->asGenerator($receiver->get()));
         static::assertCount(1, $envelopes);
@@ -545,7 +547,7 @@ class MySQLWebhookReceiverTest extends TestCase
                 'Discarded unreadable webhook delivery',
                 static::callback(static fn (array $context): bool => $context['webhookEventId'] === $rowEventId)
             );
-        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger);
+        $receiver = new MySQLWebhookReceiver($this->lockService, $this->outbox, $this->clock, $logger, static::getContainer()->get(Meter::class));
 
         $envelopes = iterator_to_array($this->asGenerator($receiver->get()));
         static::assertSame([], $envelopes);

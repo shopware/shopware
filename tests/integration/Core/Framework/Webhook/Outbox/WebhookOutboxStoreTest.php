@@ -35,7 +35,9 @@ class WebhookOutboxStoreTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->store = static::getContainer()->get(WebhookOutboxStore::class);
+        $store = static::getContainer()->get(WebhookOutboxStore::class);
+        \assert($store instanceof WebhookOutboxStore);
+        $this->store = $store;
         $this->ids = new IdsCollection();
     }
 
@@ -525,7 +527,9 @@ class WebhookOutboxStoreTest extends TestCase
      * - a delivery row reappears (e.g. backfill, ops)
      * - another worker calls markFailed on it
      *
-     * The row is removed, but event_log stays SUCCESS.
+     * The duplicate row is removed and event_log stays SUCCESS. The bool returns false
+     * because the event-log CAS short-circuits — only the first terminal write transitions
+     * the row, and that already happened on the markSuccess call above.
      */
     public function testMarkFailedDoesNotRollBackTerminalEventLog(): void
     {
@@ -548,12 +552,13 @@ class WebhookOutboxStoreTest extends TestCase
 
         $sequence = (int) $this->connection->lastInsertId();
 
-        static::assertTrue($this->store->markFailed(
+        static::assertFalse($this->store->markFailed(
             new OutboxEntry(
                 webhookEventId: $this->ids->get('evt-1'),
                 sequence: $sequence,
                 executionCount: 1,
                 deliveryStatus: WebhookEventLogDefinition::STATUS_RUNNING,
+                eventLogCreatedAt: new \DateTimeImmutable('2026-04-15 12:00:00'),
             ),
             null,
         ));
@@ -644,6 +649,46 @@ class WebhookOutboxStoreTest extends TestCase
 
         static::assertCount(1, $results);
         static::assertSame($dueMessage->getWebhookEventId(), $results[0]->webhookEventId);
+    }
+
+    public function testResetRunningForPartitionReportsRescuedRowCountAndOldestLastAttemptAt(): void
+    {
+        $this->createWebhook('wh-1');
+        $partitionKey = Hasher::hashBinary('app-' . $this->ids->get('wh-1'), 'xxh128');
+
+        // Two stale RUNNING rows past the cutoff, with different last_attempt_at, plus one fresh
+        // RUNNING row that should NOT be counted. The DTO must report rescuedRows=2 and pick the
+        // earlier of the two stale timestamps as the oldest. Same-predicate snapshot vs UPDATE is
+        // what keeps `recovery_lag_seconds` accurate; this test pins the contract.
+        $earliest = (new \DateTimeImmutable('2026-04-29 10:00:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $middle = (new \DateTimeImmutable('2026-04-29 10:30:00'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $fresh = (new \DateTimeImmutable('-30 seconds'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->insertEventLogAndDelivery('evt-stale-1', 'wh-1', $partitionKey, WebhookEventLogDefinition::STATUS_RUNNING, $earliest);
+        $this->insertEventLogAndDelivery('evt-stale-2', 'wh-1', $partitionKey, WebhookEventLogDefinition::STATUS_RUNNING, $middle);
+        $this->insertEventLogAndDelivery('evt-fresh', 'wh-1', $partitionKey, WebhookEventLogDefinition::STATUS_RUNNING, $fresh);
+
+        $result = $this->store->resetRunningForPartition($partitionKey, 60);
+
+        static::assertSame(2, $result->rescuedRows);
+        static::assertNotNull($result->oldestLastAttemptAt);
+        static::assertSame($earliest, $result->oldestLastAttemptAt->format(Defaults::STORAGE_DATE_TIME_FORMAT));
+
+        // Fresh row stayed RUNNING; the two stale rows transitioned to PENDING_RETRY.
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $this->fetchDeliveryStatus('evt-stale-1'));
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $this->fetchDeliveryStatus('evt-stale-2'));
+        static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $this->fetchDeliveryStatus('evt-fresh'));
+    }
+
+    public function testResetRunningForPartitionWithNoStaleRowsReturnsZeroAndNullTimestamp(): void
+    {
+        $this->createWebhook('wh-1');
+        $partitionKey = Hasher::hashBinary('app-' . $this->ids->get('wh-1'), 'xxh128');
+
+        $result = $this->store->resetRunningForPartition($partitionKey, 60);
+
+        static::assertSame(0, $result->rescuedRows);
+        static::assertNull($result->oldestLastAttemptAt);
     }
 
     public function testResetRunningForPartitionOnTerminalEventLogIsNoop(): void
@@ -744,6 +789,37 @@ class WebhookOutboxStoreTest extends TestCase
             ['id' => $this->ids->getBytes($eventKey)]
         );
         static::assertFalse($exists, 'Expected delivery row to be deleted');
+    }
+
+    private function insertEventLogAndDelivery(string $eventKey, string $webhookKey, string $partitionKey, string $deliveryStatus, string $lastAttemptAt): void
+    {
+        $this->connection->insert('webhook_event_log', [
+            'id' => $this->ids->getBytes($eventKey),
+            'delivery_status' => $deliveryStatus,
+            'webhook_name' => 'test-hook',
+            'event_name' => 'product.written',
+            'url' => 'https://example.com/webhook',
+            'created_at' => $lastAttemptAt,
+        ]);
+        $this->connection->insert('webhook_delivery', [
+            'webhook_event_log_id' => $this->ids->getBytes($eventKey),
+            'webhook_id' => $this->ids->getBytes($webhookKey),
+            'partition_key' => $partitionKey,
+            'delivery_status' => $deliveryStatus,
+            'execution_count' => 1,
+            'last_attempt_at' => $lastAttemptAt,
+            'created_at' => $lastAttemptAt,
+        ]);
+    }
+
+    private function fetchDeliveryStatus(string $eventKey): string
+    {
+        $status = $this->connection->fetchOne(
+            'SELECT delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes($eventKey)]
+        );
+
+        return (string) $status;
     }
 
     private function createWebhook(string $webhookKey, ?string $appId = null): void

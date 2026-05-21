@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,7 +32,7 @@ class StreamLockServiceTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->clock = new MockClock(new \DateTimeImmutable('2024-01-01 12:00:00'));
-        $this->service = new StreamLockService($this->connection, $this->clock);
+        $this->service = new StreamLockService($this->connection, $this->clock, static::getContainer()->get(Meter::class));
         $this->clearWebhookState();
     }
 

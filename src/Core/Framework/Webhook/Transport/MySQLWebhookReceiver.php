@@ -7,6 +7,8 @@ use Doctrine\DBAL\Exception\RetryableException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -14,6 +16,8 @@ use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLease;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookMetricLabel;
+use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\TransportException;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
@@ -71,6 +75,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         private readonly WebhookOutboxStore $outbox,
         private readonly ClockInterface $clock,
         private readonly LoggerInterface $logger,
+        private readonly Meter $meter,
     ) {
         $this->workerId = Uuid::randomHex();
     }
@@ -81,6 +86,11 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             yield from $this->fetch();
             $this->consecutiveDeadlocks = 0;
         } catch (RetryableException $e) {
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.receiver.deadlock.total',
+                value: 1,
+            ));
+
             $this->logger->warning('Webhook receiver hit a transient DB contention; retrying next tick', [
                 'consecutiveDeadlocks' => $this->consecutiveDeadlocks + 1,
                 'workerId' => $this->workerId,
@@ -145,6 +155,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
         $renewed = $this->lockService->heartbeat($this->currentLease, $desired);
         if ($renewed === null) {
+            $this->emitLeaseLost();
             $this->abandonLease();
 
             return;
@@ -233,6 +244,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
 
         $verified = $this->lockService->verifyOwnership($this->currentLease);
         if ($verified === null) {
+            $this->emitLeaseLost();
             $this->abandonLease();
 
             return null;
@@ -275,14 +287,33 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
             return;
         }
 
-        $this->outbox->resetRunningForPartition($partitionKey, self::LEASE_SECONDS);
-        $this->lastCrashRecoveryAt[$partitionKey] = $now;
+        Profiler::trace(
+            'webhook::receiver.recover',
+            function () use ($partitionKey, $now): void {
+                $result = $this->outbox->resetRunningForPartition($partitionKey, self::LEASE_SECONDS);
+                $this->lastCrashRecoveryAt[$partitionKey] = $now;
+
+                if ($result->rescuedRows === 0 || $result->oldestLastAttemptAt === null) {
+                    return;
+                }
+
+                $recoveredAt = $this->clock->now();
+                $oldest = $result->oldestLastAttemptAt;
+                $recoveryLag = max(0, $recoveredAt->getTimestamp() - $oldest->getTimestamp());
+                $this->meter->emit(new ConfiguredMetric(
+                    name: 'webhook.receiver.recovery_lag_seconds',
+                    value: $recoveryLag,
+                ));
+            },
+            'webhook',
+        );
     }
 
     private function toEnvelope(OutboxEntry $entry): ?Envelope
     {
         // fetchDue always populates the blob; the nullable is only for markRunning's state-query return.
         \assert($entry->serializedWebhookMessage !== null);
+
         try {
             /** @phpstan-ignore shopware.unserializeUsage */
             $message = @unserialize($entry->serializedWebhookMessage, ['allowed_classes' => [WebhookEventMessage::class]]);
@@ -292,14 +323,30 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
                 'workerId' => $this->workerId,
                 'exception' => $e,
             ]);
-            $this->dropBrokenEntry($entry);
+            $this->dropBrokenEntry($entry, WebhookDropReason::UNSERIALIZE_ERROR);
+
+            return null;
+        }
+
+        if ($message === false) {
+            $this->logger->warning('Failed to unserialize webhook event message; dropping row', [
+                'webhookEventId' => $entry->webhookEventId,
+                'workerId' => $this->workerId,
+            ]);
+            $this->dropBrokenEntry($entry, WebhookDropReason::UNSERIALIZE_ERROR);
+
+            return null;
+        }
+
+        if (!$message instanceof WebhookEventMessage) {
+            $this->dropBrokenEntry($entry, WebhookDropReason::CLASS_MISMATCH);
 
             return null;
         }
 
         // Cross-check the blob against the DB row before trusting any field on it.
-        if (!$message instanceof WebhookEventMessage || $message->getWebhookEventId() !== $entry->webhookEventId) {
-            $this->dropBrokenEntry($entry);
+        if ($message->getWebhookEventId() !== $entry->webhookEventId) {
+            $this->dropBrokenEntry($entry, WebhookDropReason::EVENT_ID_MISMATCH);
 
             return null;
         }
@@ -307,14 +354,23 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
         return (new Envelope($message))->with(new TransportMessageIdStamp($entry->webhookEventId));
     }
 
-    private function dropBrokenEntry(OutboxEntry $entry): void
+    private function dropBrokenEntry(OutboxEntry $entry, WebhookDropReason $reason): void
     {
         // Don't call markRunning here: it would bump execution_count and stamp
         // last_attempt_at for a row that never left the transport.
-        $this->outbox->markUndeliverableFetchedEntryFailed($entry);
+        $persisted = $this->outbox->markUndeliverableFetchedEntryFailed($entry);
+
+        if ($persisted) {
+            $this->meter->emit(new ConfiguredMetric(
+                name: 'webhook.delivery.drop.total',
+                value: 1,
+                labels: [WebhookMetricLabel::REASON->value => $reason->value],
+            ));
+        }
 
         $this->logger->error('Discarded unreadable webhook delivery', [
             'webhookEventId' => $entry->webhookEventId,
+            'reason' => $reason->value,
             'workerId' => $this->workerId,
         ]);
     }
@@ -347,5 +403,13 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
     {
         $this->currentLease = null;
         $this->messagesDeliveredInLease = 0;
+    }
+
+    private function emitLeaseLost(): void
+    {
+        $this->meter->emit(new ConfiguredMetric(
+            name: 'webhook.stream.lease_lost.total',
+            value: 1,
+        ));
     }
 }

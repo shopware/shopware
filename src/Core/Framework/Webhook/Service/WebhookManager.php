@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
@@ -61,6 +63,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly Meter $meter,
     ) {
     }
 
@@ -109,9 +112,24 @@ class WebhookManager implements ResetInterface
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
+            $messages = Profiler::trace(
+                'webhook::collect',
+                fn (): array => $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale),
+                'webhook',
+                ['mode' => 'outbox'],
+            );
 
             if ($messages !== []) {
+                $count = \count($messages);
+                $this->meter->emit(new ConfiguredMetric(
+                    name: 'webhook.dispatch.source_event.total',
+                    value: 1,
+                ));
+                $this->meter->emit(new ConfiguredMetric(
+                    name: 'webhook.dispatch.fanout.count',
+                    value: $count,
+                ));
+
                 /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
                 $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;
 

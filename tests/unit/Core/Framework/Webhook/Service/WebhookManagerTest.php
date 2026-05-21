@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
@@ -82,6 +83,7 @@ class WebhookManagerTest extends TestCase
             sequence: 1,
             executionCount: 1,
             deliveryStatus: 'running',
+            eventLogCreatedAt: new \DateTimeImmutable('2026-04-15 12:00:00'),
         ));
     }
 
@@ -550,6 +552,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
+            $this->createMock(Meter::class),
         );
     }
 

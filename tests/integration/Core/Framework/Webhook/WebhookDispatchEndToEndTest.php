@@ -18,6 +18,10 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
+use Shopware\Core\Framework\Telemetry\Metrics\Transport\TransportCollection;
+use Shopware\Core\Framework\Test\Telemetry\Transport\TraceableTransport;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,6 +35,10 @@ use Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookDeliveryAttemptKind;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookDeliveryOutcome;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookDeliveryStatus;
+use Shopware\Core\Framework\Webhook\Telemetry\WebhookMetricLabel;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -64,6 +72,8 @@ class WebhookDispatchEndToEndTest extends TestCase
 
     private Connection $connection;
 
+    private TraceableTransport $metrics;
+
     protected function setUp(): void
     {
         $this->connection = static::getContainer()->get(Connection::class);
@@ -71,6 +81,19 @@ class WebhookDispatchEndToEndTest extends TestCase
         $this->connection->executeStatement('DELETE FROM webhook_delivery');
         $this->connection->executeStatement('DELETE FROM webhook_event_log');
         $this->connection->executeStatement('DELETE FROM webhook');
+
+        $transports = static::getContainer()->get(TransportCollection::class);
+        static::assertInstanceOf(TransportCollection::class, $transports);
+        $traceable = null;
+        foreach ($transports as $transport) {
+            if ($transport instanceof TraceableTransport) {
+                $traceable = $transport;
+                break;
+            }
+        }
+        static::assertInstanceOf(TraceableTransport::class, $traceable);
+        $traceable->reset();
+        $this->metrics = $traceable;
     }
 
     protected function tearDown(): void
@@ -822,6 +845,120 @@ class WebhookDispatchEndToEndTest extends TestCase
     }
 
     /**
+     * Pins the bounded metric vocabulary that fires on the happy-path delivery cycle. This is
+     * the only spot where dispatch + worker drain happens end-to-end against the real container,
+     * so it is the place where wiring drift between the host classes and the configured metric
+     * names would show up.
+     */
+    public function testEmitsMetricsForSuccessfulDelivery(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            Feature::withFeatureEnabled('TELEMETRY_METRICS', function () use ($manager, $event): void {
+                $manager->dispatch($event);
+                $this->runWorker();
+            });
+        });
+
+        $this->assertMetricEmitted('webhook.dispatch.source_event.total');
+        $this->assertMetricEmitted('webhook.dispatch.fanout.count');
+        $this->assertMetricEmitted('webhook.outbox.enqueued.total');
+        $this->assertMetricEmitted('webhook.delivery.attempt.total', [WebhookMetricLabel::KIND->value => WebhookDeliveryAttemptKind::FIRST_ATTEMPT->value]);
+        $this->assertMetricEmitted('webhook.delivery.duration', [WebhookMetricLabel::OUTCOME->value => WebhookDeliveryOutcome::SUCCESS->value]);
+        $this->assertMetricEmitted('webhook.delivery.total', [WebhookMetricLabel::STATUS->value => WebhookDeliveryStatus::SUCCESS->value]);
+        $this->assertMetricEmitted('webhook.delivery.time_to_first_attempt_seconds');
+        $this->assertMetricEmitted('webhook.delivery.time_to_drain_seconds', [WebhookMetricLabel::STATUS->value => WebhookDeliveryStatus::SUCCESS->value]);
+
+        // The drop counter sits at zero on the happy path — any emit there is the alert.
+        static::assertSame([], $this->findMetrics('webhook.delivery.drop.total'));
+        static::assertSame([], $this->findMetrics('webhook.delivery.total', [WebhookMetricLabel::STATUS->value => WebhookDeliveryStatus::FAILED->value]));
+    }
+
+    /**
+     * Retry path: 500 → PENDING_RETRY → 200 → SUCCESS. Asserts the retry-specific metric labels
+     * (`kind=retry`, `outcome=server_error`, `status=pending_retry`) which only the retry cycle
+     * exercises.
+     */
+    public function testEmitsRetryAndOutcomeLabelsOnTransientServerError(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createWebhook($webhookId, 'test-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        $this->appendNewResponse(new Response(500, [], '{"error":"fail"}'));
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event): void {
+            Feature::withFeatureEnabled('TELEMETRY_METRICS', function () use ($manager, $event): void {
+                $manager->dispatch($event);
+                $this->runWorker();
+                $this->makeRetryImmediatelyDue('test-webhook');
+                $this->runWorker();
+            });
+        });
+
+        $this->assertMetricEmitted('webhook.delivery.attempt.total', [WebhookMetricLabel::KIND->value => WebhookDeliveryAttemptKind::FIRST_ATTEMPT->value]);
+        $this->assertMetricEmitted('webhook.delivery.attempt.total', [WebhookMetricLabel::KIND->value => WebhookDeliveryAttemptKind::RETRY->value]);
+        $this->assertMetricEmitted('webhook.delivery.duration', [WebhookMetricLabel::OUTCOME->value => WebhookDeliveryOutcome::SERVER_ERROR->value]);
+        $this->assertMetricEmitted('webhook.delivery.duration', [WebhookMetricLabel::OUTCOME->value => WebhookDeliveryOutcome::SUCCESS->value]);
+        $this->assertMetricEmitted('webhook.delivery.total', [WebhookMetricLabel::STATUS->value => WebhookDeliveryStatus::PENDING_RETRY->value]);
+        $this->assertMetricEmitted('webhook.delivery.total', [WebhookMetricLabel::STATUS->value => WebhookDeliveryStatus::SUCCESS->value]);
+        $this->assertMetricEmitted('webhook.delivery.retry.due_lag_seconds');
+    }
+
+    /**
+     * @param array<string, scalar> $labels
+     */
+    private function assertMetricEmitted(string $name, array $labels = [], int $atLeast = 1): void
+    {
+        $matched = $this->findMetrics($name, $labels);
+        static::assertGreaterThanOrEqual(
+            $atLeast,
+            \count($matched),
+            \sprintf(
+                'Expected at least %d emission(s) of "%s" matching labels %s, got %d',
+                $atLeast,
+                $name,
+                json_encode($labels, \JSON_THROW_ON_ERROR),
+                \count($matched),
+            )
+        );
+    }
+
+    /**
+     * @param array<string, scalar> $labels
+     *
+     * @return list<Metric>
+     */
+    private function findMetrics(string $name, array $labels = []): array
+    {
+        return array_values(array_filter(
+            $this->metrics->getEmittedMetrics(),
+            static function (Metric $metric) use ($name, $labels): bool {
+                if ($metric->name !== $name) {
+                    return false;
+                }
+                foreach ($labels as $key => $value) {
+                    if (($metric->labels[$key] ?? null) !== $value) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        ));
+    }
+
+    /**
      * @param \Closure(): void $closure
      */
     private function withFlag(bool $active, \Closure $closure): void
@@ -881,6 +1018,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
             $isAdminWorkerEnabled,
+            static::getContainer()->get(Meter::class),
         );
 
         return new WebhookManager(
@@ -896,6 +1034,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(Meter::class),
         );
     }
 

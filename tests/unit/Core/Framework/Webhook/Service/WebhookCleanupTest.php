@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -31,7 +32,7 @@ class WebhookCleanupTest extends TestCase
         $streamLockService = $this->createMock(StreamLockService::class);
         $streamLockService->expects($this->never())->method('deleteOrphanedStreams');
 
-        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock());
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, $this->createMock(Meter::class), new MockClock());
         $cleaner->removeOldLogs();
     }
 
@@ -51,7 +52,7 @@ class WebhookCleanupTest extends TestCase
         $streamLockService = $this->createMock(StreamLockService::class);
         $streamLockService->expects($this->once())->method('deleteOrphanedStreams')->willReturn(0);
 
-        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, $this->createMock(Meter::class), new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
         $cleaner->removeOldLogs();
     }
 
@@ -71,7 +72,7 @@ class WebhookCleanupTest extends TestCase
             ->method('deleteOrphanedStreams')
             ->willReturnOnConsecutiveCalls(500, 500, 42);
 
-        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
+        $cleaner = new WebhookCleanup($config, $conn, $streamLockService, $this->createMock(Meter::class), new MockClock(new \DateTimeImmutable('2 January 2023 13:04')));
         $cleaner->removeOldLogs();
     }
 }

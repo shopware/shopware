@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
@@ -102,7 +103,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry());
         $this->webhookOutboxStore->expects($this->never())->method('markRunning');
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
@@ -125,7 +126,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('recordInflightOutboxEntry')
             ->with(static::isInstanceOf(OutboxInsert::class))
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry());
         $this->webhookOutboxStore->expects($this->never())->method('markRunning');
 
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
@@ -147,7 +148,7 @@ class WebhookDeliveryServiceTest extends TestCase
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
             ->with($msg->getWebhookEventId())
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry());
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -170,7 +171,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry(executionCount: 2));
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
@@ -191,7 +192,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 6, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry(executionCount: 6));
 
         $this->queueGuzzleResponse(new Response(500, [], '{"error":"fail"}'));
 
@@ -233,7 +234,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry());
 
         $this->queueGuzzleResponse(new Response(200, ['Content-Type' => 'application/json'], '{"status":"ok"}'));
 
@@ -262,8 +263,8 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->webhookOutboxStore->method('recordInflightOutboxEntry')
             ->willReturnOnConsecutiveCalls(
-                new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 2, deliveryStatus: 'running'),
-                new OutboxEntry(webhookEventId: 'stub', sequence: 2, executionCount: 1, deliveryStatus: 'running'),
+                $this->createOutboxEntry(sequence: 1, executionCount: 2),
+                $this->createOutboxEntry(sequence: 2),
             );
         $this->webhookOutboxStore->expects($this->never())->method('markRunning');
 
@@ -301,8 +302,8 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->webhookOutboxStore->method('recordInflightOutboxEntry')
             ->willReturnOnConsecutiveCalls(
-                new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: 1, deliveryStatus: 'running'),
-                new OutboxEntry(webhookEventId: 'stub', sequence: 2, executionCount: 1, deliveryStatus: 'running'),
+                $this->createOutboxEntry(sequence: 1),
+                $this->createOutboxEntry(sequence: 2),
             );
 
         $this->queueGuzzleResponse(new Response(200, [], '{"status":"ok"}'));
@@ -348,7 +349,7 @@ class WebhookDeliveryServiceTest extends TestCase
             'X-SHOPWARE-ATTEMPT' => 'spoofed-attempt',
             'X-Custom' => 'value',
         ]);
-        $entry = new OutboxEntry(webhookEventId: $msg->getWebhookEventId(), sequence: 42, executionCount: 3, deliveryStatus: 'running');
+        $entry = $this->createOutboxEntry(webhookEventId: $msg->getWebhookEventId(), sequence: 42, executionCount: 3);
 
         $this->appPayloadServiceHelper->expects($this->once())->method('createWebhookRequest')
             ->with(
@@ -385,7 +386,7 @@ class WebhookDeliveryServiceTest extends TestCase
 
         $this->appPayloadServiceHelper->method('createWebhookRequest')->willReturn($webhookRequest);
         $this->webhookOutboxStore->expects($this->once())->method('markRunning')
-            ->willReturn(new OutboxEntry(webhookEventId: 'stub', sequence: 1, executionCount: $executionCount, deliveryStatus: 'running'));
+            ->willReturn($this->createOutboxEntry(executionCount: $executionCount));
 
         $this->queueGuzzleResponse($response);
 
@@ -434,6 +435,7 @@ class WebhookDeliveryServiceTest extends TestCase
             $this->webhookHealthService,
             $this->logger,
             $isAdminWorkerEnabled,
+            $this->createMock(Meter::class),
             $failureStrategy,
         );
     }
@@ -468,6 +470,21 @@ class WebhookDeliveryServiceTest extends TestCase
             body: $body,
             timestamp: self::FIXED_TIMESTAMP,
             options: ['connect_timeout' => 10, 'timeout' => 20],
+        );
+    }
+
+    private function createOutboxEntry(
+        string $webhookEventId = 'stub',
+        int $sequence = 1,
+        int $executionCount = 1,
+        string $deliveryStatus = 'running',
+    ): OutboxEntry {
+        return new OutboxEntry(
+            webhookEventId: $webhookEventId,
+            sequence: $sequence,
+            executionCount: $executionCount,
+            deliveryStatus: $deliveryStatus,
+            eventLogCreatedAt: $this->clock->now()->modify('-1 second'),
         );
     }
 }

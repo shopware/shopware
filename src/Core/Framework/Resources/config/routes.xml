@@ -22,7 +22,6 @@
     <import resource="../../Ucp/Discovery/*Controller.php" type="attribute" />
     <import resource="../../Ucp/Capability/**/*Controller.php" type="attribute" />
     <import resource="../../Ucp/Api/*Controller.php" type="attribute" />
-    <import resource="../../Ucp/Transport/Mcp/*Controller.php" type="attribute" />
-    <import resource="../../Ucp/Capability/IdentityLinking/Controller/*Controller.php" type="attribute" />
+    <import resource="../../Ucp/Transport/**/*Controller.php" type="attribute" />
 
 </routes>

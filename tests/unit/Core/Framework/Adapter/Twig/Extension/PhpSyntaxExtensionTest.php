@@ -144,8 +144,7 @@ class PhpSyntaxExtensionTest extends TestCase
         ]));
         $environment->addExtension(new PhpSyntaxExtension());
 
-        $this->expectException(AdapterException::class);
-        $this->expectExceptionMessage(\sprintf('The %s filter failed to encode array input', $algorithm));
+        $this->expectExceptionObject(AdapterException::invalidArgument(\sprintf('The %s filter failed to encode array input: %s', $algorithm, 'Inf and NaN cannot be JSON encoded')));
 
         try {
             $environment->render('test', ['value' => [\NAN]]);

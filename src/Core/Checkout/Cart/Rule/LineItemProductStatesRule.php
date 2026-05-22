@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
  * @deprecated tag:v6.8.0 - reason:remove-rule - Use \Shopware\Core\Checkout\Cart\Rule\LineItemProductTypeRule instead.
- *
- * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class LineItemProductStatesRule extends Rule

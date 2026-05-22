@@ -78,14 +78,14 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $context = Context::createDefaultContext();
 
-        $media = null;
+        $mediaEntity = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), $context)->getEntities()->first();
+            $mediaEntity = $this->mediaRepository->search(new Criteria([$deserialized['id']]), $context)->getEntities()->first();
         }
 
-        $isNew = $media === null;
+        $isNew = $mediaEntity === null;
 
-        if ($isNew || $media->getUrl() !== $url) {
+        if ($isNew || $mediaEntity->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
             $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName, $context);
 
@@ -98,27 +98,36 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
             $pathInfo = pathinfo($parsed['path'] ?? '');
 
-            $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
+            $mediaFile = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
 
-            if ($media === null) {
+            if ($mediaFile === null) {
                 $deserialized['_error'] = new MediaDownloadException($url);
 
                 return $deserialized;
             }
 
-            $originalMediaId = $deserialized['id'];
+            $hash = $mediaFile->getHash();
 
-            if ($isNew && $media->getHash()) {
-                $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash(), $context);
-            }
+            if ($hash !== null) {
+                if ($mediaEntity !== null && ($mediaEntity->getMetaData()['hash'] ?? null) === $hash) {
+                    // The CSV URL can differ from the generated media URL while still pointing to the same file.
+                    return $deserialized;
+                }
 
-            if ($deserialized['id'] !== $originalMediaId) {
-                // Existing media with the same hash is reused; persisting the download again would move its file path.
-                return $deserialized;
+                if ($isNew) {
+                    $existingMediaId = $this->findExistingMediaIdByHash($hash, $context);
+
+                    if ($existingMediaId !== null) {
+                        // Existing media with the same hash is reused; persisting the download again would move its file path.
+                        $deserialized['id'] = $existingMediaId;
+
+                        return $deserialized;
+                    }
+                }
             }
 
             $this->cacheMediaFiles[(string) $deserialized['id']] = [
-                'media' => $media,
+                'media' => $mediaFile,
                 'destination' => urldecode($pathInfo['filename']),
             ];
         }
@@ -214,21 +223,11 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $deserialized
-     *
-     * @return array<string, mixed>
-     */
-    private function fetchExistingMediaByHash(array $deserialized, string $hash, Context $context): array
+    private function findExistingMediaIdByHash(string $hash, Context $context): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('metaData.hash', $hash));
 
-        $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
-        if ($mediaId !== null) {
-            $deserialized['id'] = $mediaId;
-        }
-
-        return $deserialized;
+        return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }
 }

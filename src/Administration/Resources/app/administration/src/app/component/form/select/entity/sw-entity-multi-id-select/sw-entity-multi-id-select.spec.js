@@ -12,6 +12,7 @@ const fixture = [
         id: utils.createId(),
         name: 'first entry',
         active: true,
+        variation: [{ group: 'Color', option: 'Red' }],
     },
     {
         id: utils.createId(),
@@ -28,7 +29,7 @@ function getEmptyCollection() {
     return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), [], 0, null);
 }
 
-async function createWrapper(propsOverride = {}) {
+async function createWrapper(propsOverride = {}, stubsOverride = {}) {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
         props: {
             value: getCollection().getIds(),
@@ -64,6 +65,7 @@ async function createWrapper(propsOverride = {}) {
                 'sw-select-result': true,
                 'sw-select-result-list': true,
                 'sw-loader': true,
+                ...stubsOverride,
             },
         },
     });
@@ -199,5 +201,44 @@ describe('components/sw-entity-multi-id-select', () => {
                 expect.objectContaining({ association: 'options' }),
             ]),
         );
+    });
+
+    it('should render variant info in default label slots for product entities', async () => {
+        const variantInfoStubs = {
+            'sw-label': {
+                template: '<span><slot></slot></span>',
+            },
+            'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
+            'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+        };
+
+        const wrapper = await createWrapper(
+            {
+                repository: {
+                    route: '/product',
+                    entityName: 'product',
+                    search: () => {
+                        return Promise.resolve(getCollection());
+                    },
+                },
+            },
+            variantInfoStubs,
+        );
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-variant-info').exists()).toBe(true);
+        expect(wrapper.find('.sw-product-variant-info__product-name').text()).toContain(fixture[0].name);
+        expect(wrapper.find('.sw-product-variant-info__specification').text()).toContain('Color');
+        expect(wrapper.find('.sw-product-variant-info__specification').text()).toContain('Red');
+
+        const nonProductWrapper = await createWrapper(
+            {},
+            variantInfoStubs,
+        );
+        await flushPromises();
+
+        expect(nonProductWrapper.vm.displayVariants).toBe(false);
+        expect(nonProductWrapper.find('.sw-product-variant-info').exists()).toBe(false);
+        expect(nonProductWrapper.text()).toContain(fixture[0].name);
     });
 });

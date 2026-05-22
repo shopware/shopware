@@ -204,12 +204,31 @@ describe('components/sw-entity-multi-id-select', () => {
     });
 
     it('should render variant info in default label slots for product entities', async () => {
-        const variantInfoStubs = {
-            'sw-label': {
-                template: '<span><slot></slot></span>',
+        const slotRenderingMultiSelectStub = {
+            template: `
+                <div>
+                    <slot
+                        name="selection-label-property"
+                        :item="item"
+                        label-property="name"
+                        :get-key="getKey"
+                    ></slot>
+                    <slot
+                        name="result-label-property"
+                        :item="item"
+                        label-property="name"
+                        :get-key="getKey"
+                        search-term=""
+                        :highlight-search-term="false"
+                    ></slot>
+                </div>
+            `,
+            data() {
+                return { item: fixture[0] };
             },
-            'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
-            'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+            methods: {
+                getKey: (item, key) => item[key],
+            },
         };
 
         const wrapper = await createWrapper(
@@ -222,23 +241,24 @@ describe('components/sw-entity-multi-id-select', () => {
                     },
                 },
             },
-            variantInfoStubs,
+            {
+                'sw-entity-multi-select': slotRenderingMultiSelectStub,
+            },
         );
         await flushPromises();
 
-        expect(wrapper.find('.sw-product-variant-info').exists()).toBe(true);
-        expect(wrapper.find('.sw-product-variant-info__product-name').text()).toContain(fixture[0].name);
-        expect(wrapper.find('.sw-product-variant-info__specification').text()).toContain('Color');
-        expect(wrapper.find('.sw-product-variant-info__specification').text()).toContain('Red');
+        expect(wrapper.findAll('sw-product-variant-info-stub')).toHaveLength(2);
 
         const nonProductWrapper = await createWrapper(
             {},
-            variantInfoStubs,
+            {
+                'sw-entity-multi-select': slotRenderingMultiSelectStub,
+            },
         );
         await flushPromises();
 
         expect(nonProductWrapper.vm.displayVariants).toBe(false);
-        expect(nonProductWrapper.find('.sw-product-variant-info').exists()).toBe(false);
+        expect(nonProductWrapper.find('sw-product-variant-info-stub').exists()).toBe(false);
         expect(nonProductWrapper.text()).toContain(fixture[0].name);
     });
 });

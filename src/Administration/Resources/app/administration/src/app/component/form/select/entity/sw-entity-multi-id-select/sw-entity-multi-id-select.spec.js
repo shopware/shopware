@@ -21,8 +21,8 @@ const fixture = [
     },
 ];
 
-function getCollection() {
-    return new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), fixture, fixture.length, null);
+function getCollection(entity = 'testEntity', route = '/test-entity') {
+    return new EntityCollection(route, entity, null, new Criteria(1, 25), fixture, fixture.length, null);
 }
 
 function getEmptyCollection() {
@@ -189,7 +189,7 @@ describe('components/sw-entity-multi-id-select', () => {
                 route: '/product',
                 entityName: 'product',
                 search: () => {
-                    return Promise.resolve(getCollection());
+                    return Promise.resolve(getCollection('product', '/product'));
                 },
             },
         });
@@ -218,7 +218,7 @@ describe('components/sw-entity-multi-id-select', () => {
                     route: '/product',
                     entityName: 'product',
                     search: () => {
-                        return Promise.resolve(getCollection());
+                        return Promise.resolve(getCollection('product', '/product'));
                     },
                 },
             },

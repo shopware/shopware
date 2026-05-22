@@ -9,6 +9,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\Errors;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\LogicDetector;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
 use Shopware\Core\Framework\Log\Package;
@@ -23,10 +24,13 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 {
     private readonly SourceParser $sources;
 
+    private readonly ExemptionResolver $exemptions;
+
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
     ) {
         $this->sources = new SourceParser($reflectionProvider);
+        $this->exemptions = new ExemptionResolver($reflectionProvider, $this->sources);
     }
 
     public function getNodeType(): string
@@ -50,7 +54,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             return [Errors::exception($className, $node->getStartLine())];
         }
 
-        $classExempted = $classHasIgnore && $this->hasSeeIntegrationTest($node, $scope);
+        $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $scope);
 
         return [
             ...$this->checkMethods($node, $scope, $className, $classHasIgnore, $classExempted),
@@ -94,7 +98,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            if ($this->hasSeeIntegrationTest($method, $scope)) {
+            if ($this->exemptions->isExempted($method, $scope)) {
                 continue;
             }
 
@@ -155,48 +159,6 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         return $this->reflectionProvider->getClass($className)
             ->getNativeReflection()
             ->isSubclassOf(\Throwable::class);
-    }
-
-    private function hasSeeIntegrationTest(Node $node, Scope $scope): bool
-    {
-        $doc = $node->getDocComment();
-        if ($doc === null) {
-            return false;
-        }
-
-        if (!preg_match_all('/@see\s+(\S+)/', $doc->getText(), $matches)) {
-            return false;
-        }
-
-        $useMap = null;
-
-        foreach ($matches[1] as $reference) {
-            $rawClass = explode('::', $reference)[0];
-            $candidate = ltrim($rawClass, '\\');
-            if ($candidate === '') {
-                continue;
-            }
-
-            $resolved = $candidate;
-
-            // Unqualified (no `\`) references are resolved against the file's
-            // use statements. Qualified refs (with `\` or relative path) are
-            // taken as-is, matching common phpdoc conventions in this codebase.
-            if (!str_starts_with($rawClass, '\\') && !str_contains($candidate, '\\')) {
-                $useMap ??= $this->sources->useMap($scope->getFile());
-                $resolved = $useMap[$candidate] ?? $candidate;
-            }
-
-            if (!str_contains($resolved, '\\Tests\\Integration\\')) {
-                continue;
-            }
-
-            if ($this->reflectionProvider->hasClass($resolved)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function className(Class_ $node): string

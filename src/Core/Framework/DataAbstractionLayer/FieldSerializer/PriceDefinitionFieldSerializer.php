@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
-use Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\ConditionTypeNotFound;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\MissingConditionRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -151,25 +151,31 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($decoded);
             case AbsolutePriceDefinition::TYPE:
-                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
-
-                return new AbsolutePriceDefinition($decoded['price'], $rules);
+                return new AbsolutePriceDefinition($decoded['price'], $this->decodeFilter($decoded));
             case CurrencyPriceDefinition::TYPE:
-                $rules = (\array_key_exists('filter', $decoded) && $decoded['filter'] !== null) ? $this->decodeRule($decoded['filter']) : null;
-
                 $collection = new PriceCollection();
                 foreach ($decoded['price'] as $price) {
                     $collection->add(new Price($price['currencyId'], (float) $price['net'], (float) $price['gross'], (bool) $price['linked']));
                 }
 
-                return new CurrencyPriceDefinition($collection, $rules);
+                return new CurrencyPriceDefinition($collection, $this->decodeFilter($decoded));
             case PercentagePriceDefinition::TYPE:
-                $rules = \array_key_exists('filter', $decoded) && $decoded['filter'] !== null ? $this->decodeRule($decoded['filter']) : null;
-
-                return new PercentagePriceDefinition($decoded['percentage'], $rules);
+                return new PercentagePriceDefinition($decoded['percentage'], $this->decodeFilter($decoded));
         }
 
         throw new InvalidPriceFieldTypeException($decoded['type']);
+    }
+
+    /**
+     * @param array<string, mixed> $decoded
+     */
+    private function decodeFilter(array $decoded): ?Rule
+    {
+        if (!\array_key_exists('filter', $decoded) || $decoded['filter'] === null) {
+            return null;
+        }
+
+        return $this->decodeRule($decoded['filter']);
     }
 
     private function validateRules(array $data, string $basePath): ConstraintViolationList
@@ -211,7 +217,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
     private function decodeRule(array $rule): Rule
     {
         if (!$this->ruleConditionRegistry->has($rule['_name'])) {
-            throw new ConditionTypeNotFound($rule['_name']);
+            return new MissingConditionRule($rule['_name']);
         }
 
         $ruleClass = $this->ruleConditionRegistry->getRuleClass($rule['_name']);

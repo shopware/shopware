@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
+use Shopware\Core\Framework\Rule\MissingConditionRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
@@ -99,6 +100,99 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded['test']);
 
         static::assertEquals($definition, $decoded);
+    }
+
+    public function testDecodePercentagePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodeAbsolutePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => AbsolutePriceDefinition::TYPE,
+            'price' => -10,
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(AbsolutePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodeCurrencyPriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
+    {
+        $encoded = json_encode([
+            'type' => CurrencyPriceDefinition::TYPE,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'net' => 100, 'gross' => 200, 'linked' => false],
+            ],
+            'filter' => [
+                '_name' => 'unknownPluginRule',
+                'operator' => Rule::OPERATOR_EQ,
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(CurrencyPriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertSame('unknownPluginRule', $filter->getOriginalName());
+    }
+
+    public function testDecodePriceDefinitionWithMissingRuleConditionNestedInContainerKeepsSurroundingStructure(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'andContainer',
+                'rules' => [
+                    [
+                        '_name' => 'currency',
+                        'operator' => Rule::OPERATOR_EQ,
+                        'currencyIds' => [Defaults::CURRENCY],
+                    ],
+                    [
+                        '_name' => 'unknownPluginRule',
+                        'operator' => Rule::OPERATOR_EQ,
+                    ],
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        $filter = $decoded->getFilter();
+        static::assertInstanceOf(AndRule::class, $filter);
+
+        $rules = $filter->getRules();
+        static::assertCount(2, $rules);
+        static::assertInstanceOf(CurrencyRule::class, $rules[0]);
+        static::assertInstanceOf(MissingConditionRule::class, $rules[1]);
+        static::assertSame('unknownPluginRule', $rules[1]->getOriginalName());
     }
 
     #[DataProvider('serializerProvider')]

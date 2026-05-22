@@ -2,14 +2,9 @@
 
 namespace Shopware\Core\Service;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceRegistry\Client;
@@ -23,15 +18,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('framework')]
 class AllServiceInstaller
 {
-    /**
-     * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly Client $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
-        private readonly EntityRepository $appRepository,
+        private readonly ServiceRepository $serviceRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
@@ -45,10 +35,7 @@ class AllServiceInstaller
      */
     public function install(Context $context): array
     {
-        $existingServices = $this->appRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
-            $context
-        );
+        $existingServices = $this->serviceRepository->findAll($context);
 
         $installedServices = [];
         $newServices = $this->getNewServices($existingServices);
@@ -73,13 +60,13 @@ class AllServiceInstaller
     }
 
     /**
-     * @param EntitySearchResult<AppCollection> $installedServices
+     * @param list<Service> $installedServices
      *
      * @return array<ServiceEntry>
      */
-    private function getNewServices(EntitySearchResult $installedServices): array
+    private function getNewServices(array $installedServices): array
     {
-        $names = $installedServices->map(static fn (AppEntity $app) => $app->getName());
+        $names = array_map(static fn (Service $service) => $service->getName(), $installedServices);
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),

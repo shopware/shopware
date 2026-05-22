@@ -18,9 +18,11 @@ use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
@@ -101,9 +103,9 @@ class LifecycleManagerTest extends TestCase
     public function testDisable(): void
     {
         $services = new AppCollection([
-            (new AppEntity())->assign(['id' => 'service1', 'name' => 'SwagService1']),
-            (new AppEntity())->assign(['id' => 'service2', 'name' => 'SwagService2']),
-            (new AppEntity())->assign(['id' => 'service3', 'name' => 'SwagService3']),
+            $this->createServiceEntity('service1', 'SwagService1'),
+            $this->createServiceEntity('service2', 'SwagService2'),
+            $this->createServiceEntity('service3', 'SwagService3'),
         ]);
 
         $this->appLifecycle->expects($this->exactly($services->count()))
@@ -161,17 +163,13 @@ class LifecycleManagerTest extends TestCase
         $serviceName = 'TestService';
         $serviceId = 'service-id-123';
 
-        $service = (new AppEntity())->assign([
-            'id' => $serviceId,
-            'name' => $serviceName,
-            'selfManaged' => true,
-        ]);
+        $service = $this->createServiceEntity($serviceId, $serviceName, ['service_consent']);
 
         $services = new AppCollection([$service]);
 
         $this->requirementsValidator->expects($this->once())
             ->method('isSatisfied')
-            ->with($service)
+            ->with(['service_consent'])
             ->willReturn(true);
 
         $this->privileges->expects($this->once())
@@ -191,17 +189,13 @@ class LifecycleManagerTest extends TestCase
         $serviceName = 'TestService';
         $serviceId = 'service-id-123';
 
-        $service = (new AppEntity())->assign([
-            'id' => $serviceId,
-            'name' => $serviceName,
-            'selfManaged' => true,
-        ]);
+        $service = $this->createServiceEntity($serviceId, $serviceName, ['service_consent']);
 
         $services = new AppCollection([$service]);
 
         $this->requirementsValidator->expects($this->once())
             ->method('isSatisfied')
-            ->with($service)
+            ->with(['service_consent'])
             ->willReturn(false);
 
         $this->privileges->expects($this->never())
@@ -218,16 +212,14 @@ class LifecycleManagerTest extends TestCase
 
     public function testSyncRequirementReEvaluatesAffectedServices(): void
     {
-        $app1 = (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]);
-        $app2 = (new AppEntity())->assign(['id' => 'id-2', 'name' => 'Service2', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]);
+        $app1 = $this->createServiceEntity('id-1', 'Service1', ['service_consent']);
+        $app2 = $this->createServiceEntity('id-2', 'Service2', ['service_consent']);
         $services = new AppCollection([$app1, $app2]);
 
         $this->requirementsValidator->expects($this->exactly(2))
             ->method('isSatisfied')
-            ->willReturnMap([
-                [$app1, true],
-                [$app2, false],
-            ]);
+            ->with(['service_consent'])
+            ->willReturnOnConsecutiveCalls(true, false);
 
         $this->privileges->expects($this->once())
             ->method('acceptAllForApps')
@@ -245,7 +237,7 @@ class LifecycleManagerTest extends TestCase
     public function testSyncRequirementDoesNothingWhenNoServicesAffected(): void
     {
         $services = new AppCollection([
-            (new AppEntity())->assign(['id' => 'id-1', 'name' => 'Service1', 'selfManaged' => true, 'sourceConfig' => $this->createSourceConfig(['service_consent'])]),
+            $this->createServiceEntity('id-1', 'Service1', ['service_consent']),
         ]);
 
         $this->requirementsValidator->expects($this->never())
@@ -265,9 +257,9 @@ class LifecycleManagerTest extends TestCase
     public function testSync(): void
     {
         $services = new AppCollection([
-            (new AppEntity())->assign(['id' => 'service1', 'name' => 'SwagService1', 'selfManaged' => true]),
-            (new AppEntity())->assign(['id' => 'service2', 'name' => 'SwagService2', 'selfManaged' => true]),
-            (new AppEntity())->assign(['id' => 'service3', 'name' => 'OrphanedService', 'selfManaged' => true]),
+            $this->createServiceEntity('service1', 'SwagService1'),
+            $this->createServiceEntity('service2', 'SwagService2'),
+            $this->createServiceEntity('service3', 'OrphanedService'),
         ]);
 
         $this->client = $this->createMock(Client::class);
@@ -298,7 +290,7 @@ class LifecycleManagerTest extends TestCase
             $appEnv,
             $this->createMock(Privileges::class),
             new StaticSystemConfigService($systemConfig),
-            $this->createAppRepository(),
+            new ServiceRepository($this->createAppRepository()),
             $this->createMock(AppLifecycle::class),
             $this->createMock(AllServiceInstaller::class),
             $this->createMock(PermissionsService::class),
@@ -373,7 +365,7 @@ class LifecycleManagerTest extends TestCase
             'prod',
             $this->privileges,
             $this->systemConfigService,
-            $repository,
+            new ServiceRepository($repository),
             $this->appLifecycle,
             $this->serviceInstaller,
             $this->permissionsService,
@@ -393,6 +385,20 @@ class LifecycleManagerTest extends TestCase
         ]);
 
         return $appRepository;
+    }
+
+    /**
+     * @param list<string> $requirements
+     */
+    private function createServiceEntity(string $id, string $name, array $requirements = ['service_consent']): AppEntity
+    {
+        return AppFixture::createAppEntity(name: $name, id: $id)->assign([
+            'version' => '1.0.0',
+            'aclRoleId' => 'acl-role-id-' . $id,
+            'active' => true,
+            'selfManaged' => true,
+            'sourceConfig' => $this->createSourceConfig($requirements),
+        ]);
     }
 
     /**

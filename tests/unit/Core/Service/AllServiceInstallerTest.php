@@ -7,13 +7,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Shopware\Core\Service\ServiceRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -34,7 +35,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository(),
+            new ServiceRepository($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher
         );
@@ -66,9 +67,7 @@ class AllServiceInstallerTest extends TestCase
 
     public function testOnlyNewServicesAreInstalled(): void
     {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
+        $app1 = AppFixture::createAppEntity(name: 'Service1');
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
@@ -78,7 +77,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository([$app1]),
+            new ServiceRepository($this->buildAppRepository([$app1])),
             $messageBus,
             $eventDispatcher
         );
@@ -105,12 +104,8 @@ class AllServiceInstallerTest extends TestCase
 
     public function testNoServicesAreInstalledIfAllExist(): void
     {
-        $app1 = new AppEntity();
-        $app1->setUniqueIdentifier(Uuid::randomHex());
-        $app1->setName('Service1');
-        $app2 = new AppEntity();
-        $app2->setUniqueIdentifier(Uuid::randomHex());
-        $app2->setName('Service2');
+        $app1 = AppFixture::createAppEntity(name: 'Service1');
+        $app2 = AppFixture::createAppEntity(name: 'Service2');
 
         $serviceRegistryClient = $this->createMock(ServiceRegistryClient::class);
         $serviceLifeCycle = $this->createMock(ServiceLifecycle::class);
@@ -120,7 +115,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository([$app1, $app2]),
+            new ServiceRepository($this->buildAppRepository([$app1, $app2])),
             $messageBus,
             $eventDispatcher,
         );
@@ -150,7 +145,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository(),
+            new ServiceRepository($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher
         );
@@ -176,7 +171,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository(),
+            new ServiceRepository($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );
@@ -203,7 +198,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository(),
+            new ServiceRepository($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );
@@ -241,7 +236,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            $this->buildAppRepository(),
+            new ServiceRepository($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );

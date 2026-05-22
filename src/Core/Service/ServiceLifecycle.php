@@ -4,7 +4,6 @@ namespace Shopware\Core\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
@@ -40,6 +39,7 @@ class ServiceLifecycle
         private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
+        private readonly ServiceRepository $serviceRepository,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ServiceSourceResolver $sourceResolver,
@@ -105,9 +105,9 @@ class ServiceLifecycle
     {
         $serviceEntry = $this->serviceRegistryClient->get($serviceName);
 
-        $app = $this->loadServiceByName($serviceName, $context);
+        $service = $this->serviceRepository->findByName($serviceName, $context);
 
-        if (!$app) {
+        if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
         }
 
@@ -120,7 +120,7 @@ class ServiceLifecycle
         }
 
         // if it's the same version, bail
-        if ($app->getVersion() === $latestAppInfo->revision) {
+        if ($service->getVersion() === $latestAppInfo->revision) {
             return true;
         }
 
@@ -146,8 +146,8 @@ class ServiceLifecycle
                 $manifest,
                 new AppUpdateParameters(),
                 [
-                    'id' => $app->getId(),
-                    'roleId' => $app->getAclRoleId(),
+                    'id' => $service->getId(),
+                    'roleId' => $service->getAclRoleId(),
                 ],
                 $context
             );
@@ -185,15 +185,6 @@ class ServiceLifecycle
         $manifest->getMetadata()->setSelfManaged(true);
 
         return $manifest;
-    }
-
-    private function loadServiceByName(string $name, Context $context): ?AppEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-
-        return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function upgradeAppToService(string $appId, ServiceEntry $entry, Context $context): bool

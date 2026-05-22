@@ -2,15 +2,11 @@
 
 namespace Shopware\Core\Service;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
@@ -28,8 +24,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * Stopped: The service is not running. The underlying application backing the service is in a Pending Permission state.
  *
  * @internal
- *
- * @phpstan-import-type ServiceSourceConfig from ServiceSourceResolver
  */
 #[Package('framework')]
 class LifecycleManager
@@ -38,15 +32,12 @@ class LifecycleManager
 
     public const CONFIG_KEY_SERVICES_DISABLED = 'core.services.disabled';
 
-    /**
-     * @param EntityRepository<AppCollection> $repository
-     */
     public function __construct(
         private readonly string $enabled,
         private readonly string $appEnv,
         private readonly Privileges $privileges,
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $repository,
+        private readonly ServiceRepository $repository,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
@@ -71,29 +62,25 @@ class LifecycleManager
 
     public function sync(Context $context): void
     {
-        $services = $this->getAllServices($context);
-        $this->removeOrphanedServices($services, $context);
+        $this->removeOrphanedServices($this->repository->findAll($context), $context);
     }
 
-    public function syncState(string $service, Context $context): void
+    public function syncState(string $serviceName, Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $service));
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-        $app = $this->repository->search($criteria, $context)->getEntities()->first();
-        if ($app === null) {
-            throw ServiceException::serviceNotInstalled($service);
+        $service = $this->repository->findByName($serviceName, $context);
+        if ($service === null) {
+            throw ServiceException::serviceNotInstalled($serviceName);
         }
 
-        $this->syncPrivileges($app, $context);
+        $this->syncPrivileges($service, $context);
     }
 
-    public function syncPrivileges(AppEntity $app, Context $context): void
+    public function syncPrivileges(Service $service, Context $context): void
     {
-        if ($this->requirementsValidator->isSatisfied($app)) {
-            $this->privileges->acceptAllForApps([$app->getId()], $context);
+        if ($this->requirementsValidator->isSatisfied($service->getRequirements())) {
+            $this->privileges->acceptAllForApps([$service->getId()], $context);
         } else {
-            $this->privileges->revokeAllForApps([$app->getId()], $context);
+            $this->privileges->revokeAllForApps([$service->getId()], $context);
         }
     }
 
@@ -103,10 +90,9 @@ class LifecycleManager
      */
     public function syncRequirement(string $requirementName, Context $context): void
     {
-        foreach ($this->getAllServices($context) as $app) {
-            $requirements = $this->getRequirements($app);
-            if (\in_array($requirementName, $requirements, true)) {
-                $this->syncPrivileges($app, $context);
+        foreach ($this->repository->findAll($context) as $service) {
+            if (\in_array($requirementName, $service->getRequirements(), true)) {
+                $this->syncPrivileges($service, $context);
             }
         }
     }
@@ -127,7 +113,7 @@ class LifecycleManager
      */
     public function disable(Context $context): void
     {
-        foreach ($this->getAllServices($context) as $service) {
+        foreach ($this->repository->findAll($context) as $service) {
             $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
         }
 
@@ -140,7 +126,10 @@ class LifecycleManager
         return !$this->areDisabledFromEnv() && !$this->areDisabledFromConfig();
     }
 
-    private function removeOrphanedServices(AppCollection $services, Context $context): void
+    /**
+     * @param list<Service> $services
+     */
+    private function removeOrphanedServices(array $services, Context $context): void
     {
         $registryServices = $this->client->getAll();
 
@@ -176,24 +165,5 @@ class LifecycleManager
     private function areDisabledFromConfig(): bool
     {
         return $this->systemConfigService->getBool(self::CONFIG_KEY_SERVICES_DISABLED);
-    }
-
-    private function getAllServices(Context $context): AppCollection
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('selfManaged', true));
-
-        return $this->repository->search($criteria, $context)->getEntities();
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getRequirements(AppEntity $app): array
-    {
-        /** @var ServiceSourceConfig $sourceConfig */
-        $sourceConfig = $app->getSourceConfig();
-
-        return AppInfo::fromNameAndSourceConfig($app->getName(), $sourceConfig)->requirements;
     }
 }

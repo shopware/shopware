@@ -18,7 +18,9 @@ use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\ServiceRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -49,27 +51,13 @@ class ServiceControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->appId = Uuid::randomHex();
-        $this->app = new AppEntity();
-        $this->app->setId($this->appId);
-        $this->app->setUniqueIdentifier($this->appId);
-        $this->app->assign([
-            'name' => 'MyCoolService',
-            'integrationId' => 'CCDD',
-            'version' => '1.0.0',
-            'icon' => null,
-            'description' => 'A cool service',
-            'createdAt' => new \DateTimeImmutable(),
-            'updatedAt' => new \DateTimeImmutable(),
-            'sourceConfig' => [
-                'version' => '1.0.0',
-                'hash' => 'service-hash',
-                'revision' => '2025-05-18',
-                'zip-url' => 'https://example.com/service.zip',
-                'requirements' => ['service_consent'],
-            ],
+        $this->app = AppFixture::createAppEntity(name: 'MyCoolService', id: $this->appId);
+        $this->app->setIntegrationId('CCDD');
+        $this->app->setSourceConfig([
+            'requirements' => ['service_consent'],
         ]);
 
-        $this->appRepo = new StaticEntityRepository([[$this->app]]);
+        $this->appRepo = new StaticEntityRepository([new AppCollection([$this->app])]);
 
         $this->bus = $this->createMock(MessageBusInterface::class);
 
@@ -83,11 +71,11 @@ class ServiceControllerTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('integrationId', 'CCDD'));
 
         /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[]]);
+        $appRepo = new StaticEntityRepository([new AppCollection()]);
 
         $this->bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -102,7 +90,7 @@ class ServiceControllerTest extends TestCase
 
         $this->bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $context = Context::createDefaultContext($source);
 
@@ -115,7 +103,7 @@ class ServiceControllerTest extends TestCase
 
         $this->bus->expects($this->never())->method('dispatch');
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -131,7 +119,7 @@ class ServiceControllerTest extends TestCase
             return new Envelope($msg, []);
         });
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -144,7 +132,7 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $context = Context::createDefaultContext($source);
 
@@ -155,7 +143,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::updateRequiresIntegration());
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -168,8 +156,8 @@ class ServiceControllerTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
 
         /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[]]);
-        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $appRepo = new StaticEntityRepository([new AppCollection()]);
+        $controller = new ServiceController(new ServiceRepository($appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -180,7 +168,7 @@ class ServiceControllerTest extends TestCase
     public function testActivate(): void
     {
         $this->app->setActive(false);
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -194,7 +182,7 @@ class ServiceControllerTest extends TestCase
         $source = new ShopApiSource('AABB');
         static::expectExceptionObject(ServiceException::updateRequiresAdminApiSource($source));
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $context = Context::createDefaultContext($source);
 
@@ -205,7 +193,7 @@ class ServiceControllerTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::updateRequiresIntegration());
 
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB');
         $context = Context::createDefaultContext($source);
@@ -218,8 +206,8 @@ class ServiceControllerTest extends TestCase
         static::expectExceptionObject(ServiceException::notFound('name', 'invalidService'));
 
         /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[]]);
-        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $appRepo = new StaticEntityRepository([new AppCollection()]);
+        $controller = new ServiceController(new ServiceRepository($appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -230,7 +218,7 @@ class ServiceControllerTest extends TestCase
     public function testDeactivate(): void
     {
         $this->app->setActive(true);
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -241,7 +229,7 @@ class ServiceControllerTest extends TestCase
 
     public function testUninstall(): void
     {
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -253,7 +241,7 @@ class ServiceControllerTest extends TestCase
     public function testList(): void
     {
         $this->app->setActive(true);
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
@@ -277,7 +265,7 @@ class ServiceControllerTest extends TestCase
 
     public function testDisableServices(): void
     {
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $source = new AdminApiSource('AABB', 'EEFF');
         $context = Context::createDefaultContext($source);
@@ -288,7 +276,7 @@ class ServiceControllerTest extends TestCase
 
     public function testEnableServices(): void
     {
-        $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $this->manager->expects($this->once())->method('enable');
         $controller->enableServices();
@@ -297,26 +285,18 @@ class ServiceControllerTest extends TestCase
     public function testReturnsCategorizedPermissions(): void
     {
         $aclRole = new AclRoleEntity();
-        $aclRole->setId('acl-role-id');
-        $aclRole->setUniqueIdentifier('acl-role-id');
         $aclRole->setPrivileges([
             'user:read',
             'order:read',
             'api_service_toggle',
         ]);
 
-        $app = new AppEntity();
-        $app->setId('app-id');
-        $app->setUniqueIdentifier('app-id');
-        $app->setAclRole($aclRole);
-        $app->setRequestedPrivileges([
+        $this->app->setAclRole($aclRole);
+        $this->app->setRequestedPrivileges([
             'product:read',
         ]);
 
-        /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[$app]]);
-
-        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($this->appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         $response = $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
         $content = $response->getContent();
@@ -361,9 +341,9 @@ class ServiceControllerTest extends TestCase
     public function testCategorizedPermissionsThrowsIfServiceIsNotFound(): void
     {
         /** @var StaticEntityRepository<AppCollection> $appRepo */
-        $appRepo = new StaticEntityRepository([[]]);
+        $appRepo = new StaticEntityRepository([new AppCollection()]);
 
-        $controller = new ServiceController($appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
+        $controller = new ServiceController(new ServiceRepository($appRepo), $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
         $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());

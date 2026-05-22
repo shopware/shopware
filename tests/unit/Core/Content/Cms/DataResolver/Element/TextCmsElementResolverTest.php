@@ -17,7 +17,6 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -30,7 +29,9 @@ class TextCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->textResolver = new TextCmsElementResolver(new HtmlSanitizerStub());
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->textResolver = new TextCmsElementResolver($sanitizer);
     }
 
     public function testType(): void
@@ -88,11 +89,8 @@ class TextCmsElementResolverTest extends TestCase
         $contaminated = 'lorem<script>console.log("ipsum dolor")</script>';
         $sanitized = 'lorem';
 
-        $sanitizer = $this->createMock(HtmlSanitizer::class);
-        $sanitizer->expects($this->once())
-            ->method('sanitize')
-            ->with($contaminated)
-            ->willReturn($sanitized);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($sanitized);
         $resolver = new TextCmsElementResolver($sanitizer);
 
         $fieldConfig = new FieldConfigCollection();

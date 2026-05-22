@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -57,10 +56,13 @@ class StringFieldSerializerTest extends TestCase
             new ConstraintValidatorFactory()
         );
 
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+
         $this->serializer = new StringFieldSerializer(
             $this->validator,
             $this->definitionInstanceRegistry,
-            new HtmlSanitizerStub()
+            $sanitizer
         );
     }
 
@@ -261,11 +263,8 @@ class StringFieldSerializerTest extends TestCase
         $input = '<script></script>test12-B';
         $sanitized = 'test12-B';
 
-        $sanitizer = $this->createMock(HtmlSanitizer::class);
-        $sanitizer->expects($this->once())
-            ->method('sanitize')
-            ->with($input)
-            ->willReturn($sanitized);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($sanitized);
 
         $serializer = new StringFieldSerializer(
             $this->validator,

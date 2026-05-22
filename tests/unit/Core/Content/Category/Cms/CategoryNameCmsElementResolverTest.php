@@ -14,8 +14,8 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -28,7 +28,9 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new CategoryNameCmsElementResolver(new HtmlSanitizerStub());
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->resolver = new CategoryNameCmsElementResolver($sanitizer);
     }
 
     public function testType(): void

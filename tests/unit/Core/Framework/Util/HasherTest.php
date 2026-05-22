@@ -76,10 +76,10 @@ class HasherTest extends TestCase
 
     public static function hashFileProvider(): \Generator
     {
-        yield 'default algo' => ['filename' => __DIR__ . '/Fixtures/test.txt', 'algo' => null, 'expectedHash' => '3c9e102628997f44ac87b0b131c6992d'];
+        yield 'default algo' => ['filename' => __DIR__ . '/fixtures/test.txt', 'algo' => null, 'expectedHash' => '3c9e102628997f44ac87b0b131c6992d'];
 
-        yield 'md5 algo' => ['filename' => __DIR__ . '/Fixtures/test.txt', 'algo' => 'md5', 'expectedHash' => '3858f62230ac3c915f300c664312c63f'];
+        yield 'md5 algo' => ['filename' => __DIR__ . '/fixtures/test.txt', 'algo' => 'md5', 'expectedHash' => '3858f62230ac3c915f300c664312c63f'];
 
-        yield 'sha1 algo' => ['filename' => __DIR__ . '/Fixtures/test.txt', 'algo' => 'sha1', 'expectedHash' => '8843d7f92416211de9ebb963ff4ce28125932878'];
+        yield 'sha1 algo' => ['filename' => __DIR__ . '/fixtures/test.txt', 'algo' => 'sha1', 'expectedHash' => '8843d7f92416211de9ebb963ff4ce28125932878'];
     }
 }

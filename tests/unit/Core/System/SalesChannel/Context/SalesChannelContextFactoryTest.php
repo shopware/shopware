@@ -57,6 +57,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     private PaymentMethodEntity $basePaymentMethod;
 
+    private CustomerEntity $customer;
+
     protected function setUp(): void
     {
         $this->salesChannel = new SalesChannelEntity();
@@ -64,6 +66,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $this->basePaymentMethod = new PaymentMethodEntity();
         $this->basePaymentMethod->setId(Uuid::randomHex());
+
+        $this->customer = $this->makeCustomer(lastPaymentMethodId: Uuid::randomHex());
     }
 
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
@@ -71,41 +75,11 @@ class SalesChannelContextFactoryTest extends TestCase
         $salesChannel = $this->salesChannel;
         $basePaymentMethod = $this->basePaymentMethod;
 
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-        $customer->setActive(true);
-        $customer->setLastPaymentMethodId(Uuid::randomHex());
-        $customer->setDefaultBillingAddressId(Uuid::randomHex());
-        $customer->setDefaultShippingAddressId(Uuid::randomHex());
-        $customer->setGroupId(Uuid::randomHex());
+        $customer = $this->customer;
 
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
-        $currency = new CurrencyEntity();
-        $currency->setId(Uuid::randomHex());
-        $currency->setFactor(1);
-
-        $billingAddress = new CustomerAddressEntity();
-        $billingAddress->setId($customer->getDefaultBillingAddressId());
-        $shippingAddress = new CustomerAddressEntity();
-        $shippingAddress->setId($customer->getDefaultShippingAddressId());
-        $shippingAddress->setCountry($country);
-        $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
-
-        $baseContext = new BaseSalesChannelContext(
-            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
-            $salesChannel,
-            $currency,
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            $basePaymentMethod,
-            new ShippingMethodEntity(),
-            new ShippingLocation($country, null, null),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            Generator::createLanguageInfo(),
-            MeasurementUnits::createDefaultUnits()
-        );
+        $country = $this->makeCountry();
+        $addresses = $this->makeAddresses($customer, $country);
+        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
 
         /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = new StaticEntityRepository(
@@ -166,41 +140,12 @@ class SalesChannelContextFactoryTest extends TestCase
         $salesChannel = $this->salesChannel;
         $basePaymentMethod = $this->basePaymentMethod;
 
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
+        $customer = $this->customer;
         $customer->setActive(false);
-        $customer->setLastPaymentMethodId(Uuid::randomHex());
-        $customer->setDefaultBillingAddressId(Uuid::randomHex());
-        $customer->setDefaultShippingAddressId(Uuid::randomHex());
-        $customer->setGroupId(Uuid::randomHex());
 
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
-        $currency = new CurrencyEntity();
-        $currency->setId(Uuid::randomHex());
-        $currency->setFactor(1);
-
-        $billingAddress = new CustomerAddressEntity();
-        $billingAddress->setId($customer->getDefaultBillingAddressId());
-        $shippingAddress = new CustomerAddressEntity();
-        $shippingAddress->setId($customer->getDefaultShippingAddressId());
-        $shippingAddress->setCountry($country);
-        $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
-
-        $baseContext = new BaseSalesChannelContext(
-            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
-            $salesChannel,
-            $currency,
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            $basePaymentMethod,
-            new ShippingMethodEntity(),
-            new ShippingLocation($country, null, null),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            Generator::createLanguageInfo(),
-            MeasurementUnits::createDefaultUnits()
-        );
+        $country = $this->makeCountry();
+        $addresses = $this->makeAddresses($customer, $country);
+        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
 
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
@@ -238,41 +183,11 @@ class SalesChannelContextFactoryTest extends TestCase
         $salesChannel = $this->salesChannel;
         $basePaymentMethod = $this->basePaymentMethod;
 
-        $customer = new CustomerEntity();
-        $customer->setId(Uuid::randomHex());
-        $customer->setActive(true);
-        $customer->setLastPaymentMethodId(Uuid::randomHex());
-        $customer->setDefaultBillingAddressId(Uuid::randomHex());
-        $customer->setDefaultShippingAddressId(Uuid::randomHex());
-        $customer->setGroupId(Uuid::randomHex());
+        $customer = $this->customer;
 
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
-        $currency = new CurrencyEntity();
-        $currency->setId(Uuid::randomHex());
-        $currency->setFactor(1);
-
-        $billingAddress = new CustomerAddressEntity();
-        $billingAddress->setId($customer->getDefaultBillingAddressId());
-        $shippingAddress = new CustomerAddressEntity();
-        $shippingAddress->setId($customer->getDefaultShippingAddressId());
-        $shippingAddress->setCountry($country);
-        $addresses = new CustomerAddressCollection([$billingAddress, $shippingAddress]);
-
-        $baseContext = new BaseSalesChannelContext(
-            Context::createDefaultContext(new SalesChannelApiSource($salesChannel->getId())),
-            $salesChannel,
-            $currency,
-            new CustomerGroupEntity(),
-            new TaxCollection(),
-            $basePaymentMethod,
-            new ShippingMethodEntity(),
-            new ShippingLocation($country, null, null),
-            new CashRoundingConfig(2, 0.01, true),
-            new CashRoundingConfig(2, 0.01, true),
-            Generator::createLanguageInfo(),
-            MeasurementUnits::createDefaultUnits()
-        );
+        $country = $this->makeCountry();
+        $addresses = $this->makeAddresses($customer, $country);
+        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
 
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
@@ -324,7 +239,8 @@ class SalesChannelContextFactoryTest extends TestCase
         };
 
         $country = $this->makeCountry();
-        $customer = $this->makeCustomer(lastPaymentMethodId: $lastPaymentMethodId);
+        $customer = $this->customer;
+        $customer->setLastPaymentMethodId($lastPaymentMethodId);
         $addresses = $this->makeAddresses($customer, $country);
         $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
 
@@ -383,7 +299,8 @@ class SalesChannelContextFactoryTest extends TestCase
         $customerCountry = $this->makeCountry();
         $baseContext = $this->makeBaseContext($salesChannel, $baseCountry, $basePaymentMethod, currency: $currency);
 
-        $customer = $this->makeCustomer(lastPaymentMethodId: null);
+        $customer = $this->customer;
+        $customer->setLastPaymentMethodId(null);
         $addresses = $this->makeAddresses($customer, $customerCountry);
 
         $collection = $countryConfig === null

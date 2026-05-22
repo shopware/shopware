@@ -28,7 +28,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticRenderData;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -58,7 +57,6 @@ class DocumentPersisterTest extends TestCase
             Uuid::randomHex(),
             self::DOCUMENT_TYPE,
             [self::FORMAT],
-            new NativeClock(),
             '12345',
         );
 

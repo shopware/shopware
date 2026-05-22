@@ -59,6 +59,12 @@ class SalesChannelContextFactoryTest extends TestCase
 
     private CustomerEntity $customer;
 
+    private CountryEntity $country;
+
+    private CustomerAddressCollection $addresses;
+
+    private BaseSalesChannelContext $baseContext;
+
     protected function setUp(): void
     {
         $this->salesChannel = new SalesChannelEntity();
@@ -68,85 +74,67 @@ class SalesChannelContextFactoryTest extends TestCase
         $this->basePaymentMethod->setId(Uuid::randomHex());
 
         $this->customer = $this->makeCustomer(lastPaymentMethodId: Uuid::randomHex());
+        $this->country = $this->makeCountry();
+        $this->addresses = $this->makeAddresses($this->customer, $this->country);
+        $this->baseContext = $this->makeBaseContext($this->salesChannel, $this->country, $this->basePaymentMethod);
     }
 
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
     {
-        $customer = $this->customer;
-        $country = $this->makeCountry();
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
-
         /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = new StaticEntityRepository(
             [
-                static function (Criteria $criteria, Context $context) use ($baseContext) {
-                    static::assertCount(2, $criteria->getFilters());
-                    static::assertEquals([
-                        new EqualsFilter('active', 1),
-                        new EqualsFilter('salesChannels.id', $baseContext->getSalesChannelId()),
-                    ], $criteria->getFilters());
-
-                    return new EntitySearchResult(
-                        PaymentMethodDefinition::ENTITY_NAME,
-                        0,
-                        new PaymentMethodCollection(),
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
+                fn (Criteria $criteria, Context $context) => $this->assertPaymentMethodCriteria($criteria, $context),
             ],
             new PaymentMethodDefinition(),
         );
 
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
 
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            baseContext: $baseContext,
-            paymentMethodRepository: $paymentMethodRepository,
-        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+        $generatedContext = $this->makeFactory(paymentMethodRepository: $paymentMethodRepository)
+            ->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        static::assertSame($generatedContext->getPaymentMethod(), $baseContext->getPaymentMethod());
+        static::assertSame($generatedContext->getPaymentMethod(), $this->baseContext->getPaymentMethod());
     }
 
     public function testCustomerIsNullIfInactive(): void
     {
-        $customer = $this->customer;
-        $customer->setActive(false);
-        $country = $this->makeCountry();
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
+        $this->customer->setActive(false);
 
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
 
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+        $generatedContext = $this->makeFactory()
+            ->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
         static::assertNull($generatedContext->getCustomer());
     }
 
     public function testCustomerIsSetIfActive(): void
     {
-        $customer = $this->customer;
-        $country = $this->makeCountry();
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
 
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        $generatedContext = $this->makeFactory()
+            ->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+        static::assertSame($this->customer, $generatedContext->getCustomer());
+    }
 
-        static::assertSame($customer, $generatedContext->getCustomer());
+    private function assertPaymentMethodCriteria(Criteria $criteria, Context $context): EntitySearchResult
+    {
+        static::assertCount(2, $criteria->getFilters());
+        static::assertEquals([
+            new EqualsFilter('active', 1),
+            new EqualsFilter('salesChannels.id', $this->baseContext->getSalesChannelId()),
+        ], $criteria->getFilters());
+
+        return new EntitySearchResult(
+            PaymentMethodDefinition::ENTITY_NAME,
+            0,
+            new PaymentMethodCollection(),
+            null,
+            $criteria,
+            $context,
+        );
     }
 
     #[TestDox('payment method resolution: $_dataName')]
@@ -167,27 +155,19 @@ class SalesChannelContextFactoryTest extends TestCase
             default => throw new \LogicException("unknown lastIdMode: {$lastIdMode}"),
         };
 
-        $country = $this->makeCountry();
-        $customer = $this->customer;
-        $customer->setLastPaymentMethodId($lastPaymentMethodId);
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
+        $this->customer->setLastPaymentMethodId($lastPaymentMethodId);
 
         $paymentMethodRepository = $repoReturnsResolved
             ? $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition())
             : $this->expectsNoSearch();
 
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
         if ($optionsHasPaymentMethodId) {
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = Uuid::randomHex();
         }
 
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            paymentMethodRepository: $paymentMethodRepository,
-            baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+        $generatedContext = $this->makeFactory(paymentMethodRepository: $paymentMethodRepository)
+            ->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
         $expected = $expects === 'resolved' ? $resolvedPaymentMethod : $this->basePaymentMethod;
 
@@ -365,12 +345,16 @@ class SalesChannelContextFactoryTest extends TestCase
     }
 
     private function makeFactory(
-        CustomerEntity $customer,
-        CustomerAddressCollection $addresses,
-        BaseSalesChannelContext $baseContext,
+        ?CustomerEntity $customer = null,
+        ?CustomerAddressCollection $addresses = null,
+        ?BaseSalesChannelContext $baseContext = null,
         ?EntityRepository $paymentMethodRepository = null,
         ?EntityRepository $currencyCountryRepository = null,
     ): SalesChannelContextFactory {
+        $customer ??= $this->customer;
+        $addresses ??= $this->addresses;
+        $baseContext ??= $this->baseContext;
+
         $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
         $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
 

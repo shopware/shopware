@@ -4,10 +4,6 @@ import './sw-condition-value-between-date.scss';
 /**
  * @private
  * @sw-package fundamentals@after-sales
- * @description Reusable value input that renders two date pickers for the
- *  `between` operator on date / datetime fields. Emits `{ from, to }` via
- *  `update:value`. Used by rule conditions that compare a date field against
- *  an inclusive range.
  */
 export default {
     template,

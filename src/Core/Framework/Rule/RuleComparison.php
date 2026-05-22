@@ -110,7 +110,7 @@ class RuleComparison
     /**
      * @internal - will be remove in v6.8.0, when the original `date()` has extended type
      *
-     * @param \DateTime|string|array{from: \DateTime|string, to: \DateTime|string} $ruleValue
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
      */
     public static function dateValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
     {
@@ -120,7 +120,7 @@ class RuleComparison
     /**
      * @internal - will be remove in v6.8.0, when the original `date()` has extended type
      *
-     * @param \DateTime|string|array{from: \DateTime|string, to: \DateTime|string} $ruleValue
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
      */
     public static function datetimeValue(\DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
     {
@@ -149,7 +149,7 @@ class RuleComparison
     }
 
     /**
-     * @param \DateTime|string|array{from: \DateTime|string, to: \DateTime|string} $ruleValue
+     * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
      */
     private static function compareDateValue(string $format, \DateTime $itemValue, \DateTime|string|array $ruleValue, string $operator): bool
     {

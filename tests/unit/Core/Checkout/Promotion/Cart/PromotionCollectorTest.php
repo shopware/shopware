@@ -27,11 +27,11 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
+use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 
 /**
  * @internal
@@ -55,7 +55,7 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector = new PromotionCollector(
             $this->gateway,
             new PromotionItemBuilder(),
-            $this->createMock(HtmlSanitizer::class),
+            new HtmlSanitizerStub(),
             $this->connection
         );
 

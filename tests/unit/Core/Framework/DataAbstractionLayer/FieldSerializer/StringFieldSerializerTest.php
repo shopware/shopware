@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -45,19 +46,21 @@ class StringFieldSerializerTest extends TestCase
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private RecursiveValidator $validator;
+
     protected function setUp(): void
     {
         $this->definitionInstanceRegistry = $this->createMock(DefinitionInstanceRegistry::class);
-        $validator = new RecursiveValidator(
+        $this->validator = new RecursiveValidator(
             new ExecutionContextFactory($this->createMock(TranslatorInterface::class)),
             new BlackHoleMetadataFactory(),
             new ConstraintValidatorFactory()
         );
 
         $this->serializer = new StringFieldSerializer(
-            $validator,
+            $this->validator,
             $this->definitionInstanceRegistry,
-            new HtmlSanitizer(null, false)
+            new HtmlSanitizerStub()
         );
     }
 
@@ -251,7 +254,30 @@ class StringFieldSerializerTest extends TestCase
     {
         yield 'string is passed through' => ['test12-B', 'test12-B', [new Required()]];
         yield 'HTML is kept when sanitizing is disabled' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]];
-        yield 'sanitized HTML strips script tag' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
+    }
+
+    public function testEncodingDelegatesToSanitizerWhenAllowHtmlEnabled(): void
+    {
+        $input = '<script></script>test12-B';
+        $sanitized = 'test12-B';
+
+        $sanitizer = $this->createMock(HtmlSanitizer::class);
+        $sanitizer->expects($this->once())
+            ->method('sanitize')
+            ->with($input)
+            ->willReturn($sanitized);
+
+        $serializer = new StringFieldSerializer(
+            $this->validator,
+            $this->definitionInstanceRegistry,
+            $sanitizer
+        );
+
+        $field = $this->createField([new Required(), new AllowHtml()]);
+        $existence = new EntityExistence(null, [], false, false, false, []);
+        $kv = new KeyValuePair('name', $input, true);
+
+        static::assertSame(['name' => $sanitized], iterator_to_array($serializer->encode($field, $existence, $kv, $this->createWriteParameterBag())));
     }
 
     /**

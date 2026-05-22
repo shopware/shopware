@@ -16,7 +16,6 @@ use Shopware\Administration\Snippet\SnippetFinder;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
-use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -31,6 +30,7 @@ use Shopware\Core\System\Snippet\SnippetDefinition;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Storefront\Storefront;
+use Shopware\Tests\Unit\Core\Framework\Util\Fixtures\HtmlSanitizerStub;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\TestPlugin;
 use Symfony\Component\Validator\Validation;
 
@@ -439,10 +439,6 @@ class SnippetFinderTest extends TestCase
         $kernelMock = $kernel ?? $this->getKernelMock();
         $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
         $translationLoader = $this->getTranslationLoader($config);
-        $sanitizer = $this->createMock(HtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willReturnCallback(static function (string $value) {
-            return $value;
-        });
 
         return new SnippetFinder(
             $kernelMock,
@@ -450,7 +446,7 @@ class SnippetFinderTest extends TestCase
             $this->filesystem,
             $config,
             $translationLoader,
-            $sanitizer,
+            new HtmlSanitizerStub(),
         );
     }
 

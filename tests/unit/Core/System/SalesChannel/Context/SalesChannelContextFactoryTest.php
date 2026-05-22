@@ -51,13 +51,23 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SalesChannelContextFactory::class)]
 class SalesChannelContextFactoryTest extends TestCase
 {
+    private SalesChannelEntity $salesChannel;
+
+    private PaymentMethodEntity $basePaymentMethod;
+
+    protected function setUp(): void
+    {
+        $this->salesChannel = new SalesChannelEntity();
+        $this->salesChannel->setId(Uuid::randomHex());
+
+        $this->basePaymentMethod = new PaymentMethodEntity();
+        $this->basePaymentMethod->setId(Uuid::randomHex());
+    }
+
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -181,11 +191,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testCustomerIsNullIfInactive(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -286,11 +293,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testCustomerIsSetIfActive(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $customer = new CustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -391,11 +395,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testPaymentMethodFromOptionsTakesPrecedenceOverCustomerLast(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $country = $this->makeCountry();
         $customer = $this->makeCustomer(lastPaymentMethodId: Uuid::randomHex());
@@ -421,11 +422,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testCustomerLastPaymentMethodMatchingContextSkipsLookup(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $country = $this->makeCountry();
         $customer = $this->makeCustomer(lastPaymentMethodId: $basePaymentMethod->getId());
@@ -448,11 +446,8 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testCustomerLastPaymentMethodIsResolvedFromRepository(): void
     {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $resolvedPaymentMethod = new PaymentMethodEntity();
         $resolvedPaymentMethod->setId(Uuid::randomHex());
@@ -498,11 +493,8 @@ class SalesChannelContextFactoryTest extends TestCase
         CashRoundingConfig $expectedItem,
         CashRoundingConfig $expectedTotal,
     ): void {
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId(Uuid::randomHex());
-
-        $basePaymentMethod = new PaymentMethodEntity();
-        $basePaymentMethod->setId(Uuid::randomHex());
+        $salesChannel = $this->salesChannel;
+        $basePaymentMethod = $this->basePaymentMethod;
 
         $currency = new CurrencyEntity();
         $currency->setId(Uuid::randomHex());

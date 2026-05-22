@@ -59,6 +59,16 @@ class LifecycleManager
         return $this->serviceInstaller->install($context);
     }
 
+    /**
+     * @return array<string> The installed services
+     */
+    public function reinstall(Context $context): array
+    {
+        $this->deleteAllServices($context);
+
+        return $this->serviceInstaller->install($context);
+    }
+
     public function sync(Context $context): void
     {
         $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
@@ -157,5 +167,12 @@ class LifecycleManager
         }
 
         return !$enabled;
+    }
+
+    private function deleteAllServices(Context $context): void
+    {
+        foreach ($this->serviceStorage->findAll($context) as $service) {
+            $this->serviceLifecycle->uninstall($service->name, $context);
+        }
     }
 }

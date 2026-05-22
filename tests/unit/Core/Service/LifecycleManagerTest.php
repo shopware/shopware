@@ -61,7 +61,7 @@ class LifecycleManagerTest extends TestCase
         $this->context = Context::createDefaultContext();
     }
 
-    public function testInstallWhenEnabled(): void
+    public function testInstallDelegatesToInstaller(): void
     {
         $expectedServices = ['service1', 'service2'];
 
@@ -87,6 +87,40 @@ class LifecycleManagerTest extends TestCase
         $result = $manager->install($this->context);
 
         static::assertSame([], $result);
+    }
+
+    public function testReinstallDeletesAllServicesBeforeInstalling(): void
+    {
+        $services = new AppCollection([
+            $this->createServiceEntity('service1', 'SwagService1'),
+            $this->createServiceEntity('service2', 'SwagService2'),
+        ]);
+        $calls = [];
+        $expectedServices = ['service1', 'service2'];
+
+        $this->serviceLifecycle->expects($this->exactly($services->count()))
+            ->method('uninstall')
+            ->willReturnCallback(function (string $name, Context $context) use (&$calls, $services): void {
+                static::assertContains($name, $services->map(static fn (AppEntity $service) => $service->getName()));
+                static::assertSame($this->context, $context);
+
+                $calls[] = $name;
+            });
+
+        $this->serviceInstaller->expects($this->once())
+            ->method('install')
+            ->with($this->context)
+            ->willReturnCallback(function () use (&$calls, $expectedServices) {
+                static::assertSame(['SwagService1', 'SwagService2'], $calls);
+
+                return $expectedServices;
+            });
+
+        $manager = $this->createManager($this->createAppRepository($services));
+
+        $result = $manager->reinstall($this->context);
+
+        static::assertSame($expectedServices, $result);
     }
 
     public function testEnable(): void

@@ -9,6 +9,7 @@ use Shopware\Core\Service\LifecycleManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[Package('framework')]
@@ -26,11 +27,17 @@ class Install extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption('reinstall', null, InputOption::VALUE_NONE, 'Uninstall all services before installing them again');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
+        $reinstall = (bool) $input->getOption('reinstall');
 
-        $io->title('Installing services...');
+        $io->title($reinstall ? 'Reinstalling services...' : 'Installing services...');
 
         if (!$this->manager->enabled()) {
             $io->error('Services are disabled. Please enable them to install services.');
@@ -38,7 +45,9 @@ class Install extends Command
             return Command::FAILURE;
         }
 
-        $installed = $this->manager->install(Context::createCLIContext());
+        $installed = $reinstall
+            ? $this->manager->reinstall(Context::createCLIContext())
+            : $this->manager->install(Context::createCLIContext());
 
         if ($installed === []) {
             $io->info('No services were installed');

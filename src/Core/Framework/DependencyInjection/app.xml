@@ -315,16 +315,8 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\McpAppSyncer"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\McpAppSyncer">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

@@ -305,82 +305,60 @@ class SalesChannelContextFactoryTest extends TestCase
         static::assertSame($customer, $generatedContext->getCustomer());
     }
 
-    public function testPaymentMethodFromOptionsTakesPrecedenceOverCustomerLast(): void
-    {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
-        $country = $this->makeCountry();
-        $customer = $this->makeCustomer(lastPaymentMethodId: Uuid::randomHex());
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
-
-        $paymentMethodRepository = $this->expectsNoSearch();
-
-        $options = [
-            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
-            SalesChannelContextService::PAYMENT_METHOD_ID => Uuid::randomHex(),
-        ];
-
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            paymentMethodRepository: $paymentMethodRepository,
-            baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $salesChannel->getId(), $options);
-
-        static::assertSame($basePaymentMethod, $generatedContext->getPaymentMethod());
-    }
-
-    public function testCustomerLastPaymentMethodMatchingContextSkipsLookup(): void
-    {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
-        $country = $this->makeCountry();
-        $customer = $this->makeCustomer(lastPaymentMethodId: $basePaymentMethod->getId());
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
-
-        $paymentMethodRepository = $this->expectsNoSearch();
-
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
-
-        $generatedContext = $this->makeFactory(
-            customer: $customer,
-            addresses: $addresses,
-            paymentMethodRepository: $paymentMethodRepository,
-            baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $salesChannel->getId(), $options);
-
-        static::assertSame($basePaymentMethod, $generatedContext->getPaymentMethod());
-    }
-
-    public function testCustomerLastPaymentMethodIsResolvedFromRepository(): void
-    {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
+    #[TestDox('payment method resolution: $_dataName')]
+    #[DataProvider('paymentMethodProvider')]
+    public function testPaymentMethodResolution(
+        string $lastIdMode,
+        bool $optionsHasPaymentMethodId,
+        bool $repoReturnsResolved,
+        string $expects,
+    ): void {
         $resolvedPaymentMethod = new PaymentMethodEntity();
         $resolvedPaymentMethod->setId(Uuid::randomHex());
 
-        $country = $this->makeCountry();
-        $customer = $this->makeCustomer(lastPaymentMethodId: $resolvedPaymentMethod->getId());
-        $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
+        $lastPaymentMethodId = match ($lastIdMode) {
+            'random' => Uuid::randomHex(),
+            'matchesContext' => $this->basePaymentMethod->getId(),
+            'matchesResolved' => $resolvedPaymentMethod->getId(),
+            default => throw new \LogicException("unknown lastIdMode: {$lastIdMode}"),
+        };
 
-        $paymentMethodRepository = $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition());
+        $country = $this->makeCountry();
+        $customer = $this->makeCustomer(lastPaymentMethodId: $lastPaymentMethodId);
+        $addresses = $this->makeAddresses($customer, $country);
+        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
+
+        $paymentMethodRepository = $repoReturnsResolved
+            ? $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition())
+            : $this->expectsNoSearch();
 
         $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        if ($optionsHasPaymentMethodId) {
+            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = Uuid::randomHex();
+        }
 
         $generatedContext = $this->makeFactory(
             customer: $customer,
             addresses: $addresses,
             paymentMethodRepository: $paymentMethodRepository,
             baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        static::assertSame($resolvedPaymentMethod, $generatedContext->getPaymentMethod());
+        $expected = $expects === 'resolved' ? $resolvedPaymentMethod : $this->basePaymentMethod;
+
+        static::assertSame($expected, $generatedContext->getPaymentMethod());
+    }
+
+    /**
+     * @return \Generator<string, array{0: string, 1: bool, 2: bool, 3: string}>
+     */
+    public static function paymentMethodProvider(): \Generator
+    {
+        yield 'option PAYMENT_METHOD_ID overrides customer.last' => ['random', true, false, 'context'];
+
+        yield 'customer.last == context payment skips lookup' => ['matchesContext', false, false, 'context'];
+
+        yield 'customer.last resolved from repository' => ['matchesResolved', false, true, 'resolved'];
     }
 
     #[TestDox('cash rounding (countries differ): $_dataName')]

@@ -4,6 +4,7 @@ namespace Shopware\Administration\Framework\SystemCheck;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
@@ -52,9 +53,9 @@ class AdministrationReadinessCheck extends BaseCheck
         // check index route
         $indexRoute = $this->router->generate('administration.index');
         $indexRequest = Request::create($indexRoute);
-        $indexRequestStart = (float) $this->clock->now()->format('U.u');
+        $indexRequestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
         $indexResponse = $this->kernel->handle($indexRequest);
-        $indexResponseTime = (float) $this->clock->now()->format('U.u') - $indexRequestStart;
+        $indexResponseTime = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $indexRequestStart;
 
         // Looks for JS modules injected in the body
         $indexContent = \is_string($indexResponse->getContent()) ? $indexResponse->getContent() : '';

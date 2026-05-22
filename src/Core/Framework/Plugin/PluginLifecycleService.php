@@ -690,7 +690,7 @@ class PluginLifecycleService
     private function signalWorkerStopInOldCacheDir(): void
     {
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set((float) $this->clock->now()->format('U.u'));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 

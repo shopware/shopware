@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Script\Debugging;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -57,7 +58,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
     public function trace(Hook $hook, Script $script, \Closure $execute): void
     {
-        $time = (float) $this->clock->now()->format('U.u');
+        $time = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
 
         $debug = new Debug();
 
@@ -66,7 +67,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         $deprecations = static::$deprecationNotices;
         static::$deprecationNotices = [];
 
-        $took = round((float) $this->clock->now()->format('U.u') - $time, 3);
+        $took = round((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $time, 3);
 
         $name = explode('/', $script->getName());
         $name = array_pop($name);

@@ -72,14 +72,10 @@ class SalesChannelContextFactoryTest extends TestCase
 
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void
     {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
         $customer = $this->customer;
-
         $country = $this->makeCountry();
         $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
+        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
 
         /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
         $paymentMethodRepository = new StaticEntityRepository(
@@ -104,119 +100,52 @@ class SalesChannelContextFactoryTest extends TestCase
             new PaymentMethodDefinition(),
         );
 
-        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
+        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
 
-        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
+        $generatedContext = $this->makeFactory(
+            customer: $customer,
+            addresses: $addresses,
+            baseContext: $baseContext,
+            paymentMethodRepository: $paymentMethodRepository,
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        $options = [
-            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
-        ];
-
-        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
-        $baseSalesChannelContextFactory
-            ->expects($this->once())
-            ->method('create')
-            ->with($salesChannel->getId(), $options)
-            ->willReturn($baseContext);
-
-        $factory = new SalesChannelContextFactory(
-            $customerRepository,
-            $this->createMock(EntityRepository::class),
-            $addressRepository,
-            $paymentMethodRepository,
-            $this->createMock(TaxDetector::class),
-            [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
-            $baseSalesChannelContextFactory,
-        );
-
-        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertSame($generatedContext->getPaymentMethod(), $baseContext->getPaymentMethod());
     }
 
     public function testCustomerIsNullIfInactive(): void
     {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
         $customer = $this->customer;
         $customer->setActive(false);
-
         $country = $this->makeCountry();
         $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
+        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
 
-        $options = [
-            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
-        ];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
 
-        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
-        $baseSalesChannelContextFactory
-            ->expects($this->once())
-            ->method('create')
-            ->with($salesChannel->getId(), $options)
-            ->willReturn($baseContext);
+        $generatedContext = $this->makeFactory(
+            customer: $customer,
+            addresses: $addresses,
+            baseContext: $baseContext,
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
-
-        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
-
-        $factory = new SalesChannelContextFactory(
-            $customerRepository,
-            $this->createMock(EntityRepository::class),
-            $addressRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TaxDetector::class),
-            [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
-            $baseSalesChannelContextFactory,
-        );
-
-        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertNull($generatedContext->getCustomer());
     }
 
     public function testCustomerIsSetIfActive(): void
     {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
-
         $customer = $this->customer;
-
         $country = $this->makeCountry();
         $addresses = $this->makeAddresses($customer, $country);
-        $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
+        $baseContext = $this->makeBaseContext($this->salesChannel, $country, $this->basePaymentMethod);
 
-        $options = [
-            SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
-        ];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
 
-        $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
-        $baseSalesChannelContextFactory
-            ->expects($this->once())
-            ->method('create')
-            ->with($salesChannel->getId(), $options)
-            ->willReturn($baseContext);
+        $generatedContext = $this->makeFactory(
+            customer: $customer,
+            addresses: $addresses,
+            baseContext: $baseContext,
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
-
-        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
-
-        $factory = new SalesChannelContextFactory(
-            $customerRepository,
-            $this->createMock(EntityRepository::class),
-            $addressRepository,
-            $this->createMock(EntityRepository::class),
-            $this->createMock(TaxDetector::class),
-            [],
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
-            $baseSalesChannelContextFactory,
-        );
-
-        $generatedContext = $factory->create(Uuid::randomHex(), $salesChannel->getId(), $options);
         static::assertSame($customer, $generatedContext->getCustomer());
     }
 

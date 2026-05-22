@@ -22,6 +22,8 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -128,39 +130,9 @@ class SalesChannelContextFactoryTest extends TestCase
             new PaymentMethodDefinition(),
         );
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($customer) {
-                    return new EntitySearchResult(
-                        CustomerDefinition::ENTITY_NAME,
-                        1,
-                        new CustomerCollection([$customer]),
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerDefinition(),
-        );
+        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
-        $addressRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return new EntitySearchResult(
-                        CustomerAddressDefinition::ENTITY_NAME,
-                        2,
-                        $addresses,
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerAddressDefinition(),
-        );
+        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
 
         $options = [
             SalesChannelContextService::CUSTOMER_ID => $customer->getId(),
@@ -241,39 +213,9 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($customer) {
-                    return new EntitySearchResult(
-                        CustomerDefinition::ENTITY_NAME,
-                        1,
-                        new CustomerCollection([$customer]),
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerDefinition(),
-        );
+        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
-        $addressRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return new EntitySearchResult(
-                        CustomerAddressDefinition::ENTITY_NAME,
-                        2,
-                        $addresses,
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerAddressDefinition(),
-        );
+        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
 
         $factory = new SalesChannelContextFactory(
             $customerRepository,
@@ -343,39 +285,9 @@ class SalesChannelContextFactoryTest extends TestCase
             ->with($salesChannel->getId(), $options)
             ->willReturn($baseContext);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($customer) {
-                    return new EntitySearchResult(
-                        CustomerDefinition::ENTITY_NAME,
-                        1,
-                        new CustomerCollection([$customer]),
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerDefinition(),
-        );
+        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
 
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
-        $addressRepository = new StaticEntityRepository(
-            [
-                static function (Criteria $criteria, Context $context) use ($addresses) {
-                    return new EntitySearchResult(
-                        CustomerAddressDefinition::ENTITY_NAME,
-                        2,
-                        $addresses,
-                        null,
-                        $criteria,
-                        $context
-                    );
-                },
-            ],
-            new CustomerAddressDefinition(),
-        );
+        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
 
         $factory = new SalesChannelContextFactory(
             $customerRepository,
@@ -457,20 +369,7 @@ class SalesChannelContextFactoryTest extends TestCase
         $addresses = $this->makeAddresses($customer, $country);
         $baseContext = $this->makeBaseContext($salesChannel, $country, $basePaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentMethodRepository */
-        $paymentMethodRepository = new StaticEntityRepository(
-            [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
-                    PaymentMethodDefinition::ENTITY_NAME,
-                    1,
-                    new PaymentMethodCollection([$resolvedPaymentMethod]),
-                    null,
-                    $criteria,
-                    $context,
-                ),
-            ],
-            new PaymentMethodDefinition(),
-        );
+        $paymentMethodRepository = $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition());
 
         $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
 
@@ -513,11 +412,7 @@ class SalesChannelContextFactoryTest extends TestCase
             ? new CurrencyCountryRoundingCollection()
             : new CurrencyCountryRoundingCollection([$countryConfig]);
 
-        /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
-        $currencyCountryRepository = new StaticEntityRepository(
-            [$collection],
-            new CurrencyCountryRoundingDefinition(),
-        );
+        $currencyCountryRepository = $this->repoReturning($collection, new CurrencyCountryRoundingDefinition());
 
         $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
 
@@ -621,6 +516,30 @@ class SalesChannelContextFactoryTest extends TestCase
         return new StaticEntityRepository([], new PaymentMethodDefinition());
     }
 
+    /**
+     * @template TCollection of EntityCollection<\Shopware\Core\Framework\DataAbstractionLayer\Entity>
+     *
+     * @param TCollection $collection
+     *
+     * @return StaticEntityRepository<TCollection>
+     */
+    private function repoReturning(EntityCollection $collection, EntityDefinition $definition): StaticEntityRepository
+    {
+        return new StaticEntityRepository(
+            [
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
+                    $definition->getEntityName(),
+                    $collection->count(),
+                    $collection,
+                    null,
+                    $criteria,
+                    $context,
+                ),
+            ],
+            $definition,
+        );
+    }
+
     private function makeFactory(
         CustomerEntity $customer,
         CustomerAddressCollection $addresses,
@@ -628,35 +547,8 @@ class SalesChannelContextFactoryTest extends TestCase
         ?EntityRepository $paymentMethodRepository = null,
         ?EntityRepository $currencyCountryRepository = null,
     ): SalesChannelContextFactory {
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
-        $customerRepository = new StaticEntityRepository(
-            [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
-                    CustomerDefinition::ENTITY_NAME,
-                    1,
-                    new CustomerCollection([$customer]),
-                    null,
-                    $criteria,
-                    $context,
-                ),
-            ],
-            new CustomerDefinition(),
-        );
-
-        /** @var StaticEntityRepository<CustomerAddressCollection> $addressRepository */
-        $addressRepository = new StaticEntityRepository(
-            [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult(
-                    CustomerAddressDefinition::ENTITY_NAME,
-                    $addresses->count(),
-                    $addresses,
-                    null,
-                    $criteria,
-                    $context,
-                ),
-            ],
-            new CustomerAddressDefinition(),
-        );
+        $customerRepository = $this->repoReturning(new CustomerCollection([$customer]), new CustomerDefinition());
+        $addressRepository = $this->repoReturning($addresses, new CustomerAddressDefinition());
 
         $baseSalesChannelContextFactory = $this->createMock(AbstractBaseSalesChannelContextFactory::class);
         $baseSalesChannelContextFactory

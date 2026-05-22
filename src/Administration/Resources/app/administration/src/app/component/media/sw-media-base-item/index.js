@@ -133,6 +133,14 @@ export default {
             return this.item.isLoading;
         },
 
+        itemAccessibleName() {
+            if (this.item.fileName && this.item.fileExtension) {
+                return `${this.item.fileName}.${this.item.fileExtension}`;
+            }
+
+            return this.item.name || this.item.fileName || '';
+        },
+
         /**
          * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */

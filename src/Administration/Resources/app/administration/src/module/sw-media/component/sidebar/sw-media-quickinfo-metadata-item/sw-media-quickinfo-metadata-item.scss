@@ -5,13 +5,28 @@ $sw-metadata-item-caption-color: var(--color-text-primary-default);
 
 .sw-media-quickinfo-metadata-item__term {
     font-size: $font-size-xs;
+    line-height: var(--font-line-height-xs);
     color: $sw-metadata-item-caption-color;
 }
 
 .sw-media-quickinfo-metadata-item__description {
     @include truncate;
 
+    min-width: 0;
     font-size: $font-size-xs;
+    line-height: var(--font-line-height-xs);
+
+    @media screen and (min-width: 769px) {
+        padding-left: var(--scale-size-16);
+    }
+
+    &:focus-within {
+        overflow: visible;
+
+        .mt-block-field__block {
+            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        }
+    }
 
     @media screen and (max-width: 768px) {
         margin-bottom: 16px;

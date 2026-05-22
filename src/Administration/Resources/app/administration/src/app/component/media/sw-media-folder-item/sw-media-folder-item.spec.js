@@ -8,12 +8,31 @@ const { Module } = Shopware;
 // mocking modules
 const modulesToCreate = new Map();
 modulesToCreate.set('sw-product', {
-    icon: 'regular-products',
+    icon: 'solid-products',
     entity: 'product',
+});
+modulesToCreate.set('sw-product-download', {
+    icon: 'solid-products',
+    entity: 'product_download',
+});
+modulesToCreate.set('sw-settings-payment', {
+    icon: 'solid-cog',
+    entity: 'payment_method',
+    color: '#de294c',
+    settingsItem: {
+        group: 'commerce',
+        icon: 'regular-credit-card',
+        privilege: 'payment.viewer',
+        to: 'sw.settings.payment.overview',
+    },
 });
 modulesToCreate.set('sw-mail-template', {
     icon: 'regular-cog',
     entity: 'mail_template',
+});
+modulesToCreate.set('sw-user', {
+    icon: 'regular-user',
+    entity: 'user',
 });
 modulesToCreate.set('sw-cms', { icon: 'regular-content', entity: 'cms_page' });
 
@@ -22,7 +41,9 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
 
     Module.register(moduleName, {
         icon: currentModuleValues.icon,
+        color: currentModuleValues.color,
         entity: currentModuleValues.entity,
+        settingsItem: currentModuleValues.settingsItem,
         routes: {
             index: {
                 components: {},
@@ -34,9 +55,12 @@ Array.from(modulesToCreate.keys()).forEach((moduleName) => {
 
 const ID_MAILTEMPLATE_FOLDER = '4006d6aa64ce409692ac2b952fa56ade';
 const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
+const ID_PRODUCT_DOWNLOAD_FOLDER = 'a16b005ca7a1440b8e87ac3d45ed5c9f';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
+const ID_PAYMENT_METHOD_FOLDER = 'b26b005ca7a1440b8e87ac3d45ed5c9f';
+const ID_USER_FOLDER = 'c36b005ca7a1440b8e87ac3d45ed5c9f';
 
-async function createWrapper(defaultFolderId, privileges = []) {
+async function createWrapper(defaultFolderId, privileges = [], itemOverrides = {}) {
     const repositoryFactoryMock = {
         create: () =>
             Promise.resolve({
@@ -53,6 +77,11 @@ async function createWrapper(defaultFolderId, privileges = []) {
                         entity: 'product',
                         isNew: () => false,
                     };
+                case ID_PRODUCT_DOWNLOAD_FOLDER:
+                    return {
+                        entity: 'product_download',
+                        isNew: () => false,
+                    };
                 case ID_CONTENT_FOLDER:
                     return {
                         entity: 'cms_page',
@@ -61,6 +90,16 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 case ID_MAILTEMPLATE_FOLDER:
                     return {
                         entity: 'mail_template',
+                        isNew: () => false,
+                    };
+                case ID_PAYMENT_METHOD_FOLDER:
+                    return {
+                        entity: 'payment_method',
+                        isNew: () => false,
+                    };
+                case ID_USER_FOLDER:
+                    return {
+                        entity: 'user',
                         isNew: () => false,
                     };
                 default:
@@ -89,6 +128,7 @@ async function createWrapper(defaultFolderId, privileges = []) {
                         isNew: () => false,
                     },
                 ],
+                ...itemOverrides,
             },
             showSelectionIndicator: false,
             showContextMenuButton: true,
@@ -162,6 +202,46 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--green');
+        expect(wrapper.vm.iconConfig.color).toBe('#57D9A3');
+    });
+
+    it('should provide correct folder color for product-related modules', async () => {
+        const wrapper = await createWrapper(ID_PRODUCT_DOWNLOAD_FOLDER);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--green');
+    });
+
+    it('should use regular icons for default folders', async () => {
+        const wrapper = await createWrapper(ID_PAYMENT_METHOD_FOLDER);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.iconConfig.name).toBe('regular-credit-card');
+    });
+
+    it('should use neutral icon color for neutral default folders', async () => {
+        const wrapper = await createWrapper(ID_PAYMENT_METHOD_FOLDER);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.iconConfig.color).toBe('#758CA3');
+    });
+
+    it('should use default blue folder color for user media', async () => {
+        const wrapper = await createWrapper(ID_USER_FOLDER);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail');
+        expect(wrapper.vm.iconConfig.color).toBe('#189EFF');
+    });
+
+    it('should use a blue solid sparkles icon for the AI-generated folder', async () => {
+        const wrapper = await createWrapper(null, [], {
+            name: 'AI-generated',
+        });
+
+        expect(wrapper.vm.displayIconConfig.name).toBe('solid-sparkles');
+        expect(wrapper.vm.displayIconConfig.color).toBe('#189EFF');
+        expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail');
     });
 
     it('should provide correct folder color for mail template module', async () => {
@@ -176,6 +256,7 @@ describe('components/media/sw-media-folder-item', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.iconName).toBe('multicolor-folder-thumbnail--pink');
+        expect(wrapper.vm.iconConfig.color).toBe('#FF85C2');
     });
 
     it('should provide fallback folder color', async () => {

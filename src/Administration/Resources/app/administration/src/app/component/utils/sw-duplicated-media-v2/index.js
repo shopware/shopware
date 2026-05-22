@@ -204,18 +204,7 @@ export default {
                 return;
             }
 
-            const criteria = new Criteria(1, 1).addFilter(
-                Criteria.multi('AND', [
-                    Criteria.equals('fileName', this.currentTask.fileName),
-                    Criteria.equals('fileExtension', this.currentTask.extension),
-                    Criteria.equals('private', this.currentTask.isPrivate),
-                ]),
-            );
-
-            const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            if (searchResult?.[0]) {
-                this.existingMedia = searchResult[0];
-            }
+            this.existingMedia = await this.findExistingMedia(this.currentTask);
 
             const provided = await this.mediaService.provideName(this.currentTask.fileName, this.currentTask.extension);
             this.suggestedName = provided.fileName;
@@ -228,6 +217,13 @@ export default {
             }
 
             this.isLoading = true;
+
+            const existingMedia = await this.findExistingMedia(this.currentTask);
+            if (!existingMedia) {
+                await this.resumeUpload(this.currentTask);
+                await this.removeCurrentTask();
+                return;
+            }
 
             switch (this.selectedOption) {
                 case 'Rename':
@@ -245,6 +241,10 @@ export default {
                     break;
             }
 
+            await this.removeCurrentTask();
+        },
+
+        async removeCurrentTask() {
             this.failedUploadTasks.splice(0, 1);
 
             if (!this.currentTask || !this.isWorkingOnMultipleTasks) {
@@ -252,6 +252,31 @@ export default {
             } else {
                 await this.solveDuplicate();
             }
+        },
+
+        async findExistingMedia(uploadTask) {
+            const criteria = new Criteria(1, 1).addFilter(
+                Criteria.multi('AND', [
+                    Criteria.equals('fileName', uploadTask.fileName),
+                    Criteria.equals('fileExtension', uploadTask.extension),
+                    Criteria.equals('private', uploadTask.isPrivate),
+                    Criteria.not('AND', [Criteria.equals('id', uploadTask.targetId)]),
+                ]),
+            );
+
+            const searchResult = await this.mediaRepository.search(criteria, Context.api);
+            const existingMedia = searchResult?.[0] ?? null;
+
+            if (!existingMedia?.hasFile) {
+                return null;
+            }
+
+            return existingMedia;
+        },
+
+        async resumeUpload(uploadTask) {
+            this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
+            await this.mediaService.runUploads(uploadTask.uploadTag);
         },
 
         async renameFile(uploadTask) {

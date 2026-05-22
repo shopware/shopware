@@ -74,7 +74,7 @@
 
     {% block sw_media_index_language_switch %}
     <template #language-switch>
-        <sw-language-switch @on-change="reloadList" />
+        <sw-language-switch @on-change="onChangeLanguage" />
     </template>
     {% endblock %}
 
@@ -90,16 +90,28 @@
                 @media-upload-cancel="onUploadCanceled"
             />
 
-            <sw-media-library
-                ref="mediaLibrary"
-                v-model:selection="selectedItems"
-                class="sw-media-index__media-library"
-                :folder-id="routeFolderId"
-                :pending-uploads="uploads"
-                :term="term"
-                editable
-                @media-folder-change="updateRoute"
-            />
+            <div class="sw-media-index__media-library-container">
+                <sw-media-upload-v2
+                    v-if="acl.can('media.creator')"
+                    class="sw-media-index__media-drop-upload"
+                    :class="{ 'is--active': isDropUploadActive }"
+                    variant="regular"
+                    :file-accept="fileAccept"
+                    :target-folder-id="routeFolderId"
+                    :upload-tag="uploadTag"
+                />
+
+                <sw-media-library
+                    ref="mediaLibrary"
+                    v-model:selection="selectedItems"
+                    class="sw-media-index__media-library"
+                    :folder-id="routeFolderId"
+                    :pending-uploads="uploads"
+                    :term="term"
+                    editable
+                    @media-folder-change="updateRoute"
+                />
+            </div>
             {% endblock %}
 
             {% block sw_media_index_sidebar %}

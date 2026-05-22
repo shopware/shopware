@@ -27,6 +27,17 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: {},
         },
+        mode: {
+            type: String as PropType<'relative' | 'calendar'>,
+            required: false,
+            default: 'relative',
+            validator(value: string) {
+                return [
+                    'relative',
+                    'calendar',
+                ].includes(value);
+            },
+        },
     },
 
     data(): {
@@ -56,6 +67,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         fullDatetime(): string {
+            if (this.mode === 'calendar') {
+                return this.dateFilter(this.dateObject.toString());
+            }
+
             return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
         },
 
@@ -117,6 +132,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         formatRelativeTime(): string {
+            if (this.mode === 'calendar') {
+                return this.formatCalendarTime();
+            }
+
             const diff = Date.now() - this.dateObject.getTime();
 
             const secondsAgo = Math.round(diff / 1000);
@@ -150,6 +169,50 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return this.dateFilter(this.dateObject.toString(), this.dateTimeFormat);
+        },
+
+        formatCalendarTime(): string {
+            const time = this.dateFilter(this.dateObject.toString(), {
+                year: undefined,
+                month: undefined,
+                day: undefined,
+            });
+
+            if (this.isToday) {
+                return this.$t('global.sw-time-ago.todayAt', { time });
+            }
+
+            const yesterday = new Date(Date.now());
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const dayBeforeYesterday = new Date(Date.now());
+            dayBeforeYesterday.setDate(dayBeforeYesterday.getDate() - 2);
+
+            if (this.isSameDay(this.dateObject, yesterday)) {
+                return this.$t('global.sw-time-ago.yesterdayAt', { time });
+            }
+
+            if (this.isSameDay(this.dateObject, dayBeforeYesterday)) {
+                return this.$t('global.sw-time-ago.dayBeforeYesterdayAt', { time });
+            }
+
+            const date = this.dateFilter(this.dateObject.toString(), {
+                year: this.dateTimeFormat.year ?? 'numeric',
+                month: this.dateTimeFormat.month ?? '2-digit',
+                day: this.dateTimeFormat.day ?? '2-digit',
+                hour: undefined,
+                minute: undefined,
+            });
+
+            return this.$t('global.sw-time-ago.dateAtTime', { date, time });
+        },
+
+        isSameDay(date: Date, comparisonDate: Date): boolean {
+            return (
+                date.getDate() === comparisonDate.getDate() &&
+                date.getMonth() === comparisonDate.getMonth() &&
+                date.getFullYear() === comparisonDate.getFullYear()
+            );
         },
     },
 });

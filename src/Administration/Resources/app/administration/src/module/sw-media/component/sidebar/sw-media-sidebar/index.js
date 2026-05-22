@@ -80,7 +80,7 @@ export default {
         headLine() {
             if (this.isSingleFile) {
                 if (this.firstEntity.getEntityName() === 'media') {
-                    return this.mediaNameFilter(this.firstEntity);
+                    return this.getMediaDisplayName(this.firstEntity);
                 }
                 return this.firstEntity.name;
             }
@@ -94,6 +94,23 @@ export default {
             }
 
             return null;
+        },
+
+        headLineParts() {
+            const suffixLength = 12;
+
+            if (
+                !this.isSingleFile ||
+                this.firstEntity.getEntityName() !== 'media' ||
+                this.headLine.length <= suffixLength * 2
+            ) {
+                return null;
+            }
+
+            return {
+                start: this.headLine.slice(0, -suffixLength),
+                end: this.headLine.slice(-suffixLength),
+            };
         },
 
         getSelectedFilesCount() {
@@ -137,6 +154,24 @@ export default {
     },
 
     methods: {
+        getMediaDisplayName(item) {
+            if (!item?.fileName) {
+                return this.mediaNameFilter(item);
+            }
+
+            if (!item.fileExtension) {
+                return item.fileName;
+            }
+
+            const extension = `.${item.fileExtension}`;
+
+            if (item.fileName.toLowerCase().endsWith(extension.toLowerCase())) {
+                return item.fileName.slice(0, -extension.length);
+            }
+
+            return item.fileName;
+        },
+
         createdComponent() {
             this.fetchCurrentFolder();
         },

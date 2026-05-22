@@ -6,6 +6,10 @@ const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
+const CENTRALIZED_UPLOAD_ERROR_CODES = [
+    'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
+    'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED',
+];
 
 /**
  * @status ready
@@ -535,6 +539,11 @@ export default {
 
         handleMediaServiceUploadEvent({ action, payload }) {
             if (action === 'media-upload-fail') {
+                if (this.isCentralizedUploadError(payload?.error)) {
+                    this.onRemoveMediaItem();
+                    return;
+                }
+
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
                     message: this.getUploadFailureMessage(payload),
@@ -542,6 +551,12 @@ export default {
 
                 this.onRemoveMediaItem();
             }
+        },
+
+        isCentralizedUploadError(error) {
+            return error?.response?.data?.errors?.some((err) => {
+                return CENTRALIZED_UPLOAD_ERROR_CODES.includes(err.code);
+            });
         },
 
         getUploadFailureMessage(task) {

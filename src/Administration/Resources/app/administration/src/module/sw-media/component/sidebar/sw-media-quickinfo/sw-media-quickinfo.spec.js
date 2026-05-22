@@ -100,7 +100,23 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                             <slot name="content"></slot>
                         </div>`,
                 },
-                'sw-media-quickinfo-metadata-item': true,
+                'sw-media-quickinfo-metadata-item': {
+                    props: {
+                        labelName: {
+                            type: String,
+                            required: false,
+                            default: '',
+                        },
+                    },
+                    template: `
+                        <div
+                            class="sw-media-quickinfo-metadata-item"
+                            :class="$attrs.class"
+                        >
+                            <span class="sw-media-quickinfo-metadata-item__label">{{ labelName }}</span>
+                            <slot></slot>
+                        </div>`,
+                },
                 'sw-media-preview-v2': true,
                 'sw-modal': true,
                 'sw-model-viewer': true,
@@ -239,6 +255,73 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).not.toContain('sw-media-sidebar__quickaction--disabled');
+    });
+
+    it('should not duplicate metadata labels inside editable fields', async () => {
+        const wrapper = await createWrapper({ hasFile: true });
+        await flushPromises();
+
+        const editableMetadataFields = wrapper.findAll('sw-confirm-field-stub');
+
+        expect(editableMetadataFields).toHaveLength(3);
+        editableMetadataFields.forEach((field) => {
+            expect(field.attributes('label')).toBeUndefined();
+            expect(field.attributes('aria-label')).toBeTruthy();
+        });
+    });
+
+    it('should combine image width and height in one dimensions metadata row', async () => {
+        const wrapper = await createWrapper({
+            hasFile: true,
+            mediaType: { name: 'IMAGE' },
+            metaData: {
+                width: 800,
+                height: 600,
+            },
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-quickinfo-metadata-width').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-quickinfo-metadata-height').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-quickinfo-metadata-dimensions').text()).toContain('800 x 600px');
+    });
+
+    it('should combine file type and size in one metadata row', async () => {
+        const wrapper = await createWrapper({
+            hasFile: true,
+            fileExtension: 'png',
+            fileSize: 2830,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-media-quickinfo-metadata-file').text()).toContain('PNG • 2.76 KB');
+        expect(wrapper.find('.sw-media-quickinfo-metadata-mimeType').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-quickinfo-metadata-size').exists()).toBe(false);
+    });
+
+    it('should display the uploader when user data is available', async () => {
+        const wrapper = await createWrapper(
+            {
+                hasFile: true,
+            },
+            {},
+            {
+                get: jest.fn().mockResolvedValue({
+                    user: {
+                        firstName: 'Ada',
+                        lastName: 'Lovelace',
+                    },
+                    config: {},
+                }),
+            },
+        );
+        await flushPromises();
+
+        expect(wrapper.vm.uploaderName).toBe('Ada Lovelace');
+        expect(wrapper.vm.uploadedSummary).not.toContain('sw-media.sidebar.metadata.uploadedBy');
+        expect(wrapper.vm.uploadedTooltipConfig.disabled).toBe(false);
+        expect(wrapper.vm.uploadedTooltipMessage).toContain('sw-media.sidebar.metadata.uploadedByTooltip');
+        expect(wrapper.vm.uploadedTooltipMessage).toContain('AL');
     });
 
     it.each([

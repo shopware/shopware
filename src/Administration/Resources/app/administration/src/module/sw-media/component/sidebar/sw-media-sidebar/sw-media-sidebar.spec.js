@@ -76,6 +76,55 @@ const createItems = (itemNames = defaultNames) => {
 };
 
 describe('module/sw-media/component/sidebar/sw-media-sidebar', () => {
+    it('should show the selected media headline without a duplicate file extension', async () => {
+        const mediaItems = [
+            {
+                getEntityName: () => 'media',
+                id: uuid.get('product-image'),
+                fileName: 'product-image.png',
+                fileExtension: 'png',
+                avatarUsers: [],
+                categories: [],
+                productManufacturers: [],
+                productMedia: [],
+                mailTemplateMedia: [],
+                documentBaseConfigs: [],
+                paymentMethods: [],
+                shippingMethods: [],
+            },
+        ];
+
+        const wrapper = await createWrapper(mediaItems);
+
+        expect(wrapper.vm.headLine).toBe('product-image');
+    });
+
+    it('should split long selected media headlines for middle truncation', async () => {
+        const mediaItems = [
+            {
+                getEntityName: () => 'media',
+                id: uuid.get('admin-notifications'),
+                fileName: 'admin-notifications-close-outside-click-with-cursor',
+                fileExtension: 'gif',
+                avatarUsers: [],
+                categories: [],
+                productManufacturers: [],
+                productMedia: [],
+                mailTemplateMedia: [],
+                documentBaseConfigs: [],
+                paymentMethods: [],
+                shippingMethods: [],
+            },
+        ];
+
+        const wrapper = await createWrapper(mediaItems);
+
+        expect(wrapper.vm.headLineParts).toStrictEqual({
+            start: 'admin-notifications-close-outside-click',
+            end: '-with-cursor',
+        });
+    });
+
     it('should save item data when receiving item:update event', async () => {
         const mediaItems = createItems(['router.glb']);
         const mediaSaveMock = jest.fn();

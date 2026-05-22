@@ -7,8 +7,28 @@
     <h3
         v-if="headLine"
         class="sw-media-sidebar__headline"
+        :class="{ 'has--middle-truncation': headLineParts }"
+        :title="headLine"
     >
-        {{ headLine }}
+        <span class="sw-media-sidebar__headline-text">
+            {{ headLine }}
+        </span>
+
+        <span
+            v-if="headLineParts"
+            class="sw-media-sidebar__headline-text-middle"
+            aria-hidden="true"
+        >
+            <span class="sw-media-sidebar__headline-text-middle-start">
+                {{ headLineParts.start }}
+            </span>
+            <span class="sw-media-sidebar__headline-text-middle-separator">
+                ...
+            </span>
+            <span class="sw-media-sidebar__headline-text-middle-end">
+                {{ headLineParts.end }}
+            </span>
+        </span>
     </h3>
     {% endblock %}
 

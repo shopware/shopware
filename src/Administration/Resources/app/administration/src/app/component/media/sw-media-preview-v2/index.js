@@ -4,6 +4,8 @@ import './sw-media-preview-v2.scss';
 
 const { Context, Filter } = Shopware;
 const { fileReader, EventBus } = Shopware.Utils;
+const VIDEO_PREVIEW_FRAME_MAX_SECONDS = 10;
+const VIDEO_PREVIEW_FRAME_RATIO = 0.25;
 
 /**
  * @status ready
@@ -117,6 +119,8 @@ export default {
             dataUrl: '',
             urlPreviewFailed: false,
             imagePreviewFailed: false,
+            videoPreviewFailed: false,
+            hasLoadedVideoPreviewFrame: false,
         };
     },
 
@@ -295,6 +299,7 @@ export default {
         source() {
             this.urlPreviewFailed = false;
             this.imagePreviewFailed = false;
+            this.videoPreviewFailed = false;
             this.fetchSourceIfNecessary();
         },
         previewUrl(newUrl, oldUrl) {
@@ -302,6 +307,8 @@ export default {
                 return;
             }
 
+            this.hasLoadedVideoPreviewFrame = false;
+            this.videoPreviewFailed = false;
             this.reloadMediaElement();
         },
     },
@@ -384,8 +391,45 @@ export default {
             });
         },
 
+        loadVideoPreviewFrame(event) {
+            if (
+                this.hasVideoCover ||
+                this.hasLoadedVideoPreviewFrame ||
+                this.mediaIsPrivate ||
+                this.showControls ||
+                this.autoplay ||
+                this.mimeTypeGroup !== 'video'
+            ) {
+                return;
+            }
+
+            const videoElement = event?.currentTarget ?? event?.target;
+
+            if (!videoElement || !Number.isFinite(videoElement.duration) || videoElement.duration <= 0) {
+                return;
+            }
+
+            const previewTime = Math.min(VIDEO_PREVIEW_FRAME_MAX_SECONDS, videoElement.duration * VIDEO_PREVIEW_FRAME_RATIO);
+
+            if (previewTime <= 0 || previewTime >= videoElement.duration) {
+                return;
+            }
+
+            try {
+                videoElement.currentTime = previewTime;
+                this.hasLoadedVideoPreviewFrame = true;
+            } catch {
+                // Browser media preview seeking can fail for some sources.
+                // Keep the default video preview in that case.
+            }
+        },
+
         removeUrlPreview() {
             this.urlPreviewFailed = true;
+        },
+
+        showVideoPreviewFallback() {
+            this.videoPreviewFailed = true;
         },
 
         showEvent() {

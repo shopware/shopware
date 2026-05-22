@@ -16,7 +16,7 @@
     {% endblock %}
 
     {% block sw_media_media_item_name_container %}
-    <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
+    <template #name="{ item, isInlineEdit, isList, startInlineEdit, endInlineEdit }">
 
         <mt-text-field
             v-if="isInlineEdit"
@@ -33,15 +33,39 @@
             v-else
             ref="itemName"
             class="sw-media-base-item__name"
+            :class="{ 'has--middle-truncation': shouldUseMiddleTruncation(isList) }"
             :title="`${item.fileName}.${item.fileExtension}`"
-            role="menuitem"
-            tabindex="0"
             @dblclick="startInlineEdit"
         >
 
             <template v-if="item.hasFile">
-                {{ mediaNameFilter(item) }}
+                <span class="sw-media-base-item__name-text">
+                    {{ mediaDisplayName }}
+                </span>
+
+                <span
+                    v-if="shouldUseMiddleTruncation(isList)"
+                    class="sw-media-base-item__name-text-middle"
+                    aria-hidden="true"
+                >
+                    <span class="sw-media-base-item__name-text-middle-start">
+                        {{ mediaDisplayNameParts.start }}
+                    </span>
+                    <span class="sw-media-base-item__name-text-middle-separator">
+                        ...
+                    </span>
+                    <span class="sw-media-base-item__name-text-middle-end">
+                        {{ mediaDisplayNameParts.end }}
+                    </span>
+                </span>
             </template>
+        </div>
+
+        <div
+            v-if="item.hasFile && !isList && mediaDisplayDetails"
+            class="sw-media-base-item__details"
+        >
+            {{ mediaDisplayDetails }}
         </div>
     </template>
     {% endblock %}
@@ -52,6 +76,7 @@
             <span v-if="item.uploadedAt"><sw-time-ago
                 :date="item.uploadedAt"
                 :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                mode="calendar"
             />, </span>{{ fileSizeFilter(item.fileSize, locale) }}
         </div>
     </template>

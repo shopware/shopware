@@ -1,5 +1,6 @@
 import template from './sw-media-modal-move.html.twig';
 import './sw-media-modal-move.scss';
+import { useSnackbar } from '@shopware-ag/meteor-component-library';
 
 const {
     Mixin,
@@ -93,6 +94,10 @@ export default {
 
         assetFilter() {
             return Shopware.Filter.getByName('asset');
+        },
+
+        snackbar() {
+            return useSnackbar();
         },
     },
 
@@ -230,8 +235,8 @@ export default {
                     }),
                 );
 
-                this.createNotificationSuccess({
-                    title: this.$root.$t('global.default.success'),
+                this.snackbar.addSnackbar({
+                    variant: 'success',
                     message: this.$root.$t('global.sw-media-modal-move.notification.successOverall.message'),
                 });
 

@@ -4,8 +4,11 @@
     :class="mediaItemClasses"
     role="button"
     tabindex="0"
+    :aria-label="itemAccessibleName || undefined"
+    :aria-disabled="disabled || undefined"
     @click="handleItemClick"
     @keydown.enter.self="handleItemClick"
+    @keydown.space.prevent.self="handleItemClick"
 >
 
     {% block sw_media_base_item_selected_indicator %}
@@ -63,14 +66,14 @@
     >
         <slot
             name="name"
-            v-bind="{ item, isInlineEdit, startInlineEdit, endInlineEdit }"
+            v-bind="{ item, isInlineEdit, isList, startInlineEdit, endInlineEdit }"
         ></slot>
     </div>
     {% endblock %}
 
     {% block sw_media_base_item_metadata_container %}
     <div
-        v-if="isList && showContextMenuButton"
+        v-if="isList"
         class="sw-media-base-item__metadata-container"
     >
         {% block sw_media_base_item_metadata %}

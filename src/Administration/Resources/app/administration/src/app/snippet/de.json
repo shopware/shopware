@@ -277,7 +277,11 @@
       "justNow": "Gerade eben",
       "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten",
       "aboutNow": "In Kürze",
-      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten"
+      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten",
+      "todayAt": "Heute um {time} Uhr",
+      "yesterdayAt": "Gestern um {time} Uhr",
+      "dayBeforeYesterdayAt": "Vorgestern um {time} Uhr",
+      "dateAtTime": "{date} um {time} Uhr"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",
@@ -356,6 +360,10 @@
       "mediaInUsagesMessage": "Die folgenden Mediendateien werden derzeit noch verwendet",
       "notification": {
         "errorSingle": {
+          "fallback": {
+            "media": "ausgewählte Datei",
+            "folder": "ausgewählter Ordner"
+          },
           "message": {
             "media": "Fehler beim Löschen der Datei \"{name}\".",
             "folder": "Fehler beim Löschen des Ordners \"{name}\"."

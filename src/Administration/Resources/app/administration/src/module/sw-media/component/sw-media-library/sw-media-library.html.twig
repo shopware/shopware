@@ -1,39 +1,52 @@
 {% block sw_media_library %}
-<div class="sw-media-library">
+<div
+    class="sw-media-library"
+    :class="mediaLibraryClasses"
+>
     {% block sw_media_library_display_options %}
     <div class="sw-media-library__options-container">
-        <sw-media-display-options
-            class="sw-media-library__display-options"
-            :presentation="presentation"
-            :sorting="sorting"
-            :hide-presentation="compact"
-            :disabled="disabled"
-            @media-presentation-change="presentation = $event"
-            @media-sorting-change="sorting = $event"
-        />
+        <div class="sw-media-library__display-controls">
+            <sw-media-display-options
+                class="sw-media-library__display-options"
+                :presentation="presentation"
+                :sorting="sorting"
+                :type-filter="typeFilter"
+                :hide-presentation="compact"
+                :disabled="disabled"
+                @media-presentation-change="presentation = $event"
+                @media-sorting-change="sorting = $event"
+                @media-type-filter-change="typeFilter = $event"
+            />
+        </div>
 
-        <sw-extension-teaser-popover
-            position-identifier="sw-media-generate-image-button"
-        />
+        <div class="sw-media-library__actions">
+            <sw-extension-teaser-popover
+                position-identifier="sw-media-generate-image-button"
+            />
 
-        {% block sw_media_index_create_folder %}
-        <mt-button
-            v-if="editable || allowCreateFolder"
-            v-tooltip="{
-                message: $t('sw-privileges.tooltip.warning'),
-                disabled: acl.can('media.creator'),
-                showOnDisabledElements: true
-            }"
-            :disabled="!acl.can('media.creator') || disabled"
-            class="sw-media-index__create-folder-action"
-            ghost
-            size="small"
-            variant="secondary"
-            @click="createFolder"
-        >
-            {{ $t('sw-media.index.buttonCreateFolder') }}
-        </mt-button>
-        {% endblock %}
+            {% block sw_media_index_create_folder %}
+            <mt-button
+                v-if="editable || allowCreateFolder"
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('media.creator'),
+                    showOnDisabledElements: true
+                }"
+                :disabled="!acl.can('media.creator') || disabled"
+                class="sw-media-index__create-folder-action"
+                ghost
+                size="small"
+                variant="secondary"
+                @click="createFolder"
+            >
+                <mt-icon
+                    name="regular-folder"
+                    size="16px"
+                />
+                {{ $t('sw-media.index.buttonCreateFolder') }}
+            </mt-button>
+            {% endblock %}
+        </div>
     </div>
     {% endblock %}
 
@@ -41,13 +54,14 @@
     <div
         ref="scrollContainer"
         class="sw-media-library__scroll-container"
+        @scroll="updateScrollPosition"
     >
         <div class="sw-media-library__scroll-content">
 
             {% block sw_media_library_media_grid %}
             <sw-media-grid
                 ref="mediaGrid"
-                class="sw-media-library_media-grid"
+                class="sw-media-library__media-grid"
                 :presentation="gridPresentation"
                 @media-grid-selection-clear="clearSelection"
             >
@@ -116,22 +130,21 @@
                     {{ $t('sw-media.mediaLibrary.labelButtonLoadMore') }}
                 </mt-button>
                 {% endblock %}
+
+                {% block sw_media_library_empty_state %}
+                <mt-empty-state
+                    v-if="shouldDisplayEmptyState"
+                    class="sw-media-library__empty-state"
+                    :centered="true"
+                    :icon="$route.meta.$module.icon"
+                    :headline="emptyStateHeadline"
+                    :description="emptyStateDescription"
+                />
+                {% endblock %}
             </sw-media-grid>
             {% endblock %}
         </div>
     </div>
-    {% endblock %}
-
-    {% block sw_media_library_empty_state %}
-    <mt-empty-state
-        v-if="shouldDisplayEmptyState"
-        class="sw-media-library__empty-state"
-        :centered="true"
-        :icon="$route.meta.$module.icon"
-        :headline="$t('sw-empty-state.messageNoResultTitle')"
-        :link-text="$t('sw-empty-state.messageNoResultLink')"
-        :link-href="$router.resolve({ name: 'sw.profile.index.searchPreferences' }).href"
-    />
     {% endblock %}
 </div>
 {% endblock %}

@@ -1,28 +1,168 @@
 {% block sw_media_display_options %}
-{% block sw_media_display_options_presentation %}
-<mt-select
-    v-if="!hidePresentation"
-    name="presentation"
-    small
-    :options="presentationOptions"
-    :label="$t('sw-media.presentation.labelPresentation')"
-    class="sw-media-display-options__label-presentation"
-    :model-value="presentation"
-    :disabled="disabled"
-    @update:model-value="onPresentationChanged"
-/>
+{% block sw_media_display_options_type_filter %}
+<mt-popover
+    class="sw-media-display-options__type-filter"
+    width="medium"
+>
+    <template #trigger="{ toggleFloatingUi }">
+        <mt-button
+            class="sw-media-display-options__type-filter-button"
+            :class="{ 'is--active': hasActiveTypeFilter }"
+            size="small"
+            variant="secondary"
+            :disabled="disabled"
+            @click="toggleFloatingUi"
+        >
+            {{ $t('sw-media.filter.labelType') }}
+            <mt-icon
+                name="regular-chevron-down-xs"
+                size="12px"
+            />
+        </mt-button>
+    </template>
+
+    <template #popover-items__base>
+        <div class="sw-media-display-options__type-filter-popover">
+            <div class="sw-media-display-options__type-filter-header">
+                <h3 class="sw-media-display-options__type-filter-title">
+                    {{ $t('sw-media.filter.labelTypeFilterBy') }}
+                </h3>
+
+                <button
+                    type="button"
+                    class="sw-media-display-options__type-filter-select-all"
+                    @click="onSelectAllTypeFilters"
+                >
+                    {{ typeFilterActionLabel }}
+                </button>
+            </div>
+
+            <mt-popover-item
+                v-for="option in typeFilterOptions"
+                :key="option.value"
+                class="sw-media-display-options__type-filter-option"
+                :label="option.label"
+                :icon="option.icon"
+                show-switch
+                :switch-value="isTypeFilterSelected(option.value)"
+                @change-switch="onTypeFilterSwitchChanged(option.value, $event)"
+            />
+        </div>
+    </template>
+</mt-popover>
 {% endblock %}
 
 {% block sw_media_display_options_sorting %}
-<mt-select
-    name="sortType"
-    small
-    :options="sortOptionsSelect"
-    :label="$t('sw-media.sorting.labelSort')"
-    class="sw-media-display-options__label-sort"
-    :model-value="sortingConCat"
-    :disabled="disabled"
-    @update:model-value="onSortingChanged"
-/>
+<mt-popover
+    class="sw-media-display-options__sorting"
+    width="medium"
+>
+    <template #trigger="{ toggleFloatingUi }">
+        <mt-button
+            class="sw-media-display-options__sorting-button"
+            :class="{ 'is--active': canResetSorting }"
+            size="small"
+            variant="secondary"
+            :disabled="disabled"
+            :aria-label="sortingActionAriaLabel"
+            :title="sortingActionAriaLabel"
+            @click="toggleFloatingUi"
+        >
+            <mt-icon
+                :name="activeSortDirectionIcon"
+                size="14px"
+            />
+            {{ $t('sw-media.sorting.labelSortAction') }}
+            <mt-icon
+                name="regular-chevron-down-xs"
+                size="12px"
+            />
+        </mt-button>
+    </template>
+
+    <template #popover-items__base>
+        <div class="sw-media-display-options__sorting-menu">
+            <div class="sw-media-display-options__sorting-header">
+                <h3 class="sw-media-display-options__sorting-title">
+                    {{ $t('sw-media.sorting.labelSort') }}
+                </h3>
+
+                <button
+                    v-if="canResetSorting"
+                    type="button"
+                    class="sw-media-display-options__sorting-reset"
+                    @click="resetSorting"
+                >
+                    {{ $t('sw-media.sorting.labelSortReset') }}
+                </button>
+            </div>
+
+            <mt-popover-item
+                v-for="option in sortOptions"
+                :key="option.value"
+                class="sw-media-display-options__sorting-option"
+                :class="{ 'is--active': option.sortBy === sorting.sortBy }"
+                :label="option.label"
+                :icon="getSortOptionIcon(option)"
+                :contextual-detail="getSortOptionContextualDetail(option)"
+                :on-label-click="() => onSortOptionChanged(option)"
+                role="menuitemradio"
+                is-option-item
+                :aria-checked="option.sortBy === sorting.sortBy"
+            />
+        </div>
+    </template>
+</mt-popover>
+{% endblock %}
+
+{% block sw_media_display_options_presentation %}
+<div
+    v-if="!hidePresentation"
+    class="sw-media-display-options__presentation"
+>
+    <mt-popover
+        class="sw-media-display-options__presentation-popover"
+        width="small"
+    >
+        <template #trigger="{ toggleFloatingUi }">
+            <mt-button
+                class="sw-media-display-options__presentation-button"
+                size="small"
+                square
+                variant="secondary"
+                :disabled="disabled"
+                :aria-label="presentationActionAriaLabel"
+                :title="presentationActionAriaLabel"
+                @click="toggleFloatingUi"
+            >
+                <mt-icon
+                    :name="activePresentationOption.icon"
+                    size="16px"
+                />
+            </mt-button>
+        </template>
+
+        <template #popover-items__base>
+            <div class="sw-media-display-options__presentation-menu">
+                <h3 class="sw-media-display-options__presentation-title">
+                    {{ $t('sw-media.presentation.labelPresentationLayout') }}
+                </h3>
+
+                <mt-popover-item
+                    v-for="option in previewOptions"
+                    :key="option.value"
+                    class="sw-media-display-options__presentation-option"
+                    :class="{ 'is--active': option.value === presentation }"
+                    :label="option.name"
+                    :icon="option.icon"
+                    :on-label-click="() => onPresentationChanged(option.value)"
+                    role="menuitemradio"
+                    is-option-item
+                    :aria-checked="option.value === presentation"
+                />
+            </div>
+        </template>
+    </mt-popover>
+</div>
 {% endblock %}
 {% endblock %}

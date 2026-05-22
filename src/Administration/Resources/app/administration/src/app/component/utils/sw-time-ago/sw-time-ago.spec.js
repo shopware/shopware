@@ -336,4 +336,42 @@ describe('src/app/component/utils/sw-time-ago', () => {
             });
         });
     });
+
+    describe('calendar mode', () => {
+        it('should show today with time', async () => {
+            const wrapper = await createWrapper({
+                date: '2025-06-24T08:25:00.000+00:00',
+                mode: 'calendar',
+            });
+
+            expect(wrapper.text()).toContain('global.sw-time-ago.todayAt');
+        });
+
+        it('should show yesterday with time', async () => {
+            const wrapper = await createWrapper({
+                date: '2025-06-23T08:25:00.000+00:00',
+                mode: 'calendar',
+            });
+
+            expect(wrapper.text()).toContain('global.sw-time-ago.yesterdayAt');
+        });
+
+        it('should show the day before yesterday with time', async () => {
+            const wrapper = await createWrapper({
+                date: '2025-06-22T08:25:00.000+00:00',
+                mode: 'calendar',
+            });
+
+            expect(wrapper.text()).toContain('global.sw-time-ago.dayBeforeYesterdayAt');
+        });
+
+        it('should show older dates with date and time', async () => {
+            const wrapper = await createWrapper({
+                date: '2025-06-21T08:25:00.000+00:00',
+                mode: 'calendar',
+            });
+
+            expect(wrapper.text()).toContain('global.sw-time-ago.dateAtTime');
+        });
+    });
 });

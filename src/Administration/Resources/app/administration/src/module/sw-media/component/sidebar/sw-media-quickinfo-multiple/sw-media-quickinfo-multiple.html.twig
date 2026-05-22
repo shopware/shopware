@@ -5,6 +5,7 @@
         v-if="editable"
         :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
+        storage-key="actions"
     >
 
         {% block sw_media_quickinfo_multiple_quickactions_content %}
@@ -78,6 +79,7 @@
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$t('sw-media.sidebar.sections.selectedFiles')"
+        storage-key="selected-files"
     >
 
         {% block sw_media_quickinfo_multiple_file_names_content %}
@@ -127,4 +129,3 @@
     {% endblock %}
 </div>
 {% endblock %}
-

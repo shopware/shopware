@@ -104,6 +104,132 @@ describe('components/media/sw-media-media-item', () => {
         });
     });
 
+    it('should display the media name without a duplicate file extension', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Product image.png',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        expect(wrapper.vm.mediaDisplayName).toBe('Product image');
+    });
+
+    it('should keep the media name when the extension is already stored separately', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Product image',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        expect(wrapper.vm.mediaDisplayName).toBe('Product image');
+    });
+
+    it('should display file type and size details for grid previews', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileExtension: 'png',
+                    fileSize: 3245600,
+                },
+            },
+        );
+
+        expect(wrapper.vm.mediaDisplayDetails).toBe('PNG • 3.10 MB');
+    });
+
+    it('should split long media names for middle truncation', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Bildschirmfoto 2026-04-29 um 10.37.27',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        expect(wrapper.vm.mediaDisplayNameParts).toStrictEqual({
+            start: 'Bildschirmfoto 2026-04-29',
+            end: ' um 10.37.27',
+        });
+    });
+
+    it('should use middle truncation for long names in regular preview', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Bildschirmfoto 2026-04-29 um 10.37.27',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        expect(wrapper.vm.shouldUseMiddleTruncation(false)).toBe(true);
+    });
+
+    it('should not use middle truncation in list mode', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Bildschirmfoto 2026-04-29 um 10.37.27',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        expect(wrapper.vm.shouldUseMiddleTruncation(true)).toBe(false);
+    });
+
+    it('should not use middle truncation in small preview', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Bildschirmfoto 2026-04-29 um 10.37.27',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        wrapper.vm.isSmallPreviewName = true;
+
+        expect(wrapper.vm.shouldUseMiddleTruncation(false)).toBe(false);
+    });
+
+    it('should update the preview mode state when the component updates', async () => {
+        const wrapper = await createWrapper(
+            {},
+            {
+                item: {
+                    fileName: 'Bildschirmfoto 2026-04-29 um 10.37.27',
+                    fileExtension: 'png',
+                },
+            },
+        );
+
+        wrapper.vm.updateNamePreviewMode = jest.fn();
+
+        await wrapper.setProps({
+            item: {
+                ...wrapper.props('item'),
+                fileName: 'Another media filename',
+            },
+        });
+
+        expect(wrapper.vm.updateNamePreviewMode).toHaveBeenCalled();
+    });
+
     it('should throw error if new file name is too long', async () => {
         global.activeAclRoles = ['media.editor'];
         const error = {

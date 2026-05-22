@@ -69,10 +69,18 @@ export default {
     },
 
     computed: {
+        hasChanges() {
+            return this.draft !== this.value;
+        },
+
+        showActionButtons() {
+            return this.isEditing && this.hasChanges;
+        },
+
         confirmFieldClasses() {
             return {
                 'sw-confirm-field--compact': this.compact,
-                'sw-confirm-field--editing': this.isEditing,
+                'sw-confirm-field--editing': this.showActionButtons,
                 'has--error': !!this.error,
             };
         },

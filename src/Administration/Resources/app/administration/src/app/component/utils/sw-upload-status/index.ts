@@ -15,6 +15,7 @@ type FileInfo = {
     name: string;
     targetId: string;
     status: (typeof UploadStatus)[keyof typeof UploadStatus];
+    errorMessage?: string;
 };
 
 type ApiError = {
@@ -42,7 +43,7 @@ type UploadTask = {
 
 type UploadFailedPayload = {
     targetId: string;
-    fileName: string;
+    fileName?: string;
     error: UploadError;
 };
 
@@ -83,10 +84,14 @@ const IgnoredErrors = [
 const ErrorMessages = {
     [ResponseErrorCodes.ILLEGAL_FILE_NAME]: 'global.sw-media-upload.notification.illegalFilename.message',
     [ResponseErrorCodes.ILLEGAL_URL]: 'global.sw-media-upload.notification.illegalFileUrl.message',
-    [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.fileTypeNotSupported.message',
+    [ResponseErrorCodes.ILLEGAL_FILE_TYPE]: 'global.sw-media-upload.notification.illegalFileType.message',
     [ClientErrorCodes.REQUEST_TIMEOUT]: 'global.sw-media-upload.notification.transportError.message',
     [ClientErrorCodes.REQUEST_CANCELED]: 'global.sw-media-upload.notification.requestCanceled.message',
 } as const;
+
+const SnackbarErrors = [
+    ResponseErrorCodes.ILLEGAL_FILE_TYPE,
+] as const;
 
 const StatusMessages = {
     PAYLOAD_TOO_LARGE: 'global.sw-media-upload.notification.payloadTooLarge.message',
@@ -102,10 +107,14 @@ const GatewayErrorStatuses = [
     502, // Bad gateway from upstream server
     503, // Service unavailable on upstream server
 ];
+const TechnicalIdPattern = /^[0-9a-f]{32}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MaxFileNameLength = 48;
+const ReadableUploadErrorDuration = 8000;
+const ReadableUploadSuccessDuration = 5000;
 
 /**
  * This component listens to media upload events and shows a snackbar displaying the upload progress.
- * If a file upload fails, an additional notification with more details is displayed.
+ * If a file upload fails, recoverable errors are shown in the snackbar and blocking errors use notifications.
  *
  * @private
  * @sw-package discovery
@@ -133,6 +142,21 @@ export default Shopware.Component.wrapComponentConfig({
         },
         hasFailedUploads() {
             return Array.from(this.uploads.values()).some((fileInfo) => fileInfo.status === UploadStatus.FAILED);
+        },
+        uploadErrorMessage(): string | undefined {
+            if (this.uploadCount !== 1) {
+                return undefined;
+            }
+
+            const failedUploads = Array.from(this.uploads.values()).filter((fileInfo) => {
+                return fileInfo.status === UploadStatus.FAILED;
+            });
+
+            if (failedUploads.length !== 1) {
+                return undefined;
+            }
+
+            return failedUploads[0].errorMessage;
         },
         uploadProgress() {
             let total = 0;
@@ -184,11 +208,32 @@ export default Shopware.Component.wrapComponentConfig({
             };
 
             if (this.uploadComplete) {
+                if (this.hasFailedUploads && this.uploadErrorMessage) {
+                    Object.assign(config, {
+                        variant: 'error',
+                        message: this.uploadErrorMessage,
+                        duration: ReadableUploadErrorDuration,
+                    });
+
+                    return config;
+                }
+
+                if (!this.hasFailedUploads) {
+                    Object.assign(config, {
+                        variant: 'success',
+                        message: this.$t('global.sw-media-upload.notification.success.message', {
+                            count: uploadCount,
+                            total: uploadCount,
+                        }),
+                        duration: ReadableUploadSuccessDuration,
+                    });
+
+                    return config;
+                }
+
                 Object.assign(config, {
-                    uploadState: this.hasFailedUploads ? 'error' : 'success',
-                    errorMessage: this.hasFailedUploads
-                        ? this.$t('global.sw-media-upload.snackbar.errorMessage', { count: uploadCount })
-                        : undefined,
+                    uploadState: 'error',
+                    errorMessage: this.$t('global.sw-media-upload.snackbar.errorMessage', { count: uploadCount }),
                     duration: 0,
                 });
             }
@@ -284,10 +329,14 @@ export default Shopware.Component.wrapComponentConfig({
                 found.fileInfo.status = UploadStatus.PENDING;
             } else {
                 found.fileInfo.status = UploadStatus.FAILED;
+                found.fileInfo.errorMessage = this.getUploadErrorMessages(
+                    payload as UploadFailedPayload,
+                    found.fileInfo.name,
+                )[0]?.message;
             }
 
             this.uploads.set(found.uploadId, found.fileInfo);
-            this.showErrorNotification(payload as UploadFailedPayload);
+            this.showErrorNotification(payload as UploadFailedPayload, found.fileInfo.name);
         },
         onUploadProgress(event: MediaUploadEvent) {
             const targetId = event.payload.targetId ?? '';
@@ -334,40 +383,96 @@ export default Shopware.Component.wrapComponentConfig({
                 this.uploads.clear();
             }
         },
-        showErrorNotification(payload: UploadFailedPayload) {
-            const messageSnippets = [];
+        getUploadErrorMessages(
+            payload: UploadFailedPayload,
+            fileNameFallback?: string,
+        ): { code?: string; message: string }[] {
+            const messages: { code?: string; message: string }[] = [];
+            const fileName = this.getUploadDisplayFileName(payload, fileNameFallback);
+            const translate = (snippet: string) => {
+                return this.$t(snippet, {
+                    fileName,
+                    name: fileName,
+                });
+            };
 
             if (!payload?.error?.response && ErrorMessages[payload.error?.code as keyof typeof ErrorMessages]) {
-                messageSnippets.push(ErrorMessages[payload.error.code as keyof typeof ErrorMessages]);
-            } else {
-                payload?.error?.response?.data?.errors?.forEach((error) => {
-                    if (IgnoredErrors.includes(error.code as (typeof IgnoredErrors)[number])) {
-                        return;
-                    }
+                const code = payload.error.code;
 
-                    const snippetKey = ErrorMessages[error.code as keyof typeof ErrorMessages];
-
-                    if (!snippetKey) {
-                        return;
-                    }
-
-                    messageSnippets.push(snippetKey);
+                messages.push({
+                    code,
+                    message: translate(ErrorMessages[code as keyof typeof ErrorMessages]),
                 });
+                return messages;
             }
 
-            if (messageSnippets.length === 0) {
+            payload?.error?.response?.data?.errors?.forEach((error) => {
+                if (IgnoredErrors.includes(error.code as (typeof IgnoredErrors)[number])) {
+                    return;
+                }
+
+                const snippetKey = ErrorMessages[error.code as keyof typeof ErrorMessages];
+
+                if (!snippetKey) {
+                    return;
+                }
+
+                messages.push({
+                    code: error.code,
+                    message: translate(snippetKey),
+                });
+            });
+
+            if (messages.length === 0) {
                 const transportSnippet = this.getTransportErrorSnippet(payload?.error);
 
                 if (transportSnippet) {
-                    messageSnippets.push(transportSnippet);
+                    messages.push({
+                        message: translate(transportSnippet),
+                    });
                 }
             }
 
-            messageSnippets.forEach((snippet) => {
+            return messages;
+        },
+        showErrorNotification(payload: UploadFailedPayload, fileNameFallback?: string) {
+            this.getUploadErrorMessages(payload, fileNameFallback).forEach(({ code, message }) => {
+                if (SnackbarErrors.includes(code as (typeof SnackbarErrors)[number])) {
+                    return;
+                }
+
                 this.createNotificationError({
-                    message: this.$t(snippet, { fileName: payload.fileName }),
+                    message,
                 });
             });
+        },
+        getUploadDisplayFileName(payload: UploadFailedPayload, fallback?: string): string {
+            const fileName = payload.fileName;
+
+            if (fileName && !this.isTechnicalId(fileName)) {
+                return this.truncateMiddle(fileName);
+            }
+
+            if (fallback && !this.isTechnicalId(fallback)) {
+                return this.truncateMiddle(fallback);
+            }
+
+            return this.truncateMiddle(fileName ?? fallback ?? '');
+        },
+        isTechnicalId(value: string): boolean {
+            return TechnicalIdPattern.test(value);
+        },
+        truncateMiddle(value: string, maxLength = MaxFileNameLength): string {
+            if (value.length <= maxLength) {
+                return value;
+            }
+
+            const ellipsis = '...';
+            const availableLength = maxLength - ellipsis.length;
+            const startLength = Math.ceil(availableLength / 2);
+            const endLength = Math.floor(availableLength / 2);
+
+            return `${value.slice(0, startLength)}${ellipsis}${value.slice(-endLength)}`;
         },
         getTransportErrorSnippet(error?: UploadError): string | null {
             const status = error?.response?.status ?? -1;

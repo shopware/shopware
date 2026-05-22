@@ -33,8 +33,10 @@ export default {
     data() {
         return {
             isLoading: false,
+            isDropUploadActive: false,
             selectedItems: [],
             uploads: [],
+            successfulUploads: [],
             pendingUploadsCount: 0,
             term: this.$route.query?.term ?? '',
             uploadTag: 'upload-tag-sw-media-index',
@@ -79,6 +81,10 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     unmounted() {
         this.destroyedComponent();
     },
@@ -86,6 +92,12 @@ export default {
     methods: {
         createdComponent() {
             this.updateFolder();
+        },
+
+        mountedComponent() {
+            window.addEventListener('dragenter', this.onFileDragEnter);
+            window.addEventListener('dragleave', this.onFileDragLeave);
+            window.addEventListener('drop', this.onFileDrop);
         },
 
         async updateFolder() {
@@ -103,24 +115,58 @@ export default {
             }
         },
 
-        destroyedComponent() {},
+        destroyedComponent() {
+            window.removeEventListener('dragenter', this.onFileDragEnter);
+            window.removeEventListener('dragleave', this.onFileDragLeave);
+            window.removeEventListener('drop', this.onFileDrop);
+        },
+
+        isFileDrag(event) {
+            return Array.from(event?.dataTransfer?.types ?? []).includes('Files');
+        },
+
+        onFileDragEnter(event) {
+            if (!this.acl.can('media.creator') || !this.isFileDrag(event)) {
+                return;
+            }
+
+            this.isDropUploadActive = true;
+        },
+
+        onFileDragLeave(event) {
+            if (event.screenX === 0 && event.screenY === 0) {
+                this.isDropUploadActive = false;
+            }
+        },
+
+        onFileDrop() {
+            this.isDropUploadActive = false;
+        },
 
         async onUploadsAdded({ data } = {}) {
             if (Array.isArray(data) && data.length > 0) {
+                if (this.pendingUploadsCount === 0) {
+                    this.successfulUploads = [];
+                }
+
                 this.pendingUploadsCount += data.length;
             }
 
             await this.mediaService.runUploads(this.uploadTag);
         },
 
-        onUploadFinished({ targetId, originalTargetId } = {}) {
+        async onUploadFinished({ targetId, originalTargetId } = {}) {
             if (targetId || originalTargetId) {
                 this.uploads = this.uploads.filter((upload) => {
                     return upload.id !== targetId && upload.id !== originalTargetId;
                 });
             }
 
-            this.decrementPendingUploads();
+            if (targetId) {
+                await this.addSuccessfulUpload(targetId);
+            }
+
+            await this.decrementPendingUploads();
         },
 
         onUploadFailed({ targetId } = {}) {
@@ -140,11 +186,15 @@ export default {
 
             if (this.pendingUploadsCount === 0) {
                 this.reloadList();
+                this.successfulUploads = [];
             }
         },
 
-        onChangeLanguage() {
-            this.clearSelection();
+        async onChangeLanguage() {
+            const selectionSnapshot = this.getSelectionSnapshot();
+
+            await this.reloadList();
+            await this.restoreSelection(selectionSnapshot);
         },
 
         onSearch(value) {
@@ -177,26 +227,127 @@ export default {
         },
 
         reloadList() {
-            this.$refs.mediaLibrary.refreshList();
+            return this.$refs.mediaLibrary.refreshList();
         },
 
-        decrementPendingUploads() {
+        async decrementPendingUploads() {
             if (this.pendingUploadsCount > 0) {
                 this.pendingUploadsCount -= 1;
             }
 
             if (this.pendingUploadsCount === 0) {
-                this.reloadList();
+                await this.reloadList();
+                this.selectSuccessfulUploads();
             }
+        },
+
+        async addSuccessfulUpload(targetId) {
+            try {
+                const uploadedMedia = await this.mediaRepository.get(targetId, Context.api);
+                if (!uploadedMedia) {
+                    return;
+                }
+
+                this.successfulUploads.push(uploadedMedia);
+            } catch {
+                // Failed uploads are handled separately and should not affect the selection.
+            }
+        },
+
+        selectSuccessfulUploads() {
+            if (this.successfulUploads.length === 0) {
+                return;
+            }
+
+            const selectableItems = this.$refs.mediaLibrary?.selectableItems ?? [];
+
+            this.selectedItems = this.successfulUploads.reduce((selection, uploadedMedia) => {
+                const visibleMedia = selectableItems.find((item) => item.id === uploadedMedia.id);
+
+                if (visibleMedia) {
+                    selection.push(visibleMedia);
+                    return selection;
+                }
+
+                if (this.shouldSelectUploadFallback(uploadedMedia)) {
+                    selection.push(uploadedMedia);
+                }
+
+                return selection;
+            }, []);
+
+            if (this.$refs.mediaLibrary?.setListSelectionStartItem) {
+                this.$refs.mediaLibrary.setListSelectionStartItem(this.selectedItems[0] ?? null);
+            }
+
+            this.successfulUploads = [];
+        },
+
+        shouldSelectUploadFallback(uploadedMedia) {
+            const activeTypeFilters = this.$refs.mediaLibrary?.normalizedTypeFilter ?? [];
+
+            return (
+                activeTypeFilters.length === 0 &&
+                !this.term &&
+                (uploadedMedia.mediaFolderId ?? null) === (this.routeFolderId ?? null)
+            );
         },
 
         clearSelection() {
             this.selectedItems.splice(0, this.selectedItems.length);
         },
 
+        getSelectionSnapshot() {
+            return this.selectedItems
+                .filter((item) => item?.id && item?.getEntityName)
+                .map((item) => ({
+                    id: item.id,
+                    entityName: item.getEntityName(),
+                }));
+        },
+
+        async restoreSelection(selectionSnapshot) {
+            if (!selectionSnapshot.length) {
+                return;
+            }
+
+            const restoredSelection = await Promise.all(selectionSnapshot.map((item) => this.resolveSelectionItem(item)));
+
+            this.selectedItems = restoredSelection.filter(Boolean);
+
+            if (this.$refs.mediaLibrary?.setListSelectionStartItem) {
+                this.$refs.mediaLibrary.setListSelectionStartItem(this.selectedItems[0] ?? null);
+            }
+        },
+
+        async resolveSelectionItem({ id, entityName }) {
+            const selectableItems = this.$refs.mediaLibrary?.selectableItems ?? [];
+            const visibleItem = selectableItems.find((item) => {
+                return item?.id === id && item?.getEntityName?.() === entityName;
+            });
+
+            if (visibleItem) {
+                return visibleItem;
+            }
+
+            try {
+                if (entityName === 'media') {
+                    return await this.mediaRepository.get(id, Context.api);
+                }
+
+                if (entityName === 'media_folder') {
+                    return await this.mediaFolderRepository.get(id, Context.api);
+                }
+            } catch {
+                return null;
+            }
+
+            return null;
+        },
+
         onMediaUnselect({ item }) {
             const index = this.selectedItems.findIndex((selected) => {
-                return selected === item;
+                return selected?.id === item?.id && selected?.getEntityName() === item?.getEntityName();
             });
 
             if (index > -1) {

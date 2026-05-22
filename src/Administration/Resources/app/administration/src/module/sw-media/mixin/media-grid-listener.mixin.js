@@ -39,10 +39,14 @@ Mixin.register('media-grid-listener', {
     methods: {
         isItemSelected(itemToCompare) {
             const findIndex = this.selectedItems.findIndex((item) => {
-                return item === itemToCompare;
+                return this.isSameItem(item, itemToCompare);
             });
 
             return findIndex > -1;
+        },
+
+        isSameItem(item, itemToCompare) {
+            return item?.id === itemToCompare?.id && item?.getEntityName() === itemToCompare?.getEntityName();
         },
 
         showItemSelected(item) {
@@ -113,10 +117,10 @@ Mixin.register('media-grid-listener', {
 
         _removeItemFromSelection(item) {
             this.selectedItems = this.selectedItems.filter((currentSelected) => {
-                return currentSelected !== item;
+                return !this.isSameItem(currentSelected, item);
             });
 
-            if (this.listSelectionStartItem === item) {
+            if (this.isSameItem(this.listSelectionStartItem, item)) {
                 this.listSelectionStartItem = this.selectedItems[0] || null;
             }
         },
@@ -150,7 +154,7 @@ Mixin.register('media-grid-listener', {
                 return;
             }
 
-            if (item === this.listSelectionStartItem) {
+            if (this.isSameItem(item, this.listSelectionStartItem)) {
                 this._startListSelect(item);
                 return;
             }
@@ -163,11 +167,11 @@ Mixin.register('media-grid-listener', {
 
         _findSelectionIndices(first, second) {
             const firstIndex = this.selectableItems.findIndex((selectableItem) => {
-                return first === selectableItem;
+                return this.isSameItem(first, selectableItem);
             });
 
             const secondIndex = this.selectableItems.findIndex((selectableItem) => {
-                return second === selectableItem;
+                return this.isSameItem(second, selectableItem);
             });
 
             return {

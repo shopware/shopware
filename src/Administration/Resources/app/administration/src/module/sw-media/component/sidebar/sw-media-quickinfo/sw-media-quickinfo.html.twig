@@ -16,6 +16,7 @@
         v-if="editable"
         :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
+        storage-key="actions"
     >
 
         <template #content>
@@ -195,6 +196,7 @@
         v-if="isSpatial"
         :title="$t('sw-media.sidebar.sections.configuration')"
         :expand-on-loading="true"
+        storage-key="configuration"
     >
         <template #content>
             <sw-inherit-wrapper
@@ -252,6 +254,7 @@
         v-if="item.hasFile"
         :expand-on-loading="true"
         :title="$t('sw-media.sidebar.sections.preview')"
+        storage-key="preview"
     >
 
         {% block sw_media_quickinfo_preview_content %}
@@ -338,6 +341,7 @@
         v-if="item.hasFile"
         :expand-on-loading="true"
         :title="$t('sw-media.sidebar.sections.metadata')"
+        storage-key="metadata"
     >
 
         {% block sw_media_quickinfo_metadata_content %}
@@ -357,20 +361,15 @@
                         class="sw-media-quickinfo-metadata-name"
                         :disabled="!acl.can('media.editor')"
                         compact
+                        :aria-label="$t('sw-media.sidebar.metadata.name')"
                         :value="item.fileName"
                         :error="fileNameError"
+                        size="small"
                         @input="onChangeFileName"
                         @remove-error="onRemoveFileNameError"
                     /><template v-else>
                         {{ item.fileName }}
                     </template>
-                </sw-media-quickinfo-metadata-item>
-
-                <sw-media-quickinfo-metadata-item
-                    class="sw-media-quickinfo-metadata-file-type"
-                    :label-name="$t('sw-media.sidebar.metadata.fileType')"
-                >
-                    {{ item.fileExtension.toUpperCase() }}
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
@@ -383,8 +382,10 @@
                         ref="inlineEditFieldAlt"
                         :disabled="!acl.can('media.editor')"
                         compact
+                        :aria-label="$t('sw-media.sidebar.metadata.altText')"
                         :placeholder="placeholder(item, 'alt', $t('sw-media.sidebar.metadata.altText'))"
                         :value="item.alt"
+                        size="small"
                         @input="onSubmitAltText"
                     />
                     <template v-else>
@@ -402,8 +403,10 @@
                         ref="inlineEditFieldTitle"
                         :disabled="!acl.can('media.editor')"
                         compact
+                        :aria-label="$t('sw-media.sidebar.metadata.title')"
                         :placeholder="placeholder(item, 'title', $t('sw-media.sidebar.metadata.title'))"
                         :value="item.title"
+                        size="small"
                         @input="onSubmitTitle"
                     />
                     <template v-else>
@@ -412,24 +415,22 @@
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
-                    class="sw-media-quickinfo-metadata-mimeType"
-                    :label-name="$t('sw-media.sidebar.metadata.mimeType')"
+                    class="sw-media-quickinfo-metadata-file"
+                    :label-name="$t('sw-media.sidebar.metadata.file')"
                 >
-                    {{ item.mimeType }}
-                </sw-media-quickinfo-metadata-item>
-
-                <sw-media-quickinfo-metadata-item
-                    class="sw-media-quickinfo-metadata-size"
-                    :label-name="$t('sw-media.sidebar.metadata.fileSize')"
-                >
-                    {{ fileSize }}
+                    {{ fileSummary }}
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-createdAt"
-                    :label-name="$t('sw-media.sidebar.metadata.createdAt')"
+                    :label-name="$t('sw-media.sidebar.metadata.uploaded')"
                 >
-                    {{ createdAt }}
+                    <span
+                        v-tooltip="uploadedTooltipConfig"
+                        class="sw-media-quickinfo__uploaded-summary"
+                    >
+                        {{ uploadedSummary }}
+                    </span>
                 </sw-media-quickinfo-metadata-item>
                 {% endblock %}
 
@@ -438,19 +439,11 @@
                     <template v-if="item.mediaType.name === 'IMAGE'">
                         {% block sw_media_quickinfo_metadata_content_image %}
                         <sw-media-quickinfo-metadata-item
-                            v-if="item.metaData.width"
-                            class="sw-media-quickinfo-metadata-width"
-                            :label-name="$t('sw-media.sidebar.metadata.width')"
+                            v-if="item.metaData.width || item.metaData.height"
+                            class="sw-media-quickinfo-metadata-dimensions"
+                            :label-name="$t('sw-media.sidebar.metadata.dimensions')"
                         >
-                            {{ item.metaData.width }}px
-                        </sw-media-quickinfo-metadata-item>
-
-                        <sw-media-quickinfo-metadata-item
-                            v-if="item.metaData.height"
-                            class="sw-media-quickinfo-metadata-height"
-                            :label-name="$t('sw-media.sidebar.metadata.height')"
-                        >
-                            {{ item.metaData.height }}px
+                            {{ item.metaData.width || '-' }} x {{ item.metaData.height || '-' }}px
                         </sw-media-quickinfo-metadata-item>
                         {% endblock %}
                     </template>
@@ -470,16 +463,10 @@
     {% endblock %}
 
     {% block sw_media_quickinfo_usage %}
-    <sw-media-collapse
+    <sw-media-quickinfo-usage
         v-if="editable && item.hasFile"
-        :expand-on-loading="true"
-        :title="$t('sw-media.sidebar.sections.usage')"
-    >
-
-        <template #content>
-            <sw-media-quickinfo-usage :item="item" />
-        </template>
-    </sw-media-collapse>
+        :item="item"
+    />
     {% endblock %}
 
     {% block sw_media_quickinfo_modal_replace %}

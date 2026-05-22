@@ -518,6 +518,58 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
     });
 
+    it('should not show an error notification for duplicated file names', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
+                                    detail: 'A file with the name "image.png" already exists.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
+    it('should not show an error notification for unsupported file types', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    code: 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED',
+                                    detail: 'This file type is not supported.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
     it('should able emit "media-upload-add-file" event when file type and file size are matched', async () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf',

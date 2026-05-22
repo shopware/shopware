@@ -9,7 +9,7 @@ $sw-media-collapse-font-size-title: $font-size-s;
         display: grid;
         grid-template-columns: 1fr auto;
         cursor: pointer;
-        padding: 16px 25px 0;
+        padding: var(--scale-size-16) var(--scale-size-24) var(--scale-size-12);
         color: $sw-media-collapse-color-title;
     }
 
@@ -23,7 +23,7 @@ $sw-media-collapse-font-size-title: $font-size-s;
     }
 
     .sw-collapse__content {
-        padding: 0 25px 25px;
+        padding: 0 var(--scale-size-24) var(--scale-size-24);
     }
 
     border-bottom: 1px solid $sw-media-collapse-color-divider;

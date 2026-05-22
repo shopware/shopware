@@ -91,6 +91,19 @@
                                 @media-folder-change="folderId = $event"
                             />
                             {% endblock %}
+
+                            {% block sw_media_modal_v2_library_drop_upload %}
+                            <sw-media-upload-v2
+                                class="sw-media-modal-v2__drop-upload"
+                                :class="{ 'is--active': isDropUploadActive }"
+                                variant="regular"
+                                :file-accept="fileAccept"
+                                :upload-tag="uploadTag"
+                                :default-folder="entityContext"
+                                :target-folder-id="folderId"
+                                :allow-multi-select="allowMultiSelect"
+                            />
+                            {% endblock %}
                         </div>
                         {% endblock %}
 
@@ -123,6 +136,7 @@
                             <sw-media-grid
                                 :presentation="compact ? 'list-preview' : 'medium-preview'"
                                 :class="{'sw-media-modal-v2__upload-media-grid--compact': compact }"
+                                @media-grid-selection-clear="resetSelection"
                             >
                                 <sw-media-media-item
                                     v-for="upload in uploads"

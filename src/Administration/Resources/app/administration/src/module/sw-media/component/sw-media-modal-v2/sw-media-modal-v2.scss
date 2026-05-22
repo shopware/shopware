@@ -83,6 +83,31 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
         display: contents;
     }
 
+    .sw-media-modal-v2__drop-upload {
+        position: absolute;
+        inset: 92px 24px 24px;
+        z-index: 1;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+
+        &.is--active {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sw-media-upload-v2__content,
+        .sw-media-upload-v2__dropzone {
+            height: 100%;
+        }
+
+        .sw-media-upload-v2__dropzone {
+            justify-content: center;
+        }
+    }
+
     .sw-media-modal-v2__footer {
         display: flex;
         justify-content: flex-end;

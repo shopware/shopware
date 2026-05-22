@@ -100,52 +100,44 @@ class StateValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{state: string|null, storedState: string|null, expectException: bool}>
+     * @return iterable<string, array{state: string|null, storedState: string|null, expectException: bool}>
      */
-    public static function validateTestDataProvider(): array
+    public static function validateTestDataProvider(): iterable
     {
-        return [
-            'state and storedState is null' => [
-                'state' => null,
-                'storedState' => null,
-                'expectException' => true,
-            ],
-
-            'state is empty and storedState is null' => [
-                'state' => '',
-                'storedState' => null,
-                'expectException' => true,
-            ],
-
-            'state is empty and storedState is empty' => [
-                'state' => '',
-                'storedState' => '',
-                'expectException' => true,
-            ],
-
-            'state has invalid length and storedState is set' => [
-                'state' => self::INVALID_LENGTH,
-                'storedState' => self::VALID,
-                'expectException' => true,
-            ],
-
-            'state has valid length and storedState is different' => [
-                'state' => self::VALID,
-                'storedState' => self::VALID_DIFFERENT,
-                'expectException' => true,
-            ],
-
-            'state is valid and storedState is null' => [
-                'state' => self::VALID,
-                'storedState' => null,
-                'expectException' => true,
-            ],
-
-            'state is valid and storedState equals' => [
-                'state' => self::VALID,
-                'storedState' => self::VALID,
-                'expectException' => false,
-            ],
+        yield 'state and storedState is null' => [
+            'state' => null,
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is empty and storedState is null' => [
+            'state' => '',
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is empty and storedState is empty' => [
+            'state' => '',
+            'storedState' => '',
+            'expectException' => true,
+        ];
+        yield 'state has invalid length and storedState is set' => [
+            'state' => self::INVALID_LENGTH,
+            'storedState' => self::VALID,
+            'expectException' => true,
+        ];
+        yield 'state has valid length and storedState is different' => [
+            'state' => self::VALID,
+            'storedState' => self::VALID_DIFFERENT,
+            'expectException' => true,
+        ];
+        yield 'state is valid and storedState is null' => [
+            'state' => self::VALID,
+            'storedState' => null,
+            'expectException' => true,
+        ];
+        yield 'state is valid and storedState equals' => [
+            'state' => self::VALID,
+            'storedState' => self::VALID,
+            'expectException' => false,
         ];
     }
 }

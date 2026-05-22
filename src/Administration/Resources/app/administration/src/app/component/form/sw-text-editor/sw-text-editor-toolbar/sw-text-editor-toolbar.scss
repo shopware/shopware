@@ -4,7 +4,7 @@ $sw-text-editor-toolbar-item-color-boxed: var(--color-icon-secondary-default);
     padding: 0 6px;
     background: var(--color-elevation-floating-default);
     border-radius: 4px;
-    color: var(--color-icon-primary-default);
+    color: var(--color-icon-inverse-default);
     display: grid;
     grid-auto-flow: column dense;
     grid-auto-columns: min-content;

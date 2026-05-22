@@ -4,7 +4,17 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-integration/page/sw-integration-list';
 
-async function createWrapper(privileges = []) {
+const appIntegration = {
+    id: 'app-integration-id',
+    label: 'MyApp',
+    app: { id: 'app-id', active: true },
+    aclRoles: [],
+    mcpAllowlist: null,
+};
+
+async function createWrapper(privileges = [], integrations = null) {
+    const defaultIntegrations = integrations ?? [{ id: '44de136acf314e7184401d36406c1e90' }];
+
     const wrapper = mount(await wrapTestComponent('sw-integration-list', { sync: true }), {
         global: {
             provide: {
@@ -17,11 +27,7 @@ async function createWrapper(privileges = []) {
                         },
 
                         search: () => {
-                            return Promise.resolve([
-                                {
-                                    id: '44de136acf314e7184401d36406c1e90',
-                                },
-                            ]);
+                            return Promise.resolve(defaultIntegrations);
                         },
 
                         save: () => {
@@ -41,6 +47,9 @@ async function createWrapper(privileges = []) {
                             secretAccessKey: 'YzFnaFprUjdaZUI4WkJsSmVOcHNOTnI5bUNqc2o4YUx0WmFIb3Y',
                         });
                     },
+                    saveMcpAllowlist: () => {
+                        return Promise.resolve();
+                    },
                 },
 
                 acl: {
@@ -51,6 +60,10 @@ async function createWrapper(privileges = []) {
 
                         return privileges.includes(identifier);
                     },
+                },
+
+                feature: {
+                    isActive: (flag) => flag === 'MCP_SERVER',
                 },
             },
 
@@ -255,6 +268,71 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(adminRoleSwitch.props().disabled).toBe(true);
     });
 
+    it('should disable edit and delete for app integrations', async () => {
+        const wrapper = await createWrapper(
+            [
+                'integration.editor',
+                'integration.deleter',
+            ],
+            [appIntegration],
+        );
+
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).toContain('is--disabled');
+    });
+
+    it('should allow editing MCP tools for app integrations', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
+    });
+
+    it('should not disable edit and delete for manual integrations', async () => {
+        const wrapper = await createWrapper([
+            'integration.editor',
+            'integration.deleter',
+        ]);
+
+        const editMenuItem = wrapper.find('.sw_integration_list__edit-action');
+        expect(editMenuItem.classes()).not.toContain('is--disabled');
+
+        const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
+        expect(deleteMenuItem.classes()).not.toContain('is--disabled');
+    });
+
+    it('should call integrationService.saveMcpAllowlist on save', async () => {
+        const integration = { ...appIntegration, app: { id: 'app-id', active: true } };
+        const saveMock = jest.fn().mockResolvedValue();
+        const wrapper = await createWrapper(['integration_mcp.editor'], [integration]);
+        wrapper.vm.$.appContext.provides.integrationService.saveMcpAllowlist = saveMock;
+
+        wrapper.vm.mcpIntegration = integration;
+        wrapper.vm.pendingMcpAllowlist = ['shopware-entity-read'];
+
+        await wrapper.vm.onSaveMcpAllowlist();
+        await flushPromises();
+
+        expect(saveMock).toHaveBeenCalledWith(integration.id, ['shopware-entity-read']);
+    });
+
+    it('should gate Edit MCP Tools on integration_mcp.editor not integration.editor', async () => {
+        const wrapper = await createWrapper(['integration.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).toContain('is--disabled');
+    });
+
+    it('should enable Edit MCP Tools with integration_mcp.editor', async () => {
+        const wrapper = await createWrapper(['integration_mcp.editor'], [appIntegration]);
+
+        const mcpMenuItem = wrapper.find('.sw_integration_list__edit-mcp-action');
+        expect(mcpMenuItem.classes()).not.toContain('is--disabled');
+    });
+
     it('should have integration criteria with filters', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.integrationCriteria;
@@ -267,9 +345,12 @@ describe('module/sw-integration/page/sw-integration-list', () => {
                     value: null,
                 }),
                 expect.objectContaining({
-                    field: 'app.id',
-                    type: 'equals',
-                    value: null,
+                    type: 'multi',
+                    operator: 'OR',
+                    queries: expect.arrayContaining([
+                        expect.objectContaining({ field: 'app.id', type: 'equals', value: null }),
+                        expect.objectContaining({ field: 'app.active', type: 'equals', value: true }),
+                    ]),
                 }),
             ]),
         );

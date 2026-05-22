@@ -24,6 +24,11 @@ class Migration1772007509ProductMainCategoryInheritanceTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1772007509, (new Migration1772007509ProductMainCategoryInheritance())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1772007509ProductMainCategoryInheritance();

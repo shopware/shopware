@@ -153,8 +153,7 @@ class AppSecretRotationControllerTest extends TestCase
 
         $controller = new AppSecretRotationController($appRepository, $rotationService);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage(\sprintf('Could not find app with integrationId "%s"', $integrationId));
+        $this->expectExceptionObject(AppException::notFoundByField($integrationId, 'integrationId'));
 
         $controller->rotate($context);
     }

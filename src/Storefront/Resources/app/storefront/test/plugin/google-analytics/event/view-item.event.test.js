@@ -22,7 +22,9 @@ describe('plugin/google-analytics/events/view-item.event', () => {
     test('fires view_item event with product data', () => {
         document.body.innerHTML = `
             <div itemtype="https://schema.org/Product">
-                <meta itemprop="productID" content="product-123">
+                <span itemprop="sku">
+                    product-123
+                </span>
                 <span itemprop="name">Test Product</span>
                 <div itemprop="brand">
                     <meta itemprop="name" content="Test Brand">

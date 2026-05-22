@@ -72,8 +72,7 @@ class MediaFileExtensionValidatorTest extends TestCase
 
         $validator = new MediaFileExtensionValidator($this->eventDispatcher, ['jpg', 'png'], []);
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('not supported');
+        $this->expectExceptionObject(MediaException::fileExtensionNotSupported('media-42', 'php'));
 
         $validator->validate('php', false, Context::createDefaultContext(), 'media-42');
     }

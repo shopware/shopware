@@ -33,7 +33,9 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.handleTrackingLocation();
         this.handleCookieChangeEvent();
 
-        if (window.useDefaultCookieConsent && !CookieStorageHelper.getItem(this.cookieEnabledName)) {
+        if (window.useDefaultCookieConsent
+            && !CookieStorageHelper.getItem(this.cookieEnabledName)
+            && !CookieStorageHelper.getItem(this.cookieAdsEnabledName)) {
             return;
         }
 
@@ -128,11 +130,15 @@ export default class GoogleAnalyticsPlugin extends Plugin
 
         this._updateConsent(updatedCookies);
 
-        if (!Object.hasOwn(updatedCookies, this.cookieEnabledName)) {
+        const analyticsEnabled = updatedCookies[this.cookieEnabledName];
+        const adsEnabled = updatedCookies[this.cookieAdsEnabledName];
+
+        // Strict undefined check to distinguishe if the cookie has been updated in the event
+        if (analyticsEnabled === undefined && adsEnabled === undefined) {
             return;
         }
 
-        if (updatedCookies[this.cookieEnabledName]) {
+        if (analyticsEnabled || adsEnabled) {
             this.startGoogleAnalytics();
             return;
         }

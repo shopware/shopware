@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\ProductExport;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
@@ -103,6 +104,54 @@ class ProductExportRepositoryTest extends TestCase
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         $violation = $exception->getViolations()->get(0);
         static::assertSame('/storefrontSalesChannelId', $violation->getPropertyPath());
+    }
+
+    public function testFeedLabelAcceptsValidValue(): void
+    {
+        $id = $this->upsertWithFeedLabel('SUMMER-2026');
+
+        $entity = $this->productExportRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        static::assertSame('SUMMER-2026', $entity->getFeedLabel());
+    }
+
+    public function testFeedLabelAllowsNull(): void
+    {
+        $id = $this->upsertWithFeedLabel(null);
+
+        $entity = $this->productExportRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        static::assertNull($entity->getFeedLabel());
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidFeedLabelProvider(): iterable
+    {
+        yield 'lowercase letters' => ['summer-2026'];
+        yield 'mixed case' => ['Summer-2026'];
+        yield 'contains space' => ['SUMMER 2026'];
+        yield 'contains exclamation mark' => ['SUMMER!'];
+        yield 'contains slash' => ['EU/DE'];
+    }
+
+    #[DataProvider('invalidFeedLabelProvider')]
+    public function testFeedLabelRejectsInvalidValue(string $invalidValue): void
+    {
+        $exception = null;
+
+        try {
+            $this->upsertWithFeedLabel($invalidValue);
+        } catch (WriteException $exception) {
+        }
+
+        static::assertInstanceOf(WriteException::class, $exception);
+        $inner = $exception->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $inner);
+        $violation = $inner->getViolations()->get(0);
+        static::assertSame('/feedLabel', $violation->getPropertyPath());
+        static::assertSame('PRODUCT_EXPORT__INVALID_FEED_LABEL_FORMAT', $violation->getCode());
     }
 
     public function testUpdateEntity(): void
@@ -272,6 +321,32 @@ class ProductExportRepositoryTest extends TestCase
         $salesChannelDomain = $entity->getSalesChannelDomain();
         static::assertNotNull($salesChannelDomain);
         static::assertSame($this->getSalesChannelDomainId(), $salesChannelDomain->getId());
+    }
+
+    private function upsertWithFeedLabel(?string $feedLabel): string
+    {
+        $id = Uuid::randomHex();
+
+        $this->productExportRepository->upsert([
+            [
+                'id' => $id,
+                'fileName' => 'feed-' . $id,
+                'accessKey' => Uuid::randomHex(),
+                'encoding' => ProductExportEntity::ENCODING_UTF8,
+                'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
+                'interval' => 0,
+                'bodyTemplate' => 'test',
+                'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelId(),
+                'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generateByCronjob' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'feedLabel' => $feedLabel,
+            ],
+        ], $this->context);
+
+        return $id;
     }
 
     private function getSalesChannelId(): string

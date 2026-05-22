@@ -76,6 +76,11 @@ shopware:
         major: false
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
+      - name: MCP_SERVER
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Enable MCP (Model Context Protocol) server for AI tool integration"
       - name: JSON_LD_DATA
         default: false
         major: true
@@ -86,3 +91,8 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Enables the new breadcrumb loading and adds the possibility to build the product breadcrumb using the referrer category."
+      - name: WEBHOOKS_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enable outbox-owned retry scheduling for webhooks instead of Messenger retries."

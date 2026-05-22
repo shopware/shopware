@@ -24,6 +24,7 @@
     "preinstall": "node ./scripts/validate-package-json/index.mjs",
     "postinstall": "patch-package",
     "lint": "eslint src test build.ts --cache",
+    "lint:acl-privileges": "ts-node --transpileOnly ./scripts/acl/check-dal-association-privileges.ts",
     "lint:all": "npm run lint:types && npm run lint && npm run lint:scss && npm run format",
     "lint:debugging": "eslint",
     "lint:deprecations": "eslint --rule '\"sw-new-core-rules/private-feature-declarations\": \"error\"' $(git status -s | awk '/(js|ts|vue|html\\.twig)$/ {print $2}')",

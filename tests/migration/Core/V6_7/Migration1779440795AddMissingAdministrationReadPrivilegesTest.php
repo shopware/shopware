@@ -38,7 +38,7 @@ class Migration1779440795AddMissingAdministrationReadPrivilegesTest extends Test
         static::assertSame(1779440795, $this->migration->getCreationTimestamp());
     }
 
-    public function testAddsMissingReadPrivilegesToAdministrationViewerRoles(): void
+    public function testAddsMissingReadPrivilegesToAdministrationRoles(): void
     {
         $roleIdsByPrivilege = [];
 

@@ -18,6 +18,15 @@ class Migration1779440795AddMissingAdministrationReadPrivileges extends Migratio
             'media:read',
             'integration:read',
         ],
+        'order.editor' => [
+            'tax:read',
+        ],
+        'document.viewer' => [
+            'mail_template:read',
+            'mail_template_type:read',
+            'mail_template_media:read',
+            'media:read',
+        ],
         'payment.viewer' => [
             'rule_condition:read',
         ],

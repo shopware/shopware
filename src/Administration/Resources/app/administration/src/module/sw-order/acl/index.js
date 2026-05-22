@@ -80,6 +80,7 @@ Shopware.Service('privileges')
                     'property_group_option:read',
                     'property_group:read',
                     'product_visibility:read',
+                    'tax:read',
                     'order_line_item:update',
                     'order_line_item:create',
                     'order_line_item:delete',

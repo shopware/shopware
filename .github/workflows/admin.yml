@@ -72,6 +72,9 @@ jobs:
       - name: Generate unit test setup artifacts
         run: npm --prefix src/Administration/Resources/app/administration run unit-setup
 
+      - name: Check Administration ACL association privileges
+        run: npm --prefix src/Administration/Resources/app/administration run lint:acl-privileges
+
       - name: Run Jest Admin unit
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 

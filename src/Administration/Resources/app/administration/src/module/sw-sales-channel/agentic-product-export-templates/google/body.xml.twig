@@ -44,7 +44,6 @@
     {% set categoryPath = product.categories.first.getBreadCrumb|slice(1)|join(' > ') %}
 {% endif %}
 
-{# Resolve OpenAI-style variant mappings (color/size/size_system/gender/material + custom_variants) for Google output. #}
 {% set mappedVariantOptions = {} %}
 {% set customVariantEntries = [] %}
 {% set reservedCustomGroupIds = [] %}
@@ -158,7 +157,7 @@
 {% endif %}
 
 {# Skip rows that are missing core required Google fields. #}
-{% if title and imageUrl and price %}
+{%- if title and imageUrl and price -%}
 <item>
     <g:id>{{ itemId|escape }}</g:id>
     <title>{{ title|escape }}</title>
@@ -221,4 +220,4 @@
         </g:shipping>
     {% endif %}
 </item>
-{% endif %}
+{%- endif -%}

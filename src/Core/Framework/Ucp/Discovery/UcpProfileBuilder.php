@@ -98,23 +98,28 @@ class UcpProfileBuilder
         $baseUri = $this->resolveBaseUri($config, $domain);
         $serviceEntries = [];
 
+        // The per-transport `schema` field that previously pointed to
+        // `https://ucp.dev/<version>/services/shopping/<rest|mcp|embedded>.openapi.json`
+        // is intentionally omitted — those URLs do not exist on ucp.dev at any
+        // version. We were emitting four guaranteed 404s into every discovery
+        // profile served to a platform agent. The `spec` overview page is
+        // sufficient for the transport contract; per-capability schemas remain
+        // declared via each capability's `schema_uri`.
         if ($config->isTransportEnabled('rest')) {
             $serviceEntries[] = [
                 'version' => $config->getUcpVersion(),
-                'spec' => 'https://ucp.dev/' . $config->getUcpVersion() . '/specification/overview',
+                'spec' => 'https://ucp.dev/specification/overview/',
                 'transport' => 'rest',
                 'endpoint' => $baseUri . '/ucp/v1',
-                'schema' => 'https://ucp.dev/' . $config->getUcpVersion() . '/services/shopping/rest.openapi.json',
             ];
         }
 
         if ($config->isTransportEnabled('mcp')) {
             $serviceEntries[] = [
                 'version' => $config->getUcpVersion(),
-                'spec' => 'https://ucp.dev/' . $config->getUcpVersion() . '/specification/overview',
+                'spec' => 'https://ucp.dev/specification/overview/',
                 'transport' => 'mcp',
                 'endpoint' => $baseUri . '/ucp/mcp',
-                'schema' => 'https://ucp.dev/' . $config->getUcpVersion() . '/services/shopping/mcp.openrpc.json',
             ];
         }
 
@@ -123,7 +128,7 @@ class UcpProfileBuilder
             // not the JSON-RPC URL — A2A discovery is two-stage.
             $serviceEntries[] = [
                 'version' => $config->getUcpVersion(),
-                'spec' => 'https://ucp.dev/' . $config->getUcpVersion() . '/specification/overview',
+                'spec' => 'https://ucp.dev/specification/overview/',
                 'transport' => 'a2a',
                 'endpoint' => $baseUri . '/.well-known/agent-card.json',
             ];
@@ -132,10 +137,9 @@ class UcpProfileBuilder
         if ($config->isTransportEnabled('embedded')) {
             $serviceEntries[] = [
                 'version' => $config->getUcpVersion(),
-                'spec' => 'https://ucp.dev/' . $config->getUcpVersion() . '/specification/embedded-protocol',
+                'spec' => 'https://ucp.dev/specification/embedded-protocol/',
                 'transport' => 'embedded',
                 'endpoint' => $baseUri . '/ucp/embedded',
-                'schema' => 'https://ucp.dev/' . $config->getUcpVersion() . '/services/shopping/embedded.openrpc.json',
             ];
         }
 

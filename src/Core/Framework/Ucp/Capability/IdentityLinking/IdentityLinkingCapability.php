@@ -28,7 +28,7 @@ class IdentityLinkingCapability extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/identity-linking';
+        return 'https://ucp.dev/specification/identity-linking/';
     }
 
     public function getSchemaUrl(): string

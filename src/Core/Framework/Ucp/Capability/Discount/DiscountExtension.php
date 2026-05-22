@@ -25,7 +25,7 @@ class DiscountExtension extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/discount';
+        return 'https://ucp.dev/specification/discount/';
     }
 
     public function getSchemaUrl(): string

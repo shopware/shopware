@@ -20,7 +20,7 @@ class CatalogLookupCapability extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/catalog/lookup';
+        return 'https://ucp.dev/specification/catalog/lookup/';
     }
 
     public function getSchemaUrl(): string

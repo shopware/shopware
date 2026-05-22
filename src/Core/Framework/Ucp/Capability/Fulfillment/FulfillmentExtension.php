@@ -21,7 +21,7 @@ class FulfillmentExtension extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/fulfillment';
+        return 'https://ucp.dev/specification/fulfillment/';
     }
 
     public function getSchemaUrl(): string

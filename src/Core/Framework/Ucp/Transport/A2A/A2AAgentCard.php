@@ -65,7 +65,7 @@ class A2AAgentCard
             'default_output_modes' => ['application/json'],
             'extensions' => [
                 [
-                    'uri' => 'https://ucp.dev/' . $ucpVersion . '/specification/reference',
+                    'uri' => 'https://ucp.dev/specification/reference/',
                     'description' => 'Business agent supporting UCP',
                     'params' => [
                         'capabilities' => $caps,
@@ -92,7 +92,7 @@ class A2AAgentCard
 
         return $this->build($baseUri, $intersection->protocolVersion, []) + [
             'extensions' => [[
-                'uri' => 'https://ucp.dev/' . $intersection->protocolVersion . '/specification/reference',
+                'uri' => 'https://ucp.dev/specification/reference/',
                 'description' => 'Business agent supporting UCP',
                 'params' => ['capabilities' => $caps],
             ]],

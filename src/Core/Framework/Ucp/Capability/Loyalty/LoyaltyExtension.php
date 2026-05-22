@@ -29,7 +29,12 @@ class LoyaltyExtension extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/loyalty';
+        // Loyalty is a Shopware-side extension capability — UCP itself only
+        // mentions loyalty in the capability reference and has no standalone
+        // `/specification/loyalty/` page. Point to the reference where it is
+        // documented; will switch to `/specification/loyalty/` once upstream
+        // publishes a dedicated page.
+        return 'https://ucp.dev/specification/reference/';
     }
 
     public function getSchemaUrl(): string

@@ -24,7 +24,7 @@ class BuyerConsentExtension extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/buyer-consent';
+        return 'https://ucp.dev/specification/buyer-consent/';
     }
 
     public function getSchemaUrl(): string

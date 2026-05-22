@@ -20,7 +20,7 @@ class CartCapability extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/cart';
+        return 'https://ucp.dev/specification/cart/';
     }
 
     public function getSchemaUrl(): string

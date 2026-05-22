@@ -20,7 +20,7 @@ class CheckoutCapability extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/checkout';
+        return 'https://ucp.dev/specification/checkout/';
     }
 
     public function getSchemaUrl(): string

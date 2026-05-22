@@ -20,7 +20,7 @@ class OrderCapability extends AbstractUcpCapability
 
     public function getSpecUrl(): string
     {
-        return 'https://ucp.dev/' . $this->getVersion() . '/specification/order';
+        return 'https://ucp.dev/specification/order/';
     }
 
     public function getSchemaUrl(): string

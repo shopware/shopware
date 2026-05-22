@@ -71,6 +71,7 @@ class CheckoutController
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly FulfillmentMapper $fulfillmentMapper,
+        private readonly OrderPermalinkBuilder $orderPermalinkBuilder,
         private readonly ?GuestCustomerProvisioner $guestProvisioner = null,
     ) {
     }
@@ -321,10 +322,12 @@ class CheckoutController
             $this->applyStoredBuyer($response, $id);
         }
         $response['order_id'] = $order->getId();
-        $response['order'] = [
-            'id' => $order->getId(),
-            'permalink_url' => 'http://localhost:8080/account/order/' . $order->getId(),
-        ];
+        $orderData = ['id' => $order->getId()];
+        $permalinkUrl = $this->orderPermalinkBuilder->build($sc, $order->getId(), $this->isConformanceMode());
+        if ($permalinkUrl !== null) {
+            $orderData['permalink_url'] = $permalinkUrl;
+        }
+        $response['order'] = $orderData;
         $response['status'] = CheckoutStatus::COMPLETED;
         if ($this->isConformanceMode()) {
             $this->checkoutStateStore->markCompleted($id, $order->getId());

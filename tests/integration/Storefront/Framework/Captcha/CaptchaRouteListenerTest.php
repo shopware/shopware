@@ -3,12 +3,10 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -57,11 +55,11 @@ class CaptchaRouteListenerTest extends TestCase
             'shopware_basic_captcha_confirm' => 'notkyln',
         ];
 
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
         $browser->setServerParameter('HTTP_X-Requested-With', 'XMLHttpRequest');
         $browser->request(
             'POST',
-            $_SERVER['APP_URL'] . '/form/contact',
+            '/form/contact',
             $this->tokenize('frontend.form.contact.send', $data)
         );
 
@@ -97,10 +95,10 @@ class CaptchaRouteListenerTest extends TestCase
             'shopware_basic_captcha_confirm' => 'kyln',
         ];
 
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
         $browser->request(
             'POST',
-            $_SERVER['APP_URL'] . '/account/register',
+            '/account/register',
             $this->tokenize('frontend.account.register.save', $data)
         );
 
@@ -126,10 +124,10 @@ class CaptchaRouteListenerTest extends TestCase
             'errorRoute' => 'frontend.account.register.page',
         ];
 
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
         $browser->request(
             'POST',
-            EnvironmentHelper::getVariable('APP_URL') . '/account/register',
+            '/account/register',
             $this->tokenize('frontend.account.register.save', $data)
         );
 

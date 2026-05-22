@@ -97,8 +97,7 @@ class PluginInstallCommandTest extends TestCase
 
         $this->pluginLifecycleService->expects($this->never())->method('installPlugin');
 
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage(\sprintf('Plugin "MissingComposerPlugin" has no composer.json at "%s".', Path::join($this->projectDir, 'plugins/MissingComposerPlugin/composer.json')));
+        $this->expectExceptionObject(PluginException::composerJsonMissing('MissingComposerPlugin', Path::join($this->projectDir, 'plugins/MissingComposerPlugin/composer.json')));
 
         $this->commandTester->execute(['plugins' => ['MissingComposerPlugin', 'ExistingComposerPlugin']], ['interactive' => false]);
     }

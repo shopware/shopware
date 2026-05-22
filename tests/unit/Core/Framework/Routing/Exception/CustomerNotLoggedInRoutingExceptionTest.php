@@ -16,8 +16,7 @@ class CustomerNotLoggedInRoutingExceptionTest extends TestCase
 {
     public function testException(): void
     {
-        $this->expectException(CustomerNotLoggedInRoutingException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(new CustomerNotLoggedInRoutingException(Response::HTTP_FORBIDDEN, RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, 'Customer is not logged in.'));
 
         throw new CustomerNotLoggedInRoutingException(Response::HTTP_FORBIDDEN, RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE, 'Customer is not logged in.');
     }

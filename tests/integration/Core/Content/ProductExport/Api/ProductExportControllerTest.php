@@ -275,6 +275,46 @@ TWIG,
         static::assertStringContainsString('open-ai', $responseContent);
     }
 
+    public function testPreviewRendersFeedLabelFromRequestPayload(): void
+    {
+        $this->createProductStream();
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.feedLabel|default("none") }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+            'feedLabel' => 'SUMMER-2026',
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/preview',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('SUMMER-2026', $response);
+        static::assertStringNotContainsString('none', $response);
+    }
+
     public function testPreviewFalseDomain(): void
     {
         $this->createProductStream();

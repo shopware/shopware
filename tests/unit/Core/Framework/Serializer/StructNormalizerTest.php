@@ -115,8 +115,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowIfNonStructGiven(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unable to unserialize a non-struct class: stdClass');
+        $this->expectExceptionObject(new InvalidArgumentException('Unable to unserialize a non-struct class: stdClass'));
 
         $this->normalizer->denormalize(['_class' => 'stdClass']);
     }
@@ -135,8 +134,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeShouldThrowWithNonProvidedConstructorParameters(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Required constructor parameter missing: "$name".');
+        $this->expectExceptionObject(new InvalidArgumentException('Required constructor parameter missing: "$name".'));
 
         $this->normalizer->denormalize(['_class' => ConstructorStruct::class]);
     }
@@ -185,8 +183,7 @@ class StructNormalizerTest extends TestCase
 
     public function testDenormalizeWithNonExistingClass(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Class "ThisClass\DoesNot\Exists" does not exist');
+        $this->expectExceptionObject(new InvalidArgumentException('Class "ThisClass\DoesNot\Exists" does not exist'));
 
         $this->normalizer->denormalize(['_class' => 'ThisClass\DoesNot\Exists']);
     }

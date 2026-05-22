@@ -31,7 +31,7 @@ class Migration1775641887AddDoubleOptInResendInterval extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => self::CONFIG_KEY,
-            'configuration_value' => '{"_value": 86400}',
+            'configuration_value' => '{"_value": 24}',
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

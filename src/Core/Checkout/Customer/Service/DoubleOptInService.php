@@ -72,7 +72,7 @@ class DoubleOptInService
             return;
         }
 
-        $threshold = new \DateTimeImmutable('-' . $resendInterval . ' seconds');
+        $threshold = new \DateTimeImmutable('-' . $resendInterval . ' hours');
         if ($sentDate > $threshold) {
             return;
         }

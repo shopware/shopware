@@ -554,6 +554,7 @@ class VersionManagerTest extends TestCase
             'versionCommitDataDefinition' => $this->createMock(VersionCommitDataDefinition::class),
             'versionDefinition' => $this->createMock(VersionDefinition::class),
             'lockFactory' => $this->createMock(LockFactory::class),
+            'clock' => new NativeClock(),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -569,7 +570,8 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDefinition'],
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
-            $params['lockFactory']
+            $params['lockFactory'],
+            $params['clock']
         );
     }
 }

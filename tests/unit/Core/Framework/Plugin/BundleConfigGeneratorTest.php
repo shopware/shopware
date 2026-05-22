@@ -35,8 +35,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     public function testConstructorThrowsException(): void
     {
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage('Container parameter "kernel.project_dir" needs to be of type "string"');
+        $this->expectExceptionObject(PluginException::invalidContainerParameter('kernel.project_dir', 'string'));
         new BundleConfigGenerator(
             $this->createMock(Kernel::class),
             $this->createMock(ActiveAppsLoader::class)

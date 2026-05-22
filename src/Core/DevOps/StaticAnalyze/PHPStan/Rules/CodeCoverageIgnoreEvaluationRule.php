@@ -13,6 +13,7 @@ use PhpParser\Parser;
 use PhpParser\ParserFactory;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -86,34 +87,50 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         $classHasIgnore = $this->docHasCodeCoverageIgnore($node);
         $className = $this->className($node);
 
+        if (!$classHasIgnore && !$this->anyMethodHasIgnore($node)) {
+            return [];
+        }
+
         if ($classHasIgnore && $this->isThrowable($node, $className)) {
-            return [
-                RuleErrorBuilder::message(\sprintf(
-                    'Class %s extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
-                    $className,
-                ))
-                    ->identifier('shopware.codeCoverageIgnoreOnException')
-                    ->line($node->getStartLine())
-                    ->build(),
-            ];
+            return [$this->buildExceptionError($node, $className)];
         }
 
         $classExempted = $classHasIgnore && $this->hasSeeIntegrationTest($node, $scope);
 
+        return [
+            ...$this->checkMethods($node, $scope, $className, $classHasIgnore, $classExempted),
+            ...$this->checkTraitMethods($node, $className, $classHasIgnore, $classExempted),
+        ];
+    }
+
+    private function anyMethodHasIgnore(Class_ $node): bool
+    {
+        foreach ($node->getMethods() as $method) {
+            if ($this->docHasCodeCoverageIgnore($method)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function checkMethods(
+        Class_ $node,
+        Scope $scope,
+        string $className,
+        bool $classHasIgnore,
+        bool $classExempted,
+    ): array {
         $errors = [];
 
         foreach ($node->getMethods() as $method) {
             $methodName = (string) $method->name;
 
             if ($classHasIgnore && !$classExempted && $this->methodContainsLogic($method)) {
-                $errors[] = RuleErrorBuilder::message(\sprintf(
-                    'Class %s is annotated @codeCoverageIgnore but method %s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-                    $className,
-                    $methodName,
-                ))
-                    ->identifier('shopware.codeCoverageIgnoreOnLogic')
-                    ->line($method->getStartLine())
-                    ->build();
+                $errors[] = $this->buildClassLevelError($className, $methodName, $method->getStartLine());
 
                 continue;
             }
@@ -127,36 +144,90 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             }
 
             if ($this->methodContainsLogic($method)) {
-                $errors[] = RuleErrorBuilder::message(\sprintf(
-                    'Method %s::%s() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
-                    $className,
-                    $methodName,
-                ))
-                    ->identifier('shopware.codeCoverageIgnoreOnLogic')
-                    ->line($method->getStartLine())
-                    ->build();
-            }
-        }
-
-        if ($classHasIgnore && !$classExempted) {
-            foreach ($this->traitMethods($node) as [$traitName, $method]) {
-                if (!$this->methodContainsLogic($method)) {
-                    continue;
-                }
-
-                $errors[] = RuleErrorBuilder::message(\sprintf(
-                    'Class %s is annotated @codeCoverageIgnore but inherited trait method %s::%s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-                    $className,
-                    $traitName,
-                    (string) $method->name,
-                ))
-                    ->identifier('shopware.codeCoverageIgnoreOnLogic')
-                    ->line($node->getStartLine())
-                    ->build();
+                $errors[] = $this->buildMethodLevelError($className, $methodName, $method->getStartLine());
             }
         }
 
         return $errors;
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function checkTraitMethods(
+        Class_ $node,
+        string $className,
+        bool $classHasIgnore,
+        bool $classExempted,
+    ): array {
+        if (!$classHasIgnore || $classExempted) {
+            return [];
+        }
+
+        $errors = [];
+
+        foreach ($this->traitMethods($node) as [$traitName, $method]) {
+            if (!$this->methodContainsLogic($method)) {
+                continue;
+            }
+
+            $errors[] = $this->buildTraitMethodError(
+                $className,
+                $traitName,
+                (string) $method->name,
+                $node->getStartLine(),
+            );
+        }
+
+        return $errors;
+    }
+
+    private function buildExceptionError(Class_ $node, string $className): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
+            $className,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnException')
+            ->line($node->getStartLine())
+            ->build();
+    }
+
+    private function buildClassLevelError(string $className, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s is annotated @codeCoverageIgnore but method %s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
+    }
+
+    private function buildMethodLevelError(string $className, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Method %s::%s() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
+    }
+
+    private function buildTraitMethodError(string $className, string $traitName, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s is annotated @codeCoverageIgnore but inherited trait method %s::%s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $traitName,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
     }
 
     private function isThrowable(Class_ $node, string $className): bool

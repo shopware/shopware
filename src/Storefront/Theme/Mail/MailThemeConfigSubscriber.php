@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Theme\Subscriber;
+namespace Shopware\Storefront\Theme\Mail;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -10,6 +9,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -25,7 +25,7 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly Connection $connection,
+        private readonly MailThemeIdLoader $mailThemeIdLoader,
     ) {
     }
 
@@ -48,7 +48,7 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeId = $this->getThemeId($salesChannelId);
+        $themeId = $this->mailThemeIdLoader->load($salesChannelId);
         if ($themeId !== null && !isset($templateData['themeId'])) {
             $templateData['themeId'] = $themeId;
         }
@@ -68,11 +68,21 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
             SalesChannelContextService::CURRENCY_ID => $currencyId,
         ];
 
-        $templateData[self::SALES_CHANNEL_CONTEXT] = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
-            $salesChannelId,
-            $options
-        );
+        try {
+            $templateData[self::SALES_CHANNEL_CONTEXT] = $this->salesChannelContextFactory->create(
+                Uuid::randomHex(),
+                $salesChannelId,
+                $options
+            );
+        } catch (SalesChannelException $exception) {
+            if (!$exception->is(SalesChannelException::NO_CONTEXT_DATA_EXCEPTION)) {
+                throw $exception;
+            }
+
+            $event->setTemplateData($templateData);
+
+            return;
+        }
 
         $event->setTemplateData($templateData);
     }
@@ -106,19 +116,5 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
         }
 
         return $salesChannelId;
-    }
-
-    private function getThemeId(string $salesChannelId): ?string
-    {
-        $themeId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(`theme_id`)) FROM `theme_sales_channel` WHERE `sales_channel_id` = :salesChannelId',
-            ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]
-        );
-
-        if (!\is_string($themeId) || !Uuid::isValid($themeId)) {
-            return null;
-        }
-
-        return $themeId;
     }
 }

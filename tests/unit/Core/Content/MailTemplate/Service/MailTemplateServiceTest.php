@@ -568,8 +568,7 @@ class MailTemplateServiceTest extends TestCase
     private function createService(
         ?StaticEntityRepository $mailTemplateRepository = null,
         ?EventDispatcherInterface $eventDispatcher = null
-    ): MailTemplateService
-    {
+    ): MailTemplateService {
         /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository ??= new StaticEntityRepository([]);
 

@@ -140,53 +140,49 @@ class SalesChannelContextFactoryTest extends TestCase
         );
     }
 
-    #[TestDox('payment method resolution: $_dataName')]
-    #[DataProvider('paymentMethodProvider')]
-    public function testPaymentMethodResolution(
-        string $lastIdMode,
-        bool $optionsHasPaymentMethodId,
-        bool $repoReturnsResolved,
-        string $expects,
-    ): void {
+    public function testPaymentMethodOptionOverridesCustomerLast(): void
+    {
+        $this->customer->setLastPaymentMethodId(Uuid::randomHex());
+
+        $options = [
+            SalesChannelContextService::CUSTOMER_ID => $this->customer->getId(),
+            SalesChannelContextService::PAYMENT_METHOD_ID => Uuid::randomHex(),
+        ];
+
+        $generatedContext = $this->makeFactory(
+            paymentMethodRepository: new StaticEntityRepository([], new PaymentMethodDefinition()),
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+
+        static::assertSame($this->basePaymentMethod, $generatedContext->getPaymentMethod());
+    }
+
+    public function testCustomerLastMatchingContextSkipsRepository(): void
+    {
+        $this->customer->setLastPaymentMethodId($this->basePaymentMethod->getId());
+
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
+
+        $generatedContext = $this->makeFactory(
+            paymentMethodRepository: new StaticEntityRepository([], new PaymentMethodDefinition()),
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+
+        static::assertSame($this->basePaymentMethod, $generatedContext->getPaymentMethod());
+    }
+
+    public function testCustomerLastIsResolvedFromRepository(): void
+    {
         $resolvedPaymentMethod = new PaymentMethodEntity();
         $resolvedPaymentMethod->setId(Uuid::randomHex());
 
-        $lastPaymentMethodId = match ($lastIdMode) {
-            'random' => Uuid::randomHex(),
-            'matchesContext' => $this->basePaymentMethod->getId(),
-            'matchesResolved' => $resolvedPaymentMethod->getId(),
-            default => throw new \LogicException("unknown lastIdMode: {$lastIdMode}"),
-        };
-
-        $this->customer->setLastPaymentMethodId($lastPaymentMethodId);
-
-        $paymentMethodRepository = $repoReturnsResolved
-            ? $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition())
-            : new StaticEntityRepository([], new PaymentMethodDefinition());
+        $this->customer->setLastPaymentMethodId($resolvedPaymentMethod->getId());
 
         $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
-        if ($optionsHasPaymentMethodId) {
-            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = Uuid::randomHex();
-        }
 
-        $generatedContext = $this->makeFactory(paymentMethodRepository: $paymentMethodRepository)
-            ->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
+        $generatedContext = $this->makeFactory(
+            paymentMethodRepository: $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition()),
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
-        $expected = $expects === 'resolved' ? $resolvedPaymentMethod : $this->basePaymentMethod;
-
-        static::assertSame($expected, $generatedContext->getPaymentMethod());
-    }
-
-    /**
-     * @return \Generator<string, array{0: string, 1: bool, 2: bool, 3: string}>
-     */
-    public static function paymentMethodProvider(): \Generator
-    {
-        yield 'option PAYMENT_METHOD_ID overrides customer.last' => ['random', true, false, 'context'];
-
-        yield 'customer.last == context payment skips lookup' => ['matchesContext', false, false, 'context'];
-
-        yield 'customer.last resolved from repository' => ['matchesResolved', false, true, 'resolved'];
+        static::assertSame($resolvedPaymentMethod, $generatedContext->getPaymentMethod());
     }
 
     #[TestDox('cash rounding (countries differ): $_dataName')]

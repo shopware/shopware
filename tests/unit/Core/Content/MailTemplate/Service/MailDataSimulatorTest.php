@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
-use Psr\Clock\ClockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
@@ -37,6 +36,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -369,7 +369,7 @@ class MailDataSimulatorTest extends TestCase
             $definitionRegistry,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
             $providerMap,
-            static::createStub(ClockInterface::class),
+            new NativeClock(),
         );
     }
 }

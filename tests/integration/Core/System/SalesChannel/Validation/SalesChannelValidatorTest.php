@@ -339,10 +339,16 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $exception = null;
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $exception) {
+            // nth
+        }
+
+        static::assertInstanceOf(WriteException::class, $exception);
+        static::assertStringContainsString(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id), $exception->getMessage());
     }
 
     public function testAgenticCommerceSalesChannelValidationSucceedsWithLanguageEntry(): void
@@ -365,10 +371,16 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $exception = null;
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $exception) {
+            // nth
+        }
+
+        static::assertInstanceOf(WriteException::class, $exception);
+        static::assertStringContainsString(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id), $exception->getMessage());
     }
 
     public function testProductComparisonSalesChannelValidationSucceedsWithLanguageEntry(): void

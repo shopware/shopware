@@ -21,7 +21,7 @@ class MailThemeIdLoader
     public function load(string $salesChannelId): ?string
     {
         $themeId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(`theme_id`)) FROM `theme_sales_channel` WHERE `sales_channel_id` = :salesChannelId',
+            'SELECT LOWER(HEX(`theme_id`)) FROM `theme_sales_channel` WHERE `sales_channel_id` = :salesChannelId ORDER BY `theme_id` LIMIT 1',
             ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId)]
         );
 

@@ -15,6 +15,11 @@
         justify-content: flex-end;
         border-bottom: 1px solid $color-gray-300;
         padding-left: 20px;
+        background: $color-white;
+
+        &.is--even {
+            background: $color-gray-100;
+        }
 
         &:last-child {
             border-bottom: none;
@@ -22,7 +27,7 @@
     }
 
     .sw-users-permissions-permissions-grid__parent {
-        background-color: $color-gray-50;
+        background: $color-gray-200 !important;
 
         .sw-users-permissions-permissions-grid__title {
             font-weight: $font-weight-semi-bold;
@@ -36,9 +41,9 @@
 
     .sw-users-permissions-permissions-grid__title,
     .sw-users-permissions-permissions-grid__all,
-    .sw-users-permissions-permissions-grid__checkbox-wrapper, {
+    .sw-users-permissions-permissions-grid__checkbox-wrapper {
         min-width: 100px;
-        min-height: 60px;
+        min-height: 40px;
         display: flex;
         justify-content: center;
         align-items: center;

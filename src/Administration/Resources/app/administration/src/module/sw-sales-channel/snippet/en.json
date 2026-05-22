@@ -160,6 +160,8 @@
                 "inputHeaderLabel": "Header row",
                 "inputBodyLabel": "Product row",
                 "inputFooterLabel": "Footer row",
+                "feedLabelLabel": "Google feed label",
+                "feedLabelHelpText": "Optional feed label for grouping products within the same data source in Google Merchant Center. Uppercase letters (A–Z), numbers (0–9), hyphens (-), and underscores (_) are allowed, with a maximum length of 20 characters.",
                 "buttonTestLabel": "Test template",
                 "buttonPreviewLabel": "Generate preview",
                 "settings": "Product export",

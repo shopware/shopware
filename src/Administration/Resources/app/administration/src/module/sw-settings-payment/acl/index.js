@@ -12,6 +12,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'payment_method:read',
                 Shopware.Service('privileges').getPrivileges('media.viewer'),
                 'rule:read',
+                'rule_condition:read',
                 'plugin:read',
                 'system_config:read',
                 'custom_field_set:read',

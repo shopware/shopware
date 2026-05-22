@@ -14,6 +14,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'rule:read',
                 'tag:read',
                 'currency:read',
+                'sales_channel:read',
                 'delivery_time:read',
                 'media_folder:read',
                 Shopware.Service('privileges').getPrivileges('media.viewer'),

@@ -228,8 +228,7 @@ class FeatureTest extends TestCase
 
     public function testSetActiveOnUnregisteredFeature(): void
     {
-        $this->expectException(FeatureException::class);
-        $this->expectExceptionMessage('Feature "FEATURE_TWO" is not registered.');
+        $this->expectExceptionObject(FeatureException::featureNotRegistered('FEATURE_TWO'));
 
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([

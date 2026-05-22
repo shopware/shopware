@@ -498,8 +498,7 @@ class TaskRegistryTest extends TestCase
 
         $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist');
+        $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 
         $registry->scheduleTask('non.existing.task', false, false, Context::createDefaultContext());
     }
@@ -632,8 +631,7 @@ class TaskRegistryTest extends TestCase
 
         $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist');
+        $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 
         $registry->deactivateTask('non.existing.task', false, Context::createDefaultContext());
     }

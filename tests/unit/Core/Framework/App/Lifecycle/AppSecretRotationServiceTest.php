@@ -271,8 +271,7 @@ class AppSecretRotationServiceTest extends TestCase
                 ]
             );
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Registration failed');
+        $this->expectExceptionObject(new \RuntimeException('Registration failed'));
 
         $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }

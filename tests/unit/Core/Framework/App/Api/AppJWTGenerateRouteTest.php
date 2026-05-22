@@ -31,8 +31,7 @@ class AppJWTGenerateRouteTest extends TestCase
         $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('JWT generation requires customer to be logged in');
+        $this->expectExceptionObject(AppException::jwtGenerationRequiresCustomerLoggedIn());
         $appJWTGenerateRoute->generate('test', $context);
     }
 
@@ -47,8 +46,7 @@ class AppJWTGenerateRouteTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Could not find app with identifier "test"');
+        $this->expectExceptionObject(AppException::notFound('test'));
         $appJWTGenerateRoute->generate('test', $context);
     }
 

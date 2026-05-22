@@ -47,6 +47,7 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
             (new BoolField('track_orders', 'trackOrders'))->setDescription('When boolean value is `true`, it enables Google Analytics to track orders.'),
             (new BoolField('anonymize_ip', 'anonymizeIp'))->setDescription('Unique identity of anonymize.'),
             (new BoolField('track_offcanvas_cart', 'trackOffcanvasCart'))->setDescription('When boolean value is `true`, it enables Google Analytics to track offcanvas cart.'),
+            (new BoolField('enhanced_conversions', 'enhancedConversions'))->setDescription('When boolean value is `true`, it enables Google Ads Enhanced Conversions by sending SHA256-hashed customer email with the purchase event.'),
             new OneToOneAssociationField('salesChannel', 'id', 'analytics_id', SalesChannelDefinition::class, false),
         ]);
     }

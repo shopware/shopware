@@ -1,0 +1,66 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
+
+use PHPStan\Rules\IdentifierRuleError;
+use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+final class Errors
+{
+    private function __construct()
+    {
+    }
+
+    public static function exception(string $className, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
+            $className,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnException')
+            ->line($line)
+            ->build();
+    }
+
+    public static function classLevel(string $className, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s is annotated @codeCoverageIgnore but method %s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
+    }
+
+    public static function methodLevel(string $className, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Method %s::%s() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
+    }
+
+    public static function traitMethod(string $className, string $traitName, string $methodName, int $line): IdentifierRuleError
+    {
+        return RuleErrorBuilder::message(\sprintf(
+            'Class %s is annotated @codeCoverageIgnore but inherited trait method %s::%s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
+            $className,
+            $traitName,
+            $methodName,
+        ))
+            ->identifier('shopware.codeCoverageIgnoreOnLogic')
+            ->line($line)
+            ->build();
+    }
+}

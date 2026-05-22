@@ -15,7 +15,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
-use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\Errors;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -92,7 +92,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         }
 
         if ($classHasIgnore && $this->isThrowable($node, $className)) {
-            return [$this->buildExceptionError($node, $className)];
+            return [Errors::exception($className, $node->getStartLine())];
         }
 
         $classExempted = $classHasIgnore && $this->hasSeeIntegrationTest($node, $scope);
@@ -130,7 +130,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             $methodName = (string) $method->name;
 
             if ($classHasIgnore && !$classExempted && $this->methodContainsLogic($method)) {
-                $errors[] = $this->buildClassLevelError($className, $methodName, $method->getStartLine());
+                $errors[] = Errors::classLevel($className, $methodName, $method->getStartLine());
 
                 continue;
             }
@@ -144,7 +144,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             }
 
             if ($this->methodContainsLogic($method)) {
-                $errors[] = $this->buildMethodLevelError($className, $methodName, $method->getStartLine());
+                $errors[] = Errors::methodLevel($className, $methodName, $method->getStartLine());
             }
         }
 
@@ -171,7 +171,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
                 continue;
             }
 
-            $errors[] = $this->buildTraitMethodError(
+            $errors[] = Errors::traitMethod(
                 $className,
                 $traitName,
                 (string) $method->name,
@@ -180,54 +180,6 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
         }
 
         return $errors;
-    }
-
-    private function buildExceptionError(Class_ $node, string $className): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Class %s extends \\Throwable and must not carry @codeCoverageIgnore — exception classes are already excluded from coverage. Remove the annotation.',
-            $className,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnException')
-            ->line($node->getStartLine())
-            ->build();
-    }
-
-    private function buildClassLevelError(string $className, string $methodName, int $line): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Class %s is annotated @codeCoverageIgnore but method %s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-            $className,
-            $methodName,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnLogic')
-            ->line($line)
-            ->build();
-    }
-
-    private function buildMethodLevelError(string $className, string $methodName, int $line): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Method %s::%s() is annotated @codeCoverageIgnore but contains logic. Remove the annotation, extract the logic to a covered method, or add a @see pointing to an existing integration test that exercises it.',
-            $className,
-            $methodName,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnLogic')
-            ->line($line)
-            ->build();
-    }
-
-    private function buildTraitMethodError(string $className, string $traitName, string $methodName, int $line): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Class %s is annotated @codeCoverageIgnore but inherited trait method %s::%s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-            $className,
-            $traitName,
-            $methodName,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnLogic')
-            ->line($line)
-            ->build();
     }
 
     private function isThrowable(Class_ $node, string $className): bool

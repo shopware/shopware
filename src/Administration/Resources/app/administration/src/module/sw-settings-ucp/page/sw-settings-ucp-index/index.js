@@ -60,6 +60,14 @@ export default {
         },
 
         statusVariant(item) {
+            // Mirror the three-state logic of statusLabel so the badge colour
+            // can never disagree with the label text. A "Not configured" label
+            // in a green "positive" pill would be visually misleading and
+            // could surface if a future change to the controller decoupled
+            // `active` from `configured`.
+            if (!item.configured) {
+                return 'neutral';
+            }
             return item.active ? 'positive' : 'neutral';
         },
 

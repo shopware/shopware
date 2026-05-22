@@ -93,12 +93,54 @@ describe('module/sw-settings-ucp/page/sw-settings-ucp-index', () => {
         expect(component.statusLabel({ configured: true, active: false })).toBe('sw-settings-ucp.status.inactive');
     });
 
-    it('statusVariant maps active to positive and inactive to neutral', () => {
+    it('statusVariant uses the same three-state machine as statusLabel (never green when not configured)', () => {
         const component = createComponent();
 
-        expect(component.statusVariant({ active: true })).toBe('positive');
-        expect(component.statusVariant({ active: false })).toBe('neutral');
+        expect(component.statusVariant({ configured: true, active: true })).toBe('positive');
+        expect(component.statusVariant({ configured: true, active: false })).toBe('neutral');
+        expect(component.statusVariant({ configured: false, active: false })).toBe('neutral');
+        // Regression: a row that is "not configured" must never paint a green
+        // badge, even if some upstream change leaves `active: true` on it —
+        // the badge text and badge colour must agree.
+        expect(component.statusVariant({ configured: false, active: true })).toBe('neutral');
     });
+
+    it.each([
+        // [configured, active, expectedVariant,        expectedLabel]
+        [
+            false,
+            false,
+            'neutral',
+            'sw-settings-ucp.status.notConfigured',
+        ],
+        [
+            false,
+            true,
+            'neutral',
+            'sw-settings-ucp.status.notConfigured',
+        ],
+        [
+            true,
+            false,
+            'neutral',
+            'sw-settings-ucp.status.inactive',
+        ],
+        [
+            true,
+            true,
+            'positive',
+            'sw-settings-ucp.status.active',
+        ],
+    ])(
+        'state(configured=%s, active=%s) renders variant=%s + label=%s — variant and label always agree',
+        (configured, active, expectedVariant, expectedLabel) => {
+            const component = createComponent();
+            const item = { configured, active };
+
+            expect(component.statusVariant(item)).toBe(expectedVariant);
+            expect(component.statusLabel(item)).toBe(expectedLabel);
+        },
+    );
 
     it('editItem navigates to the detail route with the sales-channel id', () => {
         const component = createComponent();

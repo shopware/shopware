@@ -7,9 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -70,11 +70,7 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
                 $salesChannelId,
                 $options
             );
-        } catch (SalesChannelException $exception) {
-            if (!$exception->is(SalesChannelException::NO_CONTEXT_DATA_EXCEPTION)) {
-                throw $exception;
-            }
-
+        } catch (NoContextDataException) {
             // Mail simulations can use generated sales-channel shells without persisted context data.
             // Rendering can continue with the existing template data in that case.
             return;

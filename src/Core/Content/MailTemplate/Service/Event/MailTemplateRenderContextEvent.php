@@ -3,15 +3,15 @@
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @final
  */
 #[Package('after-sales')]
-class MailTemplateRenderContextEvent extends Event
+class MailTemplateRenderContextEvent implements ShopwareEvent
 {
     /**
      * @param array<string, mixed> $templateData

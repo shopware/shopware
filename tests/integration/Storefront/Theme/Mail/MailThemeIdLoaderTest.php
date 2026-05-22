@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Theme\Mail;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -15,7 +14,6 @@ use Shopware\Storefront\Theme\Mail\MailThemeIdLoader;
 /**
  * @internal
  */
-#[CoversClass(MailThemeIdLoader::class)]
 class MailThemeIdLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -188,8 +188,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     }
 
     /**
-     * @codeCoverageIgnore
-     *
      * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
@@ -273,8 +271,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     }
 
     /**
-     * @codeCoverageIgnore
-     *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */
     private function getCashRounding(BaseSalesChannelContext $context, ShippingLocation $shippingLocation): array

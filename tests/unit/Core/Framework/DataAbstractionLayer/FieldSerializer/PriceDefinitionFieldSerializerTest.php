@@ -195,6 +195,19 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         static::assertSame('unknownPluginRule', $rules[1]->getOriginalName());
     }
 
+    public function testDecodePercentagePriceDefinitionWithoutFilterKeepsNullFilter(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        static::assertNull($decoded->getFilter());
+    }
+
     #[DataProvider('serializerProvider')]
     public function testEncodeDecodeRoundTrip(PriceDefinitionInterface $definition): void
     {

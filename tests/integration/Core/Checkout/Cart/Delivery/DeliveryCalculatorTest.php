@@ -41,6 +41,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -846,6 +847,71 @@ class DeliveryCalculatorTest extends TestCase
         $delivery = $deliveries->first();
         static::assertNotNull($delivery);
         static::assertSame(8.0, $delivery->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testCalculatePriceMatrixCartPriceRangeWithCurrencyFactor(): void
+    {
+        Feature::withFeatureEnabled('v6.8.0.0', function (): void {
+            $shippingMethod = new ShippingMethodEntity();
+            $shippingMethod->setId(Uuid::randomHex());
+            $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+            $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
+
+            $paidShippingPrice = new ShippingMethodPriceEntity();
+            $paidShippingPrice->setUniqueIdentifier(Uuid::randomHex());
+            $paidShippingPrice->setCurrencyPrice(new PriceCollection([
+                new Price(Defaults::CURRENCY, 20, 20, false),
+            ]));
+            $paidShippingPrice->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+            $paidShippingPrice->setQuantityStart(0);
+            $paidShippingPrice->setQuantityEnd(50);
+
+            $freeShippingPrice = new ShippingMethodPriceEntity();
+            $freeShippingPrice->setUniqueIdentifier(Uuid::randomHex());
+            $freeShippingPrice->setCurrencyPrice(new PriceCollection([
+                new Price(Defaults::CURRENCY, 0, 0, false),
+            ]));
+            $freeShippingPrice->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+            $freeShippingPrice->setQuantityStart(50);
+
+            $shippingMethod->setPrices(new ShippingMethodPriceCollection([
+                $paidShippingPrice,
+                $freeShippingPrice,
+            ]));
+
+            $context = $this->createMock(SalesChannelContext::class);
+            $baseContext = Context::createDefaultContext();
+            $baseContext->assign(['currencyFactor' => 1.1]);
+            $currencyId = Uuid::randomHex();
+
+            $context->expects($this->atLeastOnce())->method('getContext')->willReturn($baseContext);
+            $context->expects($this->atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+            $context->method('getCurrencyId')->willReturn($currencyId);
+            $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+            $lineItem = new LineItem(Uuid::randomHex(), 'product', null, 1);
+            $lineItem->setDeliveryInformation(
+                new DeliveryInformation(
+                    50,
+                    22.0,
+                    false,
+                    null,
+                    $this->deliveryTime
+                )
+            );
+            $lineItem->setShippingCostAware(true);
+            $lineItem->setPrice(new CalculatedPrice(52, 52, new CalculatedTaxCollection(), new TaxRuleCollection(), 1));
+
+            $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+            $data = new CartDataCollection();
+            $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+            $this->deliveryCalculator->calculate($data, new Cart('test'), $deliveries, $context);
+
+            $delivery = $deliveries->first();
+            static::assertNotNull($delivery);
+            static::assertSame(22.0, $delivery->getShippingCosts()->getTotalPrice());
+        });
     }
 
     public function testCalculateWithMultiplePricesMissingCalculationPrice(): void

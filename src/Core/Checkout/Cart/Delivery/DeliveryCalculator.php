@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -156,8 +157,14 @@ class DeliveryCalculator
 
         $start = $shippingMethodPrice->getQuantityStart();
         $end = $shippingMethodPrice->getQuantityEnd();
+        $calculation = $shippingMethodPrice->getCalculation();
 
-        $value = match ($shippingMethodPrice->getCalculation()) {
+        if ($calculation === self::CALCULATION_BY_PRICE && Feature::isActive('v6.8.0.0')) {
+            $start = $this->convertPriceMatrixRange($start, $context);
+            $end = $this->convertPriceMatrixRange($end, $context);
+        }
+
+        $value = match ($calculation) {
             self::CALCULATION_BY_PRICE => $delivery->getPositions()->getWithoutDeliveryFree()->getPrices()->getTotalPriceAmount(),
             self::CALCULATION_BY_LINE_ITEM_COUNT => $delivery->getPositions()->getWithoutDeliveryFree()->getQuantity(),
             self::CALCULATION_BY_WEIGHT => $delivery->getPositions()->getWithoutDeliveryFree()->getWeight(),
@@ -167,6 +174,15 @@ class DeliveryCalculator
 
         // $end (optional) exclusive
         return (!$start || FloatComparator::greaterThanOrEquals($value, $start)) && (!$end || FloatComparator::lessThanOrEquals($value, $end));
+    }
+
+    private function convertPriceMatrixRange(?float $value, SalesChannelContext $context): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return $value * $context->getContext()->getCurrencyFactor();
     }
 
     private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context, ?CalculatedPrice $manualShippingCost = null): CalculatedPrice

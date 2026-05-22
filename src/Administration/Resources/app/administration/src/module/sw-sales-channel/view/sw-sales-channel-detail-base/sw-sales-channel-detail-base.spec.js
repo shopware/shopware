@@ -106,6 +106,127 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         global.activeAclRoles = [];
     });
 
+    describe('feed label input', () => {
+        const productComparisonSalesChannel = { typeId: PRODUCT_COMPARISON_TYPE_ID };
+        const FEED_LABEL_SELECTOR = '.sw-sales-channel-detail-base__feed-label';
+
+        beforeEach(() => {
+            global.activeAclRoles = ['sales_channel.editor'];
+        });
+
+        it.each([
+            {
+                case: 'product comparison + google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'google-product-search-de',
+                expected: true,
+            },
+            {
+                case: 'product comparison + non-google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'idealo-de',
+                expected: false,
+            },
+            {
+                case: 'non-product-comparison + google template',
+                salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
+                templateName: 'google-product-search-de',
+                expected: false,
+            },
+            {
+                case: 'product comparison + no template selected',
+                salesChannel: productComparisonSalesChannel,
+                templateName: null,
+                expected: false,
+            },
+        ])('visibility on $case → $expected', async ({ salesChannel, templateName, expected }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel,
+                    productExport: { feedLabel: null },
+                    templateName,
+                },
+            });
+
+            expect(wrapper.find(FEED_LABEL_SELECTOR).exists()).toBe(expected);
+        });
+
+        it.each([
+            { case: 'null', feedLabel: null },
+            { case: 'empty string', feedLabel: '' },
+        ])('passes empty string to mt-text-field when feedLabel is $case', async ({ feedLabel }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const field = wrapper.findComponent(FEED_LABEL_SELECTOR);
+            expect(field.props('modelValue')).toBe('');
+        });
+
+        it('writes the typed value back to productExport.feedLabel', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('SUMMER-2026');
+
+            expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
+        });
+
+        it.each([
+            [
+                'summer224',
+                'SUMMER224',
+            ],
+            [
+                'Summer-2026',
+                'SUMMER-2026',
+            ],
+            [
+                'eu_de',
+                'EU_DE',
+            ],
+        ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue(typed);
+
+            expect(wrapper.vm.productExport.feedLabel).toBe(stored);
+            expect(input.element.value).toBe(stored);
+        });
+
+        it('writes null back when the input is cleared', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: 'SUMMER-2026' },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('');
+
+            expect(wrapper.vm.productExport.feedLabel).toBeNull();
+        });
+    });
+
     it('should have the select template field disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

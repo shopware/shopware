@@ -50,26 +50,22 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
 
         $themeId = $this->mailThemeIdLoader->load($salesChannelId);
         if ($themeId !== null && !isset($templateData['themeId'])) {
-            $templateData['themeId'] = $themeId;
+            $event->addTemplateData('themeId', $themeId);
         }
 
         if (($templateData[self::SALES_CHANNEL_CONTEXT] ?? null) instanceof SalesChannelContext) {
-            $event->setTemplateData($templateData);
-
             return;
         }
 
         $context = $event->getContext();
-        $languageId = $context->getLanguageId();
-        $currencyId = $context->getCurrencyId();
 
         $options = [
-            SalesChannelContextService::LANGUAGE_ID => $languageId,
-            SalesChannelContextService::CURRENCY_ID => $currencyId,
+            SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
+            SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
         ];
 
         try {
-            $templateData[self::SALES_CHANNEL_CONTEXT] = $this->salesChannelContextFactory->create(
+            $salesChannelContext = $this->salesChannelContextFactory->create(
                 Uuid::randomHex(),
                 $salesChannelId,
                 $options
@@ -79,12 +75,12 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
                 throw $exception;
             }
 
-            $event->setTemplateData($templateData);
-
+            // Mail simulations can use generated sales-channel shells without persisted context data.
+            // Rendering can continue with the existing template data in that case.
             return;
         }
 
-        $event->setTemplateData($templateData);
+        $event->addTemplateData(self::SALES_CHANNEL_CONTEXT, $salesChannelContext);
     }
 
     /**

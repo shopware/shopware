@@ -50,7 +50,9 @@ class LogicDetectorTest extends TestCase
         yield 'foreach' => ['foreach ([] as $i) {}', true];
         yield 'switch' => ['switch ($x) { case 1: break; }', true];
         yield 'match expression' => ['return match ($x) { 1 => "a", default => "b" };', true];
-        yield 'throw statement' => ['throw new \RuntimeException("");', true];
+        yield 'single throw body is a stub, not logic' => ['throw new \RuntimeException("");', false];
+
+        yield 'throw after another statement is logic' => ['$x = 1; throw new \RuntimeException("");', true];
         yield 'throw expression in coalesce' => ['$x = $y ?? throw new \RuntimeException("");', true];
         yield 'try catch' => ['try {} catch (\Throwable $e) {}', true];
         yield 'ternary' => ['return $x ? "a" : "b";', true];

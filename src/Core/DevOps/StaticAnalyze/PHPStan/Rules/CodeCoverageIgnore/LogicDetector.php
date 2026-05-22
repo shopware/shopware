@@ -46,6 +46,13 @@ final class LogicDetector
             return false;
         }
 
+        // Single-throw bodies are contract markers (decoration-pattern stubs,
+        // "this method must be overridden", unreachable guards). The throw is
+        // not behaviour worth covering — it is the absence of an implementation.
+        if (self::isSingleThrowStub($method->stmts)) {
+            return false;
+        }
+
         $hit = (new NodeFinder())->findFirst($method->stmts, static function (Node $node): bool {
             foreach (self::LOGIC_NODE_TYPES as $type) {
                 if ($node instanceof $type) {
@@ -57,5 +64,19 @@ final class LogicDetector
         });
 
         return $hit !== null;
+    }
+
+    /**
+     * @param array<Stmt> $stmts
+     */
+    private static function isSingleThrowStub(array $stmts): bool
+    {
+        if (\count($stmts) !== 1) {
+            return false;
+        }
+
+        $first = $stmts[0];
+
+        return $first instanceof Stmt\Expression && $first->expr instanceof Expr\Throw_;
     }
 }

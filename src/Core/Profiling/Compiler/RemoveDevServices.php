@@ -8,9 +8,6 @@ use Shopware\Core\Profiling\Controller\ProfilerController;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @codeCoverageIgnore It's not possible to test without hacky solutions and relying on internals
- */
 #[Package('framework')]
 class RemoveDevServices implements CompilerPassInterface
 {

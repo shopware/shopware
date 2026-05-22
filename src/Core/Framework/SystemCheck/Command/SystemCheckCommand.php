@@ -16,8 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore all the underlying dependencies are tested.
  */
 #[AsCommand(name: 'system:check', description: 'Check the shopware application system health')]
 #[Package('framework')]

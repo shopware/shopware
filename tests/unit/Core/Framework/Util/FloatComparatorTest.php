@@ -29,16 +29,14 @@ class FloatComparatorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testCompareThrowExceptionDeprecated(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('empty')->getMessage());
+        $this->expectExceptionObject(ComparatorException::operatorNotSupported('empty'));
 
         FloatComparator::compare(1, 2, 'empty');
     }
 
     public function testCompareThrowException(): void
     {
-        static::expectException(UtilException::class);
-        $this->expectExceptionMessage(UtilException::operatorNotSupported('empty')->getMessage());
+        $this->expectExceptionObject(UtilException::operatorNotSupported('empty'));
 
         FloatComparator::compare(1, 2, 'empty');
     }

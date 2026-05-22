@@ -83,6 +83,25 @@ describe('src/app/asyncComponent/media/sw-media-base-item', () => {
         expect(wrapper.find('.icon--regular-3d').exists()).toBe(false);
     });
 
+    it('should show a GIF label for gif files', async () => {
+        const wrapper = await setup({
+            fileExtension: 'gif',
+        });
+
+        expect(wrapper.find('.sw-media-base-item__labels-text').text()).toBe('GIF');
+        expect(wrapper.find('.icon--regular-AR').exists()).toBe(false);
+        expect(wrapper.find('.icon--regular-3d').exists()).toBe(false);
+    });
+
+    it('should show a GIF label for image/gif mime type', async () => {
+        const wrapper = await setup({
+            fileExtension: undefined,
+            mimeType: 'image/gif',
+        });
+
+        expect(wrapper.find('.sw-media-base-item__labels-text').text()).toBe('GIF');
+    });
+
     it('should provide an accessible name for media files', async () => {
         const wrapper = await setup();
 

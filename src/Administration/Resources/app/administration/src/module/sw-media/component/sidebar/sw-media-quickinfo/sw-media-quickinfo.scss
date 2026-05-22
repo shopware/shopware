@@ -24,6 +24,11 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         border: 1px solid $sw-media-quickinfo-border-color-preview;
         border-radius: $sw-media-quickinfo-border-radius-preview;
 
+        .sw-media-preview-v2__placeholder {
+            max-width: var(--scale-size-64);
+            max-height: var(--scale-size-56);
+        }
+
         &::after {
             content: "";
             display: block;

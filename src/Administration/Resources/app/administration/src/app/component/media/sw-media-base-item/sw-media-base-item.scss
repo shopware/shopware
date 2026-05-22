@@ -187,6 +187,22 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
         flex-direction: row;
         flex-wrap: wrap;
 
+        .sw-label {
+            min-width: auto;
+            padding-inline: var(--scale-size-6);
+            border-radius: var(--border-radius-xs);
+        }
+
+        .sw-label__caption {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--scale-size-2);
+        }
+
+        .mt-icon {
+            transform: translateY(-1px);
+        }
+
         .sw-media-base-item__labels-text {
             display: inline-block;
             vertical-align: middle;

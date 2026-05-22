@@ -148,6 +148,10 @@ export default {
             // we need to check the media url since media.fileExtension is set directly after upload
             return this.item.fileExtension === 'glb' || !!this.item?.url?.endsWith('.glb');
         },
+
+        isGif() {
+            return this.item.fileExtension?.toLowerCase() === 'gif' || this.item.mimeType === 'image/gif';
+        },
     },
 
     methods: {

@@ -195,37 +195,28 @@ class SalesChannelContextFactoryTest extends TestCase
         CashRoundingConfig $expectedItem,
         CashRoundingConfig $expectedTotal,
     ): void {
-        $salesChannel = $this->salesChannel;
-        $basePaymentMethod = $this->basePaymentMethod;
+        $this->customer->setLastPaymentMethodId(null);
 
-        $currency = new CurrencyEntity();
-        $currency->setId(Uuid::randomHex());
-        $currency->setFactor(1);
-        $currency->setItemRounding($currencyItem);
-        $currency->setTotalRounding($currencyTotal);
-
-        $baseCountry = $this->makeCountry();
-        $customerCountry = $this->makeCountry();
-        $baseContext = $this->makeBaseContext($salesChannel, $baseCountry, $basePaymentMethod, currency: $currency);
-
-        $customer = $this->customer;
-        $customer->setLastPaymentMethodId(null);
-        $addresses = $this->makeAddresses($customer, $customerCountry);
+        $baseContext = $this->makeBaseContext(
+            $this->salesChannel,
+            $this->makeCountry(),
+            $this->basePaymentMethod,
+            currency: $this->makeCurrencyWithRounding($currencyItem, $currencyTotal),
+        );
+        $addresses = $this->makeAddresses($this->customer, $this->makeCountry());
 
         $collection = $countryConfig === null
             ? new CurrencyCountryRoundingCollection()
             : new CurrencyCountryRoundingCollection([$countryConfig]);
-
         $currencyCountryRepository = $this->repoReturning($collection, new CurrencyCountryRoundingDefinition());
 
-        $options = [SalesChannelContextService::CUSTOMER_ID => $customer->getId()];
+        $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
 
         $generatedContext = $this->makeFactory(
-            customer: $customer,
             addresses: $addresses,
-            currencyCountryRepository: $currencyCountryRepository,
             baseContext: $baseContext,
-        )->create(Uuid::randomHex(), $salesChannel->getId(), $options);
+            currencyCountryRepository: $currencyCountryRepository,
+        )->create(Uuid::randomHex(), $this->salesChannel->getId(), $options);
 
         static::assertSame($expectedItem, $generatedContext->getItemRounding());
         static::assertSame($expectedTotal, $generatedContext->getTotalRounding());
@@ -284,9 +275,20 @@ class SalesChannelContextFactoryTest extends TestCase
         return new CustomerAddressCollection([$billing, $shipping]);
     }
 
+    private function makeCurrencyWithRounding(CashRoundingConfig $item, CashRoundingConfig $total): CurrencyEntity
+    {
+        $currency = new CurrencyEntity();
+        $currency->setId(Uuid::randomHex());
+        $currency->setFactor(1);
+        $currency->setItemRounding($item);
+        $currency->setTotalRounding($total);
+
+        return $currency;
+    }
+
     private function makeBaseContext(
         SalesChannelEntity $salesChannel,
-        ?CountryEntity $shippingCountry,
+        CountryEntity $shippingCountry,
         PaymentMethodEntity $paymentMethod,
         ?CurrencyEntity $currency = null,
     ): BaseSalesChannelContext {
@@ -304,7 +306,7 @@ class SalesChannelContextFactoryTest extends TestCase
             new TaxCollection(),
             $paymentMethod,
             new ShippingMethodEntity(),
-            new ShippingLocation($shippingCountry ?? $this->makeCountry(), null, null),
+            new ShippingLocation($shippingCountry, null, null),
             new CashRoundingConfig(2, 0.01, true),
             new CashRoundingConfig(2, 0.01, true),
             Generator::createLanguageInfo(),

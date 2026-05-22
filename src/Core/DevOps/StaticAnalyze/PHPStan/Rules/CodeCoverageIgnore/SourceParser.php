@@ -121,7 +121,7 @@ final class SourceParser
     }
 
     /**
-     * @return list<Stmt>|null
+     * @return array<Stmt>|null
      */
     private function parseFile(string $file): ?array
     {

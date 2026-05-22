@@ -8,6 +8,7 @@ use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 use PHPStan\Analyser\Scope;
 use PHPStan\Testing\PHPStanTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\ExemptionResolver;
@@ -16,6 +17,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourcePa
 /**
  * @internal
  */
+#[CoversClass(ExemptionResolver::class)]
 class ExemptionResolverTest extends PHPStanTestCase
 {
     #[TestDox('isExempted: $_dataName')]

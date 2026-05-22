@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\NodeFinder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,8 +19,6 @@ final class LogicDetector
      * Branching and error-path constructs. Calls, instantiation, arithmetic,
      * and coalesce are intentionally absent — they're not branching by themselves,
      * and the called code has its own coverage story.
-     *
-     * @var list<class-string<Node>>
      */
     private const LOGIC_NODE_TYPES = [
         Stmt\If_::class,
@@ -33,7 +32,6 @@ final class LogicDetector
         Stmt\Foreach_::class,
         Stmt\TryCatch::class,
         Stmt\Catch_::class,
-        Stmt\Throw_::class,
         Expr\Throw_::class,
         Expr\Ternary::class,
     ];
@@ -48,38 +46,16 @@ final class LogicDetector
             return false;
         }
 
-        foreach ($method->stmts as $stmt) {
-            if (self::nodeContainsLogic($stmt)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static function nodeContainsLogic(Node $node): bool
-    {
-        foreach (self::LOGIC_NODE_TYPES as $type) {
-            if ($node instanceof $type) {
-                return true;
-            }
-        }
-
-        foreach ($node->getSubNodeNames() as $name) {
-            $value = $node->{$name};
-            if ($value instanceof Node) {
-                if (self::nodeContainsLogic($value)) {
+        $hit = (new NodeFinder())->findFirst($method->stmts, static function (Node $node): bool {
+            foreach (self::LOGIC_NODE_TYPES as $type) {
+                if ($node instanceof $type) {
                     return true;
                 }
-            } elseif (\is_array($value)) {
-                foreach ($value as $item) {
-                    if ($item instanceof Node && self::nodeContainsLogic($item)) {
-                        return true;
-                    }
-                }
             }
-        }
 
-        return false;
+            return false;
+        });
+
+        return $hit !== null;
     }
 }

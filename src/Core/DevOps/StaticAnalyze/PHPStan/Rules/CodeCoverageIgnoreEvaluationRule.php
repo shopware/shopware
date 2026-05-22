@@ -167,7 +167,11 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
             return $node->namespacedName->toString();
         }
 
-        return $node->name?->name ?? '<anonymous class>';
+        if ($node->name === null) {
+            return '<anonymous class>';
+        }
+
+        return $node->name->name;
     }
 
     private function docHasCodeCoverageIgnore(Node $node): bool

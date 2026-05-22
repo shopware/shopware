@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
 
 use PHPStan\Testing\PHPStanTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
 use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CodeCoverageIgnoreEvaluation\LogicTrait;
@@ -10,6 +11,7 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CodeCover
 /**
  * @internal
  */
+#[CoversClass(SourceParser::class)]
 class SourceParserTest extends PHPStanTestCase
 {
     #[TestDox('traitMethods returns the trait methods')]
@@ -20,7 +22,6 @@ class SourceParserTest extends PHPStanTestCase
         $methods = $parser->traitMethods(LogicTrait::class);
 
         static::assertCount(1, $methods);
-        static::assertNotNull($methods[0]->name);
         static::assertSame('doSomething', $methods[0]->name->name);
     }
 

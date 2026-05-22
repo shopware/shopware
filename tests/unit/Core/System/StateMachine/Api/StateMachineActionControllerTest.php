@@ -26,8 +26,7 @@ class StateMachineActionControllerTest extends TestCase
 {
     public function testTransitionWithoutPrivileges(): void
     {
-        $this->expectException(MissingPrivilegeException::class);
-        $this->expectExceptionMessage('{"message":"Missing privilege","missingPrivileges":["order:update"]}');
+        $this->expectExceptionObject(new MissingPrivilegeException(['order:update']));
 
         $controller = new StateMachineActionController(
             $this->createMock(StateMachineRegistry::class),
@@ -45,8 +44,7 @@ class StateMachineActionControllerTest extends TestCase
 
     public function testGetAvailableTransitionsWithoutPrivileges(): void
     {
-        $this->expectException(MissingPrivilegeException::class);
-        $this->expectExceptionMessage('{"message":"Missing privilege","missingPrivileges":["order:read"]}');
+        $this->expectExceptionObject(new MissingPrivilegeException(['order:read']));
 
         $controller = new StateMachineActionController(
             $this->createMock(StateMachineRegistry::class),

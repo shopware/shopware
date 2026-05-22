@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\CodeCoverageIgnore\_fixtures;
+namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\_fixtures;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types as DBALTypes;

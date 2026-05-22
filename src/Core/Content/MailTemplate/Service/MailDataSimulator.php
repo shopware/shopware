@@ -627,14 +627,14 @@ class MailDataSimulator
 
     private function randomTimestamp(): int
     {
-        $startTimestamp = strtotime('-1 year');
-        $endTimestamp = strtotime('+1 year');
+        $startTimestamp = (new \DateTimeImmutable('-1 year'))->getTimestamp();
+        $endTimestamp = (new \DateTimeImmutable('+1 year'))->getTimestamp();
 
-        if ($startTimestamp > $endTimestamp) {
-            [$startTimestamp, $endTimestamp] = [$endTimestamp, $startTimestamp];
+        if ($startTimestamp <= $endTimestamp) {
+            return random_int($startTimestamp, $endTimestamp);
         }
 
-        return random_int($startTimestamp, $endTimestamp);
+        return random_int($endTimestamp, $startTimestamp);
     }
 
     private function randomString(string $propertyName, ?string $entityName = null): string

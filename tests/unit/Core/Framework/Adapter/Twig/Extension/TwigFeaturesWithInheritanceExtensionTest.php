@@ -57,8 +57,7 @@ class TwigFeaturesWithInheritanceExtensionTest extends TestCase
 
     public function testAbstractExpressionIsThrown(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The first argument of the "sw_block" function must be an instance of AbstractExpression.');
+        $this->expectExceptionObject(new \RuntimeException('The first argument of the "sw_block" function must be an instance of AbstractExpression.'));
 
         $extension = new TwigFeaturesWithInheritanceExtension($this->createMock(TemplateFinder::class));
         $extension->parseSwBlockFunction(

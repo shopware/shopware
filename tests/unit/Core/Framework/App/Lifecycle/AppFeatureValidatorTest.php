@@ -46,8 +46,7 @@ class AppFeatureValidatorTest extends TestCase
     {
         $validator = new AppFeatureValidator('dev');
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App "test" could not be installed/updated because it uses features Admin Modules, Payment Methods, Tax providers and Webhooks but has no secret');
+        $this->expectExceptionObject(AppException::appSecretRequiredForFeatures('test', ['Admin Modules', 'Payment Methods', 'Tax providers', 'Webhooks']));
 
         $validator->validate($this->createApp(), $this->createManifestWithFeaturesRequiringSecret());
     }

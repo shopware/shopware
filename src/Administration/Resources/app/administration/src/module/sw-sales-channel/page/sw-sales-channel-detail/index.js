@@ -169,13 +169,13 @@ export default {
                     provider: 'open-ai',
                     systemConfigDomain: 'core.openAiProductExport',
                     titleSnippet: 'sw-sales-channel.detail.agenticCommerce.openAiSettingsTitle',
-                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider',
                 },
                 {
                     provider: 'google',
                     systemConfigDomain: 'core.googleProductExport',
                     titleSnippet: 'sw-sales-channel.detail.agenticCommerce.googleSettingsTitle',
-                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-google',
+                    positionIdentifier: 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider',
                 },
             ];
         },

@@ -148,6 +148,60 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertSame('condition', $error->getParameters()['field']);
     }
 
+    public function testValidateAddsErrorForInvalidGender(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['gender' => 'Damen']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(1, $errors);
+        $error = $errors->first();
+        static::assertInstanceOf(ProviderValidationError::class, $error);
+        static::assertSame('gender', $error->getParameters()['field']);
+    }
+
+    public function testValidateAcceptsValidGender(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['gender' => 'female']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(0, $errors);
+    }
+
+    public function testValidateAddsErrorForInvalidSizeSystem(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['size_system' => 'EU-Größen']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(1, $errors);
+        $error = $errors->first();
+        static::assertInstanceOf(ProviderValidationError::class, $error);
+        static::assertSame('size_system', $error->getParameters()['field']);
+    }
+
+    public function testValidateAcceptsValidSizeSystem(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['size_system' => 'EU']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(0, $errors);
+    }
+
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
         $entity = $this->createProductExportEntity();
@@ -241,7 +295,7 @@ class GoogleProductExportValidatorTest extends TestCase
 
         $values = array_replace($defaults, $overrides);
 
-        $googleFields = ['id', 'image_link', 'availability', 'condition', 'price', 'brand', 'gtin', 'mpn', 'identifier_exists'];
+        $googleFields = ['id', 'image_link', 'availability', 'condition', 'price', 'brand', 'gtin', 'mpn', 'identifier_exists', 'gender', 'size_system'];
 
         $xml = '<item>';
 

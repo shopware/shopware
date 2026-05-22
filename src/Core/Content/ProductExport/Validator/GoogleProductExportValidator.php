@@ -39,6 +39,32 @@ class GoogleProductExportValidator extends AbstractProviderValidator
     /**
      * @var list<string>
      */
+    private const ALLOWED_GENDER_VALUES = [
+        'male',
+        'female',
+        'unisex',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const ALLOWED_SIZE_SYSTEM_VALUES = [
+        'AU',
+        'BR',
+        'CN',
+        'DE',
+        'EU',
+        'FR',
+        'IT',
+        'JP',
+        'MEX',
+        'UK',
+        'US',
+    ];
+
+    /**
+     * @var list<string>
+     */
     private const REQUIRED_GOOGLE_FIELDS = [
         'id',
         'availability',
@@ -205,6 +231,28 @@ class GoogleProductExportValidator extends AbstractProviderValidator
                 }
 
                 $itemIds[$id] = true;
+            }
+
+            $gender = trim((string) ($googleChildren->gender ?? ''));
+            if ($gender !== '' && !\in_array($gender, self::ALLOWED_GENDER_VALUES, true)) {
+                $errors->add(new ProviderValidationError(
+                    $productExportEntity->getId(),
+                    $this->getProviderTechnicalName(),
+                    'gender',
+                    'The field "g:gender" must be one of: male, female, unisex.',
+                    $line
+                ));
+            }
+
+            $sizeSystem = trim((string) ($googleChildren->size_system ?? ''));
+            if ($sizeSystem !== '' && !\in_array($sizeSystem, self::ALLOWED_SIZE_SYSTEM_VALUES, true)) {
+                $errors->add(new ProviderValidationError(
+                    $productExportEntity->getId(),
+                    $this->getProviderTechnicalName(),
+                    'size_system',
+                    'The field "g:size_system" must be one of: AU, BR, CN, DE, EU, FR, IT, JP, MEX, UK, US.',
+                    $line
+                ));
             }
 
             $gtin = trim((string) ($googleChildren->gtin ?? ''));

@@ -930,8 +930,7 @@ export default {
             if (configEntry?.positionIdentifier) {
                 return configEntry.positionIdentifier;
             }
-
-            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai';
+            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider';
         },
 
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {

@@ -58,8 +58,8 @@
             <label lang="de-DE">Zuweisung für Variantengrößensystem</label>
             <placeholder>Select variant properties...</placeholder>
             <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
-            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation.</helpText>
-            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden.</helpText>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center expects ISO country codes (for example US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX) — other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center erwartet ISO-Ländercodes (z. B. US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX) — andere Werte werden ignoriert.</helpText>
         </component>
 
         <component name="sw-entity-multi-id-select">
@@ -69,8 +69,8 @@
             <label lang="de-DE">Zuweisung für Variantengeschlecht</label>
             <placeholder>Select variant properties...</placeholder>
             <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
-            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation.</helpText>
-            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden.</helpText>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "male", "female", or "unisex" for this attribute — other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "male", "female" oder "unisex" — andere Werte werden ignoriert.</helpText>
         </component>
 
         <component name="sw-entity-multi-id-select">

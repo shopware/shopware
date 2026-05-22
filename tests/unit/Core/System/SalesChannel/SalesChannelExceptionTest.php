@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(NoContextDataException::class)]
 #[CoversClass(SalesChannelException::class)]
 class SalesChannelExceptionTest extends TestCase
 {

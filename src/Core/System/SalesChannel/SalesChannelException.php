@@ -106,7 +106,12 @@ class SalesChannelException extends HttpException
 
     public static function noContextData(string $salesChannelId): self
     {
-        return new NoContextDataException($salesChannelId);
+        return new NoContextDataException(
+            Response::HTTP_PRECONDITION_FAILED,
+            self::NO_CONTEXT_DATA_EXCEPTION,
+            'No context data found for SalesChannel "{{ salesChannelId }}"',
+            ['salesChannelId' => $salesChannelId]
+        );
     }
 
     public static function invalidLanguageId(): ShopwareHttpException

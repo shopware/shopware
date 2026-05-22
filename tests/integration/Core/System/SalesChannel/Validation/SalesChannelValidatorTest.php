@@ -339,16 +339,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
 
-        $exception = null;
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
         try {
             $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
-        } catch (WriteException $exception) {
-            // nth
-        }
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
 
-        static::assertInstanceOf(WriteException::class, $exception);
-        static::assertStringContainsString(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id), $exception->getMessage());
+            throw $e;
+        }
     }
 
     public function testAgenticCommerceSalesChannelValidationSucceedsWithLanguageEntry(): void
@@ -371,16 +383,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
-        $exception = null;
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
         try {
             $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
-        } catch (WriteException $exception) {
-            // nth
-        }
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
 
-        static::assertInstanceOf(WriteException::class, $exception);
-        static::assertStringContainsString(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id), $exception->getMessage());
+            throw $e;
+        }
     }
 
     public function testProductComparisonSalesChannelValidationSucceedsWithLanguageEntry(): void

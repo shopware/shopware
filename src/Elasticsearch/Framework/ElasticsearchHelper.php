@@ -63,7 +63,13 @@ class ElasticsearchHelper
             return false;
         }
 
-        if (!$this->client->ping()) {
+        try {
+            $reachable = $this->client->ping();
+        } catch (\Throwable $e) {
+            return $this->logAndThrowException($e);
+        }
+
+        if (!$reachable) {
             return $this->logAndThrowException(ElasticsearchException::serverNotAvailable());
         }
 

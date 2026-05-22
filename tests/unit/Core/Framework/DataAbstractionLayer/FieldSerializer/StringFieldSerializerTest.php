@@ -240,6 +240,10 @@ class StringFieldSerializerTest extends TestCase
     #[DataProvider('stringValueProvider')]
     public function testStringValuesAreEncoded(string $input, string $expected, array $flags): void
     {
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($expected);
+        $this->serializer = new StringFieldSerializer($this->validator, $this->definitionInstanceRegistry, $sanitizer);
+
         $field = $this->createField($flags);
 
         // Create case
@@ -256,27 +260,7 @@ class StringFieldSerializerTest extends TestCase
     {
         yield 'string is passed through' => ['test12-B', 'test12-B', [new Required()]];
         yield 'HTML is kept when sanitizing is disabled' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]];
-    }
-
-    public function testEncodingDelegatesToSanitizerWhenAllowHtmlEnabled(): void
-    {
-        $input = '<script></script>test12-B';
-        $sanitized = 'test12-B';
-
-        $sanitizer = static::createStub(HtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willReturn($sanitized);
-
-        $serializer = new StringFieldSerializer(
-            $this->validator,
-            $this->definitionInstanceRegistry,
-            $sanitizer
-        );
-
-        $field = $this->createField([new Required(), new AllowHtml()]);
-        $existence = new EntityExistence(null, [], false, false, false, []);
-        $kv = new KeyValuePair('name', $input, true);
-
-        static::assertSame(['name' => $sanitized], iterator_to_array($serializer->encode($field, $existence, $kv, $this->createWriteParameterBag())));
+        yield 'sanitized HTML strips script tag' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
     }
 
     /**

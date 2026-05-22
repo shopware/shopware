@@ -320,7 +320,7 @@
                     },
                     "enhancedConversions": {
                         "label": "Enhanced Conversions",
-                        "helpText": "When enabled, the SHA256-hashed customer email address is sent with the purchase event to support Google Ads Enhanced Conversions. This helps recover conversion attribution lost due to browser cookie restrictions or cross-device behavior."
+                        "helpText": "When enabled, the SHA256-hashed customer email address is sent with the purchase event to support Google Ads Enhanced Conversions. This helps recover conversion attribution lost due to browser cookie restrictions or cross-device behaviour."
                     }
                 },
                 "tracking": {

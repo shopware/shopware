@@ -32,7 +32,7 @@ final class AppFixture
         return Manifest::createFromXmlFile($manifestPath);
     }
 
-    public function createApp(Manifest $manifest): AppEntity
+    public function createApp(Manifest $manifest, ?string $appSecret = 's3cr3t'): AppEntity
     {
         $id = Uuid::randomHex();
         $metadata = $manifest->getMetadata();
@@ -40,7 +40,7 @@ final class AppFixture
         $labels = $metadata->getLabel();
         $label = $labels['en-GB'] ?? reset($labels) ?: $name;
 
-        $this->appRepository->create([[
+        $app = [
             'id' => $id,
             'name' => $name,
             'active' => true,
@@ -48,7 +48,6 @@ final class AppFixture
             'version' => $metadata->getVersion(),
             'label' => $label,
             'accessToken' => 'test',
-            'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => $name,
                 'accessKey' => $name,
@@ -57,7 +56,13 @@ final class AppFixture
             'aclRole' => [
                 'name' => $name,
             ],
-        ]], Context::createDefaultContext());
+        ];
+
+        if ($appSecret !== null) {
+            $app['appSecret'] = $appSecret;
+        }
+
+        $this->appRepository->create([$app], Context::createDefaultContext());
 
         return $this->getApp($id);
     }

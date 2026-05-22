@@ -106,8 +106,15 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
                 return $deserialized;
             }
 
+            $originalMediaId = $deserialized['id'];
+
             if ($isNew && $media->getHash()) {
                 $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash(), $context);
+            }
+
+            if ($deserialized['id'] !== $originalMediaId) {
+                // Existing media with the same hash is reused; persisting the download again would move its file path.
+                return $deserialized;
             }
 
             $this->cacheMediaFiles[(string) $deserialized['id']] = [

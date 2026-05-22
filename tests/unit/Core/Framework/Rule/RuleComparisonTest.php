@@ -559,6 +559,13 @@ class RuleComparisonTest extends TestCase
             'expectedDatetime' => true,
             'operator' => Rule::OPERATOR_BETWEEN,
         ];
+        yield 'between - date range - on upper bound with later time' => [
+            'itemValue' => new \DateTime('2025-02-28 12:00:00'),
+            'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],
+            'expectedDate' => true,
+            'expectedDatetime' => false,
+            'operator' => Rule::OPERATOR_BETWEEN,
+        ];
         yield 'between - DateTime range - before lower' => [
             'itemValue' => new \DateTime('2025-01-31'),
             'ruleValue' => ['from' => new \DateTime('2025-02-01'), 'to' => new \DateTime('2025-02-28')],

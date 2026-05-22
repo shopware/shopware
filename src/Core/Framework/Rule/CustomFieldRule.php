@@ -168,7 +168,7 @@ class CustomFieldRule
                 ];
             }
 
-            throw RuleException::unsupportedValue(get_debug_type($renderedFieldValue), self::class);
+            return null;
         }
 
         return $renderedFieldValue;

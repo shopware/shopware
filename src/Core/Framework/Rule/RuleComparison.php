@@ -160,6 +160,7 @@ class RuleComparison
                 }
 
                 return self::isDateBetween(
+                    $format,
                     $itemValue,
                     self::toDateTime($ruleValue['from']),
                     self::toDateTime($ruleValue['to']),
@@ -178,9 +179,11 @@ class RuleComparison
         return self::compareDate($format, $itemValue, $parsed, $operator);
     }
 
-    private static function isDateBetween(\DateTime $itemValue, \DateTime $from, \DateTime $to): bool
+    private static function isDateBetween(string $format, \DateTime $itemValue, \DateTime $from, \DateTime $to): bool
     {
-        return $itemValue >= $from && $itemValue <= $to;
+        $itemDate = $itemValue->format($format);
+
+        return $itemDate >= $from->format($format) && $itemDate <= $to->format($format);
     }
 
     private static function toDateTime(\DateTime|string $value): \DateTime

@@ -1,5 +1,5 @@
-import type { ObjectLiteralExpression, SourceFile } from 'ts-morph';
-import { SyntaxKind } from 'ts-morph';
+import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph';
+import { Node, SyntaxKind } from 'ts-morph';
 import { extractModuleLevelCode } from './ast';
 import { extractComputedProps } from './extract-computed';
 import {
@@ -59,6 +59,7 @@ export interface CompositionScriptState {
     propNames: Set<string>;
     injectNames: Set<string>;
     manualMigrationReasons: string[];
+    existingBindingNames: Set<string>;
 }
 
 export function collectCompositionScriptState(
@@ -306,5 +307,62 @@ export function collectCompositionScriptState(
         propNames,
         injectNames,
         manualMigrationReasons,
+        existingBindingNames: collectExistingBindingNames(sourceFile),
     };
+}
+
+function collectExistingBindingNames(sourceFile: SourceFile): Set<string> {
+    const names = new Set<string>();
+
+    for (const importDeclaration of sourceFile.getImportDeclarations()) {
+        const defaultImport = importDeclaration.getDefaultImport();
+        const namespaceImport = importDeclaration.getNamespaceImport();
+
+        if (defaultImport) {
+            names.add(defaultImport.getText());
+        }
+
+        if (namespaceImport) {
+            names.add(namespaceImport.getText());
+        }
+
+        importDeclaration.getNamedImports().forEach((namedImport) => {
+            names.add(namedImport.getAliasNode()?.getText() ?? namedImport.getName());
+        });
+    }
+
+    sourceFile.getDescendants().forEach((node) => {
+        if (Node.isVariableDeclaration(node)) {
+            collectBindingName(node.getNameNode(), names);
+        } else if (Node.isParameterDeclaration(node)) {
+            collectBindingName(node.getNameNode(), names);
+        } else if (Node.isBindingElement(node)) {
+            collectBindingName(node.getNameNode(), names);
+        } else if (Node.isFunctionDeclaration(node) || Node.isClassDeclaration(node)) {
+            const name = node.getName();
+
+            if (name) {
+                names.add(name);
+            }
+        } else if (Node.isCatchClause(node)) {
+            const variableDeclaration = node.getVariableDeclaration();
+
+            if (variableDeclaration) {
+                collectBindingName(variableDeclaration.getNameNode(), names);
+            }
+        }
+    });
+
+    return names;
+}
+
+function collectBindingName(nameNode: BindingName, names: Set<string>): void {
+    if (Node.isIdentifier(nameNode)) {
+        names.add(nameNode.getText());
+        return;
+    }
+
+    nameNode.getElements().forEach((element) => {
+        collectBindingName(element.getNameNode(), names);
+    });
 }

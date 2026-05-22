@@ -1,5 +1,8 @@
 import type { PropertyAccessExpression } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
+import { attrsIdent, emitIdent, routeIdent, routerIdent, slotsIdent, tIdent } from './identifiers';
+import { createIdentifierTemplate, identTemplate, isIdentifierToken } from './identifier-template';
+import type { IdentifierTemplateValue, IdentifierToken, ScriptSnippet } from './identifier-template';
 import type { CodeSnippet, RewriteContext, RewriteSnippetKind, UsedComposables, WatchProp } from './types';
 import {
     createWrappedSnippetSource,
@@ -11,7 +14,7 @@ import {
 } from './ast';
 import { buildPropertyAccess, isDefined } from './helpers';
 
-export function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set<string>): string {
+export function buildWatchSource(name: string, propNames: Set<string>, injectNames: Set<string>): ScriptSnippet {
     if (propNames.has(name)) {
         return buildPropertyAccess('props', name);
     }
@@ -20,7 +23,7 @@ export function buildWatchSource(name: string, propNames: Set<string>, injectNam
         // The route object keeps its identity across navigations. Watch a
         // snapshot so changes trigger and Vue still provides distinct to/from
         // values to the handler.
-        return `({ ...route, params: { ...route.params }, query: { ...route.query } })`;
+        return identTemplate`({ ...${routeIdent}, params: { ...${routeIdent}.params }, query: { ...${routeIdent}.query } })`;
     }
 
     if (injectNames.has(name)) {
@@ -120,7 +123,7 @@ export function collectEmittedEventNames(snippets: CodeSnippet[]): string[] {
     return [...names];
 }
 
-export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): string {
+export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: RewriteSnippetKind = 'body'): ScriptSnippet {
     const { sourceFile, snippetStart, snippetEnd } = createWrappedSnippetSource(bodyText, kind);
     // TODO: Silent ignore: only property accesses are inspected. Bare `this`,
     // element access (`this[key]`), destructuring, aliases, and `.bind(this)`
@@ -147,22 +150,51 @@ export function rewriteThisInBody(bodyText: string, ctx: RewriteContext, kind: R
         // the inner `this.$refs` access.
         .sort((a, b) => b.start - a.start || b.end - a.end);
 
-    let result = bodyText;
+    const acceptedReplacements: typeof replacements = [];
     let lastReplacedStart = bodyText.length + 1;
 
-    for (const { start, end, replacement } of replacements) {
+    for (const replacement of replacements) {
+        const { start, end } = replacement;
         if (end > lastReplacedStart) {
             continue;
         }
 
-        result = result.slice(0, start) + replacement + result.slice(end);
+        acceptedReplacements.push(replacement);
         lastReplacedStart = start;
     }
 
-    return result;
+    if (!acceptedReplacements.some(({ replacement }) => isIdentifierToken(replacement))) {
+        let result = bodyText;
+
+        for (const { start, end, replacement } of acceptedReplacements) {
+            result = result.slice(0, start) + replacement + result.slice(end);
+        }
+
+        return result;
+    }
+
+    const parts: IdentifierTemplateValue[] = [];
+    let cursor = 0;
+
+    acceptedReplacements
+        .sort((a, b) => a.start - b.start)
+        .forEach(({ start, end, replacement }) => {
+            if (start > cursor) {
+                parts.push(bodyText.slice(cursor, start));
+            }
+
+            parts.push(replacement);
+            cursor = end;
+        });
+
+    if (cursor < bodyText.length) {
+        parts.push(bodyText.slice(cursor));
+    }
+
+    return createIdentifierTemplate(parts);
 }
 
-function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContext): string | null {
+function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContext): string | IdentifierToken | null {
     const refName = getThisRefName(node);
 
     if (refName) {
@@ -177,22 +209,22 @@ function buildThisReplacement(node: PropertyAccessExpression, ctx: RewriteContex
 
     switch (name) {
         case '$emit':
-            return 'emit';
+            return emitIdent;
         case '$router':
-            return 'router';
+            return routerIdent;
         case '$route':
-            return 'route';
+            return routeIdent;
         case '$nextTick':
             return 'nextTick';
         case '$slots':
-            return 'slots';
+            return slotsIdent;
         case '$props':
             return 'props';
         case '$attrs':
-            return 'attrs';
+            return attrsIdent;
         case '$tc':
         case '$t':
-            return 't';
+            return tIdent;
         case '$el':
             // There is no setup-safe equivalent for root DOM access; this is a
             // transitional bridge that must be reviewed after generation.

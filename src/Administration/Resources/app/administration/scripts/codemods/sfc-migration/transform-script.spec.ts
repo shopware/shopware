@@ -103,7 +103,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it('emits defineEmits with the action and reset events', () => {
-            expect(result.script).toContain("const emit = defineEmits([");
+            expect(result.script).toContain('const emit = defineEmits([');
             expect(result.script).toContain("'action'");
             expect(result.script).toContain("'reset'");
         });
@@ -188,7 +188,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         it('emits defineProps and defineEmits', () => {
             expect(result.script).toContain('const props = defineProps(');
-            expect(result.script).toContain("const emit = defineEmits([");
+            expect(result.script).toContain('const emit = defineEmits([');
             expect(result.script).toContain("'ready'");
         });
 
@@ -276,7 +276,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it('does NOT include the template import', () => {
-            expect(result.script).not.toContain("import template from");
+            expect(result.script).not.toContain('import template from');
         });
 
         it('does not contain any this. references', () => {
@@ -592,12 +592,16 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         it('generates the delegated method and watch registration without a manual TODO fallback', () => {
             expect(result.script).toContain('const updateCount = (newItems) => {');
-            expect(result.script).toContain('watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });');
+            expect(result.script).toContain(
+                'watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });',
+            );
             expect(result.script).not.toContain('TODO: migrate watch entry manually');
         });
 
         it('generates a delegated watch() call preserving deep/immediate', () => {
-            expect(result.script).toContain('watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });');
+            expect(result.script).toContain(
+                'watch(() => items.value, (...args) => updateCount(...args), { deep: true, immediate: true });',
+            );
         });
 
         it('rewrites this.count inside the generated method', () => {
@@ -692,7 +696,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         expect(result.status).toBe('partially-migratable');
         expect(result.blockers).toContain('watch: watch must be an object literal');
         expect(result.script).toContain('TODO: migrate watch entry manually: watch must be an object literal');
-        expect(result.script).not.toContain('import { watch } from \'vue\';');
+        expect(result.script).not.toContain("import { watch } from 'vue';");
     });
 
     // -------------------------------------------------------------------------
@@ -706,7 +710,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const result = transformScript(js);
 
         expect(result.script).toContain('TODO: migrate watch entry manually: items: unsupported watcher definition');
-        expect(result.script).not.toContain('import { watch } from \'vue\';');
+        expect(result.script).not.toContain("import { watch } from 'vue';");
     });
 
     // -------------------------------------------------------------------------
@@ -719,8 +723,10 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.script).toContain('TODO: migrate watch entry manually: ...externalWatchers: unsupported watcher entry');
-        expect(result.script).not.toContain('import { watch } from \'vue\';');
+        expect(result.script).toContain(
+            'TODO: migrate watch entry manually: ...externalWatchers: unsupported watcher entry',
+        );
+        expect(result.script).not.toContain("import { watch } from 'vue';");
     });
 
     // -------------------------------------------------------------------------
@@ -736,7 +742,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.script).toMatch(/TODO: migrate watch entry manually: \.{3}buildWatchers\( foo, bar, \): unsupported watcher entry/);
+        expect(result.script).toMatch(
+            /TODO: migrate watch entry manually: \.{3}buildWatchers\( foo, bar, \): unsupported watcher entry/,
+        );
         expect(result.script).not.toMatch(/TODO: migrate watch entry manually:[^\n]*\n\s*foo/);
     });
 
@@ -753,7 +761,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.script).toContain("TODO: migrate watch entry manually: items.length: nested watch paths are not supported");
+        expect(result.script).toContain(
+            'TODO: migrate watch entry manually: items.length: nested watch paths are not supported',
+        );
         expect(result.script).not.toContain('watch(() => items.length.value');
     });
 
@@ -771,8 +781,12 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const result = transformScript(js);
 
         expect(result.status).toBe('partially-migratable');
-        expect(result.blockers).toContain('watch: item-count: watch targets that are not valid identifiers must be migrated manually');
-        expect(result.script).toContain('TODO: migrate watch entry manually: item-count: watch targets that are not valid identifiers must be migrated manually');
+        expect(result.blockers).toContain(
+            'watch: item-count: watch targets that are not valid identifiers must be migrated manually',
+        );
+        expect(result.script).toContain(
+            'TODO: migrate watch entry manually: item-count: watch targets that are not valid identifiers must be migrated manually',
+        );
         expect(result.script).not.toContain('watch(() => item-count.value');
     });
 
@@ -796,7 +810,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         const result = transformScript(js);
 
         expect(result.status).toBe('fully-migratable');
-        expect(result.blockers).not.toContain('watch: item-count: watch targets that are not valid identifiers must be migrated manually');
+        expect(result.blockers).not.toContain(
+            'watch: item-count: watch targets that are not valid identifiers must be migrated manually',
+        );
         expect(result.script).toContain("watch(() => props['item-count'], (...args) => updateCount(...args));");
     });
 
@@ -811,8 +827,10 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.script).toContain("TODO: migrate watch entry manually: items: string handler 'updateCount' was not found in methods");
-        expect(result.script).not.toContain('import { watch } from \'vue\';');
+        expect(result.script).toContain(
+            "TODO: migrate watch entry manually: items: string handler 'updateCount' was not found in methods",
+        );
+        expect(result.script).not.toContain("import { watch } from 'vue';");
     });
 
     // -------------------------------------------------------------------------
@@ -844,7 +862,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         expect(result.status).toBe('partially-migratable');
         expect(result.blockers).toContain('watch: items: watch target is not declared in props, data, computed, or inject');
-        expect(result.script).toContain('TODO: migrate watch entry manually: items: watch target is not declared in props, data, computed, or inject');
+        expect(result.script).toContain(
+            'TODO: migrate watch entry manually: items: watch target is not declared in props, data, computed, or inject',
+        );
         expect(result.script).not.toContain('watch(() => items.value');
     });
 
@@ -916,7 +936,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });
 
         it('uses a route snapshot getter as the watcher source so updates stay reactive and to/from remain distinct', () => {
-            expect(result.script).toContain('watch(() => ({ ...route, params: { ...route.params }, query: { ...route.query } }), (to, from) => {');
+            expect(result.script).toContain(
+                'watch(() => ({ ...route, params: { ...route.params }, query: { ...route.query } }), (to, from) => {',
+            );
             expect(result.script).not.toContain('$route.value');
         });
 
@@ -1196,7 +1218,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.blockers).not.toContain("watch: externalCount: unsupported watcher handler shape");
+        expect(result.blockers).not.toContain('watch: externalCount: unsupported watcher handler shape');
         expect(result.script).toContain('watch(() => externalCount.value, (newVal, oldVal) => {');
         expect(result.script).toContain('count.value = newVal + oldVal;');
         expect(result.script).toContain('immediate: true');
@@ -1218,7 +1240,7 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         });`;
         const result = transformScript(js);
 
-        expect(result.blockers).not.toContain("watch: externalCount: unsupported watcher handler shape");
+        expect(result.blockers).not.toContain('watch: externalCount: unsupported watcher handler shape');
         expect(result.script).toContain('watch(() => externalCount.value, (newVal) => {');
         expect(result.script).toContain('count.value = newVal;');
         expect(result.script).toContain('deep: true');
@@ -1269,7 +1291,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     `;
         const result = transformScript(js);
         expect(result.status).toBe('partially-migratable');
-        expect(result.blockers).toContain('$store usage requires manual migration to the appropriate Pinia store or composable');
+        expect(result.blockers).toContain(
+            '$store usage requires manual migration to the appropriate Pinia store or composable',
+        );
         expect(result.script).not.toContain('this.$store');
         expect(result.script).toContain('throw new Error');
         expect(result.script).toContain('TODO: migrate $store');
@@ -1315,7 +1339,9 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
 
         expect(result.status).toBe('partially-migratable');
         expect(result.blockers).toContain("computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
-        expect(result.script).toContain("TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry");
+        expect(result.script).toContain(
+            "TODO: migrate computed entry manually: computed: ...mapPropertyErrors('product', ['name']): unsupported computed entry",
+        );
         expect(result.script).toContain('const title = computed(() => {');
     });
 
@@ -1377,6 +1403,191 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
         expect(result.script).toContain('return `${title.value}`;');
         expect(result.script).not.toContain('useRoute');
         expect(result.script).not.toContain('defineEmits');
+    });
+
+    // -------------------------------------------------------------------------
+    describe('deferred identifier collision handling', () => {
+        it('uses the first semantic fallback when a component public name takes the preferred router name', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { router: null };
+                },
+                methods: {
+                    goBack() { this.$router.back(); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const $router = useRouter();');
+            expect(result.script).toContain('$router.back();');
+            expect(result.script).toContain('const router = ref(null);');
+            expect(result.script).not.toContain('const router = useRouter();');
+        });
+
+        it('does not let a discouraged $router data member shadow the instance $router', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { router: null, $router: null };
+                },
+                methods: {
+                    goBack() { this.$router.back(); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const vueRouter = useRouter();');
+            expect(result.script).toContain('vueRouter.back();');
+            expect(result.script).not.toContain('const router = useRouter();');
+            expect(result.script).not.toContain('const $router = useRouter();');
+        });
+
+        it('falls back to preferred name numbering when all semantic names are taken', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { router: null, $router: null, vueRouter: null };
+                },
+                methods: {
+                    goBack() { this.$router.back(); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const router2 = useRouter();');
+            expect(result.script).toContain('router2.back();');
+        });
+
+        it('avoids silent local shadowing by considering method parameters during name selection', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                methods: {
+                    getRouteName(route) {
+                        return this.$route.name || route.name;
+                    },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const $route = useRoute();');
+            expect(result.script).toContain('return $route.name || route.name;');
+            expect(result.script).not.toContain('const route = useRoute();');
+        });
+
+        it('uses fallback identifiers for all composables when preferred names are component public names', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return {
+                        router: null,
+                        route: null,
+                        slots: null,
+                        attrs: null,
+                        t: null,
+                    };
+                },
+                computed: {
+                    routeName() { return this.$route.name; },
+                    hasDefaultSlot() { return Boolean(this.$slots.default); },
+                },
+                methods: {
+                    goBack() { this.$router.back(); },
+                    getClass() { return this.$attrs.class; },
+                    getLabel() { return this.$t('sw.test.label'); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const $router = useRouter();');
+            expect(result.script).toContain('const $route = useRoute();');
+            expect(result.script).toContain('const $slots = useSlots();');
+            expect(result.script).toContain('const $attrs = useAttrs();');
+            expect(result.script).toContain('const { t: $t } = useI18n();');
+            expect(result.script).toContain('$router.back();');
+            expect(result.script).toContain('return $route.name;');
+            expect(result.script).toContain('return Boolean($slots.default);');
+            expect(result.script).toContain('return $attrs.class;');
+            expect(result.script).toContain("return $t('sw.test.label');");
+            expect(result.script).toContain('const router = ref(null);');
+            expect(result.script).toContain('const route = ref(null);');
+            expect(result.script).toContain('const slots = ref(null);');
+            expect(result.script).toContain('const attrs = ref(null);');
+            expect(result.script).toContain('const t = ref(null);');
+            expect(result.script).not.toContain('const router = useRouter();');
+            expect(result.script).not.toContain('const route = useRoute();');
+            expect(result.script).not.toContain('const slots = useSlots();');
+            expect(result.script).not.toContain('const attrs = useAttrs();');
+            expect(result.script).not.toContain('const { t } = useI18n();');
+        });
+
+        it('numbers the i18n identifier when t, $t, and translate are already taken', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { t: null, $t: null, translate: null };
+                },
+                methods: {
+                    getLabel() { return this.$tc('sw.test.label', 2); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain('const { t: t2 } = useI18n();');
+            expect(result.script).toContain("return t2('sw.test.label', 2);");
+            expect(result.script).toContain('const t = ref(null);');
+            expect(result.script).toContain('const $t = ref(null);');
+            expect(result.script).toContain('const translate = ref(null);');
+            expect(result.script).not.toContain('const { t } = useI18n();');
+            expect(result.script).not.toContain('const { t: $t } = useI18n();');
+            expect(result.script).not.toContain('const { t: translate } = useI18n();');
+        });
+
+        it('uses a fallback emit identifier when emit is a component public name', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { emit: null };
+                },
+                methods: {
+                    save() { this.$emit('save'); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("const $emit = defineEmits(['save']);");
+            expect(result.script).toContain("$emit('save');");
+            expect(result.script).toContain('const emit = ref(null);');
+            expect(result.script).not.toContain('const emit = defineEmits(');
+        });
+
+        it('does not let a discouraged $emit data member shadow the instance $emit', () => {
+            const js = `Shopware.Component.register('sw-test', {
+                template,
+                data() {
+                    return { emit: null, $emit: null };
+                },
+                methods: {
+                    save() { this.$emit('save'); },
+                },
+            });`;
+            const result = transformScript(js);
+
+            expect(result.status).toBe('fully-migratable');
+            expect(result.script).toContain("const vueEmit = defineEmits(['save']);");
+            expect(result.script).toContain("vueEmit('save');");
+            expect(result.script).toContain('const emit = ref(null);');
+            expect(result.script).toContain('const $emit = ref(null);');
+            expect(result.script).not.toContain('const emit = defineEmits(');
+            expect(result.script).not.toContain('const $emit = defineEmits(');
+        });
     });
 
     // -------------------------------------------------------------------------

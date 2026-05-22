@@ -138,7 +138,17 @@ A new `translation:list` console command prints every locale configured for `tra
 The new `SnippetPatterns::ALLOWED_PSEUDO_LOCALES` and `SnippetPatterns::PSEUDO_LOCALE_TERRITORY` constants register Crowdin pseudo-languages (e.g. `ach-UG`) as valid translation targets for in-context proofreading and translatability audits.
 Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and `TranslationLoader::getLocalePath`, and a missing `locale` entity is auto-created on install with a display name from the constant map and a fixed `Pseudo Language` territory.
 
+### New `sha256` Twig filter
+
+A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
+
 ## Administration
+
+### Analytics settings split into Configuration and Tracking cards
+
+The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
+
+New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
 
 ### Block renaming
 
@@ -190,6 +200,14 @@ Also the checkbox field is now positionally aligned with the other components.
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
 ## Storefront
+
+### Google Ads Enhanced Conversions
+
+A new Enhanced Conversions option was added to the Google Analytics integration. When enabled in the sales channel analytics settings, the checkout finish page sends the SHA256-hashed customer email address via `gtag('set', 'user_data', ...)` to support Google Ads Enhanced Conversions. Email addresses are normalized according to Google's requirements before hashing.
+
+A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDefinition` and `SalesChannelAnalyticsEntity`.
+
+New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
 
 ### Google Analytics now starts when only the Google Ads cookie is accepted
 
@@ -288,6 +306,10 @@ The set of fields that trigger the redirect is configurable via the `shopware.st
 Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
+### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
+
+The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework
@@ -308,6 +330,12 @@ Enabling the flag requires configuration changes — the worker consume command 
 Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
 
 ## Hosting & Configuration
+
+### Google Storage supports application default credentials
+
+Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
+When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
+See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
 
 ### Local filesystem permission enforcement can be disabled
 

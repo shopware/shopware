@@ -501,6 +501,20 @@
         />
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_general_input_product_comparison_feed_label %}
+        <mt-text-field
+            v-if="isProductComparison && isGoogleProductSearchTemplate"
+            :model-value="productExport.feedLabel ?? ''"
+            class="sw-sales-channel-detail-base__feed-label"
+            :label="$t('sw-sales-channel.detail.productComparison.feedLabelLabel')"
+            :help-text="$t('sw-sales-channel.detail.productComparison.feedLabelHelpText')"
+            :disabled="!acl.can('sales_channel.editor') || undefined"
+            :max-length="20"
+            :error="productExportFeedLabelError"
+            @update:model-value="onFeedLabelInput"
+        />
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
 
         <mt-switch

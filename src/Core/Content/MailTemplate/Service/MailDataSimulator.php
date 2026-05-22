@@ -521,7 +521,7 @@ class MailDataSimulator
             case $field instanceof DateField:
             case $field instanceof DateTimeField:
             case $field instanceof UpdatedAtField:
-                return (new \DateTimeImmutable())->setTimestamp(random_int(strtotime('-1 year'), strtotime('+1 year')));
+                return (new \DateTimeImmutable())->setTimestamp($this->randomTimestamp());
 
             case $field instanceof CreatedByField:
             case $field instanceof ReferenceVersionField:
@@ -586,15 +586,7 @@ class MailDataSimulator
                 return 'UTC';
 
             case $field instanceof StringField:
-                // Generate a deterministic substring of the base text, so different fields get different values,
-                // while the same field keeps the same value and length on every execution.
-                $baseText = 'Lorem ipsum dolor sit amet consectetur adipiscing elit.';
-
-                $offsetSeed = $entityName !== null ? $entityName . '.' . $propertyName : $propertyName;
-                $offset = abs(crc32($offsetSeed)) % 20;
-                $length = 12 + (abs(crc32('length.' . $offsetSeed)) % 9);
-
-                return mb_ucfirst(trim(mb_substr($baseText, $offset, $length)));
+                return $this->randomString($propertyName, $entityName);
 
             case $field instanceof TranslationsAssociationField:
                 $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
@@ -631,6 +623,31 @@ class MailDataSimulator
 
             $entity->setUniqueIdentifier($identifier);
         }
+    }
+
+    private function randomTimestamp(): int
+    {
+        $startTimestamp = strtotime('-1 year');
+        $endTimestamp = strtotime('+1 year');
+
+        if ($startTimestamp > $endTimestamp) {
+            [$startTimestamp, $endTimestamp] = [$endTimestamp, $startTimestamp];
+        }
+
+        return random_int($startTimestamp, $endTimestamp);
+    }
+
+    private function randomString(string $propertyName, ?string $entityName = null): string
+    {
+        // Generate a deterministic substring of the base text, so different fields get different values,
+        // while the same field keeps the same value and length on every execution.
+        $baseText = 'Lorem ipsum dolor sit amet consectetur adipiscing elit.';
+
+        $offsetSeed = $entityName !== null ? $entityName . '.' . $propertyName : $propertyName;
+        $offset = abs(crc32($offsetSeed)) % 20;
+        $length = 12 + (abs(crc32('length.' . $offsetSeed)) % 9);
+
+        return mb_ucfirst(trim(mb_substr($baseText, $offset, $length)));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
+use Psr\Clock\ClockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
@@ -367,7 +368,8 @@ class MailDataSimulatorTest extends TestCase
             $businessEventCollector,
             $definitionRegistry,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
-            $providerMap
+            $providerMap,
+            static::createStub(ClockInterface::class),
         );
     }
 }

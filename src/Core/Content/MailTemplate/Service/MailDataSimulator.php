@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -87,6 +88,7 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -115,6 +117,7 @@ class MailDataSimulator
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly EventDispatcherInterface $eventDispatcher,
         iterable $dataProviders,
+        private readonly ClockInterface $clock,
     ) {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
@@ -196,11 +199,11 @@ class MailDataSimulator
         if (\in_array($dataType['type'], ScalarValueType::VALID_TYPES, true)) {
             switch ($dataType['type']) {
                 case ScalarValueType::TYPE_BOOL:
-                    return (bool) random_int(0, 1);
+                    return Random::getBoolean();
                 case ScalarValueType::TYPE_FLOAT:
-                    return random_int(100, 1000000) / 100;
+                    return Random::getInteger(100, 1000000) / 100;
                 case ScalarValueType::TYPE_INT:
-                    return random_int(0, 100000);
+                    return Random::getInteger(0, 100000);
                 case ScalarValueType::TYPE_STRING:
                     return 'Lorem ipsum dolor';
             }
@@ -428,7 +431,7 @@ class MailDataSimulator
 
         switch (true) {
             case $field instanceof AutoIncrementField:
-                return random_int(0, 1000);
+                return Random::getInteger(0, 1000);
 
             case $field instanceof BlobField:
                 return $propertyName;
@@ -443,11 +446,11 @@ class MailDataSimulator
 
             case $field instanceof CalculatedPriceField:
                 return new CalculatedPrice(
-                    random_int(100, 1000000) / 100,
-                    random_int(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
                     new CalculatedTaxCollection([new CalculatedTax(
-                        random_int(100, 100000) / 100,
-                        random_int(100, 1000000) / 100,
+                        Random::getInteger(100, 100000) / 100,
+                        Random::getInteger(100, 1000000) / 100,
                         19.0,
                     )]),
                     new TaxRuleCollection([new TaxRule(
@@ -457,12 +460,12 @@ class MailDataSimulator
 
             case $field instanceof CartPriceField:
                 return new CartPrice(
-                    random_int(100, 1000000) / 100,
-                    random_int(100, 1000000) / 100,
-                    random_int(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
                     new CalculatedTaxCollection([new CalculatedTax(
-                        random_int(100, 100000) / 100,
-                        random_int(100, 1000000) / 100,
+                        Random::getInteger(100, 100000) / 100,
+                        Random::getInteger(100, 1000000) / 100,
                         19.0,
                     )]),
                     new TaxRuleCollection([new TaxRule(
@@ -481,7 +484,7 @@ class MailDataSimulator
             case $field instanceof ChildCountField:
             case $field instanceof IntField:
             case $field instanceof TreeLevelField:
-                return random_int(1, 999999);
+                return Random::getInteger(1, 999999);
 
             case $field instanceof ChildrenAssociationField:
             case $field instanceof ManyToOneAssociationField:
@@ -521,7 +524,7 @@ class MailDataSimulator
             case $field instanceof DateField:
             case $field instanceof DateTimeField:
             case $field instanceof UpdatedAtField:
-                return (new \DateTimeImmutable())->setTimestamp($this->randomTimestamp());
+                return $this->clock->now();
 
             case $field instanceof CreatedByField:
             case $field instanceof ReferenceVersionField:
@@ -541,7 +544,7 @@ class MailDataSimulator
                 return 'max.mustermann@example.com';
 
             case $field instanceof FloatField:
-                return random_int(100, 1000000) / 100;
+                return Random::getInteger(100, 1000000) / 100;
 
             case $field instanceof IdField:
                 return Uuid::randomHex();
@@ -564,7 +567,7 @@ class MailDataSimulator
                 return null;
 
             case $field instanceof NumberRangeField:
-                return '"' . random_int(1, 999999) . '"';
+                return '"' . Random::getInteger(1, 999999) . '"';
 
             case $field instanceof OneToManyAssociationField:
                 $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
@@ -623,18 +626,6 @@ class MailDataSimulator
 
             $entity->setUniqueIdentifier($identifier);
         }
-    }
-
-    private function randomTimestamp(): int
-    {
-        $startTimestamp = (new \DateTimeImmutable('-1 year'))->getTimestamp();
-        $endTimestamp = (new \DateTimeImmutable('+1 year'))->getTimestamp();
-
-        if ($startTimestamp <= $endTimestamp) {
-            return random_int($startTimestamp, $endTimestamp);
-        }
-
-        return random_int($endTimestamp, $startTimestamp);
     }
 
     private function randomString(string $propertyName, ?string $entityName = null): string

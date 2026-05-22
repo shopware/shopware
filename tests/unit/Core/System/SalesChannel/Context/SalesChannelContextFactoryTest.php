@@ -74,7 +74,10 @@ class SalesChannelContextFactoryTest extends TestCase
         $this->basePaymentMethod->setId(Uuid::randomHex());
 
         $this->customer = $this->makeCustomer(lastPaymentMethodId: Uuid::randomHex());
-        $this->country = $this->makeCountry();
+
+        $this->country = new CountryEntity();
+        $this->country->setId(Uuid::randomHex());
+
         $this->addresses = $this->makeAddresses($this->customer, $this->country);
         $this->baseContext = $this->makeBaseContext($this->salesChannel, $this->country, $this->basePaymentMethod);
     }
@@ -159,7 +162,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $paymentMethodRepository = $repoReturnsResolved
             ? $this->repoReturning(new PaymentMethodCollection([$resolvedPaymentMethod]), new PaymentMethodDefinition())
-            : $this->expectsNoSearch();
+            : new StaticEntityRepository([], new PaymentMethodDefinition());
 
         $options = [SalesChannelContextService::CUSTOMER_ID => $this->customer->getId()];
         if ($optionsHasPaymentMethodId) {
@@ -197,13 +200,18 @@ class SalesChannelContextFactoryTest extends TestCase
     ): void {
         $this->customer->setLastPaymentMethodId(null);
 
+        $baseCountry = new CountryEntity();
+        $baseCountry->setId(Uuid::randomHex());
+        $customerCountry = new CountryEntity();
+        $customerCountry->setId(Uuid::randomHex());
+
         $baseContext = $this->makeBaseContext(
             $this->salesChannel,
-            $this->makeCountry(),
+            $baseCountry,
             $this->basePaymentMethod,
             currency: $this->makeCurrencyWithRounding($currencyItem, $currencyTotal),
         );
-        $addresses = $this->makeAddresses($this->customer, $this->makeCountry());
+        $addresses = $this->makeAddresses($this->customer, $customerCountry);
 
         $collection = $countryConfig === null
             ? new CurrencyCountryRoundingCollection()
@@ -240,14 +248,6 @@ class SalesChannelContextFactoryTest extends TestCase
         yield 'country config wins when present' => [$countryConfig, $currencyItem, $currencyTotal, $configItem, $configTotal];
 
         yield 'falls back to currency default when no country config' => [null, $currencyItem, $currencyTotal, $currencyItem, $currencyTotal];
-    }
-
-    private function makeCountry(): CountryEntity
-    {
-        $country = new CountryEntity();
-        $country->setId(Uuid::randomHex());
-
-        return $country;
     }
 
     private function makeCustomer(?string $lastPaymentMethodId): CustomerEntity
@@ -312,14 +312,6 @@ class SalesChannelContextFactoryTest extends TestCase
             Generator::createLanguageInfo(),
             MeasurementUnits::createDefaultUnits(),
         );
-    }
-
-    /**
-     * @return StaticEntityRepository<PaymentMethodCollection>
-     */
-    private function expectsNoSearch(): StaticEntityRepository
-    {
-        return new StaticEntityRepository([], new PaymentMethodDefinition());
     }
 
     /**

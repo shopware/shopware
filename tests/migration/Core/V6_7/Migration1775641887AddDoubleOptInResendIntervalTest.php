@@ -38,6 +38,6 @@ class Migration1775641887AddDoubleOptInResendIntervalTest extends TestCase
         $configValue = json_decode($configValue, true);
         static::assertIsArray($configValue);
         static::assertArrayHasKey('_value', $configValue);
-        static::assertSame(86400, $configValue['_value']);
+        static::assertSame(24, $configValue['_value']);
     }
 }

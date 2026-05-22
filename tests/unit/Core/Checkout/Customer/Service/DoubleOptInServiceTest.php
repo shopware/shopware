@@ -208,7 +208,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertFalse($eventDispatched);
@@ -229,7 +229,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertFalse($eventDispatched);
@@ -250,7 +250,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
             'core.loginRegistration.doubleOptInDomain' => 'https://shop.example.com',
         ])->resendDoubleOptInMail($customer, $context);
 
@@ -283,7 +283,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
@@ -320,7 +320,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
@@ -358,7 +358,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
@@ -388,7 +388,7 @@ class DoubleOptInServiceTest extends TestCase
         );
 
         $this->createService([
-            'core.loginRegistration.doubleOptInResendInterval' => 86400,
+            'core.loginRegistration.doubleOptInResendInterval' => 24,
         ])->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);

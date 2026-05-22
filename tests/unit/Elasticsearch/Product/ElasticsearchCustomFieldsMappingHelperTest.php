@@ -264,8 +264,7 @@ class ElasticsearchCustomFieldsMappingHelperTest extends TestCase
 
         $helper = new ElasticsearchCustomFieldsMappingHelper($indexDetector, $client, $gateway);
 
-        $this->expectException(ElasticsearchProductException::class);
-        $this->expectExceptionMessage('custom fields already exist in the index with different types');
+        $this->expectExceptionObject(ElasticsearchProductException::cannotChangeCustomFieldType(new BadRequestHttpException('')));
 
         $helper->createFieldsInIndices(['field' => ['type' => 'text']]);
     }

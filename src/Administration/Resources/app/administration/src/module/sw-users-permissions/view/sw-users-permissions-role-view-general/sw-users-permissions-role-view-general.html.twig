@@ -4,13 +4,28 @@
         :title="$t('sw-users-permissions.roles.detail.basicInformation')"
         position-identifier="sw-users-permissions-role-view-general"
     >
+        {% block sw_users_permissions_role_role_view_general_mcp_hint %}
+        <mt-banner
+            v-if="feature.isActive('MCP_SERVER') && shouldShowMcpHint"
+            variant="info"
+            class="sw-users-permissions-role-view-general__mcp-hint"
+        >
+            {{ $t('sw-users-permissions.roles.mcpHint.text', { count: mcpIntegrations.length }) }}
+            <a
+                href="#"
+                class="sw-users-permissions-role-view-general__mcp-hint-link"
+                @click.prevent="onOpenMcpModal"
+            >{{ $t('sw-users-permissions.roles.mcpHint.linkText') }}</a>
+        </mt-banner>
+        {% endblock %}
+
         {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
 
         <mt-text-field
             v-model="role.name"
             name="sw-field--role-name"
             :error="roleNameError"
-            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+            :disabled="isReadOnly"
             :label="$t('sw-users-permissions.roles.detail.labelName')"
             required
         />
@@ -21,7 +36,7 @@
             v-model="role.description"
             name="sw-field--role-description"
             :error="roleDescriptionError"
-            :disabled="!acl.can('users_and_permissions.editor') || undefined"
+            :disabled="isReadOnly"
             :label="$t('sw-users-permissions.roles.detail.labelDescription')"
         />
         {% endblock %}
@@ -31,14 +46,23 @@
     {% block sw_users_permissions_role_role_view_general_card_view_permissions %}
     <sw-users-permissions-permissions-grid
         :role="role"
-        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+        :disabled="isReadOnly"
     />
     {% endblock %}
 
     {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
     <sw-users-permissions-additional-permissions
         :role="role"
-        :disabled="!acl.can('users_and_permissions.editor') || undefined"
+        :disabled="isReadOnly"
+    />
+    {% endblock %}
+
+    {% block sw_users_permissions_role_role_view_general_mcp_modal %}
+    <sw-users-permissions-role-mcp-reference-modal
+        v-if="feature.isActive('MCP_SERVER') && showMcpModal"
+        :role="role"
+        :mcp-integrations="mcpIntegrations"
+        @modal-close="onCloseMcpModal"
     />
     {% endblock %}
 </div>

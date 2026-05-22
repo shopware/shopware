@@ -108,6 +108,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         $this->resolveParameterGroups($finalSpecs);
+        $this->injectLanguageIdHeader($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
         return $finalSpecs;
@@ -190,6 +191,17 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'default' => 'application/json',
                 ],
                 'description' => 'Accepted response content types',
+            ]),
+            new Parameter([
+                'parameter' => 'swLanguageId',
+                'name' => 'sw-language-id',
+                'in' => 'header',
+                'required' => false,
+                'schema' => [
+                    'type' => 'string',
+                    'pattern' => '^[0-9a-f]{32}$',
+                ],
+                'description' => 'Instructs Shopware to return the response in the given language.',
             ]),
         ];
 
@@ -326,6 +338,53 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 if ($hasGroup) {
                     $operation['parameters'] = $newParams;
                 }
+            }
+        }
+    }
+
+    /**
+     * Injects the sw-language-id header into Store API operations whose
+     * responses can surface translated content. DELETE operations are skipped
+     * because they only confirm removal and do not return localised payloads,
+     * and tooling endpoints under /_info/* are skipped because they serve
+     * schema and routing metadata. The HTTP-method filter is portable across
+     * third-party plugins and apps that contribute their own Store API
+     * endpoints. Operations that already declare the header (by name or $ref)
+     * are left untouched so bundle-provided schemas with an explicit
+     * declaration are never duplicated.
+     *
+     * @param OpenApiSpec $specs
+     */
+    private function injectLanguageIdHeader(array &$specs): void
+    {
+        foreach ($specs['paths'] as $path => &$pathDefinition) {
+            if (str_starts_with((string) $path, '/_info/')) {
+                continue;
+            }
+
+            foreach (self::OPERATION_KEYS as $method) {
+                if ($method === 'delete') {
+                    continue;
+                }
+
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                if (!\is_array($pathDefinition[$method]['parameters'] ?? null)) {
+                    $pathDefinition[$method]['parameters'] = [];
+                }
+
+                foreach ($pathDefinition[$method]['parameters'] as $param) {
+                    if (
+                        (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
+                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
+                    ) {
+                        continue 2;
+                    }
+                }
+
+                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
             }
         }
     }

@@ -186,7 +186,7 @@
                     >
                         {% block sw_settings_number_range_detail_content_field_current_number %}
                         <mt-text-field
-                            v-if="state"
+                            v-if="showNumberRangeStateFields"
                             v-model="stateInput"
                             name="sw-field--state"
                             :disabled="true"
@@ -197,6 +197,7 @@
 
                         {% block sw_settings_number_range_detail_content_field_preview %}
                         <mt-text-field
+                            v-if="showNumberRangeStateFields"
                             v-model="previewInput"
                             name="sw-field--preview"
                             :disabled="true"

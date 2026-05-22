@@ -60,8 +60,7 @@ class ConfigurationServiceTest extends TestCase
 
     public function testInvalidDomain(): void
     {
-        $this->expectException(SystemConfigException::class);
-        $this->expectExceptionMessage('Invalid domain');
+        $this->expectExceptionObject(SystemConfigException::invalidDomain());
 
         /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);

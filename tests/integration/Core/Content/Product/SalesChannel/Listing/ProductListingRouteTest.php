@@ -10,6 +10,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -67,6 +68,11 @@ class ProductListingRouteTest extends TestCase
      */
     private EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<ProductStreamFilterCollection>
+     */
+    private EntityRepository $productStreamFilterRepository;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -79,6 +85,10 @@ class ProductListingRouteTest extends TestCase
         /** @var EntityRepository<ProductCollection> */
         $productRepository = static::getContainer()->get('product.repository');
         $this->productRepository = $productRepository;
+
+        /** @var EntityRepository<ProductStreamFilterCollection> */
+        $productStreamFilterRepository = static::getContainer()->get('product_stream_filter.repository');
+        $this->productStreamFilterRepository = $productStreamFilterRepository;
     }
 
     public function testLoadProducts(): void
@@ -201,6 +211,43 @@ class ProductListingRouteTest extends TestCase
         static::assertCount(1, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
         static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
+    }
+
+    public function testLoadProductsUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertContains($response['elements'][0]['id'], [$this->variantIds['redL'], $this->variantIds['redXl']]);
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        $this->productStreamFilterRepository->update([[
+            'id' => $filterId,
+            'field' => 'options.id',
+            'value' => $this->optionIds['green'],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertContains($response['elements'][0]['id'], [$this->variantIds['greenL'], $this->variantIds['greenXl']]);
     }
 
     public function testIncludes(): void

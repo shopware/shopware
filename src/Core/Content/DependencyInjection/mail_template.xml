@@ -55,6 +55,7 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataProvider"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailDataSimulator"/>
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService">

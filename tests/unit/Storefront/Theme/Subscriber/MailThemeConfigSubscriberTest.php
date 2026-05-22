@@ -5,11 +5,12 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Subscriber\MailThemeConfigSubscriber;
@@ -46,10 +47,10 @@ class MailThemeConfigSubscriberTest extends TestCase
             )
             ->willReturn($salesChannelContext);
 
-        $event = new MailBeforeValidateEvent([
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'languageId' => Uuid::randomHex(),
-        ], $context);
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(TestDefaults::SALES_CHANNEL);
+
+        $event = new MailTemplateRenderContextEvent([], $context, $salesChannel);
 
         $subscriber = new MailThemeConfigSubscriber($contextFactory, $connection);
         $subscriber->addSalesChannelContext($event);

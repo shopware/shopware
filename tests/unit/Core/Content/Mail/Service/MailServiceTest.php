@@ -14,6 +14,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -138,8 +139,9 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
         $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
+            static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );
@@ -188,12 +190,16 @@ class MailServiceTest extends TestCase
         $mailErrorEvent = null;
 
         $this->logger->expects($this->once())->method('log')->with(Level::Warning);
-        $this->eventDispatcher->expects($this->exactly(2))
+        $this->eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
             ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
+                    return $event;
+                }
+
+                if ($event instanceof MailTemplateRenderContextEvent) {
                     return $event;
                 }
 
@@ -251,8 +257,9 @@ class MailServiceTest extends TestCase
         ];
 
         $this->logger->expects($this->once())->method('log')->with(Level::Error);
-        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $this->eventDispatcher->expects($this->exactly(5))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
+            static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailErrorEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
@@ -380,8 +387,9 @@ class MailServiceTest extends TestCase
 
         $this->mailFactory->expects($this->once())->method('create')->willReturn($email);
         $this->templateRenderer->expects($this->exactly(4))->method('render')->willReturn('');
-        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch')->willReturnOnConsecutiveCalls(
+        $this->eventDispatcher->expects($this->exactly(4))->method('dispatch')->willReturnOnConsecutiveCalls(
             static::isInstanceOf(MailBeforeValidateEvent::class),
+            static::isInstanceOf(MailTemplateRenderContextEvent::class),
             static::isInstanceOf(MailBeforeSentEvent::class),
             static::isInstanceOf(MailSentEvent::class)
         );

@@ -117,6 +117,7 @@
 
         <service id="Shopware\Storefront\Theme\Subscriber\MailThemeConfigSubscriber">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

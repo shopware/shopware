@@ -3,12 +3,13 @@
 namespace Shopware\Storefront\Theme\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -34,16 +35,15 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            MailBeforeValidateEvent::class => 'addSalesChannelContext',
+            MailTemplateRenderContextEvent::class => 'addSalesChannelContext',
         ];
     }
 
-    public function addSalesChannelContext(MailBeforeValidateEvent $event): void
+    public function addSalesChannelContext(MailTemplateRenderContextEvent $event): void
     {
-        $data = $event->getData();
         $templateData = $event->getTemplateData();
 
-        $salesChannelId = $this->getSalesChannelId($data, $templateData);
+        $salesChannelId = $this->getSalesChannelId($event->getSalesChannel(), $templateData);
         if ($salesChannelId === null) {
             return;
         }
@@ -78,17 +78,29 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $data
      * @param array<string, mixed> $templateData
      */
-    private function getSalesChannelId(array $data, array $templateData): ?string
+    private function getSalesChannelId(?SalesChannelEntity $salesChannel, array $templateData): ?string
     {
         $salesChannelContext = $templateData[self::SALES_CHANNEL_CONTEXT] ?? null;
         if ($salesChannelContext instanceof SalesChannelContext) {
             return $salesChannelContext->getSalesChannelId();
         }
 
-        $salesChannelId = $data['salesChannelId'] ?? $templateData['salesChannelId'] ?? null;
+        $salesChannelId = $salesChannel?->getId();
+        if ($salesChannelId !== null && Uuid::isValid($salesChannelId)) {
+            return $salesChannelId;
+        }
+
+        $templateSalesChannel = $templateData['salesChannel'] ?? null;
+        if ($templateSalesChannel instanceof SalesChannelEntity) {
+            $salesChannelId = $templateSalesChannel->getId();
+            if (Uuid::isValid($salesChannelId)) {
+                return $salesChannelId;
+            }
+        }
+
+        $salesChannelId = $templateData['salesChannelId'] ?? null;
         if (!\is_string($salesChannelId) || !Uuid::isValid($salesChannelId)) {
             return null;
         }

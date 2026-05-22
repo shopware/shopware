@@ -8,14 +8,46 @@
       "heroDescriptionIntegrations": "Shopware bietet eine leistungsstarke API um andere Systeme und Anwendungen nahtlos in Deine eigenen Prozesse zu integrieren. Damit ein anderes System mit Shopware kommunizieren kann, werden zur Authentifizierung entsprechende Sicherheitsschlüssel benötigt. Du kannst Zugänge für jede einzelne Anwendung erstellen und so im Auge behalten, welche Änderungen von welcher Anwendung durchgeführt wurden."
     },
     "list": {
-      "contextMenuEdit": "Bearbeiten",
+      "contextMenuEdit": "Integration bearbeiten",
+      "contextMenuEditMcp": "MCP-Allowlist bearbeiten",
       "contextMenuDelete": "Löschen",
       "messageEmpty": "Noch keine Integrationen vorhanden",
       "sublineEmpty": "Verwaltung von Integrationen.",
       "permissions": "Berechtigungen",
       "writeAccess": "Schreiben",
       "readAccess": "Lesen",
-      "integrationName": "Integration"
+      "integrationName": "Integration",
+      "labelManagedByApp": "Von App verwaltet"
+    },
+    "mcp": {
+      "cardTitle": "MCP-Allowlist",
+      "modalTitle": "MCP-Allowlist",
+      "infoText": "Lege fest, welche MCP-Funktionen diese Integration nutzen darf. Wenn \"Alle Funktionen\" aktiviert ist, sind alle registrierten Tools, Ressourcen und Prompts zugänglich. Deaktiviere die Option, um den Zugriff pro Typ zu konfigurieren. Hinweis: Tools benötigen zusätzlich die passenden Entitätsrechte aus der zugewiesenen Rolle.",
+      "adminBanner": "Diese Integration verfügt über Administrator-Rechte. Alle MCP-Funktionen sind standardmäßig zugänglich. Du kannst den Zugriff hier auf bestimmte Tools, Ressourcen oder Prompts einschränken.",
+      "allCapabilitiesLabel": "Alle Funktionen",
+      "allTypeLabel": "Alle",
+      "toolsSection": "Tools",
+      "resourcesSection": "Ressourcen",
+      "promptsSection": "Prompts",
+      "toolsGuidance": "Tools führen Aktionen aus und können Nebenwirkungen haben (Schreiben, Löschen). Beschränke den Zugriff auf das, was diese Integration wirklich benötigt.",
+      "resourcesGuidance": "Ressourcen liefern schreibgeschützte Referenzdaten (Entitätslisten, State Machines, Vertriebskanäle). Schränke diese ein, um sensible Geschäftsdaten nicht unnötig offenzulegen.",
+      "promptsGuidance": "Prompts sind System-Anweisungen, die den Kontext der KI bestimmen. Nicht benötigte Prompts verschwenden Kontextfenster und können die KI verwirren.",
+      "noCapabilitiesHeadline": "Keine Funktionen gefunden",
+      "noCapabilitiesDescription": "Es sind derzeit keine MCP-Tools, Ressourcen oder Prompts registriert.",
+      "dep": "Abhäng.",
+      "dependencyOf": "Dieses Tool wird automatisch ausgewählt, weil ein anderes ausgewähltes Tool davon abhängt.",
+      "missingDeps": "Abhängigkeit nicht ausgewählt: {deps}",
+      "requiresLabel": "benötigt",
+      "requiresTooltip": "Dieses Tool aktiviert auch: {deps}",
+      "staleEntries": "Einige gespeicherte Einträge sind nicht mehr verfügbar: {entries}. Sie werden zur Laufzeit ignoriert.",
+      "privilegesLabel": "Benötigt:",
+      "coverageWarning": "{count} Tool(s) benötigen ACL-Rechte, die der zugewiesenen Rolle fehlen.",
+      "missingPrivilegesList": "Fehlend: {privileges}",
+      "missingPrivilegesTooltip": "Fehlende Berechtigungen: {privileges}",
+      "expandAll": "Alle aufklappen",
+      "collapseAll": "Alle einklappen",
+      "deniedTypeWarning": "Keine {types} sind fur diese Integration aktiviert.",
+      "missingCapabilitySuggestions": "{count} Ressource(n) oder Prompt(s) aus demselben Modul sind nicht in der Allowlist:"
     },
     "detail": {
       "deleteModalTitle": "Löschen",
@@ -43,6 +75,12 @@
     "permissions": {
       "integration": {
         "label": "Integrationen"
+      }
+    },
+    "additional_permissions": {
+      "integration_mcp": {
+        "label": "Integrationen",
+        "editor": "MCP-Allowlist bearbeiten"
       }
     }
   }

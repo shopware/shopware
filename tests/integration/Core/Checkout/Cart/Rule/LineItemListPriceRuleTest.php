@@ -130,7 +130,8 @@ class LineItemListPriceRuleTest extends TestCase
         ?float $lineItemAmount2,
         bool $expected,
         bool $lineItem1WithoutPrice = false,
-        bool $lineItem2WithoutPrice = false
+        bool $lineItem2WithoutPrice = false,
+        ?float $containerLineItemAmount = null
     ): void {
         $this->rule->assign([
             'amount' => $amount,

@@ -343,5 +343,13 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Shopware\Storefront\Controller\StorybookController" public="true">
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Storefront\Storybook\StorybookService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
     </services>
 </container>

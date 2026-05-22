@@ -148,8 +148,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             scriptFiles: null
         );
 
+        // Called twice: once in getRuntimeConfig(), once in refreshRuntimeConfig() to preserve importMap.
         $this->storage
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('getById')
             ->with($themeId)
             ->willReturn($partialConfig);
@@ -215,7 +216,6 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeId, $context)
             ->willReturn(['key' => 'value']);
 
-        // Create a mock for the script files collection
         $scriptFilesCollection = new FileCollection([
             new File('foo/file1.js', [], 'foo'),
             new File('foo/file2.js', [], 'foo'),
@@ -227,6 +227,9 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeConfig, $configCollection, false)
             ->willReturn($scriptFilesCollection);
 
+        // No existing config stored — getById called to check for preserved importMap.
+        $this->storage->method('getById')->with($themeId)->willReturn(null);
+
         $this->storage
             ->expects($this->once())
             ->method('save')
@@ -234,6 +237,7 @@ class ThemeRuntimeConfigServiceTest extends TestCase
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNotNull($config->scriptFiles);
                 static::assertSame(['js/foo/file1.js', 'js/foo/file2.js'], $config->scriptFiles);
+                static::assertNull($config->importMap);
             });
 
         $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
@@ -244,6 +248,91 @@ class ThemeRuntimeConfigServiceTest extends TestCase
         static::assertSame(['key' => 'value'], $result->resolvedConfig);
         static::assertSame(['parent-theme'], $result->viewInheritance);
         static::assertSame(['iconSet1' => ['path' => 'path/to/iconSet1', 'namespace' => $technicalName]], $result->iconSets);
+        static::assertNull($result->importMap);
+    }
+
+    public function testRefreshRuntimeConfigStoresComponentImportMapWhenProvided(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $technicalName = 'test-theme';
+        $context = Context::createDefaultContext();
+
+        $themeConfig = new StorefrontPluginConfiguration($technicalName);
+        $configCollection = new StorefrontPluginConfigurationCollection([$themeConfig]);
+
+        $importMap = [
+            'imports' => [
+                'shopware' => '/bundles/storefront/storefront/shopware/shopware.js',
+                'Sw:Button' => 'js/components/Sw/Button.js',
+            ],
+        ];
+
+        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn([]);
+
+        $this->themeFileResolver->method('resolveScriptFiles')
+            ->willReturn(new FileCollection());
+
+        $this->storage
+            ->expects($this->once())
+            ->method('save')
+            ->willReturnCallback(static function (ThemeRuntimeConfig $config) use ($importMap): void {
+                static::assertSame($importMap, $config->importMap);
+            });
+
+        $result = $this->service->refreshRuntimeConfig(
+            $themeId,
+            $themeConfig,
+            $context,
+            false,
+            $configCollection,
+            $importMap,
+        );
+
+        static::assertSame($importMap, $result->importMap);
+    }
+
+    public function testRefreshRuntimeConfigPreservesComponentImportMapFromStorageOnNonCompileRefresh(): void
+    {
+        $themeId = '1234567890abcdef1234567890abcdef';
+        $technicalName = 'test-theme';
+        $context = Context::createDefaultContext();
+
+        $themeConfig = new StorefrontPluginConfiguration($technicalName);
+        $configCollection = new StorefrontPluginConfigurationCollection([$themeConfig]);
+
+        $existingImportMap = [
+            'imports' => ['Sw:Button' => 'js/components/Sw/Button.js'],
+        ];
+
+        $existingConfig = $this->createThemeRuntimeConfig(
+            themeId: $themeId,
+            technicalName: $technicalName,
+        );
+        // Set importMap via `with()` since createThemeRuntimeConfig doesn't expose it as param.
+        $existingConfig = $existingConfig->with(['importMap' => $existingImportMap]);
+
+        $this->mergedConfigBuilder->method('getPlainThemeConfiguration')->willReturn([]);
+        $this->themeFileResolver->method('resolveScriptFiles')->willReturn(new FileCollection());
+
+        // Storage is read to retrieve the existing importMap; no explicit import map passed.
+        $this->storage->method('getById')->with($themeId)->willReturn($existingConfig);
+
+        $this->storage->expects($this->once())->method('save')
+            ->willReturnCallback(static function (ThemeRuntimeConfig $config) use ($existingImportMap): void {
+                static::assertSame($existingImportMap, $config->importMap);
+            });
+
+        // Pass null for importMap (non-compile refresh).
+        $result = $this->service->refreshRuntimeConfig(
+            $themeId,
+            $themeConfig,
+            $context,
+            false,
+            $configCollection,
+            null,
+        );
+
+        static::assertSame($existingImportMap, $result->importMap);
     }
 
     public function testRefreshRuntimeConfigIgnoresJsExceptionWhenFilesNotRequired(): void
@@ -267,11 +356,12 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->with($themeId, $context)
             ->willReturn(['key' => 'value']);
 
-        // Make resolveJs throw an exception
         $this->themeFileResolver
             ->expects($this->once())
             ->method('resolveScriptFiles')
             ->willThrowException(ThemeException::themeCompileException($technicalName, 'Failed to resolve js files'));
+
+        $this->storage->method('getById')->with($themeId)->willReturn(null);
 
         $this->storage
             ->expects($this->once())
@@ -279,12 +369,14 @@ class ThemeRuntimeConfigServiceTest extends TestCase
             ->willReturnCallback(static function ($config): void {
                 static::assertInstanceOf(ThemeRuntimeConfig::class, $config);
                 static::assertNull($config->scriptFiles);
+                static::assertNull($config->importMap);
             });
 
         $result = $this->service->refreshRuntimeConfig($themeId, $themeConfig, $context, $filesRequired, $configCollection);
 
         static::assertSame($themeId, $result->themeId);
         static::assertNull($result->scriptFiles);
+        static::assertNull($result->importMap);
     }
 
     public function testRefreshRuntimeConfigPropagatesJsExceptionWhenFilesRequired(): void

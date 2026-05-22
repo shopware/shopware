@@ -30,49 +30,42 @@ class JsonApiDecoderTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, bool|\DateTime|float|int|string|null>>
+     * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
      */
-    public static function emptyInputProvider(): array
+    public static function emptyInputProvider(): iterable
     {
-        return [
-            [null],
-            ['string'],
-            [1],
-            [false],
-            [new \DateTime()],
-            [1.1],
-        ];
+        yield 'empty input null' => [null];
+        yield 'empty input string' => ['string'];
+        yield 'empty input 1' => [1];
+        yield 'empty input false' => [false];
+        yield 'empty input date time' => [new \DateTime()];
+        yield 'empty input 1 point 1' => [1.1];
     }
 
     /**
-     * @return array<int, array<int, array<int|string, string>>>
+     * @return iterable<string, array<int, array<int|string, string>>>
      */
-    public static function inputWithoutDataOnRootProvider(): array
+    public static function inputWithoutDataOnRootProvider(): iterable
     {
-        return [
-            [['randomKey' => 'randomValue']],
-            [['data']],
-        ];
+        yield 'input without on root random key random value' => [['randomKey' => 'randomValue']];
+        yield 'input without on root data' => [['data']];
     }
 
     /**
-     * @return array<int, array<int, array<string, array<int|string, array<string, string>|string>>>>
+     * @return iterable<string, array<int, array<string, array<int|string, array<string, string>|string>>>>
      */
-    public static function resourceIdentifierWIthInvalidStructureProvider(): array
+    public static function resourceIdentifierWIthInvalidStructureProvider(): iterable
     {
-        return [
-            [['data' => ['id' => 'some-id']]],
-            [['data' => ['type' => 'some-type']]],
-            [['data' => ['ids' => 'foo', 'types' => 'some-type']]],
-            [['data' => [], 'included' => [['ids' => 'foo', 'types' => 'some-type']]]],
-        ];
+        yield 'resource identifier with invalid structure data id some id' => [['data' => ['id' => 'some-id']]];
+        yield 'resource identifier with invalid structure data type some type' => [['data' => ['type' => 'some-type']]];
+        yield 'resource identifier with invalid structure data ids foo types some type' => [['data' => ['ids' => 'foo', 'types' => 'some-type']]];
+        yield 'resource identifier with invalid structure data included ids foo types some type' => [['data' => [], 'included' => [['ids' => 'foo', 'types' => 'some-type']]]];
     }
 
     #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput(mixed $input): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Input not a valid JSON:API data object.');
+        $this->expectExceptionObject(new UnexpectedValueException('Input not a valid JSON:API data object.'));
 
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
@@ -83,8 +76,7 @@ class JsonApiDecoderTest extends TestCase
     #[DataProvider('inputWithoutDataOnRootProvider')]
     public function testInputWithoutDataOnRoot(array $input): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Input not a valid JSON:API data object.');
+        $this->expectExceptionObject(new UnexpectedValueException('Input not a valid JSON:API data object.'));
 
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
@@ -95,16 +87,14 @@ class JsonApiDecoderTest extends TestCase
     #[DataProvider('resourceIdentifierWIthInvalidStructureProvider')]
     public function testResourceIdentifierWithInvalidStructure(array $input): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('A resource identifier must be an array containing "id" and "type".');
+        $this->expectExceptionObject(new UnexpectedValueException('A resource identifier must be an array containing "id" and "type".'));
 
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipWithoutMatchingInclude(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Resolving relationship "some-type(some-id)" failed due to non-existence.');
+        $this->expectExceptionObject(new InvalidArgumentException('Resolving relationship "some-type(some-id)" failed due to non-existence.'));
 
         $json = [
             'data' => [
@@ -124,8 +114,7 @@ class JsonApiDecoderTest extends TestCase
 
     public function testRelationshipsWithMalformatData(): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Relationships of a resource must be an array of relationship links.');
+        $this->expectExceptionObject(new UnexpectedValueException('Relationships of a resource must be an array of relationship links.'));
 
         $json = [
             'data' => [
@@ -141,8 +130,7 @@ class JsonApiDecoderTest extends TestCase
 
     public function testRelationshipKeysMustNotBeNumeric(): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('Relationships of a resource must have a valid property name.');
+        $this->expectExceptionObject(new UnexpectedValueException('Relationships of a resource must have a valid property name.'));
 
         $json = [
             'data' => [
@@ -160,8 +148,7 @@ class JsonApiDecoderTest extends TestCase
 
     public function testRelationshipBaseStructureType(): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('A relationship link must be an array and contain the "data" property with a single or multiple resource identifiers.');
+        $this->expectExceptionObject(new UnexpectedValueException('A relationship link must be an array and contain the "data" property with a single or multiple resource identifiers.'));
 
         $json = [
             'data' => [
@@ -179,8 +166,7 @@ class JsonApiDecoderTest extends TestCase
 
     public function testRelationshipBaseStructureData(): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('A relationship link must be an array and contain the "data" property with a single or multiple resource identifiers.');
+        $this->expectExceptionObject(new UnexpectedValueException('A relationship link must be an array and contain the "data" property with a single or multiple resource identifiers.'));
 
         $json = [
             'data' => [
@@ -198,8 +184,7 @@ class JsonApiDecoderTest extends TestCase
 
     public function testAttributesMustBeAnArray(): void
     {
-        $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessage('The attributes of a resource must be an array.');
+        $this->expectExceptionObject(new UnexpectedValueException('The attributes of a resource must be an array.'));
 
         $json = [
             'data' => [

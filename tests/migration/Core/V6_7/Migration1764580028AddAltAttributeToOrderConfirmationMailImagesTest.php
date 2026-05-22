@@ -26,6 +26,11 @@ class Migration1764580028AddAltAttributeToOrderConfirmationMailImagesTest extend
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1764580028, (new Migration1764580028AddAltAttributeToOrderConfirmationMailImages())->getCreationTimestamp());
+    }
+
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $migration = new Migration1764580028AddAltAttributeToOrderConfirmationMailImages();

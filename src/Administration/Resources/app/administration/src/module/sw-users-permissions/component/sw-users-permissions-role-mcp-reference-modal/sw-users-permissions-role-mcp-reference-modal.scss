@@ -1,0 +1,95 @@
+@import "~scss/variables";
+
+.sw-users-permissions-role-mcp-reference-modal {
+    .sw-users-permissions-role-mcp-reference-modal__save-reminder {
+        margin-bottom: 12px;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__toggle {
+        display: flex;
+        gap: 4px;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__legend {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__legend-label {
+        font-size: 14px;
+        color: $color-gray-600;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__row {
+        display: grid;
+        grid-template-columns: 220px 1fr auto;
+        align-items: start;
+        gap: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid $color-gray-100;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__row-label {
+        font-family: monospace;
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-gray-800;
+        padding-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__row-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__row-grant {
+        justify-self: end;
+    }
+
+    .sw-users-permissions-role-mcp-reference-modal__privilege-chip {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 3px;
+        padding: 2px 6px;
+        cursor: default;
+        font-family: monospace;
+
+        &.is--granted {
+            color: #1b5e20;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+        }
+
+        &.is--missing {
+            color: #b71c1c;
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+        }
+
+        &.is--dynamic {
+            color: $color-gray-600;
+            background: $color-gray-100;
+            border: 1px solid $color-gray-300;
+        }
+    }
+}

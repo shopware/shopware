@@ -1,0 +1,142 @@
+{% block sw_users_permissions_role_mcp_reference_modal %}
+<sw-modal
+    class="sw-users-permissions-role-mcp-reference-modal"
+    :title="$t('sw-users-permissions.roles.mcpModal.title')"
+    @modal-close="closeModal"
+>
+    {% block sw_users_permissions_role_mcp_reference_modal_content %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_save_reminder %}
+    <mt-banner
+        v-if="hasPreselected"
+        variant="info"
+        class="sw-users-permissions-role-mcp-reference-modal__save-reminder"
+    >
+        {{ $t('sw-users-permissions.roles.mcpModal.saveReminder') }}
+    </mt-banner>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_toolbar %}
+    <div class="sw-users-permissions-role-mcp-reference-modal__toolbar">
+        <div class="sw-users-permissions-role-mcp-reference-modal__toggle">
+            <mt-button
+                size="small"
+                :variant="viewMode === 'permission' ? 'primary' : 'ghost'"
+                @click="viewMode = 'permission'"
+            >
+                {{ $t('sw-users-permissions.roles.mcpModal.viewByPermission') }}
+            </mt-button>
+            <mt-button
+                size="small"
+                :variant="viewMode === 'tool' ? 'primary' : 'ghost'"
+                @click="viewMode = 'tool'"
+            >
+                {{ $t('sw-users-permissions.roles.mcpModal.viewByTool') }}
+            </mt-button>
+        </div>
+
+        <mt-button
+            v-if="allMissingStatic.length > 0"
+            size="small"
+            variant="primary"
+            ghost
+            @click="grantAllMissing"
+        >
+            {{ $t('sw-users-permissions.roles.mcpModal.grantAllMissing') }}
+        </mt-button>
+    </div>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_legend %}
+    <div class="sw-users-permissions-role-mcp-reference-modal__legend">
+        <span class="sw-users-permissions-role-mcp-reference-modal__legend-label">
+            {{ $t('sw-users-permissions.roles.mcpModal.legendLabel') }}
+        </span>
+        <span
+            v-tooltip="$t('sw-users-permissions.roles.mcpModal.legendGrantedHint')"
+            class="sw-users-permissions-role-mcp-reference-modal__privilege-chip is--granted"
+        >{{ $t('sw-users-permissions.roles.mcpModal.legendGranted') }}</span>
+        <span
+            v-tooltip="$t('sw-users-permissions.roles.mcpModal.legendMissingHint')"
+            class="sw-users-permissions-role-mcp-reference-modal__privilege-chip is--missing"
+        >{{ $t('sw-users-permissions.roles.mcpModal.legendMissing') }}</span>
+        <span
+            v-tooltip="$t('sw-users-permissions.roles.mcpModal.legendDynamicHint')"
+            class="sw-users-permissions-role-mcp-reference-modal__privilege-chip is--dynamic"
+        >{{ $t('sw-users-permissions.roles.mcpModal.legendDynamic') }}</span>
+    </div>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_loading %}
+    <mt-loader v-if="isLoading" />
+    {% endblock %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_rows %}
+    <template v-if="!isLoading">
+        <template v-if="displayRows.length > 0">
+            <div
+                v-for="row in displayRows"
+                :key="row.label"
+                class="sw-users-permissions-role-mcp-reference-modal__row"
+            >
+                {% block sw_users_permissions_role_mcp_reference_modal_row_label %}
+                <span class="sw-users-permissions-role-mcp-reference-modal__row-label">
+                    {{ row.label }}
+                </span>
+                {% endblock %}
+
+                {% block sw_users_permissions_role_mcp_reference_modal_row_chips %}
+                <div class="sw-users-permissions-role-mcp-reference-modal__row-chips">
+                    <span
+                        v-for="chip in row.chips"
+                        :key="chip.text"
+                        v-tooltip="chip.isDynamic ? $t('sw-users-permissions.roles.mcpModal.dynamicPrivilegeHint') : ''"
+                        class="sw-users-permissions-role-mcp-reference-modal__privilege-chip"
+                        :class="{
+                            'is--granted': !chip.isDynamic && chip.isGranted,
+                            'is--missing': !chip.isDynamic && !chip.isGranted,
+                            'is--dynamic': chip.isDynamic,
+                        }"
+                    >{{ chip.text }}</span>
+                </div>
+                {% endblock %}
+
+                {% block sw_users_permissions_role_mcp_reference_modal_row_grant %}
+                <mt-button
+                    v-if="row.hasMissingStatic"
+                    size="small"
+                    variant="primary"
+                    ghost
+                    class="sw-users-permissions-role-mcp-reference-modal__row-grant"
+                    @click="grantRow(row)"
+                >
+                    {{ $t('sw-users-permissions.roles.mcpModal.grant') }}
+                </mt-button>
+                {% endblock %}
+            </div>
+        </template>
+
+        {% block sw_users_permissions_role_mcp_reference_modal_empty %}
+        <mt-empty-state
+            v-else
+            :headline="$t('sw-users-permissions.roles.mcpModal.noToolsHeadline')"
+            :description="$t('sw-users-permissions.roles.mcpModal.noToolsDescription')"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% endblock %}
+
+    {% block sw_users_permissions_role_mcp_reference_modal_footer %}
+    <template #modal-footer>
+        <mt-button
+            variant="primary"
+            @click="closeModal"
+        >
+            {{ $t('global.default.close') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

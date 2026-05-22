@@ -55,17 +55,4 @@ final class Errors
             ->line($line)
             ->build();
     }
-
-    public static function traitMethod(string $className, string $traitName, string $methodName, int $line): IdentifierRuleError
-    {
-        return RuleErrorBuilder::message(\sprintf(
-            'Class %s is annotated @codeCoverageIgnore but inherited trait method %s::%s() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-            $className,
-            $traitName,
-            $methodName,
-        ))
-            ->identifier('shopware.codeCoverageIgnoreOnLogic')
-            ->line($line)
-            ->build();
-    }
 }

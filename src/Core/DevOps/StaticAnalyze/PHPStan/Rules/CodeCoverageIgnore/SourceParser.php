@@ -4,18 +4,13 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
 
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
-use PhpParser\Node\Stmt\ClassMethod;
-use PhpParser\Node\Stmt\Trait_;
-use PhpParser\NodeFinder;
 use PhpParser\Parser;
 use PhpParser\ParserFactory;
-use PHPStan\Reflection\ReflectionProvider;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Lazy file/AST access with per-run caches. Used by the coverage-ignore rule
- * to look up trait methods (for trait-scanning) and file-level use statements
- * (for resolving short-form @see references).
+ * Resolves file-level `use` statements (alias => FQCN) so short-form @see
+ * references in docblocks can be looked up via the file's import map.
  *
  * @internal
  */
@@ -24,13 +19,6 @@ final class SourceParser
 {
     private readonly Parser $parser;
 
-    private readonly NodeFinder $finder;
-
-    /**
-     * @var array<string, list<ClassMethod>>
-     */
-    private array $traitMethodCache = [];
-
     /**
      * file path => alias => FQCN
      *
@@ -38,56 +26,9 @@ final class SourceParser
      */
     private array $useMapCache = [];
 
-    public function __construct(
-        private readonly ReflectionProvider $reflectionProvider,
-    ) {
-        $this->parser = (new ParserFactory())->createForHostVersion();
-        $this->finder = new NodeFinder();
-    }
-
-    /**
-     * @return list<ClassMethod>
-     */
-    public function traitMethods(string $traitFqcn): array
+    public function __construct()
     {
-        if (\array_key_exists($traitFqcn, $this->traitMethodCache)) {
-            return $this->traitMethodCache[$traitFqcn];
-        }
-
-        $this->traitMethodCache[$traitFqcn] = [];
-
-        if (!$this->reflectionProvider->hasClass($traitFqcn)) {
-            return [];
-        }
-
-        $reflection = $this->reflectionProvider->getClass($traitFqcn);
-        if (!$reflection->isTrait()) {
-            return [];
-        }
-
-        $file = $reflection->getFileName();
-        if ($file === null) {
-            return [];
-        }
-
-        $stmts = $this->parseFile($file);
-        if ($stmts === null) {
-            return [];
-        }
-
-        $shortName = ($pos = strrpos($traitFqcn, '\\')) === false ? $traitFqcn : substr($traitFqcn, $pos + 1);
-
-        /** @var list<Trait_> $traitNodes */
-        $traitNodes = $this->finder->findInstanceOf($stmts, Trait_::class);
-        foreach ($traitNodes as $traitNode) {
-            if ($traitNode->name === null || $traitNode->name->name !== $shortName) {
-                continue;
-            }
-
-            return $this->traitMethodCache[$traitFqcn] = $traitNode->getMethods();
-        }
-
-        return [];
+        $this->parser = (new ParserFactory())->createForHostVersion();
     }
 
     /**
@@ -101,7 +42,21 @@ final class SourceParser
 
         $this->useMapCache[$file] = [];
 
-        $stmts = $this->parseFile($file);
+        if (!is_file($file)) {
+            return [];
+        }
+
+        $source = @file_get_contents($file);
+        if ($source === false) {
+            return [];
+        }
+
+        try {
+            $stmts = $this->parser->parse($source);
+        } catch (\Throwable) {
+            return [];
+        }
+
         if ($stmts === null) {
             return [];
         }
@@ -118,27 +73,6 @@ final class SourceParser
         }
 
         return $this->useMapCache[$file] = $map;
-    }
-
-    /**
-     * @return array<Stmt>|null
-     */
-    private function parseFile(string $file): ?array
-    {
-        if (!is_file($file)) {
-            return null;
-        }
-
-        $source = @file_get_contents($file);
-        if ($source === false) {
-            return null;
-        }
-
-        try {
-            return $this->parser->parse($source);
-        } catch (\Throwable) {
-            return null;
-        }
     }
 
     /**

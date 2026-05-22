@@ -96,14 +96,6 @@ class CodeCoverageIgnoreEvaluationRuleTest extends RuleTestCase
             ]],
         ];
 
-        yield 'class using a trait with logic fails' => [
-            ['LogicTrait.php', 'UsingLogicTraitClass.php'],
-            [[
-                'Class ' . self::FQCN_PREFIX . 'UsingLogicTraitClass is annotated @codeCoverageIgnore but inherited trait method ' . self::FQCN_PREFIX . 'LogicTrait::doSomething() contains logic. Remove the annotation, extract the logic to a covered class, or add a @see pointing to an existing integration test that exercises it.',
-                8,
-            ]],
-        ];
-
         yield 'exception subclass without logic still fails' => [
             ['ExceptionWithoutLogicClass.php'],
             [[

@@ -2,53 +2,21 @@
 
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore;
 
-use PHPStan\Testing\PHPStanTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
-use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\CodeCoverageIgnoreEvaluation\LogicTrait;
 
 /**
  * @internal
  */
 #[CoversClass(SourceParser::class)]
-class SourceParserTest extends PHPStanTestCase
+class SourceParserTest extends TestCase
 {
-    #[TestDox('traitMethods returns the trait methods')]
-    public function testTraitMethodsReturnsTraitMethods(): void
-    {
-        $parser = $this->parser();
-
-        $methods = $parser->traitMethods(LogicTrait::class);
-
-        static::assertCount(1, $methods);
-        static::assertSame('doSomething', $methods[0]->name->name);
-    }
-
-    #[TestDox('traitMethods returns empty for a class the reflection provider does not know')]
-    public function testTraitMethodsReturnsEmptyForUnknownClass(): void
-    {
-        static::assertSame([], $this->parser()->traitMethods('Shopware\\Definitely\\Not\\A\\Real\\TraitClass'));
-    }
-
-    #[TestDox('traitMethods returns empty for a non-trait class')]
-    public function testTraitMethodsReturnsEmptyForNonTrait(): void
-    {
-        static::assertSame([], $this->parser()->traitMethods(\stdClass::class));
-    }
-
-    #[TestDox('traitMethods caches per-trait results')]
-    public function testTraitMethodsCachesResults(): void
-    {
-        $parser = $this->parser();
-
-        static::assertSame($parser->traitMethods(LogicTrait::class), $parser->traitMethods(LogicTrait::class));
-    }
-
     #[TestDox('useMap returns alias to FQCN for regular use statements')]
     public function testUseMapExtractsImports(): void
     {
-        $map = $this->parser()->useMap(__DIR__ . '/_fixtures/UseMapFixture.php');
+        $map = (new SourceParser())->useMap(__DIR__ . '/_fixtures/UseMapFixture.php');
 
         static::assertSame('Doctrine\\DBAL\\Connection', $map['Connection'] ?? null);
         static::assertSame('Doctrine\\DBAL\\Types\\Types', $map['DBALTypes'] ?? null);
@@ -66,7 +34,7 @@ class SourceParserTest extends PHPStanTestCase
         );
 
         try {
-            $map = $this->parser()->useMap($tmp);
+            $map = (new SourceParser())->useMap($tmp);
             static::assertSame('My\\Group\\Inner1', $map['Inner1'] ?? null);
             static::assertSame('My\\Group\\Inner2', $map['Aliased'] ?? null);
         } finally {
@@ -77,11 +45,6 @@ class SourceParserTest extends PHPStanTestCase
     #[TestDox('useMap returns empty for a missing file')]
     public function testUseMapReturnsEmptyForMissingFile(): void
     {
-        static::assertSame([], $this->parser()->useMap('/path/that/does/not/exist.php'));
-    }
-
-    private function parser(): SourceParser
-    {
-        return new SourceParser(self::createReflectionProvider());
+        static::assertSame([], (new SourceParser())->useMap('/path/that/does/not/exist.php'));
     }
 }

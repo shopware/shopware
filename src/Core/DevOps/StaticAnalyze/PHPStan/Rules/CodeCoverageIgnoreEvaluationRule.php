@@ -14,6 +14,10 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\LogicDet
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\CodeCoverageIgnore\SourceParser;
 use Shopware\Core\Framework\Log\Package;
 
+// Trait scanning was intentionally removed: a trait's methods are the trait's
+// own coverage concern; a class carrying @codeCoverageIgnore should not be
+// burdened with re-testing logic it merely composes.
+
 /**
  * @internal
  *
@@ -22,15 +26,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class CodeCoverageIgnoreEvaluationRule implements Rule
 {
-    private readonly SourceParser $sources;
-
     private readonly ExemptionResolver $exemptions;
 
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,
     ) {
-        $this->sources = new SourceParser($reflectionProvider);
-        $this->exemptions = new ExemptionResolver($reflectionProvider, $this->sources);
+        $this->exemptions = new ExemptionResolver($reflectionProvider, new SourceParser());
     }
 
     public function getNodeType(): string
@@ -56,10 +57,7 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 
         $classExempted = $classHasIgnore && $this->exemptions->isExempted($node, $scope);
 
-        return [
-            ...$this->checkMethods($node, $scope, $className, $classHasIgnore, $classExempted),
-            ...$this->checkTraitMethods($node, $className, $classHasIgnore, $classExempted),
-        ];
+        return $this->checkMethods($node, $scope, $className, $classHasIgnore, $classExempted);
     }
 
     private function anyMethodHasIgnore(Class_ $node): bool
@@ -104,42 +102,6 @@ class CodeCoverageIgnoreEvaluationRule implements Rule
 
             if (LogicDetector::methodContainsLogic($method)) {
                 $errors[] = Errors::methodLevel($className, $methodName, $method->getStartLine());
-            }
-        }
-
-        return $errors;
-    }
-
-    /**
-     * @return list<IdentifierRuleError>
-     */
-    private function checkTraitMethods(
-        Class_ $node,
-        string $className,
-        bool $classHasIgnore,
-        bool $classExempted,
-    ): array {
-        if (!$classHasIgnore || $classExempted) {
-            return [];
-        }
-
-        $errors = [];
-
-        foreach ($node->getTraitUses() as $use) {
-            foreach ($use->traits as $traitName) {
-                $name = $traitName->toString();
-                foreach ($this->sources->traitMethods($name) as $method) {
-                    if (!LogicDetector::methodContainsLogic($method)) {
-                        continue;
-                    }
-
-                    $errors[] = Errors::traitMethod(
-                        $className,
-                        $name,
-                        (string) $method->name,
-                        $node->getStartLine(),
-                    );
-                }
             }
         }
 

@@ -25,7 +25,7 @@ class ExemptionResolverTest extends PHPStanTestCase
     public function testIsExempted(string $docComment, bool $expected): void
     {
         $reflectionProvider = self::createReflectionProvider();
-        $resolver = new ExemptionResolver($reflectionProvider, new SourceParser($reflectionProvider));
+        $resolver = new ExemptionResolver($reflectionProvider, new SourceParser());
 
         $node = $this->makeClassWithDoc($docComment);
         $scope = $this->makeScope(__DIR__ . '/_fixtures/UseMapFixture.php');

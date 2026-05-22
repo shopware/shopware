@@ -449,7 +449,7 @@ The new `AbstractAgenticCommerceProductExportProvider` can be used to implement 
 
 When a customer with an unconfirmed double opt-in account tries to log in, Shopware now automatically resends the confirmation email if the original was sent more than a configurable interval ago.
 
-The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `86400` seconds / 24 hours). Setting it to `0` disables the auto-resend entirely.
+The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `24` hours). Setting it to `0` disables the auto-resend entirely.
 
 ## Administration
 

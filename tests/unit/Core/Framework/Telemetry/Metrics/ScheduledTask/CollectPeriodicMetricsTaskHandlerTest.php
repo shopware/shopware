@@ -74,4 +74,35 @@ class CollectPeriodicMetricsTaskHandlerTest extends TestCase
 
         $handler->run();
     }
+
+    public function testGeneratorCollectorThrowingMidIterationDoesNotStopOthers(): void
+    {
+        $failingCollector = $this->createMock(PeriodicMetricCollectorInterface::class);
+        $failingCollector->expects($this->once())->method('collect')->willReturnCallback(static function (): \Generator {
+            yield new ConfiguredMetric('metric.partial', 1);
+
+            throw new \RuntimeException('generator fail');
+        });
+
+        $metric = new ConfiguredMetric('metric.ok', 1);
+        $workingCollector = $this->createMock(PeriodicMetricCollectorInterface::class);
+        $workingCollector->expects($this->once())->method('collect')->willReturn([$metric]);
+
+        $meter = $this->createMock(Meter::class);
+        // The partially-yielded metric must not leak through: iterator_to_array materializes the
+        // generator inside the try/catch, so the whole batch from the failing collector is discarded.
+        $meter->expects($this->once())->method('emit')->with($metric);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(static::stringContains('generator fail'));
+
+        $handler = new CollectPeriodicMetricsTaskHandler(
+            $this->createMock(EntityRepository::class),
+            $logger,
+            $meter,
+            [$failingCollector, $workingCollector],
+        );
+
+        $handler->run();
+    }
 }

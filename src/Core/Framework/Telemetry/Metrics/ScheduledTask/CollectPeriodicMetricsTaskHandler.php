@@ -33,14 +33,21 @@ final class CollectPeriodicMetricsTaskHandler extends ScheduledTaskHandler
     {
         foreach ($this->collectors as $collector) {
             try {
-                foreach ($collector->collect() as $metric) {
-                    $this->meter->emit($metric);
-                }
+                // iterator_to_array forces generator-based collectors to fully materialize here, so any
+                // exception thrown during collection is caught by this try/catch rather and does not influence
+                // emitting metrics from other collectors.
+                $metrics = iterator_to_array($collector->collect(), preserve_keys: false);
             } catch (\Throwable $e) {
                 $this->exceptionLogger->error(
                     \sprintf('Periodic metric collector %s failed: %s', $collector::class, $e->getMessage()),
                     ['exception' => $e]
                 );
+
+                continue;
+            }
+
+            foreach ($metrics as $metric) {
+                $this->meter->emit($metric);
             }
         }
     }

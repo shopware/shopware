@@ -169,6 +169,10 @@ on the metric type. The default policy is derived from the metric type's semanti
 - No global default policy config: The type-based defaults are sufficient. Per-metric definition is the right level
   for overrides.
 
+**Replacement policy trade-offs** `replace` keeps totals accurate at the cost of potentially hiding
+typos: `GETT` instead of `GET` lands in the same `other` bucket as intentionally uncategorized values.
+To make typos surface during development, in dev/test, label replacements should be logged at notice level.
+
 #### Mandatory explicit label configuration
 
 Every label in a metric definition **must** have either `allowed_values` or `policy: open`. Symfony

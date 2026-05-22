@@ -42,7 +42,7 @@ class MetricLabelProcessor
             if (!isset($configuredLabels[$name])) {
                 $exception = TelemetryException::unknownMetricLabel($metricConfig->name, $name);
 
-                if ($this->environment === 'dev' || $this->environment === 'test') {
+                if ($this->isDevOrTest()) {
                     throw $exception;
                 }
 
@@ -72,6 +72,17 @@ class MetricLabelProcessor
                 return null;
             }
 
+            // Surface potential typos collapsing into the `other` bucket alongside truly uncategorized values)
+            if ($this->isDevOrTest()) {
+                $this->logger->notice(\sprintf(
+                    'Metric "%s" label "%s" value %s is not in the allowed list and was replaced with "%s".',
+                    $metricConfig->name,
+                    $name,
+                    var_export($value, true),
+                    $this->replacementValue,
+                ));
+            }
+
             $processed[$name] = $this->replacementValue;
         }
 
@@ -81,5 +92,10 @@ class MetricLabelProcessor
     private function defaultPolicyForType(Type $metricType): LabelPolicy
     {
         return \in_array($metricType, self::ADDITIVE_TYPES, true) ? LabelPolicy::REPLACE : LabelPolicy::DISCARD;
+    }
+
+    private function isDevOrTest(): bool
+    {
+        return $this->environment === 'dev' || $this->environment === 'test';
     }
 }

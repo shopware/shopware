@@ -43,7 +43,7 @@ class DoubleOptInServiceTest extends TestCase
         ]);
         $context = Generator::generateSalesChannelContext();
 
-        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 86400, TestDefaults::SALES_CHANNEL);
+        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 24, TestDefaults::SALES_CHANNEL);
         $this->getSystemConfig()->set('core.loginRegistration.doubleOptInDomain', 'https://shop.example.com', TestDefaults::SALES_CHANNEL);
 
         $dispatched = null;
@@ -74,7 +74,7 @@ class DoubleOptInServiceTest extends TestCase
         ]);
         $context = Generator::generateSalesChannelContext();
 
-        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 86400, TestDefaults::SALES_CHANNEL);
+        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 24, TestDefaults::SALES_CHANNEL);
         $this->getSystemConfig()->set('core.loginRegistration.doubleOptInDomain', 'https://shop.example.com', TestDefaults::SALES_CHANNEL);
 
         $customerId = $customer->getId();
@@ -106,7 +106,7 @@ class DoubleOptInServiceTest extends TestCase
         ]);
         $context = Generator::generateSalesChannelContext();
 
-        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 86400, TestDefaults::SALES_CHANNEL);
+        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 24, TestDefaults::SALES_CHANNEL);
         $this->getSystemConfig()->set('core.loginRegistration.doubleOptInDomain', 'https://configured-domain.example.com', TestDefaults::SALES_CHANNEL);
 
         $dispatched = null;
@@ -133,7 +133,7 @@ class DoubleOptInServiceTest extends TestCase
         ]);
         $context = Generator::generateSalesChannelContext();
 
-        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 86400, TestDefaults::SALES_CHANNEL);
+        $this->getSystemConfig()->set('core.loginRegistration.doubleOptInResendInterval', 24, TestDefaults::SALES_CHANNEL);
         $this->getSystemConfig()->set('core.loginRegistration.doubleOptInDomain', '', TestDefaults::SALES_CHANNEL);
 
         $domain = static::getContainer()->get('sales_channel_domain.repository')->search(

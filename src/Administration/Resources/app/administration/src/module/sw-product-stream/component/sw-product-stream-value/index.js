@@ -54,7 +54,12 @@ export default {
     data() {
         return {
             value: null,
+            // Actual rendered child count used by CSS.
             childComponentsCount: null,
+            // Pending timer id for the delayed recount.
+            childComponentsCountUpdateTimeout: null,
+            // Observer object watching DOM child changes.
+            childComponentsCountObserver: null,
             searchTerm: '',
         };
     },
@@ -440,13 +445,46 @@ export default {
     },
 
     mounted() {
-        // Wait for all child components to be mounted. $nextTick is not enough here.
-        setTimeout(() => {
-            this.childComponentsCount = Object.keys(this.$refs ?? {}).length;
-        });
+        if (typeof MutationObserver !== 'undefined') {
+            this.childComponentsCountObserver = new MutationObserver(() => {
+                this.updateChildComponentsCount();
+            });
+            this.childComponentsCountObserver.observe(this.$el, {
+                childList: true,
+                subtree: true,
+            });
+        }
+
+        this.updateChildComponentsCount();
+    },
+
+    updated() {
+        this.updateChildComponentsCount();
+    },
+
+    beforeUnmount() {
+        clearTimeout(this.childComponentsCountUpdateTimeout);
+        this.childComponentsCountObserver?.disconnect();
     },
 
     methods: {
+        /**
+         * Recount child controls after async DOM updates so the growth class stays in sync.
+         */
+        updateChildComponentsCount() {
+            // Wait for all child components to be mounted. $nextTick is not enough here.
+            clearTimeout(this.childComponentsCountUpdateTimeout);
+            this.childComponentsCountUpdateTimeout = setTimeout(() => {
+                const childComponentsCount = this.$el?.children.length ?? 0;
+
+                if (this.childComponentsCount === childComponentsCount) {
+                    return;
+                }
+
+                this.childComponentsCount = childComponentsCount;
+            });
+        },
+
         onChangeType(type, parameters) {
             this.$emit('type-change', { type, parameters });
         },

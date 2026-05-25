@@ -68,6 +68,7 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
                 },
                 conditionDataProviderService: {
                     getOperatorSet: () => [],
+                    isRelativeTimeType: () => false,
                     allowedJsonAccessors: {
                         'json.test': {
                             value: 'json.test',
@@ -187,6 +188,63 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         });
 
         expect(wrapper.get('.sw-product-stream-value__placeholder').exists()).toBe(true);
+    });
+
+    it('should update the growth class when value controls are rendered asynchronously', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], '', 'contains', '');
+
+        await new Promise((resolve) => {
+            setTimeout(resolve);
+        });
+
+        expect(wrapper.vm.childComponentsCount).toBe(1);
+        expect(wrapper.classes()).toContain('sw-product-stream-value--grow-1');
+
+        await wrapper.setProps({
+            fieldName: 'name',
+            definition: {
+                entity: 'product',
+                getField: () => ({ type: 'string' }),
+                isJsonField: () => false,
+            },
+            condition: {
+                type: 'contains',
+                value: 'OSS',
+            },
+        });
+
+        await flushPromises();
+        await new Promise((resolve) => {
+            setTimeout(resolve);
+        });
+
+        expect(wrapper.vm.childComponentsCount).toBeGreaterThan(1);
+        expect(wrapper.classes()).not.toContain('sw-product-stream-value--grow-1');
+        expect(wrapper.classes()).toContain(`sw-product-stream-value--grow-${wrapper.vm.childComponentsCount}`);
+    });
+
+    it('should update the growth class when child controls render without a parent update', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], '', 'contains', '');
+
+        await new Promise((resolve) => {
+            setTimeout(resolve);
+        });
+
+        expect(wrapper.vm.childComponentsCount).toBe(1);
+
+        const asyncControl = document.createElement('div');
+        wrapper.element.appendChild(asyncControl);
+
+        await Promise.resolve();
+        await new Promise((resolve) => {
+            setTimeout(resolve);
+        });
+        await new Promise((resolve) => {
+            setTimeout(resolve);
+        });
+
+        expect(wrapper.vm.childComponentsCount).toBe(wrapper.element.children.length);
+        expect(wrapper.classes()).toContain(`sw-product-stream-value--grow-${wrapper.element.children.length}`);
     });
 
     it('should return correct fieldDefinition', async () => {

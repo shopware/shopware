@@ -15,6 +15,7 @@ Issues this RFC addresses:
 - New greenfield domains (Webhook Outbox per ADR 2026-04-14, Document Generation per the three March 2026 ADRs) have no documented home other than `Core/`.
 - The core surface grows monotonically — every feature added is a new BC obligation for the platform team.
 - Plugin authors have no clean way to depend on "AI Kit ≥ 2.1" independently of "Shopware core ≥ 6.8".
+- A single feature today cannot support multiple Shopware versions concurrently — anything living in `src/` is bound to whichever core branch it sits on.
 
 ## Decisions
 
@@ -81,7 +82,17 @@ core 6.9.0 ──┴── ai-kit 2.0   (new core range, breaking component API)
 
 The `shopware/production` template pins a tested matrix. Operators run `composer update shopware/ai-kit` between core releases to pick up component fixes without a full platform upgrade.
 
-**Rationale.** Composer is the existing distribution channel, the existing dependency-resolution mechanism, and the existing security-advisory channel (FriendsOfPHP). Reusing it is the cheapest path to "independent cadence with bounded compatibility".
+**Each component progresses through a maturity ladder:**
+
+| Stage | What it means | How it's installed |
+|---|---|---|
+| **Optional** | Component exists, is published, is fully supported. Not installed by default. | Operator runs `composer require shopware/ai-kit`. Available as soon as the package is published — no core release needed. |
+| **Recommended** | Component is listed in the `require` block of `shopware/production`. Installed by default on new shops; removable on existing shops. | Picked up by `composer create-project shopware/production`. Promoted in a core *minor*. |
+| **Required** | Component is listed in the `require` block of `shopware/core` itself. Cannot be removed without forking core. | Pulled in transitively by `composer require shopware/core`. Promoted only in a core *major* (and only for components whose absence would meaningfully break Shopware). |
+
+Promotion is a one-way deliberate decision per component, documented in its own ADR. Demotion is unusual but possible (e.g. if a Required component is later split or replaced).
+
+**Rationale.** Composer is the existing distribution channel, the existing dependency-resolution mechanism, and the existing security-advisory channel (FriendsOfPHP). Reusing it is the cheapest path to "independent cadence with bounded compatibility". The maturity ladder lets us **ship a component on the day it is ready** — even mid-cycle — without waiting for the next core minor, and *then* promote it once it has proven itself.
 
 **Considered alternative: monolithic platform with feature flags.** Rejected — feature flags hide instability but do not let an operator pick up a security fix in AI Kit without taking everything else in the platform release.
 
@@ -166,11 +177,17 @@ Phase 1 ships with the next minor as a pilot. Phase 2 begins once Phase 1 contra
 
 ### 6. Governance — compatibility matrix and CI enforcement
 
-The platform CI grows three new responsibilities:
+CI responsibilities are split across two homes:
 
-1. **Matrix test.** For each supported (core × component) version pair declared in the tested matrix, run the component's integration suite against the corresponding core. The matrix lives in `shopware/production` and in each component's `composer.json` constraint.
-2. **Public-API guard.** A BC-checker (e.g. Roave/BackwardCompatibilityCheck) runs per component on every PR. Breaking changes outside a MAJOR bump fail the build.
-3. **Boundary guard.** A static analysis rule (PHPStan custom rule, or ArchUnit-style) asserts that a component imports only kernel symbols and symbols from declared component dependencies. Components must not use `@internal` symbols from other components.
+**Per-component repository CI:**
+
+1. **Matrix test.** Each component's own CI runs its integration suite against *every supported core version* declared in its `composer.json` range (e.g. `^6.7 || ^6.8 || ^6.9`). This is the property that makes "concurrent multi-version support" testable.
+2. **Public-API guard.** A BC-checker (e.g. Roave/BackwardCompatibilityCheck) runs per PR. Breaking changes outside a MAJOR bump fail the build.
+3. **Boundary guard.** A static analysis rule (PHPStan custom rule, or ArchUnit-style) asserts that the component imports only kernel symbols and symbols from declared component dependencies. Components must not use `@internal` symbols from other components.
+
+**Platform repository CI (`shopware/shopware`):**
+
+4. **Reverse-matrix test.** For each promoted (Recommended / Required) component, the platform CI runs an end-to-end smoke test pinning the component's currently-tested version range. A core PR that breaks a promoted component fails the build.
 
 ```yaml
 # illustrative matrix in shopware/production
@@ -186,28 +203,48 @@ shopware-component-matrix:
 
 **Considered alternative: trust component teams to honour the contract.** Rejected — see history of cross-bundle imports in `Core/` and `Storefront/`.
 
-### 7. Monorepo development, split-package release
+### 7. Each System Component lives in its own GitHub repository
 
-`shopware/platform` remains the development monorepo. Components live under `src/Components/<Name>/` (or are admitted to the existing `src/` tree if they extract from there) and are split-released to standalone `shopware/<component>` packages by an existing mechanism analogous to today's `replace:` map for `shopware/core`, `shopware/storefront`, `shopware/administration`.
+Components are **not** developed inside `shopware/platform`. Each component has its own repository (`github.com/shopware/ai-kit`, `github.com/shopware/extension-kit`, `github.com/shopware/webhook-outbox`, …), its own issue tracker, its own release tags, and its own CI.
 
 ```
-shopware/platform (dev monorepo)
-└── src/
-    ├── Core/                       # kernel
-    ├── Administration/             # host
-    ├── Storefront/                 # host
-    ├── Elasticsearch/              # existing bundle (kept as-is for now)
-    └── Components/
-        ├── AiKit/                  # → shopware/ai-kit
-        ├── ExtensionKit/           # → shopware/extension-kit
-        └── WebhookOutbox/          # → shopware/webhook-outbox
+github.com/shopware/
+├── shopware              ← kernel + Storefront + Administration (today's monorepo)
+├── ai-kit                ← shopware/ai-kit         (composer)
+├── extension-kit         ← shopware/extension-kit  (composer)
+├── webhook-outbox        ← shopware/webhook-outbox (composer)
+├── document-generation   ← shopware/document-generation
+└── …
 ```
 
-**Rationale.** Monorepo development is what makes cross-cutting refactors tractable and what makes the matrix tests cheap to run. Split releases are what give operators the independent cadence promise. The pattern is already in production for `shopware/core` and friends; this RFC extends it.
+```
+release matrix (illustrative)
 
-**Considered alternative: a separate GitHub repo per component.** Rejected for now — multi-repo development is the failure mode ADR 2021-08-11 explicitly fixed for `shopware/development`. Revisit only if a component grows a team whose cadence is *fully* divorced from platform.
+                     core 6.7   core 6.8   core 6.9
+ai-kit 1.x            ✓          ✓
+ai-kit 2.x                       ✓          ✓
+extension-kit 1.x     ✓          ✓          ✓
+extension-kit 2.x                ✓          ✓
+webhook-outbox 1.x               ✓          ✓
+```
 
-**Trade-off.** Contributors must understand both the monorepo and the published-package perspectives. Mitigated by documentation in `developer.shopware.com`.
+A single component branch supports **multiple core versions concurrently**. `shopware/ai-kit:^1` declares `"shopware/core": "^6.7 || ^6.8"` and its CI runs the integration suite against both. This is the property that the monorepo cannot deliver — a working tree can only check out one core branch at a time.
+
+**Rationale.** Concurrent multi-version support is the whole point of the maturity ladder. A component published mid-cycle must be installable on the *currently running* core minor; it cannot wait for the next platform release. Separate repos are the only way to honestly express "this component supports `^6.7 || ^6.8 || ^6.9`" in CI, in tags, and in release notes. ADR 2021-08-11 pulled the *development template* into the platform repo to break a cyclic dependency between `shopware/development` and `shopware/platform`; that cycle does not exist for components, because components depend only on kernel public API and the kernel does not depend on them.
+
+**Considered alternative: monorepo development with split-package release** (the previous draft of this decision). Rejected because:
+
+- A monorepo working tree can be tested against only one core version at a time; supporting `^6.7 || ^6.8` simultaneously requires either branch acrobatics or a duplicated CI tree.
+- Mid-cycle component releases would be blocked on the platform release pipeline.
+- Component teams cannot iterate without taking on the full `shopware/platform` build cost.
+
+**Considered alternative: one monorepo *per component group* (e.g. one repo for all AI-adjacent components).** Open option for components that are genuinely co-developed; defer the question until two such components exist.
+
+**Trade-off.** Multi-repo development has real costs: more PR templates to maintain, more CODEOWNERS files, no atomic cross-component refactor. Mitigations:
+
+- A `shopware/components` umbrella repo (or topic) catalogues all components with their status, owner, core compatibility, and maturity stage.
+- Cross-component breaking changes go through deprecation + version bump like any other dependency change; atomic refactors are not the model.
+- Each component template ships standardised `.github/`, CI workflows, and BC-checker config so the per-repo overhead is one-time.
 
 ## Confirmed existing patterns
 
@@ -264,22 +301,34 @@ They are too central, too coupled to the host, and too large to extract in this 
 
 ### Migration
 
-- **Phase 1 (next minor):** extract `shopware/webhook-outbox` (greenfield, no migration), `shopware/ai-kit` (move MCP workflow tools per the MCP ADR), `shopware/extension-kit` (move `Core/Framework/Store` and `InAppPurchase`). Ship CI matrix + boundary guard.
-- **Phase 2 (minor +1):** `shopware/document-generation`, `shopware/commerce-intelligence` — pending lessons from Phase 1.
+Each component extraction follows the same four-step pattern:
+
+1. **Create the repository.** Stand up `shopware/<component>` with the standard template (CI matrix, BC-checker, boundary guard, CODEOWNERS).
+2. **Publish v1.0 at maturity stage *Optional*.** Move (or copy) the code, declare the core compatibility range, ship. Operators can `composer require shopware/<component>` the day it is published — no core release required.
+3. **Deprecate in core.** Mark the in-core symbols `@deprecated`; provide a thin shim that delegates to the new component if it is installed. Schedule removal for the next core *major*.
+4. **Promote when ready.** Move from *Optional* to *Recommended* (in `shopware/production`'s `require`) once stability is observed, typically one minor later. *Required* (in `shopware/core`'s `require`) is reserved for components without which Shopware would not function — a much higher bar, reached only at a core major.
+
+Phasing:
+
+- **Phase 1 (can begin immediately):** `shopware/webhook-outbox` (greenfield, no migration), `shopware/ai-kit` (move MCP workflow tools per the MCP ADR), `shopware/extension-kit` (move `Core/Framework/Store` and `InAppPurchase`). All three publish as *Optional*; none require a core release to ship.
+- **Phase 2 (next minor):** `shopware/document-generation`, `shopware/commerce-intelligence`. Phase 1 components are candidates for promotion to *Recommended* at this point.
 - **Phase 3:** the long tail (`flow-actions`, `notifications`, `b2b-kit`).
-- For each extraction: an ADR documents placement and public API; a deprecation shim in core re-exports the moved symbols for one minor so plugins are not broken on the day of the extraction.
+- For each extraction: an ADR in `shopware/shopware` documents the placement, public API, and the in-core deprecation; a follow-up ADR in the component repo documents its own evolution.
 
 ## Trade-offs
 
 - **Independent cadence is bounded by Composer.** A component cannot meaningfully ship a new entity that depends on a kernel column that does not yet exist in any supported core minor. The promise is "fast iteration on top of a stable kernel", not "fully decoupled".
 - **The compatibility matrix is real cost.** It must be tested, documented, and communicated. The alternative — no matrix — is worse because incompatibility surfaces at the operator's `composer update`, not in CI.
+- **Multi-repo development has overhead.** No atomic cross-component refactor; every per-repo template (CI, BC-checker, CODEOWNERS, issue forms) must be maintained somewhere. Mitigation: a shared component template and a thin `shopware/components` catalogue repo.
 - **Component boundaries are political, not only technical.** Each component needs an owning team. Naming owners is part of every per-component ADR.
+- **Issue triage shifts cost to contributors.** A user with an AI Kit bug must learn that the report belongs in `shopware/ai-kit`, not `shopware/shopware`. Mitigation: a triage bot on `shopware/shopware` that auto-labels and links.
 - **Storefront and Administration remain monolithic in this round.** Componentising them is a much larger conversation and is explicitly out of scope here.
 
 ## Open questions
 
-1. Do components live under `src/Components/<Name>/` or at `src/<Name>/` (matching `Storefront`, `Elasticsearch`)? Naming impacts upgrade scripts and autoloading.
-2. Each component's GitHub repository: split out, or stay in the monorepo with split-package release? This RFC defaults to the latter; revisit per component if a team's cadence diverges fully.
-3. Support window per component — same as core LTS, or independent? Suggested default: same as core LTS to keep operator messaging simple; advanced components may opt out with justification.
-4. Cross-component dependencies — allowed at all, or only through kernel-mediated events? Suggested default: allowed but must be declared in `composer.json` and tested in the matrix.
-5. Component naming — `shopware/ai-kit` vs `shopware/ai` vs `shopware/component-ai`? Pick a convention before Phase 1 ships.
+1. Support window per component — same as core LTS, or independent? Suggested default: same as core LTS to keep operator messaging simple; advanced components may opt out with justification.
+2. Cross-component dependencies — allowed at all, or only through kernel-mediated events? Suggested default: allowed but must be declared in `composer.json` and tested in the matrix.
+3. Component naming — `shopware/ai-kit` vs `shopware/ai` vs `shopware/component-ai`? Pick a convention before Phase 1 ships.
+4. Component repository template — what goes in the standard `.github/`, CI workflow, BC-checker, and boundary-guard scaffolding so spinning up a new component is a half-day, not a sprint?
+5. Promotion criteria — what *measurable* signals (test coverage, age, plugin adoption, incident count) qualify a component to move *Optional → Recommended → Required*? The maturity ladder needs gates, not vibes.
+6. Issue triage — should component issues opened in `shopware/shopware` be auto-redirected (via a label / bot) to the component repo, or accepted and forwarded manually? Affects contributor UX significantly.

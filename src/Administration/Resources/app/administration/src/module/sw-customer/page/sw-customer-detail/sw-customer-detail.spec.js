@@ -73,8 +73,7 @@ async function createWrapper(privileges = [], editMode = false, customerResponse
                     repositoryFactory: {
                         create: () => {
                             return {
-                                get: () =>
-                                    Promise.resolve(customerResponse),
+                                get: () => Promise.resolve(customerResponse),
 
                                 searchIds: () =>
                                     Promise.resolve({

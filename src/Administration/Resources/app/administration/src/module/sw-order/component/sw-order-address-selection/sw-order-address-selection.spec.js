@@ -114,8 +114,7 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () =>
-                            Promise.resolve(customerResponse),
+                        get: () => Promise.resolve(customerResponse),
                         create: () => ({
                             _isNew: true,
                             getEntityName: () => 'customer_address',

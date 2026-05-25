@@ -184,7 +184,11 @@ export default {
             this.isLoading = true;
 
             try {
-                const customer = await this.customerRepository.get(this.customerId, Shopware.Context.api, this.defaultCriteria);
+                const customer = await this.customerRepository.get(
+                    this.customerId,
+                    Shopware.Context.api,
+                    this.defaultCriteria,
+                );
                 this.customer = customer;
 
                 if (!this.customer) {

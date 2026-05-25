@@ -71,8 +71,7 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectExceptionObject(AppException::notCompatible('test'));
         $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
@@ -89,8 +88,7 @@ class AppLifecycleTest extends TestCase
 
         $appLifecycle = $this->getAppLifecycle($appRepository, $languageRepository, new StaticSourceResolver());
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App test is not compatible with this Shopware version');
+        $this->expectExceptionObject(AppException::notCompatible('test'));
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'test', 'roleId' => 'test'], Context::createDefaultContext());
     }
 

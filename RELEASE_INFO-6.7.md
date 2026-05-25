@@ -416,6 +416,12 @@ A migration registers the product indexer so that only the variant listing updat
 That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration.
 If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
 
+### Elasticsearch: Dedicated `completion` field for admin-search autocomplete
+
+Admin-search autocomplete now flows through a new `completion` field (ngram-indexed, populated with name-shaped values per entity). The ngram subfield has been dropped from `text`/`textBoosted` so identifiers (EAN, productNumber, orderNumber, etc.) no longer feed ngram scoring — fixing a regression where a full GTIN search could be outranked by unrelated products with overlapping digit substrings.
+
+Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
+
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".

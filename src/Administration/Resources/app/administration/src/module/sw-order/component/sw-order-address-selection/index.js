@@ -73,6 +73,10 @@ export default {
             return this.order.orderCustomer;
         },
 
+        hasCustomer() {
+            return !!this.customer?.id;
+        },
+
         orderRepository() {
             return this.repositoryFactory.create('order');
         },
@@ -165,6 +169,10 @@ export default {
         },
 
         createNewCustomerAddress() {
+            if (!this.hasCustomer) {
+                return;
+            }
+
             const newAddress = this.addressRepository.create();
             newAddress.customerId = this.customer.id;
 
@@ -198,6 +206,10 @@ export default {
                             message: this.$t('sw-order.detail.messageSaveError'),
                         });
                     });
+            }
+
+            if (!this.hasCustomer) {
+                return Promise.resolve();
             }
 
             const address =
@@ -277,7 +289,9 @@ export default {
 
         getCustomer() {
             if (!this.orderCustomer.customerId) {
-                return Promise.reject();
+                this.customer = null;
+
+                return Promise.resolve(null);
             }
 
             return this.customerRepository

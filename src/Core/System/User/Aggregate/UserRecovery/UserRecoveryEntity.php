@@ -30,6 +30,8 @@ class UserRecoveryEntity extends Entity
 
     public function getHash(): string
     {
+        $this->checkIfPropertyAccessIsAllowed('hash');
+
         return $this->hash;
     }
 

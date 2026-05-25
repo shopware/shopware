@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseHelper\AssertResponseHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -173,8 +174,22 @@ class DownloadServiceTest extends TestCase
         $fileRepository = new StaticEntityRepository([new EntityCollection([$fileEntity])]);
 
         $fileSystem = $this->createMock(Filesystem::class);
-        $fileSystem->expects($this->once())->method('temporaryUrl')->willReturn('https://example.com/download');
+        $fileSystem->expects($this->once())->method('temporaryUrl')->with(
+            'export/foobar.txt',
+            static::isInstanceOf(\DateTimeImmutable::class),
+            [
+                'get_object_options' => [
+                    'ResponseContentDisposition' => HeaderUtils::makeDisposition(
+                        HeaderUtils::DISPOSITION_ATTACHMENT,
+                        'products.csv',
+                        'products.csv'
+                    ),
+                    'ResponseContentType' => 'text/csv',
+                ],
+            ]
+        )->willReturn('https://example.com/download');
         $fileSystem->expects($this->never())->method('readStream');
+        $fileSystem->expects($this->never())->method('fileSize');
 
         $downloadService = $this->createDownloadService(
             fileSystem: $fileSystem,
@@ -391,6 +406,7 @@ class DownloadServiceTest extends TestCase
             $logger,
             $localDownloadStrategy,
             $localPathPrefix,
+            new NativeClock()
         );
     }
 

@@ -137,26 +137,24 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<array{template: string, count: int, pathInfo: string}>
+     * @return iterable<string, array{template: string, count: int, pathInfo: string}>
      */
-    public static function templateDataProvider(): array
+    public static function templateDataProvider(): iterable
     {
-        return [
-            [
-                'template' => '{{ id }}',
-                'count' => 1,
-                'pathInfo' => 'id',
-            ],
-            [
-                'template' => 'STATIC',
-                'count' => 1,
-                'pathInfo' => 'STATIC',
-            ],
-            [
-                'template' => '',
-                'count' => 0,
-                'pathInfo' => '',
-            ],
+        yield 'dynamic template renders one SEO URL' => [
+            'template' => '{{ id }}',
+            'count' => 1,
+            'pathInfo' => 'id',
+        ];
+        yield 'static template renders one SEO URL' => [
+            'template' => 'STATIC',
+            'count' => 1,
+            'pathInfo' => 'STATIC',
+        ];
+        yield 'empty template renders no SEO URLs' => [
+            'template' => '',
+            'count' => 0,
+            'pathInfo' => '',
         ];
     }
 

@@ -87,12 +87,13 @@ class InfoControllerTest extends TestCase
             'adminWorker' => [
                 'enableAdminWorker' => true,
                 'enableNotificationWorker' => true,
-                'transports' => ['async', 'low_priority'],
+                'transports' => ['webhook', 'async', 'low_priority'],
                 'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
+                'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
@@ -446,6 +447,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -522,6 +524,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));

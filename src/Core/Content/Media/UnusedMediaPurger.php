@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInUnusedMediaSearch;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -129,6 +130,10 @@ class UnusedMediaPurger
      */
     public function searchMedia(array $ids, Context $context): array
     {
+        if ($ids === []) {
+            return [];
+        }
+
         $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
 
         return array_values($media);
@@ -149,7 +154,7 @@ class UnusedMediaPurger
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
-        if ($gracePeriodDays === 0) {
+        if ($gracePeriodDays === 0 || $mediaIds === []) {
             return $mediaIds;
         }
 
@@ -241,6 +246,10 @@ class UnusedMediaPurger
             }
 
             if (!\in_array($field::class, self::VALID_ASSOCIATIONS, true)) {
+                continue;
+            }
+
+            if ($field->is(IgnoreInUnusedMediaSearch::class)) {
                 continue;
             }
 

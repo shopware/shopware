@@ -32,6 +32,7 @@ class ThemeRuntimeConfigStorage
                 `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
+                `import_map`,
                 `updated_at`
                 FROM `theme_runtime_config`
                 WHERE `technical_name` = :technicalName
@@ -57,6 +58,7 @@ class ThemeRuntimeConfigStorage
                 `view_inheritance`,
                 `script_files`,
                 `icon_sets`,
+                `import_map`,
                 `updated_at`
                 FROM `theme_runtime_config`
                 WHERE `theme_id` = :themeId
@@ -74,8 +76,8 @@ class ThemeRuntimeConfigStorage
     public function save(ThemeRuntimeConfig $config): void
     {
         $this->connection->executeStatement(<<<'SQL'
-            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, view_inheritance, script_files, icon_sets, updated_at)
-            VALUES (:themeId, :technicalName, :resolvedConfig, :viewInheritance, :scriptFiles, :iconSets, :updatedAt)
+            REPLACE INTO `theme_runtime_config` (theme_id, technical_name, resolved_config, view_inheritance, script_files, icon_sets, import_map, updated_at)
+            VALUES (:themeId, :technicalName, :resolvedConfig, :viewInheritance, :scriptFiles, :iconSets, :importMap, :updatedAt)
             SQL, [
             'themeId' => Uuid::fromHexToBytes($config->themeId),
             'technicalName' => $config->technicalName,
@@ -83,6 +85,9 @@ class ThemeRuntimeConfigStorage
             'viewInheritance' => json_encode($config->viewInheritance, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_encode($config->scriptFiles, \JSON_THROW_ON_ERROR),
             'iconSets' => json_encode($config->iconSets, \JSON_THROW_ON_ERROR),
+            'importMap' => $config->importMap !== null
+                ? json_encode($config->importMap, \JSON_THROW_ON_ERROR)
+                : null,
             'updatedAt' => $config->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -207,6 +212,9 @@ class ThemeRuntimeConfigStorage
             'viewInheritance' => json_decode($record['view_inheritance'], true, 512, \JSON_THROW_ON_ERROR),
             'scriptFiles' => json_decode($record['script_files'], true, 512, \JSON_THROW_ON_ERROR),
             'iconSets' => json_decode($record['icon_sets'], true, 512, \JSON_THROW_ON_ERROR),
+            'importMap' => isset($record['import_map'])
+                ? json_decode($record['import_map'], true, 512, \JSON_THROW_ON_ERROR)
+                : null,
             'updatedAt' => \DateTime::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $record['updated_at']) ?: null,
         ]);
     }

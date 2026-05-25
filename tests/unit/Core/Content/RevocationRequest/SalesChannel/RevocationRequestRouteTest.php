@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -168,6 +169,7 @@ class RevocationRequestRouteTest extends TestCase
             $systemConfigServiceMock,
             $cmsSlotRepository,
             $categoryRepository,
+            new NativeClock()
         );
     }
 

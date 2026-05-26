@@ -12,10 +12,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedHook;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoadedHook;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Symfony\Component\DomCrawler\Crawler;
 
 /**
  * @internal
@@ -63,6 +65,23 @@ class NavigationControllerTest extends TestCase
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testRevocationButtonIsRenderedOutsideCollapsedHotlineContent(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.basicInformation.revocationRequestPage', $this->ids->create('revocation-request-page'), $salesChannelId);
+        $systemConfigService->set('core.basicInformation.showRevocationButton', true, $salesChannelId);
+
+        $response = $this->request('GET', '_esi/global/footer', [], [], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        $crawler = new Crawler((string) $response->getContent());
+
+        static::assertCount(1, $crawler->filter('.footer-revocation-button'), 'The revocation button should be rendered exactly once.');
+        static::assertCount(0, $crawler->filter('#collapseFooterHotline .footer-revocation-button'), 'The revocation button must not be rendered inside the collapsed hotline content.');
+        static::assertCount(1, $crawler->filter('.footer-column.pb-4.pb-md-0 .footer-revocation-button'), 'The revocation button should remain inside the padded footer column.');
     }
 
     public function testStorefrontRedirectsOutOfRangePaginationTo301(): void

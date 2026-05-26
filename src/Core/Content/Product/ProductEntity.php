@@ -11,6 +11,7 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
@@ -257,6 +258,8 @@ class ProductEntity extends Entity implements \Stringable
     protected ?ProductStreamCollection $streams = null;
 
     protected ?ProductDownloadCollection $downloads = null;
+
+    protected ?ProductDocumentCollection $productDocuments = null;
 
     protected ?string $openGraphMediaId = null;
 
@@ -1266,6 +1269,16 @@ class ProductEntity extends Entity implements \Stringable
     public function setDownloads(ProductDownloadCollection $downloads): void
     {
         $this->downloads = $downloads;
+    }
+
+    public function getProductDocuments(): ?ProductDocumentCollection
+    {
+        return $this->productDocuments;
+    }
+
+    public function setProductDocuments(ProductDocumentCollection $productDocuments): void
+    {
+        $this->productDocuments = $productDocuments;
     }
 
     /**

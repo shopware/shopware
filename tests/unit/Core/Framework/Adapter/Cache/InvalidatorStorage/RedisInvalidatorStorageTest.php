@@ -118,8 +118,7 @@ class RedisInvalidatorStorageTest extends TestCase
 
         $storage = new RedisInvalidatorStorage($redis, $logger);
 
-        $this->expectException(\RedisException::class);
-        $this->expectExceptionMessage('Redis is down');
+        $this->expectExceptionObject(new \RedisException('Redis is down'));
 
         $storage->loadAndDelete();
     }

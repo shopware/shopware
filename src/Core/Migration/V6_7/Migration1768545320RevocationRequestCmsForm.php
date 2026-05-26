@@ -32,16 +32,17 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
     {
         $enLanguageByteId = $this->getLanguageIdByLocale($connection, 'en-GB');
         $deLanguageByteId = $this->getLanguageIdByLocale($connection, 'de-DE');
+        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $cmsPageByteId = $this->createCmsPage($connection, $enLanguageByteId, $deLanguageByteId);
-        $cmsSectionByteId = $this->createCmsSection($connection, $cmsPageByteId);
-        $cmsBlockByteId = $this->createCmsBlock($connection, $cmsSectionByteId);
-        $this->createCmsSlot($connection, $cmsBlockByteId, $enLanguageByteId, $deLanguageByteId);
+        $cmsPageByteId = $this->createCmsPage($connection, $versionByteId, $enLanguageByteId, $deLanguageByteId);
+        $cmsSectionByteId = $this->createCmsSection($connection, $cmsPageByteId, $versionByteId);
+        $cmsBlockByteId = $this->createCmsBlock($connection, $cmsSectionByteId, $versionByteId);
+        $this->createCmsSlot($connection, $cmsBlockByteId, $versionByteId, $enLanguageByteId, $deLanguageByteId);
     }
 
-    private function createCmsPage(Connection $connection, ?string $enLanguageByteId, ?string $deLanguageByteId): string
+    private function createCmsPage(Connection $connection, string $versionByteId, ?string $enLanguageByteId, ?string $deLanguageByteId): string
     {
-        $cmsPageByteId = $this->getCmsPageId($connection);
+        $cmsPageByteId = $this->getCmsPageId($connection, $versionByteId);
         if ($cmsPageByteId !== null) {
             return $cmsPageByteId;
         }
@@ -52,6 +53,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             'cms_page',
             [
                 'id' => $cmsPageByteId,
+                'version_id' => $versionByteId,
                 'type' => 'page',
                 'locked' => 1,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -63,6 +65,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
                 'cms_page_translation',
                 [
                     'cms_page_id' => $cmsPageByteId,
+                    'cms_page_version_id' => $versionByteId,
                     'language_id' => $enLanguageByteId,
                     'name' => self::CMS_PAGE_TRANSLATIONS['en_name'],
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -75,6 +78,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
                 'cms_page_translation',
                 [
                     'cms_page_id' => $cmsPageByteId,
+                    'cms_page_version_id' => $versionByteId,
                     'language_id' => $deLanguageByteId,
                     'name' => self::CMS_PAGE_TRANSLATIONS['de_name'],
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -85,9 +89,9 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
         return $cmsPageByteId;
     }
 
-    private function createCmsSection(Connection $connection, string $cmsPageByteId): string
+    private function createCmsSection(Connection $connection, string $cmsPageByteId, string $versionByteId): string
     {
-        $cmsSectionByteId = $this->getCmsSectionId($connection, $cmsPageByteId);
+        $cmsSectionByteId = $this->getCmsSectionId($connection, $cmsPageByteId, $versionByteId);
         if ($cmsSectionByteId !== null) {
             return $cmsSectionByteId;
         }
@@ -97,7 +101,9 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             'cms_section',
             [
                 'id' => $cmsSectionByteId,
+                'version_id' => $versionByteId,
                 'cms_page_id' => $cmsPageByteId,
+                'cms_page_version_id' => $versionByteId,
                 'position' => 0,
                 'type' => 'default',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -107,9 +113,9 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
         return $cmsSectionByteId;
     }
 
-    private function createCmsBlock(Connection $connection, string $cmsSectionByteId): string
+    private function createCmsBlock(Connection $connection, string $cmsSectionByteId, string $versionByteId): string
     {
-        $cmsBlockByteId = $this->getCmsBlockId($connection);
+        $cmsBlockByteId = $this->getCmsBlockId($connection, $cmsSectionByteId, $versionByteId);
         if ($cmsBlockByteId !== null) {
             return $cmsBlockByteId;
         }
@@ -119,8 +125,10 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
             'cms_block',
             [
                 'id' => $cmsBlockByteId,
+                'version_id' => $versionByteId,
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'cms_section_id' => $cmsSectionByteId,
+                'cms_section_version_id' => $versionByteId,
                 'locked' => 1,
                 'position' => 1,
                 'type' => 'form',
@@ -139,11 +147,11 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
     private function createCmsSlot(
         Connection $connection,
         string $cmsBlockByteId,
+        string $versionByteId,
         ?string $enLanguageByteId,
         ?string $deLanguageByteId
     ): void {
-        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
-        $cmsSlotByteId = $this->getCmsSlotId($connection, $cmsBlockByteId);
+        $cmsSlotByteId = $this->getCmsSlotId($connection, $cmsBlockByteId, $versionByteId);
         if ($cmsSlotByteId !== null) {
             return;
         }
@@ -155,6 +163,7 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
                 'id' => $cmsSlotByteId,
                 'locked' => 1,
                 'cms_block_id' => $cmsBlockByteId,
+                'cms_block_version_id' => $versionByteId,
                 'type' => 'form',
                 'slot' => 'content',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -197,18 +206,23 @@ class Migration1768545320RevocationRequestCmsForm extends MigrationStep
         }
     }
 
-    private function getCmsPageId(Connection $connection): ?string
+    private function getCmsPageId(Connection $connection, string $versionByteId): ?string
     {
         $sql = <<<'SQL'
 SELECT `id` 
 FROM `cms_page` AS `page`
 INNER JOIN `cms_page_translation` AS `page_translation` ON `page`.`id` = `page_translation`.`cms_page_id`
-WHERE page_translation.name = :name
+    AND `page`.`version_id` = `page_translation`.`cms_page_version_id`
+WHERE `page`.`version_id` = :versionId
+    AND page_translation.name = :name
 SQL;
 
         $cmsPageByteId = $connection->executeQuery(
             $sql,
-            ['name' => self::CMS_PAGE_TRANSLATIONS['en_name']]
+            [
+                'name' => self::CMS_PAGE_TRANSLATIONS['en_name'],
+                'versionId' => $versionByteId,
+            ]
         )->fetchOne();
 
         if (!\is_string($cmsPageByteId)) {
@@ -218,11 +232,14 @@ SQL;
         return $cmsPageByteId;
     }
 
-    private function getCmsSectionId(Connection $connection, string $cmsPageByteId): ?string
+    private function getCmsSectionId(Connection $connection, string $cmsPageByteId, string $versionByteId): ?string
     {
         $cmsSectionByteId = $connection->executeQuery(
-            'SELECT `id` FROM `cms_section` WHERE `cms_page_id` = :cmsPageId',
-            ['cmsPageId' => $cmsPageByteId]
+            'SELECT `id` FROM `cms_section` WHERE `cms_page_id` = :cmsPageId AND `cms_page_version_id` = :versionId AND `version_id` = :versionId',
+            [
+                'cmsPageId' => $cmsPageByteId,
+                'versionId' => $versionByteId,
+            ]
         )->fetchOne();
 
         if (!\is_string($cmsSectionByteId)) {
@@ -232,11 +249,15 @@ SQL;
         return $cmsSectionByteId;
     }
 
-    private function getCmsBlockId(Connection $connection): ?string
+    private function getCmsBlockId(Connection $connection, string $cmsSectionByteId, string $versionByteId): ?string
     {
         $cmsBlockByteId = $connection->executeQuery(
-            'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName',
-            ['cmsBlockName' => self::CMS_BLOCK_NAME]
+            'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName AND `cms_section_id` = :cmsSectionId AND `cms_section_version_id` = :versionId AND `version_id` = :versionId',
+            [
+                'cmsBlockName' => self::CMS_BLOCK_NAME,
+                'cmsSectionId' => $cmsSectionByteId,
+                'versionId' => $versionByteId,
+            ]
         )->fetchOne();
 
         if (!\is_string($cmsBlockByteId)) {
@@ -246,12 +267,13 @@ SQL;
         return $cmsBlockByteId;
     }
 
-    private function getCmsSlotId(Connection $connection, string $cmsBlockByteId): ?string
+    private function getCmsSlotId(Connection $connection, string $cmsBlockByteId, string $versionByteId): ?string
     {
         $cmsSlotByteId = $connection->executeQuery(
-            'SELECT `id` FROM `cms_slot` WHERE `cms_block_id` = :cmsBlockId',
+            'SELECT `id` FROM `cms_slot` WHERE `cms_block_id` = :cmsBlockId AND `cms_block_version_id` = :versionId AND `version_id` = :versionId',
             [
                 'cmsBlockId' => $cmsBlockByteId,
+                'versionId' => $versionByteId,
             ]
         )->fetchOne();
 

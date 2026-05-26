@@ -15,6 +15,11 @@ use Shopware\Core\Migration\V6_6\Migration1707807389ChangeAvailableDefault;
 #[CoversClass(Migration1707807389ChangeAvailableDefault::class)]
 class Migration1707807389ChangeAvailableDefaultTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1707807389, (new Migration1707807389ChangeAvailableDefault())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $connection = KernelLifecycleManager::getConnection();

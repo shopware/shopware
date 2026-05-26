@@ -1,0 +1,17 @@
+@import "~scss/variables";
+
+.sw-cms-el-category-name {
+    &__skeleton,
+    &__placeholder {
+        background-color: $color-gray-100;
+        height: 32px;
+        border-radius: $border-radius-pill;
+        margin-bottom: 16px;
+        max-width: 100%;
+    }
+
+    &__placeholder {
+        color: $color-darkgray-200;
+        padding: 4px 12px;
+    }
+}

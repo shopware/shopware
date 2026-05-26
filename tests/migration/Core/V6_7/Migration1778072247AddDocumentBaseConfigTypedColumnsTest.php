@@ -32,6 +32,11 @@ class Migration1778072247AddDocumentBaseConfigTypedColumnsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1778072247, (new Migration1778072247AddDocumentBaseConfigTypedColumns())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $migration = new Migration1778072247AddDocumentBaseConfigTypedColumns();

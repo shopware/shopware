@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\Clock\Clock;
 
 #[Package('after-sales')]
 class ZugferdDocument
@@ -158,7 +159,7 @@ class ZugferdDocument
         ];
 
         $this->zugferdBuilder
-            ->addDocumentPaymentTerm(null, (new \DateTime())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
+            ->addDocumentPaymentTerm(null, \DateTime::createFromImmutable(Clock::get()->now())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
             ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
             ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
             ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())

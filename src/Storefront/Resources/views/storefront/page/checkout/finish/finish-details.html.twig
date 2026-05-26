@@ -20,6 +20,23 @@
                     </p>
                 {% endblock %}
 
+                {% block page_checkout_finish_enhanced_conversions %}
+                    {% if storefrontAnalytics and storefrontAnalytics.isActive() and storefrontAnalytics.isTrackOrders() and storefrontAnalytics.isEnhancedConversions() %}
+                        {# Google Enhanced Conversions requires email normalization before hashing:
+                           https://support.google.com/google-ads/answer/13258081 #}
+                        {% set email = page.order.orderCustomer.email|lower|trim %}
+                        {% set emailParts = email|split('@') %}
+                        {% if emailParts[1] == 'gmail.com' or emailParts[1] == 'googlemail.com' %}
+                            {% set email = emailParts[0]|replace({'.': ''}) ~ '@' ~ emailParts[1] %}
+                        {% endif %}
+                        <script>
+                            gtag('set', 'user_data', {
+                                'sha256_email_address': '{{ email|sha256 }}'
+                            });
+                        </script>
+                    {% endif %}
+                {% endblock %}
+
                 {% block page_checkout_finish_hidden_information_line_items %}
                     {% sw_include '@Storefront/storefront/component/checkout/hidden-line-items-information.html.twig' with {
                         cart: page.order,

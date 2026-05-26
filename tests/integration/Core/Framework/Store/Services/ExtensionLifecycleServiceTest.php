@@ -97,8 +97,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testInstallAppNotExisting(): void
     {
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Cannot find app by name notExisting');
+        $this->expectExceptionObject(StoreException::extensionInstallException('Cannot find app by name notExisting'));
         $this->lifecycleService->install('app', 'notExisting', $this->context);
     }
 
@@ -152,16 +151,14 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUpdateExtensionNotExisting(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot find extension');
+        $this->expectExceptionObject(new \RuntimeException('Cannot find extension'));
         $this->lifecycleService->update('app', 'foo', false, $this->context);
     }
 
     public function testUpdateExtensionNotInstalled(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
-        $this->expectException(StoreException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "TestApp"');
+        $this->expectExceptionObject(StoreException::extensionNotFoundFromTechnicalName('TestApp'));
         $this->lifecycleService->update('app', 'TestApp', false, $this->context);
     }
 

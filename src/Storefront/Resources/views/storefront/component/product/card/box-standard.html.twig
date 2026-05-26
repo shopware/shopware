@@ -62,10 +62,13 @@
                                                 } %}
                                             {% endblock %}
                                         {% else %}
-                                            {% set attributes = attributes|merge({
-                                                alt: (cover.translated.alt ?: name),
-                                                loading: 'lazy'
-                                            }) %}
+                                            {% if cover.translated.alt %}
+                                                {% set attributes = attributes|merge({ alt: cover.translated.alt }) %}
+                                            {% else %}
+                                                {% set attributes = attributes|merge({ alt: '', 'aria-hidden': 'true' }) %}
+                                            {% endif %}
+
+                                            {% set attributes = attributes|merge({ loading: 'lazy' }) %}
 
                                             {% if displayMode == 'cover' or displayMode == 'contain' %}
                                                 {% set attributes = attributes|merge({ 'data-object-fit': displayMode }) %}

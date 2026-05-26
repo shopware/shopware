@@ -202,6 +202,33 @@ class GoogleProductExportValidatorTest extends TestCase
         static::assertCount(0, $errors);
     }
 
+    public function testValidateAddsErrorForInvalidAgeGroup(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['age_group' => 'Erwachsene']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(1, $errors);
+        $error = $errors->first();
+        static::assertInstanceOf(ProviderValidationError::class, $error);
+        static::assertSame('age_group', $error->getParameters()['field']);
+    }
+
+    public function testValidateAcceptsValidAgeGroup(): void
+    {
+        $entity = $this->createProductExportEntity();
+        $errors = new ErrorCollection();
+
+        $item = $this->createValidItem(['age_group' => 'adult']);
+
+        (new GoogleProductExportValidator())->validate($entity, $this->wrapItems($item), $errors);
+
+        static::assertCount(0, $errors);
+    }
+
     public function testValidateAddsErrorForInvalidPriceFormat(): void
     {
         $entity = $this->createProductExportEntity();
@@ -295,7 +322,7 @@ class GoogleProductExportValidatorTest extends TestCase
 
         $values = array_replace($defaults, $overrides);
 
-        $googleFields = ['id', 'image_link', 'availability', 'condition', 'price', 'brand', 'gtin', 'mpn', 'identifier_exists', 'gender', 'size_system'];
+        $googleFields = ['id', 'image_link', 'availability', 'condition', 'price', 'brand', 'gtin', 'mpn', 'identifier_exists', 'gender', 'size_system', 'age_group'];
 
         $xml = '<item>';
 

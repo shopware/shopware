@@ -65,6 +65,17 @@ class GoogleProductExportValidator extends AbstractProviderValidator
     /**
      * @var list<string>
      */
+    private const ALLOWED_AGE_GROUP_VALUES = [
+        'newborn',
+        'infant',
+        'toddler',
+        'kids',
+        'adult',
+    ];
+
+    /**
+     * @var list<string>
+     */
     private const REQUIRED_GOOGLE_FIELDS = [
         'id',
         'availability',
@@ -251,6 +262,17 @@ class GoogleProductExportValidator extends AbstractProviderValidator
                     $this->getProviderTechnicalName(),
                     'size_system',
                     'The field "g:size_system" must be one of: AU, BR, CN, DE, EU, FR, IT, JP, MEX, UK, US.',
+                    $line
+                ));
+            }
+
+            $ageGroup = trim((string) ($googleChildren->age_group ?? ''));
+            if ($ageGroup !== '' && !\in_array($ageGroup, self::ALLOWED_AGE_GROUP_VALUES, true)) {
+                $errors->add(new ProviderValidationError(
+                    $productExportEntity->getId(),
+                    $this->getProviderTechnicalName(),
+                    'age_group',
+                    'The field "g:age_group" must be one of: newborn, infant, toddler, kids, adult.',
                     $line
                 ));
             }

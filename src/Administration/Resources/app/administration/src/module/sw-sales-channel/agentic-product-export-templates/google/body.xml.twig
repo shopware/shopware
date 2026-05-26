@@ -201,6 +201,9 @@
     {% if mappedVariantOptions.gender is defined and mappedVariantOptions.gender %}
         <g:gender>{{ mappedVariantOptions.gender|escape }}</g:gender>
     {% endif %}
+    {% if mappedVariantOptions.age_group is defined and mappedVariantOptions.age_group %}
+        <g:age_group>{{ mappedVariantOptions.age_group|escape }}</g:age_group>
+    {% endif %}
     {% if mappedVariantOptions.material is defined and mappedVariantOptions.material %}
         <g:material>{{ mappedVariantOptions.material|escape }}</g:material>
     {% endif %}

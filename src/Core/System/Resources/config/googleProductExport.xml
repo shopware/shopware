@@ -74,6 +74,17 @@
         </component>
 
         <component name="sw-entity-multi-id-select">
+            <name>variantAgeGroup</name>
+            <entity>property_group</entity>
+            <label>Variant age group mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenaltersgruppe</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "newborn", "infant", "toddler", "kids", or "adult" for this attribute — other values will be ignored. Required for apparel &amp; accessories.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "newborn", "infant", "toddler", "kids" oder "adult" — andere Werte werden ignoriert. Erforderlich für Bekleidung und Accessoires.</helpText>
+        </component>
+
+        <component name="sw-entity-multi-id-select">
             <name>variantMaterial</name>
             <entity>property_group</entity>
             <label>Variant material mapping</label>

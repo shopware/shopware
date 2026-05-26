@@ -79,6 +79,7 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
             'size' => $this->normalizeMappingValue($mapping, 'variantSize'),
             'size_system' => $this->normalizeMappingValue($mapping, 'variantSizeSystem'),
             'gender' => $this->normalizeMappingValue($mapping, 'variantGender'),
+            'age_group' => $this->normalizeMappingValue($mapping, 'variantAgeGroup'),
             'material' => $this->normalizeMappingValue($mapping, 'variantMaterial'),
             'custom_variants' => $this->normalizeMappingValue($mapping, 'variantCustom'),
         ];

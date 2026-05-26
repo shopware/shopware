@@ -301,6 +301,27 @@ export default {
             return item.type === this.lineItemTypes.PRODUCT;
         },
 
+        getProductRouteId(item) {
+            return item.identifier || item.referencedId || item.id;
+        },
+
+        canOpenProduct(item) {
+            return this.isProductItem(item) && !!item.payload && !!this.getProductRouteId(item);
+        },
+
+        getProductRoute(item) {
+            if (!this.canOpenProduct(item)) {
+                return null;
+            }
+
+            return {
+                name: 'sw.product.detail',
+                params: {
+                    id: this.getProductRouteId(item),
+                },
+            };
+        },
+
         getMinItemPrice(item) {
             if (this.isCreditItem(item)) {
                 return null;

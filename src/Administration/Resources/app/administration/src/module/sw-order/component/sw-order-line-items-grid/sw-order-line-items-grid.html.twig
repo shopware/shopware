@@ -162,10 +162,10 @@
                 {% block sw_order_line_items_grid_column_payload_options %}
                 {% block sw_order_line_items_grid_column_payload_options_link %}
                 <router-link
-                    v-if="item.payload && item.payload.options"
+                    v-if="item.payload && item.payload.options && canOpenProduct(item)"
                     class="sw-order-line-items-grid__item-payload-options"
                     :title="$t('sw-order.detailBase.contextMenuShowProduct')"
-                    :to="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                    :to="getProductRoute(item)"
                 >
                     <sw-product-variant-info :variations="item.payload.options">
                         <div class="sw-order-line-items-grid__item-label">
@@ -314,8 +314,8 @@
         <template #actions="{ item, itemIndex }">
             {% block sw_order_line_items_grid_grid_actions_show %}
             <sw-context-menu-item
-                :disabled="!isProductItem(item) || undefined"
-                :router-link="{ name: 'sw.product.detail', params: { id: item.productId } }"
+                :disabled="!canOpenProduct(item) || undefined"
+                :router-link="getProductRoute(item)"
             >
 
                 {% block sw_order_line_items_grid_grid_actions_show_label %}

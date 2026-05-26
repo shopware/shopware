@@ -135,12 +135,12 @@
 
                     {% block sw_order_line_items_grid_column_payload_options %}
                     <mt-link
-                        v-if="item.payload && item.payload.options"
+                        v-if="item.payload && item.payload.options && canOpenProduct(item)"
                         type="external"
                         target="_blank"
                         class="sw-order-line-items-grid-sales-channel__item-payload-options"
                         :title="$t('sw-order.detailBase.contextMenuShowProduct')"
-                        :to="$router.resolve({ name: 'sw.product.detail', params: { id: item.identifier || item.id } }).href"
+                        :to="$router.resolve(getProductRoute(item)).href"
                     >
                         <sw-product-variant-info :variations="item.payload.options">
                             <div class="sw-order-line-items-grid__item-label">
@@ -268,9 +268,9 @@
             <template #actions="{ item }">
                 {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
                 <sw-context-menu-item
-                    :disabled="!isProductItem(item) || !item.payload || undefined"
+                    :disabled="!canOpenProduct(item) || undefined"
                     icon="regular-eye"
-                    :router-link="{ name: 'sw.product.detail', params: { id: item.id } }"
+                    :router-link="getProductRoute(item)"
                     target="_blank"
                     rel="noopener"
                 >

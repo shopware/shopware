@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminIndexingBehavior;
 use Shopware\Elasticsearch\Admin\AdminSearchIndexingMessage;
@@ -103,16 +102,12 @@ class AdminSearchRegistryTest extends TestCase
 
         $properties = [
             'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-            'textBoosted' => AbstractAdminIndexer::SEARCH_FIELD,
-            'text' => AbstractAdminIndexer::SEARCH_FIELD,
+            'textBoosted' => AbstractAdminIndexer::TEXT_FIELD,
+            'text' => AbstractAdminIndexer::TEXT_FIELD,
+            'completion' => AbstractAdminIndexer::COMPLETION_FIELD,
             'entityName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
         ];
-
-        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            $properties['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-            $properties['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-        }
 
         $this->indexer->expects($this->once())
             ->method('mapping')
@@ -367,6 +362,7 @@ class AdminSearchRegistryTest extends TestCase
                         'parameters' => [],
                         'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
                         'textBoosted' => '',
+                        'completion' => [],
                         'id' => 'c1a28776116d4431a2208eb2960ec340',
                     ],
                 ],
@@ -548,6 +544,7 @@ class AdminSearchRegistryTest extends TestCase
                         'parameters' => [],
                         'text' => 'c1a28776116d4431a2208eb2960ec340 elasticsearch',
                         'textBoosted' => '',
+                        'completion' => [],
                         'id' => 'c1a28776116d4431a2208eb2960ec340',
                     ],
                 ],

@@ -16,10 +16,40 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use {@see self::TEXT_FIELD} and route
+     * substring autocomplete through {@see self::COMPLETION_FIELD} instead.
+     */
     final public const SEARCH_FIELD = [
         'type' => 'text',
         'fields' => [
             'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
+    /**
+     * Plain text field used for `text` and `textBoosted` — no ngram subfield.
+     * Substring autocomplete is handled by the dedicated `completion` field.
+     */
+    final public const TEXT_FIELD = ['type' => 'text'];
+
+    /**
+     * Autocomplete field. The main subfield uses a word-delimiter chain for
+     * whole-word matches (handles "T-Shirt" ↔ "shirt"). The `ngram` subfield
+     * uses `sw_whitespace_analyzer` as `search_analyzer` so only short queries
+     * (≤ ngram `max_gram`) hit the substring path — longer identifier-shaped
+     * queries fall through cleanly and don't pull in trigram noise.
+     */
+    final public const COMPLETION_FIELD = [
+        'type' => 'text',
+        'analyzer' => 'sw_admin_completion_index_analyzer',
+        'search_analyzer' => 'sw_admin_completion_search_analyzer',
+        'fields' => [
+            'ngram' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+            ],
         ],
     ];
 
@@ -52,7 +82,7 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{id: string, text: string, textBoosted?: string, completion?: list<string>}>
      */
     abstract public function fetch(array $ids): array;
 
@@ -104,6 +134,32 @@ abstract class AbstractAdminIndexer
         }
 
         return $prefixedFields;
+    }
+
+    /**
+     * Normalize values for the `completion` field: drop empties, lowercase,
+     * dedupe.
+     *
+     * @param list<string|null> $values
+     *
+     * @return list<string>
+     */
+    protected function buildCompletion(array $values): array
+    {
+        $result = [];
+        foreach ($values as $value) {
+            if (!\is_string($value)) {
+                continue;
+            }
+            $value = trim($value);
+            if ($value === '') {
+                continue;
+            }
+
+            $result[] = mb_strtolower($value);
+        }
+
+        return array_values(array_unique($result));
     }
 
     /**

@@ -14,8 +14,20 @@ describe('sw-settings-storefront-index', () => {
         return shallowMount(component, {
             global: {
                 stubs: {
-                    'sw-page': true,
-                    'sw-button-process': true,
+                    'sw-page': {
+                        template: `
+                            <div>
+                                <slot name="smart-bar-actions"></slot>
+                            </div>
+                        `,
+                    },
+                    'sw-button-process': {
+                        props: ['processSuccess'],
+                        emits: ['click', 'update:processSuccess'],
+                        template: `
+                            <button class="sw-button-process" @click="$emit('click')"><slot></slot></button>
+                        `,
+                    },
                     'sw-card-view': true,
                     'sw-skeleton': true,
                     'mt-card': true,
@@ -179,12 +191,16 @@ describe('sw-settings-storefront-index', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('reloads content after save finish', async () => {
+    it('resets the save button after the success animation without reloading the page', async () => {
         const wrapper = await createWrapper();
-        const loadSpy = jest.spyOn(wrapper.vm, 'loadPageContent').mockImplementation(() => {});
+        const loadSpy = jest.spyOn(wrapper.vm, 'loadPageContent').mockImplementation(() => Promise.resolve());
 
-        await wrapper.vm.onSaveFinish();
+        wrapper.vm.isSaveSuccessful = true;
 
-        expect(loadSpy).toHaveBeenCalled();
+        wrapper.getComponent('.sw-button-process').vm.$emit('update:processSuccess', false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.isSaveSuccessful).toBe(false);
+        expect(loadSpy).not.toHaveBeenCalled();
     });
 });

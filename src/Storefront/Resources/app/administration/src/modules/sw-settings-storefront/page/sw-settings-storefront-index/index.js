@@ -147,10 +147,5 @@ export default {
                 this.isLoading = false;
             }
         },
-
-        async onSaveFinish() {
-            this.isSaveSuccessful = false;
-            await this.loadPageContent();
-        },
     },
 };

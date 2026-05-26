@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Ucp\Command;
+namespace Shopware\Core\Framework\Ucp\Conformance\Command;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -27,9 +27,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * Seeds the official UCP conformance "flower_shop" fixture into Shopware.
  *
+ * This command is registered ONLY in non-production environments (dev/test).
+ * It exists to set up the deterministic catalog the upstream Python
+ * conformance suite (`Universal-Commerce-Protocol/conformance`) expects, and
+ * is invoked from the `ucp-conformance` CI workflow before the suite runs.
+ *
  * @internal
  */
-#[AsCommand(name: 'ucp:conformance:seed', description: 'Seed UCP conformance flower_shop products into the default sales channel')]
+#[AsCommand(name: 'ucp:conformance:seed', description: 'Seed UCP conformance flower_shop products into the default sales channel (non-prod only)')]
 #[Package('framework')]
 class UcpConformanceSeedCommand extends Command
 {
@@ -45,6 +50,7 @@ class UcpConformanceSeedCommand extends Command
         private readonly EntityRepository $currencyRepository,
         private readonly EntityRepository $salesChannelRepository,
         private readonly Connection $connection,
+        private readonly string $environment = 'prod',
     ) {
         parent::__construct();
     }
@@ -57,6 +63,11 @@ class UcpConformanceSeedCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        if ($this->environment === 'prod') {
+            $io->error('ucp:conformance:seed is a non-production fixture command. Refusing to run with APP_ENV=prod.');
+
+            return self::FAILURE;
+        }
         $context = Context::createCLIContext();
 
         $salesChannelId = $input->getOption('sales-channel');

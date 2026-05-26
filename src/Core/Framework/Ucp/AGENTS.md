@@ -43,7 +43,8 @@ Platform (ChatGPT / Perplexity / Gemini / Custom Agent)
 
 - `Api/` — Admin-API endpoints for configuration and operations
 - `Capability/` — One folder per UCP capability (Cart, Catalog, Checkout, Order, Discount, Fulfillment, BuyerConsent, Loyalty, IdentityLinking)
-- `Command/` — Symfony console commands (`debug:ucp`, `ucp:keys:*`)
+- `Command/` — Symfony console commands (`ucp:debug`, `ucp:keys:list`, `ucp:keys:create`, `ucp:keys:rotate`, `ucp:keys:retire`, `ucp:keys:reencrypt`)
+- `Conformance/` — Non-production helpers (fixture seed command, conformance checkout helper, conformance webhook emitter). Loaded ONLY in `dev`/`test`; controllers reach this code through optional DI args that resolve to `null` in `prod`.
 - `DataAbstractionLayer/` — Entity definitions, entities, collections
 - `DependencyInjection/` — Compiler passes (capability and payment-handler tag scanners)
 - `Discovery/` — `/.well-known/ucp` controller, profile builder, supported-versions registry

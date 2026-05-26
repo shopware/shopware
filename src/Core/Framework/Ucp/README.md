@@ -162,7 +162,8 @@ Shopware Store API + DAL
 |---|---|
 | `Api/` | Admin API for UCP configuration, signing-key operations and profile preview |
 | `Capability/` | UCP capabilities and extensions |
-| `Command/` | Console commands for debugging and key management |
+| `Command/` | Console commands for debugging and key management (`ucp:debug`, `ucp:keys:list`, `ucp:keys:create`, `ucp:keys:rotate`, `ucp:keys:retire`, `ucp:keys:reencrypt`) |
+| `Conformance/` | Non-production helpers (fixture seeders, conformance subscribers) loaded only in `dev`/`test` |
 | `DataAbstractionLayer/` | UCP entity definitions and entities |
 | `Discovery/` | Well-known profile, profile builder, sales-channel-domain resolution |
 | `Event/` | Public UCP extension events |

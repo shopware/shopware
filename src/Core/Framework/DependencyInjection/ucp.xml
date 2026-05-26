@@ -364,13 +364,13 @@
             <argument type="service" id="Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Catalog\ProductIdentifierResolver"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutMapper"/>
-            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Fulfillment\FulfillmentMapper"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\OrderPermalinkBuilder"/>
             <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\GuestCustomerProvisioner"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Conformance\Checkout\ConformanceCheckoutHelper" on-invalid="null"/>
             <tag name="controller.service_arguments"/>
         </service>
         <service id="Shopware\Core\Framework\Ucp\Capability\Checkout\OrderPermalinkBuilder"/>
@@ -533,13 +533,22 @@
             <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
             <tag name="console.command"/>
         </service>
-        <service id="Shopware\Core\Framework\Ucp\Command\UcpConformanceSeedCommand">
-            <argument type="service" id="product.repository"/>
-            <argument type="service" id="currency.repository"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpKeysRotateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
             <tag name="console.command"/>
         </service>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpKeysRetireCommand">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Jwt\UcpSigningKeyProvider"/>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Command\UcpKeysReencryptCommand">
+            <argument type="service" id="ucp_signing_key.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Security\PrivateKeyEncryptor"/>
+            <tag name="console.command"/>
+        </service>
+        <!-- UcpConformanceSeedCommand is registered in the non-prod blocks at
+             the bottom of this file. It seeds the upstream Python conformance
+             suite's flower_shop fixture and must not exist in prod. -->
 
         <!-- ============ Scheduled tasks ============ -->
         <service id="Shopware\Core\Framework\Ucp\ScheduledTask\UcpKeyRetirementTask">
@@ -606,6 +615,36 @@
             <argument type="service" id="Shopware\Core\Framework\Ucp\Payment\UcpPaymentHandlerRegistry"/>
             <argument type="service" id="logger"/>
             <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- ============ Conformance fixtures ============
+             These services live under `Conformance/` and intentionally carry
+             every fixture identifier the upstream Python conformance suite
+             expects (`pink_wumpus`, `gardenias`, `bouquet_roses`, `fail_token`,
+             `john.doe@example.com`, `10OFF`, `WELCOME20`, `FIXED500`, …).
+
+             Production safety is enforced at runtime, NOT at container
+             registration time: every public method calls `isActive()` first,
+             which returns false when `kernel.environment === 'prod'`. The
+             `<when env>` container blocks were considered but Shopware's
+             Bundle loader instantiates `XmlFileLoader` without an env-marker,
+             so they are silently ignored. The self-gating via the injected
+             `%kernel.environment%` parameter is the canonical pattern. -->
+        <service id="Shopware\Core\Framework\Ucp\Conformance\Command\UcpConformanceSeedCommand">
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="currency.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+            <tag name="console.command"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Conformance\Checkout\ConformanceWebhookEmitter">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore"/>
+        </service>
+        <service id="Shopware\Core\Framework\Ucp\Conformance\Checkout\ConformanceCheckoutHelper">
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore"/>
+            <argument type="service" id="Shopware\Core\Framework\Ucp\Conformance\Checkout\ConformanceWebhookEmitter"/>
+            <argument>%kernel.environment%</argument>
         </service>
     </services>
 </container>

@@ -26,6 +26,7 @@ Shopware.Service('privileges')
                     'order_address:read',
                     'sales_channel:read',
                     'sales_channel_domain:read',
+                    'sales_channel_tracking_order:read',
                     'order_customer:read',
                     'salutation:read',
                     'currency:read',

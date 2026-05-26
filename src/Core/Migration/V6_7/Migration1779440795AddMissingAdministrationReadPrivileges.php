@@ -15,6 +15,7 @@ class Migration1779440795AddMissingAdministrationReadPrivileges extends Migratio
     final public const NEW_PRIVILEGES = [
         'order.viewer' => [
             'sales_channel_domain:read',
+            'sales_channel_tracking_order:read',
             'media:read',
             'integration:read',
         ],

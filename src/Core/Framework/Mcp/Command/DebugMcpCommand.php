@@ -109,9 +109,7 @@ class DebugMcpCommand extends Command
         \assert($this->registry !== null);
 
         foreach ($this->registry->getTools()->references as $tool) {
-            if (!$tool instanceof Tool) {
-                continue;
-            }
+            \assert($tool instanceof Tool);
             if ($tool->name === $name) {
                 $ref = $this->registry->getTool($name);
                 $toolData = $this->catalog->findTool($name);
@@ -122,9 +120,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getPrompts()->references as $prompt) {
-            if (!$prompt instanceof Prompt) {
-                continue;
-            }
+            \assert($prompt instanceof Prompt);
             if ($prompt->name === $name) {
                 $ref = $this->registry->getPrompt($name);
                 $this->renderPromptDetail($io, $prompt, $ref->handler);
@@ -134,10 +130,7 @@ class DebugMcpCommand extends Command
         }
 
         foreach ($this->registry->getResources()->references as $resource) {
-            if (!$resource instanceof Resource) {
-                continue;
-            }
-
+            \assert($resource instanceof Resource);
             if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
                 $ref = $this->registry->getResource($resource->uri, false);
                 $this->renderResourceDetail($io, $resource, $ref->handler);
@@ -334,9 +327,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $prompt) {
-            if (!$prompt instanceof Prompt) {
-                continue;
-            }
+            \assert($prompt instanceof Prompt);
             $ref = $this->registry->getPrompt($prompt->name);
             $rows[] = [$prompt->name, $this->describeHandler($ref->handler)];
         }
@@ -360,10 +351,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $resource) {
-            if (!$resource instanceof Resource) {
-                continue;
-            }
-
+            \assert($resource instanceof Resource);
             $ref = $this->registry->getResource($resource->uri, false);
             $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];
         }
@@ -387,9 +375,7 @@ class DebugMcpCommand extends Command
 
         $rows = [];
         foreach ($page->references as $template) {
-            if (!$template instanceof ResourceTemplate) {
-                continue;
-            }
+            \assert($template instanceof ResourceTemplate);
             $ref = $this->registry->getResourceTemplate($template->uriTemplate);
             $rows[] = [$template->name, $template->uriTemplate, $this->describeHandler($ref->handler)];
         }

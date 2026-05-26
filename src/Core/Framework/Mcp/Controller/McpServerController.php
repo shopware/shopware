@@ -206,16 +206,8 @@ class McpServerController
             return $psrResponse;
         }
 
-        $contentType = $psrResponse->getHeaderLine('Content-Type');
-        if (!str_starts_with($contentType, 'application/json')) {
-            return $psrResponse;
-        }
-
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
-
-        if (!$responseData instanceof \stdClass) {
-            return $psrResponse;
-        }
+        \assert($responseData instanceof \stdClass);
 
         if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
             $responseData = $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
@@ -243,15 +235,8 @@ class McpServerController
             return $psrResponse;
         }
 
-        $contentType = $psrResponse->getHeaderLine('Content-Type');
-        if (!str_starts_with($contentType, 'application/json')) {
-            return $psrResponse;
-        }
-
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
-        if (!$responseData instanceof \stdClass) {
-            return $psrResponse;
-        }
+        \assert($responseData instanceof \stdClass);
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if (!$context instanceof Context) {

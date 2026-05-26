@@ -135,7 +135,7 @@ class AgenticManifestBuilderTest extends TestCase
                 return $type === AgenticDiscoveryDocumentType::AGENTS_MD;
             }
 
-            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): ?DiscoverySection
+            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): DiscoverySection
             {
                 return new DiscoverySection('Returns policy', 'We accept returns within 30 days.', 1);
             }
@@ -147,7 +147,7 @@ class AgenticManifestBuilderTest extends TestCase
                 return $type === AgenticDiscoveryDocumentType::AGENTS_MD;
             }
 
-            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): ?DiscoverySection
+            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): DiscoverySection
             {
                 return new DiscoverySection('Subscriptions', 'Subscriptions auto-renew.', 100);
             }
@@ -178,7 +178,7 @@ class AgenticManifestBuilderTest extends TestCase
                 return false;
             }
 
-            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): ?DiscoverySection
+            public function getSection(AgenticDiscoveryDocumentType $type, AgenticDiscoveryContext $context): DiscoverySection
             {
                 return new DiscoverySection('Should not appear', '', 0);
             }
@@ -199,6 +199,10 @@ class AgenticManifestBuilderTest extends TestCase
     public function testIncludesMerchantSectionsFromConfig(): void
     {
         $config = $this->makeConfig(active: true);
+        // Intentionally pass a malformed second entry (missing `body`) to
+        // verify the builder filters it out at runtime; PHPStan flags it
+        // because the entity property is typed list<array{title, body}>.
+        // @phpstan-ignore-next-line argument.type
         $config->setCustomSections([
             ['title' => 'Brand voice', 'body' => 'Calm, precise, helpful.'],
             ['title' => 'Invalid entry'],

@@ -545,6 +545,9 @@
                 },
                 "mcp": {
                     "$ref": "#/definitions/rate_limiter_config"
+                },
+                "agentic_discovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
                 }
             },
             "title": "RateLimiter"

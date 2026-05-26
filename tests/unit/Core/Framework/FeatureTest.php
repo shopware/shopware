@@ -254,21 +254,21 @@ class FeatureTest extends TestCase
     #[IgnoreDeprecations]
     #[DisabledFeatures(['v6.5.0.0'])]
     #[DataProvider('callSilentIfInactiveProvider')]
-    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, bool $shouldTriggerDeprecation): void
+    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, bool $shouldTriggerDeprecation, ?string $introducedIn = null): void
     {
         // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        if ($shouldTriggerDeprecation) {
-            $this->expectUserDeprecationMessageMatches('/Since shopware\/core ' . preg_quote($majorVersion, '/') . ': deprecated message/');
-        }
-
-        if (!$shouldTriggerDeprecation) {
+        if ($shouldTriggerDeprecation && $introducedIn !== null) {
+            $this->expectUserDeprecationMessageMatches('/^Since shopware\/core ' . preg_quote($introducedIn, '/') . ': ' . preg_quote($deprecatedMessage, '/') . '$/');
+        } elseif ($shouldTriggerDeprecation) {
+            $this->expectUserDeprecationMessageMatches('/^' . preg_quote($deprecatedMessage, '/') . '$/');
+        } else {
             $this->expectNotToPerformAssertions();
         }
 
-        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
-            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
+        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
+            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
         });
     }
 
@@ -334,9 +334,13 @@ class FeatureTest extends TestCase
             'v6.5.0.0', 'deprecated message', false,
         ];
 
-        yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
+        yield 'Execute a callable with inactivated feature flag and throw a bare deprecation when introducedIn is omitted' => [
             // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
             'v6.4.0.0', 'deprecated message', true,
+        ];
+
+        yield 'Execute a callable with inactivated feature flag and throw a deprecation prefixed with the introduction version' => [
+            'v6.4.0.0', 'deprecated message', true, 'v6.3.0.0',
         ];
     }
 }

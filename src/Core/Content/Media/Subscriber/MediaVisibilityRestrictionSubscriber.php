@@ -116,7 +116,10 @@ class MediaVisibilityRestrictionSubscriber implements EventSubscriberInterface
             new EqualsFilter('private', false),
             new MultiFilter('AND', [
                 new EqualsFilter('private', true),
-                new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                new MultiFilter('OR', [
+                    new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_download'),
+                    new EqualsFilter('mediaFolder.defaultFolder.entity', 'product_document'),
+                ]),
             ]),
         ]);
     }

@@ -79,6 +79,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

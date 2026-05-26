@@ -1,0 +1,66 @@
+{% block agentic_discovery_llms_txt %}{% autoescape false %}{% apply remove_leading_spaces %}
+    {% set manifest = page.manifest %}
+    {% block agentic_discovery_llms_txt_header %}
+        # {{ manifest.storeName }}
+
+        {% if manifest.storeDescription is not empty %}
+            > {{ manifest.storeDescription }}
+
+        {% endif %}
+        {{ manifest.storeName }} is an online store at {{ manifest.storeUrl }}, powered by Shopware.
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_txt_browse %}
+        ## Browse
+
+        {% for link in manifest.browseLinks %}
+            - {{ link.label }}: {{ link.url }}
+        {% endfor %}
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_txt_store_info %}
+        ## Store Information
+
+        - Currency: {{ manifest.currencyCode }}
+        - Language: {{ manifest.languageCode }}
+        {% if manifest.contactEmail %}
+            - Contact: {{ manifest.contactEmail }}
+        {% endif %}
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_txt_agents %}
+        ## For Agents & Developers
+
+        This store supports agentic shopping. Read the operating manual for the
+        full integration contract.
+
+        - Agent operating manual: {{ manifest.storeUrl }}/agents.md
+        - Extended LLM overview: {{ manifest.storeUrl }}/llms-full.txt
+        {% if manifest.ucpAvailable and manifest.ucpProfileUrl %}
+            - UCP capability profile: {{ manifest.ucpProfileUrl }}
+        {% endif %}
+        - Sitemap: {{ manifest.storeUrl }}/sitemap.xml
+        - Agentic discovery sitemap: {{ manifest.storeUrl }}/sitemap_agentic_discovery.xml
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_txt_custom_sections %}
+        {% for section in manifest.customSections %}
+            ## {{ section.title }}
+
+            {{ section.body }}
+
+        {% endfor %}
+    {% endblock %}
+
+    {% block agentic_discovery_llms_txt_platform %}
+        ## Platform
+
+        This store is built on Shopware (https://www.shopware.com), an open
+        commerce platform with first-class support for agentic shopping.
+    {% endblock %}
+{% endapply %}{% endautoescape %}
+{% endblock %}

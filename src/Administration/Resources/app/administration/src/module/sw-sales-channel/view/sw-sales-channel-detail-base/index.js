@@ -26,6 +26,7 @@ export default {
         repositoryFactory: 'repositoryFactory',
         knownIpsService: 'knownIpsService',
         acl: 'acl',
+        feature: 'feature',
         swSalesChannelDetailGetAgenticCommerceExportConfig: {
             from: 'swSalesChannelDetailGetAgenticCommerceExportConfig',
             default: () => [],

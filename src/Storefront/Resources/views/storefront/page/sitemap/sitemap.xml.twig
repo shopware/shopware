@@ -10,6 +10,13 @@
                 </sitemap>
             {% endfor %}
         {% endblock %}
+        {%- block sitemap_content_agentic_discovery -%}
+            {%- if feature('AGENTIC_DISCOVERY') %}
+            <sitemap>
+                <loc>{{ absolute_url(url('frontend.agentic_discovery.sitemap')) }}</loc>
+            </sitemap>
+            {%- endif %}
+        {%- endblock %}
     </sitemapindex>
 {% endblock %}
 {% endblock %}

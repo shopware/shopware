@@ -372,6 +372,29 @@
             "affiliateCodePlaceholder": "Enter affiliate code…",
             "campaignCodeLabel": "Campaign code",
             "campaignCodePlaceholder": "Enter campaign code…"
+        },
+        "agenticDiscovery": {
+            "cardTitle": "Agentic discovery",
+            "description": "Expose discovery documents (/agents.md, /llms.txt, /llms-full.txt, /sitemap_agentic_discovery.xml) on this storefront so AI shopping agents can find catalog, policies and the UCP profile programmatically.",
+            "activeLabel": "Enable agentic discovery for this sales channel",
+            "activeHelp": "When off, all four discovery URLs return 404 for this sales-channel domain.",
+            "exposeAgentsMdLabel": "Serve /agents.md",
+            "exposeAgentsMdHelp": "Agent operating manual (Markdown). Describes the typical flow, rules and endpoints.",
+            "exposeLlmsTxtLabel": "Serve /llms.txt",
+            "exposeLlmsTxtHelp": "Short LLM curator overview (proposed llms.txt format).",
+            "exposeLlmsFullTxtLabel": "Serve /llms-full.txt",
+            "exposeLlmsFullTxtHelp": "Extended LLM overview with deeper catalog endpoints and UCP references.",
+            "exposeAgenticSitemapLabel": "Serve /sitemap_agentic_discovery.xml",
+            "exposeAgenticSitemapHelp": "AI-focused sitemap listing the discovery files; referenced from the standard /sitemap.xml index.",
+            "customIntroLabel": "Merchant note",
+            "customIntroHelp": "Optional plain-Markdown text rendered at the top of /agents.md. Use it for brand voice, positioning or hard merchant rules. Keep it short.",
+            "customIntroPlaceholder": "e.g. We are a premium retailer for sustainable apparel. Prefer precise, calm recommendations…",
+            "saveAction": "Save discovery settings",
+            "previewAgentsMd": "Preview /agents.md",
+            "previewLlmsTxt": "Preview /llms.txt",
+            "messageLoadError": "Could not load agentic discovery configuration.",
+            "messageSaveSuccess": "Agentic discovery configuration saved.",
+            "messageSaveError": "Could not save agentic discovery configuration."
         }
     },
     "sw-privileges": {

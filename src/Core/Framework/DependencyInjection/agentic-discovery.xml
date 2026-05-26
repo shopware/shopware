@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <!-- ============ DAL Definitions ============
+             Shopware auto-registers <entity_name>.repository services from these definitions. -->
+        <service id="Shopware\Core\Framework\AgenticDiscovery\DataAbstractionLayer\Definition\AgenticDiscoverySalesChannelConfigDefinition">
+            <tag name="shopware.entity.definition" entity="agentic_discovery_sales_channel_config"/>
+        </service>
+
+        <!-- Reverse one-to-one association on SalesChannelDefinition so the
+             DefinitionValidator does not report a missing reverse association,
+             and admin clients can eager-load discovery config via
+             Criteria::addAssociation('agenticDiscoveryConfig'). -->
+        <service id="Shopware\Core\Framework\AgenticDiscovery\DataAbstractionLayer\Extension\AgenticDiscoverySalesChannelExtension">
+            <tag name="shopware.entity.extension"/>
+        </service>
+
+        <!-- ============ Discovery ============ -->
+        <service id="Shopware\Core\Framework\AgenticDiscovery\Discovery\AgenticDiscoveryConfigProvider">
+            <argument type="service" id="agentic_discovery_sales_channel_config.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\AgenticDiscovery\Discovery\AgenticDiscoveryDomainResolver">
+            <argument type="service" id="sales_channel_domain.repository"/>
+        </service>
+
+        <!-- ============ Manifest ============
+             `sectionProviders` collects every service tagged `agentic_discovery.section`
+             into an iterable so plugins can contribute custom sections to /agents.md,
+             /llms.txt and /llms-full.txt without touching core. -->
+        <service id="Shopware\Core\Framework\AgenticDiscovery\Manifest\AgenticManifestBuilder">
+            <argument type="service" id="Shopware\Core\Framework\AgenticDiscovery\Discovery\AgenticDiscoveryDomainResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\AgenticDiscovery\Discovery\AgenticDiscoveryConfigProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="tagged_iterator" tag="agentic_discovery.section"/>
+        </service>
+
+        <!-- ============ Cache invalidation ============
+             Reacts to writes on `agentic_discovery_sales_channel_config` and
+             flushes the reverse-proxy cache entries for the corresponding
+             sales channel. The cache tags are emitted from the controller via
+             the `sw-invalidation-states` response header. -->
+        <service id="Shopware\Core\Framework\AgenticDiscovery\Discovery\AgenticDiscoveryCacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+    </services>
+</container>

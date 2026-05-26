@@ -38,6 +38,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'order:read',
                 'order_transaction:read',
                 'state_machine_state:read',
+                'agentic_discovery_sales_channel_config:read',
                 Shopware.Service('privileges').getPrivileges('measurement.viewer'),
             ],
             dependencies: [],
@@ -45,6 +46,9 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'sales_channel:update',
+                'agentic_discovery_sales_channel_config:create',
+                'agentic_discovery_sales_channel_config:update',
+                'agentic_discovery_sales_channel_config:delete',
                 'sales_channel_analytics:create',
                 'sales_channel_analytics:delete',
                 'sales_channel_analytics:update',

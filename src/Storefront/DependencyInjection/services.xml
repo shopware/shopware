@@ -566,6 +566,15 @@
 
         <service id="Shopware\Storefront\Page\Robots\Parser\RobotsDirectiveParser"/>
 
+        <service id="Shopware\Storefront\Page\AgenticDiscovery\AgenticDiscoveryPageLoader">
+            <argument type="service" id="Shopware\Core\Framework\AgenticDiscovery\Manifest\AgenticManifestBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Cache\AgenticDiscoveryCacheSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Robots\RobotsPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="sales_channel_domain.repository"/>

@@ -104,6 +104,7 @@ class Framework extends Bundle
         $loader->load('notification.xml');
         $loader->load('sso.xml');
         $loader->load('ucp.xml');
+        $loader->load('agentic-discovery.xml');
 
         // @codeCoverageIgnoreStart
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));

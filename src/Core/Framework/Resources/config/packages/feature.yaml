@@ -86,6 +86,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable UCP (Universal Commerce Protocol) endpoints, signed discovery, and agentic-commerce capabilities (cart, checkout, order, catalog, identity linking)."
+      - name: AGENTIC_DISCOVERY
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Serve agentic discovery documents (/agents.md, /llms.txt, /llms-full.txt, /sitemap_agentic_discovery.xml) per sales-channel domain so AI shopping agents can discover catalog, policies and the UCP profile of the store."
       - name: JSON_LD_DATA
         default: false
         major: true

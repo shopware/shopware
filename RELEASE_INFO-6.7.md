@@ -31,6 +31,35 @@ Three stable extension points are reserved from this release on:
 
 All other Ucp classes are marked `@internal` and remain subject to change while the feature flag is experimental.
 
+### [Experimental] Agentic Discovery endpoints (/agents.md, /llms.txt, /llms-full.txt, /sitemap_agentic_discovery.xml)
+
+Shopware now ships a first-class **Agentic Discovery** layer that serves the four public discovery documents AI shopping agents (ChatGPT, Perplexity, Copilot, custom UCP agents) look for on every storefront. The integration mirrors what Shopify rolled out natively in May 2026 so any standards-compliant agent can resolve the same paths across platforms.
+
+The integration is gated behind the `AGENTIC_DISCOVERY` feature flag. Activate via `bin/console feature:enable AGENTIC_DISCOVERY` or by setting `SHOPWARE_AGENTIC_DISCOVERY=1` in your `.env`. While the flag is off, all four routes return 404.
+
+Four new public, anonymous, HTTP-cached `GET` routes are added on every storefront sales-channel domain:
+
+- `/agents.md` — agent operating manual (Markdown). Documents the typical six-step flow (Discover → Search → Cart → Checkout → Fulfill → Complete), hard rules (human approval for checkout, 429 back-off, context headers), Store API endpoints and — when `UCP_SERVER` is active — the UCP profile URL.
+- `/llms.txt` — short curator-style overview in the proposed Jeremy Howard format. Pulls shop name and description from `core.basicInformation.*` system config.
+- `/llms-full.txt` — extended overview with deeper Store API references and a UCP section that appears when `UCP_SERVER` is active.
+- `/sitemap_agentic_discovery.xml` — AI-focused sitemap listing the three Markdown documents with weekly change frequency. Automatically referenced from the standard `/sitemap.xml` sitemap index.
+
+Configuration is per sales channel in a new `agentic_discovery_sales_channel_config` table (one row per channel, JSON columns for custom rules/sections). A new card "Agentic discovery" appears in **Sales Channel → Basic information** for storefront-type channels: toggles for each document, a free-form "Merchant note" rendered at the top of `/agents.md`, and preview links.
+
+A stable extension point ships from this release on:
+- Plugins implement `Shopware\Core\Framework\AgenticDiscovery\Manifest\DiscoverySectionProvider` and tag their service with `agentic_discovery.section` to contribute custom Markdown sections to any of `/agents.md`, `/llms.txt` or `/llms-full.txt`. Sections receive a strongly-typed `AgenticDiscoveryContext` (resolved domain + per-channel config + Context) and may declare a priority for ordering.
+
+Themes override layout via Twig blocks under `@Storefront/storefront/page/agentic-discovery/{agents.md,llms.txt,llms-full.txt,sitemap-agentic-discovery.xml}.twig` — every section is a named `{% block %}` so existing block-overriding theme inheritance just works.
+
+Operational hardening that ships with this release:
+- **Reverse-proxy cacheable**: a dedicated `AgenticDiscoveryCacheSubscriber` overrides the storefront's default `Cache-Control: private` with `public, max-age=300, s-maxage=3600, stale-while-revalidate=60` and `Vary: Host`. AI-crawler traffic (GPTBot, ClaudeBot, PerplexityBot) is absorbed by the reverse proxy / CDN; PHP only runs on cache misses or after a config write.
+- **Targeted cache invalidation**: `AgenticDiscoveryCacheInvalidationSubscriber` reacts to writes on `agentic_discovery_sales_channel_config` and emits the cache tag `agentic_discovery_{salesChannelId}` so reverse proxies that honour Shopware's `sw-invalidation-states` header (Varnish VCL ships in `shopware/dev-ops`) invalidate immediately.
+- **Per-IP rate limiting**: a new `agentic_discovery` rate limiter (`shopware.yaml`) caps anonymous requests at 60 per minute per client IP. Well-behaved crawlers never trip it; misbehaving agents back off without affecting other traffic.
+- **XSS sanitisation** of merchant-provided text (`customIntro`, `customAgentRules`, `customSections`): HTML payloads that could become executable when a downstream agent renders the Markdown to HTML (`<script>`, `<iframe>`, `<object>`, event-handler attributes, `javascript:`/`vbscript:`/`data:text/html` schemes) are stripped at render time. Markdown formatting is preserved.
+- **No session cookies on discovery responses**: `Set-Cookie` is removed from the response so reverse proxies cache one shared copy and AI crawlers do not retain a session.
+
+All other AgenticDiscovery classes are marked `@internal` and remain subject to change while the feature flag is experimental.
+
 ### [Experimental] MCP Server for AI tool integration
 
 Shopware now includes an experimental MCP (Model Context Protocol) server that lets AI clients like Claude Desktop or Cursor interact with your Shopware instance through a standardized protocol.

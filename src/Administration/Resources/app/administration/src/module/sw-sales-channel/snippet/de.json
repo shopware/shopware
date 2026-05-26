@@ -372,6 +372,29 @@
             "affiliateCodePlaceholder": "Affiliate-Code eingeben …",
             "campaignCodeLabel": "Kampagnen-Code",
             "campaignCodePlaceholder": "Kampagnen-Code eingeben …"
+        },
+        "agenticDiscovery": {
+            "cardTitle": "Agentische Discovery",
+            "description": "Liefere Discovery-Dokumente (/agents.md, /llms.txt, /llms-full.txt, /sitemap_agentic_discovery.xml) auf dieser Storefront aus, damit KI-Shopping-Agenten Katalog, Richtlinien und das UCP-Profil programmatisch finden können.",
+            "activeLabel": "Agentische Discovery für diesen Verkaufskanal aktivieren",
+            "activeHelp": "Wenn ausgeschaltet, antworten alle vier Discovery-URLs für diese Sales-Channel-Domain mit 404.",
+            "exposeAgentsMdLabel": "/agents.md ausliefern",
+            "exposeAgentsMdHelp": "Bedienungsanleitung für Agents (Markdown). Beschreibt typischen Flow, Regeln und Endpunkte.",
+            "exposeLlmsTxtLabel": "/llms.txt ausliefern",
+            "exposeLlmsTxtHelp": "Kurze LLM-Übersicht im vorgeschlagenen llms.txt-Format.",
+            "exposeLlmsFullTxtLabel": "/llms-full.txt ausliefern",
+            "exposeLlmsFullTxtHelp": "Erweiterte LLM-Übersicht mit detaillierteren Katalog-Endpunkten und UCP-Verweisen.",
+            "exposeAgenticSitemapLabel": "/sitemap_agentic_discovery.xml ausliefern",
+            "exposeAgenticSitemapHelp": "AI-fokussierte Sitemap mit den Discovery-Dateien; aus dem Standard-/sitemap.xml referenziert.",
+            "customIntroLabel": "Merchant-Hinweis",
+            "customIntroHelp": "Optionaler Markdown-Text, der oben in /agents.md gerendert wird. Geeignet für Brand-Voice, Positionierung oder harte Händlerregeln. Knapp halten.",
+            "customIntroPlaceholder": "z. B. Wir sind ein Premium-Händler für nachhaltige Mode. Bevorzuge präzise, ruhige Empfehlungen …",
+            "saveAction": "Discovery-Einstellungen speichern",
+            "previewAgentsMd": "/agents.md ansehen",
+            "previewLlmsTxt": "/llms.txt ansehen",
+            "messageLoadError": "Agentische Discovery-Konfiguration konnte nicht geladen werden.",
+            "messageSaveSuccess": "Agentische Discovery-Konfiguration gespeichert.",
+            "messageSaveError": "Agentische Discovery-Konfiguration konnte nicht gespeichert werden."
         }
     },
     "sw-privileges": {

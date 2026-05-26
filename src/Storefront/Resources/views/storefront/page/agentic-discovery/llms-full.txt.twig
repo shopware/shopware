@@ -1,0 +1,96 @@
+{% block agentic_discovery_llms_full_txt %}{% autoescape false %}{% apply remove_leading_spaces %}
+    {% set manifest = page.manifest %}
+    {% block agentic_discovery_llms_full_txt_header %}
+        # {{ manifest.storeName }}
+
+        {% if manifest.storeDescription is not empty %}
+            > {{ manifest.storeDescription }}
+
+        {% endif %}
+        {{ manifest.storeName }} is an online store at {{ manifest.storeUrl }}, powered by Shopware.
+        This file is the extended map for AI agents that want to drill into the
+        store programmatically. For the curator-style overview see `/llms.txt`.
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_browse %}
+        ## Browse
+
+        {% for link in manifest.browseLinks %}
+            - {{ link.label }}: {{ link.url }}
+        {% endfor %}
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_store_info %}
+        ## Store Information
+
+        - Currency: {{ manifest.currencyCode }}
+        - Language: {{ manifest.languageCode }}
+        {% if manifest.contactEmail %}
+            - Contact: {{ manifest.contactEmail }}
+        {% endif %}
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_agents %}
+        ## For Agents & Developers
+
+        Read these in order to integrate agentic shopping with this store:
+
+        - Agent operating manual: {{ manifest.storeUrl }}/agents.md
+        - Short LLM overview: {{ manifest.storeUrl }}/llms.txt
+        {% if manifest.ucpAvailable and manifest.ucpProfileUrl %}
+            - UCP capability profile: {{ manifest.ucpProfileUrl }}
+        {% endif %}
+        - Standard sitemap: {{ manifest.storeUrl }}/sitemap.xml
+        - Agentic discovery sitemap: {{ manifest.storeUrl }}/sitemap_agentic_discovery.xml
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_catalog_endpoints %}
+        ## Catalog endpoints (Store API)
+
+        These endpoints serve catalog, cart and checkout data and are the
+        canonical source for buyer-facing operations. Agents that do not
+        support UCP can use these directly.
+
+        {% for endpoint in manifest.catalogEndpoints %}
+            - {{ endpoint.label }}: `{{ endpoint.path }}`
+        {% endfor %}
+
+        See the Store API reference at https://shopware.stoplight.io/docs/store-api/ for full
+        request and response shapes.
+
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_ucp %}
+        {% if manifest.ucpAvailable and manifest.ucpProfileUrl %}
+            ## Universal Commerce Protocol
+
+            This storefront exposes a UCP capability profile at
+            `{{ manifest.ucpProfileUrl }}`. The profile declares supported
+            transports, capabilities, signing keys and payment handlers and is
+            the recommended starting point for UCP-compatible agents.
+
+        {% endif %}
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_custom_sections %}
+        {% for section in manifest.customSections %}
+            ## {{ section.title }}
+
+            {{ section.body }}
+
+        {% endfor %}
+    {% endblock %}
+
+    {% block agentic_discovery_llms_full_txt_platform %}
+        ## Platform
+
+        This store is built on Shopware (https://www.shopware.com).
+
+        Developer documentation: https://developer.shopware.com/
+    {% endblock %}
+{% endapply %}{% endautoescape %}
+{% endblock %}

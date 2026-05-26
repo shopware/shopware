@@ -1,0 +1,8 @@
+{%- set manifest = page.manifest -%}
+{%- block agentic_discovery_sitemap -%}
+<?xml version="1.0" encoding="UTF-8"?>{{ "\n" }}<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- block agentic_discovery_sitemap_entries %}
+{%- for entry in manifest.sitemapEntries %}{{ "\n    " }}<url>{{ "\n        " }}<loc>{{ entry.url }}</loc>{% if entry.changefreq is defined %}{{ "\n        " }}<changefreq>{{ entry.changefreq }}</changefreq>{% endif %}{{ "\n    " }}</url>{%- endfor %}
+{%- endblock %}
+</urlset>
+{%- endblock -%}

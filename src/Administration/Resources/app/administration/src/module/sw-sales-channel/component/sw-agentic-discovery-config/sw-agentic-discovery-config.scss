@@ -1,0 +1,31 @@
+.sw-agentic-discovery-config {
+    &__description {
+        color: var(--color-text-secondary, #5b6271);
+        margin-bottom: var(--scale-size-16, 16px);
+    }
+
+    &__endpoints {
+        display: grid;
+        gap: var(--scale-size-12, 12px);
+        margin-top: var(--scale-size-16, 16px);
+        margin-bottom: var(--scale-size-16, 16px);
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-16, 16px);
+        margin-top: var(--scale-size-24, 24px);
+        flex-wrap: wrap;
+    }
+
+    &__preview-link {
+        color: var(--color-text-brand-default, #189eff);
+        text-decoration: none;
+        font-size: 0.875rem;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

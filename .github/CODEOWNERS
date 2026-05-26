@@ -72,6 +72,7 @@ src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 /src/Core/Framework/Rule/ @shopware/product-ct-core
 /src/Core/Framework/Script/ @shopware/product-ct-core
 /src/Core/Framework/Ucp/ @shopware/product-ct-core
+/src/Core/Framework/AgenticDiscovery/ @shopware/product-ct-core
 /src/Core/Framework/Update/ @shopware/product-ct-core
 /src/Core/Framework/Util/ @shopware/product-ct-core
 /src/Core/Framework/Uuid/ @shopware/product-ct-core
@@ -79,11 +80,19 @@ src/Core/System/UsageData/usage-data-allow-list.json @shopware/st-ctrl-alt-elite
 /src/Core/Framework/Webhook/ @shopware/product-ct-core
 /src/Core/Framework/*.php @shopware/product-ct-core
 /src/Core/Framework/DependencyInjection/ucp.xml @shopware/product-ct-core
+/src/Core/Framework/DependencyInjection/agentic-discovery.xml @shopware/product-ct-core
 /src/Administration/Resources/app/administration/src/module/sw-settings-ucp/ @shopware/product-ct-admin @shopware/product-ct-core
 /src/Administration/Resources/app/administration/src/core/service/api/ucp-admin.api.service.js @shopware/product-ct-admin @shopware/product-ct-core
+/src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/sw-agentic-discovery-config/ @shopware/product-ct-admin @shopware/product-ct-core
+/src/Storefront/Controller/AgenticDiscoveryController.php @shopware/product-ct-core
+/src/Storefront/Page/AgenticDiscovery/ @shopware/product-ct-core
+/src/Storefront/Resources/views/storefront/page/agentic-discovery/ @shopware/product-ct-core
 /tests/unit/Core/Framework/Ucp/ @shopware/product-ct-core
 /tests/integration/Core/Framework/Ucp/ @shopware/product-ct-core
 /tests/migration/Core/V6_7/Migration1779600*UcpTest.php @shopware/product-ct-core
+/tests/unit/Core/Framework/AgenticDiscovery/ @shopware/product-ct-core
+/tests/integration/Storefront/Controller/AgenticDiscoveryControllerTest.php @shopware/product-ct-core
+/tests/migration/Core/V6_7/Migration1779700000AddAgenticDiscoverySalesChannelConfigTest.php @shopware/product-ct-core
 /src/Core/Profiling/ @shopware/product-ct-core
 /src/Core/DevOps/ @shopware/product-ct-core
 /src/Core/System/CustomEntity/ @shopware/product-ct-core

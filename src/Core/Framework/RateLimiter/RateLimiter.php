@@ -39,6 +39,8 @@ class RateLimiter
 
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
+    final public const AGENTIC_DISCOVERY = 'agentic_discovery';
+
     /**
      * @var array<string, RateLimiterFactory>
      */

@@ -1,0 +1,120 @@
+{% block sw_agentic_discovery_config %}
+<mt-card
+    :title="$t('sw-sales-channel.agenticDiscovery.cardTitle')"
+    class="sw-agentic-discovery-config"
+    position-identifier="sw-agentic-discovery-config"
+    :is-loading="isLoading"
+>
+    {% block sw_agentic_discovery_config_description %}
+    <p class="sw-agentic-discovery-config__description">
+        {{ $t('sw-sales-channel.agenticDiscovery.description') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_agentic_discovery_config_active %}
+    <mt-switch
+        v-if="hasConfig"
+        :model-value="config.active"
+        :label="$t('sw-sales-channel.agenticDiscovery.activeLabel')"
+        :help-text="$t('sw-sales-channel.agenticDiscovery.activeHelp')"
+        :disabled="editingDisabled || undefined"
+        @update:model-value="(value) => { config.active = value }"
+    />
+    {% endblock %}
+
+    {% block sw_agentic_discovery_config_endpoints %}
+    <div
+        v-if="hasConfig"
+        class="sw-agentic-discovery-config__endpoints"
+    >
+
+        {% block sw_agentic_discovery_config_endpoints_agents_md %}
+        <mt-switch
+            :model-value="config.exposeAgentsMd"
+            :label="$t('sw-sales-channel.agenticDiscovery.exposeAgentsMdLabel')"
+            :help-text="$t('sw-sales-channel.agenticDiscovery.exposeAgentsMdHelp')"
+            :disabled="editingDisabled || !config.active || undefined"
+            @update:model-value="(value) => { config.exposeAgentsMd = value }"
+        />
+        {% endblock %}
+
+        {% block sw_agentic_discovery_config_endpoints_llms_txt %}
+        <mt-switch
+            :model-value="config.exposeLlmsTxt"
+            :label="$t('sw-sales-channel.agenticDiscovery.exposeLlmsTxtLabel')"
+            :help-text="$t('sw-sales-channel.agenticDiscovery.exposeLlmsTxtHelp')"
+            :disabled="editingDisabled || !config.active || undefined"
+            @update:model-value="(value) => { config.exposeLlmsTxt = value }"
+        />
+        {% endblock %}
+
+        {% block sw_agentic_discovery_config_endpoints_llms_full %}
+        <mt-switch
+            :model-value="config.exposeLlmsFullTxt"
+            :label="$t('sw-sales-channel.agenticDiscovery.exposeLlmsFullTxtLabel')"
+            :help-text="$t('sw-sales-channel.agenticDiscovery.exposeLlmsFullTxtHelp')"
+            :disabled="editingDisabled || !config.active || undefined"
+            @update:model-value="(value) => { config.exposeLlmsFullTxt = value }"
+        />
+        {% endblock %}
+
+        {% block sw_agentic_discovery_config_endpoints_sitemap %}
+        <mt-switch
+            :model-value="config.exposeAgenticSitemap"
+            :label="$t('sw-sales-channel.agenticDiscovery.exposeAgenticSitemapLabel')"
+            :help-text="$t('sw-sales-channel.agenticDiscovery.exposeAgenticSitemapHelp')"
+            :disabled="editingDisabled || !config.active || undefined"
+            @update:model-value="(value) => { config.exposeAgenticSitemap = value }"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_agentic_discovery_config_custom_intro %}
+    <mt-textarea
+        v-if="hasConfig"
+        :model-value="config.customIntro"
+        :label="$t('sw-sales-channel.agenticDiscovery.customIntroLabel')"
+        :help-text="$t('sw-sales-channel.agenticDiscovery.customIntroHelp')"
+        :placeholder="$t('sw-sales-channel.agenticDiscovery.customIntroPlaceholder')"
+        :disabled="editingDisabled || !config.active || undefined"
+        @update:model-value="(value) => { config.customIntro = value }"
+    />
+    {% endblock %}
+
+    {% block sw_agentic_discovery_config_actions %}
+    <div
+        v-if="hasConfig"
+        class="sw-agentic-discovery-config__actions"
+    >
+        <mt-button
+            variant="primary"
+            :is-loading="isSaving"
+            :disabled="editingDisabled || undefined"
+            @click="onSave"
+        >
+            {{ $t('sw-sales-channel.agenticDiscovery.saveAction') }}
+        </mt-button>
+
+        <a
+            v-if="config.active && config.exposeAgentsMd"
+            :href="previewUrl('/agents.md')"
+            target="_blank"
+            rel="noreferrer"
+            class="sw-agentic-discovery-config__preview-link"
+        >
+            {{ $t('sw-sales-channel.agenticDiscovery.previewAgentsMd') }}
+        </a>
+        <a
+            v-if="config.active && config.exposeLlmsTxt"
+            :href="previewUrl('/llms.txt')"
+            target="_blank"
+            rel="noreferrer"
+            class="sw-agentic-discovery-config__preview-link"
+        >
+            {{ $t('sw-sales-channel.agenticDiscovery.previewLlmsTxt') }}
+        </a>
+    </div>
+    {% endblock %}
+</mt-card>
+{% endblock %}

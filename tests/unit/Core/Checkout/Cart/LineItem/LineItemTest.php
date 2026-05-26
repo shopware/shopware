@@ -353,8 +353,7 @@ class LineItemTest extends TestCase
     #[DataProvider('provideInvalidIdentifiers')]
     public function testIdentifierValidationForInvalidFormat(string $identifier): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.');
+        $this->expectExceptionObject(CartException::lineItemInvalid('Identifier contains invalid characters. Only alphanumeric characters, dashes, underscores and dots are allowed.'));
 
         new LineItem($identifier, 'type');
     }
@@ -376,8 +375,7 @@ class LineItemTest extends TestCase
 
     public function testIdentifierValidationForInvalidLength(): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Identifier is too long. Maximum length is 100 characters.');
+        $this->expectExceptionObject(CartException::lineItemInvalid('Identifier is too long. Maximum length is 100 characters.'));
 
         new LineItem(str_repeat('a', 101), 'type');
     }

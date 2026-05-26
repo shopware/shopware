@@ -4,6 +4,7 @@
 
 import './app/app-renderer';
 
+import './commerce/category-heading';
 import './commerce/product-heading';
 import './commerce/product-three-column';
 import './commerce/product-listing';

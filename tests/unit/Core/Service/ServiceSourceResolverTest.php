@@ -293,8 +293,7 @@ class ServiceSourceResolverTest extends TestCase
             'requirements' => ['service_consent'],
         ]);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Cannot mount a filesystem for App "FailingService"');
+        $this->expectExceptionObject(AppException::cannotMountAppFilesystem('FailingService', new AppArchiveValidationFailure(400, 'INVALID', 'Error writing app zip to file "/tmp/test/FailingService"')));
 
         $source->filesystem($app);
     }
@@ -350,8 +349,7 @@ class ServiceSourceResolverTest extends TestCase
             'requirements' => ['service_consent'],
         ]);
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('Cannot mount a filesystem for App "FailingExtraction"');
+        $this->expectExceptionObject(AppException::cannotMountAppFilesystem('FailingExtraction', new AppArchiveValidationFailure(400, 'INVALID', 'Invalid archive')));
 
         $source->filesystem($app);
     }

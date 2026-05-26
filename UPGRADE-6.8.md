@@ -4,7 +4,37 @@
 
 <details>
 
-### Minimum value constraints added to quantity fields in ProductPriceDefinition
+## Webhook Messenger transport — explicit receiver configuration required
+
+Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
+
+> [!NOTE]
+> Already opted into `WEBHOOKS_REWORK` on 6.7? No action needed — the flag is gone and the new transport is permanent.
+
+> [!IMPORTANT]
+> Workers that don't list `webhook` will stop consuming webhooks after upgrading.
+
+### Consume command
+
+Put `webhook` first so retries do not wait behind async backlog:
+
+```bash
+bin/console messenger:consume webhook async low_priority --{other-options}....
+```
+
+The webhook transport has built-in fairness, so it never starves async. You can run multiple `messenger:consume webhook` processes in parallel — delivery is IO-bound and scales up to `num_apps + 1` partitions (one per app, plus the `default`). Beyond that, extra workers sit idle. Most installs need only one or two.
+
+### Admin worker transports
+
+If you override `shopware.admin_worker.transports`, prepend `webhook`:
+
+```yaml
+shopware:
+    admin_worker:
+        transports: ["webhook", "async", "low_priority"]
+```
+
+## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
@@ -257,6 +287,13 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 ### Use `primaryOrderTransaction`
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
+
+## Fixed `ListField` overwrites during entity clone
+
+`VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.
+For entity fields declared as `ListField` (including `ListField` properties nested inside a `JsonField`), this produced incorrect results: an overwrite like `['value2']` against `['value1', 'value2', 'value3']` yielded `['value2', 'value2', 'value3']` instead of replacing the list.
+Overwrites are now applied with a field-aware merge that fully replaces `ListField` values and recurses through nested property mappings.
+Behaviour for all other field types is unchanged.
 
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 

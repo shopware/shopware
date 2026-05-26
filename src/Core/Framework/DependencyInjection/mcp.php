@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinitio
 use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
+use Shopware\Core\Framework\App\Lifecycle\Persister\McpPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
@@ -336,6 +337,15 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpResourcePersister::class)
         ->args([service('app_mcp_resource.repository')]);
+
+    $services->set(McpPersister::class)
+        ->args([
+            service(McpToolPersister::class),
+            service(McpPromptPersister::class),
+            service(McpResourcePersister::class),
+        ])
+        ->tag('shopware.app_lifecycle.persister', ['priority' => -1300])
+        ->tag('shopware.feature', ['flag' => 'MCP_SERVER']);
 
     // DAL definitions
     $services->set(AppMcpToolDefinition::class)

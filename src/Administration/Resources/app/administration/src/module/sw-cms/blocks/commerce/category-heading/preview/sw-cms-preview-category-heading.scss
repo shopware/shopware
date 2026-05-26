@@ -1,0 +1,14 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-cms-preview-category-heading {
+    padding: 15px;
+
+    &__name {
+        @include flex-centering-vertical;
+
+        color: $color-darkgray-200;
+        font-size: $font-size-s;
+        font-weight: $font-weight-semi-bold;
+    }
+}

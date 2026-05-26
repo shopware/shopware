@@ -38,6 +38,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
                     data-id="product-123"
+                    data-sku="product-123"
                     data-name="Test Product"
                     data-quantity="2"
                     data-price="99.99">
@@ -79,6 +80,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="99.99">
                 <span class="hidden-line-item"
                     data-id="product-456"
+                    data-sku="product-456"
                     data-name="Another Product"
                     data-quantity="1"
                     data-price="99.99">
@@ -206,6 +208,7 @@ describe('plugin/google-analytics/events/view-cart.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
                     data-id="product-456"
+                    data-sku="product-456"
                     data-name="Another Product"
                     data-quantity="2"
                     data-price="99.99">

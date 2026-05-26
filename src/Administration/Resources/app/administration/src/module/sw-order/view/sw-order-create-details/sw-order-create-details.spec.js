@@ -27,7 +27,7 @@ async function createWrapper() {
                         </div>
                     `,
                 },
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-order-create-promotion-modal': true,
                 'sw-order-customer-address-select': true,
                 'sw-entity-single-select': true,

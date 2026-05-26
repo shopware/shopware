@@ -16,6 +16,22 @@ async function createWrapper(
             global: {
                 stubs: {
                     'sw-label': true,
+                    'mt-banner': {
+                        props: [
+                            'title',
+                            'variant',
+                        ],
+                        template: '<div class="mt-banner"><slot /></div>',
+                    },
+                },
+                mocks: {
+                    $t: (key, values = {}) => {
+                        if (key === 'sw-bulk-edit.modal.success.documentGenerationWarningHelpText') {
+                            return `${values.generated} generated successfully, ${values.failed} failed.`;
+                        }
+
+                        return key;
+                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -47,6 +63,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     beforeEach(async () => {
+        Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
         wrapper = await createWrapper();
     });
 
@@ -72,6 +89,18 @@ describe('sw-bulk-edit-save-modal-success', () => {
         await wrapper.vm.getLatestDocuments();
 
         expect(wrapper.vm.latestDocuments).toEqual({});
+    });
+
+    it('should show document generation warning when documents failed', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(5, 2);
+        await wrapper.vm.$nextTick();
+
+        const warning = wrapper.find('.sw-bulk-edit-save-modal-success__warning-document-generation');
+
+        expect(wrapper.vm.hasDocumentGenerationErrors).toBe(true);
+        expect(warning.exists()).toBe(true);
+        expect(warning.text()).toContain('3');
+        expect(warning.text()).toContain('2');
     });
 
     it('should be able to get latest documents', async () => {

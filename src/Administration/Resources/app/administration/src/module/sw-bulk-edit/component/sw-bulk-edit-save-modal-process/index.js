@@ -201,7 +201,7 @@ export default {
 
             if (payload.length <= this.requestsPerPayload) {
                 const response = await this.orderDocumentApiService.generate(documentType, payload);
-                const errorCount = Object.keys(response.data?.errors ?? {}).length;
+                const errorCount = Object.keys(response?.data?.errors ?? {}).length;
                 this.document[documentType].isReached = 100;
 
                 return { requested: requestedTotal, failed: errorCount };
@@ -214,8 +214,7 @@ export default {
             await Promise.all(
                 chunkedPayload.map(async (item) => {
                     const response = await this.orderDocumentApiService.generate(documentType, item);
-                    // errorCount += response.data?.errors?.length ?? 0;
-                    errorCount += Object.keys(response.data?.errors ?? {}).length;
+                    errorCount += Object.keys(response?.data?.errors ?? {}).length;
                     this.document[documentType].isReached = this.document[documentType].isReached + percentages;
                 }),
             );

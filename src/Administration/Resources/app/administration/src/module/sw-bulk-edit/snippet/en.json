@@ -263,7 +263,7 @@
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "No documents found",
         "documentGenerationWarning": "Some documents could not be generated.",
-        "documentGenerationWarningHelpText": "{generated} generated succesfully, {failed} failed."
+        "documentGenerationWarningHelpText": "{generated} generated successfully, {failed} failed."
       },
       "error": {
         "title": "Bulk edit - Error",

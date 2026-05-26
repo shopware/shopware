@@ -114,7 +114,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     });
 
     it('should be able to create invoice document', async () => {
-        wrapper.vm.createDocument = jest.fn();
+        wrapper.vm.createDocument = jest.fn().mockResolvedValue({ requested: 1, failed: 0 });
         Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'invoice',
@@ -140,7 +140,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     });
 
     it('should be able to create storno document', async () => {
-        wrapper.vm.createDocument = jest.fn();
+        wrapper.vm.createDocument = jest.fn().mockResolvedValue({ requested: 1, failed: 0 });
         Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'storno',
@@ -166,7 +166,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     });
 
     it('should be able to create delivery note document', async () => {
-        wrapper.vm.createDocument = jest.fn();
+        wrapper.vm.createDocument = jest.fn().mockResolvedValue({ requested: 1, failed: 0 });
         Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'delivery_note',
@@ -192,7 +192,7 @@ describe('sw-bulk-edit-save-modal-process', () => {
     });
 
     it('should be able to create credit note document', async () => {
-        wrapper.vm.createDocument = jest.fn();
+        wrapper.vm.createDocument = jest.fn().mockResolvedValue({ requested: 1, failed: 0 });
         Shopware.Store.get('swBulkEdit').selectedIds = ['orderId'];
         Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
             type: 'credit_note',
@@ -218,7 +218,13 @@ describe('sw-bulk-edit-save-modal-process', () => {
     });
 
     it('should create document successful', async () => {
-        wrapper.vm.orderDocumentApiService.generate = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    errors: {},
+                },
+            }),
+        );
 
         await wrapper.vm.createDocument('invoice', [
             {
@@ -236,8 +242,55 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
     });
 
+    it('should count document generation errors from response data', async () => {
+        wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    errors: {
+                        orderId2: [
+                            {
+                                detail: 'Document generation failed',
+                            },
+                        ],
+                    },
+                },
+            }),
+        );
+
+        const result = await wrapper.vm.createDocument('invoice', [
+            {
+                config: {
+                    documentDate: 'documentDate',
+                    documentComment: 'documentComment',
+                },
+                fileType: 'pdf',
+                orderId: 'orderId',
+                type: 'invoice',
+            },
+            {
+                config: {
+                    documentDate: 'documentDate',
+                    documentComment: 'documentComment',
+                },
+                fileType: 'pdf',
+                orderId: 'orderId2',
+                type: 'invoice',
+            },
+        ]);
+
+        expect(result).toEqual({ requested: 2, failed: 1 });
+        expect(wrapper.vm.document.invoice.isReached).toBe(100);
+        wrapper.vm.orderDocumentApiService.generate.mockRestore();
+    });
+
     it('should break down the request to generate the document', async () => {
-        wrapper.vm.orderDocumentApiService.generate = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    errors: {},
+                },
+            }),
+        );
 
         Shopware.Store.get('swBulkEdit').selectedIds = [
             'orderId',

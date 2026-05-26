@@ -33,10 +33,10 @@ class AppMcpCapabilityExecutor
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly int $timeout,
-        private readonly ?LoggerInterface $logger = null,
-        private readonly ?KernelInterface $kernel = null,
-        private readonly ?RequestStack $requestStack = null,
-        private readonly ?RouterInterface $router = null,
+        private readonly LoggerInterface $logger,
+        private readonly KernelInterface $kernel,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
     ) {
     }
 
@@ -77,7 +77,7 @@ class AppMcpCapabilityExecutor
 
             $body = $response->getBody()->getContents();
 
-            $this->logger?->debug('App MCP capability executed', [
+            $this->logger->debug('App MCP capability executed', [
                 'capability' => $capabilityName,
                 'url' => $url,
                 'statusCode' => $response->getStatusCode(),
@@ -85,7 +85,7 @@ class AppMcpCapabilityExecutor
 
             $decoded = json_decode($body, true);
             if (\is_array($decoded) && !\array_key_exists('success', $decoded)) {
-                $this->logger?->warning('App MCP capability response does not follow the response convention (missing "success" key)', [
+                $this->logger->warning('App MCP capability response does not follow the response convention (missing "success" key)', [
                     'capability' => $capabilityName,
                     'url' => $url,
                 ]);
@@ -93,7 +93,7 @@ class AppMcpCapabilityExecutor
 
             return $body;
         } catch (\Throwable $e) {
-            $this->logger?->error('App MCP capability execution failed', [
+            $this->logger->error('App MCP capability execution failed', [
                 'capability' => $capabilityName,
                 'url' => $url,
                 'error' => $e->getMessage(),
@@ -111,13 +111,6 @@ class AppMcpCapabilityExecutor
      */
     private function executeSubRequest(string $capabilityName, string $url, array $arguments): string
     {
-        if ($this->kernel === null || $this->requestStack === null || $this->router === null) {
-            return json_encode([
-                'success' => false,
-                'error' => \sprintf('App capability "%s" requires kernel/requestStack/router for internal URL dispatch', $capabilityName),
-            ], \JSON_THROW_ON_ERROR);
-        }
-
         $parent = $this->requestStack->getCurrentRequest();
         if ($parent === null) {
             return json_encode(['success' => false, 'error' => 'No active request context'], \JSON_THROW_ON_ERROR);
@@ -144,7 +137,7 @@ class AppMcpCapabilityExecutor
 
             $response = $this->kernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
 
-            $this->logger?->debug('App MCP capability executed via subrequest', [
+            $this->logger->debug('App MCP capability executed via subrequest', [
                 'capability' => $capabilityName,
                 'url' => $url,
                 'statusCode' => $response->getStatusCode(),
@@ -152,7 +145,7 @@ class AppMcpCapabilityExecutor
 
             return $response->getContent() ?: json_encode(['success' => false, 'error' => 'Empty response'], \JSON_THROW_ON_ERROR);
         } catch (\Throwable $e) {
-            $this->logger?->error('App MCP capability subrequest execution failed', [
+            $this->logger->error('App MCP capability subrequest execution failed', [
                 'capability' => $capabilityName,
                 'url' => $url,
                 'error' => $e->getMessage(),

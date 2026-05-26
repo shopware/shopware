@@ -25,6 +25,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class McpExceptionListener implements EventSubscriberInterface
 {
     private const MCP_ROUTE_NAME = 'api.mcp.endpoint';
+    private const PRIORITY = 10;
 
     /**
      * Some MCP clients (e.g. Cursor) fall back to POST {origin}/register when the primary
@@ -39,7 +40,7 @@ class McpExceptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::EXCEPTION => ['onException', 10],
+            KernelEvents::EXCEPTION => ['onException', self::PRIORITY],
         ];
     }
 
@@ -66,7 +67,7 @@ class McpExceptionListener implements EventSubscriberInterface
     private function handleMcpException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
+        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
 
         $error = new Error(
             id: '',
@@ -80,9 +81,9 @@ class McpExceptionListener implements EventSubscriberInterface
     private function toJsonRpcCode(int $httpCode): int
     {
         return match (true) {
-            $httpCode === 401, $httpCode === 403 => -32001,
-            $httpCode === 429 => -32029,
-            $httpCode >= 400 && $httpCode < 500 => Error::INVALID_REQUEST,
+            $httpCode === Response::HTTP_UNAUTHORIZED, $httpCode === Response::HTTP_FORBIDDEN => -32001,
+            $httpCode === Response::HTTP_TOO_MANY_REQUESTS => -32029,
+            $httpCode >= Response::HTTP_BAD_REQUEST && $httpCode < Response::HTTP_INTERNAL_SERVER_ERROR => Error::INVALID_REQUEST,
             default => Error::SERVER_ERROR,
         };
     }

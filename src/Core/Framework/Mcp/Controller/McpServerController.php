@@ -2,6 +2,13 @@
 
 namespace Shopware\Core\Framework\Mcp\Controller;
 
+use Mcp\Schema\Request\CallToolRequest;
+use Mcp\Schema\Request\GetPromptRequest;
+use Mcp\Schema\Request\InitializeRequest;
+use Mcp\Schema\Request\ListPromptsRequest;
+use Mcp\Schema\Request\ListResourcesRequest;
+use Mcp\Schema\Request\ListToolsRequest;
+use Mcp\Schema\Request\ReadResourceRequest;
 use Mcp\Server;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -17,6 +24,7 @@ use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -31,7 +39,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Applies Shopware's Admin API authentication and route scoping, then delegates
  * the actual protocol handling to the Symfony MCP Server.
  */
-#[Route(defaults: ['_routeScope' => ['api']])]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 #[Package('framework')]
 class McpServerController
 {
@@ -57,7 +65,12 @@ class McpServerController
     ) {
     }
 
-    #[Route(path: '/api/_mcp', name: 'api.mcp.endpoint', defaults: ['auth_required' => true], methods: ['GET', 'POST', 'DELETE', 'OPTIONS'])]
+    #[Route(
+        path: '/api/_mcp',
+        name: 'api.mcp.endpoint',
+        defaults: ['auth_required' => true],
+        methods: [Request::METHOD_GET, Request::METHOD_POST, Request::METHOD_DELETE, Request::METHOD_OPTIONS],
+    )]
     public function handle(Request $request): Response
     {
         if (!Feature::isActive('MCP_SERVER')
@@ -128,7 +141,7 @@ class McpServerController
 
         $method = $body['method'] ?? null;
 
-        if ($method === 'tools/call' && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
+        if ($method === CallToolRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
             $toolName = $body['params']['name'] ?? '';
             if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist[McpAllowlistProvider::TOOLS])) {
                 return $this->jsonRpcError(
@@ -140,7 +153,7 @@ class McpServerController
             }
         }
 
-        if ($method === 'resources/read' && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+        if ($method === ReadResourceRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
             $resourceUri = $body['params']['uri'] ?? '';
             if ($this->allowlistFilter->isResourceReadDenied($resourceUri, $allowlist[McpAllowlistProvider::RESOURCES])) {
                 return $this->jsonRpcError(
@@ -152,7 +165,7 @@ class McpServerController
             }
         }
 
-        if ($method === 'prompts/get' && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+        if ($method === GetPromptRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
             $promptName = $body['params']['name'] ?? '';
             if ($this->allowlistFilter->isPromptGetDenied($promptName, $allowlist[McpAllowlistProvider::PROMPTS])) {
                 return $this->jsonRpcError(
@@ -183,9 +196,9 @@ class McpServerController
         $method = $body['method'] ?? null;
 
         $hasFilter = match ($method) {
-            'tools/list' => $allowlist[McpAllowlistProvider::TOOLS] !== null,
-            'resources/list' => $allowlist[McpAllowlistProvider::RESOURCES] !== null,
-            'prompts/list' => $allowlist[McpAllowlistProvider::PROMPTS] !== null,
+            ListToolsRequest::getMethod() => $allowlist[McpAllowlistProvider::TOOLS] !== null,
+            ListResourcesRequest::getMethod() => $allowlist[McpAllowlistProvider::RESOURCES] !== null,
+            ListPromptsRequest::getMethod() => $allowlist[McpAllowlistProvider::PROMPTS] !== null,
             default => false,
         };
 
@@ -194,21 +207,21 @@ class McpServerController
         }
 
         $contentType = $psrResponse->getHeaderLine('Content-Type');
-        if (!str_starts_with($contentType, 'application/json')) { // @codeCoverageIgnore
-            return $psrResponse; // @codeCoverageIgnore
+        if (!str_starts_with($contentType, 'application/json')) {
+            return $psrResponse;
         }
 
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
 
-        if (!$responseData instanceof \stdClass) { // @codeCoverageIgnore
-            return $psrResponse; // @codeCoverageIgnore
+        if (!$responseData instanceof \stdClass) {
+            return $psrResponse;
         }
 
-        if ($method === 'tools/list' && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
+        if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
             $responseData = $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
-        } elseif ($method === 'resources/list' && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
             $responseData = $this->allowlistFilter->filterResourcesListResponse($responseData, $allowlist[McpAllowlistProvider::RESOURCES]);
-        } elseif ($method === 'prompts/list' && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
             $responseData = $this->allowlistFilter->filterPromptsListResponse($responseData, $allowlist[McpAllowlistProvider::PROMPTS]);
         }
 
@@ -226,7 +239,7 @@ class McpServerController
 
         $body = $this->decodeJson($request->getContent());
 
-        if (!\is_array($body) || ($body['method'] ?? null) !== 'initialize') {
+        if (!\is_array($body) || ($body['method'] ?? null) !== InitializeRequest::getMethod()) {
             return $psrResponse;
         }
 
@@ -240,9 +253,8 @@ class McpServerController
             return $psrResponse;
         }
 
-        /** @var Context|null $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        if ($context === null) {
+        if (!$context instanceof Context) {
             return $psrResponse;
         }
 
@@ -309,8 +321,8 @@ class McpServerController
     {
         try {
             return json_decode($content, $associative, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) { // @codeCoverageIgnore
-            return null; // @codeCoverageIgnore
+        } catch (\JsonException) {
+            return null;
         }
     }
 

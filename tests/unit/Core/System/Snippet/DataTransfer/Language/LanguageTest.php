@@ -17,8 +17,7 @@ class LanguageTest extends TestCase
 {
     public function testLanguageThrowsExceptionIfIndexedWithInvalidLocales(): void
     {
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage('The configured locale "invalid_locale" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('invalid_locale'));
 
         new Language('invalid-locale', 'Invalid Language');
     }
@@ -28,5 +27,12 @@ class LanguageTest extends TestCase
         $language = new Language('en-GB', 'English');
         static::assertSame('en-GB', $language->locale);
         static::assertSame('English', $language->name);
+    }
+
+    public function testCreateLanguageWithAllowedPseudoLocale(): void
+    {
+        $language = new Language('ach-UG', 'Acholi (Pseudo Language)');
+        static::assertSame('ach-UG', $language->locale);
+        static::assertSame('Acholi (Pseudo Language)', $language->name);
     }
 }

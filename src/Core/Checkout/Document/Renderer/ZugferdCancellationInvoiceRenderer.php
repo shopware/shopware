@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -42,6 +43,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         protected ReferenceInvoiceLoader $referenceInvoiceLoader,
         protected Connection $connection,
         protected ZugferdBuilder $documentBuilder,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -170,7 +172,7 @@ class ZugferdCancellationInvoiceRenderer extends AbstractDocumentRenderer
         $number = $config->getDocumentNumber()
             ?: $this->getNumber($context, $order, $operation);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $config->merge([
             'documentDate' => $operation->getConfig()['documentDate'] ?? $now,

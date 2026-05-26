@@ -27,8 +27,7 @@ class OrderConverterControllerTest extends TestCase
     public function testOrderNotFoundException(): void
     {
         $orderId = Uuid::randomHex();
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage("Order $orderId could not be found.");
+        $this->expectExceptionObject(CartException::orderNotFound($orderId));
 
         $converter = $this->createMock(OrderConverter::class);
         $persister = $this->createMock(AbstractCartPersister::class);

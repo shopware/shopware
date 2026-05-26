@@ -69,31 +69,7 @@ export default {
         },
 
         ruleCriteria() {
-            const criteria = new Criteria();
-
-            criteria.addAssociation('tags');
-            criteria.addAssociation('flowSequences.flow');
-
-            const aggregationEntities = [
-                'personaPromotions',
-                'orderPromotions',
-                'cartPromotions',
-                'promotionDiscounts',
-                'promotionSetGroups',
-                'shippingMethodPriceCalculations',
-                'shippingMethodPrices',
-                'productPrices',
-                'shippingMethods',
-                'paymentMethods',
-            ];
-
-            aggregationEntities.forEach((entity) => {
-                criteria.addAggregation(
-                    Criteria.terms(entity, 'id', null, null, Criteria.count(entity, `rule.${entity}.id`)),
-                );
-            });
-
-            return criteria;
+            return this.createRuleCriteria();
         },
 
         appScriptConditionRepository() {
@@ -230,6 +206,34 @@ export default {
     },
 
     methods: {
+        createRuleCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('tags');
+            criteria.addAssociation('flowSequences.flow');
+
+            const aggregationEntities = [
+                'personaPromotions',
+                'orderPromotions',
+                'cartPromotions',
+                'promotionDiscounts',
+                'promotionSetGroups',
+                'shippingMethodPriceCalculations',
+                'shippingMethodPrices',
+                'productPrices',
+                'shippingMethods',
+                'paymentMethods',
+            ];
+
+            aggregationEntities.forEach((entity) => {
+                criteria.addAggregation(
+                    Criteria.terms(entity, 'id', null, null, Criteria.count(entity, `rule.${entity}.id`)),
+                );
+            });
+
+            return criteria;
+        },
+
         loadConditionData() {
             const context = {
                 ...Context.api,
@@ -254,9 +258,10 @@ export default {
             this.isLoading = true;
             this.conditions = null;
 
-            this.ruleCriteria.addFilter(Criteria.equals('id', ruleId));
+            const criteria = this.createRuleCriteria();
+            criteria.addFilter(Criteria.equals('id', ruleId));
 
-            return this.ruleRepository.search(this.ruleCriteria).then((response) => {
+            return this.ruleRepository.search(criteria).then((response) => {
                 this.entityCount = this.extractEntityCount(response.aggregations);
 
                 this.rule = response.first();
@@ -267,8 +272,12 @@ export default {
         extractEntityCount(aggregations) {
             const entityCount = {};
 
+            if (!aggregations) {
+                return entityCount;
+            }
+
             Object.keys(aggregations).forEach((key) => {
-                entityCount[key] = aggregations[key].buckets.at(0)[key].count;
+                entityCount[key] = aggregations[key]?.buckets?.at(0)?.[key]?.count ?? 0;
             });
 
             return entityCount;
@@ -336,6 +345,10 @@ export default {
         },
 
         loadConditions(conditions = null) {
+            if (!this.rule) {
+                return Promise.resolve();
+            }
+
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
@@ -450,8 +463,12 @@ export default {
         },
 
         onSave() {
+            return this.saveRuleChanges();
+        },
+
+        saveRuleChanges({ reload = true, keepLoading = false } = {}) {
             if (!this.validateRuleAwareness()) {
-                return Promise.resolve();
+                return Promise.resolve(false);
             }
 
             if (!this.validateDateRange()) {
@@ -462,9 +479,10 @@ export default {
                         code: 'INVALID_DATE_RANGE',
                     }),
                 });
+
                 this.showErrorNotification();
 
-                return Promise.resolve();
+                return Promise.resolve(false);
             }
 
             this.isSaveSuccessful = false;
@@ -472,17 +490,23 @@ export default {
 
             if (this.rule.isNew()) {
                 this.rule.conditions = this.conditionTree;
+
                 return this.saveRule()
                     .then(() => {
                         this.$router.push({
-                            name: 'sw.settings.rule.detail',
+                            name: 'sw.settings.rule.detail.base',
                             params: { id: this.rule.id },
                         });
+
                         this.isSaveSuccessful = true;
                         this.conditionsTreeContainsUserChanges = false;
+
+                        return true;
                     })
                     .catch(() => {
                         this.showErrorNotification();
+
+                        return false;
                     });
             }
 
@@ -490,16 +514,30 @@ export default {
                 .then(this.syncConditions)
                 .then(() => {
                     this.isSaveSuccessful = true;
-                    this.loadEntityData(this.rule.id).then(() => {
-                        this.setTreeFinishedLoading();
-                    });
+                    this.conditionsTreeContainsUserChanges = false;
+
+                    if (!reload) {
+                        return Promise.resolve();
+                    }
+
+                    return this.loadEntityData(this.rule.id);
                 })
                 .then(() => {
-                    this.isLoading = false;
+                    if (reload) {
+                        this.setTreeFinishedLoading();
+                    }
+
+                    if (!keepLoading) {
+                        this.isLoading = false;
+                    }
+
+                    return true;
                 })
                 .catch(() => {
                     this.isLoading = false;
                     this.showErrorNotification();
+
+                    return false;
                 });
         },
 
@@ -540,6 +578,7 @@ export default {
             this.createNotificationError({
                 message: this.$t('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
+
             this.isLoading = false;
         },
 
@@ -556,7 +595,11 @@ export default {
         },
 
         onDuplicate() {
-            return this.onSave().then(() => {
+            return this.saveRuleChanges({ reload: false, keepLoading: true }).then((isSuccessful) => {
+                if (!isSuccessful) {
+                    return Promise.resolve(false);
+                }
+
                 const behaviour = {
                     overwrites: {
                         name: `${this.rule.name} ${this.$t('global.default.copy')}`,
@@ -565,12 +608,19 @@ export default {
                     },
                 };
 
-                return this.ruleRepository.clone(this.rule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
-                    this.$router.push({
-                        name: 'sw.settings.rule.detail',
-                        params: { id: duplicatedData.id },
+                return this.ruleRepository
+                    .clone(this.rule.id, behaviour, Shopware.Context.api)
+                    .then((duplicatedData) => {
+                        return this.$router.push({
+                            name: 'sw.settings.rule.detail.base',
+                            params: { id: duplicatedData.id },
+                        });
+                    })
+                    .catch(() => {
+                        this.showErrorNotification();
+
+                        return false;
                     });
-                });
             });
         },
     },

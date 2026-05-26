@@ -24,22 +24,32 @@ class Migration1753799632FixStateMachineHistoryIntegrationConstraintTest extends
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
 
-        try {
-            $this->connection->executeStatement('
-                ALTER TABLE `state_machine_history` DROP FOREIGN KEY `fk.state_machine_history.integration_id`;
-            ');
-        } catch (\Throwable) {
-        }
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1753799632, (new Migration1753799632FixStateMachineHistoryIntegrationConstraint())->getCreationTimestamp());
     }
 
     public function testMigration(): void
     {
+        $this->dropIntegrationForeignKey();
+
         $migration = new Migration1753799632FixStateMachineHistoryIntegrationConstraint();
         $migration->update($this->connection);
         $migration->update($this->connection);
 
         $foreignKey = TableHelper::getForeignKeyOfTable($this->connection, StateMachineHistoryDefinition::ENTITY_NAME, 'fk.state_machine_history.integration_id');
         static::assertSame(ReferentialAction::SET_NULL->value, $foreignKey->onDeleteAction);
+    }
+
+    private function dropIntegrationForeignKey(): void
+    {
+        try {
+            $this->connection->executeStatement('
+                ALTER TABLE `state_machine_history` DROP FOREIGN KEY `fk.state_machine_history.integration_id`;
+            ');
+        } catch (\Throwable) {
+        }
     }
 }

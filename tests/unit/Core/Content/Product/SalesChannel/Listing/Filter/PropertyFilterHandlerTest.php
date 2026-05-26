@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -93,16 +92,11 @@ class PropertyFilterHandlerTest extends TestCase
      * @param array<string> $input
      * @param array<string> $expectedIds
      * @param array<array<string, string>> $mapping
-     * @param array<string> $expectedGroupIds
+     * @param array<string, array<string>> $expectedGroupedOptions group id => list of option ids in that group
      */
     #[DataProvider('createProvider')]
-    public function testCreate(
-        array $input,
-        AndFilter $expectedFilter,
-        array $expectedIds,
-        array $mapping,
-        array $expectedGroupIds
-    ): void {
+    public function testCreate(array $input, AndFilter $expectedFilter, array $expectedIds, array $mapping, array $expectedGroupedOptions): void
+    {
         $request = new Request([], ['properties' => implode('|', $input)]);
 
         $request->setMethod(Request::METHOD_POST);
@@ -119,14 +113,67 @@ class PropertyFilterHandlerTest extends TestCase
 
         $result = $handler->create($request, $context);
 
-        static::assertInstanceOf(Filter::class, $result);
-        static::assertSame('properties', $result->getName());
-        static::assertTrue($result->isFiltered());
-        static::assertTrue($result->exclude());
-        static::assertEquals($expectedFilter, $result->getFilter());
-        static::assertSame($expectedIds, $result->getValues());
+        // Without `reduce-aggregations` the handler returns simple TermsAggregations and
+        // exclude=false, mirroring the legacy behaviour. The post-filter still encodes per-group
+        // OR semantics so the listing result itself is filtered correctly.
+        $expected = new Filter(
+            'properties',
+            true,
+            [
+                new TermsAggregation('properties', 'product.properties.id'),
+                new TermsAggregation('options', 'product.options.id'),
+            ],
+            $expectedFilter,
+            $expectedIds,
+            false
+        );
 
-        $this->assertGroupAwareAggregations($result->getAggregations(), $expectedGroupIds);
+        static::assertEquals($expected, $result);
+    }
+
+    /**
+     * @param array<string> $input
+     * @param array<string> $expectedIds
+     * @param array<array<string, string>> $mapping
+     * @param array<string, array<string>> $expectedGroupedOptions group id => list of option ids in that group
+     */
+    #[DataProvider('createProvider')]
+    public function testCreateWithReduceAggregationsUsesGroupAwareAggregations(
+        array $input,
+        AndFilter $expectedFilter,
+        array $expectedIds,
+        array $mapping,
+        array $expectedGroupedOptions
+    ): void {
+        $request = new Request([], [
+            'properties' => implode('|', $input),
+            'reduce-aggregations' => '1',
+        ]);
+
+        $request->setMethod(Request::METHOD_POST);
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn($mapping);
+
+        $handler = $this->getHandlerWithConnection($connection);
+
+        $result = $handler->create($request, $context);
+
+        $expected = new Filter(
+            'properties',
+            true,
+            self::expectedGroupAwareAggregations($expectedGroupedOptions),
+            $expectedFilter,
+            $expectedIds,
+            true
+        );
+
+        static::assertEquals($expected, $result);
     }
 
     public function testCreateWithInvalidIds(): void
@@ -320,108 +367,106 @@ class PropertyFilterHandlerTest extends TestCase
         static::assertSame('xl', $options->last()->get('id'));
     }
 
-    /**
-     * Regression test for https://github.com/shopware/shopware/issues/15812.
-     *
-     * Ensures that the aggregations produced for a multi-group selection do NOT embed the
-     * filter of the group that they aggregate over. Otherwise the `reduce-aggregations`
-     * recomputation would keep sibling options of a still-selected property group disabled
-     * after another group's selection is removed.
-     */
-    public function testGroupAwareExclusionDoesNotConstrainOwnGroup(): void
+    public function testProcessCollectsIdsFromPerGroupAggregations(): void
     {
-        $ids = new IdsCollection();
-
-        $request = new Request([], [
-            'properties' => implode('|', [$ids->get('red'), $ids->get('XL')]),
-        ]);
+        // Simulates the post-DBAL state of a reduce-aggregations request where the per-group
+        // aggregation surfaced an option (silk) that the base aggregation did not. The processor
+        // must merge ids from both base and per-group results.
+        $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
         $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['property_group_id' => $ids->get('color'), 'id' => $ids->get('red')],
-            ['property_group_id' => $ids->get('size'), 'id' => $ids->get('XL')],
-        ]);
-
-        $handler = $this->getHandlerWithConnection($connection);
-
-        $result = $handler->create($request, $context);
-        static::assertInstanceOf(Filter::class, $result);
-
-        // The main post-filter must still include BOTH group filters so the listing itself
-        // stays fully narrowed.
-        static::assertEquals(
-            new AndFilter([
-                new OrFilter([
-                    new EqualsAnyFilter('product.optionIds', [$ids->get('red')]),
-                    new EqualsAnyFilter('product.propertyIds', [$ids->get('red')]),
-                ]),
-                new OrFilter([
-                    new EqualsAnyFilter('product.optionIds', [$ids->get('XL')]),
-                    new EqualsAnyFilter('product.propertyIds', [$ids->get('XL')]),
+        /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
+        $groupRepository = new StaticEntityRepository([
+            static fn (Criteria $criteria) => new PropertyGroupCollection([
+                (new PropertyGroupEntity())->assign([
+                    'id' => 'material',
+                    'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
+                    'position' => 1,
                 ]),
             ]),
-            $result->getFilter()
+        ], new PropertyGroupDefinition());
+
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $repository */
+        $repository = new StaticEntityRepository([
+            static function (Criteria $criteria) {
+                static::assertContains('linen', $criteria->getIds());
+                static::assertContains('silk', $criteria->getIds());
+
+                return new PropertyGroupOptionCollection([
+                    (new PropertyGroupOptionEntity())->assign([
+                        'id' => 'linen',
+                        'groupId' => 'material',
+                        'position' => 1,
+                    ]),
+                    (new PropertyGroupOptionEntity())->assign([
+                        'id' => 'silk',
+                        'groupId' => 'material',
+                        'position' => 2,
+                    ]),
+                ]);
+            },
+        ], new PropertyGroupOptionDefinition());
+
+        $handler = new PropertyListingFilterHandler(
+            $groupRepository,
+            $repository,
+            $this->createMock(Connection::class)
         );
 
-        // Exclude must be true so the AggregationListingProcessor does not re-add the
-        // combined property filter on top of our group-aware aggregations.
-        static::assertTrue($result->exclude());
-
-        $aggregations = [];
-        foreach ($result->getAggregations() as $aggregation) {
-            static::assertInstanceOf(FilterAggregation::class, $aggregation);
-            $aggregations[$aggregation->getName()] = $aggregation;
-        }
-
-        // color-aware aggregation must apply size-filter but NOT color-filter.
-        $colorAggregation = $aggregations['properties-' . $ids->get('color') . '-filter'] ?? null;
-        static::assertInstanceOf(FilterAggregation::class, $colorAggregation);
-
-        $colorFilters = $colorAggregation->getFilter();
-        static::assertEquals(new EqualsFilter('product.properties.groupId', $ids->get('color')), $colorFilters[0]);
-
-        $colorSelfFilter = new OrFilter([
-            new EqualsAnyFilter('product.optionIds', [$ids->get('red')]),
-            new EqualsAnyFilter('product.propertyIds', [$ids->get('red')]),
-        ]);
-        foreach (\array_slice($colorFilters, 1) as $embedded) {
-            static::assertNotEquals($colorSelfFilter, $embedded, 'color aggregation must not constrain the color group');
-        }
-
-        // The size-filter *must* be present (cross-group narrowing stays active).
-        $sizeOtherFilter = new OrFilter([
-            new EqualsAnyFilter('product.optionIds', [$ids->get('XL')]),
-            new EqualsAnyFilter('product.propertyIds', [$ids->get('XL')]),
-        ]);
-        static::assertTrue(
-            $this->containsFilter(\array_slice($colorFilters, 1), $sizeOtherFilter),
-            'color aggregation must keep the size group filter'
+        $result = new ProductListingResult(
+            'test',
+            1,
+            new ProductCollection(),
+            new AggregationResultCollection([
+                // Base aggregation: properties filter is applied → only 'linen' (no silk because
+                // no product has material=silk AND matches the current property filter).
+                new TermsResult('properties', [
+                    new Bucket('linen', 1, null),
+                ]),
+                new TermsResult('options', [
+                    new Bucket('linen', 1, null),
+                ]),
+                // Per-group aggregation: lifts the material group's selection → 'silk' shows up.
+                new TermsResult('properties.material', [
+                    new Bucket('linen', 1, null),
+                    new Bucket('silk', 1, null),
+                ]),
+                new TermsResult('options.material', [
+                    new Bucket('linen', 1, null),
+                    new Bucket('silk', 1, null),
+                ]),
+            ]),
+            new Criteria(),
+            Context::createDefaultContext()
         );
 
-        // size-aware aggregation: symmetric check.
-        $sizeAggregation = $aggregations['properties-' . $ids->get('size') . '-filter'] ?? null;
-        static::assertInstanceOf(FilterAggregation::class, $sizeAggregation);
+        $handler->process($request, $result, $context);
 
-        $sizeFilters = $sizeAggregation->getFilter();
-        static::assertEquals(new EqualsFilter('product.properties.groupId', $ids->get('size')), $sizeFilters[0]);
-        foreach (\array_slice($sizeFilters, 1) as $embedded) {
-            static::assertNotEquals($sizeOtherFilter, $embedded, 'size aggregation must not constrain the size group');
+        // All per-group aggregations cleaned up.
+        static::assertFalse($result->getAggregations()->has('properties.material'));
+        static::assertFalse($result->getAggregations()->has('options.material'));
+        static::assertFalse($result->getAggregations()->has('options'));
+
+        $properties = $result->getAggregations()->get('properties');
+        static::assertInstanceOf(EntityResult::class, $properties);
+
+        $material = $properties->getEntities()->first();
+        static::assertInstanceOf(Entity::class, $material);
+        static::assertSame('material', $material->get('id'));
+
+        $options = $material->get('options');
+        static::assertInstanceOf(EntityCollection::class, $options);
+        static::assertCount(2, $options, 'silk should re-enable via the per-group aggregation');
+
+        $ids = [];
+        foreach ($options as $option) {
+            $ids[] = $option->get('id');
         }
-        static::assertTrue(
-            $this->containsFilter(\array_slice($sizeFilters, 1), $colorSelfFilter),
-            'size aggregation must keep the color group filter'
-        );
-
-        // Catch-all aggregation for unselected groups must scope NOT IN selected groups and
-        // apply every selected filter.
-        $catchAll = $aggregations['properties-filter'] ?? null;
-        static::assertInstanceOf(FilterAggregation::class, $catchAll);
-        static::assertInstanceOf(NotFilter::class, $catchAll->getFilter()[0]);
-        static::assertTrue($this->containsFilter($catchAll->getFilter(), $colorSelfFilter));
-        static::assertTrue($this->containsFilter($catchAll->getFilter(), $sizeOtherFilter));
+        static::assertContains('linen', $ids);
+        static::assertContains('silk', $ids);
     }
 
     public static function createProvider(): \Generator
@@ -454,8 +499,11 @@ class PropertyFilterHandlerTest extends TestCase
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('green')],
             ],
 
-            // expected group ids (in selection/mapping order)
-            [$ids->get('size'), $ids->get('color')],
+            // expected grouped options for per-group aggregations
+            [
+                $ids->get('size') => [$ids->get('XL')],
+                $ids->get('color') => [$ids->get('green')],
+            ],
         ];
 
         yield 'Test with single group and multiple options' => [
@@ -478,8 +526,10 @@ class PropertyFilterHandlerTest extends TestCase
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('red')],
             ],
 
-            // expected group ids
-            [$ids->get('color')],
+            // expected grouped options for per-group aggregations
+            [
+                $ids->get('color') => [$ids->get('green'), $ids->get('red')],
+            ],
         ];
 
         yield 'Test with multiple groups and multiple options' => [
@@ -518,8 +568,11 @@ class PropertyFilterHandlerTest extends TestCase
                 ['property_group_id' => $ids->get('size'), 'id' => $ids->get('L')],
             ],
 
-            // expected group ids
-            [$ids->get('color'), $ids->get('size')],
+            // expected grouped options for per-group aggregations
+            [
+                $ids->get('color') => [$ids->get('green'), $ids->get('red')],
+                $ids->get('size') => [$ids->get('XL'), $ids->get('L')],
+            ],
         ];
 
         yield 'Test two groups and single option with invalid id' => [
@@ -548,71 +601,69 @@ class PropertyFilterHandlerTest extends TestCase
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('green')],
             ],
 
-            // expected group ids
-            [$ids->get('size'), $ids->get('color')],
+            // expected grouped options for per-group aggregations
+            [
+                $ids->get('size') => [$ids->get('XL')],
+                $ids->get('color') => [$ids->get('green')],
+            ],
         ];
     }
 
     /**
-     * @param array<int, Aggregation> $aggregations
-     * @param array<string> $expectedGroupIds
+     * @param array<string, array<string>> $groupedOptions
+     *
+     * @return list<Aggregation>
      */
-    private function assertGroupAwareAggregations(array $aggregations, array $expectedGroupIds): void
+    private static function expectedGroupAwareAggregations(array $groupedOptions): array
     {
-        static::assertCount(\count($expectedGroupIds) * 2 + 2, $aggregations, 'Expected per-group + catch-all aggregations');
-
-        $byName = [];
-        foreach ($aggregations as $aggregation) {
-            static::assertInstanceOf(FilterAggregation::class, $aggregation);
-            $byName[$aggregation->getName()] = $aggregation;
+        $groupOrFilters = [];
+        foreach ($groupedOptions as $groupId => $optionIds) {
+            $groupOrFilters[$groupId] = new OrFilter([
+                new EqualsAnyFilter('product.optionIds', $optionIds),
+                new EqualsAnyFilter('product.propertyIds', $optionIds),
+            ]);
         }
 
-        foreach ($expectedGroupIds as $groupId) {
-            $propertyKey = 'properties-' . $groupId . '-filter';
-            $optionKey = 'options-' . $groupId . '-filter';
+        $allGroupFilters = array_values($groupOrFilters);
 
-            static::assertArrayHasKey($propertyKey, $byName);
-            static::assertArrayHasKey($optionKey, $byName);
+        $aggregations = [
+            new FilterAggregation(
+                'properties-base',
+                new TermsAggregation('properties', 'product.properties.id'),
+                $allGroupFilters
+            ),
+            new FilterAggregation(
+                'options-base',
+                new TermsAggregation('options', 'product.options.id'),
+                $allGroupFilters
+            ),
+        ];
 
-            $propertyAggregation = $byName[$propertyKey];
+        foreach ($groupOrFilters as $groupId => $_) {
+            $otherGroupFilters = $groupOrFilters;
+            unset($otherGroupFilters[$groupId]);
+            $otherGroupFilters = array_values($otherGroupFilters);
 
-            $innerProperty = $propertyAggregation->getAggregation();
-            static::assertInstanceOf(TermsAggregation::class, $innerProperty);
-            static::assertSame('properties-' . $groupId, $innerProperty->getName());
+            $aggregations[] = new FilterAggregation(
+                'properties-group-' . $groupId,
+                new TermsAggregation('properties.' . $groupId, 'product.properties.id'),
+                [
+                    new EqualsFilter('product.properties.groupId', $groupId),
+                    ...$otherGroupFilters,
+                ]
+            );
 
-            // The first filter must be the groupId scope.
-            $propertyFilters = $propertyAggregation->getFilter();
-            static::assertNotEmpty($propertyFilters);
-            static::assertEquals(
-                new EqualsFilter('product.properties.groupId', $groupId),
-                $propertyFilters[0]
+            $aggregations[] = new FilterAggregation(
+                'options-group-' . $groupId,
+                new TermsAggregation('options.' . $groupId, 'product.options.id'),
+                [
+                    new EqualsFilter('product.options.groupId', $groupId),
+                    ...$otherGroupFilters,
+                ]
             );
         }
 
-        // Catch-all aggregations (for groups without a selection) must carry a NotFilter
-        // scoping to groups other than the selected ones, plus all selected group filters.
-        static::assertArrayHasKey('properties-filter', $byName);
-        static::assertArrayHasKey('options-filter', $byName);
-
-        $catchProperty = $byName['properties-filter'];
-        $catchFilters = $catchProperty->getFilter();
-        static::assertInstanceOf(NotFilter::class, $catchFilters[0]);
-        static::assertCount(\count($expectedGroupIds) + 1, $catchFilters);
-    }
-
-    /**
-     * @param array<\Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter> $haystack
-     */
-    private function containsFilter(array $haystack, \Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter $needle): bool
-    {
-        $serializedNeedle = serialize($needle);
-        foreach ($haystack as $filter) {
-            if (serialize($filter) === $serializedNeedle) {
-                return true;
-            }
-        }
-
-        return false;
+        return $aggregations;
     }
 
     private function getHandlerWithConnection(Connection $connection): PropertyListingFilterHandler

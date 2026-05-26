@@ -4,8 +4,10 @@ namespace Shopware\Storefront\Theme\Subscriber;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -62,6 +64,23 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             if (!EnvironmentHelper::getVariable('TESTS_RUNNING')) {
                 IOStreamHelper::writeError('Warning: Failed to load plugin css configuration. Ignoring plugin css customizations.', $e);
             }
+        }
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            /** @var SystemConfigTab $tab */
+            foreach ($allConfigs as $tab) {
+                foreach ($tab->cards as $card) {
+                    foreach ($card->elements as $element) {
+                        if (!$this->hasCssValue($element)) {
+                            continue;
+                        }
+
+                        $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
+                    }
+                }
+            }
+
+            return;
         }
 
         foreach ($allConfigs as $card) {

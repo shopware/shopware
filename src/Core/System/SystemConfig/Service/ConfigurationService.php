@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -39,6 +41,8 @@ class ConfigurationService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `list<SystemConfigTab>`
+     *
      * @throws SystemConfigException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
@@ -65,47 +69,49 @@ class ConfigurationService
         $domain = rtrim($domain, '.') . '.';
 
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            foreach ($config as $i => $tab) {
-                foreach ($tab['cards'] ?? [] as $j => $card) {
-                    if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
-                        unset($config[$i]['cards'][$j]);
+            $tabs = [];
 
+            foreach ($config as $tab) {
+                $cards = [];
+
+                foreach ($tab['cards'] ?? [] as $card) {
+                    if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
                         continue;
                     }
 
-                    foreach ($card['elements'] ?? [] as $k => $field) {
-                        $newField = ['name' => $domain . $field['name']];
+                    $fields = [];
 
+                    foreach ($card['elements'] ?? [] as $field) {
                         if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
-                            unset($card['elements'][$k]);
-
                             continue;
                         }
 
-                        if (\array_key_exists('type', $field)) {
-                            $newField['type'] = $field['type'];
-                        }
+                        $config = $field;
 
-                        unset($field['type'], $field['name']);
-                        $newField['config'] = $field;
-                        $card['elements'][$k] = $newField;
+                        unset($config['name'], $config['type']);
+
+                        $fields[] = [
+                            'name' => $domain . $field['name'],
+                            'config' => $config,
+                            'type' => $field['type'] ?? null,
+                        ];
                     }
 
-                    if (isset($card['elements']) && \is_array($card['elements'])) {
-                        $card['elements'] = array_values($card['elements']);
-                    }
-
-                    $config[$i]['cards'][$j] = $card;
+                    $cards[] = new SystemConfigCard(
+                        $fields,
+                        $card['title'] ?? [],
+                        $card['name'] ?? null
+                    );
                 }
+
+                $tabs[] = new SystemConfigTab(
+                    $cards,
+                    $tab['title'] ?? null,
+                    $tab['name'] ?? null
+                );
             }
 
-            return array_values(array_map(function (array $tab) {
-                \assert(isset($tab['cards']) && \is_array($tab['cards']));
-
-                $tab['cards'] = array_values($tab['cards']);
-
-                return $tab;
-            }, $config));
+            return $tabs;
         }
 
         foreach ($config as $i => $card) {
@@ -144,11 +150,14 @@ class ConfigurationService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `list<SystemConfigTab>`
+     *
      * @return array<mixed>
      */
     public function getResolvedConfiguration(string $domain, Context $context, ?string $salesChannelId = null): array
     {
         $config = [];
+
         if ($this->checkConfiguration($domain, $context)) {
             $config = array_merge(
                 $config,
@@ -234,6 +243,9 @@ class ConfigurationService
     }
 
     /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $config will be of type `list<SystemConfigTab>`
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `list<SystemConfigTab>`
+     *
      * @param array<mixed> $config
      *
      * @return array<mixed>
@@ -241,13 +253,10 @@ class ConfigurationService
     private function enrichValues(array $config, ?string $salesChannelId): array
     {
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            foreach ($config as &$tab) {
-                foreach ($tab['cards'] as &$card) {
-                    if (!\is_array($card['elements'] ?? false)) {
-                        continue;
-                    }
-
-                    foreach ($card['elements'] as &$element) {
+            /** @var SystemConfigTab $tab */
+            foreach ($config as $tab) {
+                foreach ($tab->cards as $card) {
+                    foreach ($card->elements as $element) {
                         $element['value'] = $this->systemConfigService->get(
                             $element['name'],
                             $salesChannelId

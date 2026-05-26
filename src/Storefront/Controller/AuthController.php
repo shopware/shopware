@@ -433,7 +433,12 @@ class AuthController extends StorefrontController
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
         } catch (ConstraintViolationException $formViolations) {
             if ($formViolations->getViolations()->findByCodes(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE_CODE)->count()) {
-                $this->addFlash(self::DANGER, $this->trans('error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'));
+                $this->addFlash(
+                    self::DANGER,
+                    $this->trans(
+                        \sprintf('error.%s', CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE_CODE)
+                    )
+                );
             }
 
             return $this->forwardToRoute(
@@ -443,8 +448,7 @@ class AuthController extends StorefrontController
         }
 
         $this->addFlash(self::SUCCESS, $this->trans('account.convertSucceeded'));
-        $this->logoutRoute->logout($context, new RequestDataBag());
 
-        return $this->redirectToRoute('frontend.account.login.page');
+        return $this->redirectToRoute('frontend.account.home.page');
     }
 }

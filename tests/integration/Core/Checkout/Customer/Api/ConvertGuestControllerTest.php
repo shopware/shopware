@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Api;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -27,7 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(ConvertGuestController::class)]
 class ConvertGuestControllerTest extends TestCase
 {
     use EventDispatcherBehaviour;
@@ -152,7 +150,7 @@ class ConvertGuestControllerTest extends TestCase
 
         $ids = $repository->searchIds($criteria, $context)->getIds();
 
-        if (empty($ids)) {
+        if (!$ids) {
             return;
         }
 

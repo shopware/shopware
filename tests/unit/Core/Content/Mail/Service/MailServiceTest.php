@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -191,7 +192,7 @@ class MailServiceTest extends TestCase
         $this->logger->expects($this->once())->method('log')->with(Level::Warning);
         $this->eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
-            ->willReturnCallback(static function (object $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (ShopwareEvent $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
@@ -322,7 +323,7 @@ class MailServiceTest extends TestCase
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(static function (object $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (ShopwareEvent $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 

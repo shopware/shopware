@@ -58,6 +58,10 @@ Shopware.Component.register(
     'sw-user-sso-access-key-create-modal',
     () => import('./components/sw-user-sso-access-key-create-modal'),
 );
+Shopware.Component.register(
+    'sw-users-permissions-role-mcp-reference-modal',
+    () => import('./component/sw-users-permissions-role-mcp-reference-modal'),
+);
 
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 

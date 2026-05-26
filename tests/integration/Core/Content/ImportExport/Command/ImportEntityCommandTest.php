@@ -44,8 +44,7 @@ class ImportEntityCommandTest extends TestCase
         ];
         $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME]);
 
-        $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessage('The file "' . $noFile . '" does not exist');
+        $this->expectExceptionObject(new FileNotFoundException($noFile));
         $commandTester->execute($args);
     }
 

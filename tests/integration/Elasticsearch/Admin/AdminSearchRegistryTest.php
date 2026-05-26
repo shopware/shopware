@@ -76,7 +76,24 @@ class AdminSearchRegistryTest extends TestCase
                                 'filter' => ['lowercase'],
                             ],
                         ],
+                        'char_filter' => [
+                            'sw_decimal_normalize' => [
+                                'type' => 'pattern_replace',
+                                'pattern' => '(\\d),(\\d)',
+                                'replacement' => '$1.$2',
+                            ],
+                            'sw_unit_glue' => [
+                                'type' => 'pattern_replace',
+                                'pattern' => '(^|\\s)(\\d+(?:[./,\'\\-]\\d+)*)\\s+([^\\d\\s])',
+                                'replacement' => '$1$2$3',
+                            ],
+                        ],
                         'analyzer' => [
+                            'sw_whitespace_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'filter' => ['lowercase'],
+                            ],
                             'sw_ngram_analyzer' => [
                                 'type' => 'custom',
                                 'tokenizer' => 'whitespace',
@@ -85,12 +102,42 @@ class AdminSearchRegistryTest extends TestCase
                                     'sw_ngram_filter',
                                 ],
                             ],
+                            'sw_admin_completion_index_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'],
+                                'filter' => ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'sw_length_min', 'remove_duplicates'],
+                            ],
+                            'sw_admin_completion_search_analyzer' => [
+                                'type' => 'custom',
+                                'tokenizer' => 'whitespace',
+                                'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'],
+                                'filter' => ['sw_word_delimiter_filter', 'lowercase', 'sw_length_min', 'remove_duplicates', 'sw_unique_filter'],
+                            ],
                         ],
                         'filter' => [
                             'sw_ngram_filter' => [
                                 'type' => 'ngram',
                                 'min_gram' => 4,
                                 'max_gram' => 5,
+                            ],
+                            'sw_word_delimiter_filter' => [
+                                'type' => 'word_delimiter_graph',
+                                'preserve_original' => true,
+                                'catenate_all' => true,
+                                'catenate_words' => true,
+                                'catenate_numbers' => true,
+                                'split_on_case_change' => true,
+                                'generate_word_parts' => true,
+                                'split_on_numerics' => true,
+                            ],
+                            'sw_length_min' => [
+                                'type' => 'length',
+                                'min' => 2,
+                            ],
+                            'sw_unique_filter' => [
+                                'type' => 'unique',
+                                'only_on_same_position' => false,
                             ],
                         ],
                     ],

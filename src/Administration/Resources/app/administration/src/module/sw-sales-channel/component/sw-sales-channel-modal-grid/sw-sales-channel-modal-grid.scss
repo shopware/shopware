@@ -10,19 +10,22 @@
     }
 
     .sw-sales-channel-modal-grid__item-name {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         font-size: $font-size-m;
         margin-bottom: 0;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: normal;
         cursor: pointer;
 
         &:hover {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
     }
 
     .sw-sales-channel-modal-grid__item-description {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
         margin-top: 5px;
         cursor: pointer;
@@ -34,13 +37,13 @@
     }
 
     .sw-sales-channel-modal-grid__icon {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         width: 64px;
         height: 64px;
         border-radius: 8px;
 
         .mt-icon {
-            color: $color-gray-900;
+            color: var(--color-text-secondary-default);
             height: 24px;
             width: 24px;
             margin: 20px;

@@ -4,260 +4,148 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Cms\Xml;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Cms\Xml\Block;
-use Shopware\Core\Framework\App\Cms\Xml\DefaultConfig;
-use Shopware\Core\Framework\App\Cms\Xml\Slot;
 
 /**
  * @internal
- *
- * @phpstan-type BlockArray array{
- *     name: string,
- *     category: string,
- *     label: array<string, string>,
- *     slots: array<string, array{
- *         type: string,
- *         position: int,
- *         default: array{
- *             config: array<string, array{
- *                 source: string,
- *                 value: string
- *             }>
- *         }
- *     }>,
- *     defaultConfig: array<string, string>
- * }
- * @phpstan-type BlockEntityArray array{
- *     appId: string,
- *     name: string,
- *     label: array<string, string>,
- *     block: BlockArray
- * }
  */
 #[CoversClass(Block::class)]
 class BlockTest extends TestCase
 {
     public function testFromXml(): void
     {
-        $manifest = CmsManifest::createFromXmlFile(__DIR__ . '/../../_fixtures/Resources/cms.xml');
-        $actualOuterBlocks = $manifest->getBlocks();
-        static::assertNotNull($actualOuterBlocks);
+        $block = self::createBlock();
 
-        $actualBlocks = $actualOuterBlocks->getBlocks();
-        $expectedBlocks = $this->getExpectedEntityArrayBlocks();
-
-        foreach ($expectedBlocks as $index => $expectedBlock) {
-            $expectedBlockInner = $expectedBlock['block'];
-
-            static::assertSame($expectedBlockInner['name'], $actualBlocks[$index]->getName());
-            static::assertSame($expectedBlockInner['category'], $actualBlocks[$index]->getCategory());
-            static::assertSame($expectedBlockInner['label'], $actualBlocks[$index]->getLabel());
-            static::assertSame($expectedBlockInner['defaultConfig'], $actualBlocks[$index]->getDefaultConfig()->toArray('en-GB'));
-
-            $slotNames = array_keys($expectedBlockInner['slots']);
-            foreach (array_values($expectedBlockInner['slots']) as $slotIndex => $expectedSlot) {
-                $actualSlot = $actualBlocks[$index]->getSlots()[$slotIndex];
-
-                static::assertSame($slotNames[$slotIndex], $actualSlot->getName());
-                static::assertSame($expectedSlot['type'], $actualSlot->getType());
-                static::assertSame($expectedSlot['default']['config'], $actualSlot->getConfig()->toArray('en-GB'));
-            }
-        }
+        static::assertSame('teaser-block', $block->getName());
+        static::assertSame('text-image', $block->getCategory());
+        static::assertSame(
+            [
+                'en-GB' => 'Teaser block',
+                'de-DE' => 'Teaser Block',
+            ],
+            $block->getLabel()
+        );
+        static::assertCount(2, $block->getSlots());
+        static::assertSame('left', $block->getSlots()[0]->getName());
+        static::assertSame('10px', $block->getDefaultConfig()->getMarginTop());
     }
 
     public function testToArray(): void
     {
-        $manifest = CmsManifest::createFromXmlFile(__DIR__ . '/../../_fixtures/Resources/cms.xml');
-        $actualOuterBlocks = $manifest->getBlocks();
-        static::assertNotNull($actualOuterBlocks);
+        $block = self::createBlock();
+        $slots = $block->getSlots();
+        $defaultConfig = $block->getDefaultConfig();
 
-        $actualBlocks = $actualOuterBlocks->getBlocks();
-        $actualBlockArray = array_map(static fn ($block) => $block->toArray('en-GB'), $actualBlocks);
-
-        $expectedBlocks = $this->getExpectedEntityArrayBlocks();
-
-        foreach ($expectedBlocks as $index => $expectedBlock) {
-            $expectedBlockInner = $expectedBlock['block'];
-
-            static::assertSame($expectedBlockInner['name'], $actualBlockArray[$index]['name']);
-            static::assertSame($expectedBlockInner['category'], $actualBlockArray[$index]['category']);
-            static::assertSame($expectedBlockInner['label'], $actualBlockArray[$index]['label']);
-
-            $defaultConfig = $actualBlockArray[$index]['defaultConfig'];
-            static::assertInstanceOf(DefaultConfig::class, $defaultConfig);
-
-            static::assertSame($expectedBlockInner['defaultConfig'], $defaultConfig->toArray('en-GB'));
-
-            $slotNames = array_keys($expectedBlockInner['slots']);
-            foreach (array_values($expectedBlockInner['slots']) as $slotIndex => $expectedSlot) {
-                $actualSlot = $actualBlockArray[$index]['slots'][$slotIndex];
-                static::assertInstanceOf(Slot::class, $actualSlot);
-
-                static::assertSame($slotNames[$slotIndex], $actualSlot->getName());
-                static::assertSame($expectedSlot['type'], $actualSlot->getType());
-                static::assertSame($expectedSlot['default']['config'], $actualSlot->getConfig()->toArray('en-GB'));
-            }
-        }
+        static::assertSame(
+            [
+                'name' => 'teaser-block',
+                'category' => 'text-image',
+                'label' => [
+                    'en-GB' => 'Teaser block',
+                    'de-DE' => 'Teaser Block',
+                ],
+                'slots' => $slots,
+                'defaultConfig' => $defaultConfig,
+            ],
+            $block->toArray('en-GB')
+        );
     }
 
     public function testToEntityArray(): void
     {
-        $manifest = CmsManifest::createFromXmlFile(__DIR__ . '/../../_fixtures/Resources/cms.xml');
-
-        $actualOuterBlocks = $manifest->getBlocks();
-        static::assertNotNull($actualOuterBlocks);
-
-        $actualBlocks = $actualOuterBlocks->getBlocks();
-
-        $appId = 'niceBlockApp';
-        $defaultLocale = 'en-GB';
-
-        $actualBlocks = [
-            $actualBlocks[0]->toEntityArray($appId, $defaultLocale),
-            $actualBlocks[1]->toEntityArray($appId, $defaultLocale),
-        ];
-        $expectedBlocks = $this->getExpectedEntityArrayBlocks();
-
-        static::assertCount(2, $actualBlocks);
-        static::assertSame($expectedBlocks, $actualBlocks);
+        static::assertSame(
+            [
+                'appId' => 'app-id',
+                'name' => 'teaser-block',
+                'label' => [
+                    'en-GB' => 'Teaser block',
+                    'de-DE' => 'Teaser Block',
+                ],
+                'block' => [
+                    'name' => 'teaser-block',
+                    'category' => 'text-image',
+                    'label' => [
+                        'en-GB' => 'Teaser block',
+                        'de-DE' => 'Teaser Block',
+                    ],
+                    'slots' => [
+                        'left' => [
+                            'type' => 'image',
+                            'position' => 0,
+                            'default' => [
+                                'config' => [
+                                    'displayMode' => [
+                                        'source' => 'static',
+                                        'value' => 'cover',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'right' => [
+                            'type' => 'text',
+                            'position' => 1,
+                            'default' => [
+                                'config' => [
+                                    'content' => [
+                                        'source' => 'mapped',
+                                        'value' => 'product.description',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'defaultConfig' => [
+                        'marginTop' => '10px',
+                        'marginRight' => '20px',
+                        'marginBottom' => '5px',
+                        'marginLeft' => '15px',
+                        'sizingMode' => 'boxed',
+                        'backgroundColor' => '#000',
+                    ],
+                ],
+            ],
+            self::createBlock()->toEntityArray('app-id', 'en-GB')
+        );
     }
 
-    /**
-     * @return array<BlockEntityArray>
-     */
-    private function getExpectedEntityArrayBlocks(): array
+    private static function createBlock(): Block
     {
-        return [[
-            'appId' => 'niceBlockApp',
-            'name' => 'my-first-block',
-            'label' => [
-                'en-GB' => 'First block from app',
-                'de-DE' => 'Erster Block einer App',
-            ],
-            'block' => [
-                'name' => 'my-first-block',
-                'category' => 'text-image',
-                'label' => [
-                    'en-GB' => 'First block from app',
-                    'de-DE' => 'Erster Block einer App',
-                ],
-                'slots' => [
-                    'left' => [
-                        'type' => 'manufacturer-logo',
-                        'position' => 0,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'cover',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'middle' => [
-                        'type' => 'image-gallery',
-                        'position' => 1,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'auto',
-                                ],
-                                'minHeight' => [
-                                    'source' => 'static',
-                                    'value' => '300px',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'right' => [
-                        'type' => 'buy-box',
-                        'position' => 2,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'contain',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'defaultConfig' => [
-                    'marginTop' => '20px',
-                    'marginRight' => '20px',
-                    'marginBottom' => '20px',
-                    'marginLeft' => '20px',
-                    'sizingMode' => 'boxed',
-                    'backgroundColor' => '#000',
-                ],
-            ],
-        ], [
-            'appId' => 'niceBlockApp',
-            'name' => 'my-second-block',
-            'label' => [
-                'en-GB' => 'Second block from app',
-                'de-DE' => 'Zweiter Block einer App',
-            ],
-            'block' => [
-                'name' => 'my-second-block',
-                'category' => 'text-image',
-                'label' => [
-                    'en-GB' => 'Second block from app',
-                    'de-DE' => 'Zweiter Block einer App',
-                ],
-                'slots' => [
-                    'left' => [
-                        'type' => 'form',
-                        'position' => 0,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'cover',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'right' => [
-                        'type' => 'youtube-video',
-                        'position' => 1,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'contain',
-                                ],
-                            ],
-                        ],
-                    ],
-                    'middle' => [
-                        'type' => 'image',
-                        'position' => 2,
-                        'default' => [
-                            'config' => [
-                                'displayMode' => [
-                                    'source' => 'static',
-                                    'value' => 'auto',
-                                ],
-                                'backgroundColor' => [
-                                    'source' => 'static',
-                                    'value' => 'red',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'defaultConfig' => [
-                    'marginTop' => '20px',
-                    'marginRight' => '20px',
-                    'marginBottom' => '20px',
-                    'marginLeft' => '20px',
-                    'sizingMode' => 'boxed',
-                    'backgroundColor' => '#f00',
-                ],
-            ],
-        ]];
+        return Block::fromXml(self::loadElement(<<<'XML'
+<block>
+    <name>teaser-block</name>
+    <category>text-image</category>
+    <label>Teaser block</label>
+    <label lang="de-DE">Teaser Block</label>
+    <slots>
+        <slot name="left" type="image">
+            <config>
+                <config-value name="display-mode" source="static" value="cover"/>
+            </config>
+        </slot>
+        <slot name="right" type="text">
+            <config>
+                <config-value name="content" source="mapped" value="product.description"/>
+            </config>
+        </slot>
+    </slots>
+    <default-config>
+        <margin-bottom>5px</margin-bottom>
+        <margin-top>10px</margin-top>
+        <margin-left>15px</margin-left>
+        <margin-right>20px</margin-right>
+        <sizing-mode>boxed</sizing-mode>
+        <background-color>#000</background-color>
+    </default-config>
+</block>
+XML));
+    }
+
+    private static function loadElement(string $xml): \DOMElement
+    {
+        $document = new \DOMDocument();
+        static::assertTrue($document->loadXML($xml));
+        static::assertInstanceOf(\DOMElement::class, $document->documentElement);
+
+        return $document->documentElement;
     }
 }

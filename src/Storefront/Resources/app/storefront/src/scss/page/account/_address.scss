@@ -1,7 +1,9 @@
 .account-address {
-    .address-action-create .icon {
-        margin-top: 2px;
-        margin-right: $spacer-sm;
+    @if not feature('V6_8_0_0') {
+        .address-action-create .icon {
+            margin-top: 2px;
+            margin-right: $spacer-sm;
+        }
     }
 
     .btn > .icon {

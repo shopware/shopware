@@ -250,7 +250,6 @@ export default function createLoginService(
                         refresh_token: token,
                     },
                     {
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         baseURL: context.apiPath!,
                     },
                 );
@@ -603,8 +602,11 @@ export default function createLoginService(
     }
 
     /**
-     * Revokes server-side tokens, clears local auth state, and redirects to
-     * the SSO provider with prompt=login when the session was established via SSO.
+     * Revokes server-side tokens, clears local auth state, and navigates
+     * to the appropriate login surface:
+     * - SSO sessions → full-page redirect to the SSO provider (prompt=login)
+     * - Non-SSO sessions → standard logout via {@link forwardLogout}
+     *
      * Falls back to regular logout if the SSO configuration cannot be loaded.
      */
     async function logoutSso(): Promise<void> {
@@ -636,14 +638,17 @@ export default function createLoginService(
         }
 
         const isSsoSession = !!sessionStorage.getItem('sw-sso-session');
-        sessionStorage.removeItem('sw-sso-session');
-
-        clearAuthState();
-        notifyOnLogoutListener();
 
         if (!loginConfig.useDefault || isSsoSession) {
+            clearAuthState();
+            notifyOnLogoutListener();
+            sessionStorage.setItem('sw-sso-session', 'true');
             navigateToFn(`${loginConfig.url}&usePromptLogin=1`);
+            return;
         }
+
+        sessionStorage.removeItem('sw-sso-session');
+        logout();
     }
 
     /**

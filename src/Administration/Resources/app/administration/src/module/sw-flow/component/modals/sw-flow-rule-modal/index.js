@@ -52,8 +52,8 @@ export default {
     computed: {
         modalTitle() {
             return this.ruleId
-                ? this.$tc('sw-flow.modals.rule.labelEditRule')
-                : this.$tc('sw-flow.modals.rule.labelAddNewRule');
+                ? this.$t('sw-flow.modals.rule.labelEditRule')
+                : this.$t('sw-flow.modals.rule.labelAddNewRule');
         },
 
         ruleRepository() {
@@ -100,6 +100,13 @@ export default {
                 this.ruleConditionDataProviderService.getAwarenessConfigurationByAssignmentName(ruleAwarenessKey);
 
             return awarenessConfig?.scopes ?? undefined;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
+        showProductStateConditionWarning() {
+            return Array.isArray(this.conditions) && this.hasConditionType(this.conditions, 'cartLineItemProductStates');
         },
 
         ...mapState(() => Store.get('swFlow'), ['flow']),
@@ -216,6 +223,23 @@ export default {
             ];
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed in v6.8.0
+         */
+        hasConditionType(conditions, conditionType) {
+            return conditions.some((condition) => {
+                if (condition.type === conditionType) {
+                    return true;
+                }
+
+                return (
+                    condition.children &&
+                    Array.isArray(condition.children) &&
+                    this.hasConditionType(condition.children, conditionType)
+                );
+            });
+        },
+
         getRuleDetail() {
             if (!this.rule?.id) {
                 return null;
@@ -281,7 +305,7 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
+                message: this.$t('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
         },
 

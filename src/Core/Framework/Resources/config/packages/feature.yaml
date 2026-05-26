@@ -61,11 +61,6 @@ shopware:
         major: false
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
-      - name: PRODUCT_ANALYTICS
-        default: false
-        major: false
-        toggleable: true
-        description: "Experimental! Enables Product Analytics which collects usage data in the Administration."
       - name: REPEATED_PAYMENT_FINALIZE
         default: false
         major: true
@@ -86,3 +81,8 @@ shopware:
         major: true
         toggleable: true
         description: "Replace inline microdata (itemscope/itemprop) with JSON-LD structured data in the Storefront. When enabled, legacy microdata attributes are removed and a <script type=\"application/ld+json\"> block is injected into the <head> instead."
+      - name: BREADCRUMB_REWORK
+        default: false
+        major: true
+        toggleable: true
+        description: "Experimental! Enables the new breadcrumb loading and adds the possibility to build the product breadcrumb using the referrer category."

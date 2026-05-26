@@ -25,12 +25,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 #[Package('framework')]
 abstract class EntityDefinition
 {
+    final public const TRANSLATED_FIELD = 'translated';
+
     protected ?CompiledFieldCollection $fields = null;
 
     /**
@@ -132,10 +135,25 @@ abstract class EntityDefinition
             return $this->fields;
         }
 
-        $fields = $this->defineFields();
+        // @deprecated tag:v6.8.0 - remove feature flag check, keep only the new behavior
+        if (Feature::isActive('v6.8.0.0')) {
+            // New behavior: defaultFields first, then defineFields (allows override)
+            $fields = new FieldCollection();
 
-        foreach ($this->defaultFields() as $field) {
-            $fields->add($field);
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
+
+            foreach ($this->defineFields() as $field) {
+                $fields->add($field);
+            }
+        } else {
+            // Old behavior: defineFields first, then defaultFields (default fields override)
+            $fields = $this->defineFields();
+
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
         }
 
         foreach ($this->extensions as $extension) {
@@ -184,7 +202,7 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new ApiAware(), new Computed(), new Runtime())
+                    (new JsonField(self::TRANSLATED_FIELD, self::TRANSLATED_FIELD))->addFlags(new ApiAware(), new Computed(), new Runtime())
                 );
 
                 break;

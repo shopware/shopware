@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\Http;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
@@ -12,7 +11,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 /**
  * @internal
  */
-#[CoversClass(CacheResponseSubscriber::class)]
 class CacheResponseSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

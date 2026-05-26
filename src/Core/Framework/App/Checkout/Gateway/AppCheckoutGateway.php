@@ -104,13 +104,18 @@ class AppCheckoutGateway implements CheckoutGatewayInterface
     private function collectCommandsFromAppResponse(AppCheckoutGatewayResponse $commands, CheckoutGatewayCommandCollection $collected): void
     {
         foreach ($commands->getCommands() as $payload) {
-            if (!isset($payload['command'], $payload['payload'])) {
-                $this->logger->logOrThrowException(CheckoutGatewayException::payloadInvalid($payload['command'] ?? null));
+            if (!isset($payload['command'])) {
+                $this->logger->logOrThrowException(CheckoutGatewayException::payloadInvalid());
 
                 continue;
             }
 
             $commandKey = $payload['command'];
+            if (!isset($payload['payload'])) {
+                $this->logger->logOrThrowException(CheckoutGatewayException::payloadInvalid($commandKey));
+
+                continue;
+            }
 
             if (!$this->registry->hasAppCommand($commandKey)) {
                 $this->logger->logOrThrowException(CheckoutGatewayException::handlerNotFound($commandKey));

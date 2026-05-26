@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoUnserializeUsageRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -14,20 +13,34 @@ use Shopware\Core\Framework\Log\Package;
  * @extends RuleTestCase<NoUnserializeUsageRule>
  */
 #[Package('framework')]
-#[CoversClass(NoUnserializeUsageRule::class)]
 class NoUnserializeUsageRuleTest extends RuleTestCase
 {
-    public function testRule(): void
+    public function testRuleReportsProductionClass(): void
     {
         $class = 'Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoUnserializeUsageRule\HasUnserialize';
 
-        $message = \sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class);
-        $tip = NoUnserializeUsageRule::ERROR_TIP;
-
         $this->analyse([__DIR__ . '/data/NoUnserializeUsageRule/HasUnserialize.php'], [
-            [$message, 9, $tip],
-            [$message, 10, $tip],
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 9, NoUnserializeUsageRule::ERROR_TIP],
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 10, NoUnserializeUsageRule::ERROR_TIP],
         ]);
+    }
+
+    public function testRuleReportsTestClassAsNonIgnorable(): void
+    {
+        $class = 'Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\NoUnserializeUsageRule\HasUnserializeInTestClass';
+
+        $this->analyse([__DIR__ . '/data/NoUnserializeUsageRule/HasUnserializeInTestClass.php'], [
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 11, NoUnserializeUsageRule::ERROR_TIP_TESTS],
+            ['No error with identifier shopware.unserializeUsage is reported on line 19.', 19],
+            [\sprintf(NoUnserializeUsageRule::ERROR_MESSAGE, $class), 19, NoUnserializeUsageRule::ERROR_TIP_TESTS],
+        ]);
+    }
+
+    public function testAllowlistedClassIsNotReported(): void
+    {
+        $this->analyse([
+            __DIR__ . '/../../../../../../../src/Core/Test/Assert/Serialization.php',
+        ], []);
     }
 
     /**
@@ -35,6 +48,6 @@ class NoUnserializeUsageRuleTest extends RuleTestCase
      */
     protected function getRule(): Rule
     {
-        return new NoUnserializeUsageRule();
+        return new NoUnserializeUsageRule($this->createReflectionProvider());
     }
 }

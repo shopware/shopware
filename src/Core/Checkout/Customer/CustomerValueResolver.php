@@ -12,6 +12,9 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Package('checkout')]
 class CustomerValueResolver implements ValueResolverInterface
 {
+    /**
+     * @return \Generator<CustomerEntity|null>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== CustomerEntity::class) {

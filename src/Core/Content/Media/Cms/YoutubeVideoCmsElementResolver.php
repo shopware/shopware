@@ -26,11 +26,39 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
         $mediaConfig = $slot->getFieldConfig()->get('previewMedia');
-        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+        if ($mediaConfig === null || $mediaConfig->getValue() === null) {
             return null;
         }
 
-        $criteria = new Criteria([$mediaConfig->getStringValue()]);
+        $mediaId = null;
+
+        if ($mediaConfig->isMapped()) {
+            if (!$resolverContext instanceof EntityResolverContext) {
+                return null;
+            }
+
+            $mappedMedia = $this->resolveEntityValue($resolverContext->getEntity(), $mediaConfig->getStringValue());
+
+            if ($mappedMedia instanceof MediaEntity) {
+                return null;
+            }
+
+            if (!\is_string($mappedMedia) || $mappedMedia === '') {
+                return null;
+            }
+
+            $mediaId = $mappedMedia;
+        }
+
+        if ($mediaConfig->isStatic()) {
+            $mediaId = $mediaConfig->getStringValue();
+        }
+
+        if ($mediaId === null) {
+            return null;
+        }
+
+        $criteria = new Criteria([$mediaId]);
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
@@ -58,7 +86,27 @@ class YoutubeVideoCmsElementResolver extends AbstractCmsElementResolver
             if ($media instanceof MediaEntity) {
                 $image->setMediaId($media->getUniqueIdentifier());
                 $image->setMedia($media);
+
+                return;
             }
+
+            if (\is_string($media) && $media !== '') {
+                $image->setMediaId($media);
+
+                $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
+                if (!$searchResult) {
+                    return;
+                }
+
+                $mappedMedia = $searchResult->get($media);
+                if (!$mappedMedia instanceof MediaEntity) {
+                    return;
+                }
+
+                $image->setMedia($mappedMedia);
+            }
+
+            return;
         }
 
         if ($config->isStatic()) {

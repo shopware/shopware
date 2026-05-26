@@ -49,7 +49,7 @@ class ExportController
     #[Route(path: '/store-api/product-export/{accessKey}/{fileName}', name: 'store-api.product.export', methods: ['GET'], defaults: ['auth_required' => false])]
     public function index(Request $request): Response
     {
-        $context = Context::createDefaultContext();
+        $context = Context::createCLIContext();
 
         $criteria = new Criteria();
         $criteria
@@ -107,6 +107,10 @@ class ExportController
         switch ($fileFormat) {
             case ProductExportEntity::FILE_FORMAT_CSV:
                 $contentType = 'text/csv';
+
+                break;
+            case ProductExportEntity::FILE_FORMAT_JSONL:
+                $contentType = 'application/x-ndjson';
 
                 break;
             case ProductExportEntity::FILE_FORMAT_XML:

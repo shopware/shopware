@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -57,7 +56,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
  * @internal
  */
 #[Package('after-sales')]
-#[CoversClass(CreditNoteRenderer::class)]
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;

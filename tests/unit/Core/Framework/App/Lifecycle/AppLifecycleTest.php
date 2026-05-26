@@ -21,7 +21,9 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
+use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
@@ -39,7 +41,6 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Filesystem\Filesystem as Io;
 
 /**
  * @internal
@@ -51,20 +52,11 @@ class AppLifecycleTest extends TestCase
 {
     use EventDispatcherBehaviour;
 
-    private Io $io;
-
     private EventDispatcher $eventDispatcher;
 
     protected function setUp(): void
     {
-        $this->io = new Io();
-        $this->io->mkdir(__DIR__ . '/../_fixtures/Resources/app/administration/snippet');
         $this->eventDispatcher = new EventDispatcher();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->io->remove(__DIR__ . '/../_fixtures/Resources/app/administration/snippet');
     }
 
     public function testInstallNotCompatibleApp(): void
@@ -131,14 +123,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
-        $this->io->dumpFile(
-            __DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json',
-            (string) json_encode([
-                'snippetKey' => 'snippetTranslation',
-            ], \JSON_THROW_ON_ERROR)
-        );
-
-        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml', __DIR__ . '/../_fixtures/app-with-snippets');
         $appRepository = $this->getAppRepositoryMock($appEntities);
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
@@ -149,7 +134,7 @@ class AppLifecycleTest extends TestCase
         $this->registerSubscriber(
             $sourceResolver,
             $appEntities[2],
-            expectedSnippets: ['en-GB' => '{"snippetKey":"snippetTranslation"}'],
+            expectedSnippets: ['en-GB' => '{"snippetKey":"snippetTranslation"}' . \PHP_EOL],
         );
 
         $appLifecycle->install($manifest, new AppInstallParameters(activate: false), Context::createDefaultContext());
@@ -277,17 +262,10 @@ class AppLifecycleTest extends TestCase
             ],
         ];
 
-        $this->io->dumpFile(
-            __DIR__ . '/../_fixtures/Resources/app/administration/snippet/en-GB.json',
-            (string) json_encode([
-                'snippetKey' => 'snippetTranslation',
-            ], \JSON_THROW_ON_ERROR)
-        );
-
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
 
         $appRepository = $this->getAppRepositoryMock($appEntities);
-        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml');
+        $sourceResolver = $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml', __DIR__ . '/../_fixtures/app-with-snippets');
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
@@ -298,7 +276,7 @@ class AppLifecycleTest extends TestCase
             $sourceResolver,
             $appEntities[1],
             AppUpdatedEvent::class,
-            ['en-GB' => '{"snippetKey":"snippetTranslation"}']
+            ['en-GB' => '{"snippetKey":"snippetTranslation"}' . \PHP_EOL]
         );
 
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
@@ -307,10 +285,70 @@ class AppLifecycleTest extends TestCase
         static::assertSame('test', $appRepository->upserts[0][0]['name']);
     }
 
+    public function testInstallThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+        $appRepository = $this->getAppRepositoryMock([[]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
+            $validator
+        );
+
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
+        $appLifecycle->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
+    }
+
+    public function testUpdateThrowsWhenRequirementsNotMet(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+
+        $validator = $this->createMock(AppRequirementsValidator::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with($manifest)
+            ->willReturn([
+                new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+            ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
+
+        $appRepository = $this->getAppRepositoryMock([[['id' => Uuid::randomHex(), 'path' => '', 'configurable' => false, 'allowDisable' => true]]]);
+        $appLifecycle = $this->getAppLifecycle(
+            $appRepository,
+            $languageRepository,
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml'),
+            static::createStub(DeletedAppsGateway::class),
+            $validator
+        );
+
+        $expected = AppException::requirementsNotMet(
+            new UnmetRequirement('test', 'public-access', 'APP_URL must be publicly reachable'),
+        );
+        $this->expectExceptionObject($expected);
+        $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => 'appId', 'roleId' => 'roleId'], Context::createDefaultContext());
+    }
+
     public function testUpdateResetsConfigurableFlagToFalseWhenConfigXMLWasRemoved(): void
     {
-        $this->io->rename(__DIR__ . '/../_fixtures/Resources/config', __DIR__ . '/../_fixtures/Resources/noconfighere');
-
         /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
         $languageRepository = new StaticEntityRepository([$this->getLanguageCollection()]);
 
@@ -338,7 +376,7 @@ class AppLifecycleTest extends TestCase
         $appLifecycle = $this->getAppLifecycle(
             $appRepository,
             $languageRepository,
-            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml')
+            $this->getSourceResolver(__DIR__ . '/../_fixtures/manifest.xml', __DIR__ . '/../_fixtures/app-without-config')
         );
 
         $appLifecycle->update($manifest, new AppUpdateParameters(), ['id' => $appId, 'roleId' => 'roleId'], Context::createDefaultContext());
@@ -346,8 +384,6 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $appRepository->upserts[0]);
 
         static::assertSame([['id' => $appId, 'configurable' => false, 'allowDisable' => true]], $appRepository->upserts[1]);
-
-        $this->io->rename(__DIR__ . '/../_fixtures/Resources/noconfighere', __DIR__ . '/../_fixtures/Resources/config');
     }
 
     /**
@@ -359,6 +395,7 @@ class AppLifecycleTest extends TestCase
         EntityRepository $languageRepository,
         StaticSourceResolver $appSourceResolver,
         ?DeletedAppsGateway $deletedAppsGateway = null,
+        ?AppRequirementsValidator $requirementsValidator = null
     ): AppLifecycle {
         /** @var StaticEntityRepository<AclRoleCollection> $aclRoleRepo */
         $aclRoleRepo = new StaticEntityRepository([new AclRoleCollection()]);
@@ -391,6 +428,7 @@ class AppLifecycleTest extends TestCase
             $appSourceResolver,
             $this->createMock(ConfigReader::class),
             $deletedAppsGateway,
+            $requirementsValidator ?? static::createStub(AppRequirementsValidator::class)
         );
     }
 
@@ -475,10 +513,10 @@ class AppLifecycleTest extends TestCase
         );
     }
 
-    private function getSourceResolver(string $manifestPath): StaticSourceResolver
+    private function getSourceResolver(string $manifestPath, ?string $appPath = null): StaticSourceResolver
     {
         return new StaticSourceResolver([
-            'test' => new Filesystem(\dirname($manifestPath)),
+            'test' => new Filesystem($appPath ?? \dirname($manifestPath)),
         ]);
     }
 }

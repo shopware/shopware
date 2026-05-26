@@ -108,8 +108,8 @@ class AdminModuleGeneratorTest extends TestCase
             'expected' => [
                 'src/Resources/app/administration/src/module/swag-example/index.js',
                 'src/Resources/app/administration/src/main.js',
-                'src/Resources/app/administration/src/snippet/en-GB.json',
-                'src/Resources/app/administration/src/snippet/de-DE.json',
+                'src/Resources/app/administration/src/snippet/en.json',
+                'src/Resources/app/administration/src/snippet/de.json',
             ],
         ];
     }

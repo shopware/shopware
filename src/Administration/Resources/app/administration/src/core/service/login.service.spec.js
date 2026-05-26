@@ -880,6 +880,11 @@ describe('core/service/login.service.js', () => {
         });
 
         it('should not redirect to SSO when useDefault is true and session is not SSO', async () => {
+            Shopware.Application.view.router = {
+                currentRoute: { value: { fullPath: '/sw/dashboard/index', name: 'sw.dashboard.index' } },
+                push: jest.fn(),
+            };
+
             const { loginService, clientMock } = loginServiceFactory();
             const navigateToSpy = jest.fn();
             loginService._navigateTo = navigateToSpy;
@@ -935,7 +940,7 @@ describe('core/service/login.service.js', () => {
 
             expect(loginService.getBearerAuthentication()).toBeFalsy();
             expect(navigateToSpy).toHaveBeenCalledWith('https://idp.example.com/authorize?client_id=test&usePromptLogin=1');
-            expect(sessionStorage.getItem('sw-sso-session')).toBeNull();
+            expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
         });
 
         it('should notify logout listeners when switching account', async () => {

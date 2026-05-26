@@ -103,7 +103,7 @@ class ThemeLifecycleHandler
      */
     private function validateThemeAssignment(?string $themeId): void
     {
-        if (!$themeId) {
+        if ($themeId === null || $themeId === '') {
             return;
         }
 
@@ -187,6 +187,7 @@ class ThemeLifecycleHandler
         $themeName = $themeId;
 
         try {
+            /** @var list<array{themeName: string, dthemeName?: string, id: string, dependentId?: string, saleschannelId?: string, saleschannelName?: string, dsaleschannelName?: string, dsaleschannelId?: string}> $themeData */
             $themeData = $this->connection->fetchAllAssociative(
                 'SELECT theme.name as themeName, childTheme.name as dthemeName, LOWER(HEX(theme.id)) as id,
                 LOWER(HEX(childTheme.id)) as dependentId, LOWER(HEX(tsc.sales_channel_id)) as saleschannelId,
@@ -206,12 +207,12 @@ class ThemeLifecycleHandler
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
                 if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
-                    $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
-                    $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
+                    $themeSalesChannel[$data['themeName']][] = $data['saleschannelId'];
+                    $salesChannels[$data['saleschannelId']] = $data['saleschannelName'] ?? '';
                 }
-                if (isset($data['dsaleschannelId']) && !empty($data['dsaleschannelId']) && isset($data['dthemeName'])) {
-                    $childThemeSalesChannel[(string) $data['dthemeName']][] = (string) $data['dsaleschannelId'];
-                    $salesChannels[(string) $data['dsaleschannelId']] = (string) $data['dsaleschannelName'];
+                if (isset($data['dsaleschannelId'], $data['dthemeName'])) {
+                    $childThemeSalesChannel[$data['dthemeName']][] = $data['dsaleschannelId'];
+                    $salesChannels[$data['dsaleschannelId']] = $data['dsaleschannelName'] ?? '';
                 }
             }
         } catch (\Throwable $e) {

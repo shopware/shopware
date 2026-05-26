@@ -114,20 +114,20 @@ export default Component.wrapComponentConfig({
                 {
                     property: 'firstName',
                     dataIndex: 'lastName,firstName',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerName'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerName'),
                     primary: true,
                 },
                 {
                     property: 'customerNumber',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnCustomerNumber'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnCustomerNumber'),
                 },
                 {
                     property: 'salesChannel',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnSalesChannel'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnSalesChannel'),
                 },
                 {
                     property: 'email',
-                    label: this.$tc('sw-order.initialModal.customerGrid.columnEmailAddress'),
+                    label: this.$t('sw-order.initialModal.customerGrid.columnEmailAddress'),
                 },
             ];
         },
@@ -138,7 +138,7 @@ export default Component.wrapComponentConfig({
 
         emptyTitle(): string {
             if (!this.term) {
-                return this.$tc('sw-customer.list.messageEmpty');
+                return this.$t('sw-customer.list.messageEmpty');
             }
 
             return this.$t('sw-order.initialModal.customerGrid.textEmptySearch', { name: this.term }, 0);
@@ -158,6 +158,7 @@ export default Component.wrapComponentConfig({
 
         salesChannelCriteria(): CriteriaType {
             const criteria = new Criteria();
+            criteria.addAssociation('languages');
             criteria.addFilter(Criteria.equals('active', true));
 
             if (this.customer?.boundSalesChannelId) {
@@ -229,17 +230,7 @@ export default Component.wrapComponentConfig({
 
             this.customer = await this.customerRepository.get(item.id, Context.api, this.customerCriterion);
 
-            const isExists = (this.customer?.salesChannel?.languages || []).some(
-                (language) => language.id === Context.api.systemLanguageId,
-            );
-
-            if (!isExists && this.customer?.salesChannel?.languageId) {
-                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
-            }
-
-            if (isExists && !Store.get('context').isSystemDefaultLanguage) {
-                Store.get('context').resetLanguageToDefault();
-            }
+            this.checkContextLanguage();
 
             // If the customer belongs to a sales channel not in the allowed list and has no bound sales channel.
             if (!this.customer?.boundSalesChannelId) {
@@ -284,7 +275,7 @@ export default Component.wrapComponentConfig({
                 await this.updateCustomerContext();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+                    message: this.$t('sw-order.create.messageSwitchCustomerError'),
                 });
             } finally {
                 this.isSwitchingCustomer = false;
@@ -334,12 +325,15 @@ export default Component.wrapComponentConfig({
             return ids;
         },
 
-        onSalesChannelChange(salesChannelId: string): void {
+        onSalesChannelChange(salesChannelId: string, salesChannel: Entity<'sales_channel'>): void {
             if (!this.customer) {
                 return;
             }
 
             this.customer.salesChannelId = salesChannelId;
+            this.customer.salesChannel = salesChannel;
+
+            this.checkContextLanguage();
         },
 
         onCloseSalesChannelSelectModal() {
@@ -381,6 +375,20 @@ export default Component.wrapComponentConfig({
             this.customer = this.customerDraft;
 
             this.showCustomerChangesModal = false;
+        },
+
+        checkContextLanguage() {
+            const exists = (this.customer?.salesChannel?.languages || []).some(
+                (language) => language.id === Context.api.systemLanguageId,
+            );
+
+            if (!exists && this.customer?.salesChannel?.languageId) {
+                Store.get('context').api.languageId = this.customer.salesChannel.languageId;
+            }
+
+            if (exists && !Store.get('context').isSystemDefaultLanguage) {
+                Store.get('context').resetLanguageToDefault();
+            }
         },
     },
 });

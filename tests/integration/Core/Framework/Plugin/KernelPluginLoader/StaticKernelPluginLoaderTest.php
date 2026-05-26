@@ -8,9 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
-use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\FooBarBundle;
+use Shopware\Tests\Integration\Core\Framework\Plugin\_fixtures\bundles\GizmoBundle;
 use SwagTestPlugin\SwagTestFake;
 use SwagTestPlugin\SwagTestPlugin;
 use SwagTestWithBundle\SwagTestWithBundle;
@@ -397,6 +397,7 @@ class StaticKernelPluginLoaderTest extends TestCase
             $classLoader = $this->classLoader;
         }
 
+        /** @phpstan-ignore argument.type (For test purposes it is enough to not provide fully fledged plugin information) */
         return new StaticKernelPluginLoader($classLoader, plugins: $plugins);
     }
 

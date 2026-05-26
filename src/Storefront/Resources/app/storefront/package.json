@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.8",
-    "@shopware-ag/dive": "2.2.29",
+    "@shopware-ag/dive": "2.3.4",
     "@swc/core": "1.10.14",
     "autoprefixer": "10.4.13",
     "bootstrap": "5.3.8",
@@ -76,6 +76,7 @@
     "license-checker-rseidelsohn": "4.3.0",
     "lodash.get": "4.4.2",
     "prettier": "3.5.3",
+    "sass-embedded": "1.97.3",
     "stylelint": "16.16.0",
     "stylelint-config-recommended-scss": "14.1.0",
     "stylelint-junit-formatter": "0.2.2",
@@ -85,14 +86,22 @@
     "xml2js": "0.6.2"
   },
   "overrides": {
+    "@babel/plugin-transform-modules-systemjs": "7.29.4",
+    "fast-uri": "3.1.2",
+    "postcss": "8.5.14",
     "tmp": "0.2.5",
     "qs": "6.14.2",
     "minimatch": "10.2.4",
-    "serialize-javascript": "7.0.4",
+    "brace-expansion": "5.0.5",
+    "serialize-javascript": "7.0.5",
     "test-exclude": "8.0.0",
     "@babel/runtime": "7.28.6",
     "ajv@^8": "8.18.0",
-    "follow-redirects": "1.15.11",
-    "flatted": "3.4.2"
+    "follow-redirects": "1.16.0",
+    "flatted": "3.4.2",
+    "lodash": "4.18.1",
+    "path-to-regexp": "0.1.13",
+    "picomatch@2": "2.3.2",
+    "picomatch@4": "4.0.4"
   }
 }

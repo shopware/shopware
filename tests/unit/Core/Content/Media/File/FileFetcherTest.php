@@ -200,6 +200,100 @@ class FileFetcherTest extends TestCase
         ];
     }
 
+    public function testFetchRequestDataThrowsWhenDestinationStreamCannotBeOpened(): void
+    {
+        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileService = new FileService();
+        $fileFetcher = new FileFetcher($fileValidatorMock, $fileService);
+
+        $content = fopen(self::IMAGE_URL_WITH_EXTENSION, 'r');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', self::IMAGE_EXTENSION);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', (string) self::IMAGE_FILE_SIZE);
+
+        $this->expectExceptionObject(MediaException::cannotOpenSourceStreamToWrite(''));
+
+        $fileFetcher->fetchRequestData($request, '');
+    }
+
+    public function testFetchBlobCreatesTemporaryFileAndCleanUpDeletesIt(): void
+    {
+        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService());
+
+        $media = $fileFetcher->fetchBlob('myBlob', self::IMAGE_EXTENSION, self::IMAGE_MIME_TYPE);
+
+        try {
+            static::assertFileExists($media->getFileName());
+            static::assertSame('myBlob', (string) file_get_contents($media->getFileName()));
+            static::assertSame(self::IMAGE_EXTENSION, $media->getFileExtension());
+            static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        } finally {
+            if (\is_file($media->getFileName())) {
+                $fileFetcher->cleanUpTempFile($media);
+            }
+        }
+
+        static::assertFileDoesNotExist($media->getFileName());
+    }
+
+    public function testFetchFileFromURLWithLimitInRange(): void
+    {
+        $fileFetcher = $this->createFileFetcherForReadableSource(self::IMAGE_FILE_SIZE + 1);
+
+        $media = $fileFetcher->fetchFromURL(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE, self::IMAGE_EXTENSION);
+
+        static::assertSame(self::IMAGE_FILE_SIZE, $media->getFileSize());
+        static::assertSame(self::IMAGE_MIME_TYPE, $media->getMimeType());
+        static::assertSame(self::IMAGE_EXTENSION, $media->getFileExtension());
+    }
+
+    public function testFetchFileFromURLThrowsWhenSourceExceedsLimit(): void
+    {
+        $fileFetcher = $this->createFileFetcherForReadableSource(1);
+
+        $this->expectExceptionObject(MediaException::fileSizeLimitExceeded());
+
+        try {
+            $fileFetcher->fetchFromURL(self::IMAGE_URL_WITH_EXTENSION, self::TEMP_FILE, self::IMAGE_EXTENSION);
+        } finally {
+            if (\is_file(self::TEMP_FILE)) {
+                unlink(self::TEMP_FILE);
+            }
+        }
+    }
+
+    public function testUrlUploadLimitDoesNotAffectRequestUpload(): void
+    {
+        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService(), true, true, 10);
+
+        $content = fopen(self::IMAGE_URL_WITHOUT_EXTENSION, 'r');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', self::IMAGE_EXTENSION);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', (string) self::IMAGE_FILE_SIZE);
+
+        $media = $fileFetcher->fetchRequestData($request, self::TEMP_FILE);
+
+        static::assertSame(self::IMAGE_FILE_SIZE, $media->getFileSize());
+        static::assertFileExists(self::TEMP_FILE);
+    }
+
+    private function createFileFetcherForReadableSource(int $maxFileSize): FileFetcher
+    {
+        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock->method('isValid')->willReturn(true);
+
+        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock->method('isUrl')->willReturn(true);
+
+        return new FileFetcher($fileValidatorMock, $fileServiceMock, true, true, $maxFileSize);
+    }
+
     private function createTemporyDirectory(): void
     {
         if (!is_dir(self::TEMP_DIR)) {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
- * @CodeCoverageIgnore only integration tested
+ * @codeCoverageIgnore only integration tested
  */
 #[Package('framework')]
 readonly class DeletedAppsGateway

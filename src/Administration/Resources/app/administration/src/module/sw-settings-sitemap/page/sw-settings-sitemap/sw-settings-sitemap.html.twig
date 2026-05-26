@@ -12,12 +12,12 @@
         {% block sw_settings_sitemap_smart_bar_header_title %}
         <h2>
             {% block sw_settings_sitemap_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-sitemap.general.textHeadline') }}
+            {{ $t('sw-settings-sitemap.general.textHeadline') }}
             {% endblock %}
         </h2>
         {% endblock %}
@@ -36,7 +36,7 @@
             @update:process-success="saveFinish"
             @click="onSave"
         >
-            {{ $tc('sw-settings-sitemap.general.buttonSave') }}
+            {{ $t('sw-settings-sitemap.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>

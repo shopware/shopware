@@ -32,14 +32,12 @@ class MediaEntityTest extends TestCase
     }
 
     /**
-     * @return array<string, array{file: ?string, ext: ?string, expected: ?string}>
+     * @return iterable<string, array{file: ?string, ext: ?string, expected: ?string}>
      */
-    public static function filenameExtensionProvider(): array
+    public static function filenameExtensionProvider(): iterable
     {
-        return [
-            'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null],
-            'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null],
-            'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'],
-        ];
+        yield 'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null];
+        yield 'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null];
+        yield 'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'];
     }
 }

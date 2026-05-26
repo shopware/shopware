@@ -9,14 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1773409342AppMcpPrompt;
-use Shopware\Core\Migration\V6_7\Migration1773409343AppMcpResource;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(Migration1773409342AppMcpPrompt::class)]
-#[CoversClass(Migration1773409343AppMcpResource::class)]
 class Migration1773409342AppMcpPromptAndResourceTest extends TestCase
 {
     private Connection $connection;
@@ -27,38 +25,23 @@ class Migration1773409342AppMcpPromptAndResourceTest extends TestCase
 
         $this->connection->executeStatement('DROP TABLE IF EXISTS `app_mcp_prompt_translation`;');
         $this->connection->executeStatement('DROP TABLE IF EXISTS `app_mcp_prompt`;');
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_mcp_resource_translation`;');
-        $this->connection->executeStatement('DROP TABLE IF EXISTS `app_mcp_resource`;');
     }
 
     public function testMigration(): void
     {
         static::assertFalse(TableHelper::tableExists($this->connection, 'app_mcp_prompt'));
         static::assertFalse(TableHelper::tableExists($this->connection, 'app_mcp_prompt_translation'));
-        static::assertFalse(TableHelper::tableExists($this->connection, 'app_mcp_resource'));
-        static::assertFalse(TableHelper::tableExists($this->connection, 'app_mcp_resource_translation'));
 
-        $promptMigration = new Migration1773409342AppMcpPrompt();
-        static::assertSame(1773409342, $promptMigration->getCreationTimestamp());
+        $migration = new Migration1773409342AppMcpPrompt();
+        static::assertSame(1773409342, $migration->getCreationTimestamp());
 
-        $promptMigration->update($this->connection);
-        $promptMigration->update($this->connection);
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertTrue(TableHelper::tableExists($this->connection, 'app_mcp_prompt'));
         static::assertTrue(TableHelper::tableExists($this->connection, 'app_mcp_prompt_translation'));
 
-        $resourceMigration = new Migration1773409343AppMcpResource();
-        static::assertSame(1773409343, $resourceMigration->getCreationTimestamp());
-
-        $resourceMigration->update($this->connection);
-        $resourceMigration->update($this->connection);
-
-        static::assertTrue(TableHelper::tableExists($this->connection, 'app_mcp_resource'));
-        static::assertTrue(TableHelper::tableExists($this->connection, 'app_mcp_resource_translation'));
-
         static::assertCount(6, TableHelper::getTable($this->connection, 'app_mcp_prompt')->columns);
         static::assertCount(6, TableHelper::getTable($this->connection, 'app_mcp_prompt_translation')->columns);
-        static::assertCount(8, TableHelper::getTable($this->connection, 'app_mcp_resource')->columns);
-        static::assertCount(6, TableHelper::getTable($this->connection, 'app_mcp_resource_translation')->columns);
     }
 }

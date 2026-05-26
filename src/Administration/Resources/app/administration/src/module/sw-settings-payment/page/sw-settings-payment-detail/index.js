@@ -26,9 +26,6 @@ export default {
 
     shortcuts: {
         'SYSTEMKEY+S': {
-            active() {
-                return this.acl.can('payment.editor');
-            },
             method: 'onSave',
         },
         ESCAPE: 'onCancel',
@@ -75,13 +72,6 @@ export default {
         },
 
         tooltipSave() {
-            if (!this.acl.can('payment.editor')) {
-                return {
-                    message: this.$t('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('payment.editor'),
-                    showOnDisabledElements: true,
-                };
-            }
             const systemKey = this.$device.getSystemKey();
 
             return {

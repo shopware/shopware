@@ -107,19 +107,8 @@ async function createWrapper(privileges = [], paymentMethod = {}) {
 }
 
 describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
-    it('should not be able to save the settings-payment', async () => {
-        const wrapper = await createWrapper();
-
-        await flushPromises();
-
-        const saveButton = wrapper.find('.sw-payment-detail__save-action');
-        expect(saveButton.attributes().disabled).toBeTruthy();
-    });
-
     it('should be able to save the settings-payment', async () => {
-        const wrapper = await createWrapper([
-            'payment.editor',
-        ]);
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
@@ -127,34 +116,8 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should not be able to edit payment fields', async () => {
-        const wrapper = await createWrapper();
-
-        await flushPromises();
-
-        const nameField = wrapper.findComponent('.sw-settings-payment-detail__field-name');
-        const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
-        const commentField = wrapper.find('.sw-settings-payment-detail__description');
-        const uploadField = wrapper.find('.sw-settings-payment-detail__logo-image-upload');
-        const description = wrapper.find('.sw-settings-payment-detail__description');
-        const activeField = wrapper.find('.sw-settings-payment-detail__field-active');
-        const afterOrderField = wrapper.find('.sw-settings-payment-detail__field-after-order');
-        const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
-
-        expect(nameField.props().disabled).toBe(true);
-        expect(positionField.attributes('disabled')).toBeDefined();
-        expect(commentField.attributes('disabled')).toBeDefined();
-        expect(uploadField.attributes('disabled')).toBeDefined();
-        expect(description.attributes('disabled')).toBeDefined();
-        expect(activeField.attributes('disabled')).toBeDefined();
-        expect(afterOrderField.attributes('disabled')).toBeDefined();
-        expect(ruleField.attributes('disabled')).toBeDefined();
-    });
-
     it('should be able to edit payment fields', async () => {
-        const wrapper = await createWrapper([
-            'payment.editor',
-        ]);
+        const wrapper = await createWrapper();
 
         await flushPromises();
 
@@ -168,7 +131,6 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         const ruleField = wrapper.find('.sw-settings-payment-detail__field-availability-rule');
 
         expect(nameField.attributes('disabled')).toBeUndefined();
-
         expect(positionField.attributes('disabled')).toBeUndefined();
         expect(commentField.attributes('disabled')).toBeUndefined();
         expect(uploadField.attributes('disabled')).toBeUndefined();
@@ -215,7 +177,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should not disabled technical name input', async () => {
-        const wrapper = await createWrapper(['payment.editor'], {
+        const wrapper = await createWrapper([], {
             pluginId: undefined,
         });
 

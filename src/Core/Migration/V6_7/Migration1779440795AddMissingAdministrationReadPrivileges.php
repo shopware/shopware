@@ -19,9 +19,6 @@ class Migration1779440795AddMissingAdministrationReadPrivileges extends Migratio
             'media:read',
             'integration:read',
         ],
-        'payment.viewer' => [
-            'rule_condition:read',
-        ],
         'rule.viewer' => [
             'flow:read',
         ],

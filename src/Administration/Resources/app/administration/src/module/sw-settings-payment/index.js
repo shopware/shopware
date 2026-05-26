@@ -48,7 +48,7 @@ Module.register('sw-settings-payment', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.payment.overview',
-                privilege: 'payment.viewer',
+                privilege: 'payment.editor',
             },
         },
         create: {

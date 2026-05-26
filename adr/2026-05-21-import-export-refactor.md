@@ -121,6 +121,9 @@ The new feature yields the following benefits:
 
 * **`matchBy` is intentionally narrow** We could have multiple `matchBy` fields per profile, so nested associations could be matched by different fields too. 
 
+* **Media import from remote URLs is not part of the refactor yet.**
+  The old implementation supported importing media by URL, downloading the file, creating or reusing a media entity and persisting the binary into Shopware media storage. The new architecture currently has no equivalent media-specific import flow, so we still need an explicit decision on how to handle this.
+
 ## Status
 
 This ADR is intended to gather feedback before the actual implementation work. The prototype implementation is available in the [prototype PR](https://github.com/shopware/shopware/pull/16856).

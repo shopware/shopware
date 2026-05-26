@@ -23,11 +23,11 @@ Shopware treats it as the merchant-controlled timezone for server-side rendering
 of sales-channel output such as documents and mails.
 
 Code that needs to apply a timezone for one Twig render call uses a new
-`TwigTimezoneScope`, which temporarily changes Twig's default timezone and
+`TwigTimezoneOverride`, which temporarily changes Twig's default timezone and
 restores the previous value afterwards:
 
 ```php
-return TwigTimezoneScope::run(
+return TwigTimezoneOverride::run(
     $this->twig,
     $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
     fn (): string => $this->twig->render($view, $parameters),
@@ -41,7 +41,7 @@ changed.
 In the next major, this nullable compatibility behaviour will be removed. Every
 sales channel will have a business timezone, with missing values migrated to
 `UTC`.
-`TwigTimezoneScope` remains the mechanism for applying the timezone to one Twig
+`TwigTimezoneOverride` remains the mechanism for applying the timezone to one Twig
 render call.
 
 ## Alternatives considered

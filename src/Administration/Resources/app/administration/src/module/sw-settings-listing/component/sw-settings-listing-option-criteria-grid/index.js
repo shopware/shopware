@@ -69,7 +69,7 @@ export default {
                 ]),
             );
 
-            if (this.customFieldSetIDs) {
+            if (this.customFieldSetIDs?.length) {
                 criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
             }
 
@@ -404,7 +404,7 @@ export default {
                 ]),
             );
 
-            if (this.customFieldSetIDs) {
+            if (this.customFieldSetIDs?.length) {
                 criteria.addFilter(Criteria.equalsAny('customFieldSetId', this.customFieldSetIDs));
             }
 

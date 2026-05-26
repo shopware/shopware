@@ -229,6 +229,22 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         ]);
     });
 
+    it('should not add a customFieldSetId filter when no relations exist', async () => {
+        // see https://github.com/shopware/shopware/issues/15732
+        // empty customFieldSetIDs must not produce equalsAny with an empty value (400)
+        expect(wrapper.vm.customFieldSetIDs).toEqual([]);
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const hasCustomFieldSetIdFilter = (params) => {
+            return (params.filter ?? []).some((filter) => filter.field === 'customFieldSetId');
+        };
+
+        expect(hasCustomFieldSetIdFilter(criteriaParams)).toBe(false);
+        expect(hasCustomFieldSetIdFilter(singleSelectCriteriaParams)).toBe(false);
+    });
+
     it('should change productSortingEntity when add custom field', async () => {
         await wrapper.setProps({
             productSortingEntity: {

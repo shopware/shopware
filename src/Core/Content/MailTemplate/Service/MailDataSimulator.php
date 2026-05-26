@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\MailTemplate\Service;
 
 use Faker\Factory;
 use Faker\Generator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
@@ -122,6 +123,7 @@ class MailDataSimulator
         private readonly EntityRepository $languageRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         iterable $dataProviders,
+        private readonly ClockInterface $clock,
     ) {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }
@@ -663,7 +665,7 @@ class MailDataSimulator
 
     private function randomDateTime(Generator $faker): \DateTimeImmutable
     {
-        return (new \DateTimeImmutable())
+        return $this->clock->now()
             ->setDate(
                 $faker->numberBetween(1900, 2100),
                 $faker->numberBetween(1, 12),

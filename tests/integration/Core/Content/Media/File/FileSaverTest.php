@@ -153,8 +153,7 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
 
             $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {

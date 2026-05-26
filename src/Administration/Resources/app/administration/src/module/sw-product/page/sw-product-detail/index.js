@@ -81,6 +81,7 @@ export default {
             previousLengthUnit: null,
             previousWeightUnit: null,
             updateSeoPromises: [],
+            isProductNotFound: false,
         };
     },
 
@@ -502,6 +503,8 @@ export default {
 
     methods: {
         async createdComponent() {
+            this.isProductNotFound = false;
+
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-product-detail__product',
                 path: 'product',
@@ -806,6 +809,12 @@ export default {
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
                 .then(async (product) => {
+                    if (!product) {
+                        await this.onProductNotFound();
+
+                        return;
+                    }
+
                     if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
@@ -835,12 +844,34 @@ export default {
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
-
+                })
+                .finally(() => {
                     Shopware.Store.get('swProductDetail').setLoading([
                         'product',
                         false,
                     ]);
                 });
+        },
+
+        async onProductNotFound() {
+            this.isProductNotFound = true;
+            Shopware.Store.get('shopwareApps').selectedIds = [];
+
+            this.createNotificationError({
+                message: this.$t('sw-product.detail.messageProductNotFound'),
+            });
+
+            try {
+                await this.$router.push({
+                    name: 'sw.product.index',
+                });
+            } catch {
+                // Ignore navigation failures. The missing product state still prevents the detail view from rendering.
+            } finally {
+                const productDetailStore = Shopware.Store.get('swProductDetail');
+                productDetailStore.product = {};
+                productDetailStore.parentProduct = {};
+            }
         },
 
         syncVariantPriceInheritance() {

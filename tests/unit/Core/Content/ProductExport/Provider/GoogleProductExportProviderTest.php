@@ -73,6 +73,7 @@ class GoogleProductExportProviderTest extends TestCase
             'size' => null,
             'size_system' => null,
             'gender' => null,
+            'age_group' => null,
             'material' => null,
             'custom_variants' => null,
         ], $providerContext->get('variantMapping'));
@@ -166,6 +167,7 @@ class GoogleProductExportProviderTest extends TestCase
                 'core.googleProductExport.variantSize' => [],
                 'core.googleProductExport.variantSizeSystem' => ['eu_size'],
                 'core.googleProductExport.variantGender' => ['unisex'],
+                'core.googleProductExport.variantAgeGroup' => ['adult'],
                 'core.googleProductExport.variantMaterial' => ['cotton'],
                 'core.googleProductExport.variantCustom' => ['custom_a', null, 'custom_b'],
             ], $salesChannelId)
@@ -184,6 +186,7 @@ class GoogleProductExportProviderTest extends TestCase
             'size' => null,
             'size_system' => ['eu_size'],
             'gender' => ['unisex'],
+            'age_group' => ['adult'],
             'material' => ['cotton'],
             'custom_variants' => ['custom_a', 'custom_b'],
         ], $renderContext['provider']->get('variantMapping'));

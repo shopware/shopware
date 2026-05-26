@@ -42,6 +42,7 @@ use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -389,7 +390,8 @@ class MailDataSimulatorTest extends TestCase
             $definitionRegistry,
             $languageRepository,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
-            $providerMap
+            $providerMap,
+            new NativeClock()
         );
     }
 }

@@ -152,8 +152,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testCreateWithInvalidConfig(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -167,8 +166,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testCreateWithMissingBucket(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -184,8 +182,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testCreateWithMissingRegion(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -201,8 +198,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
 
     public function testCreateWithIncompleteCredentials(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Invalid presigned upload configuration');
+        $this->expectExceptionObject(MediaException::presignedUploadInvalidConfiguration(''));
 
         PresignedUploadUrlGenerator::create(
             $this->mediaPathStrategy,
@@ -237,8 +233,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Presigned upload is disabled');
+        $this->expectExceptionObject(MediaException::presignedUploadDisabled());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -258,8 +253,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Presigned upload is not supported');
+        $this->expectExceptionObject(MediaException::presignedUploadNotSupported());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -285,8 +279,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The parameter "fileName" is invalid');
+        $this->expectExceptionObject(MediaException::invalidRequestParameter('fileName'));
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -312,8 +305,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('No file extension provided');
+        $this->expectExceptionObject(MediaException::missingFileExtension());
 
         $generator->generate($location, 'image/jpeg');
     }
@@ -345,8 +337,7 @@ class PresignedUploadUrlGeneratorTest extends TestCase
             new \DateTimeImmutable()
         );
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('No Strategy with name "test-strategy" found');
+        $this->expectExceptionObject(MediaException::strategyNotFound('test-strategy'));
 
         $generator->generate($location, 'image/jpeg');
     }

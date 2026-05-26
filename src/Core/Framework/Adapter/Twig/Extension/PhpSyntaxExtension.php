@@ -108,19 +108,8 @@ class PhpSyntaxExtension extends AbstractExtension
                     }
                 }
             ),
-            new TwigFilter('md5', static function (mixed $var) {
-                if (\is_array($var)) {
-                    $var = \json_encode($var, \JSON_THROW_ON_ERROR);
-                }
-
-                if (!\is_string($var)) {
-                    throw AdapterException::invalidArgument(
-                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
-                    );
-                }
-
-                return Hasher::hash($var, 'md5');
-            }),
+            new TwigFilter('md5', fn (mixed $var) => $this->hashValue($var, 'md5')),
+            new TwigFilter('sha256', fn (mixed $var) => $this->hashValue($var, 'sha256')),
         ];
     }
 
@@ -193,6 +182,25 @@ class PhpSyntaxExtension extends AbstractExtension
             new BinaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
             new BinaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
         ];
+    }
+
+    private function hashValue(mixed $var, string $algorithm): string
+    {
+        if (\is_array($var)) {
+            try {
+                $var = \json_encode($var, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                throw AdapterException::invalidArgument(\sprintf('The %s filter failed to encode array input: %s', $algorithm, $e->getMessage()));
+            }
+        }
+
+        if (!\is_string($var)) {
+            throw AdapterException::invalidArgument(
+                \sprintf('The %s filter expects a string or array as input, %s given', $algorithm, get_debug_type($var))
+            );
+        }
+
+        return Hasher::hash($var, $algorithm);
     }
 
     /**

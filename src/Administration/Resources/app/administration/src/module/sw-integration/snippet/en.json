@@ -8,14 +8,46 @@
       "heroDescriptionIntegrations": "Shopware offers a powerful API for perfectly integrating third-party systems into your processes. In order to establish proper communication, Shopware requires external applications to authenticate through individual security keys first. You can create those individual keys right here, enabling you to track changes, introduced by external applications, separately."
     },
     "list": {
-      "contextMenuEdit": "Edit",
+      "contextMenuEdit": "Edit Integration",
+      "contextMenuEditMcp": "Edit MCP Allowlist",
       "contextMenuDelete": "Delete",
       "messageEmpty": "No integrations yet",
       "sublineEmpty": "The module for managing integrations.",
       "permissions": "Permissions",
       "writeAccess": "Write",
       "readAccess": "Read",
-      "integrationName": "Integration"
+      "integrationName": "Integration",
+      "labelManagedByApp": "Managed by App"
+    },
+    "mcp": {
+      "cardTitle": "MCP Allowlist",
+      "modalTitle": "MCP Allowlist",
+      "infoText": "Restrict which MCP capabilities this integration may use. When \"All capabilities\" is enabled, every registered tool, resource, and prompt is accessible. Disable it to configure access per type. Note: tools also require the matching entity permissions from the assigned role.",
+      "adminBanner": "This integration has administrator privileges. All MCP capabilities are accessible by default. You can restrict access to specific tools, resources, or prompts here for additional security.",
+      "allCapabilitiesLabel": "All capabilities",
+      "allTypeLabel": "All",
+      "toolsSection": "Tools",
+      "resourcesSection": "Resources",
+      "promptsSection": "Prompts",
+      "toolsGuidance": "Tools execute actions and may have side effects (writes, deletes). Restrict to exactly what this integration needs.",
+      "resourcesGuidance": "Resources provide read-only reference data (entity lists, state machines, sales channels). Limit these to avoid exposing business configuration a merchant assistant doesn't need.",
+      "promptsGuidance": "Prompts are system instructions that set the AI's context. Exposing unrelated prompts wastes context window and may confuse the AI.",
+      "noCapabilitiesHeadline": "No capabilities found",
+      "noCapabilitiesDescription": "No MCP tools, resources, or prompts are currently registered.",
+      "dep": "dep",
+      "dependencyOf": "This tool is automatically included because another selected tool depends on it.",
+      "missingDeps": "Dependency not selected: {deps}",
+      "requiresLabel": "needs deps",
+      "requiresTooltip": "Enabling this tool will also enable: {deps}",
+      "staleEntries": "Some saved entries are no longer available: {entries}. They will be ignored at runtime.",
+      "privilegesLabel": "Requires:",
+      "coverageWarning": "{count} tool(s) require ACL privileges not granted on the assigned role.",
+      "missingPrivilegesList": "Missing: {privileges}",
+      "missingPrivilegesTooltip": "Missing privileges: {privileges}",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all",
+      "deniedTypeWarning": "No {types} are enabled for this integration.",
+      "missingCapabilitySuggestions": "{count} resource(s) or prompt(s) from the same module are not in the allowlist:"
     },
     "detail": {
       "deleteModalTitle": "Delete",
@@ -43,6 +75,12 @@
     "permissions": {
       "integration": {
         "label": "Integrations"
+      }
+    },
+    "additional_permissions": {
+      "integration_mcp": {
+        "label": "Integrations",
+        "editor": "Edit MCP allowlist"
       }
     }
   }

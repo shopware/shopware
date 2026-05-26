@@ -72,8 +72,7 @@ class UserProvisionerTest extends TestCase
         ];
 
         $provisioner = new UserProvisioner($connection);
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('User with username "admin" already exists.');
+        $this->expectExceptionObject(new \RuntimeException('User with username "admin" already exists.'));
         $provisioner->provision('admin', 'shopware', $user);
     }
 
@@ -97,8 +96,7 @@ class UserProvisionerTest extends TestCase
         ];
 
         $provisioner = new UserProvisioner($connection);
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('The password must have at least 8 characters.');
+        $this->expectExceptionObject(MaintenanceException::passwordTooShort(8));
         $provisioner->provision('admin', 'short', $user);
     }
 }

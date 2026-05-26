@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -78,11 +79,15 @@ class ProductStreamUpdaterTest extends TestCase
 
     public function testUpdaterWithFilterChange(): void
     {
+        $updatedStreamId = Uuid::randomHex();
+        $deletedStreamId = Uuid::randomHex();
         $connectionMock = $this->createMock(Connection::class);
         $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects($this->once())->method('dispatch')->willReturnCallback(static function ($message) {
+        $expectedMessages = [$updatedStreamId, $deletedStreamId];
+        $matcher = $this->exactly(\count($expectedMessages));
+        $messageBusMock->expects($matcher)->method('dispatch')->willReturnCallback(static function ($message) use ($matcher, $expectedMessages) {
             static::assertInstanceOf(ProductStreamMappingIndexingMessage::class, $message);
-            static::assertSame('product-stream-1', $message->getData());
+            static::assertSame($expectedMessages[$matcher->numberOfInvocations() - 1], $message->getData());
             static::assertSame('product_stream_mapping.indexer', $message->getIndexer());
 
             return new Envelope($message);
@@ -107,13 +112,19 @@ class ProductStreamUpdaterTest extends TestCase
         $containerEvent = new EntityWrittenContainerEvent(
             Context::createCLIContext(),
             new NestedEventCollection([
-                new EntityWrittenEvent(ProductStreamDefinition::ENTITY_NAME, [
-                    new EntityWriteResult('product-stream-1', [], ProductStreamDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
-                ], Context::createCLIContext()),
                 new EntityWrittenEvent(ProductStreamFilterDefinition::ENTITY_NAME, [
                     new EntityWriteResult('product-stream-filter-1', [
+                        'productStreamId' => $updatedStreamId,
                         'operator' => 'and',
                     ], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE),
+                    new EntityWriteResult('product-stream-filter-2', [], ProductStreamFilterDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_DELETE, new EntityExistence(
+                        ProductStreamFilterDefinition::ENTITY_NAME,
+                        ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                        true,
+                        false,
+                        false,
+                        ['product_stream_id' => Uuid::fromHexToBytes($deletedStreamId)]
+                    )),
                 ], Context::createCLIContext()),
             ]),
             []

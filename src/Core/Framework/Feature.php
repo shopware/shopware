@@ -283,7 +283,7 @@ class Feature
             return;
         }
 
-        trigger_deprecation('shopware/core', '', $message);
+        trigger_deprecation('shopware/core', $majorFlag, $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

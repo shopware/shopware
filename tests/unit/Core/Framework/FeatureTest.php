@@ -260,7 +260,7 @@ class FeatureTest extends TestCase
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
         if ($shouldTriggerDeprecation) {
-            $this->expectUserDeprecationMessageMatches('/deprecated message/');
+            $this->expectUserDeprecationMessageMatches('/Since shopware\/core ' . preg_quote($majorVersion, '/') . ': deprecated message/');
         }
 
         if (!$shouldTriggerDeprecation) {

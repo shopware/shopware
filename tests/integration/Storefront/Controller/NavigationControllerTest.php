@@ -105,6 +105,52 @@ class NavigationControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
+    public function testOffcanvasBackLinkAtFooterRootReturnsToMainEntry(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        // The back-link must not point at the intermediate parent (which lives
+        // outside every sales-channel navigation root and would 404). It must
+        // route back to the main entry (no navigationId query param).
+        static::assertStringNotContainsString(
+            'navigationId=' . $this->ids->get('issue-13510-intermediate'),
+            $backLinkHref
+        );
+        static::assertStringNotContainsString('navigationId=', $backLinkHref);
+    }
+
+    public function testOffcanvasBackLinkAtFooterSubcategoryClimbsToParent(): void
+    {
+        $this->createFooterTree();
+
+        $response = $this->request(
+            'GET',
+            'widgets/menu/offcanvas?navigationId=' . $this->ids->get('issue-13510-footer-about'),
+            []
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
+
+        // Mid-tree the climb must still happen normally: back from "About us"
+        // goes up to the footer root.
+        static::assertStringContainsString(
+            'navigationId=' . $this->ids->get('issue-13510-footer'),
+            $backLinkHref
+        );
+    }
+
     private function createData(): void
     {
         /** @var SalesChannelEntity $salesChannel */
@@ -204,5 +250,79 @@ class NavigationControllerTest extends TestCase
         );
 
         return ltrim($seoUrl->getSeoPathInfo(), '/');
+    }
+
+    /**
+     * Builds a sales-channel layout that triggers the issue-13510 back-link bug:
+     *
+     *   sales-channel nav root
+     *     └── intermediate           ← NOT assigned to any nav root
+     *           ├── main entry       ← becomes navigationCategoryId
+     *           └── footer entry     ← becomes footerCategoryId
+     *                 └── about us
+     *
+     * Climbing parents from "footer entry" leaves the intermediate exposed,
+     * which is what the buggy back-link tries to load.
+     */
+    private function createFooterTree(): void
+    {
+        $salesChannelId = $this->getSalesChannelId();
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
+            new Criteria([$salesChannelId]),
+            Context::createDefaultContext()
+        )->first();
+
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $this->ids->create('issue-13510-intermediate'),
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'name' => 'Issue 13510 Intermediate',
+            'type' => 'page',
+            'active' => true,
+            'visible' => true,
+            'children' => [
+                [
+                    'id' => $this->ids->create('issue-13510-main'),
+                    'name' => 'Issue 13510 Main',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                ],
+                [
+                    'id' => $this->ids->create('issue-13510-footer'),
+                    'name' => 'Issue 13510 Footer',
+                    'type' => 'page',
+                    'active' => true,
+                    'visible' => true,
+                    'children' => [[
+                        'id' => $this->ids->create('issue-13510-footer-about'),
+                        'name' => 'Issue 13510 About',
+                        'type' => 'page',
+                        'active' => true,
+                        'visible' => true,
+                    ]],
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        static::getContainer()->get('sales_channel.repository')->update([[
+            'id' => $salesChannelId,
+            'navigationCategoryId' => $this->ids->get('issue-13510-main'),
+            'footerCategoryId' => $this->ids->get('issue-13510-footer'),
+        ]], Context::createDefaultContext());
+    }
+
+    private function extractBackLinkHref(string $html): string
+    {
+        $matched = preg_match(
+            '#<a[^>]*class="[^"]*\bis-back-link\b[^"]*"[^>]*href="([^"]+)"#',
+            $html,
+            $matches
+        );
+
+        static::assertSame(1, $matched, 'No back-link rendered in offcanvas response.');
+
+        return html_entity_decode($matches[1]);
     }
 }

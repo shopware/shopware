@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -50,7 +51,7 @@ class MappingCollectionTest extends TestCase
 
     public function testInvalidElement(): void
     {
-        $this->expectExceptionMessage('Expected collection element of type Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping got Shopware\Core\Framework\Struct\ArrayEntity');
+        $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(Mapping::class, ArrayEntity::class));
         /** @phpstan-ignore argument.type (for test purpose) */
         new MappingCollection([new ArrayEntity()]);
     }
@@ -104,8 +105,7 @@ class MappingCollectionTest extends TestCase
     {
         $mappingFoo = ['mappedKey' => 'bar'];
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('key is required in mapping');
+        $this->expectExceptionObject(new \InvalidArgumentException('key is required in mapping'));
 
         /** @phpstan-ignore argument.type (for test purpose) */
         MappingCollection::fromIterable([$mappingFoo]);

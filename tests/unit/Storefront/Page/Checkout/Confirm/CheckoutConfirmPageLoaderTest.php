@@ -120,10 +120,7 @@ class CheckoutConfirmPageLoaderTest extends TestCase
             ->method('getCustomer')
             ->willReturn(null);
 
-        $expected = CartException::customerNotLoggedIn()::class;
-
-        $this->expectException($expected);
-        $this->expectExceptionMessage('Customer is not logged in');
+        $this->expectExceptionObject(CartException::customerNotLoggedIn());
 
         $this->createLoader()->load(new Request(), $context);
     }

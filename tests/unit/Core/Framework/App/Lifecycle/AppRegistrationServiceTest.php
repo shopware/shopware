@@ -11,7 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
@@ -115,8 +115,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Unknown app'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -154,8 +153,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -189,8 +187,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -231,8 +228,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The new app secret returned from the App must be different from the current one.');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The new app secret returned from the App must be different from the current one.'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -308,8 +304,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->mockHandler->append(new Response(body: '{invalid-json: test,}'));
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: JSON response could not be decoded');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'JSON response could not be decoded'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -342,8 +337,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest, new Response(SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR, body: $responseBody)),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Got status code 500, with response: ' . $responseBody);
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Got status code 500, with response: ' . $responseBody));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -382,8 +376,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -422,8 +415,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided an invalid proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }

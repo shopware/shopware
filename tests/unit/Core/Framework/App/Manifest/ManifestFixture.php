@@ -5,8 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleCondition;
+use Shopware\Core\Framework\App\Manifest\Xml\RuleCondition\RuleConditions;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\TaxProvider;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
@@ -17,9 +21,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
  */
 class ManifestFixture extends Manifest
 {
+    private Metadata $metadata;
+
     private ?Admin $admin = null;
 
     private ?Payments $payments = null;
+
+    private ?RuleConditions $ruleConditions = null;
 
     private ?Tax $tax = null;
 
@@ -27,6 +35,7 @@ class ManifestFixture extends Manifest
 
     private function __construct()
     {
+        $this->metadata = self::createMetadata('test');
     }
 
     public static function empty(): self
@@ -34,9 +43,9 @@ class ManifestFixture extends Manifest
         return new self();
     }
 
-    public function withAdmin(Admin $admin): self
+    public function withName(string $name): self
     {
-        $this->admin = $admin;
+        $this->metadata = self::createMetadata($name);
 
         return $this;
     }
@@ -49,12 +58,7 @@ class ManifestFixture extends Manifest
             'label' => ['en-GB' => 'Test module'],
         ]);
 
-        return $this->withAdmin(Admin::fromArray(['modules' => $modules]));
-    }
-
-    public function withPayments(Payments $payments): self
-    {
-        $this->payments = $payments;
+        $this->admin = Admin::fromArray(['modules' => $modules]);
 
         return $this;
     }
@@ -67,12 +71,30 @@ class ManifestFixture extends Manifest
             'name' => ['en-GB' => 'Test payment method'],
         ]);
 
-        return $this->withPayments(Payments::fromArray(['paymentMethods' => $paymentMethods]));
+        $this->payments = Payments::fromArray(['paymentMethods' => $paymentMethods]);
+
+        return $this;
     }
 
-    public function withTax(Tax $tax): self
-    {
-        $this->tax = $tax;
+    /**
+     * @param list<CustomFieldType> $constraints
+     */
+    public function withRuleCondition(
+        string $identifier,
+        array $constraints = [],
+        string $script = 'mock.twig',
+        string $group = 'misc'
+    ): self {
+        $ruleConditions = $this->ruleConditions?->getRuleConditions() ?? [];
+        $ruleConditions[] = RuleCondition::fromArray([
+            'identifier' => $identifier,
+            'name' => ['en-GB' => $identifier],
+            'group' => $group,
+            'script' => $script,
+            'constraints' => $constraints,
+        ]);
+
+        $this->ruleConditions = RuleConditions::fromArray(['ruleConditions' => $ruleConditions]);
 
         return $this;
     }
@@ -87,26 +109,40 @@ class ManifestFixture extends Manifest
             'priority' => 1,
         ]);
 
-        return $this->withTax(Tax::fromArray(['taxProviders' => $taxProviders]));
-    }
-
-    public function withWebhooks(Webhooks $webhooks): self
-    {
-        $this->webhooks = $webhooks;
+        $this->tax = Tax::fromArray(['taxProviders' => $taxProviders]);
 
         return $this;
     }
 
     public function withWebhook(?Webhook $webhook = null): self
     {
-        $webhooks = $this->webhooks?->getWebhooks() ?? [];
-        $webhooks[] = $webhook ?? Webhook::fromArray([
+        return $this->withWebhooks($webhook ?? Webhook::fromArray([
             'name' => 'test-webhook',
             'url' => 'https://example.com/webhook',
             'event' => 'product.written',
-        ]);
+        ]));
+    }
 
-        return $this->withWebhooks(Webhooks::fromArray(['webhooks' => $webhooks]));
+    public function withWebhooks(Webhook ...$webhooks): self
+    {
+        $existingWebhooks = $this->webhooks?->getWebhooks() ?? [];
+        $webhooks = [
+            ...$existingWebhooks,
+            ...$webhooks,
+        ];
+        $this->webhooks = Webhooks::fromArray(['webhooks' => $webhooks]);
+
+        return $this;
+    }
+
+    public function getPath(): string
+    {
+        return 'test';
+    }
+
+    public function getMetadata(): Metadata
+    {
+        return $this->metadata;
     }
 
     public function getAdmin(): ?Admin
@@ -124,8 +160,25 @@ class ManifestFixture extends Manifest
         return $this->payments;
     }
 
+    public function getRuleConditions(): ?RuleConditions
+    {
+        return $this->ruleConditions;
+    }
+
     public function getTax(): ?Tax
     {
         return $this->tax;
+    }
+
+    private static function createMetadata(string $name): Metadata
+    {
+        return Metadata::fromArray([
+            'label' => ['en-GB' => $name],
+            'name' => $name,
+            'author' => 'shopware AG',
+            'copyright' => '(c) by shopware AG',
+            'license' => 'MIT',
+            'version' => '1.0.0',
+        ]);
     }
 }

@@ -154,6 +154,10 @@ export default {
             return this.isProductComparison || this.isAgenticCommerce;
         },
 
+        isGoogleProductSearchTemplate() {
+            return this.templateName === 'google-product-search-de';
+        },
+
         resolvedAgenticCommerceExportConfig() {
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
                 return this.agenticCommerceExportConfig;
@@ -459,6 +463,7 @@ export default {
             'encoding',
             'fileName',
             'fileFormat',
+            'feedLabel',
             'storefrontSalesChannelId',
             'salesChannelDomainId',
             'currencyId',
@@ -594,6 +599,16 @@ export default {
     },
 
     methods: {
+        onFeedLabelInput(value) {
+            if (value === '') {
+                this.productExport.feedLabel = null;
+
+                return;
+            }
+
+            this.productExport.feedLabel = value.toUpperCase();
+        },
+
         onGenerateKeys() {
             this.salesChannelService
                 .generateKey()

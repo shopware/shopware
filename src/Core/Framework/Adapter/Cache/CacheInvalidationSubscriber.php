@@ -26,6 +26,7 @@ use Shopware\Core\Content\Product\Events\InvalidateProductCache;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute;
@@ -169,8 +170,19 @@ class CacheInvalidationSubscriber
     public function invalidateStreamIds(EntityWrittenContainerEvent $event): void
     {
         // invalidates all routes which are loaded based on a stream (e.G. category listing and cross selling)
-        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME));
-        $this->cacheInvalidator->invalidate($ids);
+        $streamIds = [
+            ...$event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME),
+            ...ProductStreamWriteResultHelper::getAffectedStreamIds($event),
+        ];
+
+        $streamIds = array_values(array_unique($streamIds));
+
+        if ($streamIds === []) {
+            return;
+        }
+
+        $ids = array_map(EntityCacheKeyGenerator::buildStreamTag(...), $streamIds);
+        $this->cacheInvalidator->invalidate($ids, force: true);
     }
 
     public function invalidateCategoryRouteByCategoryIds(CategoryIndexerEvent $event): void

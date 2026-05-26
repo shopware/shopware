@@ -274,7 +274,7 @@ export default {
                 this.hasNewVersionId = false;
 
                 // clean up recently created version
-                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext);
+                await this.orderRepository.deleteVersion(this.orderId, oldVersionContext.versionId);
             }
 
             window.removeEventListener('beforeunload', this.beforeDestroyComponent);
@@ -343,7 +343,7 @@ export default {
                     this.hasOrderDeepEdit = false;
                     this.promotionsToDelete = [];
                     this.deliveryDiscountsToDelete = [];
-                    return this.orderRepository.mergeVersion(this.order.versionId, this.versionContext);
+                    return this.orderRepository.mergeVersion(this.order.versionId);
                 })
                 .then(() => this.createNewVersionId())
                 .then(() => {
@@ -407,7 +407,7 @@ export default {
             this.hasNewVersionId = false;
 
             return this.orderRepository
-                .deleteVersion(this.orderId, oldVersionContext.versionId, oldVersionContext)
+                .deleteVersion(this.orderId, oldVersionContext.versionId)
                 .then(() => {
                     this.hasOrderDeepEdit = false;
                 })
@@ -543,7 +543,7 @@ export default {
             this.hasNewVersionId = false;
 
             return this.orderRepository
-                .createVersion(this.orderId, this.versionContext)
+                .createVersion(this.orderId)
                 .then((newContext) => {
                     this.hasNewVersionId = true;
 

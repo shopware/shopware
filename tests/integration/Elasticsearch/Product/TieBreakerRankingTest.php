@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -36,6 +37,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class TieBreakerRankingTest extends TestCase
 {
     use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use ElasticsearchTestTestBehaviour;
     use FilesystemBehaviour;
     use KernelTestBehaviour;

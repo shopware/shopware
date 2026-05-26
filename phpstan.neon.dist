@@ -76,11 +76,6 @@ parameters:
 
         # allowed extension of internal classes with @final annotation only for specific classes
         -
-            message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'
-            paths:
-                - src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
-                - src/Core/Content/Product/SalesChannel/Review/ProductReviewResult.php
-        -
             message: '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\EntityRepository.#'
             paths:
                 - src/Core/Content/Test/ImportExport/MockRepository.php

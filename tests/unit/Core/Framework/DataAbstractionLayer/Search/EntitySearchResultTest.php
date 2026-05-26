@@ -71,6 +71,20 @@ class EntitySearchResultTest extends TestCase
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
     }
 
+    public function testCreateNewPreservesConcreteEntityCollectionType(): void
+    {
+        $entitySearchResult = $this->createTypedEntitySearchResult();
+
+        $newInstance = $entitySearchResult->createFromElements([
+            new ArrayEntity(['id' => Uuid::randomHex()]),
+            new ArrayEntity(['id' => Uuid::randomHex()]),
+        ]);
+
+        static::assertSame(TestEntitySearchResult::class, $newInstance::class);
+        static::assertSame(TestEntityCollection::class, $newInstance->getEntities()::class);
+        static::assertSame(2, $newInstance->getTotal());
+    }
+
     public static function resultPageCriteriaDataProvider(): \Generator
     {
         // Criteria, Page
@@ -101,5 +115,46 @@ class EntitySearchResultTest extends TestCase
             new Criteria(),
             Context::createDefaultContext()
         );
+    }
+
+    private function createTypedEntitySearchResult(): TestEntitySearchResult
+    {
+        $entityCollection = new TestEntityCollection([
+            new ArrayEntity(['id' => Uuid::randomHex()]),
+        ]);
+
+        return new TestEntitySearchResult(
+            ArrayEntity::class,
+            $entityCollection->count(),
+            $entityCollection,
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends EntityCollection<ArrayEntity>
+ */
+class TestEntityCollection extends EntityCollection
+{
+}
+
+/**
+ * @internal
+ *
+ * @extends EntitySearchResult<TestEntityCollection>
+ */
+class TestEntitySearchResult extends EntitySearchResult
+{
+    /**
+     * @param iterable<ArrayEntity> $elements
+     */
+    public function createFromElements(iterable $elements): static
+    {
+        return $this->createNew($elements);
     }
 }

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
- * @final
- *
  * @template TEntityCollection of EntityCollection
  *
  * @phpstan-type TElement template-type<TEntityCollection, EntityCollection, 'TElement'>
@@ -167,8 +165,10 @@ class EntitySearchResult extends EntityCollection
      */
     protected function createNew(iterable $elements = []): static
     {
-        if (!$elements instanceof EntityCollection) {
-            $elements = new EntityCollection($elements);
+        $collectionClass = $this->entities::class;
+
+        if (!$elements instanceof $collectionClass) {
+            $elements = new $collectionClass($elements);
         }
 
         return new static(

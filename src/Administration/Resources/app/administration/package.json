@@ -100,6 +100,7 @@
     "process": "0.11.10",
     "punycode": "2.3.1",
     "rollup": "4.59.0",
+    "shepherd.js": "15.2.1",
     "ts-morph": "17.0.1",
     "ts-node": "10.9.2",
     "twig": "2.0.0",
@@ -115,6 +116,7 @@
     "vue": "3.5.22",
     "vue-i18n": "10.0.8",
     "vue-router": "4.5.0",
+    "vue-shepherd": "6.0.0",
     "vue3-apexcharts": "1.8.0",
     "vuex": "4.1.0"
   },

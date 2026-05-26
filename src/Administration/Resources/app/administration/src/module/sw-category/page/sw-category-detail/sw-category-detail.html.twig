@@ -85,6 +85,26 @@
             </sw-button-process>
             {% endblock %}
             {% endblock %}
+
+            {% block sw_category_smart_bar_tour %}
+            <mt-button
+                class="sw-category__tour-start"
+                :disabled="isLoading"
+                variant="secondary"
+                size="default"
+                @click="startTour()"
+            >
+                Tour1
+            </mt-button>
+            <mt-button
+                :disabled="isLoading"
+                variant="secondary"
+                size="default"
+                @click="startTour('detail')"
+            >
+                Tour2
+            </mt-button>
+            {% endblock %}
         </template>
     </template>
 

@@ -153,7 +153,6 @@ class NavigationControllerTest extends TestCase
 
     private function createData(): void
     {
-        /** @var SalesChannelEntity $salesChannel */
         $salesChannel = static::getContainer()->get('sales_channel.repository')->search(
             (new Criteria())->addFilter(
                 new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
@@ -161,6 +160,8 @@ class NavigationControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->first();
+
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $category = [
             'id' => $this->ids->create('category'),

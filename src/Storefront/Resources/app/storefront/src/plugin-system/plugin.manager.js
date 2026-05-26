@@ -184,10 +184,10 @@ class PluginManagerSingleton {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {*} methodName 
-     * @param  {...any} args 
+     *
+     * @param {string} pluginName
+     * @param {*} methodName
+     * @param  {...any} args
      */
     callPluginMethod(pluginName, methodName, ...args) {
         const instances = this.getPluginInstances(pluginName);
@@ -242,6 +242,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (plugin.get('async')) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -265,7 +268,7 @@ class PluginManagerSingleton {
     /**
      * Initializes all registered plugins, but only for elements within the parent element.
      *
-     * @param {HTMLElement} parentElement 
+     * @param {HTMLElement} parentElement
      * @returns {Promise<void>}
      */
     async initializePluginsInParentElement(parentElement) {
@@ -276,6 +279,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (plugin.get('async')) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -359,18 +365,25 @@ class PluginManagerSingleton {
             return;
         }
 
-        // Fetch all needed plugins
-        try {
-            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
-            }));
-        } catch (error) {
-            console.error('An error occurred while fetching async JS-plugins', error);
-        }
+        // Fetch all needed plugins while keeping a single failing plugin from stopping the others.
+        fetchedPluginClasses = await Promise.all(queue.map(async (queueItem) => {
+            try {
+                return await queueItem.pluginClassPromise();
+            } catch (error) {
+                console.warn(`The async plugin "${queueItem.pluginName}" could not be loaded and will be skipped.`, error);
+
+                return null;
+            }
+        }));
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const pluginClass = fetchedPluginClasses[index].default;
+            const fetchedPluginClass = fetchedPluginClasses[index];
+            if (!fetchedPluginClass || !fetchedPluginClass.default) {
+                return;
+            }
+
+            const pluginClass = fetchedPluginClass.default;
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 
@@ -726,11 +739,11 @@ export default class PluginManager {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {string} methodName 
-     * @param  {...any} args 
-     * @returns 
+     *
+     * @param {string} pluginName
+     * @param {string} methodName
+     * @param  {...any} args
+     * @returns
      */
     static callPluginMethod(pluginName, methodName, ...args) {
         return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);

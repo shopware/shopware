@@ -1,3 +1,12 @@
+# 6.7.12.0 (upcoming)
+
+## Storefront
+
+### Checkout gateway blocked method fallback
+
+Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
+The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
+
 # 6.7.11.0 (upcoming)
 
 ## Features
@@ -306,10 +315,6 @@ The set of fields that trigger the redirect is configurable via the `shopware.st
 Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
-### Checkout gateway blocked method fallback
-
-Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
-The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
 ### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
 
 The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.

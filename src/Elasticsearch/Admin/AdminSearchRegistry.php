@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -258,7 +257,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
             $documents[] = ['index' => ['_id' => $id]];
 
             $documents[] = \array_replace(
-                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => ''],
+                ['entityName' => $indexer->getEntity(), 'parameters' => [], 'textBoosted' => '', 'text' => '', 'completion' => []],
                 $document
             );
         }
@@ -468,17 +467,13 @@ class AdminSearchRegistry implements EventSubscriberInterface
         $properties = [
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'textBoosted' => AbstractAdminIndexer::SEARCH_FIELD,
-                'text' => AbstractAdminIndexer::SEARCH_FIELD,
+                'textBoosted' => AbstractAdminIndexer::TEXT_FIELD,
+                'text' => AbstractAdminIndexer::TEXT_FIELD,
+                'completion' => AbstractAdminIndexer::COMPLETION_FIELD,
                 'entityName' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parameters' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ],
         ];
-
-        if (Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
-            $properties['properties']['textBoosted']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-            $properties['properties']['text']['fields']['ngram']['search_analyzer'] = 'sw_whitespace_analyzer';
-        }
 
         $mapping = $indexer->mapping($properties);
 

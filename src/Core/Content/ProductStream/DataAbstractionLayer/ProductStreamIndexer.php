@@ -65,7 +65,12 @@ class ProductStreamIndexer extends EntityIndexer
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $updates = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        $updates = [
+            ...$event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME),
+            ...ProductStreamWriteResultHelper::getAffectedStreamIds($event),
+        ];
+
+        $updates = array_unique($updates);
 
         if (!$updates) {
             return null;

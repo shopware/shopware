@@ -81,4 +81,42 @@ describe('src/app/state/session.store.js', () => {
 
         expect(session.languageId.value).toBe('');
     });
+
+    it('sets the admin locale without loading locale data if the user cannot read locales', async () => {
+        const localeToLanguage = jest.fn();
+        const storeCurrentLocale = jest.fn();
+        const localeFactory = Shopware.Application.getContainer('factory').locale;
+        const previousStoreCurrentLocale = localeFactory.storeCurrentLocale;
+
+        Shopware.Service = jest.fn().mockImplementation((serviceName) => {
+            if (serviceName === 'loginService') {
+                return { isLoggedIn: jest.fn().mockReturnValue(true) };
+            }
+
+            if (serviceName === 'localeToLanguageService') {
+                return { localeToLanguage };
+            }
+
+            return {};
+        });
+        localeFactory.storeCurrentLocale = storeCurrentLocale;
+        Shopware.Context.api.systemLanguageId = 'system-language-id';
+        useSystem().locales.value = [
+            'en-GB',
+            'de-DE',
+        ];
+        session.setCurrentUser({
+            admin: false,
+            aclRoles: [],
+        } as EntitySchema.user);
+
+        await session.setAdminLocale('de-DE');
+
+        expect(localeToLanguage).not.toHaveBeenCalled();
+        expect(session.languageId.value).toBe('system-language-id');
+        expect(session.currentLocale.value).toBe('de-DE');
+        expect(storeCurrentLocale).toHaveBeenCalledWith('de-DE');
+
+        localeFactory.storeCurrentLocale = previousStoreCurrentLocale;
+    });
 });

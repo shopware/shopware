@@ -21,7 +21,8 @@ export default async function (): Promise<WatchHandle | undefined> {
      * register consent event handler
      */
 
-    const gatewayClient = new GatewayClient(analyticsGatewayUrl, await getDefaultLanguageName());
+    const defaultLanguageName = canReadLanguage() ? await getDefaultLanguageName() : 'N/A';
+    const gatewayClient = new GatewayClient(analyticsGatewayUrl, defaultLanguageName);
 
     const consentEventHandler = createConsentEventHandler(gatewayClient);
 
@@ -92,4 +93,10 @@ async function getDefaultLanguageName(): Promise<string> {
     } catch {
         return 'N/A';
     }
+}
+
+function canReadLanguage(): boolean {
+    const session = Shopware.Store.get('session');
+
+    return session.currentUser?.admin === true || session.userPrivileges?.includes('language:read') === true;
 }

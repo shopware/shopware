@@ -655,7 +655,22 @@ export default class VueAdapter extends ViewAdapter {
         });
 
         const lastKnownLocale = this.localeFactory.getLastKnownLocale();
-        void useSession().setAdminLocale(lastKnownLocale);
+        const session = useSession();
+
+        if (this.canReadPrivilege('locale:read')) {
+            void session.setAdminLocale(lastKnownLocale);
+        } else {
+            session.setAdminLocaleState({
+                locales: [
+                    ...new Set([
+                        ...Array.from(registry.keys()),
+                        lastKnownLocale,
+                    ]),
+                ],
+                locale: lastKnownLocale,
+                languageId: Shopware.Context.api.systemLanguageId ?? '',
+            });
+        }
 
         const options = {
             legacy: false,
@@ -687,8 +702,7 @@ export default class VueAdapter extends ViewAdapter {
                 const oldUserLocaleId = oldValue?.localeId;
 
                 if (currentUserLocaleId && currentUserLocaleId !== oldUserLocaleId) {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-                    Shopware.Service('localeHelper').setLocaleWithId(currentUserLocaleId);
+                    this.setLocaleFromUser();
                 }
             },
             { deep: true },
@@ -700,11 +714,17 @@ export default class VueAdapter extends ViewAdapter {
     setLocaleFromUser() {
         const currentUser = useSession().currentUser.value;
 
-        if (currentUser) {
+        if (currentUser && this.canReadPrivilege('locale:read')) {
             const userLocaleId = currentUser.localeId;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             Shopware.Service('localeHelper').setLocaleWithId(userLocaleId);
         }
+    }
+
+    canReadPrivilege(privilege: string) {
+        const session = useSession();
+
+        return session.currentUser.value?.admin === true || session.userPrivileges.value.includes(privilege);
     }
 
     /**

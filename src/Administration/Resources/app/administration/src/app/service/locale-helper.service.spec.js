@@ -6,16 +6,25 @@ import LocaleHelperService from 'src/app/service/locale-helper.service';
 
 describe('app/service/locale-helper.service.js', () => {
     let localeHelperService;
+    let localeRepositoryGetSpy;
+    let sessionStore;
     const setAdminLocaleSpy = jest.fn();
 
     beforeEach(async () => {
+        setAdminLocaleSpy.mockClear();
+        localeRepositoryGetSpy = jest.fn(() => Promise.resolve({ code: 'abc123def456' }));
+        sessionStore = {
+            currentUser: { admin: false },
+            userPrivileges: ['locale:read'],
+            setAdminLocale: setAdminLocaleSpy,
+        };
         localeHelperService = new LocaleHelperService({
             Shopware: {
                 Context: { api: {} },
-                Store: { get: () => ({ setAdminLocale: setAdminLocaleSpy }) },
+                Store: { get: () => sessionStore },
             },
             localeRepository: {
-                get: () => Promise.resolve({ code: 'abc123def456' }),
+                get: localeRepositoryGetSpy,
             },
             snippetService: { getSnippets: () => Promise.resolve() },
             localeFactory: {},
@@ -56,6 +65,14 @@ describe('app/service/locale-helper.service.js', () => {
 
         await localeHelperService.setLocaleWithId('12345678');
         expect(shouldBeCalled).toHaveBeenCalledWith('12345678');
+    });
+
+    it('setLocaleWithId should skip the locale lookup without locale read permissions', async () => {
+        sessionStore.userPrivileges = [];
+
+        await localeHelperService.setLocaleWithId('12345678');
+
+        expect(localeRepositoryGetSpy).not.toHaveBeenCalled();
     });
 
     it('setLocaleWithCode should call the snippet service with the code', async () => {

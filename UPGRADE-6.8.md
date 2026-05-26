@@ -145,12 +145,6 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
-## `Feature::triggerDeprecationOrThrow` accepts an optional `introducedIn` parameter
-
-`Shopware\Core\Framework\Feature::triggerDeprecationOrThrow()` now accepts a third optional `?string $introducedIn = null` argument.
-When provided, the emitted deprecation message is prefixed with `Since shopware/core <introducedIn>:` per Symfony convention, enabling log aggregation by introduction version.
-When omitted, the deprecation is emitted without a `Since` prefix (previously the prefix was rendered with an empty version, producing the malformed `Since shopware/core : ...`).
-
 ## Number range value generator interface removed
 
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.

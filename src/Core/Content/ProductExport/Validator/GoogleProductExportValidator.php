@@ -6,6 +6,7 @@ use Shopware\Core\Content\ProductExport\Error\ErrorCollection;
 use Shopware\Core\Content\ProductExport\Error\ProviderValidationError;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 
 /**
  * Validates Google Merchant Center XML feeds (RSS 2.0 with the http://base.google.com/ns/1.0 namespace).
@@ -164,7 +165,7 @@ class GoogleProductExportValidator extends AbstractProviderValidator
             }
 
             $link = trim((string) ($item->link ?? ''));
-            if ($link === '' || filter_var($link, \FILTER_VALIDATE_URL) === false) {
+            if ($link === '' || filter_var(UrlEncoder::encodeUrl($link), \FILTER_VALIDATE_URL) === false) {
                 $errors->add(new ProviderValidationError(
                     $productExportEntity->getId(),
                     $this->getProviderTechnicalName(),
@@ -175,7 +176,7 @@ class GoogleProductExportValidator extends AbstractProviderValidator
             }
 
             $imageLink = trim((string) ($googleChildren->image_link ?? ''));
-            if ($imageLink !== '' && filter_var($imageLink, \FILTER_VALIDATE_URL) === false) {
+            if ($imageLink !== '' && filter_var(UrlEncoder::encodeUrl($imageLink), \FILTER_VALIDATE_URL) === false) {
                 $errors->add(new ProviderValidationError(
                     $productExportEntity->getId(),
                     $this->getProviderTechnicalName(),

@@ -252,14 +252,11 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         await wrapper.setProps({ item });
         await wrapper.vm.loadSlotConfigAssociations();
 
-        // The media entity's own collections must not be polluted with non-entity
-        // (or unrelated) items, otherwise ChangesetGenerator crashes on the next save.
         expect(item.productMedia).toBe(originalProductMedia);
         expect(item.productMedia).toHaveLength(0);
         expect(item.categories).toBe(originalCategories);
         expect(item.categories).toHaveLength(0);
 
-        // The display layer should still surface the slot-config usages.
         const usages = wrapper.vm.getUsages;
         expect(usages.some((usage) => usage.name === 'Slot Product')).toBeTruthy();
         expect(usages.some((usage) => usage.name === 'Slot Category')).toBeTruthy();

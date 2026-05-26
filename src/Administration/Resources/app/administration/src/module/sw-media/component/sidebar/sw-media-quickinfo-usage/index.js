@@ -205,9 +205,6 @@ export default {
         },
 
         loadProductAssociations() {
-            // Clone to avoid mutating the media entity's productMedia collection when
-            // slot-config products are appended below — a plain `{ product }` wrapper in
-            // an entity collection breaks ChangesetGenerator on the next save.
             this.products = [...this.item.productMedia];
         },
 

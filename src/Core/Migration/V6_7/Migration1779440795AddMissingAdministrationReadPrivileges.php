@@ -34,7 +34,6 @@ class Migration1779440795AddMissingAdministrationReadPrivileges extends Migratio
         ],
         'sales_channel.viewer' => [
             'product:read',
-            'product_translation:read',
             'property_group:read',
             'property_group_option:read',
         ],

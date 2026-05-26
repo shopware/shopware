@@ -27,7 +27,6 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'customer_group:read',
                 Shopware.Service('privileges').getPrivileges('media.viewer'),
                 'product:read',
-                'product_translation:read',
                 'product_export:read',
                 'product_stream:read',
                 'product_visibility:read',

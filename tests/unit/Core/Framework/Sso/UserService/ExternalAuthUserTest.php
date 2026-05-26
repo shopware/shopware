@@ -53,8 +53,8 @@ class ExternalAuthUserTest extends TestCase
         static::assertArrayHasKey('expiry', $data);
         static::assertArrayHasKey('email', $data);
 
-        $this->expectException(SsoException::class);
-        $this->expectExceptionMessage($expected);
+        $missingFields = \explode(', ', \substr($expected, \strlen('Login user invalid: ')));
+        $this->expectExceptionObject(SsoException::loginUserInvalid($missingFields));
 
         try {
             ExternalAuthUser::create($data);

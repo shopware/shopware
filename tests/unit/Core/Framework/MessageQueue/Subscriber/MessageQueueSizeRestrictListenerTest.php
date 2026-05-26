@@ -98,10 +98,9 @@ class MessageQueueSizeRestrictListenerTest extends TestCase
 
         $event = new SendMessageToTransportsEvent($envelope, []);
 
-        $this->expectException(MessageQueueException::class);
         // 0.0859375 is the overhead of the serialization
         $size = $maxMessageSizeKiB + 0.0859375;
-        $this->expectExceptionMessage('The message "stdClass" exceeds the ' . $maxMessageSizeKiB . ' KiB size limit with its size of ' . $size . ' KiB.');
+        $this->expectExceptionObject(MessageQueueException::maxQueueMessageSizeExceeded('stdClass', $size, $maxMessageSizeKiB));
 
         $listener($event);
     }

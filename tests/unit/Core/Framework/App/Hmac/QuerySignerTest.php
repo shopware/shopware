@@ -135,8 +135,7 @@ class QuerySignerTest extends TestCase
             StaticInAppPurchaseFactory::createWithFeatures(),
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('App secret is missing for app Foo');
+        $this->expectExceptionObject(AppException::appSecretMissing('Foo'));
 
         $querySigner->signUri('http://app.url/?foo=bar', $app, Context::createDefaultContext());
     }

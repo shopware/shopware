@@ -287,13 +287,14 @@ class McpServerControllerTest extends TestCase
             $request->attributes->set('oauth_access_token_id', $tokenId);
         }
 
+        $rateLimitException = new RateLimitExceededException(time() + 60);
+
         $this->rateLimiter->expects($this->once())
             ->method('ensureAccepted')
             ->with(RateLimiter::MCP, $expectedKey)
-            ->willThrowException(new RateLimitExceededException(time() + 60));
+            ->willThrowException($rateLimitException);
 
-        $this->expectException(McpException::class);
-        $this->expectExceptionMessage('MCP endpoint throttled');
+        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
         $this->controller->handle($request);
     }

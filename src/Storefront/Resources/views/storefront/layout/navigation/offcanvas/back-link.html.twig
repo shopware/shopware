@@ -1,5 +1,3 @@
-{# At the top of the footer or service subtree, climbing parents leaves every
-   sales-channel navigation root and would 404 — short-circuit to the main entry. #}
 {% set isAlternateRoot = item.id == context.salesChannel.footerCategoryId
     or item.id == context.salesChannel.serviceCategoryId %}
 

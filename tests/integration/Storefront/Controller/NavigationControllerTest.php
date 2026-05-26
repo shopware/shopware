@@ -119,13 +119,6 @@ class NavigationControllerTest extends TestCase
 
         $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
 
-        // The back-link must not point at the intermediate parent (which lives
-        // outside every sales-channel navigation root and would 404). It must
-        // route back to the main entry (no navigationId query param).
-        static::assertStringNotContainsString(
-            'navigationId=' . $this->ids->get('issue-13510-intermediate'),
-            $backLinkHref
-        );
         static::assertStringNotContainsString('navigationId=', $backLinkHref);
     }
 
@@ -143,8 +136,6 @@ class NavigationControllerTest extends TestCase
 
         $backLinkHref = $this->extractBackLinkHref((string) $response->getContent());
 
-        // Mid-tree the climb must still happen normally: back from "About us"
-        // goes up to the footer root.
         static::assertStringContainsString(
             'navigationId=' . $this->ids->get('issue-13510-footer'),
             $backLinkHref
@@ -253,18 +244,6 @@ class NavigationControllerTest extends TestCase
         return ltrim($seoUrl->getSeoPathInfo(), '/');
     }
 
-    /**
-     * Builds a sales-channel layout that triggers the issue-13510 back-link bug:
-     *
-     *   sales-channel nav root
-     *     └── intermediate           ← NOT assigned to any nav root
-     *           ├── main entry       ← becomes navigationCategoryId
-     *           └── footer entry     ← becomes footerCategoryId
-     *                 └── about us
-     *
-     * Climbing parents from "footer entry" leaves the intermediate exposed,
-     * which is what the buggy back-link tries to load.
-     */
     private function createFooterTree(): void
     {
         $salesChannelId = $this->getSalesChannelId();

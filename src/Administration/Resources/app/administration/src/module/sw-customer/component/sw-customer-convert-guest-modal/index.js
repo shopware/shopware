@@ -56,23 +56,15 @@ export default {
                     }),
                 });
             } catch (error) {
-                const [firstError] = error?.response?.data?.errors ?? [];
-
-                let message = firstError?.detail || this.$t('sw-customer.detail.messageSaveError');
-
-                if (firstError?.code === 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE') {
-                    message = this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE');
-                }
-
-                this.createNotificationError({
-                    message,
-                });
+                this.handleConvertErrors(error);
             } finally {
                 this.onCancel();
             }
         },
 
         onCancel() {
+            Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.convert`);
+
             this.$emit('modal-close');
         },
 
@@ -83,53 +75,68 @@ export default {
 
                 this.onCancel();
 
-                Shopware.Store.get('error').removeApiError(`customer.${this.customer.id}.convert`);
-
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
                         name: `${this.customer.firstName} ${this.customer.lastName}`,
                     }),
                 });
             } catch (error) {
-                const [firstError] = error?.response?.data?.errors ?? [];
-
-                const expression = `customer.${this.customer.id}.convert`;
-                const errorStore = Shopware.Store.get('error');
-
-                let detailMessage;
-
-                switch (firstError?.code) {
-                    case 'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE':
-                        this.onCancel();
-
-                        errorStore.removeApiError(`customer.${this.customer.id}.convert`);
-
-                        this.createNotificationError({
-                            message: this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'),
-                        });
-
-                        return;
-
-                    case 'VIOLATION::TOO_LONG_ERROR':
-                        detailMessage = this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_LONG');
-                        break;
-
-                    case 'VIOLATION::TOO_SHORT_ERROR':
-                        detailMessage = this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_SHORT');
-                        break;
-
-                    default:
-                        detailMessage = firstError?.detail || this.$t('sw-customer.detail.messageSaveError');
-                }
-
-                errorStore.addApiError({
-                    expression,
-                    error: new ShopwareError({
-                        detail: detailMessage,
-                        code: firstError?.code || 'customer_convert',
-                    }),
-                });
+                this.handleConvertErrors(error);
             }
+        },
+
+        handleConvertErrors(error) {
+            const errors = error?.response?.data?.errors ?? [];
+            const errorStore = Shopware.Store.get('error');
+            const expression = `customer.${this.customer.id}.convert`;
+
+            const errorMap = {
+                'VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE': {
+                    message: this.$t('sw-customer.error.VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE'),
+                    apiError: false,
+                },
+
+                'VIOLATION::TOO_LONG_ERROR': {
+                    message: this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_LONG'),
+                    apiError: true,
+                },
+
+                'VIOLATION::TOO_SHORT_ERROR': {
+                    message: this.$t('sw-customer.error.VIOLATION::PASSWORD_IS_TOO_SHORT'),
+                    apiError: true,
+                },
+            };
+
+            if (!errors.length) {
+                this.createNotificationError({
+                    message: this.$t('sw-customer.detail.messageSaveError'),
+                });
+
+                return;
+            }
+
+            errors.forEach((e) => {
+                const mappedError = errorMap[e?.code];
+
+                const message =
+                    mappedError?.message ||
+                    e?.detail ||
+                    this.$t('sw-customer.detail.messageSaveError');
+
+                this.createNotificationError({
+                    message,
+                });
+
+                if (mappedError?.apiError) {
+                    errorStore.addApiError({
+                        expression,
+                        error: new ShopwareError({
+                            code: e?.code || 'customer_convert',
+                            detail: message,
+                        }),
+                    });
+                }
+            });
         },
     },
 };

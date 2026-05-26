@@ -32,7 +32,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Header\HeaderInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
@@ -192,7 +191,7 @@ class MailServiceTest extends TestCase
         $this->logger->expects($this->once())->method('log')->with(Level::Warning);
         $this->eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
-            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (object $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
@@ -323,14 +322,16 @@ class MailServiceTest extends TestCase
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->willReturnCallback(static function (Event $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
+            ->willReturnCallback(static function (object $event) use (&$beforeValidateEvent, &$mailErrorEvent) {
                 if ($event instanceof MailBeforeValidateEvent) {
                     $beforeValidateEvent = $event;
 
                     return $event;
                 }
 
-                $mailErrorEvent = $event;
+                if ($event instanceof MailErrorEvent) {
+                    $mailErrorEvent = $event;
+                }
 
                 return $event;
             });

@@ -443,6 +443,7 @@
             <argument>%elasticsearch.administration.index.config%</argument>
             <argument>%elasticsearch.administration.index.mapping%</argument>
             <argument>%kernel.environment%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="kernel.event_subscriber"/>
             <tag name="messenger.message_handler"/>

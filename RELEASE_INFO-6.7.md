@@ -19,6 +19,11 @@ A `debug:mcp` CLI command is available to list all registered MCP tools, prompts
 
 ## API
 
+### Administration users receive default runtime privileges
+
+Authenticated Administration users now receive the default privileges required by global Admin helpers: `language:read`, `locale:read`, `message_queue_stats:read`, `log_entry:create`, `currency:read`, and `country:read`.
+The Administration role editor also adds these privileges to newly generated role permission sets.
+
 ### Number range previews can target a concrete number range
 
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.

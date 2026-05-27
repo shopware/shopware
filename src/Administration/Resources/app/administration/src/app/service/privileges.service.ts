@@ -42,6 +42,8 @@ export default class PrivilegesService {
         'locale:read', // for localeToLanguage service
         'message_queue_stats:read', // for message queue
         'log_entry:create', // for sw-error-boundary
+        'currency:read', // for global currency formatting and custom fields
+        'country:read', // for globally reused country selectors
     ];
 
     /**

@@ -83,5 +83,4 @@ class AdminApiSource implements ContextSource, \JsonSerializable
     {
         return $this->isAdmin;
     }
-
 }

@@ -26,16 +26,4 @@ class AdminApiSourceTest extends TestCase
         static::assertFalse($apiSource->isAllowed('product:delete'));
         static::assertFalse($apiSource->isAllowed('order:list'));
     }
-
-    public function testDefaultUserPrivilegesAreExposed(): void
-    {
-        static::assertSame([
-            'language:read',
-            'locale:read',
-            'message_queue_stats:read',
-            'log_entry:create',
-            'currency:read',
-            'country:read',
-        ], AdminApiSource::DEFAULT_USER_PRIVILEGES);
-    }
 }

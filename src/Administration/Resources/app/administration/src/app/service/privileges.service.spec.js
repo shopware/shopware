@@ -554,13 +554,15 @@ describe('src/app/service/privileges.service.js', () => {
         const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
             'rule.editor',
         ]);
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            ...defaultUserPrivileges,
-            'rule.editor',
-            'rule.viewer',
-            'rule:read',
-            'rule:update',
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                ...defaultUserPrivileges,
+                'rule.editor',
+                'rule.viewer',
+                'rule:read',
+                'rule:update',
+            ].sort(),
+        );
     });
 
     it('should return all privileges with dependencies', async () => {
@@ -666,11 +668,13 @@ describe('src/app/service/privileges.service.js', () => {
             'product.viewer',
         ]);
 
-        expect(allPrivilegesWithDependencies).toStrictEqual([
-            'product.viewer',
-            'product:read',
-            ...defaultUserPrivileges,
-        ].sort());
+        expect(allPrivilegesWithDependencies).toStrictEqual(
+            [
+                'product.viewer',
+                'product:read',
+                ...defaultUserPrivileges,
+            ].sort(),
+        );
     });
 
     it('should not call duplicated getPrivileges again', async () => {

@@ -76,7 +76,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
             // skip default values
             if (
                 [
+                    'currency',
+                    'country',
                     'language',
+                    'log_entry',
                     'locale',
                     'message_queue_stats',
                 ].includes(entityName)

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigTimezoneOverride;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -72,10 +73,12 @@ final readonly class DocumentTemplateRenderer
 
         try {
             $this->templateFinder->reset();
+            $template = $this->templateFinder->find($view);
 
-            return $this->twig->render(
-                $this->templateFinder->find($view),
-                $parameters
+            return TwigTimezoneOverride::run(
+                $this->twig,
+                $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
+                fn (): string => $this->twig->render($template, $parameters),
             );
         } catch (\Throwable $exception) {
             throw DocumentV2Exception::templateRenderFailed($view, $exception);

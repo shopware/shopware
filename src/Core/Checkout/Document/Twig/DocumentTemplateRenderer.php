@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigTimezoneOverride;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,6 +48,8 @@ class DocumentTemplateRenderer
         ?string $languageId = null,
         ?string $locale = null
     ): string {
+        $salesChannelContext = null;
+
         // If parameters for specific language setting provided, inject to translator
         if ($context !== null && $salesChannelId !== null && $languageId !== null && $locale !== null) {
             $this->translator->injectSettings(
@@ -72,7 +75,11 @@ class DocumentTemplateRenderer
 
         $view = $this->resolveView($view);
 
-        $rendered = $this->twig->render($view, $parameters);
+        $rendered = TwigTimezoneOverride::run(
+            $this->twig,
+            $salesChannelContext?->getSalesChannel()->getBusinessTimeZone(),
+            fn (): string => $this->twig->render($view, $parameters),
+        );
 
         // If injected translator reject it
         if ($context !== null && $salesChannelId !== null && $languageId !== null && $locale !== null) {

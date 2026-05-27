@@ -24,6 +24,8 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -147,5 +149,44 @@ class SalesChannelDefinitionTest extends TestCase
 
         static::assertNotNull($categories);
         static::assertCount(1, $categories);
+    }
+
+    public function testBusinessTimeZoneCanBeWrittenAndCleared(): void
+    {
+        $repository = static::getContainer()->get('sales_channel.repository');
+        $context = Context::createDefaultContext();
+        $originalTimeZone = $this->getBusinessTimeZone($repository, $context);
+
+        try {
+            $repository->update([[
+                'id' => TestDefaults::SALES_CHANNEL,
+                'businessTimeZone' => 'Europe/Berlin',
+            ]], $context);
+
+            static::assertSame('Europe/Berlin', $this->getBusinessTimeZone($repository, $context));
+
+            $repository->update([[
+                'id' => TestDefaults::SALES_CHANNEL,
+                'businessTimeZone' => null,
+            ]], $context);
+
+            static::assertNull($this->getBusinessTimeZone($repository, $context));
+        } finally {
+            $repository->update([[
+                'id' => TestDefaults::SALES_CHANNEL,
+                'businessTimeZone' => $originalTimeZone,
+            ]], $context);
+        }
+    }
+
+    /**
+     * @param EntityRepository<SalesChannelCollection> $repository
+     */
+    private function getBusinessTimeZone(EntityRepository $repository, Context $context): ?string
+    {
+        $salesChannel = $repository->search(new Criteria([TestDefaults::SALES_CHANNEL]), $context)->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        return $salesChannel->getBusinessTimeZone();
     }
 }

@@ -223,6 +223,50 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         expect(wrapper.vm.condition.value.taxDisplay).toBe('net');
     });
 
+    it('should render a multi select field and keep multiple selected values', async () => {
+        Shopware.Store.get('ruleConditionsConfig').config = {
+            ...ruleConditionsConfig,
+            manualMultiSelect: {
+                operatorSet: null,
+                fields: [
+                    {
+                        name: 'testValues',
+                        type: 'multi-select',
+                        config: {
+                            options: [
+                                'some_value',
+                                'some_other_value',
+                            ],
+                        },
+                    },
+                ],
+            },
+        };
+
+        const wrapper = await createWrapper({
+            type: 'manualMultiSelect',
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.mt-select').exists()).toBe(true);
+
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await flushPromises();
+
+        await wrapper.get('.mt-select-option--some_value').trigger('click');
+        await wrapper.get('.mt-select .mt-select__selection').trigger('click');
+        await flushPromises();
+        await wrapper.get('.mt-select-option--some_other_value').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.condition.value.testValues).toEqual(
+            expect.arrayContaining([
+                'some_value',
+                'some_other_value',
+            ]),
+        );
+    });
+
     it('should render condition with tagged field', async () => {
         const wrapper = await createWrapper({
             type: 'customerCustomerNumber',

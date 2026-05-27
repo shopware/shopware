@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\AgenticDiscovery\DataAbstractionLayer\Collection\AgenticDiscoverySalesChannelConfigCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -139,7 +140,7 @@ class AgenticDiscoveryControllerTest extends TestCase
      */
     private function seedDiscoveryConfig(array $overrides = []): void
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<AgenticDiscoverySalesChannelConfigCollection> $repository */
         $repository = static::getContainer()->get('agentic_discovery_sales_channel_config.repository');
 
         $appUrl = $this->getAppUrl();

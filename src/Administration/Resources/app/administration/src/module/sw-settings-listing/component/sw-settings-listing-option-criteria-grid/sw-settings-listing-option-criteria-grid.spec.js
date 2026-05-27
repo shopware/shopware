@@ -238,8 +238,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         const criteriaParams = wrapper.vm.customFieldCriteria.parse();
         const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
 
-        const hasCustomFieldSetIdFilter = (params) =>
-            (params.filter ?? []).some((f) => f.field === 'customFieldSetId');
+        const hasCustomFieldSetIdFilter = (params) => (params.filter ?? []).some((f) => f.field === 'customFieldSetId');
         const hasNullIdFilter = (params) =>
             (params.filter ?? []).some((f) => f.type === 'equals' && f.field === 'id' && f.value === null);
 
@@ -263,13 +262,15 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
     });
 
     it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
-        wrapper.vm.customFieldSetIDs = ['set-id-1', 'set-id-2'];
+        wrapper.vm.customFieldSetIDs = [
+            'set-id-1',
+            'set-id-2',
+        ];
 
         const criteriaParams = wrapper.vm.customFieldCriteria.parse();
         const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
 
-        const findCustomFieldSetIdFilter = (params) =>
-            (params.filter ?? []).find((f) => f.field === 'customFieldSetId');
+        const findCustomFieldSetIdFilter = (params) => (params.filter ?? []).find((f) => f.field === 'customFieldSetId');
 
         const mainFilter = findCustomFieldSetIdFilter(criteriaParams);
         const singleSelectFilter = findCustomFieldSetIdFilter(singleSelectCriteriaParams);

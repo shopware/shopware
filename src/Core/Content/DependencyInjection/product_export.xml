@@ -29,11 +29,13 @@
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="string">%product_export.directory%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Service\ProductExportGenerator" public="true">
@@ -69,6 +71,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="messenger.default_bus"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%product_export.stale_min_seconds%</argument>
             <argument type="string">%product_export.stale_interval_factor%</argument>
             <tag name="messenger.message_handler"/>
@@ -87,6 +90,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
             <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -148,6 +152,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="product_export.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
     </services>
 </container>

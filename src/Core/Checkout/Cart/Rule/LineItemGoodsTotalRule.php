@@ -13,6 +13,8 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * Rule builder display name: Total product quantity (units).
+ *
  * @final
  */
 #[Package('fundamentals@after-sales')]

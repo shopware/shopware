@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
+ * Rule builder display name: Line item total (qty × price).
+ *
  * @final
  */
 #[Package('fundamentals@after-sales')]

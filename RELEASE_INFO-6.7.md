@@ -544,6 +544,12 @@ Unknown requirements are ignored and logged as warnings.
 The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
 This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
 
+### Configurable product search keyword relevance limit
+
+The new configuration key `shopware.product.search_keyword.relevant_keyword_count` can be used to configure how many interpreted product search keywords are used for MySQL product search queries.
+The default value remains `8` to preserve the current performance characteristics.
+Increasing the value can improve result completeness for reordered search terms with AND logic, but can also increase query complexity.
+
 # 6.7.9.0
 
 ## Features

@@ -38,6 +38,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
+use Symfony\Component\Clock\Clock;
 
 #[Package('inventory')]
 class ProductEntity extends Entity implements \Stringable
@@ -680,11 +681,8 @@ class ProductEntity extends Entity implements \Stringable
     public function getDeliveryDate(): DeliveryDate
     {
         return new DeliveryDate(
-            (new \DateTime())
-                ->add(new \DateInterval('P' . 1 . 'D')),
-            (new \DateTime())
-                ->add(new \DateInterval('P' . 1 . 'D'))
-                ->add(new \DateInterval('P' . 1 . 'D'))
+            Clock::get()->now()->add(new \DateInterval('P1D')),
+            Clock::get()->now()->add(new \DateInterval('P2D'))
         );
     }
 
@@ -701,7 +699,7 @@ class ProductEntity extends Entity implements \Stringable
             return true;
         }
 
-        return $this->releaseDate < new \DateTime();
+        return $this->releaseDate < Clock::get()->now();
     }
 
     /**

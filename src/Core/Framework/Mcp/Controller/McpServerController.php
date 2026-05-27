@@ -194,38 +194,42 @@ class McpServerController
         }
 
         $method = $body['method'] ?? null;
-
-        $hasFilter = match ($method) {
-            ListToolsRequest::getMethod() => $allowlist[McpAllowlistProvider::TOOLS] !== null,
-            ListResourcesRequest::getMethod() => $allowlist[McpAllowlistProvider::RESOURCES] !== null,
-            ListPromptsRequest::getMethod() => $allowlist[McpAllowlistProvider::PROMPTS] !== null,
-            default => false,
-        };
-
-        if (!$hasFilter) {
-            return $psrResponse;
-        }
-
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
 
         if (!$responseData instanceof \stdClass) {
             return $psrResponse;
         }
 
-        if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
-            $responseData = $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
-            $responseData = $this->allowlistFilter->filterResourcesListResponse($responseData, $allowlist[McpAllowlistProvider::RESOURCES]);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
-            $responseData = $this->allowlistFilter->filterPromptsListResponse($responseData, $allowlist[McpAllowlistProvider::PROMPTS]);
+        $filtered = $this->applyAllowlistFilter($responseData, $method, $allowlist);
+
+        if ($filtered === null) {
+            return $psrResponse;
         }
 
-        $newBody = json_encode($responseData, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
+        $newBody = json_encode($filtered, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
         $newStream = $this->streamFactory->createStream($newBody);
 
         return $psrResponse
             ->withBody($newStream)
             ->withHeader('Content-Length', (string) \strlen($newBody));
+    }
+
+    /**
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
+     */
+    private function applyAllowlistFilter(\stdClass $responseData, mixed $method, array $allowlist): ?\stdClass
+    {
+        if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
+            return $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
+        }
+        if ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+            return $this->allowlistFilter->filterResourcesListResponse($responseData, $allowlist[McpAllowlistProvider::RESOURCES]);
+        }
+        if ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+            return $this->allowlistFilter->filterPromptsListResponse($responseData, $allowlist[McpAllowlistProvider::PROMPTS]);
+        }
+
+        return null;
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface

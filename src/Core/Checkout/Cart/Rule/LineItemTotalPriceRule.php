@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * Rule builder display name: Line item total (qty × price).
+ * Rule builder display name: Item total (qty × price).
  *
  * @final
  */

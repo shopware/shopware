@@ -2,12 +2,28 @@
  * @sw-package discovery
  */
 
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-sales-channel-detail.html.twig';
 
 const { Mixin, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const objectHelper = Shopware.Utils.object;
 const ShopwareError = Shopware.Classes.ShopwareError;
+
+const REQUIRED_BASE_FIELDS = [
+    'name',
+    'customerGroupId',
+    'currencyId',
+    'languageId',
+    'paymentMethodId',
+    'shippingMethodId',
+    'countryId',
+    'navigationCategoryId',
+];
+
+const REQUIRED_PRODUCT_EXPORT_FIELDS = [
+    'name',
+];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -413,6 +429,10 @@ export default {
         },
 
         async onSave() {
+            if (!this.validateRequiredSalesChannelFields()) {
+                return;
+            }
+
             if (!this.validateAgenticCommerceExportConfig()) {
                 this.isLoading = false;
                 return;
@@ -540,11 +560,71 @@ export default {
         },
 
         async saveOnLanguageChange() {
+            if (!this.validateRequiredSalesChannelFields()) {
+                return;
+            }
+
             await this.saveSalesChannel();
         },
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        validateRequiredSalesChannelFields() {
+            if (!this.salesChannel) {
+                return false;
+            }
+
+            const missingFields = this.getRequiredSalesChannelFields().filter((fieldName) => {
+                return this.isRequiredFieldEmpty(this.salesChannel[fieldName]);
+            });
+
+            if (missingFields.length <= 0) {
+                return true;
+            }
+
+            Shopware.Store.get('error').resetApiErrors();
+            missingFields.forEach((fieldName) => this.addRequiredSalesChannelFieldError(fieldName));
+
+            this.createNotificationError({
+                title: this.$t('global.default.error'),
+                message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+            });
+
+            this.isLoading = false;
+
+            return false;
+        },
+
+        getRequiredSalesChannelFields() {
+            if (this.isProductExportChannel) {
+                return REQUIRED_PRODUCT_EXPORT_FIELDS;
+            }
+
+            return REQUIRED_BASE_FIELDS;
+        },
+
+        isRequiredFieldEmpty(value) {
+            if (value === undefined || value === null) {
+                return true;
+            }
+
+            if (typeof value === 'string') {
+                return value.trim() === '';
+            }
+
+            return false;
+        },
+
+        addRequiredSalesChannelFieldError(fieldName) {
+            const entityName =
+                typeof this.salesChannel.getEntityName === 'function' ? this.salesChannel.getEntityName() : 'sales_channel';
+
+            Shopware.Store.get('error').addApiError({
+                expression: `${entityName}.${this.salesChannel.id}.${fieldName}`,
+                error: new ShopwareError(EntityValidationService.createRequiredError(`/0/${fieldName}`)),
+            });
         },
     },
 };

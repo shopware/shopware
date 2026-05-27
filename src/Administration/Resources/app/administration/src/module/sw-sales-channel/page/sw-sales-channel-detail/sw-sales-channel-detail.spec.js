@@ -12,6 +12,14 @@ const mockGetSystemConfigValues = jest.fn(() => Promise.resolve({}));
 const defaultSalesChannelResponse = {
     id: '1a2b3c4d',
     typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+    name: 'Storefront',
+    customerGroupId: 'customer-group-id',
+    currencyId: 'currency-id',
+    languageId: 'language-id',
+    paymentMethodId: 'payment-method-id',
+    shippingMethodId: 'shipping-method-id',
+    countryId: 'country-id',
+    navigationCategoryId: 'navigation-category-id',
     analyticsId: '1a2b3c',
     analytics: {
         id: '1a2b3c',
@@ -111,6 +119,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         mockGet.mockClear();
         mockGetSystemConfig.mockClear();
         mockGetSystemConfigValues.mockClear();
+        Shopware.Store.get('error').resetApiErrors();
     });
 
     it('should disable the save button when privilege does not exist', async () => {
@@ -376,6 +385,26 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
         expect(mockGet).not.toHaveBeenCalled();
+    });
+
+    it('should show validation errors without saving when a required sales channel field is missing', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        mockSave.mockClear();
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.salesChannel.languageId = null;
+
+        await wrapper.vm.onSave();
+        await flushPromises();
+
+        expect(mockSave).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+        });
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+        expect(wrapper.vm.isLoading).toBe(false);
     });
 
     it('should detect current template on load when product export bodyTemplate matches', async () => {

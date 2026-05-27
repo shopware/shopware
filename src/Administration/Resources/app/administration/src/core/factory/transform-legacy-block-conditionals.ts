@@ -88,24 +88,58 @@ function getTrailingConditionalChain(children: Element[]): Element[] {
     return [];
 }
 
-/** Finds the first v-else / v-else-if that directly continues after sw-block-parent. */
-function getConditionalElementFollowingBlockParent(children: Element[]): Element | null {
+/** Finds the leading v-else-if / v-else chain that directly continues another block. */
+function getLeadingConditionalChain(children: Element[]): Element[] {
+    const firstElement = children[0];
+
+    if (!firstElement || (!firstElement.hasAttribute('v-else') && !firstElement.hasAttribute('v-else-if'))) {
+        return [];
+    }
+
+    const conditionalChain = [firstElement];
+
+    if (firstElement.hasAttribute('v-else')) {
+        return conditionalChain;
+    }
+
+    for (let index = 1; index < children.length; index += 1) {
+        const child = children[index];
+
+        if (child.hasAttribute('v-else-if')) {
+            conditionalChain.push(child);
+            continue;
+        }
+
+        if (child.hasAttribute('v-else')) {
+            conditionalChain.push(child);
+        }
+
+        return conditionalChain;
+    }
+
+    return conditionalChain;
+}
+
+/** Finds the v-else-if / v-else chain that directly continues after sw-block-parent. */
+function getConditionalChainFollowingBlockParent(children: Element[]): Element[] {
     let shouldCheckChild = true;
 
-    for (const child of children) {
+    for (let index = 0; index < children.length; index += 1) {
+        const child = children[index];
+
         if (child.tagName.toLowerCase() === SW_BLOCK_PARENT_TAG) {
             shouldCheckChild = true;
             continue;
         }
 
         if (shouldCheckChild && (child.hasAttribute('v-else') || child.hasAttribute('v-else-if'))) {
-            return child;
+            return getLeadingConditionalChain(children.slice(index));
         }
 
         shouldCheckChild = false;
     }
 
-    return null;
+    return [];
 }
 
 /** Rewrites the parent side of a cross-block conditional chain. */
@@ -170,6 +204,61 @@ function rewriteLeadingConditional(
     return true;
 }
 
+/** Rewrites a leading v-else-if / v-else chain to standalone v-if helper calls. */
+function rewriteLeadingConditionalChain(
+    blockName: string,
+    conditionalChain: Element[],
+    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
+): boolean {
+    if (conditionalChain.length === 0) {
+        return false;
+    }
+
+    let hasChanges = false;
+
+    conditionalChain.forEach((conditionalElement) => {
+        hasChanges = rewriteLeadingConditional(blockName, conditionalElement, helpers) || hasChanges;
+    });
+
+    return hasChanges;
+}
+
+/** Rewrites v-else-if / v-else branches that continue in following sibling sw-blocks. */
+function rewriteFollowingNamedBlockConditionals(
+    blockName: string,
+    blockElement: Element,
+    rewrittenContinuationBlocks: WeakSet<Element>,
+    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
+): boolean {
+    let nextBlockElement = blockElement.nextElementSibling;
+    let hasChanges = false;
+
+    while (nextBlockElement?.tagName.toLowerCase() === SW_BLOCK_TAG && nextBlockElement.hasAttribute('name')) {
+        const leadingConditionalChain = getLeadingConditionalChain(Array.from(nextBlockElement.children));
+
+        if (leadingConditionalChain.length === 0) {
+            return hasChanges;
+        }
+
+        const hasFinalElseBranch = leadingConditionalChain.at(-1)?.hasAttribute('v-else') ?? false;
+
+        if (!rewriteLeadingConditionalChain(blockName, leadingConditionalChain, helpers)) {
+            return hasChanges;
+        }
+
+        rewrittenContinuationBlocks.add(nextBlockElement);
+        hasChanges = true;
+
+        if (hasFinalElseBranch) {
+            return hasChanges;
+        }
+
+        nextBlockElement = nextBlockElement.nextElementSibling;
+    }
+
+    return hasChanges;
+}
+
 /**
  * Rewrites native sw-block conditional chains before Vue compiles them.
  *
@@ -184,17 +273,26 @@ export default function transformLegacyBlockConditionals(template: string): stri
     parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
 
     let hasChanges = false;
+    const rewrittenContinuationBlocks = new WeakSet<Element>();
 
     parsedTemplate.content.querySelectorAll('sw-block[name]').forEach((blockElement) => {
+        if (rewrittenContinuationBlocks.has(blockElement)) {
+            return;
+        }
+
         const blockName = blockElement.getAttribute('name');
 
         if (!blockName) {
             return;
         }
 
+        if (!rewriteTrailingConditionalChain(blockName, getTrailingConditionalChain(Array.from(blockElement.children)))) {
+            return;
+        }
+
+        hasChanges = true;
         hasChanges =
-            rewriteTrailingConditionalChain(blockName, getTrailingConditionalChain(Array.from(blockElement.children))) ||
-            hasChanges;
+            rewriteFollowingNamedBlockConditionals(blockName, blockElement, rewrittenContinuationBlocks) || hasChanges;
     });
 
     parsedTemplate.content.querySelectorAll('sw-block[extends]').forEach((blockElement) => {
@@ -205,9 +303,9 @@ export default function transformLegacyBlockConditionals(template: string): stri
         }
 
         hasChanges =
-            rewriteLeadingConditional(
+            rewriteLeadingConditionalChain(
                 blockName,
-                getConditionalElementFollowingBlockParent(Array.from(blockElement.children)),
+                getConditionalChainFollowingBlockParent(Array.from(blockElement.children)),
             ) || hasChanges;
     });
 
@@ -238,7 +336,10 @@ export function transformLegacyBlockExtensionConditionals(blockName: string, tem
 
     if (
         !blockElement ||
-        !rewriteLeadingConditional(blockName, getConditionalElementFollowingBlockParent(Array.from(blockElement.children)))
+        !rewriteLeadingConditionalChain(
+            blockName,
+            getConditionalChainFollowingBlockParent(Array.from(blockElement.children)),
+        )
     ) {
         return template;
     }

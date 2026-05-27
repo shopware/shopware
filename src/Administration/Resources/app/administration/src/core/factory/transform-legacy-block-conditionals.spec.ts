@@ -81,6 +81,57 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
+    it('rewrites v-else branches that continue in the following named sw-block', () => {
+        const template = `
+            <div>
+                <sw-block name="grid-block">
+                    <sw-data-grid v-if="items.length" class="grid-branch"></sw-data-grid>
+                </sw-block>
+
+                <sw-block name="empty-state-block">
+                    <mt-empty-state v-else class="empty-branch"></mt-empty-state>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('grid-block', items.length)"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('grid-block')"`);
+        expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('empty-state-block'`);
+        expect(transformedTemplate).not.toContain('v-else class="empty-branch"');
+        expect(() => compile(transformedTemplate)).not.toThrow();
+    });
+
+    it('rewrites v-else-if / v-else chains that span multiple following named sw-blocks', () => {
+        const template = `
+            <div>
+                <sw-block name="blue-block">
+                    <div v-if="showBlue" class="blue-branch">blue</div>
+                </sw-block>
+
+                <sw-block name="green-block">
+                    <div v-else-if="showGreen" class="green-branch">green</div>
+                </sw-block>
+
+                <sw-block name="fallback-block">
+                    <div v-else class="fallback-branch">fallback</div>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('blue-block', showBlue)"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElseIf('blue-block', showGreen)"`);
+        expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('blue-block')"`);
+        expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('green-block'`);
+        expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('fallback-block'`);
+        expect(transformedTemplate).not.toContain('v-else-if="showGreen"');
+        expect(transformedTemplate).not.toContain('v-else class="fallback-branch"');
+        expect(() => compile(transformedTemplate)).not.toThrow();
+    });
+
     it('leaves unrelated templates untouched', () => {
         const template = `
             <div>

@@ -180,12 +180,12 @@
                             :placeholder="$t('sw-bulk-edit.product.advancedPrices.selectRule')"
                             :criteria="ruleCriteria"
                             entity-name="rule"
-                            :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
+                            :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : selectedPriceRules"
                             :disabled="!!bulkEditProduct[formField.name].isInherited || undefined"
                             @update:entity-collection="onRuleChange"
                         >
                             <template #selection-label-property="{ item }">
-                                {{ item.ruleName }}
+                                {{ item.name || item.ruleName }}
                             </template>
 
                             <template #result-item="{ item, index, labelProperty, isSelected, addItem, getKey }">

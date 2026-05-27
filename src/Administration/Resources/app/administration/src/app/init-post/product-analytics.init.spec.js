@@ -119,27 +119,6 @@ describe('src/app/post-init/product-analytics.init.ts', () => {
             expect(onSpy).toHaveBeenCalledWith('consent', registeredConsentHandler);
         });
 
-        it('does not load the default language name without language read permissions', async () => {
-            watchHandle = await initProductAnalytics();
-
-            expect(global.repositoryFactoryMock.clientMock.history.post.some(({ url }) => url === '/search/language')).toBe(false);
-        });
-
-        it('loads the default language name with language read permissions', async () => {
-            Shopware.Store.get('session').setCurrentUser({
-                id: testUserId,
-                aclRoles: [
-                    {
-                        privileges: ['language:read'],
-                    },
-                ],
-            });
-
-            watchHandle = await initProductAnalytics();
-
-            expect(global.repositoryFactoryMock.clientMock.history.post.some(({ url }) => url === '/search/language')).toBe(true);
-        });
-
         it('does not initialize client without product analytics consent', async () => {
             watchHandle = await initProductAnalytics();
 

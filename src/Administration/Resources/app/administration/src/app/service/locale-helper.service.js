@@ -24,10 +24,6 @@ export default class LocaleHelperService {
     }
 
     async setLocaleWithId(localeId) {
-        if (!this.canReadLocale()) {
-            return;
-        }
-
         const { code } = await this._localeRepository.get(localeId, this._Shopware.Context.api);
 
         await this.setLocaleWithCode(code);
@@ -36,11 +32,5 @@ export default class LocaleHelperService {
     async setLocaleWithCode(localeCode) {
         await this._snippetService.getSnippets(this._localeFactory, localeCode);
         await this._Shopware.Store.get('session').setAdminLocale(localeCode);
-    }
-
-    canReadLocale() {
-        const session = this._Shopware.Store.get('session');
-
-        return session.currentUser?.admin === true || session.userPrivileges?.includes('locale:read') === true;
     }
 }

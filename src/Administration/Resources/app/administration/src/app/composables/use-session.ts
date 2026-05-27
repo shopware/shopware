@@ -19,22 +19,12 @@ const adminLocaleRegion = computed(() => currentLocale.value?.split('-')[1] ?? n
 
 const userPrivileges = computed(() => currentUser.value?.aclRoles?.map((role) => role.privileges).flat() ?? []);
 
-function canReadPrivilege(privilege: string): boolean {
-    return currentUser.value?.admin === true || userPrivileges.value.includes(privilege);
-}
-
 async function setAdminLocale(locale: string): Promise<void> {
     const { locales } = useSystem();
     const loginService = Shopware.Service('loginService');
 
     if (!loginService?.isLoggedIn()) {
         setAdminLocaleState({ locales: locales.value, locale, languageId: '' });
-        return Promise.resolve();
-    }
-
-    if (!canReadPrivilege('locale:read')) {
-        setAdminLocaleState({ locales: locales.value, locale, languageId: Shopware.Context.api.systemLanguageId ?? '' });
-        Shopware.Application.getContainer('factory').locale.storeCurrentLocale(locale);
         return Promise.resolve();
     }
 

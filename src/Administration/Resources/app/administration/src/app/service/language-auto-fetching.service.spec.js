@@ -24,20 +24,11 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
             get: repositoryGetMock,
         }));
 
-        Shopware.Store.get('session').setCurrentUser({
-            admin: false,
-            aclRoles: [
-                {
-                    privileges: ['language:read'],
-                },
-            ],
-        });
         Shopware.Store.get('context').api.languageId = 'initial-language-id';
         Shopware.Store.get('context').api.language = null;
     });
 
     afterEach(() => {
-        Shopware.Store.get('session').removeCurrentUser();
         jest.restoreAllMocks();
     });
 
@@ -77,23 +68,5 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
                 name: 'Language new-language-id',
             }),
         );
-    });
-
-    it('should skip loading the language without language read permissions', async () => {
-        const PermissionlessLanguageAutoFetchingService = (await import('src/app/service/language-auto-fetching.service')).default;
-
-        Shopware.Store.get('session').setCurrentUser({
-            admin: false,
-            aclRoles: [],
-        });
-        await flushPromises();
-        repositoryGetMock.mockClear();
-        Shopware.Store.get('context').api.language = null;
-
-        PermissionlessLanguageAutoFetchingService();
-        await flushPromises();
-
-        expect(repositoryGetMock).not.toHaveBeenCalled();
-        expect(Shopware.Store.get('context').api.language).toBeNull();
     });
 });

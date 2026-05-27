@@ -75,7 +75,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             'de-DE',
         ];
 
-        Shopware.Store.get('session').removeCurrentUser();
         Shopware.Store.get('session').setAdminLocaleState({
             locales: [
                 'en-GB',
@@ -84,7 +83,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             locale: 'en-GB',
             languageId: '12345678',
         });
-        Shopware.Service('localeHelper').setLocaleWithId.mockClear();
 
         // create vue adapter
         vueAdapter = new VueAdapter(application);
@@ -132,40 +130,16 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should set the user when user can read locales', async () => {
-        Shopware.Store.get('session').setCurrentUser({
-            localeId: '12345',
-            aclRoles: [
-                {
-                    privileges: ['locale:read'],
-                },
-            ],
-        });
+    it('setLocaleFromUser should set the user when user does not exist', async () => {
+        Shopware.Store.get('session').setCurrentUser({ localeId: '12345' });
         vueAdapter.setLocaleFromUser();
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should not call the locale helper when user cannot read locales', async () => {
-        Shopware.Store.get('session').setCurrentUser({
-            localeId: '12345',
-            aclRoles: [],
-        });
-        vueAdapter.setLocaleFromUser();
-
-        expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
-    });
-
     it('setLocaleFromUser should call the service with the user id from the store', async () => {
         const expectedId = '12345678';
-        Shopware.Store.get('session').setCurrentUser({
-            localeId: expectedId,
-            aclRoles: [
-                {
-                    privileges: ['locale:read'],
-                },
-            ],
-        });
+        Shopware.Store.get('session').setCurrentUser({ localeId: expectedId });
 
         vueAdapter.setLocaleFromUser();
 
@@ -180,11 +154,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         // Mock current user in state
         Shopware.Store.get('session').setCurrentUser({
             localeId: 'english-id',
-            aclRoles: [
-                {
-                    privileges: ['locale:read'],
-                },
-            ],
         });
 
         // create vueAdapter with custom application
@@ -195,11 +164,6 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         // Change the user
         Shopware.Store.get('session').setCurrentUser({
             localeId: 'german-id',
-            aclRoles: [
-                {
-                    privileges: ['locale:read'],
-                },
-            ],
         });
 
         await flushPromises();

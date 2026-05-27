@@ -273,6 +273,8 @@ export default {
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
 
+            criteria.getAssociation('productDocuments').addSorting(Criteria.sort('position', 'ASC'));
+
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
             criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));
@@ -304,7 +306,8 @@ export default {
                 .addAssociation('featureSet')
                 .addAssociation('cmsPage')
                 .addAssociation('translations')
-                .addAssociation('downloads.media');
+                .addAssociation('downloads.media')
+                .addAssociation('productDocuments.media');
 
             criteria.getAssociation('manufacturer').addAssociation('media');
 
@@ -401,6 +404,12 @@ export default {
                 {
                     key: 'properties',
                     label: 'sw-product.specifications.cardTitleProperties',
+                    enabled: true,
+                    name: 'specifications',
+                },
+                {
+                    key: 'product_documents',
+                    label: 'sw-product.specifications.cardTitleDocuments',
                     enabled: true,
                     name: 'specifications',
                 },
@@ -719,6 +728,7 @@ export default {
 
             // create empty product
             Shopware.Store.get('swProductDetail').product = this.productRepository.create();
+            this.ensureProductDocumentAssociation(this.product);
 
             // fill empty data
             this.product.active = true;
@@ -810,6 +820,8 @@ export default {
 
                         return;
                     }
+
+                    this.ensureProductDocumentAssociation(product);
 
                     if (!product.parentId && (!product.purchasePrices || product.purchasePrices.length === 0)) {
                         if (!this.defaultCurrency?.id) {
@@ -910,6 +922,8 @@ export default {
             return this.productRepository
                 .get(this.product.parentId, Shopware.Context.api, this.productCriteria)
                 .then(async (parent) => {
+                    this.ensureProductDocumentAssociation(parent);
+
                     if (!parent.purchasePrices || parent.purchasePrices.length === 0) {
                         if (!this.defaultCurrency?.id) {
                             await this.loadCurrencies();
@@ -936,6 +950,12 @@ export default {
                 .then(() => {
                     Shopware.Store.get('swProductDetail').setLoading(['parentProduct', false]);
                 });
+        },
+
+        ensureProductDocumentAssociation(product) {
+            if (!product.productDocuments) {
+                product.productDocuments = product.getAssociation('productDocuments');
+            }
         },
 
         loadCurrencies() {

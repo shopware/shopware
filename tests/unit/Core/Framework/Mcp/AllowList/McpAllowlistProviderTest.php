@@ -619,22 +619,6 @@ class McpAllowlistProviderTest extends TestCase
         static::assertSame(['tool-b'], $result['tools']);
     }
 
-    public function testForCurrentRequestIsMemoizedAndHitsDatabaseOnlyOnce(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn('{"tools":["cached-tool"],"resources":null,"prompts":null}');
-
-        $provider = new McpAllowlistProvider($connection, $this->requestStackWithKey());
-
-        $first = $provider->forCurrentRequest();
-        $second = $provider->forCurrentRequest();
-
-        static::assertSame($first, $second);
-        static::assertSame(['cached-tool'], $first['tools']);
-    }
-
     private function requestStackWithKey(string $accessKey = 'SWIAtestintegrationkey00'): RequestStack
     {
         $request = new Request();

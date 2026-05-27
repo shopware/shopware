@@ -207,7 +207,10 @@ class McpServerController
         }
 
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
-        \assert($responseData instanceof \stdClass);
+
+        if (!$responseData instanceof \stdClass) {
+            return $psrResponse;
+        }
 
         if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
             $responseData = $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
@@ -236,7 +239,10 @@ class McpServerController
         }
 
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
-        \assert($responseData instanceof \stdClass);
+
+        if (!$responseData instanceof \stdClass) {
+            return $psrResponse;
+        }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if (!$context instanceof Context) {

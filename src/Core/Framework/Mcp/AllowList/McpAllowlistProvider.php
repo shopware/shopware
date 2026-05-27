@@ -31,11 +31,6 @@ class McpAllowlistProvider
     public const PROMPTS = 'prompts';
 
     /**
-     * @var array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null
-     */
-    private ?array $cachedAllowlist = null;
-
-    /**
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      *
      * @internal
@@ -76,14 +71,10 @@ class McpAllowlistProvider
      */
     public function forCurrentRequest(): array
     {
-        if ($this->cachedAllowlist !== null) {
-            return $this->cachedAllowlist;
-        }
-
         $request = $this->requestStack->getMainRequest();
 
         if ($request === null) {
-            return $this->cachedAllowlist = $this->unrestricted();
+            return $this->unrestricted();
         }
 
         $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
@@ -97,29 +88,29 @@ class McpAllowlistProvider
             }
 
             if ($origin === 'user') {
-                return $this->cachedAllowlist = $this->forUserAccessKey($clientId);
+                return $this->forUserAccessKey($clientId);
             }
 
             if ($origin === 'integration') {
                 $appUserId = $request->headers->get(PlatformRequest::HEADER_APP_USER_ID);
                 if ($appUserId !== null && Uuid::isValid($appUserId)) {
-                    return $this->cachedAllowlist = $this->intersect(
+                    return $this->intersect(
                         $this->forAccessKey($clientId),
                         $this->forUserId($appUserId),
                     );
                 }
 
-                return $this->cachedAllowlist = $this->forAccessKey($clientId);
+                return $this->forAccessKey($clientId);
             }
         }
 
         // Bearer JWT (password grant): ATTRIBUTE_OAUTH_CLIENT_ID = 'administration'
         $userId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID);
         if ($userId !== '' && Uuid::isValid($userId)) {
-            return $this->cachedAllowlist = $this->forUserId($userId);
+            return $this->forUserId($userId);
         }
 
-        return $this->cachedAllowlist = $this->unrestricted();
+        return $this->unrestricted();
     }
 
     /**

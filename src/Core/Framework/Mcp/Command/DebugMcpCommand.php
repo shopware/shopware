@@ -131,6 +131,7 @@ class DebugMcpCommand extends Command
 
         foreach ($this->registry->getResources()->references as $resource) {
             \assert($resource instanceof Resource);
+
             if (($resource->name ?? $resource->uri) === $name || $resource->uri === $name) {
                 $ref = $this->registry->getResource($resource->uri, false);
                 $this->renderResourceDetail($io, $resource, $ref->handler);
@@ -352,6 +353,7 @@ class DebugMcpCommand extends Command
         $rows = [];
         foreach ($page->references as $resource) {
             \assert($resource instanceof Resource);
+
             $ref = $this->registry->getResource($resource->uri, false);
             $rows[] = [$resource->name ?? $resource->uri, $this->describeHandler($ref->handler)];
         }

@@ -81,6 +81,7 @@ class McpAllowlistProvider
         }
 
         $request = $this->requestStack->getMainRequest();
+
         if ($request === null) {
             return $this->cachedAllowlist = $this->unrestricted();
         }

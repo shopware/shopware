@@ -162,4 +162,28 @@ class EntityReadToolTest extends TestCase
         static::assertArrayHasKey('error', $data);
         static::assertStringContainsString('product:read', $data['error']);
     }
+
+    public function testUnknownEntityReturnsError(): void
+    {
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->expects($this->never())->method('getRepository');
+
+        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $tool = new EntityReadTool(
+            $registry,
+            $this->createMock(RequestCriteriaBuilder::class),
+            $contextProvider,
+            $this->createMock(JsonEntityEncoder::class),
+        );
+        $output = ($tool)('unknown_entity', 'some-id');
+
+        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($data['success']);
+        static::assertStringContainsString('unknown_entity', $data['error']);
+        static::assertStringContainsString('shopware://entities', $data['error']);
+    }
 }

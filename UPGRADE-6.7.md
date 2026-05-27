@@ -1,5 +1,11 @@
 # 6.7.11.0
 
+## `Feature::triggerDeprecationOrThrow` accepts an optional `introducedIn` parameter
+
+`Shopware\Core\Framework\Feature::triggerDeprecationOrThrow()` now accepts a third optional `?string $introducedIn = null` argument.
+When provided, the emitted deprecation message is prefixed with `Since shopware/core <introducedIn>:` per Symfony convention, enabling log aggregation by introduction version.
+When omitted, the deprecation is emitted without a `Since` prefix (previously the prefix was rendered with an empty version, producing the malformed `Since shopware/core : ...`).
+
 ## (Opt-in) Dedicated `webhook` Messenger transport for webhook delivery
 
 **Opt-in via the `WEBHOOKS_REWORK` feature flag. Becomes the default in 6.8.** Background and behavioural impact are in `RELEASE_INFO-6.7.md`.

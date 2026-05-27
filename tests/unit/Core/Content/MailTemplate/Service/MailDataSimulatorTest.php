@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service;
 
-use Faker\Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailDataSimulatorFieldEvent;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\EmailField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -27,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
@@ -37,9 +34,6 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Clock\NativeClock;
@@ -180,7 +174,6 @@ class MailDataSimulatorTest extends TestCase
         static::assertSame('event-value', $result['testEntity']->get('customString'));
         static::assertInstanceOf(MailDataSimulatorFieldEvent::class, $capturedEvent);
         static::assertInstanceOf(CustomStringField::class, $capturedEvent->field);
-        static::assertSame($capturedEvent->faker::class, Generator::class);
     }
 
     public function testGenerateEventDataTypeDataStillSimulatesScalarFloat(): void
@@ -320,25 +313,11 @@ class MailDataSimulatorTest extends TestCase
         iterable $dataProviders = [],
         array $additionalDefinitions = [],
     ): MailDataSimulator {
-        $context = Context::createDefaultContext();
         $response = new BusinessEventCollectorResponse();
         $response->set('test.flow', new BusinessEventDefinition('test.flow', TestMailAwareEvent::class, $eventData));
 
         $businessEventCollector = static::createStub(BusinessEventCollector::class);
         $businessEventCollector->method('collect')->willReturn($response);
-
-        $language = new LanguageEntity();
-        $language->setUniqueIdentifier($context->getLanguageId());
-
-        $languageRepository = $this->createMock(EntityRepository::class);
-        $languageRepository->method('search')->willReturn(new EntitySearchResult(
-            LanguageDefinition::ENTITY_NAME,
-            1,
-            new LanguageCollection([$language]),
-            null,
-            new Criteria(),
-            $context
-        ));
 
         $salesChannelDefinition = new TestSalesChannelDefinition();
         $definitions = [
@@ -388,10 +367,9 @@ class MailDataSimulatorTest extends TestCase
         return new MailDataSimulator(
             $businessEventCollector,
             $definitionRegistry,
-            $languageRepository,
             $dispatcher ?? static::createStub(EventDispatcherInterface::class),
             $providerMap,
-            new NativeClock()
+            new NativeClock(),
         );
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemOperator;
 use Monolog\Level;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
@@ -42,7 +43,8 @@ class ExportController
         private readonly FilesystemOperator $fileSystem,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityRepository $productExportRepository,
-        private readonly AbstractSalesChannelContextFactory $contextFactory
+        private readonly AbstractSalesChannelContextFactory $contextFactory,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -94,7 +96,7 @@ class ExportController
         $encoding = $productExport->getEncoding();
 
         $response = new Response($content ?: null, Response::HTTP_OK, ['Content-Type' => $contentType . ';charset=' . $encoding]);
-        $response->setLastModified((new \DateTimeImmutable())->setTimestamp($this->fileSystem->lastModified($filePath)));
+        $response->setLastModified($this->clock->now()->setTimestamp($this->fileSystem->lastModified($filePath)));
         $response->setCharset($encoding);
 
         return $response;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -90,6 +91,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -308,7 +310,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
+        $customer['doubleOptInEmailSentDate'] = $this->clock->now();
         $customer['hash'] = Uuid::randomHex();
 
         return $customer;
@@ -459,7 +461,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'active' => true,
             'birthday' => $this->getBirthday($data),
             'guest' => $isGuest,
-            'firstLogin' => new \DateTimeImmutable(),
+            'firstLogin' => $this->clock->now(),
             'addresses' => [],
         ];
 

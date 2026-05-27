@@ -7,6 +7,10 @@
     {% set reviewTabId = "review-tab-" ~ product.id %}
     {% set reviewTabHref = "#review-tab-" ~ product.id ~ "-pane" %}
     {% set reviewTabContent = "review-tab-" ~ product.id ~ "-pane" %}
+    {% set documentTabId = "documents-tab-" ~ product.id %}
+    {% set documentTabHref = "#documents-tab-" ~ product.id ~ "-pane" %}
+    {% set documentTabContent = "documents-tab-" ~ product.id ~ "-pane" %}
+    {% set productDocuments = product.productDocuments %}
 
     {% if product %}
         <div class="product-detail-tabs cms-element-{{ element.type }}{% if config.alignment.value %} has-vertical-alignment{% endif %}">
@@ -70,6 +74,26 @@
                                             </li>
                                         {% endif %}
                                     {% endblock %}
+
+                                    {% block element_product_description_reviews_tabs_navigation_documents %}
+                                        {% if productDocuments|length > 0 %}
+                                            <li class="nav-item">
+                                                <a class="nav-link product-detail-tab-navigation-link documents-tab"
+                                                   id="{{ documentTabId }}"
+                                                   data-bs-toggle="tab"
+                                                   data-off-canvas-tabs="true"
+                                                   href="{{ documentTabHref }}"
+                                                   role="tab"
+                                                   aria-controls="{{ documentTabContent }}"
+                                                   aria-selected="false">
+                                                    {{ "detail.tabsDocuments"|trans|sw_sanitize }}
+                                                    <span class="product-detail-tab-navigation-icon">
+                                                        {% sw_icon 'arrow-medium-right' style {'pack':'solid'} %}
+                                                    </span>
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                    {% endblock %}
                                 </ul>
                             {% endblock %}
                         </div>
@@ -99,6 +123,20 @@
                                                 {% sw_include '@Storefront/storefront/component/review/review.html.twig' with {
                                                     reviews: element.data.reviews,
                                                     product: element.data.product
+                                                } %}
+                                            </div>
+                                        {% endif %}
+                                    {% endblock %}
+
+                                    {% block element_product_description_reviews_tabs_content_documents %}
+                                        {% if productDocuments|length > 0 %}
+                                            <div class="tab-pane fade show"
+                                                 id="{{ documentTabContent }}"
+                                                 role="tabpanel"
+                                                 aria-labelledby="{{ documentTabId }}">
+                                                {% sw_include '@Storefront/storefront/component/product/documents.html.twig' with {
+                                                    product: element.data.product,
+                                                    productDocuments: productDocuments
                                                 } %}
                                             </div>
                                         {% endif %}

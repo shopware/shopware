@@ -225,18 +225,21 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 timeframe: null,
             },
         ],
-    ])('should emit `filter-reset` event when user clicks Reset button when %s value exists', async (property, dateValue) => {
-        const wrapper = await createWrapper();
+    ])(
+        'should emit `filter-reset` event when user clicks Reset button when %s value exists',
+        async (property, dateValue) => {
+            const wrapper = await createWrapper();
 
-        await wrapper.setData({
-            dateValue,
-        });
+            await wrapper.setData({
+                dateValue,
+            });
 
-        await wrapper.find('.sw-base-filter__reset').trigger('click');
+            await wrapper.find('.sw-base-filter__reset').trigger('click');
 
-        expect(wrapper.emitted()['filter-reset']).toBeTruthy();
-        expect(wrapper.vm.dateValue[property]).toBeNull();
-    });
+            expect(wrapper.emitted()['filter-reset']).toBeTruthy();
+            expect(wrapper.vm.dateValue[property]).toBeNull();
+        },
+    );
 
     it('should return default dateType of sw-datepicker', async () => {
         const wrapper = await createWrapper();
@@ -430,7 +433,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '2024-05-14T22:00:00.000Z',
                 to: '2024-05-15T21:59:59.000Z',
             });
-
         });
 
         it('should compute today from the user timezone when the browser timezone is ahead of UTC', async () => {
@@ -465,7 +467,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '1337-12-31T00:00:00.000Z',
                 to: '1337-12-31T23:59:59.000Z',
             });
-
         });
     });
 
@@ -533,7 +534,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '2023-01-01T00:00:00.000Z',
                 to: '2023-12-31T23:59:59.000Z',
             });
-
         });
 
         it('should snap currentYear boundaries to user timezone day edges', async () => {
@@ -550,7 +550,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '2023-12-31T23:00:00.000Z',
                 to: '2024-05-15T21:59:59.000Z',
             });
-
         });
     });
 
@@ -705,7 +704,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '1337-12-01T00:00:00.000Z',
                 to: '1337-12-31T23:59:59.000Z',
             });
-
         });
 
         it('should snap boundaries to user timezone day edges', async () => {
@@ -722,7 +720,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 from: '2024-03-31T22:00:00.000Z',
                 to: '2024-04-30T21:59:59.000Z',
             });
-
         });
     });
 
@@ -732,9 +729,18 @@ describe('src/app/component/filter/sw-date-filter', () => {
         });
 
         it.each([
-            ['when today is mid-week', new Date(2024, 4, 15)],
-            ['when today is Monday', new Date(2024, 4, 13)],
-            ['when today is Sunday', new Date(2024, 4, 19)],
+            [
+                'when today is mid-week',
+                new Date(2024, 4, 15),
+            ],
+            [
+                'when today is Monday',
+                new Date(2024, 4, 13),
+            ],
+            [
+                'when today is Sunday',
+                new Date(2024, 4, 19),
+            ],
         ])('should compute previous calendar week %s', async (label, systemTime) => {
             jest.setSystemTime(systemTime);
 

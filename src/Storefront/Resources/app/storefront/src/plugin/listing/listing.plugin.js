@@ -156,7 +156,6 @@ export default class ListingPlugin extends Plugin {
                 try {
                     values = filterPlugin.getValues();
                 } catch (error) {
-                    // eslint-disable-next-line no-console
                     console.warn('Listing filter plugin threw from getValues(); skipping.', error);
                     return;
                 }
@@ -199,11 +198,11 @@ export default class ListingPlugin extends Plugin {
      * Serialises the merged filter map into the request query parameter map.
      *
      * Note: the `singleValuedKeys` set tracks query parameters that the listing backend
-     * expects as a single value (see `ProductListingCriteriaBuilder` on the PHP side and
-     * the hints in the `Listing` storefront plugin documentation). Pipe-joining them
-     * would produce invalid queries like `p=1|2`, which results in 400 responses on
-     * `/widgets/cms/navigation/*`. Keep this in sync when the backend adds new
-     * single-valued listing params (e.g. a future pagination token).
+     * expects as a single value (see `PagingListingProcessor` and `SortingListingProcessor`
+     * under `Core/Content/Product/SalesChannel/Listing/Processor/` on the PHP side).
+     * Pipe-joining them would produce invalid queries like `p=1|2`, which results in 400
+     * responses on `/widgets/cms/navigation/*`. Keep this in sync when the backend adds
+     * new single-valued listing params (e.g. a future pagination token).
      *
      * @private
      */

@@ -352,6 +352,25 @@ describe('ListingPlugin tests', () => {
             expect(result.manufacturer).toEqual(['abc']);
             expect(result.rating).toEqual([]);
         });
+
+        test('skips filters whose getValues throws and continues with remaining filters', () => {
+            const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const throwingFilter = { getValues: () => { throw new Error('boom'); } };
+            const validFilter = { getValues: () => ({ manufacturer: ['abc'] }) };
+
+            listingPlugin._registry = [throwingFilter, validFilter];
+
+            expect(() => listingPlugin._fetchValuesOfRegisteredFilters()).not.toThrow();
+
+            const result = listingPlugin._fetchValuesOfRegisteredFilters();
+            expect(result.manufacturer).toEqual(['abc']);
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                expect.stringContaining('Listing filter plugin threw from getValues()'),
+                expect.any(Error),
+            );
+
+            consoleWarnSpy.mockRestore();
+        });
     });
 
     describe('_mapFilters', () => {

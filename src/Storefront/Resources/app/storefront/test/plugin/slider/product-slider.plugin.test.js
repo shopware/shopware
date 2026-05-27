@@ -5,43 +5,29 @@ import NativeEventEmitter from 'src/helper/emitter.helper';
  * @jest-environment jsdom
  */
 describe('ProductSliderPlugin tests', () => {
-    let resizeCallback = undefined;
-    let observeMock = jest.fn();
-    let disconnectMock = jest.fn();
-
-    function createSlider(innerWidth) {
-        // 'js-slider-initialized' skips the real tiny-slider boot; the observer tests drive the methods directly
-        document.body.innerHTML = `
+    function createSlider(width, { withCmsWrapper = true } = {}) {
+        const slider = `
             <div class="base-slider product-slider js-slider-initialized" data-product-slider="true" data-product-slider-options="">
                 <div class="product-slider-container" data-product-slider-container="true"></div>
             </div>
         `;
 
+        // 'js-slider-initialized' skips the real tiny-slider boot
+        document.body.innerHTML = withCmsWrapper
+            ? `<div class="cms-element-product-slider has-vertical-alignment"><div class="cms-element-alignment">${slider}</div></div>`
+            : slider;
+
         const element = document.querySelector('.base-slider');
 
-        // jsdom has no layout engine, fake the resolved inner width and the padding it subtracts
+        // jsdom has no layout engine, fake the resolved width on the element used as width source
         element.style.padding = '0px';
-        jest.spyOn(element, 'clientWidth', 'get').mockReturnValue(innerWidth);
+        const widthSource = document.querySelector('.cms-element-product-slider') ?? element;
+        jest.spyOn(widthSource, 'clientWidth', 'get').mockReturnValue(width);
 
-        const plugin = new ProductSliderPlugin(element);
-
-        return plugin;
+        return new ProductSliderPlugin(element);
     }
 
     beforeEach(() => {
-        resizeCallback = undefined;
-        observeMock = jest.fn();
-        disconnectMock = jest.fn();
-
-        window.ResizeObserver = jest.fn().mockImplementation((callback) => {
-            resizeCallback = callback;
-
-            return {
-                observe: observeMock,
-                disconnect: disconnectMock,
-            };
-        });
-
         window.breakpoints = {
             lg: 992,
             md: 768,
@@ -89,51 +75,18 @@ describe('ProductSliderPlugin tests', () => {
         expect(plugin._sliderSettings.items).toBe(1);
     });
 
-    test('observes the container to recalculate the item limit once layout settled', () => {
+    test('_getInnerWidth measures the surrounding cms element, not the content-sized slider', () => {
         const plugin = createSlider(1360);
-        plugin._slider = {};
 
-        plugin._recalculateItemLimitWhenSettled();
+        // the slider element itself would report a different (content-based) width
+        jest.spyOn(plugin.el, 'clientWidth', 'get').mockReturnValue(300);
 
-        expect(observeMock).toHaveBeenCalledWith(plugin.el);
+        expect(plugin._getInnerWidth()).toBe(1360);
     });
 
-    test('rebuilds the slider when the settled width changes the item limit', () => {
-        const plugin = createSlider(1360);
-        plugin._slider = {};
-        plugin._sliderSettings = { gutter: 30, items: 1 };
-        plugin.options.productboxMinWidth = '300px';
+    test('_getInnerWidth falls back to the slider element when no cms wrapper exists', () => {
+        const plugin = createSlider(800, { withCmsWrapper: false });
 
-        const spyRebuild = jest.spyOn(plugin, 'rebuild').mockImplementation(() => {});
-
-        plugin._recalculateItemLimitWhenSettled();
-        resizeCallback();
-
-        expect(plugin._sliderSettings.items).toBe(4);
-        expect(spyRebuild).toHaveBeenCalled();
-    });
-
-    test('does not rebuild when the item limit is unchanged', () => {
-        const plugin = createSlider(1360);
-        plugin._slider = {};
-        plugin._sliderSettings = { gutter: 30, items: 4 };
-        plugin.options.productboxMinWidth = '300px';
-
-        const spyRebuild = jest.spyOn(plugin, 'rebuild').mockImplementation(() => {});
-
-        plugin._recalculateItemLimitWhenSettled();
-        resizeCallback();
-
-        expect(spyRebuild).not.toHaveBeenCalled();
-    });
-
-    test('disconnects the resize observer on destroy', () => {
-        const plugin = createSlider(1360);
-        plugin._slider = {};
-
-        plugin._recalculateItemLimitWhenSettled();
-        plugin.destroy();
-
-        expect(disconnectMock).toHaveBeenCalled();
+        expect(plugin._getInnerWidth()).toBe(800);
     });
 });

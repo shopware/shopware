@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * Rule builder display name: Cart total (incl. shipping).
- *
  * @final
  */
 #[Package('fundamentals@after-sales')]

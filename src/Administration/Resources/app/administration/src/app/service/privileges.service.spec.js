@@ -30,6 +30,12 @@ describe('src/app/service/privileges.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()).toHaveLength(0);
     });
 
+    it('should expose the default user privileges for role UI display', async () => {
+        const privilegesService = new PrivilegesService();
+
+        expect(privilegesService.getDefaultUserPrivileges()).toStrictEqual(defaultUserPrivileges);
+    });
+
     it('should add a privilege mapping', async () => {
         const privilegesService = new PrivilegesService();
 
@@ -490,7 +496,7 @@ describe('src/app/service/privileges.service.js', () => {
         expect(privilegesService._getPrivilegesWithDependencies).toHaveBeenCalledWith('product.editor', false);
     });
 
-    it('should return all privileges with dependencies and defaults', async () => {
+    it('should return all privileges for a direct role with dependencies', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingRule = {
@@ -556,7 +562,6 @@ describe('src/app/service/privileges.service.js', () => {
         ]);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
-                ...defaultUserPrivileges,
                 'rule.editor',
                 'rule.viewer',
                 'rule:read',
@@ -640,12 +645,11 @@ describe('src/app/service/privileges.service.js', () => {
                 'rule:create',
                 'rule:read',
                 'rule:update',
-                ...defaultUserPrivileges,
             ].sort(),
         );
     });
 
-    it('should add default user privileges to role assignments', async () => {
+    it('should only return default user privileges when they are explicitly mapped to role assignments', async () => {
         const privilegesService = new PrivilegesService();
 
         privilegesService.addPrivilegeMappingEntry({
@@ -672,7 +676,8 @@ describe('src/app/service/privileges.service.js', () => {
             [
                 'product.viewer',
                 'product:read',
-                ...defaultUserPrivileges,
+                'currency:read',
+                'country:read',
             ].sort(),
         );
     });
@@ -787,7 +792,6 @@ describe('src/app/service/privileges.service.js', () => {
                 'rule:create',
                 'rule:read',
                 'rule:update',
-                ...defaultUserPrivileges,
             ].sort(),
         );
     });
@@ -846,7 +850,6 @@ describe('src/app/service/privileges.service.js', () => {
                 'product.viewer',
                 'product:read',
                 'product:update',
-                ...defaultUserPrivileges,
             ].sort(),
         );
 
@@ -863,7 +866,6 @@ describe('src/app/service/privileges.service.js', () => {
                 'product.viewer',
                 'product:read',
                 'product:update',
-                ...defaultUserPrivileges,
             ].sort(),
         );
     });

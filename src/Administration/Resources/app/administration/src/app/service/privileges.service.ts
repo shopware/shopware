@@ -37,7 +37,7 @@ export default class PrivilegesService {
         privilegesMappings: [],
     });
 
-    private requiredPrivileges = [
+    private defaultUserPrivileges = [
         'language:read', // for entityInit and languageSwitch
         'locale:read', // for localeToLanguage service
         'message_queue_stats:read', // for message queue
@@ -250,10 +250,7 @@ export default class PrivilegesService {
 
         return [
             // convert to Set and back to Array to remove duplicates
-            ...new Set([
-                ...allPrivileges,
-                ...this.getRequiredPrivileges(),
-            ]),
+            ...new Set(allPrivileges),
         ].sort();
     }
 
@@ -342,7 +339,11 @@ export default class PrivilegesService {
         return this.state.privilegesMappings;
     }
 
+    public getDefaultUserPrivileges() {
+        return this.defaultUserPrivileges;
+    }
+
     public getRequiredPrivileges() {
-        return this.requiredPrivileges;
+        return this.getDefaultUserPrivileges();
     }
 }

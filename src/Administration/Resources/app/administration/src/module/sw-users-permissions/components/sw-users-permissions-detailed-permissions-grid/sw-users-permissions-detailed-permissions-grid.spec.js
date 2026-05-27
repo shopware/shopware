@@ -112,6 +112,22 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
         });
     });
 
+    it('should render default user privileges as selected and disabled', async () => {
+        const wrapper = await createWrapper();
+
+        [
+            'currency',
+            'language',
+            'locale',
+        ].forEach((entityName) => {
+            const entityRow = wrapper.find(`.sw-users-permissions-detailed-permissions-grid__entry_${entityName}`);
+            const entityReadInput = entityRow.find('.sw-users-permissions-detailed-permissions-grid__role_read input');
+
+            expect(entityReadInput.attributes().disabled).toBeDefined();
+            expect(entityReadInput.element.checked).toBe(true);
+        });
+    });
+
     it('should render a row for each entity with all checkboxes disabled when prop disabled is true', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

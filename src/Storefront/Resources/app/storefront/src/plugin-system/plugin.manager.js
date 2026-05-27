@@ -403,6 +403,8 @@ class PluginManagerSingleton {
             return;
         }
 
+        const pluginName = pluginFromRegistry.get('name');
+
         let needsFetch = false;
         if (selector instanceof Node) {
             needsFetch = true;
@@ -417,12 +419,22 @@ class PluginManagerSingleton {
             return;
         }
 
-        const pluginClassPromise = pluginFromRegistry.get('class')();
-        const fetchedPlugin = await pluginClassPromise;
-        const pluginClass = fetchedPlugin.default;
+        try {
+            const pluginClassPromise = pluginFromRegistry.get('class')();
+            const fetchedPlugin = await pluginClassPromise;
 
-        pluginFromRegistry.set('async', false);
-        pluginFromRegistry.set('class', pluginClass);
+            if (!fetchedPlugin || !fetchedPlugin.default) {
+                console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`);
+                return;
+            }
+
+            const pluginClass = fetchedPlugin.default;
+
+            pluginFromRegistry.set('async', false);
+            pluginFromRegistry.set('class', pluginClass);
+        } catch (error) {
+            console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`, error);
+        }
     }
 
     /**
@@ -440,12 +452,22 @@ class PluginManagerSingleton {
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (plugin.get('async')) {
+                return Promise.resolve();
+            }
+
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (plugin.get('async')) {
+                return Promise.resolve();
+            }
+
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }

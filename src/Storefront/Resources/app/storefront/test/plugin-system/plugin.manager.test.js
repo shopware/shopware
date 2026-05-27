@@ -424,6 +424,32 @@ describe('Plugin manager', () => {
         PluginManager.deregister('AsyncSingleDomPlugin', element);
     });
 
+    it('should skip single async plugin when async import fails', async () => {
+        document.body.innerHTML = `
+            <div data-async-single="true"></div>
+        `;
+
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const asyncImport = new Promise((resolve, reject) => {
+            reject(new Error('Chunk not found'));
+        });
+
+        PluginManager.register('AsyncSingleFailingPlugin', () => asyncImport, '[data-async-single]');
+
+        await PluginManager.initializePlugin('AsyncSingleFailingPlugin', '[data-async-single]', {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('AsyncSingleFailingPlugin').length).toBe(0);
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'The async plugin "AsyncSingleFailingPlugin" could not be loaded and will be skipped.',
+            expect.any(Error),
+        );
+
+        PluginManager.deregister('AsyncSingleFailingPlugin', '[data-async-single]');
+    });
+
     it('should not initialize single async plugin when selector is not found in the DOM', async () => {
         document.body.innerHTML = `
             <div class="i-am-not-the-plugin-selector"></div>

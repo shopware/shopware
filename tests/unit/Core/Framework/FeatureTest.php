@@ -236,14 +236,23 @@ class FeatureTest extends TestCase
         // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        $this->expectUserDeprecationMessage($expectedDeprecation);
+        // PHPUnit 10 has no expectUserDeprecationMessage(); capture the E_USER_DEPRECATED ourselves
+        $caughtDeprecation = null;
+        set_error_handler(static function (int $errno, string $message) use (&$caughtDeprecation): bool {
+            $caughtDeprecation = $message;
 
-        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
-            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
-        });
-        $assertion($deprecatedMessage, $errorMessage);
+            return true;
+        }, \E_USER_DEPRECATED);
 
-        restore_error_handler();
+        try {
+            Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
+                Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
+            });
+        } finally {
+            restore_error_handler();
+        }
+
+        static::assertSame($expectedDeprecation, $caughtDeprecation);
     }
 
     #[DataProvider('deprecatedMethodMessageProvider')]

@@ -45,21 +45,26 @@ class FeatureFlagCallTokenParserTest extends TestCase
         // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false, 'TEST_TWIG' => false]);
 
-        $this->expectUserDeprecationMessage('Foooo');
+        // PHPUnit 10 has no expectUserDeprecationMessage(); capture the E_USER_DEPRECATED ourselves
+        $caughtDeprecation = null;
+        set_error_handler(static function (int $errno, string $message) use (&$caughtDeprecation): bool {
+            $caughtDeprecation = $message;
+
+            return true;
+        }, \E_USER_DEPRECATED);
 
         $twig = new Environment(new ArrayLoader(['test.twig' => $twigCode]));
         $twig->addTokenParser(new FeatureFlagCallTokenParser());
-        $twig->render('test.twig', [
-            'foo' => new TestService(),
-        ]);
 
-        restore_error_handler();
-
-        if ($shouldThrow) {
-            static::assertNotNull($deprecationMessage);
-        } else {
-            static::assertNull($deprecationMessage);
+        try {
+            $twig->render('test.twig', [
+                'foo' => new TestService(),
+            ]);
+        } finally {
+            restore_error_handler();
         }
+
+        static::assertSame('Foooo', $caughtDeprecation);
 
         unset($_SERVER['TEST_TWIG']);
     }

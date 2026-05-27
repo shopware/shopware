@@ -28,8 +28,9 @@ class CategoryNameCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
-        $this->resolver = new CategoryNameCmsElementResolver($htmlSanitizer);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->resolver = new CategoryNameCmsElementResolver($sanitizer);
     }
 
     public function testType(): void

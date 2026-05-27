@@ -858,6 +858,10 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                 ->children()
                     ->booleanNode('indexing')->defaultTrue()->end()
+                    ->integerNode('relevant_keyword_count')
+                        ->min(1)
+                        ->defaultValue(8)
+                    ->end()
                 ->end()
             ->end();
 

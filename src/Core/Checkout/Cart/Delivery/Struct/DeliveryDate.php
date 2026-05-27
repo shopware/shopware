@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Symfony\Component\Clock\Clock;
 
 #[Package('checkout')]
 class DeliveryDate extends Struct
@@ -78,6 +79,6 @@ class DeliveryDate extends Struct
 
     private static function create(string $interval): \DateTime
     {
-        return (new \DateTime())->add(new \DateInterval($interval));
+        return \DateTime::createFromImmutable(Clock::get()->now())->add(new \DateInterval($interval));
     }
 }

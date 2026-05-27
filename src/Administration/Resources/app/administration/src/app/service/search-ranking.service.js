@@ -27,8 +27,6 @@ const searchTypeConstants = Object.freeze({
     MODULE: 'module',
 });
 
-const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
@@ -45,9 +43,11 @@ export default function createSearchRankingService() {
     const cacheModules = {};
     let cacheUserSearchConfiguration;
     let cacheDefaultUserSearchPreference;
-    let minSearchTermLength = getConfiguredMinSearchTermLength();
+    let minSearchTermLength = 2;
 
     loginService.addOnLoginListener(clearCacheUserSearchConfiguration);
+
+    getMinSearchTermLength();
 
     return {
         getSearchFieldsByEntity,
@@ -183,7 +183,14 @@ export default function createSearchRankingService() {
     }
 
     async function getMinSearchTermLength() {
-        return minSearchTermLength;
+        try {
+            const response = await _getMinSearchTermLength();
+            minSearchTermLength = response;
+            return response;
+        } catch (error) {
+            minSearchTermLength = 2;
+            return error;
+        }
     }
 
     async function saveMinSearchTermLength(newMinSearchTermLength) {
@@ -192,10 +199,6 @@ export default function createSearchRankingService() {
         try {
             await systemConfigApiService.saveValues({ 'core.search.minSearchTermLength': newMinSearchTermLength });
             minSearchTermLength = newMinSearchTermLength;
-            Shopware.Context.app.config.settings = {
-                ...(Shopware.Context.app.config.settings ?? {}),
-                minSearchTermLength: newMinSearchTermLength,
-            };
             return newMinSearchTermLength;
         } catch (error) {
             return error;
@@ -475,13 +478,18 @@ export default function createSearchRankingService() {
         return cacheModules[entityName];
     }
 
-    function getConfiguredMinSearchTermLength() {
-        const configuredMinSearchTermLength = Shopware.Context.app.config?.settings?.minSearchTermLength;
+    /**
+     * @private
+     * @returns {Promise<number>}
+     */
+    async function _getMinSearchTermLength() {
+        const systemConfigApiService = Service('systemConfigApiService');
 
-        if (typeof configuredMinSearchTermLength !== 'number') {
-            return DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        try {
+            const response = await systemConfigApiService.getValues('core.search');
+            return response['core.search.minSearchTermLength'] ?? 2;
+        } catch (error) {
+            return error;
         }
-
-        return configuredMinSearchTermLength;
     }
 }

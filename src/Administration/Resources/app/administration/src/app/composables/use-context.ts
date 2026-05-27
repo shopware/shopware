@@ -36,7 +36,6 @@ export interface ContextState {
                 appsRequireAppUrl: boolean;
                 disableExtensionManagement: boolean;
                 firstMigrationDate?: string | null;
-                minSearchTermLength: number;
             };
             version: null | string;
             versionRevision: null | string;

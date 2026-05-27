@@ -194,7 +194,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-bulk-edit-product-media': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs-item': {
+                        template: '<div><slot></slot></div>',
+                    },
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
@@ -473,6 +475,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
+    });
+
+    it('should set active to false when root products are bulk deactivated', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.active.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'active',
+            type: 'overwrite',
+            value: false,
+        });
     });
 
     it('should close confirm modal', async () => {
@@ -1026,6 +1042,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-products');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should provide bulk-edit specific property empty-state copy', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle).toBe(
+            'sw-bulk-edit.product.property.titleEmptyState',
+        );
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription).toBe(
+            'sw-bulk-edit.product.property.descriptionEmptyState',
+        );
     });
 
     it('should disable processing button', async () => {

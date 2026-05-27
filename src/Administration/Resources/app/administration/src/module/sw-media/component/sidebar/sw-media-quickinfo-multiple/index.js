@@ -43,7 +43,7 @@ export default {
         },
 
         getFileSizeLabel() {
-            return `${this.$tc('sw-media.sidebar.metadata.totalSize')}: ${this.getFileSize}`;
+            return `${this.$t('sw-media.sidebar.metadata.totalSize')}: ${this.getFileSize}`;
         },
 
         hasFolder() {

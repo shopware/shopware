@@ -122,6 +122,14 @@ class RequestTransformer implements RequestTransformerInterface
          */
         $absoluteBaseUrl = $this->getSchemeAndHttpHost($request) . $request->getBasePath();
         $baseUrl = str_replace($absoluteBaseUrl, '', $salesChannel['url']);
+        // if no replacement occurred, consider punycode urls
+        if ($baseUrl === $salesChannel['url']) {
+            $baseUrl = str_replace(
+                $this->getSchemeAndAsciiHttpHost($request) . $request->getBasePath(),
+                '',
+                $salesChannel['url']
+            );
+        }
 
         $resolved = $this->resolveSeoUrl(
             $request,
@@ -274,18 +282,27 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         // domain urls and request uri should be in same format, all with trailing slash
-        $requestUrl = rtrim($this->getSchemeAndHttpHost($request) . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
+        $requestUrl = $this->getNormalizedRequestUrl($request);
+
+        if ($this->isHttpHostPunycode($request)) {
+            $asciiRequestUrl = $this->getNormalizedRequestUrl($request, false);
+            $domain = $domains[$requestUrl] ?? $domains[$asciiRequestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl)
+                || str_starts_with($asciiRequestUrl, $baseUrl);
+        } else {
+            $domain = $domains[$requestUrl] ?? null;
+            $filter = static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl);
+        }
 
         // direct hit
-        if (\array_key_exists($requestUrl, $domains)) {
-            $domain = $domains[$requestUrl];
+        if ($domain !== null) {
             $domain['url'] = rtrim($domain['url'], '/');
 
             return $domain;
         }
 
         // reduce shops to which base url is the beginning of the request
-        $domains = array_filter($domains, static fn ($baseUrl): bool => str_starts_with($requestUrl, $baseUrl), \ARRAY_FILTER_USE_KEY);
+        $domains = array_filter($domains, $filter, \ARRAY_FILTER_USE_KEY);
 
         if ($domains === []) {
             return null;
@@ -325,6 +342,24 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
+        // Strip the front-controller script name (e.g. `index.php`) when Symfony left it embedded
+        // in the path info. This happens when the script name follows a virtual base URL such as
+        // `/de/index.php/navigation/{id}` — Symfony's base-URL auto-detection requires the script
+        // name to sit at the start of the request URI, fails to match it after the language prefix
+        // and so leaks the script name *basename* (never the full script path) into getPathInfo().
+        // Without this strip, the SEO resolver receives `index.php/navigation/{id}` and never finds
+        // the canonical SEO URL, so the redirect to the SEO-friendly path is skipped.
+        //
+        // We use basename() because getScriptName() can include a subdirectory prefix
+        // (e.g. `/sw6/public/index.php`) while Symfony only leaks the bare filename when its
+        // base-url auto-detection failed to align. The comparison is case-sensitive — matches
+        // Symfony/PHP behavior on POSIX hosts. The trailing `/` on the str_starts_with check
+        // guards against false-positives like `/index.php-shop` slugs.
+        $scriptName = basename($request->getScriptName());
+        if ($scriptName !== '' && (str_starts_with($seoPathInfo, $scriptName . '/') || $seoPathInfo === $scriptName)) {
+            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($scriptName));
+        }
+
         $resolved = $this->resolver->resolve($languageId, $salesChannelId, $seoPathInfo);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');
@@ -335,6 +370,28 @@ class RequestTransformer implements RequestTransformerInterface
     private function getSchemeAndHttpHost(Request $request): string
     {
         return $request->getScheme() . '://' . idn_to_utf8($request->getHttpHost());
+    }
+
+    private function getSchemeAndAsciiHttpHost(Request $request): string
+    {
+        return $request->getScheme() . '://' . $request->getHttpHost();
+    }
+
+    private function isHttpHostPunycode(Request $request): bool
+    {
+        return $request->getHttpHost() !== idn_to_utf8($request->getHttpHost());
+    }
+
+    /**
+     * domain urls and request uri should be in same format, all with trailing slash
+     */
+    private function getNormalizedRequestUrl(Request $request, bool $unicode = true): string
+    {
+        $schemeAndHost = $unicode === true
+            ? $this->getSchemeAndHttpHost($request)
+            : $this->getSchemeAndAsciiHttpHost($request);
+
+        return rtrim($schemeAndHost . $request->getBasePath() . $request->getPathInfo(), '/') . '/';
     }
 
     /**

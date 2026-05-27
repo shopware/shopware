@@ -143,6 +143,10 @@
               "disableExtensionManagement": {
                 "type": "boolean",
                 "description": "True if runtime extension management is disabled."
+              },
+              "presignedUploadSupported": {
+                "type": "boolean",
+                "description": "Whether presigned S3 upload is available. True when presigned upload is enabled and an S3 filesystem is configured."
               }
             },
             "required": ["firstMigrationDate"],

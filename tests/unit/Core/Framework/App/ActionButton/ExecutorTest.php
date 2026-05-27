@@ -53,8 +53,7 @@ class ExecutorTest extends TestCase
             $this->createMock(KernelInterface::class)
         );
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('connection problems');
+        $this->expectExceptionObject(AppException::actionButtonProcessException('123123123', 'ActionButton remote execution failed due to connection problems'));
 
         $app = new AppEntity();
         $app->setAppSecret('devSecret');

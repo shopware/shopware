@@ -18,5 +18,20 @@
 
             <tag name="kernel.reset" method="reset"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\Subscriber\LocaleValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\System\Locale\SystemCheck\LocalesReadinessCheck">
+            <argument type="service" id="locale.repository"/>
+
+            <tag name="shopware.system_check"/>
+        </service>
+
+        <service id="Shopware\Core\System\Locale\Api\LocaleCodeFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

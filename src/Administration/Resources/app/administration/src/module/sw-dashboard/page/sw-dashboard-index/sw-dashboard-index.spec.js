@@ -26,7 +26,7 @@ async function createWrapper(privileges = []) {
                 'sw-settings-services-dashboard-banner': true,
             },
             mocks: {
-                $tc: jest.fn().mockImplementation((snippetPath, placeholders) => {
+                $t: jest.fn().mockImplementation((snippetPath, placeholders) => {
                     return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
                 }),
                 $i18n: {

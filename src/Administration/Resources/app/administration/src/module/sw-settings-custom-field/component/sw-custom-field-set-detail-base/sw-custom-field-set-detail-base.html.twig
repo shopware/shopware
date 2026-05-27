@@ -2,7 +2,7 @@
 <mt-card
     class="sw-settings-custom-field-set-detail-base"
     position-identifier="sw-custom-field-detail-base"
-    :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')"
+    :title="$t('sw-settings-custom-field.set.detail.titleCardInformation')"
 >
     <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/attributes-order -->
     {% block sw_settings_custom_field_set_detail_base_technical_name %}
@@ -11,8 +11,8 @@
         v-model="set.name"
         name="sw-field--set-name"
         class="sw-settings-custom-field-set-detail-base__technical-name"
-        :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
-        :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+        :label="$t(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+        :help-text="$t('sw-settings-custom-field.general.tooltipTechnicalName')"
         :disabled="!set._isNew || !acl.can('custom_field.editor') || undefined"
         :error="technicalNameError"
         required
@@ -28,7 +28,7 @@
         class="sw-settings-custom-field-set-detail-base__base-postion"
         number-type="int"
         :disabled="!acl.can('custom_field.editor') || undefined"
-        :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
+        :label="$t(`sw-settings-custom-field.set.detail.labelPosition`)"
     />
     {% endblock %}
 
@@ -40,7 +40,7 @@
         name="sw-field--set-config-translated"
         class="sw-settings-custom-field-set-detail-base__base-translation"
         :disabled="!acl.can('custom_field.editor') || undefined"
-        :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
+        :label="$t('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
     />
     {% endblock %}
 
@@ -59,7 +59,7 @@
         id="entities"
         class="sw-settings-custom-field-set-detail-base__label-entities"
         :disabled="!acl.can('custom_field.editor') || undefined"
-        :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
+        :label="$t('sw-settings-custom-field.set.detail.labelEntities')"
         :options="relationEntityNames"
         value-property="entityName"
         label-property="entityName"
@@ -69,11 +69,11 @@
         @item-remove="onRemoveRelation"
     >
         <template #result-label-property="{ item }">
-            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+            {{ $t(`global.entities.${item.entityName}`, 2) }}
         </template>
 
         <template #selection-label-property="{ item }">
-            {{ $tc(`global.entities.${item.entityName}`, 2) }}
+            {{ $t(`global.entities.${item.entityName}`, 2) }}
         </template>
 
     </sw-multi-select>

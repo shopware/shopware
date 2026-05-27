@@ -147,7 +147,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('number_ranges.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('number_ranges.editor'),
                     showOnDisabledElements: true,
                 };
@@ -170,6 +170,10 @@ export default {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        showNumberRangeStateFields() {
+            return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
         ...mapPropertyErrors('numberRange', [
@@ -267,23 +271,23 @@ export default {
         },
 
         getPreview() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
             return this.numberRangeService
-                .previewPattern(this.numberRange.type.technicalName, this.numberRange.pattern, this.numberRange.start)
+                .previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start)
                 .then((response) => {
                     this.preview = response.number;
                 });
         },
 
         getState() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
-            return this.numberRangeService.previewPattern(this.numberRange.type.technicalName, '{n}', 0).then((response) => {
+            return this.numberRangeService.previewPatternByNumberRangeId(this.numberRange.id, '{n}', 0).then((response) => {
                 if (response.number > 1) {
                     this.state = response.number - 1;
                     return Promise.resolve();
@@ -333,14 +337,14 @@ export default {
 
             if (!this.numberRange.pattern) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage'),
+                    message: this.$t('sw-settings-number-range.detail.errorPatternNeededMessage'),
                 });
                 return false;
             }
 
             if (this.state > 1 && this.state >= this.numberRange.start) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-number-range.detail.infoStartDecrementMessage'),
+                    message: this.$t('sw-settings-number-range.detail.infoStartDecrementMessage'),
                 });
             }
 
@@ -356,7 +360,7 @@ export default {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
+                        message: this.$t('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
                     });
                     throw exception;
                 })

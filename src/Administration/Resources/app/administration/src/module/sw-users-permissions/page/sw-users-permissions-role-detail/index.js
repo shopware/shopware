@@ -179,7 +179,7 @@ export default {
                 this.isSaveSuccessful = true;
             } catch {
                 this.createNotificationError({
-                    message: this.$tc(
+                    message: this.$t(
                         'global.notification.notificationSaveErrorMessage',
                         {
                             entityName: this.role.name,

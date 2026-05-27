@@ -12,7 +12,7 @@
 
     {# @var listing \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult #}
     {% block component_filter_panel_element %}
-        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}" aria-label="{{ 'listing.filterTitleText'|trans|sw_sanitize }}">
+        <div class="filter-panel{% if sidebar %} is--sidebar{% endif %}" role="region" aria-label="{{ 'listing.filterTitleText'|trans|sw_sanitize }}">
             {% block component_filter_panel_items_container %}
                 <div class="filter-panel-items-container" role="list">
                     {% block component_filter_panel_items %}

@@ -37,7 +37,6 @@ class StorybookService
 
     private const ENTITY_PROPERTY_LIST = [
         'product',
-        'category',
         'media',
     ];
 

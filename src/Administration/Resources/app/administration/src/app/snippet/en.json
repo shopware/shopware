@@ -18,6 +18,7 @@
       "DUPLICATED_NAME": "This name is already in use.",
       "CONTENT__MEDIA_EMPTY_FILE": "A valid filename must be provided.",
       "CONTENT__INVALID_CUSTOM_ENTITY_FIELD_TYPE": "Field type cannot be rendered. Please contact your administrator.",
+      "FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE": "The selected sales channel is in maintenance mode and your IP address is not allowlisted. Disable maintenance mode or add your IP address to the allowlist.",
       "THEME__INVALID_SCSS_VAR": "SCSS value \"{value}\" is not valid for type \"{type}\"."
     },
     "default": {
@@ -1751,5 +1752,13 @@
         }
       }
     }
+  },
+  "sw-request-consent-modal": {
+    "title": "Consent required",
+    "message": "The extension {appName} requests your consent for the following topic: {consentName}",
+    "readMore": "For more information see:",
+    "acceptButton": "Accept",
+    "declineButton": "Decline",
+    "updateFailed": "An error has occurred whilst updating your consent. Your previous choice, if any, will be retained."
   }
 }

@@ -35,16 +35,13 @@ class AssetRegistrationCompilerPassTest extends TestCase
         $container = $this->createContainerWithAssets();
 
         $themeCompilerDefinition = new Definition(ThemeCompiler::class);
-        // ThemeCompiler expects argument 8 to be the assets array
-        for ($i = 0; $i <= 8; ++$i) {
-            $themeCompilerDefinition->addArgument(null);
-        }
         $themeCompilerDefinition->setPublic(true);
         $container->setDefinition(ThemeCompiler::class, $themeCompilerDefinition);
 
         (new AssetRegistrationCompilerPass())->process($container);
 
-        $argument = $container->getDefinition(ThemeCompiler::class)->getArgument(8);
+        // Compiler pass injects by named argument, not constructor index.
+        $argument = $container->getDefinition(ThemeCompiler::class)->getArgument('$packages');
 
         static::assertIsArray($argument);
         static::assertArrayHasKey('asset', $argument);
@@ -58,6 +55,8 @@ class AssetRegistrationCompilerPassTest extends TestCase
 
         // Must not throw
         (new AssetRegistrationCompilerPass())->process($container);
+
+        static::assertFalse($container->hasDefinition(ThemeCompiler::class));
     }
 
     private function createContainerWithAssets(): ContainerBuilder

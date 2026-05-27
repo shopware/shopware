@@ -32,8 +32,7 @@ class ImportExportServiceTest extends TestCase
     {
         $profileId = Uuid::randomHex();
 
-        $this->expectException(ImportExportException::class);
-        $this->expectExceptionMessage(\sprintf('The import/export profile with id %s can only be used for import', $profileId));
+        $this->expectExceptionObject(ImportExportException::profileWrongType($profileId, 'import'));
 
         $this->createImportExportService($profileId)->prepareExport(
             Context::createDefaultContext(),

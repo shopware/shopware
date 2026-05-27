@@ -33,40 +33,39 @@ class Shopware extends EventEmitter {
     public static instance: Shopware;
 
     // Mutation observer to handle added and removed nodes for automatic component initialization.
-    private observer: MutationObserver;
+    private observer!: MutationObserver;
 
     // Registry to store all registered components.
-    private componentRegistry: Map<string, typeof ShopwareComponent>;
+    private componentRegistry: Map<string, typeof ShopwareComponent | null> = new Map();
 
     // Registry to store all component instances.
-    private instanceRegistry: Array<ComponentRegistryEntry>;
+    private instanceRegistry: Array<ComponentRegistryEntry> = [];
+
+    // O(1) lookup registry for component instances by element and name.
+    private instanceIndexByElement: WeakMap<Node, Map<string, ShopwareComponent>> = new WeakMap();
 
     // Registry to store all interception events.
-    private interceptionRegistry: Map<string, InterceptionRegistryEntry[]>;
+    private interceptionRegistry: Map<string, InterceptionRegistryEntry[]> = new Map();
+
+    private readonly onDomContentLoaded = () => {
+        void this.initializeComponents();
+    };
 
     constructor() {
         super();
 
+        if (Shopware.instance) {
+            return Shopware.instance;
+        }
+
         this.setMaxListeners(50);
-
-        this.componentRegistry = new Map();
-        this.instanceRegistry = [];
-
-        this.interceptionRegistry = new Map();
 
         this.observer = new MutationObserver(this.observerCallback.bind(this));
         this.observer.observe(document.body, { childList: true, subtree: true });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            void this.initializeComponents();
-        });
+        document.addEventListener('DOMContentLoaded', this.onDomContentLoaded);
 
-        // Singleton
-        if (!Shopware.instance) {
-            Shopware.instance = this;
-        }
-
-        return Shopware.instance;
+        Shopware.instance = this;
     }
 
     /**
@@ -80,29 +79,81 @@ class Shopware extends EventEmitter {
             return undefined;
         }
 
-        let component = this.componentRegistry.get(componentName);
-        if (component) {
-            return component;
+        const cachedComponent = this.componentRegistry.get(componentName);
+        if (cachedComponent !== undefined) {
+            return cachedComponent ?? undefined;
         }
 
+        const componentSpecifier = this.resolveImportMapSpecifier(componentName);
+
+        let component: typeof ShopwareComponent | undefined;
         try {
             /**
-             * This import has to be ignored by webpack.
-             * It is used for true native ES modules.
+             * This import has to be ignored by both bundlers — the component URL
+             * is a runtime value resolved via the import map, not a static path.
              */
-            const module = await import(/* webpackIgnore: true */ componentName) as { default?: typeof ShopwareComponent };
+            const module = await import(/* webpackIgnore: true */ /* @vite-ignore */ componentSpecifier) as { default?: typeof ShopwareComponent };
             component = module.default;
         } catch (error) {
             console.error(`Failed to import component ${componentName}:`, error);
+            this.componentRegistry.set(componentName, null);
             return undefined;
         }
 
         if (!component) {
+            this.componentRegistry.set(componentName, null);
             return undefined;
         }
 
         this.componentRegistry.set(componentName, component);
         return component;
+    }
+
+    private resolveImportMapSpecifier(componentName: string): string {
+        const importMapScripts = Array.from(document.querySelectorAll('script[type="importmap"]'));
+
+        for (const script of importMapScripts) {
+            const mapJson = script.textContent;
+            if (!mapJson) {
+                continue;
+            }
+
+            try {
+                const importMap = JSON.parse(mapJson) as { imports?: Record<string, string> };
+                const imports = importMap.imports;
+                if (!imports) {
+                    continue;
+                }
+
+                const directMatch = imports[componentName];
+                if (directMatch) {
+                    return directMatch;
+                }
+
+                let prefixMatch: string | undefined;
+                for (const key of Object.keys(imports)) {
+                    if (!key.endsWith('/')) {
+                        continue;
+                    }
+
+                    if (!componentName.startsWith(key)) {
+                        continue;
+                    }
+
+                    if (!prefixMatch || key.length > prefixMatch.length) {
+                        prefixMatch = key;
+                    }
+                }
+
+                if (prefixMatch && imports[prefixMatch]) {
+                    return `${imports[prefixMatch]}${componentName.slice(prefixMatch.length)}`;
+                }
+            } catch {
+                continue;
+            }
+        }
+
+        return componentName;
     }
 
     /**
@@ -129,13 +180,7 @@ class Shopware extends EventEmitter {
      * @returns The component instance.
      */
     public getComponentInstanceByElement(componentName: string, element: Node): ShopwareComponent | undefined {
-        const instance = this.instanceRegistry.find(entry => entry.element === element && entry.componentName === componentName);
-
-        if (!instance) {
-            return;
-        }
-
-        return instance.component;
+        return this.instanceIndexByElement.get(element)?.get(componentName);
     }
 
     /**
@@ -155,7 +200,7 @@ class Shopware extends EventEmitter {
         const targetElements = document.querySelectorAll(selector);
 
         targetElements.forEach(targetEl => {
-            this.initializeComponentOnElement(componentName, component, targetEl);
+            this.initializeComponentOnElement(componentName, component, targetEl as HTMLElement);
         });
     }
 
@@ -166,7 +211,11 @@ class Shopware extends EventEmitter {
      * @param component - The component class.
      * @param element - The element.
      */
-    public initializeComponentOnElement(componentName: string, component: typeof ShopwareComponent, element: Node): ShopwareComponent | undefined {
+    public initializeComponentOnElement(
+        componentName: string,
+        component: typeof ShopwareComponent,
+        element: HTMLElement,
+    ): ShopwareComponent | undefined {
         if (!component || !element) {
             return undefined;
         }
@@ -179,6 +228,9 @@ class Shopware extends EventEmitter {
 
         const componentInstance = new component(element, component.options || {}, componentName);
         this.instanceRegistry.push({ element, componentName, component: componentInstance });
+        const elementInstances = this.instanceIndexByElement.get(element) ?? new Map<string, ShopwareComponent>();
+        elementInstances.set(componentName, componentInstance);
+        this.instanceIndexByElement.set(element, elementInstances);
 
         return componentInstance;
     }
@@ -285,6 +337,25 @@ class Shopware extends EventEmitter {
     }
 
     /**
+     * Disconnect global listeners and clear all registries.
+     * Useful for tests and SPA-style teardown between navigations.
+     */
+    public disconnect(): void {
+        this.observer.disconnect();
+        document.removeEventListener('DOMContentLoaded', this.onDomContentLoaded);
+
+        this.instanceRegistry.forEach(entry => {
+            entry.component.destroy();
+        });
+
+        this.componentRegistry.clear();
+        this.instanceRegistry = [];
+        this.instanceIndexByElement = new WeakMap();
+        this.interceptionRegistry.clear();
+        this.removeAllListeners();
+    }
+
+    /**
      * Initialize all registered components.
      */
     private async initializeComponents(): Promise<void> {
@@ -330,7 +401,7 @@ class Shopware extends EventEmitter {
                 continue;
             }
 
-            this.initializeComponentOnElement(componentName, component, element);
+            this.initializeComponentOnElement(componentName, component, element as HTMLElement);
         }
 
         this.emitQueued('Components:Initialized');
@@ -359,7 +430,7 @@ class Shopware extends EventEmitter {
         const elements = Array.from(addedNodes);
 
         for (const element of elements) {
-            if (!(element instanceof Element)) {
+            if (!(element instanceof HTMLElement)) {
                 continue;
             }
 
@@ -389,12 +460,15 @@ class Shopware extends EventEmitter {
         const elements = Array.from(removedNodes);
 
         for (const node of elements) {
-            this.instanceRegistry.forEach((entry, index) => {
-                if (entry.element === node) {
-                    entry.component.destroy();
-                    this.instanceRegistry.splice(index, 1);
-                }
-            });
+            const componentInstances = this.instanceIndexByElement.get(node);
+            if (componentInstances) {
+                componentInstances.forEach(component => {
+                    component.destroy();
+                });
+
+                this.instanceRegistry = this.instanceRegistry.filter(entry => entry.element !== node);
+                this.instanceIndexByElement.delete(node);
+            }
 
             if (node.childNodes && node.childNodes.length > 0) {
                 this.handleRemovedNodes(node.childNodes);
@@ -403,4 +477,6 @@ class Shopware extends EventEmitter {
     }
 }
 
-window.Shopware = new Shopware();
+const shopware: Shopware = new Shopware();
+window.Shopware = shopware;
+export { shopware as Shopware };

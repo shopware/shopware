@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
-use Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
@@ -58,7 +57,6 @@ class ThemeCompilerEventSubscriberTest extends TestCase
             $this->tempFilesystem,
             new CopyBatchInputFactory(),
             static::getContainer()->get(ThemeFileResolver::class),
-            static::getContainer()->get(TwigComponentHelper::class),
             true,
             $this->eventDispatcher,
             static::getContainer()->get(ThemeFilesystemResolver::class),

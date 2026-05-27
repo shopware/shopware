@@ -28,7 +28,6 @@ use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeScripts;
-use Symfony\Component\Asset\Packages;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -121,6 +120,40 @@ class ThumbnailExtensionTest extends TestCase
 
         static::assertStringContainsString('src="https://shopware.local/media/cute-cat.webp"', $result);
         static::assertStringContainsString('srcset="https://shopware.local/thumbnail/cute-cat_800x800.webp 800w, https://shopware.local/thumbnail/cute-cat_400x400.webp 400w, https://shopware.local/thumbnail/cute-cat_280x280.webp 280w, https://shopware.local/thumbnail/cute-cat_1920x1920.webp 1920w"', $result);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws \Throwable
+     * @throws Exception
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    public function testSwThumbnailsRendersSizesAttrWithValueForEveryBreakpoint(): void
+    {
+        $result = $this->renderTemplate('@Storefront/storefront/thumbnail-with-columns.html.twig', [
+            'media' => $this->createExampleMediaWithThumbnails([280, 400, 800, 1920]),
+            'context' => Generator::generateSalesChannelContext(),
+        ]);
+
+        // Regression test for https://github.com/shopware/shopware/issues/16710.
+        // Every breakpoint entry in the auto-generated sizes attribute must carry
+        // a non-empty value. Before the fix the xxl entry was missing and produced
+        // "(min-width: ...px) ," in the rendered output.
+        static::assertSame(1, preg_match('/\ssizes="(?P<sizes>[^"]+)"/', $result, $matches), 'sizes attribute is missing');
+
+        $entries = array_map('trim', explode(',', $matches['sizes']));
+        $fallback = array_pop($entries);
+
+        static::assertNotEmpty($fallback, 'sizes fallback entry is empty');
+
+        foreach ($entries as $i => $entry) {
+            static::assertMatchesRegularExpression(
+                '/^\(min-width:[^)]*\)\s+\S+/',
+                $entry,
+                \sprintf('Sizes entry #%d has an empty value: "%s"', $i, $entry)
+            );
+        }
     }
 
     /**
@@ -244,7 +277,7 @@ class ThumbnailExtensionTest extends TestCase
                 $this->createMock(CacheTagCollector::class)
             ),
             static::createStub(ThemeScripts::class),
-            static::createStub(Packages::class),
+            'test',
         );
 
         $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));

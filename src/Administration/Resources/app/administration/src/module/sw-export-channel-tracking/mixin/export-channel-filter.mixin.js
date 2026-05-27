@@ -5,7 +5,6 @@
 
 const { Criteria } = Shopware.Data;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Mixin.register('export-channel-filter', {
     inject: [
         'repositoryFactory',
@@ -42,8 +41,8 @@ Shopware.Mixin.register('export-channel-filter', {
                     'export-channel-filter': {
                         property: 'salesChannelTracking.salesChannelId',
                         type: 'multi-select-filter',
-                        label: this.$tc(labelKey),
-                        placeholder: this.$tc(placeholderKey),
+                        label: this.$t(labelKey),
+                        placeholder: this.$t(placeholderKey),
                         valueProperty: 'id',
                         labelProperty: 'name',
                         options: this.exportChannelOptions,

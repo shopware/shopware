@@ -10,6 +10,7 @@ describe('form-validation', () => {
             email: 'Invalid email address.',
             confirmation: 'Confirmation field does not match.',
             minLength: 'Input is too short.',
+            pattern: 'Input does not match the required pattern.',
         };
 
         formValidation = new FormValidation();
@@ -50,6 +51,7 @@ describe('form-validation', () => {
         expect(formValidation.validators.get('email')).toBeDefined();
         expect(formValidation.validators.get('confirmation')).toBeDefined();
         expect(formValidation.validators.get('minLength')).toBeDefined();
+        expect(formValidation.validators.get('pattern')).toBeDefined();
     });
 
     test('should add validator', () => {
@@ -615,6 +617,278 @@ describe('form-validation', () => {
             expect(eventArg.type).toBe('showCookieBar');
 
             mockGetItem.mockRestore();
+        });
+    });
+
+    describe('validatePattern', () => {
+        test('should validate field with valid pattern', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <div class="form-group">
+                        <label for="zipCode">Zip Code</label>
+                        <input
+                            type="text"
+                            id="zipCode"
+                            pattern="[0-9]{5}"
+                            data-validation="pattern"
+                            aria-describedby="zipCode-feedback"
+                        >
+                        <div id="zipCode-feedback" class="form-field-feedback"></div>
+                    </div>
+                </form>
+            `;
+
+            const field = document.getElementById('zipCode');
+            const feedback = document.getElementById('zipCode-feedback');
+
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            // Invalid pattern
+            field.value = '123';
+            let validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('pattern');
+            expect(field.classList).toContain(formValidation.config.invalidClass);
+            expect(feedback.textContent).toBe('Input does not match the required pattern.');
+
+            // Valid pattern
+            field.value = '12345';
+            validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(0);
+            expect(field.classList).not.toContain(formValidation.config.invalidClass);
+            expect(feedback.innerHTML).toBe('');
+        });
+
+        test('should validate field with native pattern attribute', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <input type="text" id="zipCode" pattern="[0-9]{5}">
+                    <input type="text" id="noPattern">
+                </form>
+            `;
+
+            const form = document.getElementById('testForm');
+            const formFields = form.querySelectorAll('input');
+
+            formFields.forEach((field) => {
+                field.checkVisibility = jest.fn().mockReturnValue(true);
+            });
+
+            const zipCodeField = document.getElementById('zipCode');
+            const noPatternField = document.getElementById('noPattern');
+
+            // Field with pattern attribute should be validated
+            zipCodeField.value = 'invalid';
+            let invalidFields = formValidation.validateForm(form);
+
+            expect(invalidFields.length).toBe(1);
+            expect(invalidFields).toContain(zipCodeField);
+
+            // Valid pattern
+            zipCodeField.value = '12345';
+            invalidFields = formValidation.validateForm(form);
+
+            expect(invalidFields.length).toBe(0);
+
+            // Field without pattern should not be validated
+            noPatternField.value = 'anything';
+            invalidFields = formValidation.validateForm(form);
+
+            expect(invalidFields.length).toBe(0);
+        });
+
+        test('should allow empty values for pattern validation', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <input
+                        type="text"
+                        id="optionalZip"
+                        pattern="[0-9]{5}"
+                        data-validation="pattern"
+                    >
+                </form>
+            `;
+
+            const field = document.getElementById('optionalZip');
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            // Empty value should be valid
+            field.value = '';
+            const validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(0);
+        });
+
+        test('should validate pattern with required validator', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            id="requiredZip"
+                            pattern="[0-9]{5}"
+                            data-validation="required,pattern"
+                            aria-describedby="requiredZip-feedback"
+                        >
+                        <div id="requiredZip-feedback" class="form-field-feedback"></div>
+                    </div>
+                </form>
+            `;
+
+            const field = document.getElementById('requiredZip');
+            const feedback = document.getElementById('requiredZip-feedback');
+            field.checkVisibility = jest.fn().mockReturnValue(true);
+
+            // Empty value should fail required validation
+            field.value = '';
+            let validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('required');
+            expect(feedback.textContent).toBe('Input should not be empty.');
+
+            // Invalid pattern should fail pattern validation
+            field.value = 'abc';
+            validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(1);
+            expect(validationErrors).toContain('pattern');
+            expect(feedback.textContent).toBe('Input does not match the required pattern.');
+
+            // Valid value should pass both validations
+            field.value = '12345';
+            validationErrors = formValidation.validateField(field);
+
+            expect(validationErrors.length).toBe(0);
+            expect(feedback.innerHTML).toBe('');
+        });
+
+        test('should handle complex regex patterns', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <input type="text" id="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}">
+                    <input type="text" id="phone" pattern="\\d{3}-\\d{3}-\\d{4}">
+                    <input type="text" id="username" pattern="[a-zA-Z0-9_]{3,16}">
+                </form>
+            `;
+
+            const form = document.getElementById('testForm');
+            const formFields = form.querySelectorAll('input');
+
+            formFields.forEach((field) => {
+                field.checkVisibility = jest.fn().mockReturnValue(true);
+            });
+
+            const emailField = document.getElementById('email');
+            const phoneField = document.getElementById('phone');
+            const usernameField = document.getElementById('username');
+
+            // Test email pattern
+            emailField.value = 'invalid';
+            let invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).toContain(emailField);
+
+            emailField.value = 'test@example.com';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(emailField);
+
+            // Test phone pattern
+            phoneField.value = '1234567890';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).toContain(phoneField);
+
+            phoneField.value = '123-456-7890';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(phoneField);
+
+            // Test username pattern
+            usernameField.value = 'ab';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).toContain(usernameField);
+
+            usernameField.value = 'user_123';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(usernameField);
+        });
+
+        test('should handle invalid regex pattern gracefully', () => {
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const field = document.createElement('input');
+            field.setAttribute('pattern', '[invalid(');
+
+            const result = formValidation.validatePattern('test', field);
+
+            expect(result).toBe(true); // Should return true to not block form submission
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                expect.stringContaining('[FormValidation]: Invalid regex pattern'),
+                field,
+                expect.anything()
+            );
+
+            consoleErrorSpy.mockRestore();
+        });
+
+        test('should return true when field parameter is invalid', () => {
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const result = formValidation.validatePattern('test', null);
+
+            expect(result).toBe(true);
+            expect(consoleErrorSpy).toHaveBeenCalledWith('[FormValidation]: Missing or invalid required parameter "field".');
+
+            consoleErrorSpy.mockRestore();
+        });
+
+        test('should return true when field has no pattern attribute', () => {
+            const field = document.createElement('input');
+
+            const result = formValidation.validatePattern('test', field);
+
+            expect(result).toBe(true);
+        });
+
+        test('should validate patterns with special characters', () => {
+            document.body.innerHTML = `
+                <form id="testForm">
+                    <input type="text" id="hexColor" pattern="#?([a-f0-9]{6}|[a-f0-9]{3})">
+                    <input type="text" id="url" pattern="https?://.+">
+                </form>
+            `;
+
+            const form = document.getElementById('testForm');
+            const formFields = form.querySelectorAll('input');
+
+            formFields.forEach((field) => {
+                field.checkVisibility = jest.fn().mockReturnValue(true);
+            });
+
+            const hexColorField = document.getElementById('hexColor');
+            const urlField = document.getElementById('url');
+
+            // Test hex color pattern
+            hexColorField.value = 'invalid';
+            let invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).toContain(hexColorField);
+
+            hexColorField.value = '#ff0000';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(hexColorField);
+
+            hexColorField.value = 'abc';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(hexColorField);
+
+            // Test URL pattern
+            urlField.value = 'invalid';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).toContain(urlField);
+
+            urlField.value = 'https://example.com';
+            invalidFields = formValidation.validateForm(form);
+            expect(invalidFields).not.toContain(urlField);
         });
     });
 });

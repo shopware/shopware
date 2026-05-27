@@ -9,8 +9,8 @@
             v-model:value="customer.accountType"
             name="sw-field--customer-accountType"
             class="sw-customer-base-form__account-type-select"
-            :label="$tc('sw-customer.customerType.labelAccountType')"
-            :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
+            :label="$t('sw-customer.customerType.labelAccountType')"
+            :placeholder="$t('sw-customer.customerType.placeholderAccountType')"
             :options="accountTypeOptions"
         />
         {% endblock %}
@@ -25,8 +25,8 @@
                 name="sw-field--customer-salutationId"
                 class="sw-customer-base-form__salutation-select"
                 entity="salutation"
-                :label="$tc('sw-customer.baseForm.labelSalutation')"
-                :placeholder="$tc('sw-customer.baseForm.placeholderSalutation')"
+                :label="$t('sw-customer.baseForm.labelSalutation')"
+                :placeholder="$t('sw-customer.baseForm.placeholderSalutation')"
                 :error="customerSalutationIdError"
                 :criteria="salutationCriteria"
                 label-property="displayName"
@@ -38,8 +38,8 @@
             <mt-text-field
                 v-model="customer.title"
                 name="sw-field--customer-title"
-                :label="$tc('sw-customer.baseForm.labelTitle')"
-                :placeholder="$tc('sw-customer.baseForm.placeholderTitle')"
+                :label="$t('sw-customer.baseForm.labelTitle')"
+                :placeholder="$t('sw-customer.baseForm.placeholderTitle')"
             />
             {% endblock %}
         </sw-container>
@@ -50,8 +50,8 @@
             v-model="customer.firstName"
             name="sw-field--customer-firstName"
             required
-            :label="$tc('sw-customer.baseForm.labelFirstName')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderFirstName')"
+            :label="$t('sw-customer.baseForm.labelFirstName')"
+            :placeholder="$t('sw-customer.baseForm.placeholderFirstName')"
             :error="customerFirstNameError"
         />
         {% endblock %}
@@ -62,8 +62,8 @@
             v-model="customer.lastName"
             name="sw-field--customer-lastName"
             required
-            :label="$tc('sw-customer.baseForm.labelLastName')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderLastName')"
+            :label="$t('sw-customer.baseForm.labelLastName')"
+            :placeholder="$t('sw-customer.baseForm.placeholderLastName')"
             :error="customerLastNameError"
         />
         {% endblock %}
@@ -73,8 +73,8 @@
             v-model="customer.email"
             name="sw-field--customer-email"
             required
-            :label="$tc('sw-customer.baseForm.labelEmail')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderEmail')"
+            :label="$t('sw-customer.baseForm.labelEmail')"
+            :placeholder="$t('sw-customer.baseForm.placeholderEmail')"
             :error="customerEmailError"
         />
         {% endblock %}
@@ -86,8 +86,8 @@
             autocomplete="new-password"
             :required="!customer.guest"
             :disabled="customer.guest"
-            :label="$tc('sw-customer.baseForm.labelPassword')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderPassword')"
+            :label="$t('sw-customer.baseForm.labelPassword')"
+            :placeholder="$t('sw-customer.baseForm.placeholderPassword')"
             :error="customerPasswordError"
         />
         {% endblock %}
@@ -100,8 +100,8 @@
             v-model="customer.vatIds[0]"
             name="vatId"
             :error="customerVatIdsError"
-            :label="$tc('sw-customer.addressForm.labelVatId')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
+            :label="$t('sw-customer.addressForm.labelVatId')"
+            :placeholder="$t('sw-customer.addressForm.placeholderVatId')"
         />
         {% endblock %}
 
@@ -111,8 +111,8 @@
             type="date"
             name="birthday"
             hide-hint
-            :label="$tc('sw-customer.baseForm.labelBirthday')"
-            :placeholder="$tc('sw-datepicker.date.placeholder')"
+            :label="$t('sw-customer.baseForm.labelBirthday')"
+            :placeholder="$t('sw-datepicker.date.placeholder')"
         />
         {% endblock %}
 
@@ -124,8 +124,8 @@
             required
             show-clearable-button
             entity="customer_group"
-            :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
+            :label="$t('sw-customer.baseForm.labelCustomerGroup')"
+            :placeholder="$t('sw-customer.baseForm.placeholderCustomerGroup')"
             :error="customerGroupIdError"
         />
         {% endblock %}
@@ -134,8 +134,8 @@
         <sw-entity-single-select
             class="sw-customer-base-form__sales-channel-select"
             entity="sales_channel"
-            :label="$tc('sw-customer.baseForm.labelSalesChannel')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderSalesChannel')"
+            :label="$t('sw-customer.baseForm.labelSalesChannel')"
+            :placeholder="$t('sw-customer.baseForm.placeholderSalesChannel')"
             :value="customer.salesChannelId"
             :error="customerSalesChannelIdError"
             required
@@ -149,8 +149,8 @@
         <mt-text-field
             v-model="customer.customerNumber"
             name="sw-field--customer-customerNumber"
-            :label="$tc('sw-customer.baseForm.labelCustomerNumber')"
-            :placeholder="$tc('sw-customer.baseForm.placeholderCustomerNumber')"
+            :label="$t('sw-customer.baseForm.labelCustomerNumber')"
+            :placeholder="$t('sw-customer.baseForm.placeholderCustomerNumber')"
             :error="customerCustomerNumberError"
             required
         />
@@ -161,8 +161,8 @@
     <sw-entity-tag-select
         v-model:entity-collection="customer.tags"
         name="sw-field--customer-tags"
-        :label="$tc('sw-customer.baseForm.labelTags')"
-        :placeholder="$tc('sw-customer.baseForm.placeholderTags')"
+        :label="$t('sw-customer.baseForm.labelTags')"
+        :placeholder="$t('sw-customer.baseForm.placeholderTags')"
     />
     {% endblock %}
 </div>

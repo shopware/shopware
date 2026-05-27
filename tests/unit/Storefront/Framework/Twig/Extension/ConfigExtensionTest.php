@@ -22,13 +22,14 @@ class ConfigExtensionTest extends TestCase
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
         $functions = $extension->getFunctions();
 
-        static::assertCount(4, $functions);
+        static::assertCount(5, $functions);
 
         $names = array_map(static fn (TwigFunction $f) => $f->getName(), $functions);
         static::assertContains('config', $names);
         static::assertContains('theme_config', $names);
         static::assertContains('theme_scripts', $names);
-        static::assertContains('component_import_map', $names);
+        static::assertContains('import_map', $names);
+        static::assertContains('theme_css_vars', $names);
     }
 
     public function testConfigExtractsSalesChannelIdFromSalesChannelContext(): void
@@ -102,7 +103,7 @@ class ConfigExtensionTest extends TestCase
     {
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
 
-        $this->expectException(StorefrontFrameworkException::class);
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
         $extension->theme([], 'color');
     }
@@ -111,7 +112,7 @@ class ConfigExtensionTest extends TestCase
     {
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
 
-        $this->expectException(StorefrontFrameworkException::class);
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
 
         $extension->theme(['context' => 'not-a-context-object'], 'color');
     }
@@ -128,18 +129,45 @@ class ConfigExtensionTest extends TestCase
         static::assertSame(['js/app.js'], $extension->scripts());
     }
 
-    public function testComponentImportMapDelegatesToAccessor(): void
+    public function testImportMapDelegatesToAccessor(): void
     {
         $accessor = $this->createMock(TemplateConfigAccessor::class);
         $accessor->expects($this->once())
-            ->method('componentImportMap')
+            ->method('importMap')
             ->willReturn(['Sw:Button' => 'http://localhost/js/components/Sw/Button.js']);
 
         $extension = new ConfigExtension($accessor);
 
         static::assertSame(
             ['Sw:Button' => 'http://localhost/js/components/Sw/Button.js'],
-            $extension->componentImportMap()
+            $extension->importMap()
         );
+    }
+
+    public function testThemeCssVarsDelegatesToAccessor(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+
+        $accessor = $this->createMock(TemplateConfigAccessor::class);
+        $accessor->expects($this->once())
+            ->method('themeCssVars')
+            ->with($salesChannelContext, 'theme-id-xyz')
+            ->willReturn(['sw-color-brand-primary' => '#0042a0']);
+
+        $extension = new ConfigExtension($accessor);
+
+        static::assertSame(
+            ['sw-color-brand-primary' => '#0042a0'],
+            $extension->themeCssVars(['context' => $salesChannelContext, 'themeId' => 'theme-id-xyz'])
+        );
+    }
+
+    public function testThemeCssVarsThrowsWhenContextKeyIsMissing(): void
+    {
+        $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
+
+        $this->expectExceptionObject(StorefrontFrameworkException::salesChannelContextObjectNotFound());
+
+        $extension->themeCssVars([]);
     }
 }

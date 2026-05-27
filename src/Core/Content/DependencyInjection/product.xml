@@ -257,6 +257,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -397,6 +398,8 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute" public="true">
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>
         </service>
 
         <!-- decorated by cached route -->
@@ -434,6 +437,7 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <argument type="service" id="language.repository"/>
             <argument>%shopware.product_stream.indexing%</argument>
             <tag name="shopware.entity_indexer"/>
         </service>
@@ -538,6 +542,7 @@
         <service id="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" public="true">
@@ -556,6 +561,7 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute" public="true">

@@ -58,7 +58,7 @@ export default {
         },
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
         },
@@ -113,10 +113,10 @@ export default {
             await this.mediaService.runUploads(this.uploadTag);
         },
 
-        onUploadFinished({ targetId } = {}) {
-            if (targetId) {
+        onUploadFinished({ targetId, originalTargetId } = {}) {
+            if (targetId || originalTargetId) {
                 this.uploads = this.uploads.filter((upload) => {
-                    return upload.id !== targetId;
+                    return upload.id !== targetId && upload.id !== originalTargetId;
                 });
             }
 

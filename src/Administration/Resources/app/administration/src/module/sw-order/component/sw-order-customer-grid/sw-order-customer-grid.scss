@@ -1,8 +1,6 @@
 @import "~scss/variables";
 @import "~scss/mixins";
 
-$sw-field--radio-color-border: $color-gray-300;
-
 .sw-order-customer-grid {
     &.sw-card {
         margin: 0;
@@ -60,20 +58,20 @@ $sw-field--radio-color-border: $color-gray-300;
         z-index: 2;
 
         &:disabled ~ .sw-field__radio-state {
-            background: $color-gray-100;
-            border-color: $color-gray-300;
-            color: lighten($color-darkgray-200, 40%);
+            background: var(--color-background-tertiary-default);
+            border-color: var(--color-border-primary-default);
+            color: var(--color-text-primary-disabled);
         }
 
         &:checked ~ .sw-field__radio-state {
-            border: 5px solid $color-shopware-brand-500;
+            border: 5px solid var(--color-border-brand-default);
         }
 
         &:checked:disabled ~ .sw-field__radio-state {
-            background: $color-gray-300;
-            border: 1px solid $color-gray-300;
-            box-shadow: inset 0 0 0 4px $color-gray-100;
-            color: lighten($color-darkgray-200, 40%);
+            background: var(--color-icon-primary-disabled);
+            border: 1px solid var(--color-border-primary-default);
+            box-shadow: inset 0 0 0 4px var(--color-background-tertiary-default);
+            color: var(--color-text-primary-disabled);
         }
     }
 
@@ -81,13 +79,13 @@ $sw-field--radio-color-border: $color-gray-300;
         @include square(100%);
 
         z-index: 1;
-        background: $color-white;
-        color: $color-darkgray-200;
-        border: 1px solid $color-gray-300;
+        background: var(--color-background-primary-default);
+        color: var(--color-background-primary-default);
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 8px;
     }
 }
 
 .sw-data-grid__row.is--disabled > .sw-data-grid__cell {
-    color: lighten($color-darkgray-200, 40%);
+    color: var(--color-text-primary-disabled);
 }

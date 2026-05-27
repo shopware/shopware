@@ -27,7 +27,6 @@
             <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver" />
@@ -59,12 +58,13 @@
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFilesystemResolver"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Twig\Components\TwigComponentHelper"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeScripts">
             <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
+            <argument type="service" id="shopware.filesystem.temp"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder">
@@ -111,7 +111,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
-
 
         <service id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>

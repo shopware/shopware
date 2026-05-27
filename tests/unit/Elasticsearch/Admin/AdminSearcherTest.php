@@ -166,12 +166,97 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
+    public function testSearchNormalizesTermLevelQueries(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('LAPTO*'))
+            ->willReturn($this->getMockResponse('laptop computer'));
+
+        $data = $this->searcher->search('LAPTO', ['product'], Context::createDefaultContext());
+
+        static::assertNotEmpty($data['product']);
+        static::assertSame(1, $data['product']['total']);
+    }
+
     /**
      * @return array<string, mixed>
      */
     private function getQueryBody(string $query, string $timeout = '5s'): array
     {
         $originalTerm = rtrim($query, '*');
+        $splitTerms = explode(' ', $originalTerm);
+        $lastPart = (string) end($splitTerms);
+        $termLevelTerm = mb_strtolower($originalTerm);
+        $termLevelPrefixTerm = mb_strtolower($lastPart);
+        $shouldQueries = [
+            [
+                'match' => [
+                    'completion' => [
+                        'query' => $originalTerm,
+                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                    ],
+                ],
+            ],
+            [
+                'match' => [
+                    'completion.ngram' => [
+                        'query' => $originalTerm,
+                        'boost' => SearchRanking::LOW_SEARCH_RANKING,
+                    ],
+                ],
+            ],
+            [
+                'prefix' => [
+                    'completion' => [
+                        'value' => $termLevelPrefixTerm,
+                        'boost' => SearchRanking::MIDDLE_SEARCH_RANKING,
+                    ],
+                ],
+            ],
+            [
+                'simple_query_string' => [
+                    'query' => $query,
+                    'fields' => ['text'],
+                    'lenient' => true,
+                    'boost' => SearchRanking::LOW_SEARCH_RANKING,
+                ],
+            ],
+            [
+                'term' => [
+                    'ean' => [
+                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                        'value' => $termLevelTerm,
+                    ],
+                ],
+            ],
+            [
+                'term' => [
+                    'productNumber' => [
+                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                        'value' => $termLevelTerm,
+                    ],
+                ],
+            ],
+            [
+                'term' => [
+                    'manufacturerNumber' => [
+                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                        'value' => $termLevelTerm,
+                    ],
+                ],
+            ],
+        ];
+
+        $shouldQueries[] = [
+            'simple_query_string' => [
+                'query' => $query,
+                'fields' => ['textBoosted'],
+                'boost' => SearchRanking::HIGH_SEARCH_RANKING,
+                'lenient' => true,
+            ],
+        ];
 
         return [
             'body' => [
@@ -184,38 +269,7 @@ class AdminSearcherTest extends TestCase
                 [
                     'query' => [
                         'bool' => [
-                            'should' => [
-                                [
-                                    'match' => [
-                                        'text.ngram' => [
-                                            'query' => $originalTerm,
-                                        ],
-                                    ],
-                                ],
-                                [
-                                    'simple_query_string' => [
-                                        'query' => $query,
-                                        'fields' => ['text'],
-                                        'lenient' => true,
-                                    ],
-                                ],
-                                [
-                                    'match' => [
-                                        'textBoosted.ngram' => [
-                                            'query' => $originalTerm,
-                                            'boost' => SearchRanking::HIGH_SEARCH_RANKING,
-                                        ],
-                                    ],
-                                ],
-                                [
-                                    'simple_query_string' => [
-                                        'query' => $query,
-                                        'fields' => ['textBoosted'],
-                                        'boost' => SearchRanking::HIGH_SEARCH_RANKING,
-                                        'lenient' => true,
-                                    ],
-                                ],
-                            ],
+                            'should' => $shouldQueries,
                         ],
                     ],
                     'size' => 5,

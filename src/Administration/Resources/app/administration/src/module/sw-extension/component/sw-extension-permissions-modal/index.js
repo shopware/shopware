@@ -63,7 +63,7 @@ export default {
                 return this.title;
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 {
                     extensionLabel: this.extensionLabel,
@@ -114,7 +114,7 @@ export default {
                 return this.closeLabel;
             }
 
-            return this.$tc('global.sw-modal.labelClose');
+            return this.$t('global.sw-modal.labelClose');
         },
 
         descriptionText() {
@@ -122,7 +122,7 @@ export default {
                 return this.description;
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.description',
                 {
                     extensionLabel: this.extensionLabel,
@@ -146,7 +146,7 @@ export default {
         },
 
         categoryLabel(category) {
-            return this.$tc(`entityCategories.${category}.title`);
+            return this.$t(`entityCategories.${category}.title`);
         },
 
         openDetailsModal(category) {

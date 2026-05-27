@@ -71,6 +71,7 @@ const baseRules = {
         ],
     }],
     'sw-core-rules/require-package-annotation': ['error'],
+    'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
     'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
@@ -360,6 +361,12 @@ export default [
         files: ['src/**/sw-sidebar-media-item/sw-sidebar-media-item.html.twig'],
         rules: {
             'vue/no-use-v-if-with-v-for': 'off',
+        },
+    },
+    {
+        files: ['src/**/sw-settings-rule-tree-item/sw-settings-rule-tree-item.html.twig'],
+        rules: {
+            'vue/no-multi-spaces': 'off',
         },
     },
 

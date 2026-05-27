@@ -136,8 +136,7 @@ class SnippetServiceTest extends TestCase
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void
     {
         $snippetSetId = Uuid::randomHex();
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage(\sprintf('Snippet set with ID "%s" not found.', $snippetSetId));
+        $this->expectExceptionObject(SnippetException::snippetSetNotFound($snippetSetId));
 
         $this->getSnippetService()->getStorefrontSnippets($this->getCatalogue([], 'en'), $snippetSetId);
     }

@@ -30,7 +30,7 @@ class SeoUrlUpdaterTest extends TestCase
     // Language codes
     private const DEFAULT = 'en-GB';
     private const PARENT = 'de-DE';
-    private const CHILD = 'de-TEST';
+    private const CHILD = 'de-DE-1';
 
     private IdsCollection $ids;
 
@@ -167,31 +167,25 @@ class SeoUrlUpdaterTest extends TestCase
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
+     * @return iterable<string, array{translations: list<string>, pathInfo: non-empty-string}>
      */
-    public static function seoLanguageDataProvider(): array
+    public static function seoLanguageDataProvider(): iterable
     {
-        return [
-            [
-                // All translations available > expected to use child translation
-                'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Parent translation missing > expected to use child translation
-                'translations' => [self::DEFAULT, self::CHILD],
-                'pathInfo' => self::CHILD,
-            ],
-            [
-                // Child translation missing > expected to use parent translation
-                'translations' => [self::DEFAULT, self::PARENT],
-                'pathInfo' => self::PARENT,
-            ],
-            [
-                // Parent and child translations missing > expected to use default translation
-                'translations' => [self::DEFAULT],
-                'pathInfo' => self::DEFAULT,
-            ],
+        yield 'child path info is used when all translations are available' => [
+            'translations' => [self::DEFAULT, self::PARENT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'child path info is used when parent translation is missing' => [
+            'translations' => [self::DEFAULT, self::CHILD],
+            'pathInfo' => self::CHILD,
+        ];
+        yield 'parent path info is used when child translation is missing' => [
+            'translations' => [self::DEFAULT, self::PARENT],
+            'pathInfo' => self::PARENT,
+        ];
+        yield 'default path info is used when parent and child translations are missing' => [
+            'translations' => [self::DEFAULT],
+            'pathInfo' => self::DEFAULT,
         ];
     }
 }

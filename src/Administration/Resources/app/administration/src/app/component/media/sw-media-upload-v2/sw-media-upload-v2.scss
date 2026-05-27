@@ -1,13 +1,13 @@
 @import "~scss/variables";
 
-$sw-media-upload-v2-border-color: $color-gray-300;
-$sw-media-upload-v2-color-highlighted: $color-shopware-brand-500;
-$sw-media-upload-v2-color-switch-mode: $color-shopware-brand-500;
+$sw-media-upload-v2-border-color: var(--color-border-primary-default);
+$sw-media-upload-v2-color-highlighted: var(--color-border-brand-selected);
+$sw-media-upload-v2-color-switch-mode: var(--color-text-brand-default);
 $sw-media-upload-v2-border-radius: $border-radius-default;
-$sw-media-upload-v2-upload-background-color: $color-gray-100;
-$sw-media-upload-v2-background-color-highlighted: $color-shopware-brand-50;
+$sw-media-upload-v2-upload-background-color: var(--color-background-secondary-default);
+$sw-media-upload-v2-background-color-highlighted: var(--color-background-brand-default);
 $sw-media-upload-v2-caption-font-size: $font-size-m;
-$sw-media-upload-v2-caption-icon-color: $color-gray-300;
+$sw-media-upload-v2-caption-icon-color: var(--color-icon-secondary-default);
 
 .sw-media-upload-v2 {
     .sw-media-upload-v2__file-input {
@@ -16,7 +16,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
 
     .sw-media-upload-v2__label.is--required::after {
         content: "*";
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
     }
 
     .sw-media-upload-v2__header {
@@ -26,7 +26,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         line-height: 16px;
         min-height: 16px;
         font-size: $font-size-xs;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-weight: normal;
         user-select: none;
     }
@@ -124,7 +124,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
         border-radius: $sw-media-upload-v2-border-radius;
 
         &:not(.is--fallback) {
-            background-color: $color-white;
+            background-color: var(--color-background-primary-default);
         }
 
         &.is--fallback {
@@ -133,7 +133,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     }
 
     .sw-media-upload-v2__fallback-icon {
-        color: $color-gray-300;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-media-upload-v2__button {
@@ -147,7 +147,7 @@ $sw-media-upload-v2-caption-icon-color: $color-gray-300;
     }
 
     .sw-media-preview-v2 {
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
 
         .sw-media-preview-v2__item {
             padding: 3px;

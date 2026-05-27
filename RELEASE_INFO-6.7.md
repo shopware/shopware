@@ -201,6 +201,12 @@ When merchants rename a media file, its URL automatically updates so they can do
 
 ## Storefront
 
+### Mail templates can access storefront theme configuration
+
+Mail templates rendered for a sales channel now receive a temporary `salesChannelContext` and the assigned `themeId`.
+This allows Twig helpers such as `theme_config()` to resolve storefront theme configuration in mails without replacing the existing core `context` variable.
+The shared `MailTemplateRenderContextEvent` is dispatched for both sent mails and preview/simulation rendering so extensions can enrich mail template data through one hook.
+
 ### Google Ads Enhanced Conversions
 
 A new Enhanced Conversions option was added to the Google Analytics integration. When enabled in the sales channel analytics settings, the checkout finish page sends the SHA256-hashed customer email address via `gtag('set', 'user_data', ...)` to support Google Ads Enhanced Conversions. Email addresses are normalized according to Google's requirements before hashing.

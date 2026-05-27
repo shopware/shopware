@@ -6,12 +6,13 @@ namespace Shopware\Core\System\Tax\TaxRuleType;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
+use Symfony\Component\Clock\Clock;
 
 #[Package('checkout')]
 abstract class AbstractTaxRuleTypeFilter implements TaxRuleTypeFilterInterface
 {
     protected function isTaxActive(TaxRuleEntity $taxRuleEntity): bool
     {
-        return $taxRuleEntity->getActiveFrom() < (new \DateTime())->setTimezone(new \DateTimeZone('UTC'));
+        return $taxRuleEntity->getActiveFrom() < Clock::get()->now()->setTimezone(new \DateTimeZone('UTC'));
     }
 }

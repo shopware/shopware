@@ -71,6 +71,7 @@ export default {
             showBulkEditModal: false,
             toBeDeletedVariantIds: [],
             productDownloadFolderId: null,
+            productDocumentFolderId: null,
         };
     },
 
@@ -123,6 +124,10 @@ export default {
             return this.repositoryFactory.create('product_download');
         },
 
+        productDocumentRepository() {
+            return this.repositoryFactory.create('product_document');
+        },
+
         variantColumns() {
             const columns = [
                 {
@@ -156,6 +161,13 @@ export default {
                 {
                     property: 'media',
                     label: this.$t('sw-product.detailBase.cardTitleMedia'),
+                    allowResize: true,
+                    inlineEdit: true,
+                    sortable: false,
+                },
+                {
+                    property: 'productDocuments',
+                    label: this.$t('sw-product.variations.generatedListColumnDocuments'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
@@ -250,7 +262,13 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.productDownloadFolderId = await this.mediaService.getDefaultFolderId('product_download');
+            [
+                this.productDownloadFolderId,
+                this.productDocumentFolderId,
+            ] = await Promise.all([
+                this.mediaService.getDefaultFolderId('product_download'),
+                this.mediaService.getDefaultFolderId('product_document'),
+            ]);
         },
 
         removeFile(fileName, item) {
@@ -302,6 +320,55 @@ export default {
             });
         },
 
+        removeProductDocument(file, item) {
+            const productDocuments = this.ensureProductDocumentCollection(item);
+            const productDocument = productDocuments.find((document) => document.mediaId === file.id);
+
+            if (!productDocument) {
+                return;
+            }
+
+            productDocuments.remove(productDocument.id);
+            this.updateProductDocumentPositions(productDocuments);
+
+            this.productRepository.save(item);
+        },
+
+        successfulProductDocumentUpload(event, item) {
+            this.mediaRepository.get(event.targetId, Context.api).then((media) => {
+                if (this.mediaExists(this.getProductDocumentsSource(item), event.targetId)) {
+                    return;
+                }
+
+                const productDocuments = this.ensureProductDocumentCollection(item);
+                const productDocument = this.productDocumentRepository.create(Context.api);
+
+                Object.assign(productDocument, {
+                    media,
+                    mediaId: event.targetId,
+                    position: productDocuments.length,
+                    productId: item.id,
+                    title: null,
+                });
+
+                productDocuments.add(productDocument);
+
+                this.productRepository.save(item);
+            });
+        },
+
+        getProductDocumentsSource(item) {
+            const productDocuments = this.isProductDocumentsFieldInherited(item)
+                ? this.ensureProductDocumentCollection(this.product)
+                : item.productDocuments;
+
+            if (!productDocuments) {
+                return [];
+            }
+
+            return productDocuments.map((productDocument) => productDocument.media).filter(Boolean);
+        },
+
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
@@ -330,6 +397,8 @@ export default {
 
                 searchCriteria.getAssociation('media').addSorting(Criteria.sort('position'));
                 searchCriteria.addAssociation('media.media');
+                searchCriteria.getAssociation('productDocuments').addSorting(Criteria.sort('position'));
+                searchCriteria.addAssociation('productDocuments.media');
 
                 searchCriteria
                     .getAssociation('options')
@@ -546,6 +615,18 @@ export default {
             return !!variant.media;
         },
 
+        isProductDocumentsFieldInherited(variant) {
+            if (variant.forceProductDocumentInheritanceRemove) {
+                return false;
+            }
+
+            if (variant.productDocuments) {
+                return variant.productDocuments.length <= 0;
+            }
+
+            return !!variant.productDocuments;
+        },
+
         onInheritanceRestore(variant, currency) {
             if (!variant.price) {
                 return;
@@ -627,6 +708,60 @@ export default {
                 }
 
                 variant.media.push(productMedia);
+            });
+        },
+
+        onProductDocumentsInheritanceRestore(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
+            const productDocuments = this.ensureProductDocumentCollection(variant);
+            variant.forceProductDocumentInheritanceRemove = false;
+
+            productDocuments.getIds().forEach((productDocumentId) => {
+                productDocuments.remove(productDocumentId);
+            });
+        },
+
+        onProductDocumentsInheritanceRemove(variant, isInlineEdit) {
+            if (!isInlineEdit) {
+                return;
+            }
+
+            const productDocuments = this.ensureProductDocumentCollection(variant);
+            variant.forceProductDocumentInheritanceRemove = true;
+
+            productDocuments.getIds().forEach((productDocumentId) => {
+                productDocuments.remove(productDocumentId);
+            });
+
+            this.ensureProductDocumentCollection(this.product).forEach(({ media, mediaId, position, title }) => {
+                const productDocument = this.productDocumentRepository.create(Context.api);
+
+                Object.assign(productDocument, {
+                    media,
+                    mediaId,
+                    position,
+                    productId: variant.id,
+                    title,
+                });
+
+                productDocuments.add(productDocument);
+            });
+        },
+
+        ensureProductDocumentCollection(product) {
+            if (!product.productDocuments) {
+                product.productDocuments = product.getAssociation('productDocuments');
+            }
+
+            return product.productDocuments;
+        },
+
+        updateProductDocumentPositions(productDocuments) {
+            productDocuments.forEach((productDocument, index) => {
+                productDocument.position = index;
             });
         },
 

@@ -363,6 +363,7 @@
     },
     "variations": {
       "generatedListColumnDownload": "Files",
+      "generatedListColumnDocuments": "Documents",
       "emptyStateTitle": "This product has no variants yet.",
       "emptyStateDescription": "Manage product variants here.",
       "emptyStatePropertyTitle": "No properties have been created yet",

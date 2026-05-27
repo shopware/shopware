@@ -45,8 +45,10 @@ class UcpCapabilityCompilerPassTest extends TestCase
         );
         $container->setDefinition('cap.bad', (new Definition(FakeCap::class))->addTag('ucp.capability'));
 
-        $this->expectException(UcpException::class);
-        $this->expectExceptionMessage('missing required "capability" attribute');
+        $this->expectExceptionObject(UcpException::capabilityTagInvalid(
+            'cap.bad',
+            'missing required "capability" attribute (UCP capability identifier, e.g. "dev.ucp.shopping.cart")'
+        ));
         (new UcpCapabilityCompilerPass())->process($container);
     }
 
@@ -60,8 +62,10 @@ class UcpCapabilityCompilerPassTest extends TestCase
         $container->setDefinition('cap.a', (new Definition(FakeCap::class))->addTag('ucp.capability', ['capability' => 'dev.ucp.shopping.cart']));
         $container->setDefinition('cap.b', (new Definition(FakeCap::class))->addTag('ucp.capability', ['capability' => 'dev.ucp.shopping.cart']));
 
-        $this->expectException(UcpException::class);
-        $this->expectExceptionMessage('duplicate capability');
+        $this->expectExceptionObject(UcpException::capabilityTagInvalid(
+            'cap.b',
+            'duplicate capability "dev.ucp.shopping.cart" — already registered by "cap.a"'
+        ));
         (new UcpCapabilityCompilerPass())->process($container);
     }
 }

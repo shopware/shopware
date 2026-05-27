@@ -21,7 +21,7 @@ class UcpKeysRetireCommandTest extends TestCase
     public function testRetireRequiresSalesChannel(): void
     {
         $provider = $this->createMock(UcpSigningKeyProvider::class);
-        $provider->expects(static::never())->method('retire');
+        $provider->expects($this->never())->method('retire');
 
         $tester = new CommandTester(new UcpKeysRetireCommand($provider));
         $exit = $tester->execute(['--kid' => 'ucp_2026_kid']);
@@ -33,7 +33,7 @@ class UcpKeysRetireCommandTest extends TestCase
     public function testRetireRequiresKid(): void
     {
         $provider = $this->createMock(UcpSigningKeyProvider::class);
-        $provider->expects(static::never())->method('retire');
+        $provider->expects($this->never())->method('retire');
 
         $tester = new CommandTester(new UcpKeysRetireCommand($provider));
         $exit = $tester->execute(['--sales-channel' => '0190f7bfb9c97e8c8d28b6e5d6a45f00']);
@@ -59,7 +59,7 @@ class UcpKeysRetireCommandTest extends TestCase
         $key->setRetiringAt($now);
 
         $provider = $this->createMock(UcpSigningKeyProvider::class);
-        $provider->expects(static::once())
+        $provider->expects($this->once())
             ->method('retire')
             ->with($salesChannelId, $kid, static::isInstanceOf(Context::class))
             ->willReturn($key);

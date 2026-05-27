@@ -186,7 +186,7 @@ class ConformanceCheckoutHelperTest extends TestCase
     public function testApplyOnCreatePersistsBuyerAndOverlaysStoredBuyer(): void
     {
         $store = $this->createMock(CheckoutStateStore::class);
-        $store->expects(static::once())
+        $store->expects($this->once())
             ->method('saveBuyer')
             ->with('ck_1', ['email' => 'john.doe@example.com']);
         $store->method('buyer')->with('ck_1')->willReturn(['email' => 'john.doe@example.com']);
@@ -202,7 +202,7 @@ class ConformanceCheckoutHelperTest extends TestCase
     public function testApplyOnCompleteMarksCheckoutCompleted(): void
     {
         $store = $this->createMock(CheckoutStateStore::class);
-        $store->expects(static::once())->method('markCompleted')->with('ck_1', 'order_1');
+        $store->expects($this->once())->method('markCompleted')->with('ck_1', 'order_1');
         $store->method('buyer')->willReturn(null);
 
         $helper = new ConformanceCheckoutHelper($store, $this->createMock(ConformanceWebhookEmitter::class), 'dev');
@@ -213,7 +213,7 @@ class ConformanceCheckoutHelperTest extends TestCase
     public function testStoredFulfillmentReturnsNullInProd(): void
     {
         $store = $this->createMock(CheckoutStateStore::class);
-        $store->expects(static::never())->method('fulfillmentForCheckout');
+        $store->expects($this->never())->method('fulfillmentForCheckout');
 
         $helper = new ConformanceCheckoutHelper($store, $this->createMock(ConformanceWebhookEmitter::class), 'prod');
 
@@ -223,7 +223,7 @@ class ConformanceCheckoutHelperTest extends TestCase
     public function testEmitOrderPlacedWebhookDelegatesOnlyForConformanceRequests(): void
     {
         $emitter = $this->createMock(ConformanceWebhookEmitter::class);
-        $emitter->expects(static::once())
+        $emitter->expects($this->once())
             ->method('emitOrderPlaced')
             ->with('https://platform.example/profile', 'ck_1', 'order_1', ['some' => 'response']);
 
@@ -241,7 +241,7 @@ class ConformanceCheckoutHelperTest extends TestCase
     public function testEmitOrderPlacedWebhookSilentForNonConformanceRequest(): void
     {
         $emitter = $this->createMock(ConformanceWebhookEmitter::class);
-        $emitter->expects(static::never())->method('emitOrderPlaced');
+        $emitter->expects($this->never())->method('emitOrderPlaced');
 
         $helper = new ConformanceCheckoutHelper(
             $this->createMock(CheckoutStateStore::class),

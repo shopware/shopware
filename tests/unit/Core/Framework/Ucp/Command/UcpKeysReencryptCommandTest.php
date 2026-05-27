@@ -27,7 +27,7 @@ class UcpKeysReencryptCommandTest extends TestCase
     public function testRequiresOldSecret(): void
     {
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::never())->method('update');
+        $repository->expects($this->never())->method('update');
 
         $tester = new CommandTester(new UcpKeysReencryptCommand($repository, new PrivateKeyEncryptor('any')));
         $exit = $tester->execute(['--new-secret' => 'new']);
@@ -39,8 +39,8 @@ class UcpKeysReencryptCommandTest extends TestCase
     public function testIdenticalSecretsReturnsEarly(): void
     {
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::never())->method('search');
-        $repository->expects(static::never())->method('update');
+        $repository->expects($this->never())->method('search');
+        $repository->expects($this->never())->method('update');
 
         $tester = new CommandTester(new UcpKeysReencryptCommand($repository, new PrivateKeyEncryptor('any')));
         $exit = $tester->execute(['--old-secret' => 'same', '--new-secret' => 'same']);
@@ -64,13 +64,13 @@ class UcpKeysReencryptCommandTest extends TestCase
         $key2 = $this->makeKey($kid2, $oldEncryptor->encrypt($plaintext2, $kid2));
 
         $repository = $this->createMock(EntityRepository::class);
-        $repository->expects(static::once())->method('search')->willReturn(
+        $repository->expects($this->once())->method('search')->willReturn(
             $this->makeSearchResult([$key1, $key2])
         );
 
         $captured = null;
         $writtenEvent = $this->createMock(EntityWrittenContainerEvent::class);
-        $repository->expects(static::once())
+        $repository->expects($this->once())
             ->method('update')
             ->willReturnCallback(function (array $writes, Context $ctx) use (&$captured, $writtenEvent) {
                 $captured = $writes;
@@ -100,7 +100,7 @@ class UcpKeysReencryptCommandTest extends TestCase
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('search')->willReturn($this->makeSearchResult([$key]));
-        $repository->expects(static::never())->method('update');
+        $repository->expects($this->never())->method('update');
 
         $tester = new CommandTester(new UcpKeysReencryptCommand($repository, new PrivateKeyEncryptor('ignored')));
         $exit = $tester->execute([
@@ -120,7 +120,7 @@ class UcpKeysReencryptCommandTest extends TestCase
 
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('search')->willReturn($this->makeSearchResult([$key]));
-        $repository->expects(static::never())->method('update');
+        $repository->expects($this->never())->method('update');
 
         $tester = new CommandTester(new UcpKeysReencryptCommand($repository, new PrivateKeyEncryptor('ignored')));
         $exit = $tester->execute([
@@ -137,7 +137,7 @@ class UcpKeysReencryptCommandTest extends TestCase
     {
         $repository = $this->createMock(EntityRepository::class);
         $repository->method('search')->willReturn($this->makeSearchResult([]));
-        $repository->expects(static::never())->method('update');
+        $repository->expects($this->never())->method('update');
 
         $tester = new CommandTester(new UcpKeysReencryptCommand($repository, new PrivateKeyEncryptor('ignored')));
         $exit = $tester->execute([
@@ -166,6 +166,8 @@ class UcpKeysReencryptCommandTest extends TestCase
 
     /**
      * @param list<UcpSigningKeyEntity> $entities
+     *
+     * @return EntitySearchResult<UcpSigningKeyCollection>
      */
     private function makeSearchResult(array $entities): EntitySearchResult
     {

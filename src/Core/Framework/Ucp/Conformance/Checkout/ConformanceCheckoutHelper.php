@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Ucp\Conformance\Checkout;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutController;
 use Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStateStore;
 use Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutStatus;
 use Shopware\Core\Framework\Util\Hasher;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @experimental stableVersion:v6.8.0 feature:UCP_SERVER
  *
  * Centralises every conformance-fixture concern that previously lived inline
- * in {@see \Shopware\Core\Framework\Ucp\Capability\Checkout\CheckoutController}.
+ * in {@see CheckoutController}.
  * The helper is registered only under `<when env="dev">` and `<when env="test">`
  * in `ucp.xml`; in production the controller's constructor argument resolves
  * to `null` (via `on-invalid="null"`) and every call site becomes a no-op

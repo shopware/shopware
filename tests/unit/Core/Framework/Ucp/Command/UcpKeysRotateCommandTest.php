@@ -20,7 +20,7 @@ class UcpKeysRotateCommandTest extends TestCase
     public function testRotateRequiresSalesChannel(): void
     {
         $provider = $this->createMock(UcpSigningKeyProvider::class);
-        $provider->expects(static::never())->method('create');
+        $provider->expects($this->never())->method('create');
 
         $tester = new CommandTester(new UcpKeysRotateCommand($provider));
         $exit = $tester->execute([]);
@@ -36,11 +36,11 @@ class UcpKeysRotateCommandTest extends TestCase
         $created = $this->makeKey('ucp_2026_newkid', UcpSigningKeyEntity::STATUS_ACTIVE);
 
         $provider = $this->createMock(UcpSigningKeyProvider::class);
-        $provider->expects(static::once())
+        $provider->expects($this->once())
             ->method('getActive')
             ->with($salesChannelId, static::isInstanceOf(Context::class))
             ->willReturn($previous);
-        $provider->expects(static::once())
+        $provider->expects($this->once())
             ->method('create')
             ->with($salesChannelId, UcpSigningKeyEntity::ALGORITHM_ES256, static::isInstanceOf(Context::class), true)
             ->willReturn($created);
@@ -62,7 +62,7 @@ class UcpKeysRotateCommandTest extends TestCase
 
         $provider = $this->createMock(UcpSigningKeyProvider::class);
         $provider->method('getActive')->willReturn(null);
-        $provider->expects(static::once())
+        $provider->expects($this->once())
             ->method('create')
             ->with($salesChannelId, UcpSigningKeyEntity::ALGORITHM_ES384, static::isInstanceOf(Context::class), true)
             ->willReturn($created);

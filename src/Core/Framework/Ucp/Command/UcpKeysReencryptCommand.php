@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Collection\UcpSigningKeyCollection;
-use Shopware\Core\Framework\Ucp\DataAbstractionLayer\Entity\UcpSigningKeyEntity;
 use Shopware\Core\Framework\Ucp\Security\PrivateKeyEncryptor;
 use Shopware\Core\Framework\Ucp\UcpException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -107,7 +106,6 @@ class UcpKeysReencryptCommand extends Command
         $failures = [];
 
         foreach ($collection as $key) {
-            \assert($key instanceof UcpSigningKeyEntity);
             try {
                 $newBlob = $this->encryptor->reencrypt(
                     $key->getPrivateKeyPemEncrypted(),

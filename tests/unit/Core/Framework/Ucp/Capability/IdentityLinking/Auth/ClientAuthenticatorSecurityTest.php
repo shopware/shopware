@@ -37,8 +37,9 @@ class ClientAuthenticatorSecurityTest extends TestCase
             'client_assertion' => $assertion,
         ]);
 
-        $this->expectException(UcpException::class);
-        $this->expectExceptionMessage('jti');
+        $this->expectExceptionObject(UcpException::oauthClientAuthFailed(
+            'client_assertion is missing the required `jti` claim (replay protection)'
+        ));
 
         $authenticator->authenticate(
             $request,

@@ -20,6 +20,7 @@ class ProductException extends HttpException
     public const PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED_CODE = 'PRODUCT_PROXY_MANIPULATION_NOT_ALLOWED';
     public const PRODUCT_INVALID_PRICE_DEFINITION_CODE = 'PRODUCT_INVALID_PRICE_DEFINITION';
     public const PRODUCT_NOT_FOUND = 'PRODUCT_PRODUCT_NOT_FOUND';
+    public const PRODUCT_DOCUMENT_NOT_FOUND = 'PRODUCT__DOCUMENT_NOT_FOUND';
     public const PRODUCT_VARIANT_NOT_FOUND = 'CONTENT__PRODUCT_VARIANT_NOT_FOUND';
     public const CATEGORY_NOT_FOUND = 'PRODUCT__CATEGORY_NOT_FOUND';
     public const SORTING_NOT_FOUND = 'PRODUCT_SORTING_NOT_FOUND';
@@ -144,6 +145,16 @@ class ProductException extends HttpException
     public static function productNotFound(string $productId): ProductNotFoundException
     {
         return new ProductNotFoundException($productId);
+    }
+
+    public static function productDocumentNotFound(string $documentId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PRODUCT_DOCUMENT_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'product document', 'field' => 'id', 'value' => $documentId]
+        );
     }
 
     /**

@@ -30,10 +30,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         };
     };
 
-    let wrapper;
-    let moduleMock;
-    beforeEach(async () => {
-        wrapper = mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
+    const createWrapper = async (repositoryFactoryMock) => {
+        return mount(await wrapTestComponent('sw-media-quickinfo-usage', { sync: true }), {
             props: { item: itemDeleteMock() },
             global: {
                 stubs: {
@@ -43,7 +41,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                     'sw-loader': true,
                 },
                 provide: {
-                    repositoryFactory: {
+                    repositoryFactory: repositoryFactoryMock ?? {
                         create: () => {
                             return {
                                 search: () => {
@@ -55,6 +53,12 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 },
             },
         });
+    };
+
+    let wrapper;
+    let moduleMock;
+    beforeEach(async () => {
+        wrapper = await createWrapper();
 
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();

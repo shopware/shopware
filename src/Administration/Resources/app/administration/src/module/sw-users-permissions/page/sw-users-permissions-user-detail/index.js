@@ -412,6 +412,7 @@ export default {
             const isEmailValid = await this.checkEmail();
 
             if (!isEmailValid) {
+                this.isLoading = false;
                 return;
             }
 

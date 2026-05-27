@@ -195,6 +195,13 @@ export default {
         '$route.params.id'() {
             this.createdComponent();
         },
+
+        salesChannel: {
+            deep: true,
+            handler() {
+                this.clearResolvedRequiredSalesChannelFieldErrors();
+            },
+        },
     },
 
     created() {
@@ -618,13 +625,46 @@ export default {
         },
 
         addRequiredSalesChannelFieldError(fieldName) {
-            const entityName =
-                typeof this.salesChannel.getEntityName === 'function' ? this.salesChannel.getEntityName() : 'sales_channel';
-
             Shopware.Store.get('error').addApiError({
-                expression: `${entityName}.${this.salesChannel.id}.${fieldName}`,
+                expression: this.getRequiredSalesChannelFieldErrorExpression(fieldName),
                 error: new ShopwareError(EntityValidationService.createRequiredError(`/0/${fieldName}`)),
             });
+        },
+
+        clearResolvedRequiredSalesChannelFieldErrors() {
+            if (!this.salesChannel?.id) {
+                return;
+            }
+
+            this.getRequiredSalesChannelFields().forEach((fieldName) => {
+                if (this.isRequiredFieldEmpty(this.salesChannel[fieldName])) {
+                    return;
+                }
+
+                const error = this.getRequiredSalesChannelFieldError(fieldName);
+
+                if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                    return;
+                }
+
+                Shopware.Store.get('error').removeApiError(this.getRequiredSalesChannelFieldErrorExpression(fieldName));
+            });
+        },
+
+        getRequiredSalesChannelFieldError(fieldName) {
+            return Shopware.Store.get('error').getApiErrorFromPath(this.getSalesChannelEntityName(), this.salesChannel.id, [
+                fieldName,
+            ]);
+        },
+
+        getRequiredSalesChannelFieldErrorExpression(fieldName) {
+            return `${this.getSalesChannelEntityName()}.${this.salesChannel.id}.${fieldName}`;
+        },
+
+        getSalesChannelEntityName() {
+            return typeof this.salesChannel.getEntityName === 'function'
+                ? this.salesChannel.getEntityName()
+                : 'sales_channel';
         },
     },
 };

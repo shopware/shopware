@@ -407,6 +407,21 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
+    it('should clear required field errors when missing values are filled', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.salesChannel.languageId = null;
+        wrapper.vm.validateRequiredSalesChannelFields();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeDefined();
+
+        wrapper.vm.salesChannel.languageId = 'language-id';
+        await wrapper.vm.$nextTick();
+
+        expect(Shopware.Store.get('error').api.sales_channel['1a2b3c4d'].languageId).toBeUndefined();
+    });
+
     it('should detect current template on load when product export bodyTemplate matches', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

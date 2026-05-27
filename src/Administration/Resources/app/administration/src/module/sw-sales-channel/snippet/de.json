@@ -160,6 +160,8 @@
                 "inputHeaderLabel": "Kopfzeile",
                 "inputBodyLabel": "Produktzeile",
                 "inputFooterLabel": "Fußzeile",
+                "feedLabelLabel": "Google feed label",
+                "feedLabelHelpText": "Optionales Feed-Label zur Gruppierung von Produkten innerhalb derselben Datenquelle im Google Merchant Center. Erlaubt sind Großbuchstaben (A–Z), Zahlen (0–9), Bindestriche (-) und Unterstriche (_) sowie maximal 20 Zeichen.",
                 "buttonTestLabel": "Template testen",
                 "buttonPreviewLabel": "Vorschau generieren",
                 "settings": "Produktexport",

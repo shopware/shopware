@@ -87,6 +87,7 @@
 
         <service id="Shopware\Core\Content\Mail\Subscriber\FailedMessageSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

@@ -211,7 +211,7 @@ class ProductDefinition extends EntityDefinition
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited())->setDescription('When boolean value is `true`, the customFieldSetSelection for products gets enabled.'),
             (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected())->setDescription('Frequency of the product sales.'),
             (new OneToManyAssociationField('downloads', ProductDownloadDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Downloadable files associated with the product (e.g., manuals, digital content)'),
-            (new OneToManyAssociationField('productDocuments', ProductDocumentDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete(), new Inherited())->setDescription('Documents associated with the product.'),
+            (new OneToManyAssociationField('productDocuments', ProductDocumentDefinition::class, 'product_id'))->addFlags(new ApiAware(), new CascadeDelete())->setDescription('Documents associated with the product.'),
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('name', true))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),

@@ -197,7 +197,22 @@
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
       "cardTitleCustomProduct": "Custom Products",
-      "cardTitleDownloads": "Files"
+      "cardTitleDownloads": "Files",
+      "cardTitleDocuments": "Documents",
+      "cardSubtitleDocuments": "Add product documents such as manuals, datasheets, or specifications."
+    },
+    "documentForm": {
+      "documentsLabel": "Document upload",
+      "emptyState": "No documents assigned yet.",
+      "placeholderTitle": "Document title",
+      "columnTitle": "Title",
+      "columnFileName": "File name",
+      "columnFileType": "Type",
+      "columnFileSize": "Size",
+      "columnUploadedAt": "Uploaded at",
+      "contextMoveUp": "Move up",
+      "contextMoveDown": "Move down",
+      "errorDocumentDuplicated": "The file \"{fileName}\" has already been assigned."
     },
     "seo": {
       "cardTitleSeo": "SEO"

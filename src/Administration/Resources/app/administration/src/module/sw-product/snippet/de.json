@@ -197,7 +197,22 @@
       "cardTitleCustomFields": "Zusatzfelder",
       "cardTitleProperties": "Eigenschaften",
       "cardTitleCustomProduct": "Custom Products",
-      "cardTitleDownloads": "Dateien"
+      "cardTitleDownloads": "Dateien",
+      "cardTitleDocuments": "Dokumente",
+      "cardSubtitleDocuments": "Füge Produktdokumente wie Handbücher, Datenblätter oder Spezifikationen hinzu."
+    },
+    "documentForm": {
+      "documentsLabel": "Dokument-Upload",
+      "emptyState": "Noch keine Dokumente zugewiesen.",
+      "placeholderTitle": "Dokumenttitel",
+      "columnTitle": "Titel",
+      "columnFileName": "Dateiname",
+      "columnFileType": "Typ",
+      "columnFileSize": "Größe",
+      "columnUploadedAt": "Hochgeladen am",
+      "contextMoveUp": "Nach oben",
+      "contextMoveDown": "Nach unten",
+      "errorDocumentDuplicated": "Die Datei \"{fileName}\" wurde bereits zugewiesen."
     },
     "seo": {
       "cardTitleSeo": "SEO"

@@ -117,6 +117,7 @@ class MailDataSimulator
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly EventDispatcherInterface $eventDispatcher,
         iterable $dataProviders,
+        private readonly ClockInterface $clock,
     ) {
         $this->dataProviders = $dataProviders instanceof \Traversable ? iterator_to_array($dataProviders) : $dataProviders;
     }

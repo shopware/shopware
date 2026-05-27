@@ -50,6 +50,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartSerializationCleaner"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartLocker">
@@ -559,6 +560,7 @@
             <argument>%shopware.cart.expire_days%</argument>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCompressor"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -50,6 +51,7 @@ class OrderRoute extends AbstractOrderRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AccountService $accountService,
         private readonly GuestAuthenticator $guestAuthenticator,
+        private readonly ClockInterface $clock,
         private readonly int $deepLinkExpireDays = 30,
     ) {
     }
@@ -230,7 +232,7 @@ class OrderRoute extends AbstractOrderRoute
     private function filterOldOrders(OrderCollection $orders): OrderCollection
     {
         // Search with deepLinkCode needs updatedAt Filter
-        $latestOrderDate = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->modify(-abs($this->deepLinkExpireDays) . ' Day');
+        $latestOrderDate = $this->clock->now()->setTimezone(new \DateTimeZone('UTC'))->modify(-abs($this->deepLinkExpireDays) . ' Day');
 
         return $orders->filter(static fn (OrderEntity $order) => $order->getCreatedAt() > $latestOrderDate || $order->getUpdatedAt() > $latestOrderDate);
     }

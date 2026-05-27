@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createTelemetrySection())
                 ->append($this->createRedisSection())
                 ->append($this->createProductStreamSection())
+                ->append($this->createProductSection())
             ->end();
 
         return $treeBuilder;
@@ -782,6 +783,27 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('expire_days')
                     ->min(1)
                     ->defaultValue(120)
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createProductSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('product');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('search_keyword')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->integerNode('relevant_keyword_count')
+                            ->min(1)
+                            ->defaultValue(8)
+                        ->end()
+                    ->end()
                 ->end()
             ->end();
 

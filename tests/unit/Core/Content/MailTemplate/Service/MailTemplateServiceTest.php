@@ -12,6 +12,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailDataProvider;
 use Shopware\Core\Content\MailTemplate\Service\MailDataSimulator;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
@@ -25,6 +26,8 @@ use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -41,6 +44,8 @@ class MailTemplateServiceTest extends TestCase
 
     private MailTemplateContentBuilder $mailTemplateContentBuilder;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,6 +54,7 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $this->mailDataSimulator = $this->createMock(MailDataSimulator::class);
         $this->mailTemplateContentBuilder = new MailTemplateContentBuilder();
+        $this->eventDispatcher = new EventDispatcher();
     }
 
     public function testLoadTemplate(): void
@@ -132,6 +138,7 @@ class MailTemplateServiceTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
 
         $this->mailDataSimulator->expects($this->once())
             ->method('getTemplateData')
@@ -142,7 +149,11 @@ class MailTemplateServiceTest extends TestCase
         $this->templateRenderer->expects($this->never())->method('disableTestMode');
         $this->templateRenderer->expects($this->once())
             ->method('render')
-            ->with('<p>{{ order.id }}</p>', ['order' => ['id' => 'order-id']], $context, true)
+            ->with('<p>{{ order.id }}</p>', [
+                'order' => ['id' => 'order-id'],
+                'salesChannel' => $salesChannel,
+                'salesChannelId' => $salesChannel->getId(),
+            ], $context, true)
             ->willReturn('<p>order-id</p>');
 
         $mailTemplateService = $this->createService();
@@ -156,6 +167,55 @@ class MailTemplateServiceTest extends TestCase
 
         static::assertSame(MailTemplateRenderResult::TYPE_SUCCESS, $rendered['contentHtml']->getType());
         static::assertSame('<p>order-id</p>', $rendered['contentHtml']->getContent());
+    }
+
+    public function testSimulateDispatchesRenderContextEvent(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $this->mailDataSimulator->expects($this->once())
+            ->method('getTemplateData')
+            ->with('checkout.order.placed', $context, $salesChannel)
+            ->willReturn(['order' => ['id' => 'order-id']]);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->willReturnCallback(static function (MailTemplateRenderContextEvent $event) use ($context, $salesChannel): MailTemplateRenderContextEvent {
+                static::assertSame($context, $event->getContext());
+                static::assertSame($salesChannel, $event->getSalesChannel());
+                static::assertSame([
+                    'order' => ['id' => 'order-id'],
+                    'salesChannel' => $salesChannel,
+                    'salesChannelId' => $salesChannel->getId(),
+                ], $event->getTemplateData());
+
+                $event->addTemplateData('themeId', 'theme-id');
+
+                return $event;
+            });
+
+        $this->templateRenderer->expects($this->once())
+            ->method('render')
+            ->with('hello', [
+                'order' => ['id' => 'order-id'],
+                'salesChannel' => $salesChannel,
+                'salesChannelId' => $salesChannel->getId(),
+                'themeId' => 'theme-id',
+            ], $context, false)
+            ->willReturn('rendered');
+
+        $mailTemplateService = $this->createService(eventDispatcher: $eventDispatcher);
+
+        $rendered = $mailTemplateService->simulate(new SimulateRequest(
+            templateParts: ['subject' => 'hello'],
+            eventName: 'checkout.order.placed',
+            salesChannel: $salesChannel,
+        ), $context);
+
+        static::assertSame('rendered', $rendered['subject']->getContent());
     }
 
     public function testPreviewUsesProviderDataAndTemplateContent(): void
@@ -228,6 +288,7 @@ class MailTemplateServiceTest extends TestCase
         ]);
 
         $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
         $salesChannel->setMailHeaderFooter($mailHeaderFooter);
 
         $request = new PreviewRequest(
@@ -260,6 +321,67 @@ class MailTemplateServiceTest extends TestCase
 
         static::assertSame('rendered:escaped:<header>{{ foo }}</header><p>html</p><footer>{{ foo }}</footer>', $rendered['contentHtml']->getContent());
         static::assertSame('rendered:raw:H {{ foo }} plain F {{ foo }}', $rendered['contentPlain']->getContent());
+    }
+
+    public function testPreviewDispatchesRenderContextEvent(): void
+    {
+        $context = Context::createDefaultContext();
+        $mailTemplate = $this->createMailTemplate();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+
+        $request = new PreviewRequest(
+            mailTemplate: $mailTemplate,
+            salesChannel: $salesChannel,
+            templateData: ['foo' => 'bar'],
+            strictRendering: true,
+        );
+
+        $this->mailDataProvider->expects($this->once())
+            ->method('getTemplateData')
+            ->with($mailTemplate, [], $context, ['foo' => 'bar'])
+            ->willReturn(['foo' => 'bar']);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->willReturnCallback(static function (MailTemplateRenderContextEvent $event) use ($context, $salesChannel): MailTemplateRenderContextEvent {
+                static::assertSame($context, $event->getContext());
+                static::assertSame($salesChannel, $event->getSalesChannel());
+                static::assertSame([
+                    'foo' => 'bar',
+                    'salesChannel' => $salesChannel,
+                    'salesChannelId' => $salesChannel->getId(),
+                ], $event->getTemplateData());
+
+                $event->addTemplateData('salesChannelContext', 'context');
+
+                return $event;
+            });
+
+        $this->templateRenderer->expects($this->exactly(4))
+            ->method('render')
+            ->willReturnCallback(
+                static function (string $value, array $templateData) use ($salesChannel): string {
+                    static::assertSame([
+                        'foo' => 'bar',
+                        'salesChannel' => $salesChannel,
+                        'salesChannelId' => $salesChannel->getId(),
+                        'salesChannelContext' => 'context',
+                    ], $templateData);
+
+                    return 'rendered:' . $value;
+                }
+            );
+
+        $mailTemplateService = $this->createService(eventDispatcher: $eventDispatcher);
+
+        $rendered = $mailTemplateService->preview($request, $context);
+
+        static::assertSame('rendered:subject', $rendered['subject']->getContent());
+        static::assertSame('rendered:sender', $rendered['senderName']->getContent());
+        static::assertSame('rendered:<p>html</p>', $rendered['contentHtml']->getContent());
+        static::assertSame('rendered:plain', $rendered['contentPlain']->getContent());
     }
 
     /**
@@ -443,8 +565,10 @@ class MailTemplateServiceTest extends TestCase
     /**
      * @param StaticEntityRepository<MailTemplateCollection>|null $mailTemplateRepository
      */
-    private function createService(?StaticEntityRepository $mailTemplateRepository = null): MailTemplateService
-    {
+    private function createService(
+        ?StaticEntityRepository $mailTemplateRepository = null,
+        ?EventDispatcherInterface $eventDispatcher = null
+    ): MailTemplateService {
         /** @var StaticEntityRepository<MailTemplateCollection> $mailTemplateRepository */
         $mailTemplateRepository ??= new StaticEntityRepository([]);
 
@@ -454,6 +578,7 @@ class MailTemplateServiceTest extends TestCase
             $this->mailDataProvider,
             $this->mailDataSimulator,
             $this->mailTemplateContentBuilder,
+            $eventDispatcher ?? $this->eventDispatcher,
         );
     }
 

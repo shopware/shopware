@@ -33,7 +33,7 @@ All other Ucp classes are marked `@internal` and remain subject to change while 
 
 ### [Experimental] Agentic Discovery endpoints (/agents.md, /llms.txt, /llms-full.txt, /sitemap_agentic_discovery.xml)
 
-Shopware now ships a first-class **Agentic Discovery** layer that serves the four public discovery documents AI shopping agents (ChatGPT, Perplexity, Copilot, custom UCP agents) look for on every storefront. The integration mirrors what Shopify rolled out natively in May 2026 so any standards-compliant agent can resolve the same paths across platforms.
+Shopware now ships a first-class **Agentic Discovery** layer that serves the four public discovery documents AI shopping agents (ChatGPT, Perplexity, Copilot, custom UCP agents) look for on every storefront. The four paths are the de-facto convention that emerged across the agentic commerce ecosystem in 2026, so any standards-compliant agent can resolve the same URLs on every Shopware storefront regardless of the commerce platform it was developed against.
 
 The integration is gated behind the `AGENTIC_DISCOVERY` feature flag. Activate via `bin/console feature:enable AGENTIC_DISCOVERY` or by setting `SHOPWARE_AGENTIC_DISCOVERY=1` in your `.env`. While the flag is off, all four routes return 404.
 

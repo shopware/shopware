@@ -9,13 +9,16 @@ status: accepted
 
 ## Context
 
-In May 2026, Shopify rolled out four discovery files natively to every storefront:
-`/llms.txt`, `/llms-full.txt`, `/agents.md` and `/sitemap_agentic_discovery.xml`.
-The de-facto convention emerging from that rollout — combined with the proposed
-`llms.txt` spec from Answer.AI and the joint Google/Shopify Universal Commerce
-Protocol — is that AI shopping agents resolve a small fixed set of well-known
-paths on a storefront domain to learn how to *interact* with the shop
-programmatically.
+A de-facto convention has emerged across the agentic commerce ecosystem
+in 2026: AI shopping agents resolve a small fixed set of well-known paths
+on a storefront domain to learn how to *interact* with the shop
+programmatically. The four paths are `/llms.txt`, `/llms-full.txt`,
+`/agents.md` and `/sitemap_agentic_discovery.xml`, combined with the
+proposed `llms.txt` spec from Answer.AI and the Universal Commerce
+Protocol co-developed by Google and ecosystem partners. Major commerce
+platforms now serve these documents natively, and AI clients (ChatGPT,
+Perplexity, Microsoft Copilot, Claude, custom UCP agents) probe them
+unconditionally before issuing transactional calls.
 
 Shopware ships an experimental UCP server foundation in 6.7.11.0 behind the
 `UCP_SERVER` flag (`Core/Framework/Ucp/`, see ADR
@@ -93,8 +96,8 @@ code review and IDE search.
 9. **Default the feature off, default the per-channel configuration on.** Once
    a merchant enables the flag, every storefront sales channel automatically
    serves all four documents unless the channel-level config row toggles them
-   off. This mirrors the Shopify behaviour where storefronts get all four files
-   without explicit configuration but lets merchants opt out per channel.
+   off. This matches what AI agents already expect from agent-aware storefronts
+   while letting merchants opt out per channel without writing code.
 
 ## Why not …
 
@@ -110,8 +113,8 @@ code review and IDE search.
   would mean merchants who only want llms.txt/agents.md cannot have them
   without enabling the much larger UCP feature surface.
 
-- **Why not store the discovery content as Liquid-/Twig-template overrides like
-  Shopify?**
+- **Why not store the discovery content as database-stored, per-channel Twig
+  templates?**
   Shopware already provides theme-level Twig override via `sw_extends`. Adding
   a second override channel (e.g. a `template`-typed system config or a
   database-stored template) would duplicate the inheritance system. Instead,
@@ -147,6 +150,5 @@ code review and IDE search.
 - ADR `2026-05-20-ucp-feature-flag-and-bundle-placement.md`.
 - llms.txt specification (Answer.AI, Sep 2024): https://llmstxt.org/
 - UCP specification: https://ucp.dev/
-- Shopify Agentic Storefronts rollout (May 2026, third-party documentation):
-  Craftshift "Shopify quietly shipped native llms.txt, agents.md, UCP
-  discovery, and an agentic sitemap to every store".
+- Model Context Protocol (Anthropic, 2024): https://modelcontextprotocol.io/
+- Agentic Commerce Protocol (Stripe + OpenAI, 2025): https://agenticcommerce.dev/

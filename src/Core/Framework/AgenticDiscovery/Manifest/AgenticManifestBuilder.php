@@ -34,8 +34,10 @@ class AgenticManifestBuilder
 {
     /**
      * Default agent flow steps quoted into /agents.md. Mirrors the six-step
-     * flow that Shopify ships in its native /agents.md so any UCP-compatible
-     * agent reading multiple stores in the same session sees a consistent
+     * Discover → Search → Cart → Checkout → Fulfill → Complete sequence that
+     * has emerged as the de-facto convention across agentic commerce
+     * platforms, so any UCP-compatible agent reading multiple stores in the
+     * same session sees a consistent
      * vocabulary.
      */
     private const DEFAULT_AGENT_FLOW = [

@@ -41,9 +41,10 @@ use Symfony\Component\Routing\Attribute\Route;
  * request domain, so probing agents see a clean signal without leaking
  * whether the feature is configured at all.
  *
- * The route family deliberately mirrors what Shopify ships natively on every
- * storefront so any standards-compliant agent can resolve the same paths
- * across platforms.
+ * The four paths are the de-facto convention that emerged across the
+ * agentic commerce ecosystem in 2026, so any standards-compliant agent
+ * can resolve the same URLs on every Shopware storefront regardless of
+ * the commerce platform it was developed against.
  *
  * @experimental stableVersion:v6.8.0 feature:AGENTIC_DISCOVERY
  *

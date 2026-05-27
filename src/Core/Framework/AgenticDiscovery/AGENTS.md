@@ -11,7 +11,8 @@ documents** Shopware storefronts expose to AI shopping agents
 - `/llms-full.txt` — extended LLM overview
 - `/sitemap_agentic_discovery.xml` — AI-focused sitemap
 
-The convention mirrors what Shopify rolled out natively in May 2026.
+The four paths are the de-facto convention that emerged across the
+agentic commerce ecosystem in 2026.
 UCP (sibling `Core/Framework/Ucp/`) answers *what an agent can technically
 do*; this module answers *how the storefront wants the agent to behave*.
 

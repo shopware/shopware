@@ -10,7 +10,8 @@ storefront domain:
 - `/llms-full.txt` — extended LLM overview
 - `/sitemap_agentic_discovery.xml` — AI-focused sitemap
 
-The convention mirrors what Shopify rolled out natively in May 2026.
+The four paths are the de-facto convention that emerged across the
+agentic commerce ecosystem in 2026.
 Combined with the [Universal Commerce Protocol](https://ucp.dev) (sibling
 `Core/Framework/Ucp/`), it gives every Shopware store a complete agent
 contract: UCP says *what* the agent can technically do, the discovery
@@ -254,8 +255,9 @@ and disappears in `prod`.
 - All routes gated by `Feature::isActive('AGENTIC_DISCOVERY')` returning HTTP 404
 - Merchant input sanitized at render time, not at write time, so existing
   stored values are covered without data migrations
-- Discovery documents are intentionally English-only (mirrors Shopify and
-  the `llms.txt` spec); the *dynamic* parts (store name, contact, custom
+- Discovery documents are intentionally English-only (the `llms.txt` spec
+  is English; major AI crawlers process English natively); the *dynamic*
+  parts (store name, contact, custom
   intro, language code, currency code) are per sales-channel domain
 
 ## ACL

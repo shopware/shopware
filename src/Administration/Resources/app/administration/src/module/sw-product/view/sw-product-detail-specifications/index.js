@@ -143,7 +143,24 @@ export default {
                 });
         },
 
-        productDocumentRemoveInheritanceFunction() {
+        productDocumentRemoveInheritanceFunction(newValue) {
+            this.productDocuments.getIds().forEach((productDocumentId) => {
+                this.productDocuments.remove(productDocumentId);
+            });
+
+            newValue.forEach(({ media, mediaId, position, title }) => {
+                const productDocument = this.productDocumentRepository.create(Context.api);
+                Object.assign(productDocument, {
+                    media,
+                    mediaId,
+                    position,
+                    productId: this.product.id,
+                    title,
+                });
+
+                this.productDocuments.add(productDocument);
+            });
+
             this.$refs.productDocumentInheritance.forceInheritanceRemove = true;
 
             return this.productDocuments;

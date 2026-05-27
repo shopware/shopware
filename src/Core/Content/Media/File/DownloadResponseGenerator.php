@@ -49,7 +49,8 @@ class DownloadResponseGenerator
     public function getResponse(
         MediaEntity $media,
         SalesChannelContext $context,
-        string $expiration = self::EXPIRATION_TIME
+        string $expiration = self::EXPIRATION_TIME,
+        bool $forceDownload = false
     ): Response {
         return $this->getResponseByContext($media, $context->getContext(), $expiration);
     }
@@ -61,27 +62,33 @@ class DownloadResponseGenerator
     ): Response {
         $fileSystem = $this->getFileSystem($media);
 
-        $path = $media->getPath();
+        if (!$forceDownload) {
+            $path = $media->getPath();
 
-        try {
-            $url = $fileSystem->temporaryUrl($path, $this->clock->now()->modify($expiration));
+            try {
+                $url = $fileSystem->temporaryUrl($path, $this->clock->now()->modify($expiration));
 
-            return new RedirectResponse($url);
-        } catch (UnableToGenerateTemporaryUrl $exception) {
-            $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
-        } catch (\Exception $exception) {
-            $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+                return new RedirectResponse($url);
+            } catch (UnableToGenerateTemporaryUrl $exception) {
+                $this->logger->warning($exception->getMessage(), ['exception' => $exception]);
+            } catch (\Exception $exception) {
+                $this->logger->critical($exception->getMessage(), ['exception' => $exception]);
+            }
         }
 
-        return $this->getDefaultResponse($media, $context, $fileSystem);
+        return $this->getDefaultResponse($media, $context, $fileSystem, $forceDownload);
     }
 
-    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem): Response
+    private function getDefaultResponse(MediaEntity $media, Context $context, FilesystemOperator $fileSystem, bool $forceDownload = false): Response
     {
-        if (!$media->isPrivate()) {
+        if (!$media->isPrivate() && !$forceDownload) {
             $url = $this->mediaUrlGenerator->generate([UrlParams::fromMedia($media)]);
 
             return new RedirectResponse((string) array_shift($url));
+        }
+
+        if (!$media->isPrivate()) {
+            return $this->createStreamedResponse($media, $context);
         }
 
         switch ($this->localPrivateDownloadStrategy) {

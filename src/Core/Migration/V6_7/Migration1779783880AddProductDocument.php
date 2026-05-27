@@ -5,8 +5,10 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -14,6 +16,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class Migration1779783880AddProductDocument extends MigrationStep
 {
+    use InheritanceUpdaterTrait;
+
     private const FOLDER_NAME = 'Product documents';
 
     public function getCreationTimestamp(): int
@@ -42,6 +46,12 @@ class Migration1779783880AddProductDocument extends MigrationStep
                 REFERENCES `media` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
+
+        if (!TableHelper::columnExists($connection, 'product', 'productDocuments')) {
+            $this->updateInheritance($connection, 'product', 'productDocuments');
+        }
+
+        $this->registerIndexer($connection, 'product.indexer', ['product.inheritance']);
 
         $this->createMediaFolder($connection);
     }

@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 /**
  * @internal
  */
-class TestCmsElementResolver extends AbstractCmsElementResolver
+class StubCmsElementResolver extends AbstractCmsElementResolver
 {
     public function runResolveEntityValue(?Entity $entity, string $path): mixed
     {

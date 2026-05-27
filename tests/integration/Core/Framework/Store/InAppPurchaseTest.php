@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -55,7 +56,8 @@ class InAppPurchaseTest extends TestCase
                     new StaticSystemConfigService(),
                     static::getContainer()->get('logger')
                 ),
-                static::getContainer()->get('logger')
+                static::getContainer()->get('logger'),
+                new NativeClock()
             ),
         );
 
@@ -103,7 +105,8 @@ class InAppPurchaseTest extends TestCase
                     $this->staticSystemConfigService,
                     static::getContainer()->get('logger')
                 ),
-                static::getContainer()->get('logger')
+                static::getContainer()->get('logger'),
+                new NativeClock()
             ),
         );
     }

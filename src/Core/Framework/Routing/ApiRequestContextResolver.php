@@ -19,6 +19,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @internal
+ *
+ * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest
+ */
 #[Package('framework')]
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {

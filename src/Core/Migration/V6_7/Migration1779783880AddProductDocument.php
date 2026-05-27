@@ -7,8 +7,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\InheritanceUpdaterTrait;
 use Shopware\Core\Framework\Migration\MigrationStep;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Util\Database\TableHelper;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal

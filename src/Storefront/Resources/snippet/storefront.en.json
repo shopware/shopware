@@ -662,6 +662,8 @@
     "productDocumentsColumnName": "Name",
     "productDocumentsColumnType": "Type",
     "productDocumentsColumnSize": "Size",
+    "productDocumentsColumnAction": "Action",
+    "productDocumentsDownload": "Download",
     "productDocumentsFallbackName": "Document",
     "productDocumentsEmptyValue": "-",
     "productDocumentsFileSizeUnit": "bytes",

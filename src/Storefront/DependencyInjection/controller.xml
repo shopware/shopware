@@ -299,6 +299,14 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\ProductDocumentController" public="true">
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentDownloadRoute"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
         <service id="Shopware\Storefront\Controller\WellKnownController" public="true">
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

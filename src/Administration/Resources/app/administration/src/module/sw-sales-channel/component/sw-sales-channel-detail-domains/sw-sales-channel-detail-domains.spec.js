@@ -27,7 +27,15 @@ async function createWrapper(customProps = {}, domains = []) {
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
-                    'sw-entity-single-select': true,
+                    'sw-entity-single-select': {
+                        template: '<div><slot></slot></div>',
+                        props: [
+                            'value',
+                            'entity',
+                            'criteria',
+                            'labelProperty',
+                        ],
+                    },
                     'sw-radio-field': true,
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                     'sw-container': {
@@ -252,7 +260,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         ]).toStrictEqual([...languages]);
     });
 
-    it('should only display available currencies', async () => {
+    it('should restrict selectable currencies to available currencies', async () => {
         const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null, [
             {
                 id: 'test1',
@@ -274,12 +282,46 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         wrapper.vm.onClickOpenCreateDomainModal();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.value).toBe(
-            currencies.first().id,
+        const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
+        const parsedCriteria = currencySelect.props('criteria').parse();
+
+        expect(currencySelect.props('value')).toBe(currencies.first().id);
+        expect(currencySelect.props('entity')).toBe('currency');
+        expect(parsedCriteria.filter).toEqual([
+            expect.objectContaining({
+                type: 'equalsAny',
+                field: 'id',
+                value: currencies.first().id,
+            }),
+        ]);
+    });
+
+    it('should include the default currency in the selectable currencies', async () => {
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    currencyId: 'default-currency-id',
+                    languages: [],
+                    currencies: new EntityCollection('/currencies', 'currencies', Context.api, null, []),
+                    domains: getExampleDomains(),
+                },
+            },
+            getExampleDomains(),
         );
-        expect([
-            ...wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results,
-        ]).toStrictEqual([...currencies]);
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        const currencySelect = wrapper.getComponent('.sw-sales-channel-detail-domains__domain-currency-select');
+        const parsedCriteria = currencySelect.props('criteria').parse();
+
+        expect(parsedCriteria.filter).toEqual([
+            expect.objectContaining({
+                type: 'equalsAny',
+                field: 'id',
+                value: 'default-currency-id',
+            }),
+        ]);
     });
 
     it('should preselect requested language and currency when opening the create modal', async () => {

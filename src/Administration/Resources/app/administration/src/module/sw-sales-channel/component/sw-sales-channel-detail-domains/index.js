@@ -91,7 +91,31 @@ export default {
         },
 
         currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            const criteria = new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            const selectableCurrencyIds = this.selectableCurrencyIds;
+
+            if (selectableCurrencyIds.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('id', selectableCurrencyIds));
+            }
+
+            return criteria;
+        },
+
+        selectableCurrencyIds() {
+            const currencyIds =
+                this.salesChannel.currencies?.getIds?.() ??
+                (this.salesChannel.currencies ?? []).map((currency) => currency.id);
+
+            [
+                this.salesChannel.currencyId,
+                this.currentDomain?.currencyId,
+            ].forEach((currencyId) => {
+                if (currencyId && !currencyIds.includes(currencyId)) {
+                    currencyIds.push(currencyId);
+                }
+            });
+
+            return currencyIds;
         },
 
         hreflangLocalisationOptions() {
@@ -393,10 +417,6 @@ export default {
 
         onLanguageSelect(id) {
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
-        },
-
-        onCurrencySelect(id) {
-            this.onOptionSelect('currency', this.salesChannel.currencies.get(id));
         },
 
         onOptionSelect(name, entity) {

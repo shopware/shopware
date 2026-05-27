@@ -191,6 +191,8 @@ describe('app/service/search-ranking.service.js', () => {
             ...(Shopware.Context.app.config.settings ?? {}),
             minSearchTermLength: 2,
         };
+
+        clearModules();
     });
 
     const userConfigSearchPreferenceCase = [
@@ -276,10 +278,6 @@ describe('app/service/search-ranking.service.js', () => {
 
         Shopware.Service('userConfigService').search = () => Promise.resolve({ data });
     }
-
-    beforeEach(async () => {
-        clearModules();
-    });
 
     it('Should get default user search preferences', async () => {
         createModules(searchRankingModules);

@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfig;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\MetricConfigProvider;
+use Shopware\Core\Framework\Telemetry\Metrics\Exception\MissingMetricConfigurationException;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Metric;
@@ -159,6 +160,43 @@ class MeterTest extends TestCase
             'prod',
             true,
         );
+        $meter->emit($configuredMetric);
+    }
+
+    public function testImproperlyConfiguredMetricIsRethrownInTestEnv(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(
+                static::stringContains('Missing configuration'),
+                static::arrayHasKey('exception')
+            );
+
+        $configuredMetric = new ConfiguredMetric('test', 1, ['test' => 'test']);
+
+        $metricConfigProvider = $this->createMock(MetricConfigProvider::class);
+        $metricConfigProvider->expects($this->once())
+            ->method('get')
+            ->with('test')
+            ->willThrowException(TelemetryException::metricMissingConfiguration('test'));
+
+        $transport = $this->createMock(MetricTransportInterface::class);
+        $transport->expects($this->never())->method('emit');
+
+        $collection = $this->createMock(TransportCollection::class);
+        $collection->expects($this->never())->method('getIterator');
+
+        $meter = new Meter(
+            $collection,
+            $metricConfigProvider,
+            $this->createMock(MetricLabelProcessor::class),
+            $logger,
+            'test',
+            true,
+        );
+
+        $this->expectException(MissingMetricConfigurationException::class);
         $meter->emit($configuredMetric);
     }
 

@@ -96,6 +96,12 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         useSystem().locales.value.push(navigator.language);
     });
 
+    beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+        localStorage.removeItem('sw-admin-locale');
+        useSystem().registerAdminLocale('en-GB');
+    });
+
     it('should show a warning if the login is rate limited', async () => {
         const { wrapper, usernameInput, passwordInput } = await createWrapper(false);
         jest.useFakeTimers();
@@ -141,6 +147,17 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
         expect(rememberMeDuration).toBeGreaterThan(1600000);
         expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
+    });
+
+    it('should use the system fallback locale when no admin locale is stored', async () => {
+        useSystem().registerAdminLocale('de-DE');
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale('de-DE');
+
+        const setAdminLocaleSpy = jest.spyOn(Shopware.Store.get('session'), 'setAdminLocale');
+
+        await createWrapper(true);
+
+        expect(setAdminLocaleSpy).toHaveBeenCalledWith('de-DE');
     });
 
     it('should redirect for SSO login', async () => {

@@ -24,6 +24,11 @@ describe('src/app/init/locale.init.ts', () => {
         });
     });
 
+    beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+        window.localStorage.removeItem('sw-admin-locale');
+    });
+
     it('should register the locale factory with correct snippet languages', async () => {
         global.console.warn = jest.fn();
         await initializeLocaleService();
@@ -80,5 +85,20 @@ describe('src/app/init/locale.init.ts', () => {
         const locales = Array.from(localeRegistry.keys());
 
         expect(locales).toEqual(Object.values(expectedLocales));
+    });
+
+    it('should use the system language locale as fallback when no locale is stored yet', async () => {
+        Shopware.Context.api.systemLanguageId = 'system-language-id';
+
+        Shopware.Service('snippetService').getLocales = () => {
+            return Promise.resolve({
+                'system-language-id': 'de-DE',
+                'other-language-id': 'en-GB',
+            });
+        };
+
+        await initializeLocaleService();
+
+        expect(Shopware.Application.getContainer('factory').locale.getLastKnownLocale()).toBe('de-DE');
     });
 });

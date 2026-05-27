@@ -126,20 +126,7 @@ class SearchKeywordUpdater implements ResetInterface
             }
         }
 
-        if (\in_array('parent.name', array_column($configFields, 'field'), true)) {
-            /** @var array<string, list<ProductEntity>> $productsByParentId */
-            $productsByParentId = [];
-            foreach ($existingProducts as $product) {
-                $parentId = $product->getParentId();
-                if ($parentId === null) {
-                    continue;
-                }
-
-                $productsByParentId[$parentId][] = $product;
-            }
-
-            $this->hydrateParentProducts($productsByParentId, $context);
-        }
+        $this->assignParentProducts($existingProducts, $configFields, $context);
 
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
@@ -306,6 +293,30 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+    }
+
+    /**
+     * @param array<string, ProductEntity> $existingProducts
+     * @param array<int, ConfigField> $configFields
+     */
+    private function assignParentProducts(array $existingProducts, array $configFields, Context $context): void
+    {
+        if (!\in_array('parent.name', array_column($configFields, 'field'), true)) {
+            return;
+        }
+
+        /** @var array<string, list<ProductEntity>> $productsByParentId */
+        $productsByParentId = [];
+        foreach ($existingProducts as $product) {
+            $parentId = $product->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
+
+            $productsByParentId[$parentId][] = $product;
+        }
+
+        $this->hydrateParentProducts($productsByParentId, $context);
     }
 
     /**

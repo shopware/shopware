@@ -33,6 +33,11 @@ class Migration1775460999AddParentNameToProductSearchConfigTest extends TestCase
         $this->connection->rollBack();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1775460999, $this->migration->getCreationTimestamp());
+    }
+
     public function testAddParentNameToProductSearchConfig(): void
     {
         $nameConfig = $this->connection->fetchAssociative(

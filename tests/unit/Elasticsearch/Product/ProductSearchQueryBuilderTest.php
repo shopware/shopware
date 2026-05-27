@@ -176,7 +176,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     self::prefix('tags.name.search', 'foo', 0.4),
                 ], 500)),
                 self::nested('parent', self::disMax([
-                    self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                     self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                     self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 800)),
@@ -219,7 +219,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::prefix('tags.name.search', 'foo', 0.4),
                         ], 500)),
                         self::nested('parent', self::disMax([
-                            self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                             self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                             self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                         ], 800)),
@@ -242,7 +242,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::prefix('tags.name.search', '2023', 0.4),
                         ], 500)),
                         self::nested('parent', self::disMax([
-                            self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, '2023', 1),
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 1),
                             self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.8, 0, 'and', 10),
                             self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.4),
                         ], 800)),
@@ -365,7 +365,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     ], 160),
                 ])),
                 self::nested('parent', self::disMax([
-                    self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                     self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                     self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 800)),
@@ -400,7 +400,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::prefix('tags.name.search', 'foo', 0.4),
                         ], 500)),
                         self::nested('parent', self::disMax([
-                            self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                             self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                             self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                         ], 800)),
@@ -423,7 +423,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::prefix('tags.name.search', '2023', 0.4),
                         ], 500)),
                         self::nested('parent', self::disMax([
-                            self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, '2023', 1),
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 1),
                             self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.8, 0, 'and', 10),
                             self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.4),
                         ], 800)),
@@ -618,12 +618,12 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertEquals(
             self::bool([
                 self::disMax([
-                    self::term('name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                     self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                     self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 1000),
                 self::nested('parent', self::disMax([
-                    self::term('parent.name.' . Defaults::LANGUAGE_SYSTEM, 'foo', 1),
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
                     self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                     self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
                 ], 800)),

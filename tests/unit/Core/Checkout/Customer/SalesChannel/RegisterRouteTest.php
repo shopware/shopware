@@ -44,6 +44,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -713,6 +714,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            new NativeClock()
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -819,6 +821,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            new NativeClock()
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -923,6 +926,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            new NativeClock()
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1131,6 +1135,7 @@ class RegisterRouteTest extends TestCase
             $customFieldMapper,
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
+            new NativeClock()
         );
     }
 

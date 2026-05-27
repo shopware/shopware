@@ -29,8 +29,9 @@ class TextCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
-        $this->textResolver = new TextCmsElementResolver($htmlSanitizer);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->textResolver = new TextCmsElementResolver($sanitizer);
     }
 
     public function testType(): void
@@ -83,22 +84,26 @@ class TextCmsElementResolverTest extends TestCase
         static::assertSame('lorem ipsum dolor', $textStruct->getContent());
     }
 
-    public function testWithContaminatedStaticContent(): void
+    public function testStaticContentIsDelegatedToSanitizer(): void
     {
-        $resolverContext = $this->createResolverContext();
-        $result = new ElementDataCollection();
+        $contaminated = 'lorem<script>console.log("ipsum dolor")</script>';
+        $sanitized = 'lorem';
+
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($sanitized);
+        $resolver = new TextCmsElementResolver($sanitizer);
 
         $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, 'lorem<script>console.log("ipsum dolor")</script>'));
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, $contaminated));
 
         $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
-        $this->textResolver->enrich($slot, $resolverContext, $result);
+        $resolver->enrich($slot, $this->createResolverContext(), new ElementDataCollection());
 
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
-        static::assertSame('lorem', $textStruct->getContent());
+        static::assertSame($sanitized, $textStruct->getContent());
     }
 
     public function testWithMappedContent(): void

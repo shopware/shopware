@@ -7,6 +7,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\MailTemplateException;
 use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
@@ -15,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -31,6 +34,7 @@ class MailTemplateService
         private readonly MailDataProvider $mailDataProvider,
         private readonly MailDataSimulator $mailDataSimulator,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -60,6 +64,7 @@ class MailTemplateService
         $renderedResult = [];
 
         $templateData = $this->mailDataSimulator->getTemplateData($simulateRequest->eventName, $context, $simulateRequest->salesChannel);
+        $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $simulateRequest->salesChannel);
 
         if (!$simulateRequest->strictRendering) {
             $this->templateRenderer->enableTestMode();
@@ -102,6 +107,7 @@ class MailTemplateService
             $context,
             $request->templateData
         );
+        $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $request->salesChannel);
 
         if (!$request->strictRendering) {
             $this->templateRenderer->enableTestMode();
@@ -238,5 +244,28 @@ class MailTemplateService
     private function shouldEscapeHtml(string $templatePart): bool
     {
         return \in_array($templatePart, ['contentHtml', 'headerHtml', 'footerHtml'], true);
+    }
+
+    /**
+     * @param array<string, mixed> $templateData
+     *
+     * @return array<string, mixed>
+     */
+    private function enrichTemplateDataForRendering(array $templateData, Context $context, ?SalesChannelEntity $salesChannel): array
+    {
+        $templateSalesChannel = $templateData['salesChannel'] ?? null;
+        if (!$salesChannel instanceof SalesChannelEntity && $templateSalesChannel instanceof SalesChannelEntity) {
+            $salesChannel = $templateSalesChannel;
+        }
+
+        if ($salesChannel instanceof SalesChannelEntity) {
+            $templateData['salesChannel'] ??= $salesChannel;
+            $templateData['salesChannelId'] ??= $salesChannel->getId();
+        }
+
+        $event = new MailTemplateRenderContextEvent($templateData, $context, $salesChannel);
+        $this->eventDispatcher->dispatch($event);
+
+        return $event->getTemplateData();
     }
 }

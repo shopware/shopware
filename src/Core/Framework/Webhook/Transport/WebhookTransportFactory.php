@@ -11,15 +11,23 @@ use Symfony\Component\Messenger\Transport\TransportInterface;
 /**
  * @internal
  *
+ * Constructor must not eagerly resolve `messenger.transport.*` services — Symfony's
+ * `messenger.transport_factory` iteration would re-enter itself. Defer with
+ * `service_closure` and resolve in `createTransport()`.
+ *
  * @implements TransportFactoryInterface<WebhookTransport>
  */
 #[Package('framework')]
 class WebhookTransportFactory implements TransportFactoryInterface
 {
+    /**
+     * @param \Closure(): TransportInterface $asyncTransportLocator
+     * @param \Closure(): MySQLWebhookReceiver $receiverLocator
+     */
     public function __construct(
         private readonly WebhookOutboxStore $webhookOutboxStore,
-        private readonly TransportInterface $asyncTransport,
-        private readonly MySQLWebhookReceiver $receiver,
+        private readonly \Closure $asyncTransportLocator,
+        private readonly \Closure $receiverLocator,
     ) {
     }
 
@@ -28,7 +36,11 @@ class WebhookTransportFactory implements TransportFactoryInterface
      */
     public function createTransport(string $dsn, array $options, SerializerInterface $serializer): TransportInterface
     {
-        return new WebhookTransport($this->webhookOutboxStore, $this->asyncTransport, $this->receiver);
+        return new WebhookTransport(
+            $this->webhookOutboxStore,
+            ($this->asyncTransportLocator)(),
+            ($this->receiverLocator)(),
+        );
     }
 
     /**

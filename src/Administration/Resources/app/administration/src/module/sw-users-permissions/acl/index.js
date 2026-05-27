@@ -20,6 +20,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'user_config:update',
                 'currency:read',
                 'system_config:read',
+                'api_acl_privileges_additional_get',
+                'media_folder:read',
             ],
             dependencies: [],
         },

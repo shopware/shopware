@@ -27,7 +27,9 @@ class Migration1779440795AddMissingAdministrationReadPrivileges extends Migratio
         ],
         'users_and_permissions.viewer' => [
             'media:read',
+            'media_folder:read',
             'integration:read',
+            'api_acl_privileges_additional_get',
         ],
         'sales_channel.viewer' => [
             'product:read',

@@ -199,6 +199,11 @@ Also the checkbox field is now positionally aligned with the other components.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### App action button icons are aligned in Administration context menus
+
+App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
+Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
+
 ## Storefront
 
 ### Mail templates can access storefront theme configuration

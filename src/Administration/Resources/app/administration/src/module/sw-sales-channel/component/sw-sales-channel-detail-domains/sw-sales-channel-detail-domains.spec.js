@@ -282,6 +282,48 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         ]).toStrictEqual([...currencies]);
     });
 
+    it('should preselect requested language and currency when opening the create modal', async () => {
+        const languages = new EntityCollection('/languages', 'languages', Context.api, null, [
+            {
+                id: 'language-1',
+                name: 'English',
+            },
+            {
+                id: 'language-2',
+                name: 'German',
+            },
+        ]);
+
+        const currencies = new EntityCollection('/currencies', 'currencies', Context.api, null, [
+            {
+                id: 'currency-1',
+                name: 'Euro',
+            },
+            {
+                id: 'currency-2',
+                name: 'US dollar',
+            },
+        ]);
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages,
+                currencies,
+                domains: new EntityCollection('/sales-channel-domain', 'sales_channel_domain', Context.api, null, []),
+            },
+        });
+
+        wrapper.vm.onClickOpenCreateDomainModal({
+            languageId: 'language-2',
+            currencyId: 'currency-2',
+        });
+
+        expect(wrapper.vm.currentDomain.languageId).toBe('language-2');
+        expect(wrapper.vm.currentDomain.language).toStrictEqual(languages.get('language-2'));
+        expect(wrapper.vm.currentDomain.currencyId).toBe('currency-2');
+        expect(wrapper.vm.currentDomain.currency).toStrictEqual(currencies.get('currency-2'));
+    });
+
     it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
         const exampleDomains = getExampleDomains();
         const wrapper = await createWrapper({}, exampleDomains);

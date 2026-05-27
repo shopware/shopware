@@ -96,6 +96,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
+            <argument>%shopware.product.search_keyword.relevant_keyword_count%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\KeywordLoader">

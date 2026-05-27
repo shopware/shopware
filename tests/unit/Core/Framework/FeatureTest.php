@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
@@ -211,48 +210,27 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
-    #[TestDox('Feature::callSilentIfInactive suppresses Feature::triggerDeprecationOrThrow for the same inactive flag, so no E_USER_DEPRECATED is emitted')]
-    #[DisabledFeatures(['v6.5.0.0'])]
-    public function testCallSilentIfInactiveSuppressesDeprecationForInactiveFeature(): void
-    {
-        // Deprecation warnings are suppressed in test mode by default
-        $this->setEnvVars(['TESTS_RUNNING' => false]);
-
-        $this->expectNotToPerformAssertions();
-
-        Feature::callSilentIfInactive('v6.5.0.0', static function (): void {
-            Feature::triggerDeprecationOrThrow('v6.5.0.0', 'deprecated message');
-        });
-    }
-
-    /**
-     * @param non-empty-string $expectedDeprecation
-     */
     #[IgnoreDeprecations]
     #[DisabledFeatures(['v6.5.0.0'])]
     #[DataProvider('callSilentIfInactiveProvider')]
-    public function testCallSilentIfInactive(string $majorVersion, string $deprecatedMessage, ?string $introducedIn, string $expectedDeprecation): void
+    public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
     {
         // Deprecation warnings are suppressed in test mode by default
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
-        // PHPUnit 10 has no expectUserDeprecationMessage(); capture the E_USER_DEPRECATED ourselves
-        $caughtDeprecation = null;
-        set_error_handler(static function (int $errno, string $message) use (&$caughtDeprecation): bool {
-            $caughtDeprecation = $message;
+        $errorMessage = null;
+        set_error_handler(static function (int $errno, string $error) use (&$errorMessage): bool {
+            $errorMessage = $error;
 
             return true;
-        }, \E_USER_DEPRECATED);
+        });
 
-        try {
-            Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion, $introducedIn): void {
-                Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage, $introducedIn);
-            });
-        } finally {
-            restore_error_handler();
-        }
+        Feature::callSilentIfInactive('v6.5.0.0', static function () use ($deprecatedMessage, $majorVersion): void {
+            Feature::triggerDeprecationOrThrow($majorVersion, $deprecatedMessage);
+        });
+        $assertion($deprecatedMessage, $errorMessage);
 
-        static::assertSame($expectedDeprecation, $caughtDeprecation);
+        restore_error_handler();
     }
 
     #[DataProvider('deprecatedMethodMessageProvider')]
@@ -313,13 +291,17 @@ class FeatureTest extends TestCase
 
     public static function callSilentIfInactiveProvider(): \Generator
     {
-        yield 'Execute a callable with inactivated feature flag and throw a bare deprecation when introducedIn is omitted' => [
-            // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
-            'v6.4.0.0', 'deprecated message', null, 'deprecated message',
+        yield 'Execute a callable with inactivated feature flag in silent' => [
+            'v6.5.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
+                static::assertNull($errorMessage);
+            },
         ];
 
-        yield 'Execute a callable with inactivated feature flag and throw a deprecation prefixed with the introduction version' => [
-            'v6.4.0.0', 'deprecated message', 'v6.3.0.0', 'Since shopware/core v6.3.0.0: deprecated message',
+        yield 'Execute a callable with inactivated feature flag and throw a deprecated message' => [
+            // `v6.4.0.0` is not registered as feature flag, therefore it will always throw the deprecation
+            'v6.4.0.0', 'deprecated message', function ($deprecatedMessage, $errorMessage): void {
+                static::assertSame($deprecatedMessage, $errorMessage);
+            },
         ];
     }
 }

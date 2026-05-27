@@ -95,8 +95,5 @@ return [
 
         // Unused protected method from final class can be removed safely
         preg_quote('REMOVED: Method Shopware\Core\Framework\Store\InAppPurchase\Services\DecodedPurchaseStruct#throwException() was removed', '/'),
-
-        // Optional parameter added with default null; existing callers are unaffected
-        preg_quote('ADDED: Parameter introducedIn was added to Method triggerDeprecationOrThrow() of class Shopware\Core\Framework\Feature', '/'),
     ],
 ];

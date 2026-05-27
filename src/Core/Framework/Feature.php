@@ -233,7 +233,7 @@ class Feature
         }
     }
 
-    public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null): void
+    public static function triggerDeprecationOrThrow(string $majorFlag, string $message): void
     {
         if (!self::$emitDeprecations || !empty(self::$silent[$majorFlag])) {
             return;
@@ -252,13 +252,8 @@ class Feature
             return;
         }
 
-        if ($introducedIn === null) {
-            trigger_deprecation('', '', $message);
-
-            return;
-        }
-
-        trigger_deprecation('shopware/core', $introducedIn, $message);
+        // empty package avoids the malformed "Since shopware/core : " prefix that a non-empty package with an empty version would render
+        trigger_deprecation('', '', $message);
     }
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string

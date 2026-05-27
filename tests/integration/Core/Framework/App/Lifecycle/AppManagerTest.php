@@ -26,8 +26,7 @@ use Shopware\Core\Framework\App\Event\Hooks\AppDeletedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppInstalledHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppUpdatedHook;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
@@ -46,24 +45,19 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
-use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
-use Shopware\Core\System\CustomField\CustomFieldCollection;
-use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-class AppLifecycleTest extends TestCase
+class AppManagerTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    private AbstractAppLifecycle $appLifecycle;
+    private AppManager $appManager;
 
     /**
      * @var EntityRepository<AppCollection>
@@ -77,23 +71,16 @@ class AppLifecycleTest extends TestCase
      */
     private EntityRepository $actionButtonRepository;
 
-    /**
-     * @var EntityRepository<CustomFieldSetCollection>
-     */
-    private EntityRepository $customFieldSetRepository;
-
     private EventDispatcherInterface $eventDispatcher;
 
     private Connection $connection;
-
-    private IdsCollection $ids;
 
     protected function setUp(): void
     {
         $this->appRepository = static::getContainer()->get('app.repository');
         $this->actionButtonRepository = static::getContainer()->get('app_action_button.repository');
 
-        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
+        $this->appManager = static::getContainer()->get(AppManager::class);
 
         $userId = static::getContainer()->get('user.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
         $source = new AdminApiSource($userId);
@@ -107,9 +94,6 @@ class AppLifecycleTest extends TestCase
         $cache->save(CacheCompressor::compress($item, []));
 
         $this->connection = static::getContainer()->get(Connection::class);
-        $this->customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
-
-        $this->ids = new IdsCollection();
     }
 
     public function testInstall(): void
@@ -124,7 +108,7 @@ class AppLifecycleTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
 
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
@@ -166,7 +150,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($appEntity->getId());
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -187,7 +170,7 @@ class AppLifecycleTest extends TestCase
         $wasThrown = false;
 
         try {
-            $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+            $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
         } catch (AppRegistrationException) {
             $wasThrown = true;
         }
@@ -201,7 +184,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallMinimalManifest(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -214,7 +197,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallOnlyCallsAppLifecycleScriptsForAffectedApps(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
@@ -222,7 +205,7 @@ class AppLifecycleTest extends TestCase
         static::assertSame('installed', $traces[AppInstalledHook::HOOK_NAME][0]['output'][0]);
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppInstalledHook::HOOK_NAME, $traces);
@@ -232,7 +215,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallWithoutDescription(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -249,7 +232,7 @@ class AppLifecycleTest extends TestCase
         $this->setNewSystemLanguage('en-GB');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -263,7 +246,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallSavesConfig(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -284,16 +267,16 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
         $this->expectExceptionObject(AppException::invalidConfiguration('withInvalidConfig', new ConfigurationError(['test'])));
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
     }
 
     public function testInstallThrowsIfAppIsAlreadyInstalled(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $this->expectExceptionObject(AppException::alreadyInstalled($manifest->getMetadata()->getName()));
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
     }
 
     public function testUpdateInactiveApp(): void
@@ -338,26 +321,6 @@ class AppLifecycleTest extends TestCase
                 'label' => 'test',
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
-            ],
-            'customFieldSets' => [
-                [
-                    'name' => 'custom_field_test',
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test2',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
-                [
-                    'name' => 'custom_field_test', // same name used twice, sets should be deleted and recreated
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
             ],
             'aclRole' => [
                 'id' => $roleId,
@@ -438,7 +401,7 @@ class AppLifecycleTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
@@ -463,7 +426,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId(), false);
         $this->assertDefaultScript($appEntity->getId(), false);
@@ -476,11 +438,8 @@ class AppLifecycleTest extends TestCase
 
     public function testUpdateActiveApp(): void
     {
-        $this->createCustomFieldSet();
-
         $id = Uuid::randomHex();
         $roleId = Uuid::randomHex();
-        $customFieldSetId = $this->ids->get('custom_field_set_id');
 
         $context = Context::createDefaultContext();
         $this->appRepository->create([[
@@ -521,20 +480,6 @@ class AppLifecycleTest extends TestCase
                 'label' => 'test',
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
-            ],
-            'customFieldSets' => [
-                [
-                    'id' => $customFieldSetId,
-                ],
-                [
-                    'name' => 'to_be_deleted',
-                    'customFields' => [
-                        [
-                            'name' => 'bla_test2',
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
             ],
             'aclRole' => [
                 'id' => $roleId,
@@ -615,7 +560,7 @@ class AppLifecycleTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppUpdatedHook::HOOK_NAME, $traces);
@@ -641,7 +586,6 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($appEntity);
         $this->assertDefaultPrivileges($appEntity->getAclRoleId());
-        $this->assertDefaultCustomFields($id, $customFieldSetId);
         $this->assertDefaultWebhooks($appEntity->getId());
         $this->assertDefaultTemplate($appEntity->getId());
         $this->assertDefaultScript($appEntity->getId());
@@ -670,11 +614,6 @@ class AppLifecycleTest extends TestCase
                 'label' => 'test',
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
-            ],
-            'customFieldSets' => [
-                [
-                    'name' => 'test',
-                ],
             ],
             'aclRole' => [
                 'id' => $roleId,
@@ -710,7 +649,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         static::assertTrue($this->didRegisterApp());
 
@@ -727,7 +666,6 @@ class AppLifecycleTest extends TestCase
         static::assertNotNull($app1);
         $this->assertDefaultModules($app1);
         $this->assertDefaultPrivileges($app1->getAclRoleId());
-        $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($app1->getId());
         $this->assertDefaultTemplate($app1->getId());
         $this->assertDefaultScript($app1->getId());
@@ -769,7 +707,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         static::assertSame([
@@ -818,7 +756,7 @@ class AppLifecycleTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('withConfig.config.email', 'my-shop@test.com');
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         static::assertSame([
             'withConfig.config.email' => 'my-shop@test.com',
@@ -857,7 +795,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -902,7 +840,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
 
-        $this->appLifecycle->update($manifest, new AppUpdateParameters(), $app, $this->context);
+        $this->appManager->update($manifest, new AppUpdateParameters(), $this->loadApp($app['id']), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -967,7 +905,7 @@ class AppLifecycleTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
-        $this->appLifecycle->delete('Test', $app, $this->context);
+        $this->appManager->delete($this->loadApp($app['id']), $this->context);
 
         $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(AppDeletedHook::HOOK_NAME, $traces);
@@ -994,7 +932,7 @@ class AppLifecycleTest extends TestCase
     public function testDeleteRemovesInstalledAppAssets(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
@@ -1004,9 +942,7 @@ class AppLifecycleTest extends TestCase
         $app = $apps->first();
         static::assertNotNull($app);
 
-        $this->appLifecycle->delete('test', [
-            'id' => $app->getId(),
-        ], $this->context);
+        $this->appManager->delete($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1017,7 +953,7 @@ class AppLifecycleTest extends TestCase
     public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -1031,7 +967,7 @@ class AppLifecycleTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context);
+        $this->appManager->delete($appEntity, $this->context);
 
         static::assertSame([], $systemConfigService->getDomain('withConfig.config'));
     }
@@ -1039,7 +975,7 @@ class AppLifecycleTest extends TestCase
     public function testDeleteAppDoesNotDeleteConfigWhenUserDataShouldBeKept(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -1053,7 +989,7 @@ class AppLifecycleTest extends TestCase
             'withConfig.config.email' => 'no-reply@shopware.de',
         ], $systemConfigService->getDomain('withConfig.config'));
 
-        $this->appLifecycle->delete('withConfig', ['id' => $appEntity->getId()], $this->context, true);
+        $this->appManager->delete($appEntity, $this->context, true);
 
         static::assertSame([
             'withConfig.config.email' => 'no-reply@shopware.de',
@@ -1073,7 +1009,7 @@ class AppLifecycleTest extends TestCase
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $criteria = new Criteria();
         $criteria->addAssociation('integration');
@@ -1099,7 +1035,7 @@ class AppLifecycleTest extends TestCase
     public function testDeleteWithDeleteAclRole(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(1, $apps);
@@ -1110,9 +1046,7 @@ class AppLifecycleTest extends TestCase
         $appPrivilege = 'app.' . $app->getName();
         $this->createAclRole($aclRoleId, [$appPrivilege]);
 
-        $this->appLifecycle->delete('test', [
-            'id' => $app->getId(),
-        ], $this->context);
+        $this->appManager->delete($app, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -1128,7 +1062,7 @@ class AppLifecycleTest extends TestCase
     public function testInstallWithAllowedHosts(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withAllowedHosts/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 
@@ -1147,7 +1081,7 @@ class AppLifecycleTest extends TestCase
     public function testUninstallFlowEventUsedInFlowBuilder(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
-        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
         $appId = $this->getAppId();
         static::assertIsString($appId);
@@ -1171,7 +1105,7 @@ class AppLifecycleTest extends TestCase
             'id' => $appId,
         ];
 
-        $this->appLifecycle->delete('test', $app, $this->context);
+        $this->appManager->delete($this->loadApp($app['id']), $this->context);
 
         $flow = $this->getAppFlowEventFromFlow($flowEvents[0]['id']);
         static::assertNull($flow);
@@ -1310,60 +1244,6 @@ class AppLifecycleTest extends TestCase
         static::assertContains('user_change_me', $privileges);
     }
 
-    private function assertDefaultCustomFields(string $appId, ?string $expectedFieldSetId = null): void
-    {
-        /** @var EntityRepository<CustomFieldSetCollection> $customFieldSetRepository */
-        $customFieldSetRepository = static::getContainer()->get('custom_field_set.repository');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
-        $criteria->addAssociation('relations');
-        $criteria->addAssociation('customFields');
-
-        $customFieldSets = $customFieldSetRepository->search($criteria, $this->context)->getEntities();
-
-        static::assertCount(1, $customFieldSets);
-
-        $customFieldSet = $customFieldSets->first();
-        static::assertNotNull($customFieldSet);
-        if ($expectedFieldSetId) {
-            static::assertSame($expectedFieldSetId, $customFieldSet->getId());
-        }
-        static::assertSame('custom_field_test', $customFieldSet->getName());
-        static::assertCount(2, $customFieldSet->getRelations() ?? []);
-
-        $relations = $customFieldSet->getRelations();
-        static::assertNotNull($relations);
-
-        $relatedEntities = array_map(static fn (CustomFieldSetRelationEntity $relation) => $relation->getEntityName(), $relations->getElements());
-        static::assertContains('product', $relatedEntities);
-        static::assertContains('customer', $relatedEntities);
-
-        static::assertEquals([
-            'label' => [
-                'de-DE' => 'Zusatzfeld Test',
-                'en-GB' => 'Custom field test',
-            ],
-            'translated' => true,
-        ], $customFieldSet->getConfig());
-        static::assertTrue($customFieldSet->isGlobal());
-
-        $customFieldCollection = $customFieldSet->getCustomFields();
-        static::assertInstanceOf(CustomFieldCollection::class, $customFieldCollection);
-
-        static::assertCount(2, $customFieldCollection);
-
-        $fieldWithoutAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test')->first();
-        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithoutAllowWrite);
-
-        static::assertFalse($fieldWithoutAllowWrite->isAllowCustomerWrite());
-
-        $fieldWithAllowWrite = $customFieldCollection->filterByProperty('name', 'bla_test2')->first();
-        static::assertInstanceOf(CustomFieldEntity::class, $fieldWithAllowWrite);
-
-        static::assertTrue($fieldWithAllowWrite->isAllowCustomerWrite());
-    }
-
     private function assertDefaultWebhooks(string $appId): void
     {
         $webhooks = $this->connection->fetchAllAssociative('SELECT url, event_name FROM webhook WHERE app_id = ?', [Uuid::fromHexToBytes($appId)]);
@@ -1445,6 +1325,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $cachedScripts['product-page-loaded']);
         static::assertInstanceOf(Script::class, $cachedScripts['product-page-loaded'][0]);
         static::assertSame($script->getName(), $cachedScripts['product-page-loaded'][0]->getName());
+        static::assertSame($active, $cachedScripts['product-page-loaded'][0]->isActive());
     }
 
     private function assertDefaultPaymentMethods(string $appId): void
@@ -1706,6 +1587,14 @@ class AppLifecycleTest extends TestCase
         ], $app->getAllowedHosts());
     }
 
+    private function loadApp(string $id): AppEntity
+    {
+        $app = $this->appRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        \assert($app instanceof AppEntity);
+
+        return $app;
+    }
+
     /**
      * @return array<int, mixed>|null
      */
@@ -1740,33 +1629,5 @@ class AppLifecycleTest extends TestCase
             ],
             $aware
         );
-    }
-
-    private function createCustomFieldSet(): void
-    {
-        $customFieldSetData = [
-            'id' => $this->ids->create('custom_field_set_id'),
-            'name' => 'custom_field_test',
-            'relations' => [
-                [
-                    'entityName' => 'product',
-                ],
-                [
-                    'entityName' => 'to be deleted',
-                ],
-            ],
-            'customFields' => [
-                [
-                    'name' => 'bla_test',
-                    'type' => 'text',
-                ],
-                [
-                    'name' => 'to_be_deleted',
-                    'type' => 'text',
-                ],
-            ],
-        ];
-
-        $this->customFieldSetRepository->upsert([$customFieldSetData], $this->context);
     }
 }

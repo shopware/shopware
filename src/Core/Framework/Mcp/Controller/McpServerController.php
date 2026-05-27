@@ -194,6 +194,11 @@ class McpServerController
         }
 
         $method = $body['method'] ?? null;
+
+        if (!$this->hasListFilter($method, $allowlist)) {
+            return $psrResponse;
+        }
+
         $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
 
         if (!$responseData instanceof \stdClass) {
@@ -212,6 +217,16 @@ class McpServerController
         return $psrResponse
             ->withBody($newStream)
             ->withHeader('Content-Length', (string) \strlen($newBody));
+    }
+
+    /**
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
+     */
+    private function hasListFilter(mixed $method, array $allowlist): bool
+    {
+        return ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null)
+            || ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null)
+            || ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null);
     }
 
     /**

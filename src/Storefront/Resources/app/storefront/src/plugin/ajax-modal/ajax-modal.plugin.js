@@ -45,8 +45,12 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener('click', this._onClickHandleAjaxModal.bind(this));
-        this.el.addEventListener('click', this._onClickHandleAjaxModal.bind(this));
+        if (!this._boundOnClickHandleAjaxModal) {
+            this._boundOnClickHandleAjaxModal = this._onClickHandleAjaxModal.bind(this);
+        }
+
+        this.el.removeEventListener('click', this._boundOnClickHandleAjaxModal);
+        this.el.addEventListener('click', this._boundOnClickHandleAjaxModal);
     }
 
     /**

@@ -70,6 +70,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="tagged" tag="shopware.mail.data_provider" index-by="key"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\MailTemplate\Request\Resolver\PreviewRequestResolver">

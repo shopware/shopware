@@ -56,6 +56,14 @@ describe('test/_helper_/mock-timezone', () => {
         expect(date.getMilliseconds()).toBe(123);
     });
 
+    it('should keep created dates compatible with instanceof Date checks', () => {
+        resetTimezone = mockTimezone('Europe/Berlin');
+
+        expect(new Date()).toBeInstanceOf(Date);
+        expect(new Date('2024-05-15T12:00:00.000Z')).toBeInstanceOf(Date);
+        expect(new Date(2024, 4, 15)).toBeInstanceOf(Date);
+    });
+
     it('should keep Date.now connected to Jest fake timers', () => {
         jest.useFakeTimers().setSystemTime(new Date('2020-01-01T00:00:00.000Z'));
 

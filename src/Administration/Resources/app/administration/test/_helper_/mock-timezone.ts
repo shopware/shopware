@@ -262,6 +262,7 @@ export default function mockTimezone(timeZone: string): () => void {
     };
     MockDate.UTC = OriginalDate.UTC;
     MockDate.parse = OriginalDate.parse;
+    MockDate.prototype = OriginalDate.prototype;
 
     global.Date = MockDate;
 

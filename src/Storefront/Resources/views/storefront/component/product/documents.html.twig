@@ -1,0 +1,71 @@
+{% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
+
+{% block utilities_offcanvas_content %}
+    {% block component_product_documents_container %}
+        <div class="product-detail-documents tab-pane-container">
+            {% block component_product_documents_title %}
+                <h2 class="product-detail-documents-title">
+                    {{ 'detail.productDocumentsTitle'|trans|sw_sanitize }}
+                </h2>
+            {% endblock %}
+
+            {% block component_product_documents_table %}
+                <table class="table product-detail-documents-table">
+                    {% block component_product_documents_table_head %}
+                        <thead>
+                            <tr>
+                                <th scope="col">{{ 'detail.productDocumentsColumnName'|trans|sw_sanitize }}</th>
+                                <th scope="col">{{ 'detail.productDocumentsColumnType'|trans|sw_sanitize }}</th>
+                                <th scope="col">{{ 'detail.productDocumentsColumnSize'|trans|sw_sanitize }}</th>
+                                {% block component_product_documents_table_head_action %}{% endblock %}
+                            </tr>
+                        </thead>
+                    {% endblock %}
+
+                    {% block component_product_documents_table_body %}
+                        <tbody>
+                            {% for productDocument in productDocuments %}
+                                {% set documentMedia = productDocument.media %}
+                                {% set documentName = productDocument.title %}
+
+                                {% if not documentName and documentMedia %}
+                                    {% set documentName = documentMedia.fileName ~ (documentMedia.fileExtension ? '.' ~ documentMedia.fileExtension : '') %}
+                                {% endif %}
+
+                                <tr>
+                                    {% block component_product_documents_table_body_name %}
+                                        <td>{{ documentName ?: 'detail.productDocumentsFallbackName'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+
+                                    {% block component_product_documents_table_body_type %}
+                                        <td>
+                                            {% if documentMedia and documentMedia.fileExtension %}
+                                                {{ documentMedia.fileExtension|upper }}
+                                            {% elseif documentMedia and documentMedia.mimeType %}
+                                                {{ documentMedia.mimeType }}
+                                            {% else %}
+                                                {{ 'detail.productDocumentsEmptyValue'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        </td>
+                                    {% endblock %}
+
+                                    {% block component_product_documents_table_body_size %}
+                                        <td>
+                                            {% if documentMedia and documentMedia.fileSize %}
+                                                {{ documentMedia.fileSize }} {{ 'detail.productDocumentsFileSizeUnit'|trans|sw_sanitize }}
+                                            {% else %}
+                                                {{ 'detail.productDocumentsEmptyValue'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        </td>
+                                    {% endblock %}
+
+                                    {% block component_product_documents_table_body_action %}{% endblock %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    {% endblock %}
+                </table>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

@@ -18,7 +18,6 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Subscriber\MediaDeletionSubscriber;
-use Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage;
 use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Context;
@@ -318,7 +317,7 @@ class ThumbnailService
         $media->setMediaFolder($folder);
     }
 
-    private function getImageResource(MediaEntity $media): ThumbnailImage
+    private function getImageResource(MediaEntity $media): object
     {
         $filePath = $media->getPath();
 
@@ -364,7 +363,7 @@ class ThumbnailService
     /**
      * @return ImageSize
      */
-    private function getOriginalImageSize(ThumbnailImage $image): array
+    private function getOriginalImageSize(object $image): array
     {
         return [
             'width' => $this->thumbnailProcessor->getWidth($image),
@@ -393,7 +392,7 @@ class ThumbnailService
         return $this->thumbnailSizeCalculator->calculate($imageSize, $preferredThumbnailSize);
     }
 
-    private function writeThumbnail(ThumbnailImage $thumbnail, MediaEntity $media, string $url, int $quality): void
+    private function writeThumbnail(object $thumbnail, MediaEntity $media, string $url, int $quality): void
     {
         try {
             $imageFile = $this->thumbnailProcessor->convertImage($thumbnail, (string) $media->getMimeType(), $quality);

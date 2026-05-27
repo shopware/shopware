@@ -3,31 +3,30 @@
 namespace Shopware\Core\Content\Media\Thumbnail\Processor;
 
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
 interface ThumbnailProcessorInterface
 {
-    public function createImageFromString(string $file): ThumbnailImage;
+    public function createImageFromString(string $file): object;
 
-    public function rotate(ThumbnailImage $image, float $angle): ThumbnailImage;
-
-    /**
-     * @return int<1, max>
-     */
-    public function getWidth(ThumbnailImage $image): int;
+    public function rotate(object $image, float $angle): object;
 
     /**
      * @return int<1, max>
      */
-    public function getHeight(ThumbnailImage $image): int;
+    public function getWidth(object $image): int;
+
+    /**
+     * @return int<1, max>
+     */
+    public function getHeight(object $image): int;
 
     /**
      * @param array{width: int<1, max>, height: int<1, max>} $originalImageSize
      * @param array{width: int<1, max>, height: int<1, max>} $thumbnailSize
      */
-    public function createNewImage(ThumbnailImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): ThumbnailImage;
+    public function createNewImage(object $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): object;
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string;
+    public function convertImage(object $thumbnail, string $mimeType, int $quality): string;
 }

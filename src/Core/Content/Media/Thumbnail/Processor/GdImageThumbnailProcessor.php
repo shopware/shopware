@@ -5,13 +5,12 @@ namespace Shopware\Core\Content\Media\Thumbnail\Processor;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
 class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
 {
-    public function createImageFromString(string $file): ThumbnailImage
+    public function createImageFromString(string $file): \GdImage
     {
         $image = @imagecreatefromstring($file);
 
@@ -19,39 +18,39 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
             throw MediaException::cannotCreateImage();
         }
 
-        return new ThumbnailImage($image);
+        return $image;
     }
 
-    public function rotate(ThumbnailImage $image, float $angle): ThumbnailImage
+    public function rotate(object $image, float $angle): \GdImage
     {
-        \assert($image->image instanceof \GdImage);
+        \assert($image instanceof \GdImage);
 
-        $rotated = imagerotate($image->image, $angle, 0);
+        $rotated = imagerotate($image, $angle, 0);
 
         if ($rotated === false) {
             throw MediaException::cannotCreateImage();
         }
 
-        return new ThumbnailImage($rotated);
+        return $rotated;
     }
 
-    public function getWidth(ThumbnailImage $image): int
+    public function getWidth(object $image): int
     {
-        \assert($image->image instanceof \GdImage);
+        \assert($image instanceof \GdImage);
 
-        return imagesx($image->image);
+        return imagesx($image);
     }
 
-    public function getHeight(ThumbnailImage $image): int
+    public function getHeight(object $image): int
     {
-        \assert($image->image instanceof \GdImage);
+        \assert($image instanceof \GdImage);
 
-        return imagesy($image->image);
+        return imagesy($image);
     }
 
-    public function createNewImage(ThumbnailImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): ThumbnailImage
+    public function createNewImage(object $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \GdImage
     {
-        \assert($mediaImage->image instanceof \GdImage);
+        \assert($mediaImage instanceof \GdImage);
 
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
@@ -69,7 +68,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
         imagesavealpha($thumbnail, true);
         imagecopyresampled(
             $thumbnail,
-            $mediaImage->image,
+            $mediaImage,
             0,
             0,
             0,
@@ -80,26 +79,26 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
             $originalImageSize['height']
         );
 
-        return new ThumbnailImage($thumbnail);
+        return $thumbnail;
     }
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string
+    public function convertImage(object $thumbnail, string $mimeType, int $quality): string
     {
-        \assert($thumbnail->image instanceof \GdImage);
+        \assert($thumbnail instanceof \GdImage);
 
         ob_start();
         switch ($mimeType) {
             case 'image/png':
-                imagepng($thumbnail->image);
+                imagepng($thumbnail);
 
                 break;
             case 'image/gif':
-                imagegif($thumbnail->image);
+                imagegif($thumbnail);
 
                 break;
             case 'image/jpg':
             case 'image/jpeg':
-                imagejpeg($thumbnail->image, null, $quality);
+                imagejpeg($thumbnail, null, $quality);
 
                 break;
             case 'image/webp':
@@ -107,7 +106,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
                     throw MediaException::cannotCreateImage();
                 }
 
-                imagewebp($thumbnail->image, null, $quality);
+                imagewebp($thumbnail, null, $quality);
 
                 break;
             case 'image/avif':
@@ -115,7 +114,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
                     throw MediaException::cannotCreateImage();
                 }
 
-                imageavif($thumbnail->image, null, $quality);
+                imageavif($thumbnail, null, $quality);
 
                 break;
         }

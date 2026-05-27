@@ -5,57 +5,56 @@ namespace Shopware\Core\Content\Media\Thumbnail\Processor;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('discovery')]
 class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
 {
-    public function createImageFromString(string $file): ThumbnailImage
+    public function createImageFromString(string $file): \Imagick
     {
         $image = new \Imagick();
         $image->readImageBlob($file);
 
-        return new ThumbnailImage($image);
+        return $image;
     }
 
-    public function rotate(ThumbnailImage $image, float $angle): ThumbnailImage
+    public function rotate(object $image, float $angle): \Imagick
     {
-        \assert($image->image instanceof \Imagick);
+        \assert($image instanceof \Imagick);
 
         // GD rotates counter-clockwise; Imagick rotates clockwise, so negate the angle
-        $image->image->rotateImage(new \ImagickPixel('black'), -$angle);
+        $image->rotateImage(new \ImagickPixel('black'), -$angle);
 
         return $image;
     }
 
-    public function getWidth(ThumbnailImage $image): int
+    public function getWidth(object $image): int
     {
-        \assert($image->image instanceof \Imagick);
+        \assert($image instanceof \Imagick);
 
-        $width = $image->image->getImageWidth();
+        $width = $image->getImageWidth();
 
         \assert($width > 0);
 
         return $width;
     }
 
-    public function getHeight(ThumbnailImage $image): int
+    public function getHeight(object $image): int
     {
-        \assert($image->image instanceof \Imagick);
+        \assert($image instanceof \Imagick);
 
-        $height = $image->image->getImageHeight();
+        $height = $image->getImageHeight();
 
         \assert($height > 0);
 
         return $height;
     }
 
-    public function createNewImage(ThumbnailImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): ThumbnailImage
+    public function createNewImage(object $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): \Imagick
     {
-        \assert($mediaImage->image instanceof \Imagick);
+        \assert($mediaImage instanceof \Imagick);
 
-        $thumbnail = clone $mediaImage->image;
+        $thumbnail = clone $mediaImage;
         $thumbnail->resizeImage(
             $thumbnailSize['width'],
             $thumbnailSize['height'],
@@ -70,29 +69,29 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
             $background->compositeImage($thumbnail, \Imagick::COMPOSITE_OVER, 0, 0);
             $thumbnail->clear();
 
-            return new ThumbnailImage($background);
+            return $background;
         }
 
-        return new ThumbnailImage($thumbnail);
+        return $thumbnail;
     }
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string
+    public function convertImage(object $thumbnail, string $mimeType, int $quality): string
     {
-        \assert($thumbnail->image instanceof \Imagick);
+        \assert($thumbnail instanceof \Imagick);
 
         switch ($mimeType) {
             case 'image/png':
-                $thumbnail->image->setImageFormat('png');
+                $thumbnail->setImageFormat('png');
 
                 break;
             case 'image/gif':
-                $thumbnail->image->setImageFormat('gif');
+                $thumbnail->setImageFormat('gif');
 
                 break;
             case 'image/jpg':
             case 'image/jpeg':
-                $thumbnail->image->setImageFormat('jpeg');
-                $thumbnail->image->setImageCompressionQuality($quality);
+                $thumbnail->setImageFormat('jpeg');
+                $thumbnail->setImageCompressionQuality($quality);
 
                 break;
             case 'image/webp':
@@ -100,8 +99,8 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
                     throw MediaException::cannotCreateImage();
                 }
 
-                $thumbnail->image->setImageFormat('webp');
-                $thumbnail->image->setImageCompressionQuality($quality);
+                $thumbnail->setImageFormat('webp');
+                $thumbnail->setImageCompressionQuality($quality);
 
                 break;
             case 'image/avif':
@@ -109,12 +108,12 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
                     throw MediaException::cannotCreateImage();
                 }
 
-                $thumbnail->image->setImageFormat('avif');
-                $thumbnail->image->setImageCompressionQuality($quality);
+                $thumbnail->setImageFormat('avif');
+                $thumbnail->setImageCompressionQuality($quality);
 
                 break;
         }
 
-        return $thumbnail->image->getImageBlob();
+        return $thumbnail->getImageBlob();
     }
 }

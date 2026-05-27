@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage;
 use Shopware\Core\Content\Media\Thumbnail\Processor\GdImageThumbnailProcessor;
 use Shopware\Core\Content\Media\Thumbnail\Processor\ThumbnailProcessorInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +20,7 @@ class GdImageThumbnailProcessorTest extends TestCase
 {
     private ThumbnailProcessorInterface $processor;
 
-    private ThumbnailImage $image;
+    private object $image;
 
     protected function setUp(): void
     {

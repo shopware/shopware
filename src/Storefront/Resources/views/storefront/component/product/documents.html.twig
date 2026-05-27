@@ -17,7 +17,9 @@
                                 <th scope="col">{{ 'detail.productDocumentsColumnName'|trans|sw_sanitize }}</th>
                                 <th scope="col">{{ 'detail.productDocumentsColumnType'|trans|sw_sanitize }}</th>
                                 <th scope="col">{{ 'detail.productDocumentsColumnSize'|trans|sw_sanitize }}</th>
-                                {% block component_product_documents_table_head_action %}{% endblock %}
+                                {% block component_product_documents_table_head_action %}
+                                    <th scope="col" class="text-end">{{ 'detail.productDocumentsColumnAction'|trans|sw_sanitize }}</th>
+                                {% endblock %}
                             </tr>
                         </thead>
                     {% endblock %}
@@ -59,7 +61,22 @@
                                         </td>
                                     {% endblock %}
 
-                                    {% block component_product_documents_table_body_action %}{% endblock %}
+                                    {% block component_product_documents_table_body_action %}
+                                        <td class="text-end">
+                                            {% if documentMedia %}
+                                                <a
+                                                    href="{{ path('frontend.product.document.download', { productId: product.id, documentId: productDocument.id }) }}"
+                                                    class="btn btn-light btn-sm product-detail-documents-download"
+                                                    rel="nofollow"
+                                                    download
+                                                >
+                                                    {{ 'detail.productDocumentsDownload'|trans|sw_sanitize }}
+                                                </a>
+                                            {% else %}
+                                                {{ 'detail.productDocumentsEmptyValue'|trans|sw_sanitize }}
+                                            {% endif %}
+                                        </td>
+                                    {% endblock %}
                                 </tr>
                             {% endfor %}
                         </tbody>

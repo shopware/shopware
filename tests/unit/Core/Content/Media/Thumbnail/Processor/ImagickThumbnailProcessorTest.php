@@ -25,7 +25,7 @@ class ImagickThumbnailProcessorTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!class_exists('\Imagick')) {
+        if (!\extension_loaded('imagick')) {
             static::markTestSkipped('Imagick is not installed');
         }
 
@@ -74,8 +74,7 @@ class ImagickThumbnailProcessorTest extends TestCase
         $binary = $this->processor->convertImage(
             $this->image,
             $mimeType,
-            50,
-            ''
+            50
         );
 
         $stream = fopen('php://memory', 'r+');

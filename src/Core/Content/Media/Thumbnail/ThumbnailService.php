@@ -395,7 +395,11 @@ class ThumbnailService
 
     private function writeThumbnail(ThumbnailImage $thumbnail, MediaEntity $media, string $url, int $quality): void
     {
-        $imageFile = $this->thumbnailProcessor->convertImage($thumbnail, (string) $media->getMimeType(), $quality, $url);
+        try {
+            $imageFile = $this->thumbnailProcessor->convertImage($thumbnail, (string) $media->getMimeType(), $quality);
+        } catch (MediaException) {
+            throw MediaException::thumbnailCouldNotBeSaved($url);
+        }
 
         try {
             $this->getFileSystem($media)->write($url, $imageFile);

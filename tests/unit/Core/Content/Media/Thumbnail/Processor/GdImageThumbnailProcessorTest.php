@@ -70,8 +70,7 @@ class GdImageThumbnailProcessorTest extends TestCase
         $binary = $this->processor->convertImage(
             $this->image,
             $mimeType,
-            50,
-            ''
+            50
         );
 
         $stream = fopen('php://memory', 'r+');

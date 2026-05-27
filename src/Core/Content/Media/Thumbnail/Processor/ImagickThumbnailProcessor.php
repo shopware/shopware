@@ -76,7 +76,7 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
         return new ThumbnailImage($thumbnail);
     }
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality, string $url): string
+    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string
     {
         \assert($thumbnail->image instanceof \Imagick);
 
@@ -97,7 +97,7 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
                 break;
             case 'image/webp':
                 if (!\in_array('WEBP', \Imagick::queryFormats('WEBP'), true)) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
+                    throw MediaException::cannotCreateImage();
                 }
 
                 $thumbnail->image->setImageFormat('webp');
@@ -106,7 +106,7 @@ class ImagickThumbnailProcessor implements ThumbnailProcessorInterface
                 break;
             case 'image/avif':
                 if (!\in_array('AVIF', \Imagick::queryFormats('AVIF'), true)) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
+                    throw MediaException::cannotCreateImage();
                 }
 
                 $thumbnail->image->setImageFormat('avif');

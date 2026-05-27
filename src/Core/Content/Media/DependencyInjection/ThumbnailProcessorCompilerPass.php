@@ -18,7 +18,7 @@ class ThumbnailProcessorCompilerPass implements CompilerPassInterface
     {
         if (
             $container->getParameter('shopware.media.thumbnail_processor') === 'imagick'
-            && class_exists('\Imagick')
+            && \extension_loaded('imagick')
         ) {
             $container->getDefinition(ThumbnailProcessorInterface::class)
                 ->setClass(ImagickThumbnailProcessor::class);

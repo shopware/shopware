@@ -29,5 +29,5 @@ interface ThumbnailProcessorInterface
      */
     public function createNewImage(ThumbnailImage $mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize): ThumbnailImage;
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality, string $url): string;
+    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string;
 }

@@ -21,7 +21,7 @@ class ThumbnailProcessorCompilerPassTest extends TestCase
 {
     public function testProcess(): void
     {
-        if (!class_exists('\Imagick')) {
+        if (!\extension_loaded('imagick')) {
             static::markTestSkipped('Imagick is not installed');
         }
 

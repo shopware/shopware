@@ -83,7 +83,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
         return new ThumbnailImage($thumbnail);
     }
 
-    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality, string $url): string
+    public function convertImage(ThumbnailImage $thumbnail, string $mimeType, int $quality): string
     {
         \assert($thumbnail->image instanceof \GdImage);
 
@@ -104,7 +104,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
                 break;
             case 'image/webp':
                 if (!\function_exists('imagewebp')) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
+                    throw MediaException::cannotCreateImage();
                 }
 
                 imagewebp($thumbnail->image, null, $quality);
@@ -112,7 +112,7 @@ class GdImageThumbnailProcessor implements ThumbnailProcessorInterface
                 break;
             case 'image/avif':
                 if (!\function_exists('imageavif')) {
-                    throw MediaException::thumbnailCouldNotBeSaved($url);
+                    throw MediaException::cannotCreateImage();
                 }
 
                 imageavif($thumbnail->image, null, $quality);

@@ -108,7 +108,7 @@ class RuleComparison
     }
 
     /**
-     * @internal - will be remove in v6.8.0, when the original `date()` has extended type
+     * @internal - will be removed in v6.8.0, when the original `date()` has extended type
      *
      * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
      */
@@ -118,7 +118,7 @@ class RuleComparison
     }
 
     /**
-     * @internal - will be remove in v6.8.0, when the original `date()` has extended type
+     * @internal - will be removed in v6.8.0, when the original `date()` has extended type
      *
      * @param \DateTime|string|array{from?: \DateTime|string, to?: \DateTime|string} $ruleValue
      */

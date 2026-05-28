@@ -441,6 +441,23 @@ Users can now control which representative of variant products is shown in filte
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+### Elasticsearch: Extracted field query builders from TokenQueryBuilder
+
+The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
+- base field matching (`FieldQueryBuilder`)
+- translated field handling (`TranslatedFieldQueryBuilder`)
+- nested field wrapping (`NestedFieldQueryBuilder`)
+- and explain metadata for preview mode(`ExplainFieldQueryBuilder`).
+
+Additionally, `TokenQueryBuilder` now extends a new `AbstractTokenQueryBuilder` abstract class, enabling decoration of token-level query composition. The old `Shopware\Elasticsearch\TokenQueryBuilder` service ID is preserved as an alias for backward compatibility.
+
+Plugins that need to customize Elasticsearch field query generation can now decorate either `Shopware\Elasticsearch\AbstractFieldQueryBuilder` or `Shopware\Elasticsearch\AbstractTokenQueryBuilder` instead of replacing the entire token query builder.
+
+### Elasticsearch: Added configurable tie_breaker to dis_max queries
+
+Elasticsearch `dis_max` queries now include a `tie_breaker` parameter at the field level, translated field level, and token combination level. Previously, `dis_max` only considered the single best-matching clause. With `tie_breaker`, scores from other matching clauses contribute partially to the overall score, improving ranking for documents that match across multiple fields or language variants.
+
+The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml`.
 
 ### Salutation ordering
 

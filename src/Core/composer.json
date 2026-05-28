@@ -63,6 +63,7 @@
         "ext-simplexml": "*",
         "ext-sodium": "*",
         "ext-xml": "*",
+        "ext-xmlreader": "*",
         "ext-zip": "*",
         "ext-zlib": "*",
         "composer-runtime-api": "^2.1",

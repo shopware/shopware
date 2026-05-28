@@ -76,6 +76,43 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    private const TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING = [
+        'properties' => [
+            'lang_en' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_english_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            'lang_de' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_german_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
     private const SEARCHABLE_MAPPING = [
         'type' => 'keyword',
         'ignore_above' => 10000,
@@ -192,9 +229,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'type' => 'long',
                 ],
                 'manufacturerNumber' => self::SEARCHABLE_MAPPING,
-                'description' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'description' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'metaTitle' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'metaDescription' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'metaDescription' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'displayGroup' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'ean' => self::SEARCHABLE_MAPPING,
                 'height' => [

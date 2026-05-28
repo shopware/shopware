@@ -686,9 +686,24 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
+     * @return array{match_bool_prefix: array<string, array{query: string|int|float, boost: float}>}
      */
-    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop, int $maxExpansion): array
+    private static function prefix(string $field, string|int|float $query, float $boost): array
+    {
+        return [
+            'match_bool_prefix' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int, max_expansions: int}>}
+     */
+    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansions = 10): array
     {
         return [
             'match_phrase_prefix' => [
@@ -696,22 +711,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     'query' => $query,
                     'boost' => $boost,
                     'slop' => $slop,
-                    'max_expansions' => $maxExpansion,
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array{prefix: array<string, array{value: string|int|float, boost: float}>}
-     */
-    private static function prefix(string $field, string|int|float $query, float $boost): array
-    {
-        return [
-            'prefix' => [
-                $field => [
-                    'value' => $query,
-                    'boost' => $boost,
+                    'max_expansions' => $maxExpansions,
                 ],
             ],
         ];

@@ -42,6 +42,9 @@ elasticsearch:
                 default:
                     type: BM25
                     b: 0
+                sw_length_norm:
+                    type: BM25
+                    b: 0.75
         analysis:
             normalizer:
                 sw_lowercase_normalizer:
@@ -125,6 +128,18 @@ elasticsearch:
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
         max_result_window: 10000
+        # BM25 similarity configuration.
+        # 'default' overrides Elasticsearch's built-in BM25 (b=0.75) to disable field-length normalization (b=0),
+        # preventing short product names from ranking unfairly above descriptive ones.
+        # 'sw_length_norm' preserves standard normalization for long-form text fields (description, metaDescription)
+        # where document length IS a relevance signal.
+        similarity:
+            default:
+                type: BM25
+                b: 0
+            sw_length_norm:
+                type: BM25
+                b: 0.75
     analysis:
         normalizer:
             sw_lowercase_normalizer:

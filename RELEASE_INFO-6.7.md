@@ -31,6 +31,21 @@ Run `bin/console es:admin:index` after deploying. Identifier search works immedi
 ### StorefrontRenderEvent listener moved to Storefront
 
 The internal `StorefrontRenderEvent` re-dispatch listener (which emits `<route>.render` and `<scope>.scope.render` events) has moved from `Shopware\Core\Framework\Routing\RouteEventSubscriber` to a new `Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber`, removing a cross-package soft dependency in Core (the previous `class_exists(StorefrontRenderEvent::class)` guard). Both subscribers are internal and the dispatched events are unchanged.
+## Administration
+
+### Rule Builder cart total condition labels adjusted
+
+Rule Builder cart total condition labels now describe more clearly which cart value they evaluate. The internal condition names remain unchanged for backwards compatibility.
+
+| Internal name | EN old -> new | DE old -> new | What it checks |
+| --- | --- | --- | --- |
+| `cartCartAmount` | Grand total -> Cart total (incl. shipping) | Gesamtsumme -> Warenkorb-Gesamtsumme (inkl. Versand) | `cart.price.totalPrice` - final cart price incl. shipping/tax/discounts |
+| `cartPositionPrice` | Total -> Cart sum of items (excl. shipping) | Summe -> Summe der Positionen (ohne Versand) | `cart.price.positionPrice` - sum of all items, no shipping |
+| `cartGoodsPrice` | Subtotal of all items -> Subtotal of goods (excl. discounts/fees) | Zwischensumme aller Positionen -> Zwischensumme der Warenpositionen (ohne Rabatte/Zuschläge) | Sum of goods item prices, excl. shipping/promotions |
+| `cartTotalPurchasePrice` | Total of all purchase prices -> Sum of purchase prices | Summe aller Einkaufspreise -> Summe der Einkaufspreise | Sum of purchase/cost prices across all items |
+| `cartLineItemTotalPrice` | Item subtotal -> Item total (qty × price) | Positionszwischensumme -> Positionssumme (Menge × Preis) | One item's total, quantity multiplied by unit price |
+| `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
+| `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
 
 ## App System
 

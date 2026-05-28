@@ -97,7 +97,9 @@ async function createWrapper(loginSuccessfull, useDefault = true, ssoUrl = 'http
 describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
     beforeEach(() => {
         Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+
         localStorage.removeItem('sw-admin-locale');
+
         Object.defineProperty(window.navigator, 'language', {
             value: originalNavigatorLanguage,
             configurable: true,
@@ -106,6 +108,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
             value: originalNavigatorLanguages,
             configurable: true,
         });
+
         useSystem().locales.value = [];
         useSystem().registerAdminLocale('en-GB');
     });

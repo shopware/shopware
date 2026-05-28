@@ -76,6 +76,7 @@ export default Component.wrapComponentConfig({
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
                 const localeFactory = Shopware.Application.getContainer('factory').locale;
+
                 await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
             }
 

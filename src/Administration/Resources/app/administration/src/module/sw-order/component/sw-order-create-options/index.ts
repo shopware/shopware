@@ -47,7 +47,7 @@ export default Component.wrapComponentConfig({
 
     computed: {
         salesChannelId(): string {
-            return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
+            return Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -109,11 +109,8 @@ export default Component.wrapComponentConfig({
         },
 
         'context.currencyId': {
-            async handler(currencyId: string): Promise<void> {
-                if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
-                    return;
-                }
-
+            async handler(): Promise<void> {
+                // await this.getCurrency();
                 await this.updateCartContext();
             },
         },
@@ -131,11 +128,7 @@ export default Component.wrapComponentConfig({
         },
 
         'context.shippingMethodId': {
-            async handler(shippingMethodId: string): Promise<void> {
-                if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
-                    return;
-                }
-
+            async handler(): Promise<void> {
                 await this.updateCartContext();
             },
         },
@@ -191,7 +184,7 @@ export default Component.wrapComponentConfig({
         },
 
         async updateCartContext(): Promise<void> {
-            if (!this.salesChannelId || !this.customer || !this.cart.token) {
+            if (!this.salesChannelId) {
                 return;
             }
 

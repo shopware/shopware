@@ -199,6 +199,10 @@ Also the checkbox field is now positionally aligned with the other components.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### Outside clicks in dropdowns are identified correctly
+
+Administration dropdowns now identify outside clicks correctly when the browser reports a click target outside the dropdown even though the pointer is still over the dropdown.
+
 ## Storefront
 
 ### Google Ads Enhanced Conversions

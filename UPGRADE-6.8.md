@@ -145,6 +145,13 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
+## `EntitySearchResult` and subclasses are deprecated
+
+Two related structural changes are planned for v6.8.0:
+
+1. `EntitySearchResult` will no longer extend `EntityCollection`.
+2. `ProductListingResult` and `ProductReviewResult` will no longer extend `EntitySearchResult`.
+
 ## Number range value generator interface removed
 
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.

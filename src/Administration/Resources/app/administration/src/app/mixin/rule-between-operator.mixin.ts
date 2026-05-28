@@ -31,13 +31,21 @@ export default Shopware.Mixin.register(
             betweenValue: {
                 get(): BetweenValue {
                     // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-                    const raw = this.condition?.value?.renderedFieldValue;
-                    const isObject = raw !== null && typeof raw === 'object' && !Array.isArray(raw);
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    const raw: unknown = this.condition?.value?.renderedFieldValue;
+
+                    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
+                        return {
+                            from: null,
+                            to: null,
+                        };
+                    }
+
+                    const value = raw as Partial<BetweenValue>;
 
                     return {
-                        from: isObject ? ((raw as BetweenValue).from ?? null) : null,
-                        to: isObject ? ((raw as BetweenValue).to ?? null) : null,
+                        from: value.from ?? null,
+                        to: value.to ?? null,
                     };
                 },
                 set(value: BetweenValue) {

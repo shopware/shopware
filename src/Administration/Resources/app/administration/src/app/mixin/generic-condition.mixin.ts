@@ -266,13 +266,15 @@ export default Mixin.register(
             },
 
             isBetweenDateField(field: Field): boolean {
-                const isDateField = [
+                // @ts-expect-error - operator is available in base component
+                if (this.operator !== 'between') {
+                    return false;
+                }
+
+                return [
                     'date',
                     'datetime',
                 ].includes(field.type);
-
-                // @ts-expect-error - operator is available in base component
-                return isDateField && this.operator === 'between';
             },
 
             updateBetweenDateValue(fieldName: string, value: BetweenValue) {

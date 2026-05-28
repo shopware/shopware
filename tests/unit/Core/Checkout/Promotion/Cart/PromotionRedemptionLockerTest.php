@@ -124,8 +124,7 @@ class PromotionRedemptionLockerTest extends TestCase
         $cart->add($lineItem);
         $extension = new CheckoutPlaceOrderExtension($cart, Generator::generateSalesChannelContext(), new RequestDataBag());
 
-        $this->expectException(PromotionException::class);
-        $this->expectExceptionMessage('Promotion promotion-code is locked due to concurrent write operation. Please try again later.');
+        $this->expectExceptionObject(PromotionException::promotionUsageLocked('promotion-code'));
         $locker->acquireLocks($extension);
     }
 

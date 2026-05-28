@@ -275,8 +275,7 @@ class IndexCreatorTest extends TestCase
 
         $definition = $this->createMock(ElasticsearchProductDefinition::class);
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('handled');
+        $this->expectExceptionObject(new \RuntimeException('handled'));
 
         $index->createIndex($definition, 'foo', 'alias', Context::createDefaultContext());
     }

@@ -31,7 +31,7 @@ class DeactivateAppCommandTest extends TestCase
         $this->appRepository = static::getContainer()->get('app.repository');
     }
 
-    public function testDeactivateApp(): void
+    public function testDeactivate(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/withoutPermissions');
         $appName = 'withoutPermissions';

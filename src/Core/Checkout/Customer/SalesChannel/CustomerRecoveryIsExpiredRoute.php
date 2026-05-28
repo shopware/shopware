@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -38,7 +39,8 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
     public function __construct(
         private readonly EntityRepository $customerRecoveryRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -89,7 +91,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
 
     private function isExpired(CustomerRecoveryEntity $customerRecovery): bool
     {
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+        $validDateTime = $this->clock->now()->sub(new \DateInterval('PT2H'));
 
         return $validDateTime > $customerRecovery->getCreatedAt();
     }

@@ -44,8 +44,7 @@ class MigrationLoaderTest extends TestCase
 
     public function testExceptionForInvalidNames(): void
     {
-        $this->expectException(UnknownMigrationSourceException::class);
-        $this->expectExceptionMessage('No source registered for "FOOBAR"');
+        $this->expectExceptionObject(new UnknownMigrationSourceException('FOOBAR'));
         $this->loader->collect('FOOBAR');
     }
 

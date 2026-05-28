@@ -72,7 +72,7 @@ class CartLineItemControllerTest extends TestCase
             $this->cartService,
             $this->promotionItemBuilderMock,
             $this->productLineItemFactoryMock,
-            $this->createMock(HtmlSanitizer::class),
+            static::createStub(HtmlSanitizer::class),
             $this->productListRouteMock,
             $this->lineItemRegistryMock,
         );

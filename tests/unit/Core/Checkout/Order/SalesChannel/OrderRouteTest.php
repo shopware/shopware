@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -55,6 +56,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
             new GuestAuthenticator(),
+            new NativeClock()
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), new Criteria());
@@ -105,6 +107,7 @@ class OrderRouteTest extends TestCase
             $eventDispatcher,
             $this->createMock(AccountService::class),
             new GuestAuthenticator(),
+            new NativeClock()
         );
 
         $responseOrder = $route->load(new Request(), $context, new Criteria())->getOrders()->first();
@@ -188,6 +191,7 @@ class OrderRouteTest extends TestCase
             $eventDispatcher,
             $accountService,
             new GuestAuthenticator(),
+            new NativeClock()
         );
 
         $criteria = new Criteria();
@@ -235,6 +239,7 @@ class OrderRouteTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
             new GuestAuthenticator(),
+            new NativeClock()
         );
 
         $route->load(new Request(), $this->createMock(SalesChannelContext::class), (new Criteria())->addFilter($filter));
@@ -301,7 +306,8 @@ class OrderRouteTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(AccountService::class),
             new GuestAuthenticator(),
-            $expireDays
+            new NativeClock(),
+            $expireDays,
         );
 
         $criteria = new Criteria();

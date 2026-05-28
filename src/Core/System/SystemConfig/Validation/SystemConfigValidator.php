@@ -74,7 +74,7 @@ class SystemConfigValidator
     /**
      * @deprecated tag:v6.8.0 - reason:parameter-type-change - $formConfig will be of type `list<SystemConfigTab>`
      *
-     * @param array<string, mixed> $formConfig
+     * @param array<mixed> $formConfig
      * @param array<string> $inputConfigKeys
      *
      * @return array<string, Constraint[]>
@@ -152,11 +152,15 @@ class SystemConfigValidator
     /**
      * @deprecated tag:v6.8.0 - reason:return-type-change - Will return `list<SystemConfigTab>`
      *
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
+            if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+                return $this->configurationService->getSystemConfiguration($domain, $context);
+            }
+
             return $this->configurationService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];

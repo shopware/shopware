@@ -45,6 +45,10 @@ class SystemConfigController extends AbstractController
             return new JsonResponse(false);
         }
 
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            return new JsonResponse($this->configurationService->checkSystemConfiguration($domain, $context));
+        }
+
         return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
     }
 
@@ -59,6 +63,10 @@ class SystemConfigController extends AbstractController
 
         if ($domain === '') {
             throw SystemConfigException::missingRequestParameter('domain');
+        }
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            return new JsonResponse($this->configurationService->getSystemConfiguration($domain, $context));
         }
 
         return new JsonResponse($this->configurationService->getConfiguration($domain, $context));

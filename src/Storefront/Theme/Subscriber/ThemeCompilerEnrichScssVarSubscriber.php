@@ -54,11 +54,17 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
                 $allConfigs = array_merge(
                     $allConfigs,
-                    $this->configurationService->getResolvedConfiguration(
-                        $configuration->getTechnicalName() . '.config',
-                        $event->getContext(),
-                        $event->getSalesChannelId()
-                    )
+                    (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+                        ? $this->configurationService->getResolvedSystemConfiguration(
+                            $configuration->getTechnicalName() . '.config',
+                            $event->getContext(),
+                            $event->getSalesChannelId()
+                        )
+                        : $this->configurationService->getResolvedConfiguration(
+                            $configuration->getTechnicalName() . '.config',
+                            $event->getContext(),
+                            $event->getSalesChannelId()
+                        )
                 );
             }
         } catch (DBALException $e) {

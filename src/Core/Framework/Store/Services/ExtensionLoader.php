@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -186,7 +187,9 @@ class ExtensionLoader
             'active' => $plugin->getActive(),
             'type' => ExtensionStruct::EXTENSION_TYPE_PLUGIN,
             'isTheme' => false,
-            'configurable' => $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
+            'configurable' => (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+                ? $this->configurationService->checkSystemConfiguration(\sprintf('%s.config', $plugin->getName()), $context)
+                : $this->configurationService->checkConfiguration(\sprintf('%s.config', $plugin->getName()), $context),
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
             'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),

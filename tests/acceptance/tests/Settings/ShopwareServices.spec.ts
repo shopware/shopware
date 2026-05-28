@@ -81,10 +81,16 @@ test.describe('Shopware Services', () => {
         }
     );
 
-    test.skip(
-        'As a merchant, I want to fully deactivate the Shopware Services feature.',
-        { tag: '@Settings' },
+    test(
+        'As a merchant, I want to fully deactivate the Shopware Services feature.',{ 
+            tag: '@Settings', 
+            annotation: {
+                type: 'issue',
+                description: 'https://github.com/shopware/shopware/issues/17082',
+            },
+        },
         async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {
+            test.skip(InstanceMeta.isSaaS, 'Skipping test due to pipeline failures with SaaS - see annotation');
             test.skip(satisfies(InstanceMeta.version, '<6.7.1'), 'Feature not available until version 6.7.1.0');
 
             await ShopAdmin.goesTo(AdminShopwareServices.url());

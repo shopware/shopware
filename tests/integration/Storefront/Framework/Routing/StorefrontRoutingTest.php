@@ -266,7 +266,7 @@ class StorefrontRoutingTest extends TestCase
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), $id);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
-        $ruleLoader->loadByToken($context, $context->getToken());
+        $ruleLoader->loadByToken($context, $context->getCartToken());
 
         return $context;
     }

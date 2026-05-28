@@ -103,7 +103,7 @@ class CartRuleLoaderTest extends TestCase
             $this->createMock(AbstractTranslator::class),
         );
 
-        static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken())->getCart());
+        static::assertSame($calculatedCart, $cartRuleLoader->loadByToken($salesChannelContext, $salesChannelContext->getCartToken())->getCart());
     }
 
     public function testProcessorHasCorrectRuleIds(): void

@@ -68,7 +68,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
 
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 17, static::getContainer(), $context);
@@ -76,7 +76,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 45, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 2, $cart, $this->cartService, $context);
@@ -101,14 +101,14 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, static::getContainer(), $context);
 
         $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 15, 30);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -130,7 +130,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $context = static::getContainer()
             ->get(SalesChannelContextFactory::class)
             ->create(
-                Uuid::randomHex(),
+                SalesChannelContextService::getNewToken(),
                 TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createNetCustomer()]
             );
@@ -139,7 +139,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
 
         $this->createAdvancedCurrencyPriceValuePromotion($promotionId, $code, 300, 600);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);

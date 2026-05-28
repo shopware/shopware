@@ -397,7 +397,7 @@ class OrderConverter
         $event = new BeforeSalesChannelContextAssembledEvent($order, $context, $options);
         $this->eventDispatcher->dispatch($event);
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $event->getOptions());
+        $salesChannelContext = $this->salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), $order->getSalesChannelId(), $event->getOptions());
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
         $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());

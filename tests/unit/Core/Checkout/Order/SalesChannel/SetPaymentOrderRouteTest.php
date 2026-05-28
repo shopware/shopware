@@ -359,7 +359,7 @@ class SetPaymentOrderRouteTest extends TestCase
             ->method('load')
             ->with(
                 static::callback(static fn (Request $request): bool => $request->attributes->getAlnum('orderId') === $order->getId()),
-                static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()),
+                static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getCartToken()),
                 $context
             )
             ->willReturn($response);
@@ -381,7 +381,7 @@ class SetPaymentOrderRouteTest extends TestCase
         $cartService
             ->expects($this->once())
             ->method('setCart')
-            ->with(static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getToken()));
+            ->with(static::callback(static fn (Cart $cart): bool => $cart->getToken() === $context->getCartToken()));
 
         $cartRuleLoader = $this->createMock(CartRuleLoader::class);
         $cartRuleLoader

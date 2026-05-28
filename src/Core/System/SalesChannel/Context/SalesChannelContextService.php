@@ -93,7 +93,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $token = self::getNewToken();
             }
 
-            if (!isset($session[self::CART_TOKEN])) {
+            if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS') && !isset($session[self::CART_TOKEN])) {
                 $session[self::CART_TOKEN] = $token;
             }
 
@@ -104,6 +104,10 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             if (isset($session['additional'])) {
                 $session = array_merge($session, $session['additional']);
                 unset($session['additional']);
+            }
+
+            if ($parameters->getCartToken() !== null) {
+                $session[self::CART_TOKEN] = $parameters->getCartToken();
             }
 
             if ($parameters->getLanguageId() !== null) {

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\ShippingMethodPricesTestBehaviour;
@@ -51,7 +52,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         parent::setUp();
         $this->connection = static::getContainer()->get(Connection::class);
         $this->promotionRepository = static::getContainer()->get('promotion.repository');
-        $this->token = Uuid::randomHex();
+        $this->token = SalesChannelContextService::getNewToken();
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create($this->token, TestDefaults::SALES_CHANNEL);
     }
@@ -519,7 +520,7 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, $maxValueGlobal, static::getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -566,7 +567,7 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -603,7 +604,7 @@ class DeliveryPromotionCalculationTest extends TestCase
 
         $this->createTestFixturePercentagePromotion($promotionId, $code, $percentage, null, static::getContainer(), PromotionDiscountEntity::SCOPE_DELIVERY);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -176,7 +177,7 @@ trait StorefrontSalesChannelTestHelper
     {
         $factory = static::getContainer()->get(SalesChannelContextFactory::class);
 
-        $context = $factory->create(Uuid::randomHex(), $salesChannel->getId(), []);
+        $context = $factory->create(SalesChannelContextService::getNewToken(), $salesChannel->getId(), []);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getCartToken());

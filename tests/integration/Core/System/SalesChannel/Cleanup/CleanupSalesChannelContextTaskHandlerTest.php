@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\SalesChannel\Cleanup;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -68,7 +69,7 @@ class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 
         $payload = [
             'id' => $id,
-            'cart_token' => SalesChannelContextService::getNewToken(),
+            'cart_token' => CartService::getNewToken(),
             'payload' => json_encode([
                 'key' => 'value',
             ]),

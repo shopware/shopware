@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\TestDefaults;
 
@@ -63,9 +64,7 @@ class CustomerRecoveryRouteTest extends TestCase
     {
         $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
-        $token = Uuid::randomHex();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         static::expectException(CustomerNotFoundByHashException::class);
         $customerRecoveryRoute->load(new RequestDataBag(['hash' => Random::getAlphanumericString(32)]), $context);
@@ -75,9 +74,7 @@ class CustomerRecoveryRouteTest extends TestCase
     {
         $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
-        $token = Uuid::randomHex();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         static::expectException(ConstraintViolationException::class);
         $customerRecoveryRoute->load(new RequestDataBag(['hash' => 'ThisIsAWrongHash']), $context);
@@ -87,9 +84,7 @@ class CustomerRecoveryRouteTest extends TestCase
     {
         $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
-        $token = Uuid::randomHex();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $customerRecoveryResponse = $customerRecoveryRoute->load(new RequestDataBag(['hash' => $this->hash]), $context);
 
@@ -100,9 +95,7 @@ class CustomerRecoveryRouteTest extends TestCase
     {
         $customerRecoveryRoute = static::getContainer()->get(CustomerRecoveryIsExpiredRoute::class);
 
-        $token = Uuid::randomHex();
-
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create($token, TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         static::getContainer()->get(Connection::class)->update(
             'customer_recovery',

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutAllRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
@@ -284,7 +285,7 @@ class AuthControllerTest extends TestCase
         $customer = $this->createCustomer();
         static::assertNotNull($customer);
 
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -722,6 +723,7 @@ class AuthControllerTest extends TestCase
             static::getContainer()->get(ResetPasswordRoute::class),
             static::getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
+            $this->createMock(AbstractLogoutAllRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)

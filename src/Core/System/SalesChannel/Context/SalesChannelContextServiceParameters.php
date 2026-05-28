@@ -24,6 +24,7 @@ class SalesChannelContextServiceParameters extends Struct
         protected ?string $customerId = null,
         protected ?string $imitatingUserId = null,
         protected ?string $overwriteCurrencyId = null,
+        protected ?string $cartToken = null,
     ) {
     }
 
@@ -35,6 +36,11 @@ class SalesChannelContextServiceParameters extends Struct
     public function getToken(): string
     {
         return $this->token;
+    }
+
+    public function getCartToken(): ?string
+    {
+        return $this->cartToken;
     }
 
     public function getLanguageId(): ?string

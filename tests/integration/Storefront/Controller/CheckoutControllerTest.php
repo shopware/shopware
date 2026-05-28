@@ -143,12 +143,13 @@ class CheckoutControllerTest extends TestCase
 
     public function testOrderWithFailedPaymentMethod(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $cart = $this->fillCart($contextToken);
+        $cart = $this->fillCart($cartToken);
 
         $requestDataBag = $this->createRequestDataBag('');
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken(), $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest();
         $request->request->set('fail', true);
 
@@ -559,10 +560,11 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutConfirmPageLoadedHookScriptsAreExecuted(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $cart = $this->fillCart($contextToken);
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        $cart = $this->fillCart($cartToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken(), $cart->getTransactions()->first()?->getPaymentMethodId());
         static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
 
         $request = $this->createRequest($salesChannelContext);
@@ -575,9 +577,10 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutConfirmPageConstraintViolationErrorWithInvalidAddress(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $cart = $this->fillCart($contextToken);
+        $cart = $this->fillCart($cartToken);
         $customerId = $this->createCustomer();
 
         static::getContainer()->get(Connection::class)->executeStatement(
@@ -585,7 +588,7 @@ class CheckoutControllerTest extends TestCase
             ['customerId' => Uuid::fromHexToBytes($customerId)]
         );
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, null, $customerId);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken(), null, $customerId);
         static::getContainer()->get(CartPersister::class)->save($cart, $salesChannelContext);
 
         $request = $this->createRequest($salesChannelContext);
@@ -642,11 +645,12 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutFinishPageLoadedHookScriptsAreExecuted(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $order = $this->performOrder('', true, null, $contextToken);
+        $order = $this->performOrder('', true, null, $contextToken, $cartToken);
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cartToken);
         $request = $this->createRequest($salesChannelContext);
         $request->query->set('orderId', $order->getId());
         $requestDataBag = $this->createRequestDataBag('');
@@ -659,13 +663,14 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidget(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
-        $cart = $cartService->createNew($contextToken);
+        $cart = $cartService->createNew($cartToken);
 
         $productId = $this->createProduct();
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken());
 
         $cart = $cartService->add(
             $cart,
@@ -685,12 +690,13 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutInfoWidgetSkipsCalculationAndRenderIfCartIsEmpty(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
-        $cartService->createNew($contextToken);
+        $cart = $cartService->createNew($cartToken);
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken());
         $request = $this->createRequest($salesChannelContext);
 
         $response = static::getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
@@ -721,11 +727,12 @@ class CheckoutControllerTest extends TestCase
 
     public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $cart = $this->fillCart($contextToken);
+        $cart = $this->fillCart($cartToken);
 
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken(), $cart->getTransactions()->first()?->getPaymentMethodId());
         $request = $this->createRequest($salesChannelContext);
 
         static::getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
@@ -808,16 +815,20 @@ class CheckoutControllerTest extends TestCase
     /**
      * @param string|float|int|bool|null $customerComment
      */
-    private function performOrder($customerComment, bool $paymentMethodActive = true, ?Request $request = null, ?string $contextToken = null): OrderEntity
+    private function performOrder($customerComment, bool $paymentMethodActive = true, ?Request $request = null, ?string $contextToken = null, ?string $cartToken = null): OrderEntity
     {
         if (!$contextToken) {
-            $contextToken = Uuid::randomHex();
+            $contextToken = SalesChannelContextService::getNewToken();
         }
 
-        $cart = $this->fillCart($contextToken, $paymentMethodActive);
+        if (!$cartToken) {
+            $cartToken = CartService::getNewToken();
+        }
+
+        $cart = $this->fillCart($cartToken, $paymentMethodActive);
 
         $requestDataBag = $this->createRequestDataBag($customerComment);
-        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getTransactions()->first()?->getPaymentMethodId());
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, $cart->getToken(), $cart->getTransactions()->first()?->getPaymentMethodId());
         if (!$request instanceof Request) {
             $request = $this->createRequest();
         }
@@ -907,9 +918,9 @@ class CheckoutControllerTest extends TestCase
         return $productId;
     }
 
-    private function fillCart(string $contextToken, bool $paymentMethodActive = true): Cart
+    private function fillCart(string $cartToken, bool $paymentMethodActive = true): Cart
     {
-        $cart = static::getContainer()->get(CartService::class)->createNew($contextToken);
+        $cart = static::getContainer()->get(CartService::class)->createNew($cartToken);
 
         $productId = $this->createProduct();
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
@@ -958,11 +969,12 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, string $cartToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
             SalesChannelContextService::CUSTOMER_ID => $customerId ?? $this->createCustomer(),
+            SalesChannelContextService::CART_TOKEN => $cartToken,
         ];
         if ($paymentMethodId !== null) {
             $salesChannelData[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;

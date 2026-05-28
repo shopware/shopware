@@ -57,7 +57,7 @@ class SalesChannelContext extends Struct
     public function __construct(
         protected Context $context,
         protected string $token,
-        protected ?string $cartToken,
+        protected string $cartToken,
         private ?string $domainId,
         protected SalesChannelEntity $salesChannel,
         protected CurrencyEntity $currency,
@@ -240,10 +240,6 @@ class SalesChannelContext extends Struct
 
     public function getCartToken(): string
     {
-        if (!$this->cartToken) {
-            throw SalesChannelException::contextCartTokenNotSet();
-        }
-
         return $this->cartToken;
     }
 

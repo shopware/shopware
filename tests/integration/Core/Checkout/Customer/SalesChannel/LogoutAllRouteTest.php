@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -47,13 +48,17 @@ class LogoutAllRouteTest extends TestCase
     {
         $this->ids = new IdsCollection();
 
+        $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
+
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
+            'accessKey' => $accessKey,
         ]);
         $this->assignSalesChannelContext($this->browser);
 
         $this->browser2 = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => $this->ids->get('sales-channel'),
+            'accessKey' => $accessKey,
         ]);
         $this->assignSalesChannelContext($this->browser2);
     }

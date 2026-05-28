@@ -339,7 +339,7 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
-        $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
+        $context = $factory->create(SalesChannelContextService::getNewToken(), $salesChannelId, $options);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getCartToken());

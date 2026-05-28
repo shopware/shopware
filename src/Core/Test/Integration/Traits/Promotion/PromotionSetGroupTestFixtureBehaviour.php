@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -37,7 +38,7 @@ trait PromotionSetGroupTestFixtureBehaviour
 
     private function createSetGroupWithRuleFixture(string $groupId, string $packagerKey, float $value, string $sorterKey, string $promotionId, string $ruleId, ContainerInterface $container): string
     {
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $repository = $container->get('promotion_setgroup.repository');
 
@@ -68,7 +69,7 @@ trait PromotionSetGroupTestFixtureBehaviour
      */
     private function createRule(string $name, array $lineItemIds, ContainerInterface $container): string
     {
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
         $ruleRepository = $container->get('rule.repository');
         $conditionRepository = $container->get('rule_condition.repository');
 

@@ -65,7 +65,7 @@ class CartLineItemControllerBench extends AbstractBenchCase
             static::getContainer()->get('product.repository')->create([$product], $context);
         });
 
-        $this->cart = new Cart($this->context->getToken());
+        $this->cart = new Cart($this->context->getCartToken());
     }
 
     #[Bench\BeforeMethods(['setupWithLogin'])]

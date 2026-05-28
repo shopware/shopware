@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
@@ -50,7 +51,7 @@ class PromotionMixedCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->promotionRepository = static::getContainer()->get('promotion.repository');
         $this->cartService = static::getContainer()->get(CartService::class);
@@ -68,7 +69,7 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId1 = Uuid::randomHex();
         $promotionId2 = Uuid::randomHex();
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 19, static::getContainer(), $context);
@@ -77,7 +78,7 @@ class PromotionMixedCalculationTest extends TestCase
         $this->createTestFixtureAbsolutePromotion($promotionId1, 'sale', 20, static::getContainer());
         $this->createTestFixturePercentagePromotion($promotionId2, '100off', 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 5, $cart, $this->cartService, $context);
@@ -103,7 +104,7 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $context);
@@ -111,7 +112,7 @@ class PromotionMixedCalculationTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $code, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -156,7 +157,7 @@ class PromotionMixedCalculationTest extends TestCase
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 200, PromotionDiscountEntity::SCOPE_SET, $code, static::getContainer(), $this->context);
         $this->createSetGroupFixture('COUNT', 5, 'PRICE_ASC', $promotionId, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($productId1, 5, $cart, $this->cartService, $this->context);
@@ -217,7 +218,7 @@ class PromotionMixedCalculationTest extends TestCase
         $discountId1 = $this->createSetGroupDiscount($promotionId, 1, static::getContainer(), 100, null);
         $discountId2 = $this->createSetGroupDiscount($promotionId, 2, static::getContainer(), 100, null);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($set1ProductId1, 2, $cart, $this->cartService, $this->context);
@@ -294,7 +295,7 @@ class PromotionMixedCalculationTest extends TestCase
             $pickerKey
         );
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($setProductId1, 10, $cart, $this->cartService, $this->context);
@@ -454,7 +455,7 @@ class PromotionMixedCalculationTest extends TestCase
             $pickingType
         );
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($tshirt1, 1, $cart, $this->cartService, $this->context);
@@ -538,7 +539,7 @@ class PromotionMixedCalculationTest extends TestCase
             $pickingType
         );
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($tshirt1, 1, $cart, $this->cartService, $this->context);

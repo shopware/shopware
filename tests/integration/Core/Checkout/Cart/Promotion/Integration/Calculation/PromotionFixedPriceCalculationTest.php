@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -48,7 +49,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->promotionRepository = static::getContainer()->get('promotion.repository');
@@ -76,7 +77,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, $code, static::getContainer(), $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add products to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -109,7 +110,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, static::getContainer(), $context);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create first product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -146,7 +147,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         $this->createTestFixtureProduct($productId, 100, 19, static::getContainer(), $context);
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, static::getContainer(), $context);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
 
         $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
@@ -190,7 +191,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
 
         $this->createTestFixtureAdvancedPrice($discountId, Defaults::CURRENCY, $currencyMaxValue, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -227,7 +228,7 @@ class PromotionFixedPriceCalculationTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 100, PromotionDiscountEntity::SCOPE_CART, $code, static::getContainer(), $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create first product and add to cart
         $cart = $this->addProduct($productId1, 2, $cart, $this->cartService, $this->context);

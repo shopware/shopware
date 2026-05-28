@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -102,7 +103,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'anotherKey' => 'anotherValue',
             'expired' => false,
             'token' => $token,
-            'cartToken' => $token,
+            'cartToken' => 'cart-token',
         ];
 
         $this->contextPersister->save($token, $payload, TestDefaults::SALES_CHANNEL);
@@ -117,12 +118,13 @@ class SalesChannelContextPersisterTest extends TestCase
     public function testLoadWithdrawPayloadWhenTokenExpiresAndCustomerIdIsNotProvided(): void
     {
         $token = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
         $payload = [
             'key' => 'value',
             'anotherKey' => 'anotherValue',
             'token' => $token,
-            'cartToken' => $token,
+            'cartToken' => $cartToken,
             'expired' => false,
         ];
 
@@ -131,17 +133,18 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->makeTokenAge($token, 2);
 
         // Everything except 'expired', 'token' & 'cartToken' should be removed when loading without customerId
-        static::assertSame(['expired' => true, 'token' => $token, 'cartToken' => $token], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
+        static::assertSame(['expired' => true, 'token' => $token, 'cartToken' => $cartToken], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
     public function testSaveWithoutExistingContext(): void
     {
         $token = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
         $expected = [
             'key' => 'value',
             'expired' => false,
             'token' => $token,
-            'cartToken' => $token, // Should be the same token as it uses it as a fallback
+            'cartToken' => $cartToken,
         ];
 
         $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL);
@@ -158,7 +161,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'token' => $token,
             'expired' => false,
             'customerId' => $customerId,
-            'cartToken' => $token,
+            'cartToken' => 'cart-token',
         ];
 
         $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL, $customerId);
@@ -202,7 +205,7 @@ class SalesChannelContextPersisterTest extends TestCase
         );
 
         $expected = [
-            'cartToken' => $token, // Without the feature flag this will be the same as 'token'
+            'cartToken' => 'cart-token',
             'expired' => false,
             'first' => 'test',
             'second' => 'overwritten',

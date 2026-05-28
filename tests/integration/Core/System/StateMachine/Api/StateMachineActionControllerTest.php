@@ -219,7 +219,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $salesChannelContext);
 
-        $cart = $cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext);
 
         $cart = $cartService->add($cart, $lineItem, $salesChannelContext);
 
@@ -283,7 +283,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $salesChannelContext);
 
-        $cart = $cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext);
 
         $cart = $cartService->add($cart, $lineItem, $salesChannelContext);
 

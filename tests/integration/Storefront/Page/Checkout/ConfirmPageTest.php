@@ -36,7 +36,7 @@ class ConfirmPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(0.0, $page->getCart()->getPrice()->getNetPrice());
-        static::assertSame($context->getToken(), $page->getCart()->getToken());
+        static::assertSame($context->getCartToken(), $page->getCart()->getToken());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_SHIPPING_METHOD_COUNT, $page->getShippingMethods());
         static::assertCount(StorefrontPageTestConstants::AVAILABLE_PAYMENT_METHOD_COUNT, $page->getPaymentMethods());
         static::assertNotEmpty($page->getPaymentMethods());

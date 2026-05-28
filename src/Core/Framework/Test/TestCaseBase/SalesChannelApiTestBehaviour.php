@@ -185,7 +185,7 @@ trait SalesChannelApiTestBehaviour
             'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',
-            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'accessKey' => $salesChannelOverride['accessKey'] ?? AccessKeyHelper::generateAccessKey('sales-channel'),
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
             'currencyId' => Defaults::CURRENCY,
@@ -264,7 +264,7 @@ trait SalesChannelApiTestBehaviour
     private function createContext(array $salesChannel, array $options): SalesChannelContext
     {
         $context = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), $salesChannel['id'], $options);
+            ->create(SalesChannelContextService::getNewToken(), $salesChannel['id'], $options);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
         $ruleLoader->loadByToken($context, $context->getCartToken());

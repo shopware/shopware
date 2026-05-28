@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @phpstan-type SalesChannelContextFactoryPrimitiveOptions array{cartToken?: ?string, currencyId?: ?string, languageId?: ?string, customerId?: ?string, customerGroupId?: ?string, billingAddressId?: ?string, shippingAddressId?: ?string, paymentMethodId?: ?string, shippingMethodId?: ?string, countryId?: ?string, countryStateId?: ?string, versionId?: ?string, permissions?: ?array<string, bool>, domainId?: ?string, imitatingUserId?: ?string}
+ * @phpstan-type SalesChannelContextFactoryPrimitiveOptions array{cartToken?: ?string, currencyId?: ?string, languageId?: ?string, customerId?: ?string, customerGroupId?: ?string, billingAddressId?: ?string, shippingAddressId?: ?string, paymentMethodId?: ?string, shippingMethodId?: ?string, countryId?: ?string, countryStateId?: ?string, versionId?: ?string, permissions?: ?array<string, bool>, domainId?: ?string}
  * @phpstan-type SalesChannelContextFactoryOptions SalesChannelContextFactoryPrimitiveOptions&array{originalContext?: ?Context}
  */
 #[Package('framework')]

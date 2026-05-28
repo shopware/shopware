@@ -302,9 +302,7 @@ class ProductExportGeneratorTest extends TestCase
             ->with($productExport, $expectedNormalized)
             ->willReturn([]);
 
-        $this->connection->expects($this->once())
-            ->method('delete')
-            ->with('sales_channel_api_context', static::arrayHasKey('token'));
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $generator = $this->createGenerator();
         $result = $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));

@@ -73,7 +73,7 @@ class SalesChannelContextServiceTest extends TestCase
 
     public function testTokenExpired(): void
     {
-        $expiredToken = Uuid::randomHex();
+        $expiredToken = SalesChannelContextService::getNewToken();
 
         $this->persister->method('load')->willReturn(['expired' => true, 'token' => $expiredToken]);
 
@@ -123,7 +123,7 @@ class SalesChannelContextServiceTest extends TestCase
     public function testTokenNotExpired(): void
     {
         $customerId = Uuid::randomHex();
-        $noneExpiringToken = Uuid::randomHex();
+        $noneExpiringToken = SalesChannelContextService::getNewToken();
 
         $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
@@ -190,12 +190,13 @@ class SalesChannelContextServiceTest extends TestCase
     public function testSkipCartCalculationIfAlreadyDoneAndESISubrequest(Request $request, bool $hasCart, bool $expectCalculation): void
     {
         $customerId = Uuid::randomHex();
-        $token = SalesChannelContextService::getNewToken();
-        $result = new RuleLoaderResult(new Cart($token), new RuleCollection());
+        $cartToken = CartService::getNewToken();
+        $result = new RuleLoaderResult(new Cart($cartToken), new RuleCollection());
 
         $this->persister->method('load')->willReturn(['expired' => false, SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
-        $context = Generator::generateSalesChannelContext(cartToken: $token);
+        $token = SalesChannelContextService::getNewToken();
+        $context = Generator::generateSalesChannelContext(token: $token, cartToken: $cartToken);
 
         $this->factory
             ->expects($this->once())
@@ -205,14 +206,14 @@ class SalesChannelContextServiceTest extends TestCase
         $this->cartService
             ->expects($this->once())
             ->method('hasCart')
-            ->with($token)
+            ->with($cartToken)
             ->willReturn($hasCart);
 
         if ($expectCalculation) {
             $this->cartRuleLoader
                 ->expects($this->once())
                 ->method('loadByToken')
-                ->with($context, $token)
+                ->with($context, $cartToken)
                 ->willReturn($result);
 
             $this->cartService

@@ -85,7 +85,7 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureAbsolutePromotion($promotionId, $code, 30, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId1, 3, $cart, $this->cartService, $this->context);
@@ -130,7 +130,7 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixturePercentagePromotion($promotionId, $code, 25, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId1, 3, $cart, $this->cartService, $this->context);
@@ -261,7 +261,7 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedUnitDiscountPromotion($promotionId, 10, PromotionDiscountEntity::SCOPE_CART, $code, static::getContainer(), $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId1, 3, $cart, $this->cartService, $this->context);
@@ -309,7 +309,7 @@ class PromotionDiscountCompositionTest extends TestCase
         // add a new promotion
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 70, PromotionDiscountEntity::SCOPE_CART, $code, static::getContainer(), $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // create product and add to cart
         $cart = $this->addProduct($productId1, 3, $cart, $this->cartService, $this->context);
@@ -339,7 +339,7 @@ class PromotionDiscountCompositionTest extends TestCase
      */
     private function orderWithPromotion(string $code, array $productIds, SalesChannelContext $context): string
     {
-        $cart = $this->cartService->createNew($context->getToken());
+        $cart = $this->cartService->createNew($context->getCartToken());
 
         foreach ($productIds as $productId) {
             $cart = $this->addProduct($productId, 3, $cart, $this->cartService, $context);

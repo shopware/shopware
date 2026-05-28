@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -98,7 +97,7 @@ final readonly class ProductExportPartialGenerationHandler
     private function getContext(ProductExportPartialGeneration $productExportPartialGeneration): Context
     {
         $context = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
+            SalesChannelContextService::getNewToken(),
             $productExportPartialGeneration->getSalesChannelId()
         );
 

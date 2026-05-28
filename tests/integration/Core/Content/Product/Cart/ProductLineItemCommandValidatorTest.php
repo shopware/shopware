@@ -193,7 +193,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
     {
         $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         $cart = $this->cartService->add($cart, $factory->create(['id' => $id, 'referencedId' => $id, 'quantity' => $quantity], $context), $context);
 

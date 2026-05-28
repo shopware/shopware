@@ -7,8 +7,8 @@ use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,7 +49,7 @@ class ProductExportGenerateCommand extends Command
         $forceGeneration = $input->getOption('force');
         $includeInactive = $input->getOption('include-inactive');
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
+        $salesChannelContext = $this->salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), $salesChannelId);
 
         if ($salesChannelContext->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
             throw ProductExportException::salesChannelNotAllowed();

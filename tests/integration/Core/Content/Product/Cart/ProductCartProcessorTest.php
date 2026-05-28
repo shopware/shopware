@@ -116,7 +116,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'name' => 'update'];
         static::getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getCartToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertInstanceOf(LineItem::class, $lineItem);
@@ -757,7 +757,7 @@ class ProductCartProcessorTest extends TestCase
         $update = ['id' => $this->ids->get('product'), 'active' => false];
         static::getContainer()->get('product.repository')->upsert([$update], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getCartToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -771,7 +771,7 @@ class ProductCartProcessorTest extends TestCase
 
         static::getContainer()->get('product.repository')->delete([['id' => $this->ids->get('product')]], $context->getContext());
 
-        $cart = $this->cartService->getCart($context->getToken(), $this->getContext(), false);
+        $cart = $this->cartService->getCart($context->getCartToken(), $this->getContext(), false);
 
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertNull($lineItem);
@@ -789,7 +789,7 @@ class ProductCartProcessorTest extends TestCase
         ]);
 
         $cart = $this->cartService->add(
-            $this->cartService->getCart($context->getToken(), $context),
+            $this->cartService->getCart($context->getCartToken(), $context),
             static::getContainer()->get(ProductLineItemFactory::class)->create(['id' => $this->ids->get('product')], $context),
             $context
         );
@@ -804,7 +804,7 @@ class ProductCartProcessorTest extends TestCase
         static::getContainer()->get('customer_address.repository')->upsert([$upsert], $context->getContext());
 
         $context = static::getContainer()->get(SalesChannelContextService::class)->get($parameters);
-        $cart = $this->cartService->getCart($context->getToken(), $context, false);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context, false);
         $lineItem = $cart->get($this->ids->get('product'));
         static::assertSame(21.0, $lineItem?->getPrice()?->getTaxRules()?->first()?->getTaxRate());
     }
@@ -950,7 +950,7 @@ class ProductCartProcessorTest extends TestCase
         $product = static::getContainer()->get(ProductLineItemFactory::class)
             ->create(['id' => $this->ids->get('product'), 'referencedId' => $this->ids->get('product')], $context);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         return $this->cartService->add($cart, $product, $context);
     }

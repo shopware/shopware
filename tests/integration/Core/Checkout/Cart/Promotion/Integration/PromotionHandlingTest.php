@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -31,7 +32,7 @@ class PromotionHandlingTest extends TestCase
 
         $this->cartService = static::getContainer()->get(CartService::class);
 
-        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -47,7 +48,7 @@ class PromotionHandlingTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->context);
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $code, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add our promotion to our cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
@@ -68,7 +69,7 @@ class PromotionHandlingTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->context);
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $code, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
 

@@ -41,7 +41,6 @@ class Migration1753340103AddSalesChannelContextTables extends MigrationStep
                 `customer_id` BINARY(16) NULL,
                 `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
                 PRIMARY KEY (`id`),
-                UNIQUE KEY `uniq.sales_channel_context.cart_token`(`cart_token`),
                 UNIQUE KEY `uniq.sales_channel_context.sales_channel_id_customer_id`(`sales_channel_id`, `customer_id`),
                 CONSTRAINT `json.sales_channel_context.payload` CHECK (JSON_VALID(`payload`)),
                 CONSTRAINT `fk.sales_channel_context.sales_channel_id` FOREIGN KEY (`sales_channel_id`) REFERENCES `sales_channel` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

@@ -61,7 +61,7 @@ class LogoutRoute extends AbstractLogoutRoute
         $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);
 
-        return new ContextTokenResponse($context->getToken());
+        return new ContextTokenResponse($event->getSalesChannelContext()->getToken());
     }
 
     private function shouldDelete(SalesChannelContext $context): bool

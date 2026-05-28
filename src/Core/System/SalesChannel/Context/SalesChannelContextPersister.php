@@ -15,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @phpstan-import-type SalesChannelContextFactoryPrimitiveOptions from AbstractSalesChannelContextFactory
  *
- * @phpstan-type SalesChannelContextPayload SalesChannelContextFactoryPrimitiveOptions&array{additional?: ?SalesChannelContextFactoryPrimitiveOptions}
+ * @phpstan-type SalesChannelContextPayload SalesChannelContextFactoryPrimitiveOptions&array{additional?: SalesChannelContextFactoryPrimitiveOptions&array{imitatingUserId?: ?string}}
  * @phpstan-type SalesChannelContextLoadPayload SalesChannelContextPayload&array{token: string, cartToken: string, expired: bool}
  * @phpstan-type SalesChannelContextDbRow array{token: string, cart_token: string, payload: ?string, customer_id: ?string, updated_at: string, additional_payload: ?string}
  */

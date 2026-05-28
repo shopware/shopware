@@ -184,7 +184,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $this->faker->randomElement($paymentMethodIds);
         }
 
-        $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
+        $context = $this->contextFactory->create(SalesChannelContextService::getNewToken(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 
         return $this->contexts[$customerId] = $context;
     }

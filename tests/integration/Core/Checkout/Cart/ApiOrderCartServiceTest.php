@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -39,7 +38,7 @@ class ApiOrderCartServiceTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+            ->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
         $this->adminOrderCartService = static::getContainer()->get(ApiOrderCartService::class);
     }
 

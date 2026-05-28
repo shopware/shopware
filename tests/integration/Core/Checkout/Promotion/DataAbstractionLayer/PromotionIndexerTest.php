@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
@@ -96,8 +97,6 @@ class PromotionIndexerTest extends TestCase
     {
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
 
-        $token = Uuid::randomHex();
-
-        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
+        return $salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL, $options);
     }
 }

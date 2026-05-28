@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Assert\Serialization;
@@ -419,11 +420,11 @@ class CartPersisterTest extends TestCase
         static::assertEquals(['id' => $productId], $error->getParameters());
     }
 
-    private function getSalesChannelContext(string $token): SalesChannelContext
+    private function getSalesChannelContext(string $cartToken): SalesChannelContext
     {
         return static::getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create($token, TestDefaults::SALES_CHANNEL);
+            ->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CART_TOKEN => $cartToken]);
     }
 
     private function expectSqlQuery(MockObject $connection, string $beginOfSql): void
@@ -436,10 +437,10 @@ class CartPersisterTest extends TestCase
             ->willReturnCallback(static fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
     }
 
-    private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
+    private function createCart(string $cartToken, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
     {
         $cart = [
-            'token' => $token,
+            'token' => $cartToken,
             'payload' => '',
             'rule_ids' => json_encode([]),
             'created_at' => $updatedAt?->format(Defaults::STORAGE_DATE_TIME_FORMAT) ?? $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),

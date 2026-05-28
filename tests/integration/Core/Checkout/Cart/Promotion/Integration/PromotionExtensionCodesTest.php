@@ -63,10 +63,10 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService = static::getContainer()->get(CartService::class);
         $this->addCountriesToSalesChannel();
 
-        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = static::getContainer()->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         // make sure we always start with a fresh cart
-        $this->cartService->createNew($this->context->getToken());
+        $this->cartService->createNew($this->context->getCartToken());
     }
 
     /**
@@ -88,7 +88,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -123,7 +123,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -161,7 +161,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, null, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -188,7 +188,7 @@ class PromotionExtensionCodesTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->context);
         $this->createTestFixturePercentagePromotion($promotionId, null, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
 
         $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
@@ -217,7 +217,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -260,7 +260,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -304,7 +304,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 100, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
@@ -369,7 +369,7 @@ class PromotionExtensionCodesTest extends TestCase
         // add a new promotion black friday
         $this->createTestFixtureFixedDiscountPromotion($promotionId, 30, PromotionDiscountEntity::SCOPE_CART, $promotionCode, static::getContainer(), $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
@@ -416,7 +416,7 @@ class PromotionExtensionCodesTest extends TestCase
         // minimum line item quantity discount rule of 2
         $this->createTestFixturePercentagePromotion($promotionId, $promotionCode, 50, null, static::getContainer());
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add product to cart with
         // a total price of more than our minimum price rule
@@ -489,7 +489,7 @@ class PromotionExtensionCodesTest extends TestCase
             ],
         ]);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add expensive product to cart, promo 1 should be applied now
         $cart = $this->addProduct($productExpensive, 1, $cart, $this->cartService, $this->context);

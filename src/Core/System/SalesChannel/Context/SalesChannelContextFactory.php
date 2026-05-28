@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
@@ -69,6 +70,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         // we split the context generation to allow caching of the base context
         $base = $this->baseSalesChannelContextFactory->create($salesChannelId, $options);
 
+        $cartToken = \is_string($options[SalesChannelContextService::CART_TOKEN] ?? null) ? $options[SalesChannelContextService::CART_TOKEN] : CartService::getNewToken();
+
         $customer = null;
         if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
@@ -109,9 +112,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         );
 
         $salesChannel = $base->getSalesChannel();
-
-        // To prevent caching issues use null as the default value
-        $cartToken = \is_string($options[SalesChannelContextService::CART_TOKEN] ?? null) ? $options[SalesChannelContextService::CART_TOKEN] : null;
 
         $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
 

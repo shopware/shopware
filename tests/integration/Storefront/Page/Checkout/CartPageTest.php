@@ -37,7 +37,7 @@ class CartPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(0.0, $page->getCart()->getPrice()->getNetPrice());
-        static::assertSame($context->getToken(), $page->getCart()->getToken());
+        static::assertSame($context->getCartToken(), $page->getCart()->getToken());
         self::assertPageEvent(CheckoutCartPageLoadedEvent::class, $event, $context, $request, $page);
     }
 

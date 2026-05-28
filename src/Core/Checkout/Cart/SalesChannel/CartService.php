@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -43,6 +44,14 @@ class CartService implements ResetInterface
         private readonly AbstractCartOrderRoute $orderRoute,
         private readonly CartFactory $cartFactory,
     ) {
+    }
+
+    /**
+     * Generate a new cart token.
+     */
+    public static function getNewToken(): string
+    {
+        return Random::getAlphanumericString(32);
     }
 
     public function setCart(Cart $cart): void

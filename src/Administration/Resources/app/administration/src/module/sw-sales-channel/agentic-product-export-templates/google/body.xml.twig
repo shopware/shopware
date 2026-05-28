@@ -172,7 +172,11 @@
     {%- if salePriceValue is not null %}
     <g:sale_price>{{ salePriceValue|number_format(context.currency.itemRounding.decimals, '.', '') }} {{ context.currency.isoCode }}</g:sale_price>
     {%- endif %}
-    <g:condition>{{ provider.defaultCondition|default('new') }}</g:condition>
+    {%- if mappedVariantOptions.condition is defined and mappedVariantOptions.condition %}
+    <g:condition>{{ mappedVariantOptions.condition|escape }}</g:condition>
+    {%- else %}
+    <g:condition>new</g:condition>
+    {%- endif %}
     <g:brand>{{ brand|escape }}</g:brand>
     {%- if gtin %}
     <g:gtin>{{ gtin|escape }}</g:gtin>

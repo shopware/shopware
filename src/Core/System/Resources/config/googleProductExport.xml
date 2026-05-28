@@ -5,29 +5,16 @@
         <title>Google Product Export</title>
         <title lang="de-DE">Google Produkt-Export</title>
 
-        <input-field type="single-select">
-            <name>defaultCondition</name>
-            <label>Default condition</label>
-            <label lang="de-DE">Standardzustand</label>
-            <defaultValue>new</defaultValue>
-            <options>
-                <option>
-                    <id>new</id>
-                    <name>New</name>
-                    <name lang="de-DE">Neu</name>
-                </option>
-                <option>
-                    <id>refurbished</id>
-                    <name>Refurbished</name>
-                    <name lang="de-DE">Generalüberholt</name>
-                </option>
-                <option>
-                    <id>used</id>
-                    <name>Used</name>
-                    <name lang="de-DE">Gebraucht</name>
-                </option>
-            </options>
-        </input-field>
+        <component name="sw-entity-multi-id-select">
+            <name>variantCondition</name>
+            <entity>property_group</entity>
+            <label>Variant condition mapping</label>
+            <label lang="de-DE">Zuweisung für Variantenzustand</label>
+            <placeholder>Select variant properties...</placeholder>
+            <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
+            <helpText>Optional per-product condition mapping. The first matching property is always used. Google Merchant Center accepts only "new", "refurbished", or "used" for this attribute. Other values will be rejected. When no mapping is set, "new" is emitted for every item.</helpText>
+            <helpText lang="de-DE">Optionale produktspezifische Zustandszuweisung. Es wird immer die erste passende Eigenschaft verwendet. Google Merchant Center akzeptiert für dieses Attribut nur "new", "refurbished" oder "used". Andere Werte werden abgelehnt. Ohne Zuweisung wird für jedes Item "new" ausgegeben.</helpText>
+        </component>
 
         <component name="sw-entity-multi-id-select">
             <name>variantColor</name>
@@ -58,8 +45,8 @@
             <label lang="de-DE">Zuweisung für Variantengrößensystem</label>
             <placeholder>Select variant properties...</placeholder>
             <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
-            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center expects ISO country codes (for example US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX) — other values will be ignored.</helpText>
-            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center erwartet ISO-Ländercodes (z. B. US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX) — andere Werte werden ignoriert.</helpText>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center expects ISO country codes (for example US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX). Other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center erwartet ISO-Ländercodes (z. B. US, UK, EU, DE, FR, IT, JP, AU, BR, CN, MEX). Andere Werte werden ignoriert.</helpText>
         </component>
 
         <component name="sw-entity-multi-id-select">
@@ -69,8 +56,8 @@
             <label lang="de-DE">Zuweisung für Variantengeschlecht</label>
             <placeholder>Select variant properties...</placeholder>
             <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
-            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "male", "female", or "unisex" for this attribute — other values will be ignored.</helpText>
-            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "male", "female" oder "unisex" — andere Werte werden ignoriert.</helpText>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "male", "female", or "unisex" for this attribute. Other values will be ignored.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "male", "female" oder "unisex". Andere Werte werden ignoriert.</helpText>
         </component>
 
         <component name="sw-entity-multi-id-select">
@@ -80,8 +67,8 @@
             <label lang="de-DE">Zuweisung für Variantenaltersgruppe</label>
             <placeholder>Select variant properties...</placeholder>
             <placeholder lang="de-DE">Varianten-Eigenschaften auswählen ...</placeholder>
-            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "newborn", "infant", "toddler", "kids", or "adult" for this attribute — other values will be ignored. Required for apparel &amp; accessories.</helpText>
-            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "newborn", "infant", "toddler", "kids" oder "adult" — andere Werte werden ignoriert. Erforderlich für Bekleidung und Accessoires.</helpText>
+            <helpText>The first matching property is always used. We recommend using only one of these properties at a time for variant generation. Google Merchant Center accepts only "newborn", "infant", "toddler", "kids", or "adult" for this attribute. Other values will be ignored. Required for apparel &amp; accessories.</helpText>
+            <helpText lang="de-DE">Es wird immer die erste passende Eigenschaft verwendet. Es ist empfehlenswert, immer nur eine dieser Eigenschaften gleichzeitig zur Variantengenerierung zu verwenden. Google Merchant Center akzeptiert für dieses Attribut nur "newborn", "infant", "toddler", "kids" oder "adult". Andere Werte werden ignoriert. Erforderlich für Bekleidung und Accessoires.</helpText>
         </component>
 
         <component name="sw-entity-multi-id-select">

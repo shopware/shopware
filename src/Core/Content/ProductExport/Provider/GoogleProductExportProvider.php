@@ -54,7 +54,6 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
             'targetCountries' => $targetCountries,
             'sellerName' => $salesChannelContext->getSalesChannel()->getName() ?? '',
             'sellerUrl' => $sellerUrl,
-            'defaultCondition' => $this->normalizeStringValue($config, 'defaultCondition', 'new'),
             'shippingCountry' => $storeCountry,
             'shippingService' => \is_string($shippingMethodName) && trim($shippingMethodName) !== ''
                 ? $shippingMethodName
@@ -81,6 +80,7 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
             'gender' => $this->normalizeMappingValue($mapping, 'variantGender'),
             'age_group' => $this->normalizeMappingValue($mapping, 'variantAgeGroup'),
             'material' => $this->normalizeMappingValue($mapping, 'variantMaterial'),
+            'condition' => $this->normalizeMappingValue($mapping, 'variantCondition'),
             'custom_variants' => $this->normalizeMappingValue($mapping, 'variantCustom'),
         ];
     }
@@ -104,22 +104,6 @@ class GoogleProductExportProvider extends AbstractAgenticCommerceProductExportPr
         ));
 
         return $normalized !== [] ? $normalized : null;
-    }
-
-    /**
-     * @param array<string, mixed> $mapping
-     */
-    private function normalizeStringValue(array $mapping, string $key, ?string $fallback = null): ?string
-    {
-        $value = $mapping[$key] ?? null;
-
-        if (!\is_string($value)) {
-            return $fallback;
-        }
-
-        $value = trim($value);
-
-        return $value === '' ? $fallback : $value;
     }
 
     /**

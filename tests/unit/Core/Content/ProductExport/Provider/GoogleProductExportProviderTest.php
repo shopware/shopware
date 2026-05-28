@@ -65,7 +65,6 @@ class GoogleProductExportProviderTest extends TestCase
         static::assertSame(['DE', 'FR'], $providerContext->get('targetCountries'));
         static::assertSame('Merchant', $providerContext->get('sellerName'));
         static::assertSame('https://merchant.example', $providerContext->get('sellerUrl'));
-        static::assertSame('new', $providerContext->get('defaultCondition'));
         static::assertSame('DE', $providerContext->get('shippingCountry'));
         static::assertSame('Generated Shipping', $providerContext->get('shippingService'));
         static::assertSame([
@@ -75,6 +74,7 @@ class GoogleProductExportProviderTest extends TestCase
             'gender' => null,
             'age_group' => null,
             'material' => null,
+            'condition' => null,
             'custom_variants' => null,
         ], $providerContext->get('variantMapping'));
     }
@@ -162,13 +162,13 @@ class GoogleProductExportProviderTest extends TestCase
         $provider = new GoogleProductExportProvider(
             $this->createSalesChannelRepository(),
             $this->createSystemConfigService([
-                'core.googleProductExport.defaultCondition' => 'refurbished',
                 'core.googleProductExport.variantColor' => [' color ', '', 5, 'secondary-color'],
                 'core.googleProductExport.variantSize' => [],
                 'core.googleProductExport.variantSizeSystem' => ['eu_size'],
                 'core.googleProductExport.variantGender' => ['unisex'],
                 'core.googleProductExport.variantAgeGroup' => ['adult'],
                 'core.googleProductExport.variantMaterial' => ['cotton'],
+                'core.googleProductExport.variantCondition' => ['refurbished'],
                 'core.googleProductExport.variantCustom' => ['custom_a', null, 'custom_b'],
             ], $salesChannelId)
         );
@@ -180,7 +180,6 @@ class GoogleProductExportProviderTest extends TestCase
         );
 
         static::assertInstanceOf(ArrayStruct::class, $renderContext['provider']);
-        static::assertSame('refurbished', $renderContext['provider']->get('defaultCondition'));
         static::assertSame([
             'color' => [' color ', 'secondary-color'],
             'size' => null,
@@ -188,6 +187,7 @@ class GoogleProductExportProviderTest extends TestCase
             'gender' => ['unisex'],
             'age_group' => ['adult'],
             'material' => ['cotton'],
+            'condition' => ['refurbished'],
             'custom_variants' => ['custom_a', 'custom_b'],
         ], $renderContext['provider']->get('variantMapping'));
     }

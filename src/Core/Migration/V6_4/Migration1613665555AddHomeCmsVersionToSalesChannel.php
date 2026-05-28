@@ -21,10 +21,11 @@ class Migration1613665555AddHomeCmsVersionToSalesChannel extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $this->dropForeignKeyIfExists($connection, 'sales_channel', 'fk.sales_channel.home_cms_page_id');
+
         $sql = <<<'SQL'
 ALTER TABLE `sales_channel`
-    ADD COLUMN `home_cms_page_version_id` BINARY(16)     NULL                AFTER `home_cms_page_id`,
-    DROP FOREIGN KEY `fk.sales_channel.home_cms_page_id`;
+    ADD COLUMN `home_cms_page_version_id` BINARY(16)     NULL                AFTER `home_cms_page_id`;
 SQL;
         $connection->executeStatement($sql);
 

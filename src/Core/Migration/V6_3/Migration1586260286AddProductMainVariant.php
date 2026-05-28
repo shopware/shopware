@@ -24,11 +24,6 @@ class Migration1586260286AddProductMainVariant extends MigrationStep
         $connection->executeStatement('
             ALTER TABLE `product`
             ADD `main_variant_id` BINARY(16) NULL
-                AFTER `configurator_group_config`,
-            ADD CONSTRAINT `fk.product.main_variant_id`
-                FOREIGN KEY (`main_variant_id`)
-                REFERENCES `product` (`id`)
-                ON DELETE SET NULL
         ');
     }
 

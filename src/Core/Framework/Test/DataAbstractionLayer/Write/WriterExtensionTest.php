@@ -48,11 +48,12 @@ class WriterExtensionTest extends TestCase
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
                 `product_id` BINARY(16) NULL,
+                `product_version_id` BINARY(16) NOT NULL DEFAULT 0x0fa91ce3e96a4bc2be4bd9ce752c3425,
                 `language_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`),
                 CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             )
         ');
@@ -101,8 +102,12 @@ class WriterExtensionTest extends TestCase
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
-        static::assertEquals('test 1', $productExtensions->first()->get('name'));
-        static::assertEquals('test 2', $productExtensions->last()->get('name'));
+        $first = $productExtensions->first();
+        static::assertInstanceOf(ArrayEntity::class, $first);
+        static::assertEquals('test 1', $first->get('name'));
+        $last = $productExtensions->last();
+        static::assertInstanceOf(ArrayEntity::class, $last);
+        static::assertEquals('test 2', $last->get('name'));
     }
 
     public function testCanWriteExtensionWithoutExtensionKey(): void
@@ -133,8 +138,12 @@ class WriterExtensionTest extends TestCase
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
-        static::assertEquals('test 1', $productExtensions->first()->get('name'));
-        static::assertEquals('test 2', $productExtensions->last()->get('name'));
+        $first = $productExtensions->first();
+        static::assertInstanceOf(ArrayEntity::class, $first);
+        static::assertEquals('test 1', $first->get('name'));
+        $last = $productExtensions->last();
+        static::assertInstanceOf(ArrayEntity::class, $last);
+        static::assertEquals('test 2', $last->get('name'));
     }
 
     private function createProduct(string $productId): void

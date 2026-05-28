@@ -6931,11 +6931,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Write/Validation/PreWriteValidationEventTest.php
 
 		-
-			message: "#^Cannot call method get\\(\\) on Shopware\\\\Core\\\\Framework\\\\Struct\\\\ArrayEntity\\|null\\.$#"
-			count: 4
-			path: src/Core/Framework/Test/DataAbstractionLayer/Write/WriterExtensionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Filesystem\\\\Adapter\\\\MemoryAdapterFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Filesystem/Adapter/MemoryAdapterFactory.php

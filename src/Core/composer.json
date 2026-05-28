@@ -129,11 +129,11 @@
         "symfony/validator": "~6.4.0",
         "symfony/var-exporter": "~6.4.1",
         "symfony/yaml": "~6.4.0",
-        "twig/intl-extra": "^3.20",
-        "twig/string-extra": "^3.20",
-        "twig/twig": "^3.20",
+        "twig/intl-extra": "^3.26",
+        "twig/string-extra": "^3.24",
+        "twig/twig": "^3.26",
         "zircote/swagger-php": "^4.5.1",
-        "squirrelphp/twig-php-syntax": "^1.7.0"
+        "squirrelphp/twig-php-syntax": "^1.13.0"
     },
     "require-dev": {
         "ext-tokenizer": "*",

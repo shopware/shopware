@@ -5906,11 +5906,6 @@ parameters:
 			path: src/Core/Framework/Test/Adapter/Twig/Extension/MediaExtensionTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Twig/Extension/PhpSyntaxExtensionTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Adapter\\\\Twig\\\\ReturnNodeTest\\:\\:testNode\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Adapter/Twig/ReturnNodeTest.php
@@ -9064,16 +9059,6 @@ parameters:
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
-
-		-
-			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Storefront/Framework/Twig/TokenParser/IconTokenParser.php
-
-		-
-			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 2
-			path: src/Storefront/Framework/Twig/TokenParser/ThumbnailTokenParser.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Migration\\\\V6_4\\\\Migration1641476963ThemeDependentIds\\:\\:fixRolePrivileges\\(\\) should return list\\<string\\> but returns array\\<int\\<0, max\\>, string\\>\\.$#"

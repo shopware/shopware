@@ -19,20 +19,20 @@ readonly class Service
      * @param list<string> $requirements
      */
     private function __construct(
-        private string $id,
-        private string $name,
-        private string $label,
-        private bool $active,
-        private ?string $icon,
-        private ?string $description,
-        private \DateTimeInterface $updatedAt,
-        private string $version,
-        private string $aclRoleId,
-        private array $requestedPrivileges,
-        private array $privileges,
-        private State $state,
-        private array $domains,
-        private array $requirements,
+        public string $id,
+        public string $name,
+        public string $label,
+        public bool $active,
+        public ?string $icon,
+        public ?string $description,
+        public \DateTimeInterface $updatedAt,
+        public string $version,
+        public string $aclRoleId,
+        public array $requestedPrivileges,
+        public array $privileges,
+        public State $state,
+        public array $domains,
+        public array $requirements,
     ) {
     }
 
@@ -59,97 +59,15 @@ readonly class Service
         );
     }
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
-
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
-
-    public function getIcon(): ?string
-    {
-        return $this->icon;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function getVersion(): string
-    {
-        return $this->version;
-    }
-
-    public function getAclRoleId(): string
-    {
-        return $this->aclRoleId;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getRequestedPrivileges(): array
-    {
-        return $this->requestedPrivileges;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getPrivileges(): array
-    {
-        return $this->privileges;
-    }
-
     /**
      * @return list<string>
      */
     public function getAllPrivileges(): array
     {
         return array_values(array_unique(array_merge(
-            $this->getRequestedPrivileges(),
-            $this->getPrivileges(),
+            $this->requestedPrivileges,
+            $this->privileges,
         )));
-    }
-
-    public function getState(): State
-    {
-        return $this->state;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getDomains(): array
-    {
-        return $this->domains;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getRequirements(): array
-    {
-        return $this->requirements;
     }
 
     private static function label(AppEntity $app): string

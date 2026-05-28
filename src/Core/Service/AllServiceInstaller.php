@@ -66,7 +66,7 @@ class AllServiceInstaller
      */
     private function getNewServices(array $installedServices): array
     {
-        $names = array_map(static fn (Service $service) => $service->getName(), $installedServices);
+        $names = array_map(static fn (Service $service) => $service->name, $installedServices);
 
         return array_filter(
             $this->serviceRegistryClient->getAll(),

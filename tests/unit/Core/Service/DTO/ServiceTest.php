@@ -37,21 +37,21 @@ class ServiceTest extends TestCase
 
         $service = Service::fromApp($app);
 
-        static::assertSame('service-id', $service->getId());
-        static::assertSame('MyService', $service->getName());
-        static::assertSame('My service', $service->getLabel());
-        static::assertTrue($service->isActive());
-        static::assertSame('service-icon', $service->getIcon());
-        static::assertSame('My translated description', $service->getDescription());
-        static::assertSame($updatedAt, $service->getUpdatedAt());
-        static::assertSame('1.0.0', $service->getVersion());
-        static::assertSame('acl-role-id', $service->getAclRoleId());
-        static::assertSame(['product:read', 'order:read'], $service->getRequestedPrivileges());
-        static::assertSame(['product:read', 'customer:read'], $service->getPrivileges());
+        static::assertSame('service-id', $service->id);
+        static::assertSame('MyService', $service->name);
+        static::assertSame('My service', $service->label);
+        static::assertTrue($service->active);
+        static::assertSame('service-icon', $service->icon);
+        static::assertSame('My translated description', $service->description);
+        static::assertSame($updatedAt, $service->updatedAt);
+        static::assertSame('1.0.0', $service->version);
+        static::assertSame('acl-role-id', $service->aclRoleId);
+        static::assertSame(['product:read', 'order:read'], $service->requestedPrivileges);
+        static::assertSame(['product:read', 'customer:read'], $service->privileges);
         static::assertSame(['product:read', 'order:read', 'customer:read'], $service->getAllPrivileges());
-        static::assertSame(State::PENDING_PERMISSIONS, $service->getState());
-        static::assertSame(['https://example.com', 'https://cdn.example.com'], $service->getDomains());
-        static::assertSame(['shopware_account', 'service_consent'], $service->getRequirements());
+        static::assertSame(State::PENDING_PERMISSIONS, $service->state);
+        static::assertSame(['https://example.com', 'https://cdn.example.com'], $service->domains);
+        static::assertSame(['shopware_account', 'service_consent'], $service->requirements);
     }
 
     public function testFromAppUsesCreatedAtWhenUpdatedAtIsMissing(): void
@@ -60,11 +60,11 @@ class ServiceTest extends TestCase
 
         $service = Service::fromApp($app);
 
-        static::assertNull($service->getDescription());
-        static::assertSame($app->getCreatedAt(), $service->getUpdatedAt());
-        static::assertSame([], $service->getPrivileges());
-        static::assertSame([], $service->getDomains());
-        static::assertSame([], $service->getRequirements());
-        static::assertSame(State::INACTIVE, $service->getState());
+        static::assertNull($service->description);
+        static::assertSame($app->getCreatedAt(), $service->updatedAt);
+        static::assertSame([], $service->privileges);
+        static::assertSame([], $service->domains);
+        static::assertSame([], $service->requirements);
+        static::assertSame(State::INACTIVE, $service->state);
     }
 }

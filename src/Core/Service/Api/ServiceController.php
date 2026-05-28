@@ -53,7 +53,7 @@ class ServiceController
             throw ServiceException::notFound('integrationId', $integrationId);
         }
 
-        $this->messageBus->dispatch(new UpdateServiceMessage($app->getName()));
+        $this->messageBus->dispatch(new UpdateServiceMessage($app->name));
 
         return new JsonResponse([]);
     }
@@ -77,9 +77,9 @@ class ServiceController
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        if (!$service->isActive()) {
+        if (!$service->active) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->activateApp($service->getId(), $context);
+                $this->appStateService->activateApp($service->id, $context);
             });
         }
 
@@ -105,9 +105,9 @@ class ServiceController
             throw ServiceException::notFound('name', $serviceName);
         }
 
-        if ($service->isActive()) {
+        if ($service->active) {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->deactivateApp($service->getId(), $context);
+                $this->appStateService->deactivateApp($service->id, $context);
             });
         }
 
@@ -133,7 +133,7 @@ class ServiceController
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appLifecycle->delete($service->getId(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->delete($service->id, ['id' => $service->id], $context);
         });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
@@ -213,19 +213,19 @@ class ServiceController
     private function loadAllServices(Context $context): array
     {
         return array_map(static fn (Service $service) => [
-            'id' => $service->getId(),
-            'name' => $service->getName(),
-            'label' => $service->getLabel(),
-            'active' => $service->isActive(),
-            'icon' => $service->getIcon(),
-            'description' => $service->getDescription(),
-            'updated_at' => $service->getUpdatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'version' => $service->getVersion(),
-            'requested_privileges' => $service->getRequestedPrivileges(),
-            'privileges' => $service->getPrivileges(),
-            'state' => $service->getState()->value,
-            'domains' => $service->getDomains(),
-            'requirements' => $service->getRequirements(),
+            'id' => $service->id,
+            'name' => $service->name,
+            'label' => $service->label,
+            'active' => $service->active,
+            'icon' => $service->icon,
+            'description' => $service->description,
+            'updated_at' => $service->updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'version' => $service->version,
+            'requested_privileges' => $service->requestedPrivileges,
+            'privileges' => $service->privileges,
+            'state' => $service->state->value,
+            'domains' => $service->domains,
+            'requirements' => $service->requirements,
         ], $this->serviceRepository->findAll($context));
     }
 

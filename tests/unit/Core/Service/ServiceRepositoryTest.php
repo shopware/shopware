@@ -34,8 +34,8 @@ class ServiceRepositoryTest extends TestCase
         $service = (new ServiceRepository($repository))->findByName('MyService', Context::createDefaultContext());
 
         static::assertInstanceOf(Service::class, $service);
-        static::assertSame($app->getId(), $service->getId());
-        static::assertSame('MyService', $service->getName());
+        static::assertSame($app->getId(), $service->id);
+        static::assertSame('MyService', $service->name);
     }
 
     public function testFindByIntegrationId(): void
@@ -53,7 +53,7 @@ class ServiceRepositoryTest extends TestCase
         $service = (new ServiceRepository($repository))->findByIntegrationId('integration-id', Context::createDefaultContext());
 
         static::assertInstanceOf(Service::class, $service);
-        static::assertSame($app->getId(), $service->getId());
+        static::assertSame($app->getId(), $service->id);
     }
 
     public function testFindAll(): void
@@ -71,7 +71,7 @@ class ServiceRepositoryTest extends TestCase
         $services = (new ServiceRepository($repository))->findAll(Context::createDefaultContext());
 
         static::assertCount(1, $services);
-        static::assertSame($app->getId(), $services[0]->getId());
+        static::assertSame($app->getId(), $services[0]->id);
     }
 
     private static function assertServiceFilter(Criteria $criteria): void

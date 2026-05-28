@@ -120,7 +120,7 @@ class ServiceLifecycle
         }
 
         // if it's the same version, bail
-        if ($service->getVersion() === $latestAppInfo->revision) {
+        if ($service->version === $latestAppInfo->revision) {
             return true;
         }
 
@@ -146,8 +146,8 @@ class ServiceLifecycle
                 $manifest,
                 new AppUpdateParameters(),
                 [
-                    'id' => $service->getId(),
-                    'roleId' => $service->getAclRoleId(),
+                    'id' => $service->id,
+                    'roleId' => $service->aclRoleId,
                 ],
                 $context
             );

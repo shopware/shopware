@@ -77,10 +77,10 @@ class LifecycleManager
 
     public function syncPrivileges(Service $service, Context $context): void
     {
-        if ($this->requirementsValidator->isSatisfied($service->getRequirements())) {
-            $this->privileges->acceptAllForApps([$service->getId()], $context);
+        if ($this->requirementsValidator->isSatisfied($service->requirements)) {
+            $this->privileges->acceptAllForApps([$service->id], $context);
         } else {
-            $this->privileges->revokeAllForApps([$service->getId()], $context);
+            $this->privileges->revokeAllForApps([$service->id], $context);
         }
     }
 
@@ -91,7 +91,7 @@ class LifecycleManager
     public function syncRequirement(string $requirementName, Context $context): void
     {
         foreach ($this->repository->findAll($context) as $service) {
-            if (\in_array($requirementName, $service->getRequirements(), true)) {
+            if (\in_array($requirementName, $service->requirements, true)) {
                 $this->syncPrivileges($service, $context);
             }
         }
@@ -114,7 +114,7 @@ class LifecycleManager
     public function disable(Context $context): void
     {
         foreach ($this->repository->findAll($context) as $service) {
-            $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+            $this->appLifecycle->delete($service->name, ['id' => $service->id], $context);
         }
 
         $this->permissionsService->revoke($context);
@@ -145,8 +145,8 @@ class LifecycleManager
         }
 
         foreach ($services as $service) {
-            if (!isset($registryServiceNames[$service->getName()])) {
-                $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
+            if (!isset($registryServiceNames[$service->name])) {
+                $this->appLifecycle->delete($service->name, ['id' => $service->id], $context);
             }
         }
     }

@@ -90,8 +90,7 @@ class ContextSwitchRouteTest extends TestCase
             $this->createMock(SalesChannelContextServiceInterface::class)
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CartException::customerNotLoggedIn());
 
         $route->switchContext(
             new RequestDataBag($parameters),

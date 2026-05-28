@@ -92,6 +92,7 @@ bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit.
 
 {% endif %}
 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
+Bei einer Gastbestellung können Sie den Status über den Link mit Ihrer E-Mail-Adresse und der Postleitzahl der Rechnungsanschrift abrufen.
 Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
 {% if a11yDocuments is defined and a11yDocuments is not empty %}

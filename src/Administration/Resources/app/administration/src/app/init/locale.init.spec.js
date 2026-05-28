@@ -5,6 +5,7 @@ import initializeLocaleService from 'src/app/init/locale.init';
 
 const originalNavigatorLanguage = navigator.language;
 const originalNavigatorLanguages = navigator.languages;
+const originalSystemLanguageId = Shopware.Context.api.systemLanguageId;
 
 describe('src/app/init/locale.init.ts', () => {
     beforeAll(() => {
@@ -30,7 +31,10 @@ describe('src/app/init/locale.init.ts', () => {
     beforeEach(() => {
         Shopware.Application.getContainer('factory').locale.getLocaleRegistry().clear();
         Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
+        Shopware.Context.api.systemLanguageId = originalSystemLanguageId;
+
         window.localStorage.removeItem('sw-admin-locale');
+
         Object.defineProperty(window.navigator, 'language', {
             value: originalNavigatorLanguage,
             configurable: true,
@@ -39,6 +43,10 @@ describe('src/app/init/locale.init.ts', () => {
             value: originalNavigatorLanguages,
             configurable: true,
         });
+    });
+
+    afterEach(() => {
+        Shopware.Context.api.systemLanguageId = originalSystemLanguageId;
     });
 
     it('should register the locale factory with correct snippet languages', async () => {
@@ -53,6 +61,7 @@ describe('src/app/init/locale.init.ts', () => {
                 extend: expect.any(Function),
                 getBrowserLanguage: expect.any(Function),
                 getBrowserLanguages: expect.any(Function),
+                setSystemFallbackLocale: expect.any(Function),
                 getLastKnownLocale: expect.any(Function),
                 storeCurrentLocale: expect.any(Function),
             }),

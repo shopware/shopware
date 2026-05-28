@@ -15,7 +15,10 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['customSnippetApiService', 'repositoryFactory'],
+    inject: [
+        'customSnippetApiService',
+        'repositoryFactory',
+    ],
 
     emits: ['change-address'],
 

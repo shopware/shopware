@@ -50,7 +50,16 @@ class EntityReader implements EntityReaderInterface
 {
     final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
     final public const FOREIGN_KEYS = 'foreignKeys';
-    final public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
+
+    /**
+     * Marks temporary queries that select limited ids for to-many associations.
+     *
+     * EntityReader sets this state before applying association criteria in loadManyToManyWithCriteria() and
+     * fetchPaginatedOneToManyMapping(). Those queries are later wrapped as subqueries to enforce per-parent limits.
+     * They intentionally do not add their own GROUP BY, so CriteriaQueryBuilder must keep ORDER BY expressions
+     * unaggregated even when filters add to-many joins and mark the query as grouped.
+     */
+    final public const TO_MANY_ASSOCIATION_LIMIT_QUERY = 'to_many_association_limit_query';
 
     public function __construct(
         private readonly Connection $connection,
@@ -882,9 +891,10 @@ class EntityReader implements EntityReaderInterface
         );
 
         $query = new QueryBuilder($this->connection);
-        // to many selects results in a `group by` clause. In this case the order by parts will be executed with MIN/MAX aggregation
-        // but at this point the order by will be moved to an sub select where we don't have a group state, the `state` prevents this behavior
-        $query->addState(self::MANY_TO_MANY_LIMIT_QUERY);
+        // To-many criteria can add joins that mark the query as grouped. In that case the order by parts are executed
+        // with MIN/MAX aggregation, but this limit query is moved into a subquery without its own group by.
+        // The state prevents aggregate sorting for those temporary to-many association limit queries.
+        $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
 
         $query = $this->criteriaQueryBuilder->build(
             $query,
@@ -1073,9 +1083,12 @@ class EntityReader implements EntityReaderInterface
         // Remove first entry
         array_shift($sortings);
 
+        $query = new QueryBuilder($this->connection);
+        $query->addState(self::TO_MANY_ASSOCIATION_LIMIT_QUERY);
+
         // build query based on provided association criteria (sortings, search, filter)
         $query = $this->criteriaQueryBuilder->build(
-            new QueryBuilder($this->connection),
+            $query,
             $association->getReferenceDefinition(),
             $fieldCriteria,
             $context

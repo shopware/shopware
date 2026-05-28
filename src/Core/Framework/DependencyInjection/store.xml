@@ -245,6 +245,7 @@
             <argument type="service" id="Shopware\Core\Framework\JWT\JWTDecoder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher"/>
             <argument type="service" id="logger" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\InAppPurchase\Api\InAppPurchasesController" public="true">

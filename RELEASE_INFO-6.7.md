@@ -150,12 +150,12 @@ The analytics settings view in `sw-sales-channel-detail-analytics` was split int
 
 New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
 
-### Storefront icon cache can be configured per sales channel
+### Storefront icon cache and speculation rules can be configured per sales channel
 
-The Storefront settings Administration page now allows `core.storefrontSettings.iconCache` and `core.storefrontSettings.speculationRules` to be configured per sales channel.
+The Storefront settings Administration page now allows the icon cache and speculation rules settings (`core.storefrontSettings.iconCache` and `core.storefrontSettings.speculationRules`) to be configured per sales channel.
 `core.storefrontSettings.asyncThemeCompilation` remains a global setting and was moved into a separate Theme configuration card.
 
-The storefront runtime now resolves `core.storefrontSettings.iconCache` with the active sales channel id.
+The storefront runtime now resolves the icon cache setting with the active sales channel id, matching the sales-channel-aware speculation rules lookup.
 Extensions customizing the Storefront settings page should use the new `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules` Twig blocks.
 The old `sw_settings_storefront_smtp_settings` block is deprecated and will be removed in v6.8.0.
 

@@ -313,6 +313,7 @@
       "headlineTabEditAddress": "Adresse bearbeiten",
       "headlineTabSelectAddress": "Adresse auswählen",
       "headlineTabCreateAddress": "Adresse erstellen",
+      "selectedAddressDetailsLabel": "Details der ausgewählten Adresse",
       "currentlySelected": "Aktuelle Auswahl",
       "searchAddressToolbarPlaceholder": "Adressen suchen ...",
       "emptySearchResults": "Keine Adressen gefunden."

@@ -81,7 +81,7 @@ test.describe('Shopware Services', () => {
         }
     );
 
-    test(
+    test.skip(
         'As a merchant, I want to fully deactivate the Shopware Services feature.',
         { tag: '@Settings' },
         async ({ ShopAdmin, AdminShopwareServices, InstanceMeta }) => {

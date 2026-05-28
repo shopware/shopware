@@ -36,7 +36,7 @@ trait CustomerAddressDataNormalizerTrait
                 continue;
             }
 
-            $addressData[$field] = trim($addressData[$field]);
+            $addressData[$field] = mb_trim($addressData[$field]);
         }
 
         return $addressData;

@@ -100,7 +100,7 @@ class Migration1779944867TrimCustomerAddressFields extends MigrationStep
                 continue;
             }
 
-            $trimmedValue = trim($value);
+            $trimmedValue = mb_trim($value);
 
             if ($trimmedValue === $value) {
                 continue;

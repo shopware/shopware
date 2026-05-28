@@ -552,7 +552,11 @@
         },
         "exclude-from-classmap": [
             "src/**/Test/",
-            "tests/"
+            "src/**/Tests/",
+            "tests/",
+            "src/Storefront/Resources/app/storefront/node_modules/",
+            "src/Administration/Resources/app/administration/node_modules/",
+            "src/Core/Framework/Adapter/Doctrine/Patch/"
         ]
     },
     "autoload-dev": {

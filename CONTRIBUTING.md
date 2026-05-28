@@ -274,7 +274,7 @@ All commands below should be run inside the Docker container prefixed with `dock
 
 **Working on the administration:**
 ```bash
-# Start the admin watcher, then code — changes are reflected at http://localhost:5173
+# Start the admin watcher before editing; changes are reflected at http://localhost:5173
 docker compose exec web composer watch:admin
 
 # Before committing, run linting and tests
@@ -284,7 +284,7 @@ docker compose exec web composer admin:unit
 
 **Working on the storefront:**
 ```bash
-# Start the storefront watcher, then code — changes are reflected at http://localhost:9998
+# Start the storefront watcher before editing; changes are reflected at http://localhost:9998
 docker compose exec web composer watch:storefront
 
 # Before committing, run linting and tests

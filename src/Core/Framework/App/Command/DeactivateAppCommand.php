@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -21,14 +20,11 @@ class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';
 
-    /**
-     * @param EntityRepository<AppCollection> $appRepo
-     */
     public function __construct(
-        EntityRepository $appRepo,
+        AppStorage $appStorage,
         private readonly AppStateService $appStateService
     ) {
-        parent::__construct($appRepo, self::ACTION);
+        parent::__construct($appStorage, self::ACTION);
     }
 
     public function runAction(string $appId, Context $context): void

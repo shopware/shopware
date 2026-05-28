@@ -3,13 +3,9 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -26,10 +22,8 @@ class AppListCommand extends Command
 {
     /**
      * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
      */
-    public function __construct(private readonly EntityRepository $appRepository)
+    public function __construct(private readonly AppStorage $appStorage)
     {
         parent::__construct();
     }
@@ -51,20 +45,11 @@ class AppListCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $context = Context::createCLIContext();
 
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         $filter = $input->getOption('filter');
-        if ($filter) {
-            $criteria->addFilter(new MultiFilter(
-                MultiFilter::CONNECTION_OR,
-                [
-                    new ContainsFilter('name', $filter),
-                    new ContainsFilter('label', $filter),
-                ]
-            ));
-        }
-
-        $apps = $this->appRepository->search($criteria, $context)->getEntities();
+        $apps = \is_string($filter) && $filter !== ''
+            ? $this->appStorage->findAllWithNameOrLabel($filter, $context)
+            : $this->appStorage->findAll($context);
+        $apps->sort(static fn (AppEntity $a, AppEntity $b): int => $a->getName() <=> $b->getName());
 
         if ($input->getOption('json')) {
             $output->write(json_encode($apps, \JSON_THROW_ON_ERROR));

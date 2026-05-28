@@ -45,4 +45,22 @@ class AppStorageTest extends TestCase
         static::assertNull($appStorage->findById('missing-id', Context::createDefaultContext()));
         static::assertNull($appStorage->findByName('missing-name', Context::createDefaultContext()));
     }
+
+    public function testFindAll(): void
+    {
+        $apps = new AppCollection([AppFixture::createAppEntity()]);
+        /** @var StaticEntityRepository<AppCollection> $repository */
+        $repository = new StaticEntityRepository([$apps]);
+
+        static::assertSame($apps, (new AppStorage($repository))->findAll(Context::createDefaultContext()));
+    }
+
+    public function testFindAllByNameOrLabel(): void
+    {
+        $apps = new AppCollection([AppFixture::createAppEntity()]);
+        /** @var StaticEntityRepository<AppCollection> $repository */
+        $repository = new StaticEntityRepository([$apps]);
+
+        static::assertSame($apps, (new AppStorage($repository))->findAllWithNameOrLabel('test-app', Context::createDefaultContext()));
+    }
 }

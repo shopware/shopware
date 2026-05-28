@@ -3,13 +3,9 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -29,12 +25,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('framework')]
 class UninstallAppCommand extends Command
 {
-    /**
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
         private readonly AbstractAppLifecycle $appLifecycle,
-        private readonly EntityRepository $appRepository
+        private readonly AppStorage $appStorage
     ) {
         parent::__construct();
     }
@@ -56,7 +49,7 @@ class UninstallAppCommand extends Command
             $context->addState(ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION);
         }
 
-        $app = $this->getAppByName($name, $context);
+        $app = $this->appStorage->findByName($name, $context);
 
         if (!$app) {
             $io->error(\sprintf('No app with name "%s" installed.', $name));
@@ -96,13 +89,5 @@ class UninstallAppCommand extends Command
             InputOption::VALUE_NONE,
             'Use this option to skip recompiling of all themes'
         );
-    }
-
-    private function getAppByName(string $name, Context $context): ?AppEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $name));
-
-        return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 }

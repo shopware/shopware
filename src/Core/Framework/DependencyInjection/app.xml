@@ -502,20 +502,20 @@
 
         <service id="Shopware\Core\Framework\App\Command\UninstallAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\ActivateAppCommand">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\DeactivateAppCommand">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
 
             <tag name="console.command"/>
@@ -541,7 +541,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\AppListCommand">
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
 
             <tag name="console.command"/>
         </service>

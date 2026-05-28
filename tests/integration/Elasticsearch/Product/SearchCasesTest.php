@@ -9,8 +9,12 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,9 +24,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class SearchCasesTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
+    use CacheTestBehaviour;
     use ElasticsearchTestTestBehaviour;
+    use FilesystemBehaviour;
     use KernelTestBehaviour;
+    use QueueTestBehaviour;
+    use SalesChannelApiTestBehaviour;
+    use SessionTestBehaviour;
 
     private static IdsCollection $ids;
 
@@ -37,6 +45,9 @@ class SearchCasesTest extends TestCase
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
         static::getContainer()->get('product.repository')->create(array_values($products), Context::createDefaultContext());
+
+        $this->setSearchConfiguration(true, ['name', 'productNumber']);
+        $this->setSearchScores(['name' => 700, 'productNumber' => 1000]);
 
         $this->indexElasticSearch();
 
@@ -87,10 +98,6 @@ class SearchCasesTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
-    }
-
-    protected function runWorker(): void
-    {
     }
 
     /**

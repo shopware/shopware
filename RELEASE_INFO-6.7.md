@@ -40,6 +40,21 @@ See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the
 - New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
 - Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
 
+## Administration
+
+### Rule Builder cart total condition labels adjusted
+
+Rule Builder cart total condition labels now describe more clearly which cart value they evaluate. The internal condition names remain unchanged for backwards compatibility.
+
+| Internal name | EN old -> new | DE old -> new | What it checks |
+| --- | --- | --- | --- |
+| `cartCartAmount` | Grand total -> Cart total (incl. shipping) | Gesamtsumme -> Warenkorb-Gesamtsumme (inkl. Versand) | `cart.price.totalPrice` - final cart price incl. shipping/tax/discounts |
+| `cartPositionPrice` | Total -> Cart sum of items (excl. shipping) | Summe -> Summe der Positionen (ohne Versand) | `cart.price.positionPrice` - sum of all items, no shipping |
+| `cartGoodsPrice` | Subtotal of all items -> Subtotal of goods (excl. discounts/fees) | Zwischensumme aller Positionen -> Zwischensumme der Warenpositionen (ohne Rabatte/Zuschläge) | Sum of goods item prices, excl. shipping/promotions |
+| `cartTotalPurchasePrice` | Total of all purchase prices -> Sum of purchase prices | Summe aller Einkaufspreise -> Summe der Einkaufspreise | Sum of purchase/cost prices across all items |
+| `cartLineItemTotalPrice` | Item subtotal -> Item total (qty × price) | Positionszwischensumme -> Positionssumme (Menge × Preis) | One item's total, quantity multiplied by unit price |
+| `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
+| `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
 
 ## App System
 
@@ -115,6 +130,32 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Pluggable thumbnail image processor
+
+The thumbnail generation pipeline now uses a `ThumbnailProcessorInterface` instead of a hardwired GD implementation.
+Two processors ship out of the box:
+
+- `GdImageThumbnailProcessor` — uses the PHP GD extension and is the default.
+- `ImagickThumbnailProcessor` — uses the PHP Imagick extension, if installed.
+
+Switch between them in `config/packages/shopware.yaml`:
+
+    shopware:
+      media:
+        thumbnail_processor: imagick   # or "gd" (default)
+
+Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
+`ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
 
 ### Backward compatible invalid locales
 
@@ -445,6 +486,14 @@ The generated Admin API and Store API `Price` schemas now include property descr
 This improves the generated OpenAPI and Stoplight documentation for integrations that inspect raw price payloads and need to distinguish between the current price, list price, discount percentage, and regulation price fields.
 
 ## Core
+
+### Elasticsearch: Disabled BM25 field-length normalization for structured search fields
+
+Elasticsearch product search now uses a custom BM25 similarity with `b=0` (no field-length normalization) as the index default. This prevents short product names like "Sony TV" from ranking unfairly above descriptive ones like "Sony 65-inch 4K Ultra HD Smart OLED TV" when both match the same search terms.
+
+Long-form text fields (`description`, `metaDescription`) retain the standard BM25 normalization (`b=0.75`) via the `sw_length_norm` similarity, since document length is a meaningful relevance signal for prose content.
+
+Both similarities are configurable via `elasticsearch.similarity` in `elasticsearch.yaml`. This change requires a full reindex (`bin/console es:index`).
 
 ### Product `display_group` values use SHA-256
 

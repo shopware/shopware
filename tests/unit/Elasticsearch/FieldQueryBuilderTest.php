@@ -153,7 +153,7 @@ class FieldQueryBuilderTest extends TestCase
         $array = $query->toArray();
         $queries = $array['dis_max']['queries'];
         foreach ($queries as $q) {
-            static::assertArrayNotHasKey('prefix', $q);
+            static::assertArrayNotHasKey('match_bool_prefix', $q);
         }
     }
 

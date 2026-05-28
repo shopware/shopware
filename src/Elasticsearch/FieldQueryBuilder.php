@@ -7,7 +7,6 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
-use OpenSearchDSL\Query\TermLevel\PrefixQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Query\TermLevel\TermsQuery;
 use Shopware\Core\Framework\Context;
@@ -22,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
+use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 
 /**
  * @internal
@@ -161,7 +161,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         string $token,
         SearchFieldConfig $config,
         int $tokenCount,
-        int $maxExpansions
+        int $maxExpansions,
     ): ?BuilderInterface {
         if (!$config->usePrefixMatch()) {
             return null;
@@ -181,9 +181,13 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
         }
 
-        $prefixField = $this->useLanguageAnalyzer ? $searchField : $config->getField();
+        $matchBoolPrefixParams = ['boost' => 0.4];
 
-        return new PrefixQuery($prefixField, $token, ['boost' => 0.4]);
+        if (!$this->useLanguageAnalyzer) {
+            $matchBoolPrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+        }
+
+        return new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);
     }
 
     private function buildNgramQuery(string $token, SearchFieldConfig $config, int $tokenCount): ?MatchQuery

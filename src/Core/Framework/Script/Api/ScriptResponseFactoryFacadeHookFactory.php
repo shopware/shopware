@@ -7,8 +7,8 @@ use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -18,10 +18,7 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 {
     public function __construct(
         private readonly RouterInterface $router,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-         */
-        private readonly ?ScriptController $scriptController
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -34,7 +31,7 @@ class ScriptResponseFactoryFacadeHookFactory extends HookServiceFactory
 
         return new ScriptResponseFactoryFacade(
             $this->router,
-            $this->scriptController,
+            $this->eventDispatcher,
             $salesChannelContext
         );
     }

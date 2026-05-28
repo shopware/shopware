@@ -3,12 +3,13 @@
 namespace Shopware\Core\Framework\Script\Api;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Script\Event\RenderStorefrontForScriptEvent;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Controller\ScriptController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The `response` service allows you to create HTTP-Responses.
@@ -23,10 +24,7 @@ class ScriptResponseFactoryFacade
      */
     public function __construct(
         private readonly RouterInterface $router,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-         */
-        private readonly ?ScriptController $scriptController,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ?SalesChannelContext $salesChannelContext,
     ) {
     }
@@ -88,16 +86,18 @@ class ScriptResponseFactoryFacade
      */
     public function render(string $view, array $parameters = []): ScriptResponse
     {
-        if ($this->scriptController === null) {
-            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
-        }
-
         if ($this->salesChannelContext === null) {
             throw ScriptException::hookMethodOutsideOfSalesChannelContext(__METHOD__);
         }
 
-        $inner = $this->scriptController->renderStorefrontForScript($view, $parameters);
+        $event = $this->eventDispatcher->dispatch(
+            new RenderStorefrontForScriptEvent($view, $parameters, $this->salesChannelContext)
+        );
 
-        return new ScriptResponse($inner, $inner->getStatusCode());
+        if ($event->response === null) {
+            throw ScriptException::storefrontBundleMissingForHookMethod(__METHOD__);
+        }
+
+        return new ScriptResponse($event->response, $event->response->getStatusCode());
     }
 }

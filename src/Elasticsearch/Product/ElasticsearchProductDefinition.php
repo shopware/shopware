@@ -53,7 +53,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
      */
     public function getMapping(Context $context): array
     {
-        $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+        $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
+        $languageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true));
         $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
@@ -70,11 +71,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFields,
+            'name' => $languageFieldsWithExact,
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $languageFields,
+            'customSearchKeywords' => $languageFieldsWithExact,
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -107,14 +108,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'streamIds' => self::KEYWORD_FIELD,
             'autoIncrement' => self::INT_FIELD,
             'manufacturerId' => self::KEYWORD_FIELD,
-            'manufacturerNumber' => self::getTextFieldConfig(),
+            'manufacturerNumber' => self::buildTextFieldConfig(withExact: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::getTextFieldConfig(),
+            'ean' => self::buildTextFieldConfig(withExact: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::getTextFieldConfig(),
+            'productNumber' => self::buildTextFieldConfig(withExact: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),
@@ -123,7 +124,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'availableStock' => self::INT_FIELD,
             'shippingFree' => self::BOOLEAN_FIELD,
             'taxId' => self::KEYWORD_FIELD,
-            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::getTextFieldConfig()]),
+            'tags' => ElasticsearchFieldBuilder::nested(['name' => self::buildTextFieldConfig()]),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'id' => null,
                 'salesChannelId' => self::KEYWORD_FIELD,

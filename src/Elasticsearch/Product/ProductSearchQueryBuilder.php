@@ -17,7 +17,7 @@ use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ElasticsearchException;
 
 /**
- * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
+ * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int, use_exact_subfield?: int}
  */
 #[Package('framework')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
@@ -60,6 +60,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 $item['ranking'],
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
+                true,
+                (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
 

@@ -42,23 +42,8 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
     )]
     public function load(string $productId, string $documentId, Request $request, SalesChannelContext $context): Response
     {
-        $criteria = new Criteria();
-        $criteria->setTitle('product-document-download-route');
-
-        $documentsCriteria = $criteria->getAssociation('productDocuments');
-        $documentsCriteria->addAssociation('media');
-        $documentsCriteria->addSorting(new FieldSorting('position'));
-
-        $productRequest = $request->duplicate(
-            array_replace($request->query->all(), [
-                'skipCmsPage' => '1',
-                'skipConfigurator' => '1',
-            ]),
-            null,
-            array_replace($request->attributes->all(), [
-                'productId' => $productId,
-            ])
-        );
+        $criteria = $this->createProductCriteria();
+        $productRequest = $this->createProductDetailRequest($request, $productId);
 
         $product = $this->productDetailRoute->load($productId, $productRequest, $context, $criteria)->getProduct();
         $productDocuments = $product->getProductDocuments();
@@ -68,6 +53,31 @@ class ProductDocumentDownloadRoute extends AbstractProductDocumentDownloadRoute
             throw ProductException::productDocumentNotFound($documentId);
         }
 
-        return $this->downloadResponseGenerator->getResponse($productDocument->getMedia(), $context, forceDownload: true);
+        return $this->downloadResponseGenerator->getResponse($productDocument->getMedia(), $context);
+    }
+
+    private function createProductCriteria(): Criteria
+    {
+        $criteria = new Criteria();
+
+        $documentsCriteria = $criteria->getAssociation('productDocuments');
+        $documentsCriteria->addAssociation('media');
+        $documentsCriteria->addSorting(new FieldSorting('position'));
+
+        return $criteria;
+    }
+
+    private function createProductDetailRequest(Request $request, string $productId): Request
+    {
+        return $request->duplicate(
+            array_replace($request->query->all(), [
+                'skipCmsPage' => '1',
+                'skipConfigurator' => '1',
+            ]),
+            null,
+            array_replace($request->attributes->all(), [
+                'productId' => $productId,
+            ])
+        );
     }
 }

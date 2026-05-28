@@ -4,7 +4,14 @@ test(
     'As a merchant, I want to switch on and off the revocation request form',
     { tag: ['@Form', '@Revocation', '@Storefront'] },
     async ({ ShopCustomer, StorefrontHome, TestDataService }) => {
-        test.slow();
+        const revocationButtonName = /Revoke a contract|Vertrag widerrufen/i;
+        const revocationFormButton = () => {
+            return StorefrontHome.page.getByRole('link', { name: revocationButtonName });
+        };
+
+        const openStorefrontHome = async () => {
+            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+        };
 
         await test.step('Visit the home page to check there is no revocation button', async () => {
             await TestDataService.setSystemConfig({ 'core.basicInformation.showRevocationButton': false });
@@ -18,6 +25,28 @@ test(
             await ShopCustomer.goesTo(StorefrontHome.url());
             const revocationFormButton = StorefrontHome.page.getByText(/Revoke a contract|Vertrag widerrufen/);
             await expect(revocationFormButton).toBeVisible();
+        });
+
+        await test.step('Check if the revocation button is visible without opening the footer column on mobile', async () => {
+            await TestDataService.setSystemConfig({
+                'core.basicInformation.showRevocationButton': true,
+                'core.basicInformation.useDefaultCookieConsent': false,
+            });
+
+            await StorefrontHome.page.setViewportSize({ width: 390, height: 844 });
+
+            await ShopCustomer.expects(async () => {
+                await openStorefrontHome();
+                await StorefrontHome.page.locator('.footer-main').scrollIntoViewIfNeeded();
+
+                const collapsedHotlineContent = StorefrontHome.page.locator('#collapseFooterHotline');
+
+                await expect(collapsedHotlineContent).toBeHidden();
+                await expect(collapsedHotlineContent.getByRole('link', { name: revocationButtonName })).toHaveCount(0);
+                await expect(revocationFormButton()).toBeVisible();
+            }).toPass({
+                intervals: [1_000, 2_500],
+            });
         });
     }
 );

@@ -1,0 +1,112 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\App\Command;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\Stub;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Command\UninstallAppCommand;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Tester\CommandTester;
+
+/**
+ * @internal
+ */
+#[CoversClass(UninstallAppCommand::class)]
+class UninstallAppCommandTest extends TestCase
+{
+    private AbstractAppLifecycle&Stub $appLifecycle;
+
+    /**
+     * @var Stub&EntityRepository<AppCollection>
+     */
+    private EntityRepository&Stub $appRepository;
+
+    private UninstallAppCommand $command;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->appLifecycle = static::createStub(AbstractAppLifecycle::class);
+        $this->appRepository = static::createStub(EntityRepository::class);
+        $this->command = new UninstallAppCommand($this->appLifecycle, $this->appRepository);
+    }
+
+    #[TestDox('--skip-theme-compile sets the skip-theme-compilation state on the context delegated to the lifecycle')]
+    public function testSkipThemeCompileSetsState(): void
+    {
+        $this->stubAppFound();
+        $captured = $this->captureLifecycleContext();
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['name' => 'AcmeApp', '--skip-theme-compile' => true]);
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
+        static::assertTrue($captured()->hasState('skip-theme-compilation'));
+    }
+
+    #[TestDox('Without --skip-theme-compile, the lifecycle context does not carry the skip-theme-compilation state')]
+    public function testWithoutSkipThemeCompileDoesNotSetState(): void
+    {
+        $this->stubAppFound();
+        $captured = $this->captureLifecycleContext();
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['name' => 'AcmeApp']);
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
+        static::assertFalse($captured()->hasState('skip-theme-compilation'));
+    }
+
+    #[TestDox('Returns FAILURE with an error when the named app is not installed')]
+    public function testFailsWhenAppNotFound(): void
+    {
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new AppCollection([]));
+        $this->appRepository->method('search')->willReturn($result);
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['name' => 'Nope']);
+
+        static::assertSame(Command::FAILURE, $status);
+        static::assertStringContainsString('No app with name "Nope" installed.', $tester->getDisplay());
+    }
+
+    private function stubAppFound(): void
+    {
+        $app = new AppEntity();
+        $app->setUniqueIdentifier('app-id');
+        $app->assign(['id' => 'app-id', 'name' => 'AcmeApp', 'aclRoleId' => 'role-id']);
+
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new AppCollection([$app]));
+        $this->appRepository->method('search')->willReturn($result);
+    }
+
+    /**
+     * Returns a closure that yields the Context most recently passed to AbstractAppLifecycle::delete.
+     *
+     * @return \Closure(): ?Context
+     */
+    private function captureLifecycleContext(): \Closure
+    {
+        $context = null;
+        $this->appLifecycle->method('delete')
+            ->willReturnCallback(static function (string $name, array $config, Context $passed) use (&$context): void {
+                $context = $passed;
+            });
+
+        return function () use (&$context): ?Context {
+            return $context;
+        };
+    }
+}

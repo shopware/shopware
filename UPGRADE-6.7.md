@@ -1,4 +1,4 @@
-# 6.7.11.0
+# 6.7.12.0
 
 ## `Feature::triggerDeprecationOrThrow` accepts an optional `introducedIn` parameter
 

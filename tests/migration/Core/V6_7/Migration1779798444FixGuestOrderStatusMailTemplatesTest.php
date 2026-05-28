@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_7;
 
+use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Log\Package;
@@ -46,17 +47,7 @@ class Migration1779798444FixGuestOrderStatusMailTemplatesTest extends MailTempla
 
     public function testMigrationUpdatesGuestOrderStatusMailTemplates(): void
     {
-        foreach (self::MAIL_TEMPLATE_TYPES as $mailTemplateType) {
-            $mailTranslations = new MailUpdate(
-                $mailTemplateType,
-                'BEFORE-en-plain',
-                'BEFORE-en-html',
-                'BEFORE-de-plain',
-                'BEFORE-de-html',
-            );
-
-            $this->updateMail($mailTranslations, $this->connection);
-        }
+        $this->prepareDefaultMailTemplatesForMigration();
 
         $migration = new Migration1779798444FixGuestOrderStatusMailTemplates();
         $migration->update($this->connection);
@@ -73,5 +64,40 @@ class Migration1779798444FixGuestOrderStatusMailTemplatesTest extends MailTempla
             static::assertSame($expected->getDePlain(), $translation->translations->getDePlain(), $mailTemplateType . ': de plain');
             static::assertSame($expected->getDeHtml(), $translation->translations->getDeHtml(), $mailTemplateType . ': de html');
         }
+    }
+
+    private function prepareDefaultMailTemplatesForMigration(): void
+    {
+        $this->connection->executeStatement(
+            '
+            UPDATE `mail_template` AS `template`
+            INNER JOIN `mail_template_type` AS `type`
+                ON `template`.`mail_template_type_id` = `type`.`id`
+            SET `template`.`updated_at` = NULL
+            WHERE `type`.`technical_name` IN (:technicalNames)
+            ',
+            ['technicalNames' => self::MAIL_TEMPLATE_TYPES],
+            ['technicalNames' => ArrayParameterType::STRING],
+        );
+
+        $this->connection->executeStatement(
+            '
+            UPDATE `mail_template_translation` AS `translation`
+            INNER JOIN `mail_template` AS `template`
+                ON `translation`.`mail_template_id` = `template`.`id`
+            INNER JOIN `mail_template_type` AS `type`
+                ON `template`.`mail_template_type_id` = `type`.`id`
+            SET `translation`.`updated_at` = NULL,
+                `translation`.`content_html` = :contentHtml,
+                `translation`.`content_plain` = :contentPlain
+            WHERE `type`.`technical_name` IN (:technicalNames)
+            ',
+            [
+                'contentHtml' => 'BEFORE-html',
+                'contentPlain' => 'BEFORE-plain',
+                'technicalNames' => self::MAIL_TEMPLATE_TYPES,
+            ],
+            ['technicalNames' => ArrayParameterType::STRING],
+        );
     }
 }

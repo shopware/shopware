@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -37,6 +38,16 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
 
         static::assertArrayHasKey('bundles', $event->getConfig());
         static::assertSame([], $event->getConfig()['bundles']);
+    }
+
+    #[TestDox('Non-Shopware BundleInterface entries (e.g. Symfony framework bundles) are skipped')]
+    public function testSkipsNonShopwareBundles(): void
+    {
+        $foreignBundle = static::createStub(BundleInterface::class);
+
+        $bundles = $this->collectBundles(new StubKernel([$foreignBundle]));
+
+        static::assertSame([], $bundles);
     }
 
     #[TestDox('Bundles with Vite entry points are included with their css/js arrays')]

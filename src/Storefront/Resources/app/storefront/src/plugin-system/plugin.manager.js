@@ -242,7 +242,7 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
-                if (plugin.get('async')) {
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
                     continue;
                 }
 
@@ -279,7 +279,7 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
-                if (plugin.get('async')) {
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
                     continue;
                 }
 
@@ -366,29 +366,21 @@ class PluginManagerSingleton {
         }
 
         // Fetch all needed plugins while keeping a single failing plugin from stopping the others.
-        fetchedPluginClasses = await Promise.all(queue.map(async (queueItem) => {
-            try {
-                return await queueItem.pluginClassPromise();
-            } catch (error) {
-                console.warn(`The async plugin "${queueItem.pluginName}" could not be loaded and will be skipped.`, error);
-
-                return null;
-            }
+        fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
+            return this._loadAsyncPluginClass(queueItem.pluginName, queueItem.pluginClassPromise);
         }));
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const fetchedPluginClass = fetchedPluginClasses[index];
-            if (!fetchedPluginClass || !fetchedPluginClass.default) {
+            const pluginClass = fetchedPluginClasses[index];
+            if (!pluginClass) {
                 return;
             }
 
-            const pluginClass = fetchedPluginClass.default;
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 
-            pluginFromRegistry.set('async', false);
-            pluginFromRegistry.set('class', pluginClass);
+            this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
         });
     }
 
@@ -419,22 +411,53 @@ class PluginManagerSingleton {
             return;
         }
 
-        try {
-            const pluginClassPromise = pluginFromRegistry.get('class')();
-            const fetchedPlugin = await pluginClassPromise;
+        const pluginClass = await this._loadAsyncPluginClass(pluginName, pluginFromRegistry.get('class'));
+        if (!pluginClass) {
+            return;
+        }
 
-            if (!fetchedPlugin || !fetchedPlugin.default) {
+        this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
+    }
+
+    /**
+     * @param {string} pluginName
+     * @param {Function} importFn - lazy import registered via PluginManager.register()
+     * @returns {Promise<typeof Plugin|null>}
+     * @private
+     */
+    async _loadAsyncPluginClass(pluginName, importFn) {
+        try {
+            const module = await importFn();
+
+            if (!module?.default) {
                 console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`);
-                return;
+                return null;
             }
 
-            const pluginClass = fetchedPlugin.default;
-
-            pluginFromRegistry.set('async', false);
-            pluginFromRegistry.set('class', pluginClass);
+            return module.default;
         } catch (error) {
             console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`, error);
+            return null;
         }
+    }
+
+    /**
+     * @param {Object} pluginFromRegistry
+     * @param {typeof Plugin} pluginClass
+     * @private
+     */
+    _setResolvedPluginClass(pluginFromRegistry, pluginClass) {
+        pluginFromRegistry.set('async', false);
+        pluginFromRegistry.set('class', pluginClass);
+    }
+
+    /**
+     * @param {Object} plugin
+     * @returns {boolean}
+     * @private
+     */
+    _isUnresolvedAsyncPlugin(plugin) {
+        return plugin.get('async');
     }
 
     /**
@@ -453,7 +476,7 @@ class PluginManagerSingleton {
             plugin = this._registry.get(pluginName, selector);
             await this._fetchAsyncPlugin(plugin, selector);
 
-            if (plugin.get('async')) {
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
                 return Promise.resolve();
             }
 
@@ -464,7 +487,7 @@ class PluginManagerSingleton {
             plugin = this._registry.get(pluginName);
             await this._fetchAsyncPlugin(plugin, selector);
 
-            if (plugin.get('async')) {
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
                 return Promise.resolve();
             }
 

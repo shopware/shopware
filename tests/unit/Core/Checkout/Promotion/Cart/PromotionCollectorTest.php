@@ -55,7 +55,7 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector = new PromotionCollector(
             $this->gateway,
             new PromotionItemBuilder(),
-            $this->createMock(HtmlSanitizer::class),
+            static::createStub(HtmlSanitizer::class),
             $this->connection
         );
 

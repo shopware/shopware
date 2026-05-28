@@ -33,15 +33,22 @@ use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
+use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
+use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
+use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
+use Shopware\Elasticsearch\FieldQueryBuilder;
+use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\TokenQueryBuilder;
+use Shopware\Elasticsearch\TranslatedFieldQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[CoversClass(AbstractTokenQueryBuilder::class)]
 #[CoversClass(TokenQueryBuilder::class)]
 #[Package('inventory')]
 class TokenQueryBuilderTest extends TestCase
@@ -57,12 +64,12 @@ class TokenQueryBuilderTest extends TestCase
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceMock([
-                'evolvesBool' => new BoolField('evolvesBool', 'evolvesBool'),
                 'evolvesInt' => new IntField('evolvesInt', 'evolvesInt'),
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
+                'evolvesBool' => new BoolField('evolvesBool', 'evolvesBool'),
             ]),
-            $storage
+            $this->createFieldQueryBuilder($storage),
         );
     }
 
@@ -206,10 +213,10 @@ class TokenQueryBuilderTest extends TestCase
 
     /**
      * @param list<SearchFieldConfig> $config
-     * @param array<string, mixed> $expected
+     * @param array<string, mixed>|null $expected
      */
     #[DataProvider('buildMultipleLanguageProvider')]
-    public function testBuildMultipleLanguages(array $config, string $term, array $expected): void
+    public function testBuildMultipleLanguages(array $config, string $term, ?array $expected): void
     {
         $context = Context::createDefaultContext();
         $context->assign([
@@ -217,6 +224,12 @@ class TokenQueryBuilderTest extends TestCase
         ]);
 
         $query = $this->tokenQueryBuilder->build('product', $term, $config, $context);
+
+        if ($expected === null) {
+            static::assertNull($query);
+
+            return;
+        }
 
         static::assertNotNull($query);
         static::assertSame($expected, $query->toArray());
@@ -342,7 +355,6 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with terms' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -363,7 +375,7 @@ class TokenQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>}>
+     * @return iterable<array-key, array{config: list<SearchFieldConfig>, term: string, expected: array<string, mixed>|null}>
      */
     public static function buildMultipleLanguageProvider(): iterable
     {
@@ -459,7 +471,6 @@ class TokenQueryBuilderTest extends TestCase
 
         yield 'Test multiple custom fields with numeric term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -491,9 +502,8 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test invalid boolean custom field token still matches text custom fields' => [
+        yield 'Test multiple custom fields with text term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
                 self::config(field: 'customFields.evolvesText', ranking: 500),
                 self::config(field: 'customFields.evolvesInt', ranking: 400),
                 self::config(field: 'customFields.evolvesFloat', ranking: 500),
@@ -514,36 +524,77 @@ class TokenQueryBuilderTest extends TestCase
             ]),
         ];
 
-        yield 'Test boolean custom field with boolean term' => [
+        yield 'Test bool custom field with true term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => 'true',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', true, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 400),
             ]),
         ];
 
-        yield 'Test boolean custom field with numeric true term' => [
+        yield 'Test bool custom field with false term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
+            ],
+            'term' => 'false',
+            'expected' => self::disMax([
+                self::term($prefixCfLang1 . 'evolvesBool', false, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 400),
+            ]),
+        ];
+
+        yield 'Test bool custom field with 1 term' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => '1',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', true, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', true, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', true, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', true, 400),
             ]),
         ];
 
-        yield 'Test boolean custom field with numeric false term' => [
+        yield 'Test bool custom field with 0 term' => [
             'config' => [
-                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
             ],
             'term' => '0',
             'expected' => self::disMax([
-                self::term($prefixCfLang1 . 'evolvesBool', false, 600),
-                self::term($prefixCfLang2 . 'evolvesBool', false, 480),
+                self::term($prefixCfLang1 . 'evolvesBool', false, 500),
+                self::term($prefixCfLang2 . 'evolvesBool', false, 400),
+            ]),
+        ];
+
+        yield 'Test bool custom field with non-boolean text term returns null' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 500),
+            ],
+            'term' => 'hello',
+            'expected' => null,
+        ];
+
+        yield 'Test non-boolean text term skips bool field but matches text field' => [
+            'config' => [
+                self::config(field: 'customFields.evolvesBool', ranking: 600),
+                self::config(field: 'customFields.evolvesText', ranking: 500),
+                self::config(field: 'customFields.evolvesInt', ranking: 400),
+                self::config(field: 'customFields.evolvesFloat', ranking: 500),
+            ],
+            'term' => 'foo',
+            'expected' => self::disMax([
+                self::disMax([
+                    self::term($prefixCfLang1 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang1 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang1 . 'evolvesText.search', 'foo', 0.4),
+                ], 500),
+                self::disMax([
+                    self::term($prefixCfLang2 . 'evolvesText', 'foo', 1),
+                    self::match($prefixCfLang2 . 'evolvesText.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                    self::prefix($prefixCfLang2 . 'evolvesText.search', 'foo', 0.4),
+                ], 400),
             ]),
         ];
     }
@@ -558,9 +609,7 @@ class TokenQueryBuilderTest extends TestCase
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
             ]),
-            $storage,
-            4,
-            false
+            $this->createFieldQueryBuilder($storage, false),
         );
 
         $context = Context::createDefaultContext();
@@ -602,6 +651,135 @@ class TokenQueryBuilderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $builder->getDecorated();
+    }
+
+    public function testTokenQueryBuilderDecoration(): void
+    {
+        static::expectException(DecorationPatternException::class);
+        $this->tokenQueryBuilder->getDecorated();
+    }
+
+    public function testTieBreakerRewardsMultiClauseMatchWithinField(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'stihl', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertSame(0.2, $queryArray['dis_max']['tie_breaker']);
+        static::assertCount(4, $queryArray['dis_max']['queries']);
+
+        static::assertArrayHasKey('term', $queryArray['dis_max']['queries'][0]);
+        static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][1]);
+        static::assertArrayHasKey('prefix', $queryArray['dis_max']['queries'][2]);
+        static::assertArrayHasKey('match', $queryArray['dis_max']['queries'][3]);
+    }
+
+    public function testTieBreakerRewardsMultiLanguageMatch(): void
+    {
+        $config = [
+            self::config(field: 'categories.name', ranking: 200, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM, self::SECOND_LANGUAGE_ID]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'foo', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertArrayHasKey('nested', $queryArray);
+        $outerDisMax = $queryArray['nested']['query']['dis_max'];
+
+        static::assertSame(0.2, $outerDisMax['tie_breaker']);
+        static::assertCount(2, $outerDisMax['queries']);
+
+        $lang1Query = $outerDisMax['queries'][0];
+        $lang2Query = $outerDisMax['queries'][1];
+
+        static::assertSame(0.2, $lang1Query['dis_max']['tie_breaker']);
+        static::assertSame(0.2, $lang2Query['dis_max']['tie_breaker']);
+
+        static::assertSame(200.0, $lang1Query['dis_max']['boost']);
+        static::assertSame(160.0, $lang2Query['dis_max']['boost']);
+    }
+
+    public function testTieBreakerAcrossMultipleFields(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'stihl', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertArrayHasKey('bool', $queryArray);
+        $shouldClauses = $queryArray['bool']['should'];
+        static::assertCount(2, $shouldClauses);
+
+        $nameDisMax = $shouldClauses[0]['dis_max'];
+        static::assertSame(0.2, $nameDisMax['tie_breaker']);
+        static::assertSame(1000.0, $nameDisMax['boost']);
+
+        $tagsNested = $shouldClauses[1]['nested']['query']['dis_max'];
+        static::assertSame(0.2, $tagsNested['tie_breaker']);
+        static::assertSame(500.0, $tagsNested['boost']);
+    }
+
+    public function testTieBreakerWithNgramClause(): void
+    {
+        $config = [
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['languageIdChain' => [Defaults::LANGUAGE_SYSTEM]]);
+
+        $query = $this->tokenQueryBuilder->build('product', 'foooooooooo', $config, $context);
+        static::assertNotNull($query);
+
+        $queryArray = $query->toArray();
+
+        static::assertSame(0.2, $queryArray['dis_max']['tie_breaker']);
+        static::assertCount(4, $queryArray['dis_max']['queries']);
+    }
+
+    public function testFieldBuilderDecorationOrder(): void
+    {
+        $storage = new ArrayKeyValueStorage([ElasticsearchOptimizeSwitch::FLAG => true]);
+
+        $builder = $this->createFieldQueryBuilder($storage);
+
+        static::assertInstanceOf(ExplainFieldQueryBuilder::class, $builder);
+        static::assertInstanceOf(NestedFieldQueryBuilder::class, $builder->getDecorated());
+        static::assertInstanceOf(TranslatedFieldQueryBuilder::class, $builder->getDecorated()->getDecorated());
+        static::assertInstanceOf(FieldQueryBuilder::class, $builder->getDecorated()->getDecorated()->getDecorated());
+    }
+
+    private function createFieldQueryBuilder(ArrayKeyValueStorage $storage, bool $useLanguageAnalyzer = true): AbstractFieldQueryBuilder
+    {
+        return new ExplainFieldQueryBuilder(
+            new NestedFieldQueryBuilder(
+                new TranslatedFieldQueryBuilder(
+                    new FieldQueryBuilder(4, $useLanguageAnalyzer),
+                    $storage,
+                ),
+            ),
+        );
     }
 
     private function getDefinition(): EntityDefinition
@@ -717,7 +895,7 @@ class TokenQueryBuilderTest extends TestCase
      *
      * @return array{dis_max: array{queries: array<mixed>}}
      */
-    private static function disMax(array $queries, float|int|null $boost = null): array
+    private static function disMax(array $queries, float|int|null $boost = null, ?float $tieBreaker = 0.2): array
     {
         $payload = [
             'queries' => $queries,
@@ -725,6 +903,10 @@ class TokenQueryBuilderTest extends TestCase
 
         if ($boost !== null) {
             $payload['boost'] = (float) $boost;
+        }
+
+        if ($tieBreaker !== null) {
+            $payload['tie_breaker'] = $tieBreaker;
         }
 
         return [

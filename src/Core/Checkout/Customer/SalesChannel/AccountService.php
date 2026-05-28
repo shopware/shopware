@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -44,7 +45,8 @@ class AccountService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
         private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        private readonly CartRestorer $restorer
+        private readonly CartRestorer $restorer,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -172,7 +174,7 @@ class AccountService
         $this->customerRepository->update([
             [
                 'id' => $customer->getId(),
-                'lastLogin' => new \DateTimeImmutable(),
+                'lastLogin' => $this->clock->now(),
             ],
         ], $context->getContext());
 

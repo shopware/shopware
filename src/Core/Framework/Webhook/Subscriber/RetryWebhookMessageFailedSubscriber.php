@@ -4,10 +4,11 @@ namespace Shopware\Core\Framework\Webhook\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,8 +22,6 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 #[Package('framework')]
 class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 {
-    private const MAX_WEBHOOK_ERROR_COUNT = 10;
-
     private readonly WebhookFailureStrategy $failureStrategy;
 
     /**
@@ -30,6 +29,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly RelatedWebhooks $relatedWebhooks,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -45,8 +45,8 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
 
     public function failed(WorkerMessageFailedEvent $event): void
     {
-        if ($event->willRetry()) {
-            return;
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            return; // Handler owns retry lifecycle for all outbox-backed messages under the flag
         }
 
         $message = $event->getEnvelope()->getMessage();
@@ -54,15 +54,21 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
+        if ($event->willRetry()) {
+            return;
+        }
+
+        $markedFailed = $message->isReworkEnvelope()
+            ? $this->webhookOutboxStore->markFailedAfterRetryExhaustedIfIdle($message->getWebhookEventId())
+            : $this->webhookOutboxStore->markLegacyFailedAfterRetryExhausted($message->getWebhookEventId());
+
+        if (!$markedFailed) {
+            return;
+        }
+
         $webhookId = $message->getWebhookId();
-        $webhookEventLogId = $message->getWebhookEventId();
 
         $context = Context::createDefaultContext();
-
-        $this->connection->executeStatement('UPDATE webhook_event_log SET delivery_status = :status WHERE id = :id', [
-            'status' => WebhookEventLogDefinition::STATUS_FAILED,
-            'id' => Uuid::fromHexToBytes($webhookEventLogId),
-        ]);
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT active, error_count FROM webhook WHERE id = :id',
@@ -93,7 +99,7 @@ class RetryWebhookMessageFailedSubscriber implements EventSubscriberInterface
     {
         $errorCount = $webhook['error_count'] + 1;
 
-        if ($errorCount >= self::MAX_WEBHOOK_ERROR_COUNT) {
+        if ($errorCount >= WebhookFailureStrategy::MAX_ERROR_COUNT) {
             return ['error_count' => 0, 'active' => 0];
         }
 

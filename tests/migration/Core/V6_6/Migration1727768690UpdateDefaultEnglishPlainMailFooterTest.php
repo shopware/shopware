@@ -28,6 +28,11 @@ class Migration1727768690UpdateDefaultEnglishPlainMailFooterTest extends TestCas
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1727768690, (new Migration1727768690UpdateDefaultEnglishPlainMailFooter())->getCreationTimestamp());
+    }
+
     public function testMigrationOfUnmodifiedTranslation(): void
     {
         $defaultLanguageId = $this->fetchDefaultLanguageId();

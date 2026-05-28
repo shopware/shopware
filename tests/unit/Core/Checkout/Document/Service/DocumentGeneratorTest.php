@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -106,6 +107,7 @@ class DocumentGeneratorTest extends TestCase
             $mediaService,
             $documentRepository,
             $this->createMock(Connection::class),
+            new NativeClock()
         );
 
         try {
@@ -161,6 +163,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
+            new NativeClock()
         );
 
         $renderedDocument = $generator->readDocument($document->getId(), $context, '', null);
@@ -218,6 +221,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
+            new NativeClock()
         );
 
         $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
@@ -261,6 +265,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $connection,
+            new NativeClock()
         );
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, ['custom' => ['invoiceNumber' => 'INV-100']]);
@@ -306,6 +311,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
+            new NativeClock()
         );
 
         $this->expectExceptionObject(DocumentException::generationError('Some Error Message.'));
@@ -358,6 +364,7 @@ class DocumentGeneratorTest extends TestCase
             $mediaService,
             $documentRepository,
             $connection,
+            new NativeClock()
         );
 
         try {

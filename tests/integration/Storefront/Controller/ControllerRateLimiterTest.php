@@ -52,6 +52,7 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -351,6 +352,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(AccountService::class),
             new GuestAuthenticator(),
+            new NativeClock(),
         );
 
         $order = $this->createCustomerWithOrder();

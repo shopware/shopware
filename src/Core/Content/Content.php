@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content;
 
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
+use Shopware\Core\Content\Media\DependencyInjection\ThumbnailProcessorCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\FileLocator;
@@ -57,5 +58,6 @@ class Content extends Bundle
         }
 
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
+        $container->addCompilerPass(new ThumbnailProcessorCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

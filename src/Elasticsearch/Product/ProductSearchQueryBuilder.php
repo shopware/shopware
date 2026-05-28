@@ -13,11 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ElasticsearchException;
-use Shopware\Elasticsearch\TokenQueryBuilder;
 
 /**
- * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
+ * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int, use_exact_subfield?: int}
  */
 #[Package('framework')]
 class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
@@ -30,7 +30,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly AbstractTokenFilter $tokenFilter,
         private readonly TokenizerInterface $tokenizer,
         private readonly SearchConfigLoader $configLoader,
-        private readonly TokenQueryBuilder $tokenQueryBuilder
+        private readonly AbstractTokenQueryBuilder $tokenQueryBuilder,
+        private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
 
@@ -59,6 +60,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 $item['ranking'],
                 (bool) $item['tokenize'],
                 (bool) $item['and_logic'],
+                true,
+                (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
 
@@ -112,6 +115,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $dismax->addQuery($tokensQuery);
         $dismax->addQuery($originalTermQuery);
+        $dismax->addParameter('tie_breaker', $this->dismaxTieBreaker);
 
         return $dismax;
     }

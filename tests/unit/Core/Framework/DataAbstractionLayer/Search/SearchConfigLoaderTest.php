@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class SearchConfigLoaderTest extends TestCase
 {
     /**
-     * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>> $configKeyedByLanguageId
-     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float}> $expectedResult
+     * @param array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield?: int}>> $configKeyedByLanguageId
+     * @param array<array{and_logic: string, field: string, tokenize: int, ranking: float, excluded_terms: array<string>, min_search_length: int, use_exact_subfield: int}> $expectedResult
      */
     #[DataProvider('loadDataProvider')]
     public function testLoad(array $configKeyedByLanguageId, array $expectedResult): void
@@ -75,7 +75,7 @@ class SearchConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float}>}>
+     * @return iterable<string, array{configKeyedByLanguageId: array<string, list<array{and_logic: string, excluded_terms: string, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield?: int}>>, expectedResult: array<array{and_logic: string, field: string, tokenize: int, ranking: float, excluded_terms: array<string>, min_search_length: int, use_exact_subfield: int}>}>
      */
     public static function loadDataProvider(): iterable
     {
@@ -88,6 +88,7 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2.0,
+                    'use_exact_subfield' => 1,
                 ]],
             ],
             'expectedResult' => [
@@ -98,6 +99,7 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 2.0,
+                    'use_exact_subfield' => 1,
                 ],
             ],
         ];
@@ -111,6 +113,7 @@ class SearchConfigLoaderTest extends TestCase
                     'ranking' => 100.0,
                     'excluded_terms' => json_encode(['term1', 'term2'], \JSON_THROW_ON_ERROR),
                     'min_search_length' => 5,
+                    'use_exact_subfield' => 0,
                 ]],
                 Uuid::randomHex() => [[
                     'and_logic' => 'and',
@@ -119,6 +122,7 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 0,
                     'ranking' => 50.0,
+                    'use_exact_subfield' => 1,
                 ]],
             ],
             'expectedResult' => [
@@ -129,6 +133,7 @@ class SearchConfigLoaderTest extends TestCase
                     'field' => 'name',
                     'tokenize' => 1,
                     'ranking' => 100.0,
+                    'use_exact_subfield' => 0,
                 ],
             ],
         ];

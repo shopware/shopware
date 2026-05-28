@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -68,6 +69,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class RegisterRoute extends AbstractRegisterRoute
 {
+    use CustomerAddressDataNormalizerTrait;
+
     /**
      * @internal
      *
@@ -90,6 +93,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -308,7 +312,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
+        $customer['doubleOptInEmailSentDate'] = $this->clock->now();
         $customer['hash'] = Uuid::randomHex();
 
         return $customer;
@@ -459,7 +463,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'active' => true,
             'birthday' => $this->getBirthday($data),
             'guest' => $isGuest,
-            'firstLogin' => new \DateTimeImmutable(),
+            'firstLogin' => $this->clock->now(),
             'addresses' => [],
         ];
 
@@ -549,6 +553,8 @@ class RegisterRoute extends AbstractRegisterRoute
         if (isset($mappedData['countryStateId']) && $mappedData['countryStateId'] === '') {
             $mappedData['countryStateId'] = null;
         }
+
+        $mappedData = $this->trimAddressFields($mappedData);
 
         if ($addressData->get('customFields') instanceof RequestDataBag) {
             $mappedData['customFields'] = $this->customFieldMapper->map(CustomerAddressDefinition::ENTITY_NAME, $addressData->get('customFields'));

@@ -22,6 +22,7 @@ use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -144,7 +145,8 @@ class AdminSearchRegistryTest extends TestCase
                 ],
             ],
             [],
-            'test'
+            'test',
+            new NativeClock()
         );
     }
 

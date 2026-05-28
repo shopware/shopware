@@ -11,6 +11,12 @@ elasticsearch:
         search_type: "query_then_fetch"
         # Optional: improves grouped Storefront product count accuracy in OpenSearch, but higher values also increase memory usage.
         # precision_threshold: 40000
+        # Controls how much non-best-matching clauses contribute to the dis_max query score.
+        # Elasticsearch default is 0.0 (only the best match counts). A value of 0.2 means other
+        # matching clauses contribute 20% of their score, improving ranking for documents that
+        # match across multiple fields or language variants without diluting the primary match.
+        # Valid range: 0.0 (pure dis_max) to 1.0 (effectively a bool/should sum).
+        dismax_tie_breaker: 0.2
     administration:
         hosts: "%env(string:ADMIN_OPENSEARCH_URL)%"
         enabled: "%env(bool:SHOPWARE_ADMIN_ES_ENABLED)%"
@@ -36,6 +42,9 @@ elasticsearch:
                 default:
                     type: BM25
                     b: 0
+                sw_length_norm:
+                    type: BM25
+                    b: 0.75
         analysis:
             normalizer:
                 sw_lowercase_normalizer:
@@ -119,6 +128,18 @@ elasticsearch:
         'mapping.nested_fields.limit': 500
         'mapping.nested_objects.limit': 1000000
         max_result_window: 10000
+        # BM25 similarity configuration.
+        # 'default' overrides Elasticsearch's built-in BM25 (b=0.75) to disable field-length normalization (b=0),
+        # preventing short product names from ranking unfairly above descriptive ones.
+        # 'sw_length_norm' preserves standard normalization for long-form text fields (description, metaDescription)
+        # where document length IS a relevance signal.
+        similarity:
+            default:
+                type: BM25
+                b: 0
+            sw_length_norm:
+                type: BM25
+                b: 0.75
     analysis:
         normalizer:
             sw_lowercase_normalizer:

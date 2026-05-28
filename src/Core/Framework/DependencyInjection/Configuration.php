@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -30,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
                 ->append($this->createCartSection())
+                ->append($this->createOrderSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
                 ->append($this->createAutoUpdateSection())
@@ -57,6 +59,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createProductStreamSection())
                 ->append($this->createSsoLoginSection())
                 ->append($this->createProductTypesSection())
+                ->append($this->createMcpSection())
                 ->append($this->createWebhookSection())
             ->end();
 
@@ -76,7 +79,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('public')
-                    ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -85,7 +87,6 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('temp')
-                    ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('visibility')->end()
@@ -93,7 +94,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('theme')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -102,7 +104,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('asset')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -111,7 +114,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('sitemap')
-                    ->performNoDeepMerging()
+                    ->treatNullLike(false)
+                    ->canBeUnset()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
@@ -339,10 +343,198 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('pattern')->defaultValue('{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}')->end()
                     ->end()
                 ->end()
+                ->scalarNode('thumbnail_processor')
+                    ->defaultValue('gd')
+                    ->validate()
+                        ->ifNotInArray(['gd', 'imagick'])
+                        ->thenInvalid('Invalid thumbnail processor "%s". Allowed values are "gd" or "imagick".')
+                    ->end()
+                ->end()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                ->end()
+                ->arrayNode('presigned_upload')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                        ->integerNode('expiration_minutes')
+                            ->defaultValue(5)
+                            ->min(1)
+                            ->max(10080)
+                            ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('svg')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('allowed_elements')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'a',
+                                'circle',
+                                'clippath',
+                                'defs',
+                                'desc',
+                                'ellipse',
+                                'g',
+                                'image',
+                                'line',
+                                'lineargradient',
+                                'marker',
+                                'mask',
+                                'metadata',
+                                'path',
+                                'pattern',
+                                'polygon',
+                                'polyline',
+                                'radialgradient',
+                                'rect',
+                                'stop',
+                                'style',
+                                'svg',
+                                'switch',
+                                'symbol',
+                                'text',
+                                'title',
+                                'tspan',
+                                'use',
+                                'view',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('allowed_attributes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'alignment-baseline',
+                                'aria-describedby',
+                                'aria-hidden',
+                                'aria-label',
+                                'aria-labelledby',
+                                'aria-roledescription',
+                                'baseline-shift',
+                                'class',
+                                'clip-path',
+                                'clip-rule',
+                                'clippathunits',
+                                'color',
+                                'color-interpolation',
+                                'color-interpolation-filters',
+                                'cursor',
+                                'cx',
+                                'cy',
+                                'd',
+                                'direction',
+                                'display',
+                                'dominant-baseline',
+                                'dx',
+                                'dy',
+                                'fill',
+                                'fill-opacity',
+                                'fill-rule',
+                                'filter',
+                                'flood-color',
+                                'flood-opacity',
+                                'font-family',
+                                'font-size',
+                                'font-size-adjust',
+                                'font-stretch',
+                                'font-style',
+                                'font-variant',
+                                'font-weight',
+                                'fx',
+                                'fy',
+                                'gradienttransform',
+                                'gradientunits',
+                                'height',
+                                'href',
+                                'id',
+                                'image-rendering',
+                                'lang',
+                                'letter-spacing',
+                                'lighting-color',
+                                'marker',
+                                'marker-end',
+                                'marker-mid',
+                                'marker-start',
+                                'markerheight',
+                                'markerunits',
+                                'markerwidth',
+                                'mask',
+                                'mask-type',
+                                'maskcontentunits',
+                                'maskunits',
+                                'offset',
+                                'opacity',
+                                'orient',
+                                'overflow',
+                                'paint-order',
+                                'patterncontentunits',
+                                'patterntransform',
+                                'patternunits',
+                                'pointer-events',
+                                'points',
+                                'preserveaspectratio',
+                                'r',
+                                'refx',
+                                'refy',
+                                'role',
+                                'rx',
+                                'ry',
+                                'shape-rendering',
+                                'spreadmethod',
+                                'stop-color',
+                                'stop-opacity',
+                                'stroke',
+                                'stroke-dasharray',
+                                'stroke-dashoffset',
+                                'stroke-linecap',
+                                'stroke-linejoin',
+                                'stroke-miterlimit',
+                                'stroke-opacity',
+                                'stroke-width',
+                                'style',
+                                'text-anchor',
+                                'text-decoration',
+                                'text-overflow',
+                                'text-rendering',
+                                'transform',
+                                'transform-origin',
+                                'type',
+                                'unicode-bidi',
+                                'vector-effect',
+                                'version',
+                                'viewbox',
+                                'visibility',
+                                'white-space',
+                                'width',
+                                'word-spacing',
+                                'writing-mode',
+                                'x',
+                                'x1',
+                                'x2',
+                                'xlink:href',
+                                'xml:lang',
+                                'xml:space',
+                                'xmlns',
+                                'xmlns:xlink',
+                                'y',
+                                'y1',
+                                'y2',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('allowed_reference_attributes')
+                            ->performNoDeepMerging()
+                            ->defaultValue([
+                                'href',
+                                'xlink:href',
+                            ])
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -598,6 +790,24 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
+    private function createOrderSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('order');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('deep_link')
+                    ->children()
+                        ->integerNode('expire_days')
+                            ->min(1)
+                            ->defaultValue(30)
+                    ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
     private function createNumberRangeSection(): ArrayNodeDefinition
     {
         $treeBuilder = new TreeBuilder('number_range');
@@ -655,6 +865,10 @@ class Configuration implements ConfigurationInterface
                 ->addDefaultsIfNotSet()
                 ->children()
                     ->booleanNode('indexing')->defaultTrue()->end()
+                    ->integerNode('relevant_keyword_count')
+                        ->min(1)
+                        ->defaultValue(8)
+                    ->end()
                 ->end()
             ->end();
 
@@ -948,8 +1162,18 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->children()
-                ->arrayNode('default')->scalarPrototype()->end()
+            ->arrayPrototype()->scalarPrototype()->end()
+            ->end()
+            ->validate()
+            ->ifFalse(
+                static fn (array $v) => \count(
+                    array_filter(
+                        array_keys($v),
+                        static fn (string $key) => $key !== 'default' && !Uuid::isValid($key)
+                    )
+                ) === 0
+            )
+            ->thenInvalid('Key must be "default" or a valid UUID')
             ->end();
 
         return $rootNode;
@@ -1238,6 +1462,27 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('indexing')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createMcpSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('mcp'))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('allowed_tools')
+                    ->info('Restrict which MCP tools are exposed. Empty array means all tools are allowed.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->integerNode('app_tool_timeout')
+                    ->info('Timeout in seconds for app webhook MCP tool calls.')
+                    ->defaultValue(10)
+                    ->min(1)
+                ->end()
             ->end();
 
         return $rootNode;

@@ -25,6 +25,11 @@ class Migration1775200001IncreaseProductDisplayGroupLengthTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1775200001, (new Migration1775200001IncreaseProductDisplayGroupLength())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $this->rollback();

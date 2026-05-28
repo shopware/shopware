@@ -4,10 +4,13 @@ namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,7 +39,8 @@ class DownloadService
         private readonly EntityRepository $fileRepository,
         private readonly LoggerInterface $logger,
         private readonly string $localDownloadStrategy,
-        private readonly string $localPathPrefix = ''
+        private readonly string $localPathPrefix,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -68,7 +72,11 @@ class DownloadService
         );
 
         try {
-            $url = $this->filesystem->temporaryUrl($entity->getPath(), (new \DateTimeImmutable())->modify(self::EXPIRATION_TIME));
+            $url = $this->filesystem->temporaryUrl(
+                $entity->getPath(),
+                $this->clock->now()->modify(self::EXPIRATION_TIME),
+                $this->getTemporaryUrlConfig($entity)
+            );
 
             return new RedirectResponse($url);
         } catch (UnableToGenerateTemporaryUrl $exception) {
@@ -130,16 +138,53 @@ class DownloadService
      */
     private function getStreamHeaders(ImportExportFileEntity $entity): array
     {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'Content-Disposition' => $downloadHeaders['Content-Disposition'],
+            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
+            'Content-Type' => $downloadHeaders['Content-Type'],
+        ];
+    }
+
+    /**
+     * S3 temporary URLs use GetObject response overrides to preserve the download
+     * filename and content type after redirecting away from Shopware.
+     *
+     * @return array{get_object_options: array{ResponseContentDisposition: string, ResponseContentType: string}}
+     */
+    private function getTemporaryUrlConfig(ImportExportFileEntity $entity): array
+    {
+        $downloadHeaders = $this->getDownloadHeaders($entity);
+
+        return [
+            'get_object_options' => [
+                'ResponseContentDisposition' => $downloadHeaders['Content-Disposition'],
+                'ResponseContentType' => $downloadHeaders['Content-Type'],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{'Content-Disposition': string, 'Content-Type': string}
+     */
+    private function getDownloadHeaders(ImportExportFileEntity $entity): array
+    {
         $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
+
+        try {
+            $filenameFallback = PathHelper::stripNonAsciiAndControlChars($originalName);
+        } catch (IllegalFileNameException) {
+            $filenameFallback = '';
+        }
 
         return [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 'attachment',
                 $originalName,
                 // only printable ascii
-                (string) preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $originalName)
+                $filenameFallback
             ),
-            'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => $this->resolveContentType($originalName),
         ];
     }
@@ -161,7 +206,7 @@ class DownloadService
             return false;
         }
 
-        $diff = time() - $entity->getUpdatedAt()->getTimestamp();
+        $diff = $this->clock->now()->getTimestamp() - $entity->getUpdatedAt()->getTimestamp();
 
         return $diff < 300;
     }

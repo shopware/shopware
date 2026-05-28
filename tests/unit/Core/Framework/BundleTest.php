@@ -38,6 +38,16 @@ class BundleTest extends TestCase
         static::assertSame([], $captured);
     }
 
+    public function testGetTwigComponentNamespace(): void
+    {
+        $bundleClass = new class extends Bundle {};
+
+        static::assertSame(
+            $bundleClass::getTwigComponentNamespace(),
+            $bundleClass->getNamespace() . '\\Resources\\views\\components\\'
+        );
+    }
+
     /**
      * @return list<array{0: mixed, 1: ?string}>
      */

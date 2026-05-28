@@ -7,6 +7,7 @@ namespace Shopware\Tests\Unit\Core;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
@@ -15,6 +16,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Loader\PhpFileLoader;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
  * @internal
@@ -48,7 +50,8 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc');
         $containerBuilder->compile();
 
-        $this->createKernel()->invokeDumpContainer(
+        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
+            $this->createKernel(),
             new ConfigCache($this->tmpProjectDir . '/cache-file', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
@@ -66,7 +69,8 @@ class KernelTest extends TestCase
         $containerBuilder->setParameter('kernel.cache_dir', $this->tmpProjectDir . '/var/cache/fooBar_h123abc_');
         $containerBuilder->compile();
 
-        $this->createKernel()->invokeDumpContainer(
+        (new \ReflectionMethod(Kernel::class, 'dumpContainer'))->invoke(
+            $this->createKernel(),
             new ConfigCache($this->tmpProjectDir . '/cache', true),
             $containerBuilder,
             'Shopware_Core_KernelDevDebugContainer',
@@ -77,6 +81,37 @@ class KernelTest extends TestCase
 
         // Do not create the preload file in warmup cache
         static::assertFalse($this->filesystem->exists($this->tmpProjectDir . '/var/cache/opcache-preload.php'));
+    }
+
+    public function testRegisterBundlesAutoAddsTwigComponentBundleWhenMissingPreV68(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->writeBundlesConfig([]);
+        $this->expectUserDeprecationMessageMatches('/TwigComponentBundle bundle should be added/');
+
+        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+
+        static::assertSame([TwigComponentBundle::class], array_values(array_map(
+            static fn (object $bundle): string => $bundle::class,
+            $bundles
+        )));
+    }
+
+    public function testRegisterBundlesDoesNotDuplicateTwigComponentBundleWhenConfiguredPreV68(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->writeBundlesConfig([
+            TwigComponentBundle::class => ['all' => true],
+        ]);
+
+        $bundles = iterator_to_array($this->createKernel()->registerBundles());
+
+        static::assertSame([TwigComponentBundle::class], array_values(array_map(
+            static fn (object $bundle): string => $bundle::class,
+            $bundles
+        )));
     }
 
     public function testConfigureRoutesImportsProjectRoutesScopedToEnvironment(): void
@@ -100,9 +135,9 @@ class KernelTest extends TestCase
         static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
-    private function createKernel(string $environment = 'fooBar'): KernelStub
+    private function createKernel(string $environment = 'fooBar'): Kernel
     {
-        return new KernelStub(
+        return new Kernel(
             $environment,
             true,
             $this->createMock(StaticKernelPluginLoader::class),
@@ -128,26 +163,24 @@ class KernelTest extends TestCase
             }
         );
 
-        $this->createKernel($environment)->invokeConfigureRoutes(
+        (new \ReflectionMethod(Kernel::class, 'configureRoutes'))->invoke(
+            $this->createKernel($environment),
             new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
         );
 
         return $captured;
     }
-}
 
-/**
- * @internal
- */
-class KernelStub extends Kernel
-{
-    public function invokeConfigureRoutes(RoutingConfigurator $routes): void
+    /**
+     * @param array<string, array<string, bool>> $bundles
+     */
+    private function writeBundlesConfig(array $bundles): void
     {
-        $this->configureRoutes($routes);
-    }
-
-    public function invokeDumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
-    {
-        $this->dumpContainer($cache, $container, $class, $baseClass);
+        $configDir = $this->tmpProjectDir . '/config';
+        $this->filesystem->mkdir($configDir);
+        $this->filesystem->dumpFile(
+            $configDir . '/bundles.php',
+            "<?php\n\nreturn " . var_export($bundles, true) . ";\n"
+        );
     }
 }

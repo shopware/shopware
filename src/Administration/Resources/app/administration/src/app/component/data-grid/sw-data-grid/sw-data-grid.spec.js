@@ -1166,4 +1166,81 @@ describe('components/data-grid/sw-data-grid', () => {
             expect(wrapper.emitted('row-click')[0][0]).toEqual(defaultProps.dataSource[rowIndex]);
         });
     });
+
+    describe('getColumnLabel', () => {
+        const messages = {
+            'en-GB': { 'sw-grid.column.name': 'Name (EN)' },
+            'de-DE': { 'sw-grid.column.name': 'Name (DE)' },
+        };
+
+        async function createWrapperWithI18n({ locale, $te, $t } = {}) {
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+
+            return mount(await wrapTestComponent('sw-data-grid', { sync: true }), {
+                global: {
+                    mocks: {
+                        $te: $te ?? ((key, l) => Boolean(messages[l ?? locale]?.[key])),
+                        $t: $t ?? ((key, l) => messages[l ?? locale]?.[key] ?? key),
+                    },
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve([defaultUserConfig]),
+                                save: () => Promise.resolve(),
+                                get: () => Promise.resolve({}),
+                            }),
+                        },
+                        acl: { can: () => true },
+                    },
+                },
+                props: defaultProps,
+            });
+        }
+
+        it('returns the translated label when the snippet exists in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'de-DE' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (DE)');
+        });
+
+        it('falls back to the fallback locale when the snippet is missing in the current locale', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('Name (EN)');
+        });
+
+        it('returns the raw label when neither current nor fallback locale has the snippet', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'fr-FR' });
+
+            const result = wrapper.vm.getColumnLabel({ label: 'Plain Text Label' });
+
+            expect(result).toBe('Plain Text Label');
+        });
+
+        it('returns an empty string when the column has no label', async () => {
+            const wrapper = await createWrapperWithI18n({ locale: 'en-GB' });
+
+            expect(wrapper.vm.getColumnLabel({})).toBe('');
+            expect(wrapper.vm.getColumnLabel({ label: '' })).toBe('');
+        });
+
+        it('does not consult the fallback locale when no fallbackLocale is configured', async () => {
+            const $te = jest.fn(() => false);
+            const $t = jest.fn((key) => key);
+            const wrapper = await createWrapperWithI18n({ $te, $t });
+
+            Shopware.Context.app.fallbackLocale = '';
+            $te.mockClear();
+
+            const result = wrapper.vm.getColumnLabel({ label: 'sw-grid.column.name' });
+
+            expect(result).toBe('sw-grid.column.name');
+            expect($te).toHaveBeenCalledTimes(1);
+            expect($te).toHaveBeenCalledWith('sw-grid.column.name');
+        });
+    });
 });

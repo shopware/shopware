@@ -298,6 +298,207 @@
                 }
             }
         },
+        "/_action/media/presign-upload": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Prepare a presigned upload",
+                "description": "Creates or reuses a media entity and returns a presigned S3 URL for direct browser-to-storage upload. The client uploads the file directly to the returned URL, then calls the finalize endpoint.",
+                "operationId": "presignUpload",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["fileName", "extension", "mimeType"],
+                                "properties": {
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Name of the file without extension"
+                                    },
+                                    "extension": {
+                                        "type": "string",
+                                        "description": "File extension, e.g. `jpg`, `png`, `pdf`"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file, e.g. `image/jpeg`"
+                                    },
+                                    "mediaFolderId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of the media folder to place the new media in"
+                                    },
+                                    "private": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "Whether the media should be private"
+                                    },
+                                    "mediaId": {
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$",
+                                        "description": "ID of an existing media entity to replace. If omitted, a new entity is created."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Presigned upload prepared successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["mediaId", "url", "path", "expiresAt", "isDuplicate"],
+                                    "properties": {
+                                        "mediaId": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the media entity"
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "description": "Presigned URL to upload the file to via HTTP PUT"
+                                        },
+                                        "path": {
+                                            "type": "string",
+                                            "description": "Storage path of the media file, required for the finalize call"
+                                        },
+                                        "expiresAt": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "description": "Expiration time of the presigned URL"
+                                        },
+                                        "isDuplicate": {
+                                            "type": "boolean",
+                                            "description": "Whether a file with the same name already exists"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. The file extension is not supported or the file name is invalid.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "description": "The media entity with the given `mediaId` was not found.",
+                        "$ref": "#/components/responses/404"
+                    },
+                    "422": {
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`) must not be blank.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/_action/media/{mediaId}/finalize-upload": {
+            "post": {
+                "tags": [
+                    "Asset Management"
+                ],
+                "summary": "Finalize a presigned upload",
+                "description": "Confirms that the file has been uploaded to storage via the presigned URL and updates the media entity with file metadata.",
+                "operationId": "finalizeUpload",
+                "parameters": [
+                    {
+                        "name": "mediaId",
+                        "in": "path",
+                        "required": true,
+                        "description": "ID of the media entity to finalize",
+                        "schema": {
+                            "$ref": "#/components/schemas/MediaId"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["fileName", "extension", "mimeType", "path"],
+                                "properties": {
+                                    "fileName": {
+                                        "type": "string",
+                                        "description": "Name of the file without extension"
+                                    },
+                                    "extension": {
+                                        "type": "string",
+                                        "description": "File extension, e.g. `jpg`, `png`, `pdf`"
+                                    },
+                                    "mimeType": {
+                                        "type": "string",
+                                        "description": "MIME type of the file"
+                                    },
+                                    "path": {
+                                        "type": "string",
+                                        "description": "Storage path returned by the presign-upload endpoint"
+                                    },
+                                    "width": {
+                                        "type": "integer",
+                                        "description": "Image width in pixels (optional, for images only)"
+                                    },
+                                    "height": {
+                                        "type": "integer",
+                                        "description": "Image height in pixels (optional, for images only)"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upload finalized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["mediaId"],
+                                    "properties": {
+                                        "mediaId": {
+                                            "type": "string",
+                                            "pattern": "^[0-9a-f]{32}$",
+                                            "description": "ID of the finalized media entity"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request. The file extension is not supported, the storage path does not match, the file name is already taken, or the file could not be found on the remote storage.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "description": "The media entity with the given `mediaId` was not found.",
+                        "$ref": "#/components/responses/404"
+                    },
+                    "422": {
+                        "description": "Validation error. Required fields (`fileName`, `extension`, `mimeType`, `path`) must not be blank.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/_action/media/{mediaId}/external-thumbnails": {
             "post": {
                 "tags": [

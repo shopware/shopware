@@ -45,7 +45,7 @@ jobs:
           include-hidden-files: true
           path: |
             .
-            .github/
+            !.git
             !var/cache
             !tests/
             !public
@@ -56,10 +56,13 @@ jobs:
   split:
     needs: build
     runs-on: ubuntu-latest
-    environment: release
+    environment: ${{ format('manyrepos_{0}', github.ref_type) }}
     # we use this image to get an older git version, which does not suffer from a performance regression
-    container: alpine:3.19
+    container: node:alpine3.19
     if: github.repository == 'shopware/shopware'
+    permissions:
+      contents: read
+      id-token: write
     strategy:
       matrix:
         package:
@@ -73,15 +76,25 @@ jobs:
       GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
       GIT_COMMITTER_NAME: "shopwareBot"
     steps:
+      - name: install deps
+        run: apk add git git-subtree bash composer
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        with:
+          fetch-depth: "0"
+          fetch-tags: "true"
       - uses: actions/download-artifact@v8
         with:
           name: context
+      - uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # 1.1.1
+        id: sts-shopware-split
+        with:
+          scope: shopware
+          identity: ShopwareSplit
+
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
 
-      - name: install deps
-        run: apk add git git-subtree bash composer
       - name: Mark dir as safe
         run: git config --global --add safe.directory $PWD
       - name: split
@@ -113,7 +126,7 @@ jobs:
       - name: Push
         if: github.ref_type == 'tag'
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://git:${{ secrets.MANYREPO_SYNC_TOKEN }}@github.com/shopware "${{ github.ref_name }}"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "${{ github.ref_name }}"
 
   draft-release-notes:
     needs: split

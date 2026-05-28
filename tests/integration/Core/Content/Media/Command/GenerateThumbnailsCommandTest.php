@@ -215,8 +215,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
+        $this->expectExceptionObject(MediaException::mediaFolderNameNotFound('non-existing-folder'));
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--folder-name' => 'non-existing-folder']);
@@ -228,8 +227,7 @@ class GenerateThumbnailsCommandTest extends TestCase
             static::markTestSkipped('Remote thumbnails is enabled. Skipping thumbnail generation test.');
         }
 
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $commandTester = new CommandTester($this->thumbnailCommand);
         $commandTester->execute(['--batch-size' => 'test']);

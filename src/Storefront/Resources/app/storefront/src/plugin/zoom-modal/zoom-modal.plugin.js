@@ -87,28 +87,48 @@ export default class ZoomModalPlugin extends Plugin {
     _registerEvents() {
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
+        if (!this._boundOnClick) {
+            this._boundOnClick = this._onClick.bind(this);
+        }
+
+        if (!this._boundOnKeyDown) {
+            this._boundOnKeyDown = this._onKeyDown.bind(this);
+        }
+
+        if (!this._boundOnMouseDown) {
+            this._boundOnMouseDown = this._onMouseDown.bind(this);
+        }
+
+        if (!this._boundOnMouseUp) {
+            this._boundOnMouseUp = this._onMouseUp.bind(this);
+        }
+
+        if (!this._boundOnPointerMove) {
+            this._boundOnPointerMove = this._onPointerMove.bind(this);
+        }
+
         // Events for normal elements (images)
         this._triggers.forEach(element => {
-            element.removeEventListener('click', this._onClick.bind(this));
-            element.addEventListener('click', this._onClick.bind(this));
+            element.removeEventListener('click', this._boundOnClick);
+            element.addEventListener('click', this._boundOnClick);
 
-            element.removeEventListener('keydown', this._onKeyDown.bind(this));
-            element.addEventListener('keydown', this._onKeyDown.bind(this));
+            element.removeEventListener('keydown', this._boundOnKeyDown);
+            element.addEventListener('keydown', this._boundOnKeyDown);
         });
 
         // Events for canvas elements (product box)
         this._triggersCanvas.forEach(element => {
-            element.removeEventListener('mousedown', this._onMouseDown.bind(this));
-            element.addEventListener('mousedown', this._onMouseDown.bind(this));
+            element.removeEventListener('mousedown', this._boundOnMouseDown);
+            element.addEventListener('mousedown', this._boundOnMouseDown);
 
-            element.removeEventListener('mouseup', this._onMouseUp.bind(this));
-            element.addEventListener('mouseup', this._onMouseUp.bind(this));
+            element.removeEventListener('mouseup', this._boundOnMouseUp);
+            element.addEventListener('mouseup', this._boundOnMouseUp);
 
-            element.removeEventListener(eventType, this._onClick.bind(this));
-            element.addEventListener(eventType, this._onClick.bind(this));
+            element.removeEventListener(eventType, this._boundOnClick);
+            element.addEventListener(eventType, this._boundOnClick);
 
-            element.removeEventListener('pointermove', this._onPointerMove.bind(this));
-            element.addEventListener('pointermove', this._onPointerMove.bind(this));
+            element.removeEventListener('pointermove', this._boundOnPointerMove);
+            element.addEventListener('pointermove', this._boundOnPointerMove);
         });
     }
 

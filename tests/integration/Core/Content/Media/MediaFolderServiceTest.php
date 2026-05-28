@@ -59,8 +59,7 @@ class MediaFolderServiceTest extends TestCase
     public function testDissolveForNonExistingFolder(): void
     {
         $folderId = Uuid::randomHex();
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage(MediaException::mediaFolderIdNotFound($folderId)->getMessage());
+        $this->expectExceptionObject(MediaException::mediaFolderIdNotFound($folderId));
 
         $this->mediaFolderService->dissolve($folderId, $this->context);
     }

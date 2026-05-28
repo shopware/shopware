@@ -26,7 +26,7 @@ class OffcanvasCartPageLoader
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly StorefrontCartFacade $cartService,
+        private readonly StorefrontCartFacade $cartFacade,
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly AbstractShippingMethodRoute $shippingMethodRoute
     ) {
@@ -47,7 +47,7 @@ class OffcanvasCartPageLoader
             $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
         }
 
-        $page->setCart($this->cartService->get($salesChannelContext->getCartToken(), $salesChannelContext));
+        $page->setCart($this->cartFacade->get($salesChannelContext->getToken(), $salesChannelContext));
 
         $page->setShippingMethods($this->getShippingMethods($request, $salesChannelContext));
 

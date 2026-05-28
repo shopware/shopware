@@ -44,7 +44,15 @@ use Shopware\Core\System\Tax\TaxEntity;
 #[Package('checkout')]
 class Generator extends TestCase
 {
+    /**
+     * @var ContextToken
+     */
+    // @phpstan-ignore classConstant.phpDocType (phpstan can't parse const literal string to string)
     final public const TOKEN = 'test-token';
+    /**
+     * @var CartToken
+     */
+    // @phpstan-ignore classConstant.phpDocType (phpstan can't parse const literal string to string)
     final public const CART_TOKEN = 'test-cart-token';
     final public const DOMAIN = 'test-domain';
     final public const NAVIGATION_CATEGORY = 'f8466865cc6a45e48ed98dd2f6a0a293';
@@ -62,8 +70,10 @@ class Generator extends TestCase
     final public const LANGUAGE_INFO_LOCALE_CODE = 'en-GB';
 
     /**
+     * @param ?ContextToken $token
      * @param array<string, string[]> $areaRuleIds
      * @param array<array-key, mixed> $overrides
+     * @param ?CartToken $cartToken
      */
     public static function generateSalesChannelContext(
         ?Context $baseContext = null,
@@ -219,9 +229,12 @@ class Generator extends TestCase
         return $salesChannelContext;
     }
 
-    public static function createCart(): Cart
+    /**
+     * @param ?CartToken $cartToken
+     */
+    public static function createCart(?string $cartToken = null): Cart
     {
-        $cart = new Cart(self::CART_TOKEN);
+        $cart = new Cart($cartToken ?? self::CART_TOKEN);
         $cart->setLineItems(
             new LineItemCollection([
                 (new LineItem('A', 'product', 'A', 27))
@@ -245,9 +258,12 @@ class Generator extends TestCase
         return $cart;
     }
 
-    public static function createCartWithDelivery(): Cart
+    /**
+     * @param ?CartToken $cartToken
+     */
+    public static function createCartWithDelivery(?string $cartToken = null): Cart
     {
-        $cart = static::createCart();
+        $cart = static::createCart($cartToken);
 
         $shippingMethod = new ShippingMethodEntity();
         $calculatedPrice = new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection());

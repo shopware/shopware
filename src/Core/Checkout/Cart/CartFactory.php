@@ -18,6 +18,9 @@ class CartFactory
     ) {
     }
 
+    /**
+     * @param CartToken $token
+     */
     public function createNew(string $token): Cart
     {
         $cart = new Cart($token);

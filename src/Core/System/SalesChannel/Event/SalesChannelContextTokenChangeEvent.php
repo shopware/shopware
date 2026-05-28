@@ -11,6 +11,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('framework')]
 class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param ContextToken $previousToken
+     * @param ContextToken $currentToken
+     */
     public function __construct(
         protected SalesChannelContext $salesChannelContext,
         protected string $previousToken,
@@ -28,11 +32,17 @@ class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSales
         return $this->salesChannelContext->getContext();
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getPreviousToken(): string
     {
         return $this->previousToken;
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getCurrentToken(): string
     {
         return $this->currentToken;

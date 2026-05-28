@@ -504,8 +504,9 @@ class CartRestorerTest extends TestCase
     public function testPermissionsAreIgnoredOnRestore(): void
     {
         $currentContextToken = SalesChannelContextService::getNewToken();
+        $cartToken = CartService::getNewToken();
 
-        $currentContext = $this->createSalesChannelContext($currentContextToken, 'test');
+        $currentContext = $this->createSalesChannelContext($currentContextToken, $cartToken);
 
         $con = static::getContainer()->get(Connection::class);
 
@@ -513,7 +514,7 @@ class CartRestorerTest extends TestCase
 
         $con->insert('sales_channel_context', [
             'id' => $id,
-            'cart_token' => 'test',
+            'cart_token' => $cartToken,
             'payload' => \json_encode(['expired' => false, 'customerId' => $this->customerId, 'permissions' => ['foo']], \JSON_THROW_ON_ERROR),
             'sales_channel_id' => Uuid::fromHexToBytes($currentContext->getSalesChannelId()),
             'customer_id' => Uuid::fromHexToBytes($this->customerId),
@@ -603,12 +604,15 @@ class CartRestorerTest extends TestCase
         return $productId;
     }
 
+    /**
+     * @param ?CartToken $cartToken
+     */
     private function createSalesChannelContext(string $contextToken, ?string $cartToken = null): SalesChannelContext
     {
         return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL,
-            $cartToken ? [SalesChannelContextService::CART_TOKEN => $cartToken] : [],
+            $cartToken !== null ? [SalesChannelContextService::CART_TOKEN => $cartToken] : [],
         );
     }
 

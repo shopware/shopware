@@ -16,8 +16,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-import-type SalesChannelContextFactoryPrimitiveOptions from AbstractSalesChannelContextFactory
  *
  * @phpstan-type SalesChannelContextPayload SalesChannelContextFactoryPrimitiveOptions&array{additional?: SalesChannelContextFactoryPrimitiveOptions&array{imitatingUserId?: ?string}}
- * @phpstan-type SalesChannelContextLoadPayload SalesChannelContextPayload&array{token: string, cartToken: string, expired: bool}
- * @phpstan-type SalesChannelContextDbRow array{token: string, cart_token: string, payload: ?string, customer_id: ?string, updated_at: string, additional_payload: ?string}
+ * @phpstan-type SalesChannelContextLoadPayload SalesChannelContextPayload&array{token: ContextToken, cartToken: CartToken, expired: bool}
+ * @phpstan-type SalesChannelContextDbRow array{token: ContextToken, cart_token: CartToken, payload: ?string, customer_id: ?string, updated_at: string, additional_payload: ?string}
  */
 #[Package('framework')]
 class SalesChannelContextPersister
@@ -37,6 +37,7 @@ class SalesChannelContextPersister
     }
 
     /**
+     * @param ContextToken $token
      * @param SalesChannelContextPayload $newParameters
      */
     public function save(string $token, array $newParameters, string $salesChannelId, ?string $customerId = null): void
@@ -53,11 +54,17 @@ class SalesChannelContextPersister
         $this->_save($token, $parameters, $salesChannelId, $customerId);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function create(string $token, string $salesChannelId, ?string $customerId = null): void
     {
         $this->_save($token, [], $salesChannelId, $customerId);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function delete(string $token): void
     {
         $this->connection->executeStatement(
@@ -73,6 +80,9 @@ class SalesChannelContextPersister
         );
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function deleteToken(string $token): void
     {
         $this->connection->executeStatement(
@@ -85,6 +95,10 @@ class SalesChannelContextPersister
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed without replacement, there is no need to replace a context token, use a new one or reuse the existing one
+     *
+     * @param ContextToken $oldToken
+     *
+     * @return ContextToken
      */
     public function replace(string $oldToken, SalesChannelContext $context): string
     {
@@ -98,6 +112,11 @@ class SalesChannelContextPersister
         }
 
         $newToken = SalesChannelContextService::getNewToken();
+
+        /** @var CartToken */
+        $oldCartToken = $oldToken;
+        /** @var CartToken */
+        $newCartToken = $newToken;
 
         $affected = $this->connection->executeStatement(
             'UPDATE sales_channel_context_token SET token = :newToken WHERE token = :oldToken',
@@ -114,7 +133,7 @@ class SalesChannelContextPersister
 
             $this->connection->insert('sales_channel_context', [
                 'id' => $id,
-                'cart_token' => $newToken,
+                'cart_token' => $newCartToken,
                 'sales_channel_id' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'customer_id' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
             ]);
@@ -135,16 +154,18 @@ class SalesChannelContextPersister
             );
         }
 
-        $this->cartPersister->replace($oldToken, $newToken, $context);
+        $this->cartPersister->replace($oldCartToken, $newCartToken, $context);
 
-        $context->assign(['token' => $newToken, 'cartToken' => $newToken]);
+        $context->assign(['token' => $newToken, 'cartToken' => $newCartToken]);
         $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
 
         return $newToken;
     }
 
     /**
-     * @return SalesChannelContextLoadPayload|array{token: string, cartToken: string, expired: true}|array{}
+     * @param ContextToken $token
+     *
+     * @return SalesChannelContextLoadPayload|array{token: ContextToken, cartToken: CartToken, expired: true}|array{}
      */
     public function load(string $token, string $salesChannelId, ?string $customerId = null): array
     {
@@ -242,6 +263,7 @@ class SalesChannelContextPersister
     }
 
     /**
+     * @param ContextToken $token
      * @param SalesChannelContextPayload|array{} $parameters
      */
     private function _save(string $token, array $parameters, string $salesChannelId, ?string $customerId = null): void

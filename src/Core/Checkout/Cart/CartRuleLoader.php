@@ -57,6 +57,9 @@ class CartRuleLoader implements ResetInterface
     ) {
     }
 
+    /**
+     * @param CartToken $cartToken
+     */
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
     {
         try {

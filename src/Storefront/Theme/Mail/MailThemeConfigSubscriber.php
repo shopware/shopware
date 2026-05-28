@@ -66,7 +66,7 @@ class MailThemeConfigSubscriber implements EventSubscriberInterface
 
         try {
             $salesChannelContext = $this->salesChannelContextFactory->create(
-                Uuid::randomHex(),
+                SalesChannelContextService::getNewToken(),
                 $salesChannelId,
                 $options
             );

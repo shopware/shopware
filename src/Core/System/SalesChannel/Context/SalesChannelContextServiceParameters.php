@@ -12,6 +12,9 @@ class SalesChannelContextServiceParameters extends Struct
 {
     /**
      * @deprecated tag:v6.8.0 - Parameter `imitatingUserId` will be removed
+     *
+     * @param ContextToken $token
+     * @param ?CartToken $cartToken
      */
     public function __construct(
         protected string $salesChannelId,
@@ -33,11 +36,17 @@ class SalesChannelContextServiceParameters extends Struct
         return $this->salesChannelId;
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getToken(): string
     {
         return $this->token;
     }
 
+    /**
+     * @return ?CartToken
+     */
     public function getCartToken(): ?string
     {
         return $this->cartToken;

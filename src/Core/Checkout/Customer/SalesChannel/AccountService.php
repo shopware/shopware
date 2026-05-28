@@ -73,6 +73,8 @@ class AccountService
     /**
      * @throws BadCredentialsException
      * @throws CustomerNotFoundByIdException
+     *
+     * @return ContextToken
      */
     public function loginById(string $id, SalesChannelContext $context): string
     {
@@ -94,6 +96,8 @@ class AccountService
     /**
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
+     *
+     * @return ContextToken
      */
     public function loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
     {
@@ -169,6 +173,9 @@ class AccountService
         return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
     }
 
+    /**
+     * @return ContextToken
+     */
     private function loginByCustomer(CustomerEntity $customer, SalesChannelContext $context): string
     {
         $this->customerRepository->update([

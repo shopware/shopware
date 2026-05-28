@@ -65,6 +65,8 @@ class Cart extends Struct
 
     /**
      * @internal
+     *
+     * @param CartToken $token
      */
     public function __construct(protected string $token)
     {
@@ -75,11 +77,17 @@ class Cart extends Struct
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
     }
 
+    /**
+     * @return CartToken
+     */
     public function getToken(): string
     {
         return $this->token;
     }
 
+    /**
+     * @param CartToken $token
+     */
     public function setToken(string $token): void
     {
         $this->token = $token;

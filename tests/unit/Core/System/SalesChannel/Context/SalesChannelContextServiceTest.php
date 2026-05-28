@@ -166,9 +166,9 @@ class SalesChannelContextServiceTest extends TestCase
 
     public function testDispatchesSalesChannelContextCreatedEvent(): void
     {
-        $token = 'test-token';
-        $context = Generator::generateSalesChannelContext(cartToken: $token);
-        $session = ['foo' => 'bar', SalesChannelContextService::CART_TOKEN => $token];
+        $token = SalesChannelContextService::getNewToken();
+        $context = Generator::generateSalesChannelContext();
+        $session = ['foo' => 'bar'];
 
         $this->persister->method('load')->willReturn($session);
 
@@ -253,7 +253,7 @@ class SalesChannelContextServiceTest extends TestCase
 
     public function testAddStatesFromOriginalContext(): void
     {
-        $token = 'test-token';
+        $token = SalesChannelContextService::getNewToken();
         $originalContext = new Context(new SystemSource());
         $originalContext->addState(Context::ELASTICSEARCH_EXPLAIN_MODE);
         $context = $this->createMock(SalesChannelContext::class);
@@ -265,7 +265,6 @@ class SalesChannelContextServiceTest extends TestCase
             'foo' => 'bar',
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'originalContext' => $originalContext,
-            SalesChannelContextService::CART_TOKEN => $token,
         ];
 
         $persister = $this->createMock(SalesChannelContextPersister::class);

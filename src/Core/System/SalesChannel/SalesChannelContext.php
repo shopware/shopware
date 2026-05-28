@@ -52,6 +52,8 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
+     * @param ContextToken $token
+     * @param CartToken $cartToken
      * @param array<string, array<string>> $areaRuleIds
      */
     public function __construct(
@@ -224,6 +226,9 @@ class SalesChannelContext extends Struct
         $this->permissionsLocked = true;
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getToken(): string
     {
         /**
@@ -238,6 +243,9 @@ class SalesChannelContext extends Struct
         return $this->token;
     }
 
+    /**
+     * @return CartToken
+     */
     public function getCartToken(): string
     {
         return $this->cartToken;

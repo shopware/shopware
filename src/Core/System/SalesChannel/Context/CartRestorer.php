@@ -44,6 +44,8 @@ class CartRestorer
      * So, the context is not directly referenced to the customer and will not be loaded, if the normal restore-function is used.
      *
      * @internal
+     *
+     * @param ContextToken $contextToken
      */
     public function restoreByToken(string $contextToken, string $customerId, SalesChannelContext $currentContext): SalesChannelContext
     {
@@ -121,6 +123,7 @@ class CartRestorer
     }
 
     /**
+     * @param ContextToken $contextToken
      * @param SalesChannelContextFactoryOptions $customerPayload
      */
     private function createCustomerContext(string $contextToken, SalesChannelContext $currentContext, array $customerPayload): SalesChannelContext
@@ -216,18 +219,24 @@ class CartRestorer
         return $mergedCart;
     }
 
+    /**
+     * @param ?ContextToken $newContextToken
+     */
     private function replaceContextToken(?string $customerId, SalesChannelContext $currentContext, ?string $newContextToken = null): SalesChannelContext
     {
         $originalToken = $newContextToken;
         if ($newContextToken === null) {
             $newContextToken = $this->contextPersister->replace($currentContext->getToken(), $currentContext);
         } else {
+            /** @var CartToken */
+            $newCartToken = $newContextToken;
             // Prevent duplicate key RDBMS errors in case the new token exists and has permissions attached.
-            $this->cartPersister->delete($newContextToken, $currentContext);
-            $this->cartPersister->replace($currentContext->getCartToken(), $newContextToken, $currentContext);
+            $this->cartPersister->delete($newCartToken, $currentContext);
+            $this->cartPersister->replace($currentContext->getCartToken(), $newCartToken, $currentContext);
 
             $currentContext->assign([
                 'token' => $newContextToken,
+                'cartToken' => $newCartToken,
             ]);
         }
 

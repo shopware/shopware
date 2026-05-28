@@ -170,6 +170,9 @@ class CartRuleLoaderTest extends TestCase
         static::assertSame('0', (string) $count);
     }
 
+    /**
+     * @param CartToken $cartToken
+     */
     private function createSalesChannelContext(string $cartToken): SalesChannelContext
     {
         return static::getContainer()

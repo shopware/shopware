@@ -143,6 +143,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->updateSession($token, true);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function updateSession(string $token, bool $destroyOldSession = false): void
     {
         $mainRequest = $this->requestStack->getMainRequest();

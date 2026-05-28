@@ -12,6 +12,9 @@ use Shopware\Core\PlatformRequest;
 #[Package('framework')]
 class ContextTokenResponse extends StoreApiResponse
 {
+    /**
+     * @param ContextToken $token
+     */
     public function __construct(
         string $token,
         ?string $redirectUrl = null
@@ -23,8 +26,12 @@ class ContextTokenResponse extends StoreApiResponse
         $this->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getToken(): string
     {
+        /** @var ContextToken */
         return $this->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
     }
 

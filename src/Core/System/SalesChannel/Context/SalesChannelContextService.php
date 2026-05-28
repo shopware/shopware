@@ -76,9 +76,12 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     /**
      * Generate a new sales channel context token.
+     *
+     * @return ContextToken
      */
     public static function getNewToken(): string
     {
+        /** @var ContextToken */
         return Random::getAlphanumericString(32);
     }
 

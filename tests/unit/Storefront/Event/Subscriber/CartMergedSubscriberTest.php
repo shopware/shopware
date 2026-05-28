@@ -114,11 +114,10 @@ class CartMergedSubscriberTest extends TestCase
 
     private function createCartMergedEvent(): CartMergedEvent
     {
-        $currentContextToken = 'currentToken';
-        $currentContext = Generator::generateSalesChannelContext(token: $currentContextToken);
+        $currentContext = Generator::generateSalesChannelContext();
 
         // Create Guest cart
-        $previousCart = new Cart($currentContextToken);
+        $previousCart = new Cart(Generator::CART_TOKEN);
 
         $productId1 = Uuid::randomHex();
         $productId2 = Uuid::randomHex();

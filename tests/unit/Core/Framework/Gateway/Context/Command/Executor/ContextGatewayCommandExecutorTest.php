@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -42,14 +43,15 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $commands->add(RegisterCustomerCommand::createFromPayload(['data' => ['firstName' => 'Foo', 'lastName' => 'bar']]));
 
         $context = Generator::generateSalesChannelContext();
-        $newContext = Generator::generateSalesChannelContext(token: 'hatoken');
+        $newContextToken = SalesChannelContextService::getNewToken();
+        $newContext = Generator::generateSalesChannelContext(token: $newContextToken);
 
         $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
         $salesChannelService = $this->createMock(SalesChannelContextServiceInterface::class);
         $salesChannelService
             ->expects($this->once())
             ->method('get')
-            ->with(static::equalTo(new SalesChannelContextServiceParameters($context->getSalesChannelId(), 'hatoken')))
+            ->with(static::equalTo(new SalesChannelContextServiceParameters($context->getSalesChannelId(), $newContextToken)))
             ->willReturn($newContext);
 
         $executor = new ContextGatewayCommandExecutor(
@@ -62,23 +64,25 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
         $response = $executor->execute($commands, $context);
 
-        static::assertSame('hatoken', $response->getToken());
+        static::assertSame($newContextToken, $response->getToken());
     }
 
     public function testExecuteWithLoginCommand(): void
     {
+        $newContextToken = SalesChannelContextService::getNewToken();
+
         $commands = new ContextGatewayCommandCollection();
-        $commands->add(LoginCustomerCommand::createFromPayload(['customerEmail' => 'hatoken']));
+        $commands->add(LoginCustomerCommand::createFromPayload(['customerEmail' => $newContextToken]));
 
         $context = Generator::generateSalesChannelContext();
-        $newContext = Generator::generateSalesChannelContext(token: 'hatoken');
+        $newContext = Generator::generateSalesChannelContext(token: $newContextToken);
 
         $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
         $salesChannelService = $this->createMock(SalesChannelContextServiceInterface::class);
         $salesChannelService
             ->expects($this->once())
             ->method('get')
-            ->with(static::equalTo(new SalesChannelContextServiceParameters($context->getSalesChannelId(), 'hatoken')))
+            ->with(static::equalTo(new SalesChannelContextServiceParameters($context->getSalesChannelId(), $newContextToken)))
             ->willReturn($newContext);
 
         $executor = new ContextGatewayCommandExecutor(
@@ -91,7 +95,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
         $response = $executor->execute($commands, $context);
 
-        static::assertSame('hatoken', $response->getToken());
+        static::assertSame($newContextToken, $response->getToken());
     }
 
     public function testExecuteWithDifferentCommands(): void

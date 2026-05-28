@@ -420,6 +420,9 @@ class CartPersisterTest extends TestCase
         static::assertEquals(['id' => $productId], $error->getParameters());
     }
 
+    /**
+     * @param CartToken $cartToken
+     */
     private function getSalesChannelContext(string $cartToken): SalesChannelContext
     {
         return static::getContainer()

@@ -69,7 +69,7 @@ class ProductShippingCostRoute extends AbstractProductShippingCostRoute
             $clonedContext = clone $salesChannelContext;
             $product = $this->loadProduct($productId, $clonedContext);
 
-            $cart = (new Cart(Uuid::randomHex()))
+            $cart = (new Cart(CartService::getNewToken()))
                 ->add(new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
             $cart->getData()->set('product-' . $productId, $product);
 

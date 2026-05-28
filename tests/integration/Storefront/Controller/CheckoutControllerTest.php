@@ -969,6 +969,10 @@ class CheckoutControllerTest extends TestCase
         return new RequestDataBag(['tos' => true, OrderService::CUSTOMER_COMMENT_KEY => $customerComment]);
     }
 
+    /**
+     * @param ContextToken $contextToken
+     * @param CartToken $cartToken
+     */
     private function createSalesChannelContext(string $contextToken, string $cartToken, ?string $paymentMethodId = null, ?string $customerId = null): SalesChannelContext
     {
         $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);

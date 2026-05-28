@@ -36,7 +36,7 @@ class CheckoutConfirmPageLoader
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly StorefrontCartFacade $cartService,
+        private readonly StorefrontCartFacade $cartFacade,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly DataValidationFactoryInterface $addressValidationFactory,
@@ -55,7 +55,7 @@ class CheckoutConfirmPageLoader
         $page = CheckoutConfirmPage::createFrom($page);
         $this->setMetaInformation($page);
 
-        $cart = $this->cartService->get($context->getCartToken(), $context, false, true);
+        $cart = $this->cartFacade->get($context->getToken(), $context, false, true);
 
         $response = $this->checkoutGatewayRoute->load($request, $cart, $context);
 

@@ -103,7 +103,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'anotherKey' => 'anotherValue',
             'expired' => false,
             'token' => $token,
-            'cartToken' => 'cart-token',
+            'cartToken' => CartService::getNewToken(),
         ];
 
         $this->contextPersister->save($token, $payload, TestDefaults::SALES_CHANNEL);
@@ -161,7 +161,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'token' => $token,
             'expired' => false,
             'customerId' => $customerId,
-            'cartToken' => 'cart-token',
+            'cartToken' => CartService::getNewToken(),
         ];
 
         $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL, $customerId);

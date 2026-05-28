@@ -336,8 +336,12 @@ class SalesChannelProxyController extends AbstractController
         $this->validator->validate($data->all(), $definition);
     }
 
+    /**
+     * @return ContextToken
+     */
     private function getContextToken(Request $request): string
     {
+        /** @var ?ContextToken */
         $contextToken = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         if ($contextToken === null) {

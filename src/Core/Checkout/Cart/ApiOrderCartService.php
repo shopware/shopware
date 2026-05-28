@@ -31,6 +31,9 @@ class ApiOrderCartService
         return $this->cartService->recalculate($cart, $context);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function addPermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);
@@ -43,6 +46,9 @@ class ApiOrderCartService
         $this->contextPersister->save($token, $payload, $salesChannelId);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function deletePermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);

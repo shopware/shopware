@@ -52,6 +52,7 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $session = $request->hasSession() ? $request->getSession() : null;
 
         // Retrieve context for current request
+        /** @var ContextToken */
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
         $languageId = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '');

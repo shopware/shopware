@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Gateway\Context\SalesChannel\AbstractContextGatewayR
 use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestSessionStorage;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\ContextGatewayController;
@@ -30,10 +31,12 @@ class ContextGatewayControllerTest extends TestCase
 {
     public function testGateway(): void
     {
-        $context = Generator::generateSalesChannelContext(token: 'hatoken');
+        $context = Generator::generateSalesChannelContext();
         $cart = new Cart(Generator::CART_TOKEN);
         $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
-        $expectedResponse = new ContextTokenResponse('newHatoken');
+
+        $newContextToken = SalesChannelContextService::getNewToken();
+        $expectedResponse = new ContextTokenResponse($newContextToken);
 
         $cartService = $this->createMock(CartService::class);
         $cartService
@@ -57,7 +60,7 @@ class ContextGatewayControllerTest extends TestCase
         $newResponse = $controller->gateway($request, $context);
 
         static::assertInstanceOf(ContextTokenResponse::class, $newResponse);
-        static::assertSame('newHatoken', $newResponse->getToken());
+        static::assertSame($newContextToken, $newResponse->getToken());
     }
 
     public function testGatewayWithGenericException(): void
@@ -102,7 +105,7 @@ class ContextGatewayControllerTest extends TestCase
 
     public function testGatewayWithCustomerException(): void
     {
-        $context = Generator::generateSalesChannelContext(token: 'hatoken');
+        $context = Generator::generateSalesChannelContext();
         $cart = new Cart(Generator::CART_TOKEN);
         $request = new Request(request: ['foo' => 'bar', 'bat' => 'baz']);
 

@@ -97,6 +97,8 @@ export default class NavbarPlugin extends Plugin {
      * So we check the event type and the pageX position (pageX is always 0 on touch devices and keyboard).
      *
      * Since top level links lose the ability to be a link when a dropdown is attached, we enforce redirection here manually.
+     * Links without an attached dropdown navigate via the default browser behavior — manually redirecting them would
+     * trigger a second request.
      *
      * @param topLevelLink
      * @param event
@@ -109,7 +111,7 @@ export default class NavbarPlugin extends Plugin {
                 return;
             }
 
-            if (topLevelLink.parentNode.classList.contains('dropdown')) {
+            if (topLevelLink.classList.contains('dropdown-toggle')) {
                 this._navigateTo(topLevelLink.href);
             }
         }

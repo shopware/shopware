@@ -230,6 +230,9 @@ Also the checkbox field is now positionally aligned with the other components.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### `sw-data-grid` column labels fall back to the default locale
+
+Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
 ### App action button icons are aligned in Administration context menus
 
 App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.

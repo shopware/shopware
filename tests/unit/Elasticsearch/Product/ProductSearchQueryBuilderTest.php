@@ -36,10 +36,14 @@ use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
+use Shopware\Elasticsearch\FieldQueryBuilder;
+use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\TokenQueryBuilder;
+use Shopware\Elasticsearch\TranslatedFieldQueryBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -56,6 +60,10 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     protected function setUp(): void
     {
+        $storage = new ArrayKeyValueStorage([
+            ElasticsearchOptimizeSwitch::FLAG => true,
+        ]);
+
         $this->tokenQueryBuilder = new TokenQueryBuilder(
             $this->getRegistry(),
             new CustomFieldServiceStub([
@@ -63,9 +71,14 @@ class ProductSearchQueryBuilderTest extends TestCase
                 'evolvesFloat' => new FloatField('evolvesFloat', 'evolvesFloat'),
                 'evolvesText' => new StringField('evolvesText', 'evolvesText'),
             ]),
-            new ArrayKeyValueStorage([
-                ElasticsearchOptimizeSwitch::FLAG => true,
-            ]),
+            new ExplainFieldQueryBuilder(
+                new NestedFieldQueryBuilder(
+                    new TranslatedFieldQueryBuilder(
+                        new FieldQueryBuilder(),
+                        $storage,
+                    ),
+                ),
+            ),
         );
     }
 
@@ -461,6 +474,37 @@ class ProductSearchQueryBuilderTest extends TestCase
         ];
     }
 
+    public function testTieBreakerOnTokenizedVsOriginalTermQuery(): void
+    {
+        $builder = $this->getBuilder([
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: true),
+            self::config(field: 'ean', ranking: 2000, tokenize: true, and: true),
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo 2023');
+
+        $parsed = $builder->build($criteria, Context::createDefaultContext());
+        $queryArray = $parsed->toArray();
+
+        static::assertArrayHasKey('dis_max', $queryArray);
+        static::assertSame(0.2, $queryArray['dis_max']['tie_breaker']);
+        static::assertCount(2, $queryArray['dis_max']['queries']);
+
+        $tokensQuery = $queryArray['dis_max']['queries'][0];
+        static::assertArrayHasKey('bool', $tokensQuery);
+
+        $originalTermQuery = $queryArray['dis_max']['queries'][1];
+        static::assertArrayHasKey('bool', $originalTermQuery);
+
+        $fieldQueries = $originalTermQuery['bool']['should'];
+        foreach ($fieldQueries as $fieldQuery) {
+            $disMax = $fieldQuery['dis_max'] ?? null;
+            static::assertNotNull($disMax);
+            static::assertSame(0.2, $disMax['tie_breaker']);
+        }
+    }
+
     public function testDecoration(): void
     {
         $builder = new ProductSearchQueryBuilder(
@@ -591,7 +635,7 @@ class ProductSearchQueryBuilderTest extends TestCase
      *
      * @return array{dis_max: array{queries: array<mixed>}}
      */
-    private static function disMax(array $queries, float|int|null $boost = null): array
+    private static function disMax(array $queries, float|int|null $boost = null, ?float $tieBreaker = 0.2): array
     {
         $payload = [
             'queries' => $queries,
@@ -599,6 +643,10 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         if ($boost !== null) {
             $payload['boost'] = (float) $boost;
+        }
+
+        if ($tieBreaker !== null) {
+            $payload['tie_breaker'] = $tieBreaker;
         }
 
         return [
@@ -638,9 +686,24 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int}>}
+     * @return array{match_bool_prefix: array<string, array{query: string|int|float, boost: float}>}
      */
-    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop, int $maxExpansion): array
+    private static function prefix(string $field, string|int|float $query, float $boost): array
+    {
+        return [
+            'match_bool_prefix' => [
+                $field => [
+                    'query' => $query,
+                    'boost' => $boost,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array{match_phrase_prefix: array<string, array{query: string|int|float, boost: float, slop: int, max_expansions: int}>}
+     */
+    private static function matchPhrasePrefix(string $field, string|int|float $query, float $boost, int $slop = 3, int $maxExpansions = 10): array
     {
         return [
             'match_phrase_prefix' => [
@@ -648,22 +711,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                     'query' => $query,
                     'boost' => $boost,
                     'slop' => $slop,
-                    'max_expansions' => $maxExpansion,
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return array{prefix: array<string, array{value: string|int|float, boost: float}>}
-     */
-    private static function prefix(string $field, string|int|float $query, float $boost): array
-    {
-        return [
-            'prefix' => [
-                $field => [
-                    'value' => $query,
-                    'boost' => $boost,
+                    'max_expansions' => $maxExpansions,
                 ],
             ],
         ];

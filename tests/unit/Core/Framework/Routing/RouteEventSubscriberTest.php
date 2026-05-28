@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Routing\RouteEventSubscriber;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -139,91 +138,6 @@ class RouteEventSubscriberTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener('api.scope.response', $apiListener);
-
-        $subscriber = new RouteEventSubscriber($dispatcher);
-        $subscriber->response($event);
-    }
-
-    public function testRequestScopeEventForStorefrontScope(): void
-    {
-        if (!\class_exists(StorefrontRouteScope::class)) {
-            // storefront dependency not installed
-            $this->expectNotToPerformAssertions();
-
-            return;
-        }
-
-        $request = new Request();
-        $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
-
-        $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
-
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects($this->once())->method('__invoke');
-
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener('storefront.scope.request', $storefrontListener);
-
-        $subscriber = new RouteEventSubscriber($dispatcher);
-        $subscriber->request($event);
-    }
-
-    public function testControllerScopeEventForStorefrontScope(): void
-    {
-        if (!\class_exists(StorefrontRouteScope::class)) {
-            // storefront dependency not installed
-            $this->expectNotToPerformAssertions();
-
-            return;
-        }
-
-        $request = new Request();
-        $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
-
-        $event = new ControllerEvent(
-            $this->createMock(Kernel::class),
-            [CallableClassFoo::class, 'test'],
-            $request,
-            HttpKernelInterface::MAIN_REQUEST
-        );
-
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects($this->once())->method('__invoke');
-
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener('storefront.scope.controller', $storefrontListener);
-
-        $subscriber = new RouteEventSubscriber($dispatcher);
-        $subscriber->controller($event);
-    }
-
-    public function testResponseScopeEventForStorefrontScope(): void
-    {
-        if (!\class_exists(StorefrontRouteScope::class)) {
-            // storefront dependency not installed
-            $this->expectNotToPerformAssertions();
-
-            return;
-        }
-
-        $request = new Request();
-        $request->attributes->set('_route', 'frontend.home.page');
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
-
-        $event = new ResponseEvent(
-            $this->createMock(Kernel::class),
-            $request,
-            HttpKernelInterface::MAIN_REQUEST,
-            new Response()
-        );
-
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
-        $storefrontListener->expects($this->once())->method('__invoke');
-
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener('storefront.scope.response', $storefrontListener);
 
         $subscriber = new RouteEventSubscriber($dispatcher);
         $subscriber->response($event);

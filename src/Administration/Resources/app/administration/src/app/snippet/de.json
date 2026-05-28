@@ -668,7 +668,7 @@
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
-        "sales-channel": " | A S",
+        "sales-channel": "&nbsp; | A S",
         "cms": "G E | A E",
         "dashboard": "G H | &nbsp;",
         "product-stream": "G D | &nbsp;",

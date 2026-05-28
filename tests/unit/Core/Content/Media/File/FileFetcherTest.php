@@ -23,6 +23,7 @@ class FileFetcherTest extends TestCase
     private const IMAGE_URL_WITHOUT_EXTENSION = __DIR__ . '/_fixtures/image1x1';
     private const IMAGE_URL_WITH_EXTENSION = __DIR__ . '/_fixtures/image1x1.png';
     private const BINARY_FILE_URL_WITHOUT_EXTENSION = __DIR__ . '/_fixtures/binary';
+    private const EMPTY_FILE_URL = __DIR__ . '/_fixtures/empty';
     private const IMAGE_FILE_SIZE = 95;
     private const IMAGE_EXTENSION = 'png';
     private const IMAGE_MIME_TYPE = 'image/png';
@@ -95,6 +96,43 @@ class FileFetcherTest extends TestCase
             'extension' => '',
             'expectedException' => MediaException::missingFileExtension(),
         ];
+    }
+
+    public function testFetchRequestDataThrowsOnEmptyFile(): void
+    {
+        $fileFetcher = new FileFetcher($this->createMock(FileUrlValidatorInterface::class), new FileService());
+
+        $content = fopen(self::EMPTY_FILE_URL, 'r');
+        static::assertIsResource($content);
+
+        $request = new Request([], [], [], [], [], [], $content);
+        $request->query->set('extension', self::IMAGE_EXTENSION);
+        $request->headers = new HeaderBag();
+        $request->headers->set('content-length', '0');
+
+        $this->expectExceptionObject(MediaException::emptyFile());
+        $fileFetcher->fetchRequestData($request, self::TEMP_FILE);
+    }
+
+    public function testFetchFromURLThrowsOnEmptyFile(): void
+    {
+        $fileValidatorMock = $this->createMock(FileUrlValidatorInterface::class);
+        $fileValidatorMock->method('isValid')->willReturn(true);
+
+        $fileServiceMock = $this->createMock(FileService::class);
+        $fileServiceMock->method('isUrl')->willReturn(true);
+
+        $fileFetcher = new FileFetcher($fileValidatorMock, $fileServiceMock);
+
+        $this->expectExceptionObject(MediaException::emptyFile());
+
+        try {
+            $fileFetcher->fetchFromURL(self::EMPTY_FILE_URL, self::TEMP_FILE, self::IMAGE_EXTENSION);
+        } finally {
+            if (\is_file(self::TEMP_FILE)) {
+                unlink(self::TEMP_FILE);
+            }
+        }
     }
 
     #[DataProvider('fetchFileFromUrlDataProvider')]

@@ -199,7 +199,18 @@ Also the checkbox field is now positionally aligned with the other components.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### App action button icons are aligned in Administration context menus
+
+App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
+Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
+
 ## Storefront
+
+### Mail templates can access storefront theme configuration
+
+Mail templates rendered for a sales channel now receive a temporary `salesChannelContext` and the assigned `themeId`.
+This allows Twig helpers such as `theme_config()` to resolve storefront theme configuration in mails without replacing the existing core `context` variable.
+The shared `MailTemplateRenderContextEvent` is dispatched for both sent mails and preview/simulation rendering so extensions can enrich mail template data through one hook.
 
 ### Google Ads Enhanced Conversions
 
@@ -430,6 +441,23 @@ Users can now control which representative of variant products is shown in filte
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+### Elasticsearch: Extracted field query builders from TokenQueryBuilder
+
+The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
+- base field matching (`FieldQueryBuilder`)
+- translated field handling (`TranslatedFieldQueryBuilder`)
+- nested field wrapping (`NestedFieldQueryBuilder`)
+- and explain metadata for preview mode(`ExplainFieldQueryBuilder`).
+
+Additionally, `TokenQueryBuilder` now extends a new `AbstractTokenQueryBuilder` abstract class, enabling decoration of token-level query composition. The old `Shopware\Elasticsearch\TokenQueryBuilder` service ID is preserved as an alias for backward compatibility.
+
+Plugins that need to customize Elasticsearch field query generation can now decorate either `Shopware\Elasticsearch\AbstractFieldQueryBuilder` or `Shopware\Elasticsearch\AbstractTokenQueryBuilder` instead of replacing the entire token query builder.
+
+### Elasticsearch: Added configurable tie_breaker to dis_max queries
+
+Elasticsearch `dis_max` queries now include a `tie_breaker` parameter at the field level, translated field level, and token combination level. Previously, `dis_max` only considered the single best-matching clause. With `tie_breaker`, scores from other matching clauses contribute partially to the overall score, improving ranking for documents that match across multiple fields or language variants.
+
+The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml`.
 
 ### Salutation ordering
 
@@ -537,6 +565,12 @@ Unknown requirements are ignored and logged as warnings.
 
 The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
 This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
+### Configurable product search keyword relevance limit
+
+The new configuration key `shopware.product.search_keyword.relevant_keyword_count` can be used to configure how many interpreted product search keywords are used for MySQL product search queries.
+The default value remains `8` to preserve the current performance characteristics.
+Increasing the value can improve result completeness for reordered search terms with AND logic, but can also increase query complexity.
 
 # 6.7.9.0
 

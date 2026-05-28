@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Media\Thumbnail\Processor;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @experimental stableVersion:v6.8.0
+ */
 #[Package('discovery')]
 interface ThumbnailProcessorInterface
 {

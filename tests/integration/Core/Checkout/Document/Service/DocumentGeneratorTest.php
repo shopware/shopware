@@ -304,7 +304,9 @@ class DocumentGeneratorTest extends TestCase
             false,
             new Request([
                 'extension' => PdfRenderer::FILE_EXTENSION,
-            ]),
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen('this is some content'),
+            ], 'this is some content'),
             true,
             DocumentException::generationError('Parameter "fileName" is missing'),
         ];

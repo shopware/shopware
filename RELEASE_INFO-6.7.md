@@ -1,4 +1,53 @@
-# 6.7.11.0 (upcoming)
+# 6.7.12.0 (upcoming)
+
+## API
+
+### Number range previews can target a concrete number range
+
+The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
+Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
+
+The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
+It can only resolve global number ranges and therefore does not support non-global number range state.
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+
+## Core
+
+### Number range value generator interface deprecated
+
+`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
+Custom number range value generator implementations and decorators should extend the abstract class instead.
+Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
+
+The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
+Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+
+### Elasticsearch: Dedicated `completion` field for admin-search autocomplete
+
+Admin-search autocomplete now flows through a new `completion` field (ngram-indexed, populated with name-shaped values per entity). The ngram subfield has been dropped from `text`/`textBoosted` so identifiers (EAN, productNumber, orderNumber, etc.) no longer feed ngram scoring — fixing a regression where a full GTIN search could be outranked by unrelated products with overlapping digit substrings.
+
+Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
+
+## App System
+
+### [Opt-in] Webhook delivery rework
+
+Webhook delivery moves to a new dedicated `webhook` Messenger transport, rolled out behind the `WEBHOOKS_REWORK` feature flag.
+When the flag is disabled (which is the default), the `webhook` transport forwards to `async` and Messenger owns retries.
+When the flag is enabled, every webhook is persisted to a database-backed outbox before the first HTTP attempt, and Shopware controls when and how often each delivery is retried.
+
+With the flag enabled:
+
+- **Failed deliveries are retried for up to four hours.** Failures back off on a fixed `5s → 30s → 5min → 30min → 4h` schedule, so a brief DNS outage or upstream restart does not exhaust retries before the endpoint recovers.
+- **Synchronous deliveries are audited.** Deliveries that bypass the queue — those triggered by the admin worker or by forced-sync app lifecycle calls — produce the same audit row as async deliveries, so failures on those paths are inspectable in the database and via the Admin API.
+- **In-flight deliveries survive worker crashes.** If a worker dies while sending a webhook, the next worker picks up the in-flight delivery and retries it.
+- **Identity headers on every HTTP POST.** Every request carries `X-Shopware-Event-Id`, `X-Shopware-Sequence`, and `X-Shopware-Attempt` headers plus a `source.sequence` field in the body. Consumers can use them to deduplicate retries and reorder events independent of HTTP arrival order. The same headers ship for every webhook, regardless of how it is delivered.
+
+Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
+
+Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
+
+# 6.7.11.0
 
 ## Features
 
@@ -18,15 +67,6 @@ To enable this feature, set the `MCP_SERVER` feature flag to `true`. The MCP end
 A `debug:mcp` CLI command is available to list all registered MCP tools, prompts, and resources.
 
 ## API
-
-### Number range previews can target a concrete number range
-
-The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
-Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
-
-The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
-It can only resolve global number ranges and therefore does not support non-global number range state.
-The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
 
 ### New foreign key resolvers for the Sync API
 
@@ -62,6 +102,23 @@ The `/api/_action/mail-template/send` payload now also has a first-class `extens
 Arbitrary unknown top-level keys are still forwarded for backwards compatibility in 6.7, but they are deprecated and will stop being forwarded in Shopware 6.8.
 
 ## Core
+
+### Pluggable thumbnail image processor
+
+The thumbnail generation pipeline now uses a `ThumbnailProcessorInterface` instead of a hardwired GD implementation.
+Two processors ship out of the box:
+
+- `GdImageThumbnailProcessor` — uses the PHP GD extension and is the default.
+- `ImagickThumbnailProcessor` — uses the PHP Imagick extension, if installed.
+
+Switch between them in `config/packages/shopware.yaml`:
+
+    shopware:
+      media:
+        thumbnail_processor: imagick   # or "gd" (default)
+
+Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
+`ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
 
 ### Number range value generator interface deprecated
 
@@ -207,7 +264,21 @@ Also the checkbox field is now positionally aligned with the other components.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### `sw-data-grid` column labels fall back to the default locale
+
+Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
+### App action button icons are aligned in Administration context menus
+
+App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
+Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
+
 ## Storefront
+
+### Mail templates can access storefront theme configuration
+
+Mail templates rendered for a sales channel now receive a temporary `salesChannelContext` and the assigned `themeId`.
+This allows Twig helpers such as `theme_config()` to resolve storefront theme configuration in mails without replacing the existing core `context` variable.
+The shared `MailTemplateRenderContextEvent` is dispatched for both sent mails and preview/simulation rendering so extensions can enrich mail template data through one hook.
 
 ### Google Ads Enhanced Conversions
 
@@ -318,25 +389,6 @@ Set the parameter to a narrower list (for example `['productNumber']`) to restor
 
 The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
 
-## App System
-
-### [Opt-in] Webhook delivery rework
-
-Webhook delivery moves to a new dedicated `webhook` Messenger transport, rolled out behind the `WEBHOOKS_REWORK` feature flag.
-When the flag is disabled (which is the default), the `webhook` transport forwards to `async` and Messenger owns retries.
-When the flag is enabled, every webhook is persisted to a database-backed outbox before the first HTTP attempt, and Shopware controls when and how often each delivery is retried.
-
-With the flag enabled:
-
-- **Failed deliveries are retried for up to four hours.** Failures back off on a fixed `5s → 30s → 5min → 30min → 4h` schedule, so a brief DNS outage or upstream restart does not exhaust retries before the endpoint recovers.
-- **Synchronous deliveries are audited.** Deliveries that bypass the queue — those triggered by the admin worker or by forced-sync app lifecycle calls — produce the same audit row as async deliveries, so failures on those paths are inspectable in the database and via the Admin API.
-- **In-flight deliveries survive worker crashes.** If a worker dies while sending a webhook, the next worker picks up the in-flight delivery and retries it.
-- **Identity headers on every HTTP POST.** Every request carries `X-Shopware-Event-Id`, `X-Shopware-Sequence`, and `X-Shopware-Attempt` headers plus a `source.sequence` field in the body. Consumers can use them to deduplicate retries and reorder events independent of HTTP arrival order. The same headers ship for every webhook, regardless of how it is delivered.
-
-Enabling the flag requires configuration changes — the worker consume command must list the new `webhook` transport, and `shopware.admin_worker.transports` may need updating if it was overridden. Rolling the flag back off also has its own steps. See `UPGRADE-6.7.md` for the full procedure.
-
-Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues/16560).
-
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials
@@ -424,12 +476,6 @@ A migration registers the product indexer so that only the variant listing updat
 That pass runs with the usual deferred indexing after an update or installation finishes, not inside the migration.
 If your integration or plugin assumes a 32-character `display_group`, compares against previously stored MD5 values, or relies on custom SQL with the old column width, update it to accept 64-character hashes and the new column definition.
 
-### Elasticsearch: Dedicated `completion` field for admin-search autocomplete
-
-Admin-search autocomplete now flows through a new `completion` field (ngram-indexed, populated with name-shaped values per entity). The ngram subfield has been dropped from `text`/`textBoosted` so identifiers (EAN, productNumber, orderNumber, etc.) no longer feed ngram scoring — fixing a regression where a full GTIN search could be outranked by unrelated products with overlapping digit substrings.
-
-Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
-
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
@@ -438,6 +484,23 @@ Users can now control which representative of variant products is shown in filte
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.
 Use `permissionsLocked` property or the new `SalesChannelContext::isPermissionsLocked()` getter method instead.
+### Elasticsearch: Extracted field query builders from TokenQueryBuilder
+
+The `TokenQueryBuilder` has been refactored to use a decoration-based architecture for field query generation. A new `AbstractFieldQueryBuilder` abstract class serves as the public extension point, with internal implementations for:
+- base field matching (`FieldQueryBuilder`)
+- translated field handling (`TranslatedFieldQueryBuilder`)
+- nested field wrapping (`NestedFieldQueryBuilder`)
+- and explain metadata for preview mode(`ExplainFieldQueryBuilder`).
+
+Additionally, `TokenQueryBuilder` now extends a new `AbstractTokenQueryBuilder` abstract class, enabling decoration of token-level query composition. The old `Shopware\Elasticsearch\TokenQueryBuilder` service ID is preserved as an alias for backward compatibility.
+
+Plugins that need to customize Elasticsearch field query generation can now decorate either `Shopware\Elasticsearch\AbstractFieldQueryBuilder` or `Shopware\Elasticsearch\AbstractTokenQueryBuilder` instead of replacing the entire token query builder.
+
+### Elasticsearch: Added configurable tie_breaker to dis_max queries
+
+Elasticsearch `dis_max` queries now include a `tie_breaker` parameter at the field level, translated field level, and token combination level. Previously, `dis_max` only considered the single best-matching clause. With `tie_breaker`, scores from other matching clauses contribute partially to the overall score, improving ranking for documents that match across multiple fields or language variants.
+
+The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml`.
 
 ### Salutation ordering
 
@@ -545,6 +608,12 @@ Unknown requirements are ignored and logged as warnings.
 
 The new configuration key `shopware.product.search_keyword.indexing` can be used to disable the product search keyword indexing.
 This is helpful for stores that do not require search keywords and want to avoid the overhead of maintaining those indices while still having basic search functionality or using third-party search solutions.
+
+### Configurable product search keyword relevance limit
+
+The new configuration key `shopware.product.search_keyword.relevant_keyword_count` can be used to configure how many interpreted product search keywords are used for MySQL product search queries.
+The default value remains `8` to preserve the current performance characteristics.
+Increasing the value can improve result completeness for reordered search terms with AND logic, but can also increase query complexity.
 
 # 6.7.9.0
 

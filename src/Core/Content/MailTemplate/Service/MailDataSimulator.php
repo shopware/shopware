@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service;
 
-use Faker\Factory;
-use Faker\Generator;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -22,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -91,11 +88,10 @@ use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyDefinition;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -114,13 +110,11 @@ class MailDataSimulator
     private array $dataProviders;
 
     /**
-     * @param EntityRepository<LanguageCollection> $languageRepository
      * @param iterable<string, MailFlowDataProviderInterface<Entity>> $dataProviders
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
-        private readonly EntityRepository $languageRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         iterable $dataProviders,
         private readonly ClockInterface $clock,
@@ -135,10 +129,7 @@ class MailDataSimulator
         string $flowEvent,
         Context $context,
         ?SalesChannelEntity $salesChannel = null,
-        ?int $seed = null
     ): array {
-        $faker = $this->createFaker($context, $seed);
-
         $definition = $this->businessEventCollector->collect($context)->get($flowEvent);
         if ($definition === null) {
             return [];
@@ -162,7 +153,6 @@ class MailDataSimulator
             SalesChannelDefinition::class,
             $this->dataProviders[SalesChannelDefinition::ENTITY_NAME]->getCriteria('mail template test id', $context),
             $entityCache,
-            $faker,
             $context
         );
 
@@ -171,7 +161,7 @@ class MailDataSimulator
                 continue;
             }
 
-            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context, $faker);
+            $templateData[$name] = $this->generateEventDataTypeData($type, $entityCache, $context);
         }
 
         return $templateData;
@@ -181,7 +171,7 @@ class MailDataSimulator
      * @param array<string,mixed> $dataType
      * @param array<string, Entity> $entityCache
      */
-    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context, Generator $faker): mixed
+    private function generateEventDataTypeData(array $dataType, array &$entityCache, Context $context): mixed
     {
         if ($dataType['type'] === ArrayType::TYPE) {
             return [];
@@ -196,27 +186,26 @@ class MailDataSimulator
                 $definition,
                 $dataProvider?->getCriteria('mail template test id', $context),
                 $entityCache,
-                $faker,
                 $context
             );
         }
 
         if ($dataType['type'] === ObjectType::TYPE) {
-            return array_map(function ($value) use ($entityCache, $context, $faker) {
-                return $this->generateEventDataTypeData($value, $entityCache, $context, $faker);
+            return array_map(function ($value) use ($entityCache, $context) {
+                return $this->generateEventDataTypeData($value, $entityCache, $context);
             }, $dataType['data'] ?? []);
         }
 
         if (\in_array($dataType['type'], ScalarValueType::VALID_TYPES, true)) {
             switch ($dataType['type']) {
                 case ScalarValueType::TYPE_BOOL:
-                    return $faker->boolean();
+                    return Random::getBoolean();
                 case ScalarValueType::TYPE_FLOAT:
-                    return $faker->randomFloat(2, 1, 10000);
+                    return Random::getInteger(100, 1000000) / 100;
                 case ScalarValueType::TYPE_INT:
-                    return $faker->randomNumber();
+                    return Random::getInteger(0, 100000);
                 case ScalarValueType::TYPE_STRING:
-                    return '"' . $faker->text(20) . '"';
+                    return 'Lorem ipsum dolor';
             }
         }
 
@@ -230,7 +219,6 @@ class MailDataSimulator
         EntityDefinition|string $definition,
         ?Criteria $criteria,
         array &$entityCache,
-        Generator $faker,
         Context $context
     ): Entity {
         if (\is_string($definition)) {
@@ -240,7 +228,7 @@ class MailDataSimulator
         $cacheKey = $definition->getEntityName();
 
         if (!\array_key_exists($cacheKey, $entityCache)) {
-            $this->generateEntityData($definition, $entityCache, $faker, $context);
+            $this->generateEntityData($definition, $entityCache, $context);
         }
 
         $cachedEntity = $entityCache[$cacheKey];
@@ -256,7 +244,6 @@ class MailDataSimulator
                 $cachedEntity,
                 $criteria,
                 $entityCache,
-                $faker,
                 $context
             )]);
         }
@@ -273,7 +260,6 @@ class MailDataSimulator
         Entity $cachedEntity,
         ?Criteria $criteria,
         array &$entityCache,
-        Generator $faker,
         Context $context
     ): mixed {
         $propertyName = $field->getPropertyName();
@@ -301,7 +287,6 @@ class MailDataSimulator
                     $cachedEntity,
                     $criteria?->getAssociation(EntityDefinition::TRANSLATED_FIELD),
                     $entityCache,
-                    $faker,
                     $context
                 );
             }
@@ -312,7 +297,6 @@ class MailDataSimulator
                 $field->getToManyReferenceDefinition(),
                 $criteria?->getAssociation($propertyName),
                 $entityCache,
-                $faker,
                 $context
             );
         } elseif ($field instanceof OneToManyAssociationField) {
@@ -324,7 +308,6 @@ class MailDataSimulator
                 $toManyDefinition,
                 $criteria?->getAssociation($propertyName),
                 $entityCache,
-                $faker,
                 $context
             ));
 
@@ -334,7 +317,6 @@ class MailDataSimulator
                 $field->getReferenceDefinition(),
                 $criteria?->getAssociation($propertyName),
                 $entityCache,
-                $faker,
                 $context
             );
         }
@@ -348,7 +330,6 @@ class MailDataSimulator
     private function generateEntityData(
         EntityDefinition|string $definition,
         array &$entityCache,
-        Generator $faker,
         Context $context
     ): Entity {
         if (\is_string($definition)) {
@@ -377,7 +358,6 @@ class MailDataSimulator
                     EntityDefinition::TRANSLATED_FIELD => $this->generateEntityData(
                         $field->getReferenceDefinition(),
                         $entityCache,
-                        $faker,
                         $context,
                     )->jsonSerialize(),
                 ]);
@@ -418,7 +398,6 @@ class MailDataSimulator
                 $referencedEntity = $this->generateEntityData(
                     $fkField->getReferenceDefinition(),
                     $entityCache,
-                    $faker,
                     $context
                 );
 
@@ -426,7 +405,7 @@ class MailDataSimulator
                 continue;
             }
 
-            $entity->assign([$propertyName => $this->generateFieldData($field, $entityCache, $faker, $context)]);
+            $entity->assign([$propertyName => $this->generateFieldData($field, $entityCache, $context, $definition->getEntityName())]);
         }
 
         foreach ($translatedFields as $field) {
@@ -439,11 +418,11 @@ class MailDataSimulator
     /**
      * @param array<string, Entity> $entityCache
      */
-    private function generateFieldData(Field $field, array &$entityCache, Generator $faker, Context $context): mixed
+    private function generateFieldData(Field $field, array &$entityCache, Context $context, ?string $entityName = null): mixed
     {
         $propertyName = $field->getPropertyName();
 
-        $event = new MailDataSimulatorFieldEvent($field, $context, $faker);
+        $event = new MailDataSimulatorFieldEvent($field, $context);
         $this->eventDispatcher->dispatch($event);
 
         if ($event->hasValue()) {
@@ -452,7 +431,7 @@ class MailDataSimulator
 
         switch (true) {
             case $field instanceof AutoIncrementField:
-                return $faker->numberBetween();
+                return Random::getInteger(0, 1000);
 
             case $field instanceof BlobField:
                 return $propertyName;
@@ -467,32 +446,32 @@ class MailDataSimulator
 
             case $field instanceof CalculatedPriceField:
                 return new CalculatedPrice(
-                    $faker->randomFloat(2, 1, 10000),
-                    $faker->randomFloat(2, 1, 10000),
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
                     new CalculatedTaxCollection([new CalculatedTax(
-                        $faker->randomFloat(2, 1, 1000),
-                        $faker->randomFloat(2, 1, 10000),
-                        $faker->randomElement([7.0, 19.0]),
+                        Random::getInteger(100, 100000) / 100,
+                        Random::getInteger(100, 1000000) / 100,
+                        19.0,
                     )]),
                     new TaxRuleCollection([new TaxRule(
-                        $faker->randomElement([7.0, 19.0]),
+                        19.0,
                     )]),
                 );
 
             case $field instanceof CartPriceField:
                 return new CartPrice(
-                    $faker->randomFloat(2, 1, 10000),
-                    $faker->randomFloat(2, 1, 10000),
-                    $faker->randomFloat(2, 1, 10000),
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
+                    Random::getInteger(100, 1000000) / 100,
                     new CalculatedTaxCollection([new CalculatedTax(
-                        $faker->randomFloat(2, 1, 1000),
-                        $faker->randomFloat(2, 1, 10000),
-                        $faker->randomElement([7.0, 19.0]),
+                        Random::getInteger(100, 100000) / 100,
+                        Random::getInteger(100, 1000000) / 100,
+                        19.0,
                     )]),
                     new TaxRuleCollection([new TaxRule(
-                        $faker->randomElement([7.0, 19.0]),
+                        19.0,
                     )]),
-                    $faker->word(),
+                    CartPrice::TAX_STATE_GROSS,
                 );
 
             case $field instanceof CashRoundingConfigField:
@@ -505,12 +484,12 @@ class MailDataSimulator
             case $field instanceof ChildCountField:
             case $field instanceof IntField:
             case $field instanceof TreeLevelField:
-                return $faker->randomNumber();
+                return Random::getInteger(1, 999999);
 
             case $field instanceof ChildrenAssociationField:
             case $field instanceof ManyToOneAssociationField:
             case $field instanceof OneToOneAssociationField:
-                return $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $faker, $context);
+                return $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
 
             case $field instanceof MeasurementUnitsField:
                 return MeasurementUnits::createDefaultUnits();
@@ -531,7 +510,7 @@ class MailDataSimulator
                 $data = [];
 
                 foreach ($jsonFields as $jsonField) {
-                    $data[$jsonField->getPropertyName()] = $this->generateFieldData($jsonField, $entityCache, $faker, $context);
+                    $data[$jsonField->getPropertyName()] = $this->generateFieldData($jsonField, $entityCache, $context, $entityName);
                 }
 
                 try {
@@ -545,7 +524,7 @@ class MailDataSimulator
             case $field instanceof DateField:
             case $field instanceof DateTimeField:
             case $field instanceof UpdatedAtField:
-                return $this->randomDateTime($faker);
+                return $this->clock->now();
 
             case $field instanceof CreatedByField:
             case $field instanceof ReferenceVersionField:
@@ -553,7 +532,7 @@ class MailDataSimulator
             case $field instanceof UpdatedByField:
             case $field instanceof VersionField:
             case $field instanceof FkField:
-                return $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $faker, $context)->get($field->getReferenceField());
+                return $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context)->get($field->getReferenceField());
 
             case $field instanceof CronIntervalField:
                 return '8 * * * *';
@@ -562,24 +541,24 @@ class MailDataSimulator
                 return (string) (new DateInterval('PT30M'));
 
             case $field instanceof EmailField:
-                return $faker->email();
+                return 'max.mustermann@example.com';
 
             case $field instanceof FloatField:
-                return $faker->randomFloat(2, 1, 10000);
+                return Random::getInteger(100, 1000000) / 100;
 
             case $field instanceof IdField:
-                return Uuid::fromStringToHex($faker->uuid());
+                return Uuid::randomHex();
 
             case $field instanceof TreePathField:
             case $field instanceof LongTextField:
-                return '"' . $faker->text() . '"';
+                return 'Lorem ipsum dolor sit amet.';
 
             case $field instanceof ManyToManyAssociationField:
-                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $entityCache, $faker, $context);
+                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $entityCache, $context);
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
-                $this->ensureEntityIdentifier($entity, $faker);
+                $this->ensureEntityIdentifier($entity);
                 $collection->add($entity);
 
                 return $collection;
@@ -588,34 +567,34 @@ class MailDataSimulator
                 return null;
 
             case $field instanceof NumberRangeField:
-                return '"' . $faker->randomNumber() . '"';
+                return '"' . Random::getInteger(1, 999999) . '"';
 
             case $field instanceof OneToManyAssociationField:
-                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $faker, $context);
+                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
 
                 $collection = new ($this->getCollectionClass($entity))();
                 \assert($collection instanceof EntityCollection);
-                $this->ensureEntityIdentifier($entity, $faker);
+                $this->ensureEntityIdentifier($entity);
                 $collection->add($entity);
 
                 return $collection;
 
             case $field instanceof PasswordField:
-                return '"' . $faker->password() . '"';
+                return 'P@ssw0rd!';
 
             case $field instanceof RemoteAddressField:
-                return '"' . IpUtils::anonymize($faker->ipv4()) . '"';
+                return '"' . IpUtils::anonymize('192.0.2.1') . '"';
 
             case $field instanceof TimeZoneField:
-                return '"' . $faker->timezone() . '"';
+                return 'UTC';
 
             case $field instanceof StringField:
-                return '"' . $faker->text(20) . '"';
+                return $this->randomString($propertyName, $entityName);
 
             case $field instanceof TranslationsAssociationField:
-                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $faker, $context);
-                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $faker, $context);
-                $this->ensureEntityIdentifier($language, $faker);
+                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
+                $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $context);
+                $this->ensureEntityIdentifier($language);
 
                 $entity->setUniqueIdentifier($language->getUniqueIdentifier());
 
@@ -634,12 +613,12 @@ class MailDataSimulator
         return null;
     }
 
-    private function ensureEntityIdentifier(Entity $entity, Generator $faker): void
+    private function ensureEntityIdentifier(Entity $entity): void
     {
         try {
             $entity->getUniqueIdentifier();
         } catch (\Throwable) {
-            $identifier = Uuid::fromStringToHex($faker->uuid());
+            $identifier = Uuid::randomHex();
 
             if ($entity->has('id')) {
                 $entity->assign(['id' => $identifier]);
@@ -649,34 +628,17 @@ class MailDataSimulator
         }
     }
 
-    private function createFaker(Context $context, ?int $seed = null): Generator
+    private function randomString(string $propertyName, ?string $entityName = null): string
     {
-        $criteria = (new Criteria([$context->getLanguageId()]))->addAssociation('locale');
-        $language = $this->languageRepository->search($criteria, $context)->first();
-        \assert($language instanceof LanguageEntity);
+        // Generate a deterministic substring of the base text, so different fields get different values,
+        // while the same field keeps the same value and length on every execution.
+        $baseText = 'Lorem ipsum dolor sit amet consectetur adipiscing elit.';
 
-        $localeCode = \str_replace('-', '_', $language->getLocale()?->getCode() ?? Factory::DEFAULT_LOCALE);
+        $offsetSeed = $entityName !== null ? $entityName . '.' . $propertyName : $propertyName;
+        $offset = abs(crc32($offsetSeed)) % 20;
+        $length = 12 + (abs(crc32('length.' . $offsetSeed)) % 9);
 
-        $faker = Factory::create($localeCode);
-        $faker->seed($seed);
-
-        return $faker;
-    }
-
-    private function randomDateTime(Generator $faker): \DateTimeImmutable
-    {
-        return $this->clock->now()
-            ->setDate(
-                $faker->numberBetween(1900, 2100),
-                $faker->numberBetween(1, 12),
-                $faker->numberBetween(1, 28),
-            )
-            ->setTime(
-                $faker->numberBetween(0, 23),
-                $faker->numberBetween(0, 59),
-                $faker->numberBetween(0, 59),
-                $faker->numberBetween(0, 999),
-            );
+        return mb_ucfirst(trim(mb_substr($baseText, $offset, $length)));
     }
 
     /**

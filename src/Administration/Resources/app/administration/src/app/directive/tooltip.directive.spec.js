@@ -114,4 +114,90 @@ describe('directives/tooltip', () => {
 
         expect(document.body.getElementsByClassName('sw-tooltip').item(0)).not.toBeNull();
     });
+
+    it('should clamp bottom tooltip horizontally when it would overflow the viewport', async () => {
+        const originalInnerWidth = window.innerWidth;
+        const originalInnerHeight = window.innerHeight;
+
+        Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            value: 500,
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            configurable: true,
+            value: 500,
+        });
+
+        const offsetWidthSpy = jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function () {
+            return this.classList.contains('sw-tooltip') ? 100 : 0;
+        });
+        const offsetHeightSpy = jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function () {
+            return this.classList.contains('sw-tooltip') ? 30 : 0;
+        });
+        const getBoundingClientRectSpy = jest
+            .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+            .mockImplementation(function () {
+                if (this.classList.contains('sw-tooltip')) {
+                    const top = parseFloat(this.style.top);
+                    const left = parseFloat(this.style.left);
+
+                    return {
+                        x: left,
+                        y: top,
+                        top,
+                        right: left + this.offsetWidth,
+                        bottom: top + this.offsetHeight,
+                        left,
+                        width: this.offsetWidth,
+                        height: this.offsetHeight,
+                        toJSON: () => {},
+                    };
+                }
+
+                return {
+                    x: 460,
+                    y: 40,
+                    top: 40,
+                    right: 520,
+                    bottom: 80,
+                    left: 460,
+                    width: 60,
+                    height: 40,
+                    toJSON: () => {},
+                };
+            });
+
+        let wrapper;
+
+        try {
+            wrapper = await createWrapper({
+                message: 'a tooltip',
+                position: 'bottom',
+                appearance: 'light',
+            });
+
+            await wrapper.trigger('mouseenter');
+            jest.runAllTimers();
+
+            const tooltip = document.body.getElementsByClassName('sw-tooltip').item(0);
+
+            expect(tooltip).not.toBeNull();
+            expect(tooltip.classList.contains('sw-tooltip--bottom')).toBe(true);
+            expect(tooltip.style.top).toBe('90px');
+            expect(tooltip.style.left).toBe('390px');
+        } finally {
+            wrapper?.unmount();
+            offsetWidthSpy.mockRestore();
+            offsetHeightSpy.mockRestore();
+            getBoundingClientRectSpy.mockRestore();
+            Object.defineProperty(window, 'innerWidth', {
+                configurable: true,
+                value: originalInnerWidth,
+            });
+            Object.defineProperty(window, 'innerHeight', {
+                configurable: true,
+                value: originalInnerHeight,
+            });
+        }
+    });
 });

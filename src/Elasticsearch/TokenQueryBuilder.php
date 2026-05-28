@@ -4,30 +4,13 @@ namespace Shopware\Elasticsearch;
 
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\Compound\DisMaxQuery;
-use OpenSearchDSL\Query\FullText\MatchPhrasePrefixQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
-use OpenSearchDSL\Query\Joining\NestedQuery;
-use OpenSearchDSL\Query\TermLevel\PrefixQuery;
-use OpenSearchDSL\Query\TermLevel\TermQuery;
-use OpenSearchDSL\Query\TermLevel\TermsQuery;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\CustomField\CustomFieldService;
-use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 
 /**
@@ -36,7 +19,7 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
  * @final
  */
 #[Package('inventory')]
-class TokenQueryBuilder
+class TokenQueryBuilder extends AbstractTokenQueryBuilder
 {
     /**
      * @internal
@@ -44,10 +27,13 @@ class TokenQueryBuilder
     public function __construct(
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly CustomFieldService $customFieldService,
-        private readonly AbstractKeyValueStorage $storage,
-        private readonly int $minGram = 4,
-        private readonly bool $useLanguageAnalyzer = true
+        private readonly AbstractFieldQueryBuilder $fieldQueryBuilder,
     ) {
+    }
+
+    public function getDecorated(): AbstractTokenQueryBuilder
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**
@@ -56,9 +42,6 @@ class TokenQueryBuilder
     public function build(string $entity, string $token, array $configs, Context $context): ?BuilderInterface
     {
         $token = mb_strtolower(trim($token));
-        $languageIdChain = $context->getLanguageIdChain();
-        $explainMode = $context->hasState(Context::ELASTICSEARCH_EXPLAIN_MODE);
-
         $tokenQueries = [];
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
@@ -77,24 +60,18 @@ class TokenQueryBuilder
             }
 
             $root = EntityDefinitionQueryHelper::getRoot($config->getField(), $definition);
-
-            $fieldQuery = $field instanceof TranslatedField ?
-                // If the field is a TranslatedField, we need to build a translated query
-                // translated query will use the languageIdChain to find the correct translation with fallback
-                // and if the field is prefilled fallback, we can use the current languageId as every languageId is filled with the fallback when indexing
-                $this->translatedQuery($real, $token, $config, $this->isSortableTranslatedField($field) ? [$context->getLanguageId()] : $languageIdChain) :
-                $this->matchQuery($real, $token, $config);
+            $resolvedField = $field instanceof TranslatedField
+                ? new TranslatedResolvedField($real, $field, $root)
+                : new ResolvedField($real, $root);
+            $fieldQuery = $this->fieldQueryBuilder->build(
+                $resolvedField,
+                $token,
+                $config,
+                $context,
+            );
 
             if (!$fieldQuery) {
                 continue;
-            }
-
-            if ($root !== null) {
-                $fieldQuery = new NestedQuery($root, $fieldQuery);
-            }
-
-            if ($explainMode) {
-                $fieldQuery = $this->explainQuery($token, $fieldQuery, $config);
             }
 
             $tokenQueries[] = $fieldQuery;
@@ -109,274 +86,5 @@ class TokenQueryBuilder
         }
 
         return new BoolQuery([BoolQuery::SHOULD => $tokenQueries]);
-    }
-
-    private function matchQuery(Field $field, string $token, SearchFieldConfig $config): ?BuilderInterface
-    {
-        if ($this->isTextField($field)) {
-            return $this->buildTextMatchQuery($token, $config);
-        }
-
-        $normalizedToken = $this->normalizeToken($token, $field);
-
-        if ($normalizedToken === null) {
-            return null;
-        }
-
-        return new TermQuery($config->getField(), $normalizedToken, ['boost' => $config->getRanking()]);
-    }
-
-    private function normalizeToken(string $token, Field $field): bool|int|float|string|null
-    {
-        if ($field instanceof BoolField) {
-            return match ($token) {
-                '1', 'true' => true,
-                '0', 'false' => false,
-                default => null,
-            };
-        }
-
-        if ($field instanceof IntField || $field instanceof FloatField || $field instanceof PriceField) {
-            if (!\is_numeric($token)) {
-                return null;
-            }
-
-            return $field instanceof IntField ? (int) $token : (float) $token;
-        }
-
-        return $token;
-    }
-
-    private function isTextField(Field $field): bool
-    {
-        return $field instanceof StringField || $field instanceof LongTextField || $field instanceof ListField;
-    }
-
-    private function buildTextMatchQuery(string $token, SearchFieldConfig $config): BuilderInterface
-    {
-        $searchField = $config->getField() . '.search';
-        $tokens = preg_split('/\s+/u', $token, -1, \PREG_SPLIT_NO_EMPTY) ?: [$token];
-        $tokenCount = \count($tokens);
-        $normalizedToken = $tokenCount > 1 ? implode(' ', $tokens) : $token;
-
-        $lastWord = array_last($tokens);
-        $maxExpansions = $this->getMaxExpansions($lastWord);
-
-        $queries = array_values(array_filter([
-            $this->buildExactMatchQuery($config, $tokens, $normalizedToken, $tokenCount),
-            $this->buildFuzzyMatchQuery($searchField, $normalizedToken, $config, $maxExpansions),
-            $this->buildPrefixMatchQuery($searchField, $normalizedToken, $config, $tokenCount, $maxExpansions),
-            $this->buildNgramQuery($normalizedToken, $config, $tokenCount),
-        ]));
-
-        return $this->buildDisMaxQuery($queries, $config->getRanking());
-    }
-
-    /**
-     * @param list<string> $tokens
-     */
-    private function buildExactMatchQuery(SearchFieldConfig $config, array $tokens, string $token, int $tokenCount): BuilderInterface
-    {
-        if ($tokenCount === 1) {
-            return new TermQuery($config->getField(), $token, ['boost' => 1]);
-        }
-
-        if ($config->isAndLogic()) {
-            $exactMatchQuery = new BoolQuery();
-
-            foreach ($tokens as $tokenPart) {
-                $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::MUST);
-            }
-
-            $exactMatchQuery->addParameter('boost', 1);
-
-            return $exactMatchQuery;
-        }
-
-        return new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
-    }
-
-    private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
-    {
-        $matchQueryParams = [
-            'boost' => 0.8,
-            'fuzziness' => $config->getFuzziness($token),
-            'operator' => $config->isAndLogic() ? 'and' : 'or',
-            'fuzzy_transpositions' => true, // treats "ab" and "ba" as a single edit
-            'max_expansions' => $maxExpansions, // limit the number of variations
-            'prefix_length' => 1, // reduce noise
-        ];
-
-        if (!$this->useLanguageAnalyzer) {
-            $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
-        }
-
-        return new MatchQuery($searchField, $token, $matchQueryParams);
-    }
-
-    private function buildPrefixMatchQuery(
-        string $searchField,
-        string $token,
-        SearchFieldConfig $config,
-        int $tokenCount,
-        int $maxExpansions
-    ): ?BuilderInterface {
-        if (!$config->usePrefixMatch()) {
-            return null;
-        }
-
-        // apply prefix search on a single token or match phrase prefix on multiple tokens
-        if ($tokenCount > 1) {
-            $matchPhrasePrefixParams = [
-                'boost' => 0.6,
-                'slop' => 3,
-                'max_expansions' => $maxExpansions,
-            ];
-
-            if (!$this->useLanguageAnalyzer) {
-                $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
-            }
-
-            return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
-        }
-
-        // Use .search field for prefix matching when using language analyzer
-        // This ensures stop words are filtered (they don't exist in .search index)
-        // and avoids stemming issues since PrefixQuery doesn't analyze the search term
-        $prefixField = $this->useLanguageAnalyzer ? $searchField : $config->getField();
-
-        return new PrefixQuery($prefixField, $token, ['boost' => 0.4]);
-    }
-
-    private function buildNgramQuery(string $token, SearchFieldConfig $config, int $tokenCount): ?MatchQuery
-    {
-        if (!$config->tokenize() || $tokenCount !== 1 || mb_strlen($token) < $this->minGram) {
-            return null;
-        }
-
-        return new MatchQuery($config->getField() . '.ngram', $token, ['boost' => 0.4]);
-    }
-
-    /**
-     * @param list<BuilderInterface> $queries
-     */
-    private function buildDisMaxQuery(array $queries, float|int $boost): DisMaxQuery
-    {
-        $dismax = new DisMaxQuery();
-
-        foreach ($queries as $query) {
-            $dismax->addQuery($query);
-        }
-
-        $dismax->addParameter('boost', $boost);
-
-        return $dismax;
-    }
-
-    /**
-     * @param string[] $languageIdChain
-     */
-    private function translatedQuery(Field $field, string $token, SearchFieldConfig $config, array $languageIdChain): ?BuilderInterface
-    {
-        $languageQueries = [];
-
-        $ranking = $config->getRanking();
-
-        foreach ($languageIdChain as $languageId) {
-            $searchField = $this->buildTranslatedFieldName($config, $languageId);
-
-            $languageConfig = new SearchFieldConfig(
-                $searchField,
-                $ranking,
-                $config->tokenize(),
-                $config->isAndLogic(),
-                $config->usePrefixMatch(),
-            );
-
-            $languageQuery = $this->matchQuery($field, $token, $languageConfig);
-
-            $ranking *= 0.8; // for each language we go "deeper" in the translation, we reduce the ranking by 20%
-
-            if (!$languageQuery) {
-                continue;
-            }
-
-            $languageQueries[] = $languageQuery;
-        }
-
-        if ($languageQueries === []) {
-            return null;
-        }
-
-        if (\count($languageQueries) === 1) {
-            return $languageQueries[0];
-        }
-
-        $dismax = new DisMaxQuery();
-
-        foreach ($languageQueries as $languageQuery) {
-            $dismax->addQuery($languageQuery);
-        }
-
-        return $dismax;
-    }
-
-    private function buildTranslatedFieldName(SearchFieldConfig $fieldConfig, string $languageId): string
-    {
-        if ($fieldConfig->isCustomField()) {
-            $parts = explode('.', $fieldConfig->getField());
-
-            return \sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
-        }
-
-        return \sprintf('%s.%s', $fieldConfig->getField(), $languageId);
-    }
-
-    private function explainQuery(string $token, BuilderInterface $fieldQuery, SearchFieldConfig $config): BuilderInterface
-    {
-        $explainPayload = json_encode([
-            'field' => $config->getField(),
-            'term' => $token,
-            'ranking' => $config->getRanking(),
-        ]);
-
-        if (!method_exists($fieldQuery, 'addParameter')) {
-            return $fieldQuery;
-        }
-
-        if ($fieldQuery instanceof NestedQuery) {
-            $fieldQuery->addParameter('inner_hits', [
-                '_source' => false,
-                'explain' => true,
-                'name' => $explainPayload,
-            ]);
-        }
-
-        $fieldQuery->addParameter('_name', $explainPayload);
-
-        return $fieldQuery;
-    }
-
-    private function isSortableTranslatedField(TranslatedField $field): bool
-    {
-        return $field->useForSorting() && (Feature::isActive('v6.8.0.0') || $this->storage->has(ElasticsearchOptimizeSwitch::FLAG));
-    }
-
-    /**
-     * @see https://docs.opensearch.org/1.1/opensearch/query-dsl/full-text#options for max_expansions
-     */
-    private function getMaxExpansions(string $lastWord): int
-    {
-        $len = mb_strlen($lastWord);
-
-        if ($len <= 3) {
-            return 5;
-        }
-
-        if ($len <= 6) {
-            return 10;
-        }
-
-        return 20;
     }
 }

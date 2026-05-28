@@ -3,6 +3,9 @@
  */
 import initializeLocaleService from 'src/app/init/locale.init';
 
+const originalNavigatorLanguage = navigator.language;
+const originalNavigatorLanguages = navigator.languages;
+
 describe('src/app/init/locale.init.ts', () => {
     beforeAll(() => {
         global.allowedErrors.push({
@@ -25,8 +28,17 @@ describe('src/app/init/locale.init.ts', () => {
     });
 
     beforeEach(() => {
+        Shopware.Application.getContainer('factory').locale.getLocaleRegistry().clear();
         Shopware.Application.getContainer('factory').locale.setSystemFallbackLocale(null);
         window.localStorage.removeItem('sw-admin-locale');
+        Object.defineProperty(window.navigator, 'language', {
+            value: originalNavigatorLanguage,
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: originalNavigatorLanguages,
+            configurable: true,
+        });
     });
 
     it('should register the locale factory with correct snippet languages', async () => {
@@ -87,13 +99,20 @@ describe('src/app/init/locale.init.ts', () => {
         expect(locales).toEqual(Object.values(expectedLocales));
     });
 
-    it('should use the system language locale as fallback when no locale is stored yet', async () => {
+    it('should use the system language locale when browser and english fallbacks are unavailable', async () => {
+        Object.defineProperty(window.navigator, 'language', {
+            value: 'es-ES',
+            configurable: true,
+        });
+        Object.defineProperty(window.navigator, 'languages', {
+            value: ['es-ES'],
+            configurable: true,
+        });
         Shopware.Context.api.systemLanguageId = 'system-language-id';
 
         Shopware.Service('snippetService').getLocales = () => {
             return Promise.resolve({
                 'system-language-id': 'de-DE',
-                'other-language-id': 'en-GB',
             });
         };
 

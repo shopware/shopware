@@ -16,13 +16,14 @@ export default function initializeLocaleService() {
     // Load locales and snippets before rendering to avoid showing raw snippet keys
     return snippetService
         .getLocales()
-        .then((locales: Record<string, string>) => {
+        .then((locales) => {
             Object.values(locales).forEach((locale) => {
                 localeFactory.register(locale, {});
             });
 
             const systemLanguageId = Shopware.Context.api.systemLanguageId;
             const systemFallbackLocale = typeof systemLanguageId === 'string' ? locales[systemLanguageId] : null;
+
             localeFactory.setSystemFallbackLocale(typeof systemFallbackLocale === 'string' ? systemFallbackLocale : null);
 
             return snippetService.getSnippets(localeFactory);

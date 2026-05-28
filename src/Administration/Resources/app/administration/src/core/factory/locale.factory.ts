@@ -152,7 +152,7 @@ function getLastKnownLocale(): string {
         return window.localStorage.getItem(localStorageKey) as string;
     }
 
-    return systemFallbackLocale || getBrowserLanguage();
+    return getBrowserLanguage();
 }
 
 /**
@@ -178,7 +178,15 @@ function getBrowserLanguage(): string {
         }
     });
 
-    return matchedLanguage || defaultLocale;
+    if (matchedLanguage) {
+        return matchedLanguage;
+    }
+
+    if (localeRegistry.has(defaultLocale)) {
+        return defaultLocale;
+    }
+
+    return systemFallbackLocale || defaultLocale;
 }
 
 /**

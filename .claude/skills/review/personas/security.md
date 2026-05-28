@@ -18,21 +18,23 @@ Read like an attacker. Ask: what became reachable, trusted, or exposed?
 - Secrets: real-looking keys/tokens in code, fixtures, env, comments, or commits are `blocking`; redact secret span in evidence.
 - Output: no unescaped user content (`|raw`, disabled escaping) unless proven safe.
 - Storefront POST forms: CSRF token present.
-- Dependencies/build changes: typosquats, postinstall scripts, unexplained risky deps.
+- Dependencies/build changes: typosquats, postinstall scripts, permission broadening, or concrete supply-chain risk.
 - Logs/telemetry: no credentials, session data, or raw PII.
 - LLM prompts: user content must be escaped/structured against prompt injection.
 
 ## Out Of Scope
 
-Style → `code-style`; performance/non-security tests → `architecture`; docs phrasing → `open-source`; a11y/brand/copy → `ux`.
+- Style → `code-style`;
+- Performance/non-security tests → `architecture`;
+- Docs phrasing → `open-source`;
+- a11y/brand/copy → `ux`.
 
 ## Severity Anchors
 
-| Pattern                                                                | Severity    |
-| ---------------------------------------------------------------------- | ----------- | ------- |
-| Real secret, SQL injection, protected data exposed unauthenticated     | `blocking`  |
-| Missing admin ACL, missing tenant scope, missing CSRF, raw PII logging | `major`     |
-| New dependency without justification, safe-data `                      | raw` misuse | `minor` |
-| Fake-looking placeholder secret                                        | `nit`       |
+| Pattern                                                                | Severity   |
+| ---------------------------------------------------------------------- | ---------- |
+| Real secret, SQL injection, protected data exposed unauthenticated     | `blocking` |
+| Missing admin ACL, missing tenant scope, missing CSRF, raw PII logging | `major`    |
+| Concrete supply-chain risk, unsafe raw-output escape misuse            | `minor`    |
 
 Set `requires_human: true` for GDPR/payment/compliance, unclear blast radius, or exploitability that depends on configuration.

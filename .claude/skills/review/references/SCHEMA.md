@@ -64,7 +64,6 @@ All other finding fields match the per-persona finding shape.
 
 ```json
 {
-    "persona": "security",
     "personas": ["security", "architecture"],
     "pr": {
         "number": 16638,
@@ -89,6 +88,7 @@ All other finding fields match the per-persona finding shape.
 Rules:
 
 - `persona` means worker mode; `personas` means orchestrator mode. If both exist, `persona` wins.
+- In wrapper-fed orchestrator mode, omit `persona`; omit `personas` too when the orchestrator should auto-select personas from the changed files.
 - `pr.number` may be `null` for local diffs.
 - `diff` or `diff_path` is required.
 - `commits` is optional and used only by `open-source`.

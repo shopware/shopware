@@ -23,20 +23,7 @@ Before emitting a finding:
 
 ## Calibration
 
-Severity:
-
-- `blocking`: unsafe to merge; regression, exposure, data loss, broken public contract.
-- `major`: meaningful issue a senior reviewer would request changes for.
-- `minor`: real issue, but follow-up or author push-back is reasonable.
-- `nit`: taste/style only; rare.
-
-Decision:
-
-- Any `blocking` → `block`.
-- Any `requires_human: true` without blocking → `needs_human_review`.
-- Any `major` with confidence `>= 0.8` → `request_changes`.
-- Otherwise → `comment`.
-
+Use `references/CLASSIFICATION.md` for severity, confidence floors, decision, risk, and dedupe.
 Default down when uncertain. Empty `findings` is correct for a clean slice.
 
 ## Context Budget

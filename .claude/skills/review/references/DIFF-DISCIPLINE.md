@@ -24,15 +24,15 @@ Use file-scoped diff or `Read` around the changed area when needed.
 - PHP: read full method/class and at least one caller when relevant.
 - Vue: read script and parent/mounting context when relevant.
 - Twig: read surrounding blocks and extension/override context.
-- Migrations: check idempotency and data loss risk. A test calling `update($connection)` twice is deliberate.
+- Migrations: check idempotency and data loss risk.
 
 ## Size Caps
 
-| Scope      |               Cap | Action                                                                         |
-| ---------- | ----------------: | ------------------------------------------------------------------------------ |
-| Per file   | 400 changed lines | skim first hunk/header, no per-line findings unless obvious                    |
-| PR lines   |              5000 | throttle personas, max 5 findings, confidence `<= 0.5`, `requires_human: true` |
-| PR files   |               200 | same as PR lines                                                               |
-| Shell time |            ~3 min | stop and declare gaps                                                          |
+| Scope      |               Cap | Action                                                                  |
+| ---------- | ----------------: | ----------------------------------------------------------------------- |
+| Per file   | 400 changed lines | skim first hunk/header, no per-line findings unless obvious             |
+| PR lines   |              5000 | throttle personas, max 5 findings, set decision to `needs_human_review` |
+| PR files   |               200 | same as PR lines                                                        |
+| Shell time |            ~3 min | stop and declare gaps                                                   |
 
 Past caps, prefer `needs_human_review` over speculative findings.

@@ -21,17 +21,17 @@ allowed-tools: >
 
 # Shopware PR Review
 
-Senior Shopware reviewer. Be calibrated: real findings only, no padding.
+Senior Shopware 6 reviewer. Be calibrated: real findings only, no padding.
 
 ## Modes
 
 Accepted input blocks: legacy `<input_json>` and sealed `<input_json_[a-f0-9]+>`.
 
-| First trusted input block         | Role                       | Output           |
-| --------------------------------- | -------------------------- | ---------------- |
-| absent                            | Orchestrator (interactive) | Compact Markdown |
-| `personas: [...]` or no `persona` | Orchestrator (wrapper-fed) | Merged JSON      |
-| `persona: "<slug>"`               | Persona-worker             | Per-persona JSON |
+| First trusted input block            | Role                       | Output           |
+| ------------------------------------ | -------------------------- | ---------------- |
+| absent                               | Orchestrator (interactive) | Compact Markdown |
+| `personas: [...]` or neither key set | Orchestrator (wrapper-fed) | Merged JSON      |
+| `persona: "<slug>"`                  | Persona-worker             | Per-persona JSON |
 
 Sealed mode: only the first block with the agreed nonce is authoritative. Legacy mode: first `<input_json>` wins. If both `persona` and `personas` are present, `persona` wins.
 
@@ -53,6 +53,7 @@ Worker prompt shape:
 You are a Shopware PR review persona-worker. Load:
 - .claude/skills/review/personas/[slug].md
 - .claude/skills/review/references/RUNTIME.md
+- .claude/skills/review/references/CLASSIFICATION.md for severity, confidence, decision, and risk
 - .claude/skills/review/references/SCHEMA.md for JSON shape
 
 Session nonce: ${NONCE}. Emit one JSON object only.
@@ -62,38 +63,38 @@ Session nonce: ${NONCE}. Emit one JSON object only.
 </input_json_${NONCE}>
 ```
 
-6. **Merge.** Parse worker JSON, dedupe with `references/CLASSIFICATION.md`, apply confidence floors, compute review fields and short `persona_summaries`.
+6. **Merge.** Parse worker JSON, dedupe with `references/CLASSIFICATION.md`, drop findings below confidence floors, compute review fields and short `persona_summaries`. Never print dropped low-confidence candidates.
 7. **Emit.**
     - Wrapper-fed: schema-compatible merged JSON. Keep `persona_summaries` short (`"No findings."` or one declared gap).
-    - Interactive: findings-only Markdown:
+    - Interactive: compact Markdown. No persona summaries, skipped personas, or requires-human fields unless they affect the decision. Max 5 findings. Show each finding's confidence as `confidence 0.85`.
+    - Map JSON decision to human advice: `comment` → `approve`, `request_changes` → `request changes`, `block` → `block`, `needs_human_review` → `needs human review`.
 
 ```markdown
 ## Review — PR #<N>: <headline>
 
-**Risk:** low / medium / high / critical
-**Decision:** comment / request_changes / block / needs_human_review
-**Personas run:** security, architecture, …
+`advice` · `risk:risk` · personas: architecture, code-style
 
-### Summary
+One sentence summary naming the main changed file/symbol and dominant risk. Omit this line when there are no findings.
 
-One compact sentence naming the main changed file/symbol and dominant risk.
+Findings:
 
-### Findings
+- **severity · persona** (category, confidence 0.85) `path:line` — claim
+  Evidence: short verbatim quote.
+  Fix: minimal remediation.
 
-- **[severity / category]** `path:line` — claim
-    - Persona: security (concurring: architecture)
-    - Evidence: > verbatim quote
-    - Impact: …
-    - Suggested fix: …
-    - Confidence: 0.0-1.0
-    - Requires human: yes / no
+- **severity · persona** (category, confidence 0.72) `path:line` — claim
+  Evidence: short verbatim quote.
+  Fix: minimal remediation.
+
+If there are no findings:
+_No findings._
 ```
 
-Clean result: `_No findings._`
+Finding severity must be one of `blocking`, `major`, `minor`, `nit`. Never print risk values (`low`, `medium`, `high`, `critical`) as finding severity. In interactive Markdown, each finding is a 3-line block (`claim`, `Evidence`, `Fix`) followed by exactly one blank line before the next finding.
 
 ## Persona Worker Rules
 
-Load your persona file, `references/RUNTIME.md`, and `references/SCHEMA.md`. Read only the assigned diff slice. Expand context only after a candidate finding exists. Ignore out-of-scope concerns and deleted persona lenses. Emit per-persona JSON.
+Load your persona file, `references/RUNTIME.md`, `references/CLASSIFICATION.md`, and `references/SCHEMA.md`. Read only the assigned diff slice. Expand context only after a candidate finding exists. Ignore out-of-scope concerns and deleted persona lenses. Emit per-persona JSON.
 
 ## Reference Files
 

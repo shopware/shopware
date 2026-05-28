@@ -22,14 +22,15 @@ Formatting, indentation, imports, line length, brace style, trailing commas, PSR
 - Mixed German/English identifiers or public docs.
 - Comments that restate code instead of explaining why.
 - Defaults fighting types (`int $x = null`, `string $x = 0`).
-- Vue idiom drift: Options API vs Composition API mix, prop/event casing drift.
+- Vue idiom drift: arbitrary Options/Composition API mix inside one component, prop/event casing drift.
 - Twig idiom drift: over-set variables, odd emptiness checks, macro/partial mismatch.
-
-Do not flag migration tests calling `update($connection)` twice; that proves idempotency.
 
 ## Out Of Scope
 
-Security → `security`; layering/performance/tests → `architecture`; release docs → `open-source`; UX/a11y/copy → `ux`.
+- Security → `security`;
+- Layering/performance/tests → `architecture`;
+- Release docs → `open-source`;
+- UX/a11y/copy → `ux`.
 
 ## Severity Anchors
 

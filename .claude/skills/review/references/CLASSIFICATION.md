@@ -25,20 +25,22 @@ Default down when uncertain.
 
 First matching rule wins:
 
-| Condition                            | Decision             | Risk                              |
-| ------------------------------------ | -------------------- | --------------------------------- |
-| any `blocking`                       | `block`              | `critical`                        |
-| any `requires_human`                 | `needs_human_review` | `high` (`medium` if no major+)    |
-| any `major` with confidence `>= 0.8` | `request_changes`    | `high`                            |
-| otherwise                            | `comment`            | `medium` if any major, else `low` |
+| Condition                               | Decision             | Risk                              |
+| --------------------------------------- | -------------------- | --------------------------------- |
+| any `blocking` with confidence `< 0.80` | `needs_human_review` | `critical`                        |
+| any `blocking`                          | `block`              | `critical`                        |
+| any `requires_human`                    | `needs_human_review` | `high` (`medium` if no major+)    |
+| any `major` with confidence `>= 0.70`   | `request_changes`    | `high`                            |
+| otherwise                               | `comment`            | `medium` if any major, else `low` |
 
 Top-level `requires_human` is true when any kept finding has it.
 
 ## Confidence
 
 - `>= 0.80`: verified with context beyond the changed line.
-- `0.50-0.79`: informed but some ambiguity remains.
-- `< 0.50`: weak; usually do not emit unless human review is needed.
+- `0.70-0.79`: actionable but some ambiguity remains.
+- `0.55-0.69`: only enough for `minor`.
+- `< 0.55`: weak; do not emit unless `blocking`.
 
 If evidence is only the literal changed line, cap confidence at `0.70`.
 
@@ -65,6 +67,10 @@ Category owners:
 
 Apply confidence floors after dedupe:
 
-- `blocking`: no floor.
-- `major` / `minor`: `>= 0.50`.
-- `nit`: `>= 0.70`.
+- `blocking`: no floor; if `< 0.80`, set `requires_human: true`.
+- `major`: `>= 0.70`.
+- `minor`: `>= 0.55`.
+- `nit`: `>= 0.80`.
+
+Drop below-floor findings silently before computing risk or rendering output.
+Risk levels (`low`, `medium`, `high`, `critical`) are review-level only; never use them as finding severities.

@@ -593,6 +593,7 @@
     "product.productMediaVersionId",
     "product.deliveryTimeId",
     "product.canonicalProductId",
+    "product.canonicalProductVersionId",
     "product.cmsPageId",
     "product.cmsPageVersionId",
     "product.productNumber",

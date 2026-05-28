@@ -344,7 +344,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
     it('should not update cart context while hydrating existing sales channel values', async () => {
         const wrapper = await createWrapper();
-        const updateCartContextSpy = jest.spyOn(wrapper.vm, 'updateCartContext');
+        const updateOrderContextSpy = jest.spyOn(Shopware.Store.get('swOrder'), 'updateOrderContext');
 
         await wrapper.setProps({
             context: {
@@ -355,7 +355,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         });
         await flushPromises();
 
-        expect(updateCartContextSpy).not.toHaveBeenCalled();
+        expect(updateOrderContextSpy).not.toHaveBeenCalled();
     });
 
     it('should emit shipping-cost-change event when edit shipping cost field', async () => {

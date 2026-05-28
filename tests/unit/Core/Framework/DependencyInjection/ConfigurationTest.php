@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -217,6 +218,14 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('allowed_types', $nodes);
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['allowed_types']);
+
+        static::assertArrayHasKey('search_keyword', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['search_keyword']);
+
+        $nodes = $nodes['search_keyword']->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('relevant_keyword_count', $nodes);
+        static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
     }
 
     public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void

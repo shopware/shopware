@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Administration\Framework\Api\Subscriber;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber;
+use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
@@ -31,17 +31,15 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     #[TestDox('enrichBundles() always sets the "bundles" key on the event (empty when nothing matches)')]
     public function testEnrichBundlesAlwaysSetsKey(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([]);
-
-        $viteAccessor = $this->createMock(ViteFileAccessorDecorator::class);
+        $loader = $this->createMock(ActiveAdminAppLoader::class);
+        $loader->method('getActiveAdminApps')->willReturn([]);
 
         $subscriber = new AdminInfoConfigBundlesSubscriber(
             new StubKernel([]),
             $this->createMock(RouterInterface::class),
-            $connection,
+            $loader,
             new Filesystem(),
-            $viteAccessor,
+            $this->createMock(ViteFileAccessorDecorator::class),
         );
 
         $event = new AdminInfoConfigEvent([]);

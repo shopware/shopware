@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Framework\Api\Subscriber;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
 use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Bundle;
@@ -22,7 +22,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
     public function __construct(
         private Kernel $kernel,
         private RouterInterface $router,
-        private Connection $connection,
+        private ActiveAdminAppLoader $activeAdminAppLoader,
         private Filesystem $filesystem,
         private ViteFileAccessorDecorator $viteFileAccessorDecorator,
     ) {
@@ -84,7 +84,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
             ];
         }
 
-        foreach ($this->getActiveApps() as $app) {
+        foreach ($this->activeAdminAppLoader->getActiveAdminApps() as $app) {
             $assets[$app['name']] = [
                 'active' => (bool) $app['active'],
                 'integrationId' => $app['integrationId'],
@@ -131,42 +131,5 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
     private function getTechnicalBundleName(Bundle $bundle): string
     {
         return str_replace('_', '-', $bundle->getContainerPrefix());
-    }
-
-    /**
-     * @return list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: array<string, list<string>>}>
-     */
-    private function getActiveApps(): array
-    {
-        /** @var list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $apps */
-        $apps = $this->connection->fetchAllAssociative('SELECT
-    app.name,
-    app.active,
-    LOWER(HEX(app.integration_id)) as integrationId,
-    app.base_app_url as baseUrl,
-    app.version,
-    ar.privileges as privileges
-FROM app
-LEFT JOIN acl_role ar on app.acl_role_id = ar.id
-WHERE app.active = 1 AND app.base_app_url is not null');
-
-        return array_map(static function (array $item) {
-            $privileges = $item['privileges'] ? json_decode($item['privileges'], true, 512, \JSON_THROW_ON_ERROR) : [];
-
-            $item['privileges'] = [];
-
-            foreach ($privileges as $privilege) {
-                if (substr_count($privilege, ':') !== 1) {
-                    $item['privileges']['additional'][] = $privilege;
-
-                    continue;
-                }
-
-                [$entity, $key] = \explode(':', $privilege);
-                $item['privileges'][$key][] = $entity;
-            }
-
-            return $item;
-        }, $apps);
     }
 }

@@ -102,6 +102,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $transactionId = Uuid::randomHex();
         $payload = [
             'id' => $order->getId(),
+            'primaryOrderTransactionId' => $transactionId,
             'transactions' => [
                 [
                     'id' => $transactionId,
@@ -160,8 +161,10 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             return false;
         }
 
-        /** @var OrderTransactionEntity $lastTransaction */
-        $lastTransaction = $transactions->last();
+        $lastTransaction = $order->getPrimaryOrderTransaction() ?? $transactions->last();
+        if (!$lastTransaction instanceof OrderTransactionEntity) {
+            return false;
+        }
 
         foreach ($transactions as $transaction) {
             if ($transaction->getPaymentMethodId() === $paymentMethodId && $lastTransaction->getId() === $transaction->getId()) {
@@ -227,6 +230,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
+        $criteria->addAssociation('primaryOrderTransaction.stateMachineState');
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         /** @var CustomerEntity $customer */

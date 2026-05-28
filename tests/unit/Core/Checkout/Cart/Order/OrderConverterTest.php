@@ -23,6 +23,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -194,6 +196,23 @@ class OrderConverterTest extends TestCase
 
         // As json to avoid classes
         static::assertJsonStringEqualsJsonString($expectedJson, $actual);
+    }
+
+    public function testConvertToOrderSetsPrimaryOrderTransactionId(): void
+    {
+        $cart = $this->getCart();
+        $cart->setTransactions(new TransactionCollection([
+            new Transaction(
+                new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'payment-method-id'
+            ),
+        ]));
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertArrayHasKey('primaryOrderTransactionId', $result);
+        static::assertSame($result['transactions'][0]['id'], $result['primaryOrderTransactionId']);
+        static::assertTrue(Uuid::isValid($result['primaryOrderTransactionId']));
     }
 
     public function testConvertToOrderShouldNotContainDeliveriesWithNoAddress(): void

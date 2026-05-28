@@ -175,6 +175,11 @@ class OrderConverter
                 $this->initialStateIdLoader->get(OrderTransactionStates::STATE_MACHINE),
                 $context->getContext()
             );
+
+            if ($data['transactions'] !== []) {
+                $data['transactions'][0]['id'] ??= Uuid::randomHex();
+                $data['primaryOrderTransactionId'] = $data['transactions'][0]['id'];
+            }
         }
 
         $data['lineItems'] = array_values($convertedLineItems);

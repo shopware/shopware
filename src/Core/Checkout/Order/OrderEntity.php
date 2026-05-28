@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -203,6 +204,12 @@ class OrderEntity extends Entity
      * @deprecated tag:v6.7.0 - Will be natively typed
      */
     protected $transactions;
+
+    protected ?OrderTransactionEntity $primaryOrderTransaction = null;
+
+    protected ?string $primaryOrderTransactionId = null;
+
+    protected ?string $primaryOrderTransactionVersionId = null;
 
     /**
      * @var string|null
@@ -522,6 +529,36 @@ class OrderEntity extends Entity
     public function setTransactions(OrderTransactionCollection $transactions): void
     {
         $this->transactions = $transactions;
+    }
+
+    public function getPrimaryOrderTransaction(): ?OrderTransactionEntity
+    {
+        return $this->primaryOrderTransaction;
+    }
+
+    public function setPrimaryOrderTransaction(?OrderTransactionEntity $primaryOrderTransaction): void
+    {
+        $this->primaryOrderTransaction = $primaryOrderTransaction;
+    }
+
+    public function getPrimaryOrderTransactionId(): ?string
+    {
+        return $this->primaryOrderTransactionId;
+    }
+
+    public function setPrimaryOrderTransactionId(?string $primaryOrderTransactionId): void
+    {
+        $this->primaryOrderTransactionId = $primaryOrderTransactionId;
+    }
+
+    public function getPrimaryOrderTransactionVersionId(): ?string
+    {
+        return $this->primaryOrderTransactionVersionId;
+    }
+
+    public function setPrimaryOrderTransactionVersionId(?string $primaryOrderTransactionVersionId): void
+    {
+        $this->primaryOrderTransactionVersionId = $primaryOrderTransactionVersionId;
     }
 
     public function getDeepLinkCode(): ?string

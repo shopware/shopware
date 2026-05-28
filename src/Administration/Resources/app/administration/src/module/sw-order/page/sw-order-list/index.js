@@ -118,6 +118,8 @@ export default {
                 .addAssociation('stateMachineState')
                 .addSorting(Criteria.sort('createdAt'));
 
+            criteria.addAssociation('primaryOrderTransaction.stateMachineState');
+
             criteria
                 .getAssociation('deliveries')
                 .addAssociation('stateMachineState')
@@ -164,7 +166,7 @@ export default {
                     toPlaceholder: this.$tc('global.default.to'),
                 },
                 'payment-status-filter': {
-                    property: 'transactions.stateMachineState',
+                    property: 'primaryOrderTransaction.stateMachineState',
                     criteria: this.getStatusCriteria('order_transaction.state'),
                     label: this.$tc('sw-order.filters.paymentStatusFilter.label'),
                     placeholder: this.$tc('sw-order.filters.paymentStatusFilter.placeholder'),
@@ -451,8 +453,8 @@ export default {
                     allowResize: true,
                 },
                 {
-                    property: 'transactions.last().stateMachineState.name',
-                    dataIndex: 'transactions.stateMachineState.name',
+                    property: 'primaryOrderTransaction.stateMachineState.name',
+                    dataIndex: 'primaryOrderTransaction.stateMachineState.name',
                     label: 'sw-order.list.columnTransactionState',
                     allowResize: true,
                 },
@@ -491,17 +493,22 @@ export default {
         },
 
         getVariantFromPaymentState(order) {
-            let technicalName = order.transactions.last().stateMachineState.technicalName;
+            let technicalName = order.primaryOrderTransaction?.stateMachineState?.technicalName;
+
             // set the payment status to the first transaction that is not cancelled
-            for (let i = 0; i < order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    technicalName = order.transactions[i].stateMachineState.technicalName;
-                    break;
+            if (!technicalName) {
+                technicalName = order.transactions.last().stateMachineState.technicalName;
+
+                for (let i = 0; i < order.transactions.length; i += 1) {
+                    if (
+                        ![
+                            'cancelled',
+                            'failed',
+                        ].includes(order.transactions[i].stateMachineState.technicalName)
+                    ) {
+                        technicalName = order.transactions[i].stateMachineState.technicalName;
+                        break;
+                    }
                 }
             }
 
@@ -591,6 +598,10 @@ export default {
         },
 
         transaction(item) {
+            if (item.primaryOrderTransaction) {
+                return item.primaryOrderTransaction;
+            }
+
             for (let i = 0; i < item.transactions.length; i += 1) {
                 if (
                     ![

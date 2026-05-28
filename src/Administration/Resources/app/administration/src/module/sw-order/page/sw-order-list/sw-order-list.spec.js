@@ -377,6 +377,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             'documents',
             'deliveries',
             'transactions',
+            'primaryOrderTransaction',
         ].forEach((association) => expect(criteria.hasAssociation(association)).toBe(true));
     });
 
@@ -388,6 +389,22 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(criteria.hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('primaryOrderTransaction').hasAssociation('stateMachineState')).toBe(true);
+    });
+
+    it('should sort and filter by primary order transaction state', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+
+        const transactionStateColumn = wrapper.vm.orderColumns.find((column) => {
+            return column.label === 'sw-order.list.columnTransactionState';
+        });
+
+        expect(transactionStateColumn.property).toBe('primaryOrderTransaction.stateMachineState.name');
+        expect(transactionStateColumn.dataIndex).toBe('primaryOrderTransaction.stateMachineState.name');
+        expect(wrapper.vm.listFilterOptions['payment-status-filter'].property).toBe(
+            'primaryOrderTransaction.stateMachineState',
+        );
     });
 
     it('should contain a computed property, called: listFilterOptions', async () => {

@@ -75,6 +75,7 @@
     },
     "mediaLibrary": {
       "labelButtonLoadMore": "Weitere laden",
+      "labelButtonLoadAll": "Alle laden",
       "titleEmptyState": "Noch keine Medien vorhanden",
       "descriptionEmptyState": "Verwaltung von Medien."
     },

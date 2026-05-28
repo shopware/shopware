@@ -156,7 +156,6 @@ The Storefront settings Administration page now allows the icon cache and specul
 `core.storefrontSettings.asyncThemeCompilation` remains a global setting and was moved into a separate Theme configuration card.
 
 The storefront runtime now resolves the icon cache setting with the active sales channel id, matching the sales-channel-aware speculation rules lookup.
-Extensions customizing the Storefront settings page should use the new `sw_settings_storefront_settings_icon_cache` and `sw_settings_storefront_settings_speculation_rules` Twig blocks.
 The old `sw_settings_storefront_smtp_settings` block is deprecated and will be removed in v6.8.0.
 
 ### Block renaming

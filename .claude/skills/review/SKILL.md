@@ -114,10 +114,14 @@ Subagent prompt template:
 ### Step 4 — Merge
 
 1. Parse each subagent JSON.
-2. Dedupe by `(file, line, normalised-claim)`. Keep highest severity, tie-break by `confidence` (higher wins). Other personas in the group → `concurring_personas` (alphabetised).
-3. Build `persona_summaries`: `{ slug: that worker's summary }`.
-4. Compute `risk_level`, `decision`, top-level `requires_human` from merged findings (`references/CLASSIFICATION.md`).
-5. Write top-level `summary`: 1–3 sentences, PR purpose + dominant risk, name at least one file or symbol.
+2. Dedupe (see `references/CLASSIFICATION.md` §dedup):
+    - Same `(file, line, normalised-claim)` → collapse via tie-break. Concurring personas listed.
+    - Same `(file, line, category)` with different claim wording → still dedup. Two `docs` findings on one line are one issue phrased twice.
+    - Same `(file, line)` but different `category` → keep both.
+3. Apply the confidence floor (`CLASSIFICATION.md` §floor): drop findings whose `confidence` falls below the floor for their severity. `nit` floor is `0.70`; `major`/`minor` is `0.50`; `blocking` has no floor.
+4. Build `persona_summaries`: `{ slug: that worker's summary }`.
+5. Compute `risk_level`, `decision`, top-level `requires_human` from the post-floor findings (`CLASSIFICATION.md`).
+6. Write top-level `summary`: 1–3 sentences, PR purpose + dominant risk, name at least one file or symbol.
 
 ### Step 5 — Emit
 

@@ -34,6 +34,10 @@ Things the toolchain cannot judge:
 - Typo shipped into a public symbol — once public, the typo is forever.
 - Test names that don't describe what they test: `test1()`, `testFoo()`, `it('works')`.
 
+## Don't flag
+
+- A migration test calling `$migration->update($connection)` twice in a row. That's the Shopware idiom for verifying idempotency (see `architecture.md` focus 8). The duplicate is the assertion, not copy-paste.
+
 ## Out of scope
 
 - Security / ACL / input validation → `security`.

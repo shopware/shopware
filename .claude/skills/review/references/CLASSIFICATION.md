@@ -70,8 +70,19 @@ Pick the band, then a representative value (e.g. 0.85, 0.6). Two decimals max.
 Group findings by `(file, line, normalised(claim))` — normalised = lower-case, collapsed whitespace, punctuation-stripped.
 
 - Same key, multiple findings → collapse via tie-break, list others in `concurring_personas`.
-- Same file+line, different normalised claim → keep both. Different reasons on the same line is signal.
+- Same `(file, line, category)`, different normalised claim → still dedup. Two `docs` findings on `UPGRADE-6.7.md:1` are the same complaint phrased two ways; keep the winning claim, list the rest as concurring. Same `(file, line)` but **different `category`** → keep both (different reasons on one line is signal).
 - Different file or line → keep both.
+
+## Confidence floor (orchestrator)
+
+Drop findings whose `confidence` falls below the floor for their severity. Applied **after** dedup, **before** sort/emit. Floors:
+
+| Severity   | Floor    |
+| ---------- | -------- |
+| `blocking` | any      |
+| `major`    | `≥ 0.50` |
+| `minor`    | `≥ 0.50` |
+| `nit`      | `≥ 0.70` |
 
 ### Tie-break (first decisive wins)
 

@@ -21,6 +21,7 @@ Reviewing **shape** — does the code sit where it belongs, talk to the things i
 6. **Events / extension points.** New business rules fire events the surrounding module's way so plugins can extend. An event with no usable payload/context is wrong.
 7. **Test coverage of the change.** A test that exercises the _new_ branch, not just "touched existing tests". "fixes #N" needs a test that fails without the fix.
 8. **Migration discipline.** Reversible where the data model permits; destructive operations only when truly necessary.
+    - **Idempotency-test idiom:** a migration test that calls `$migration->update($connection)` **twice in a row** is deliberate, it verifies the migration is re-runnable.
 
 ## Footguns
 

@@ -50,7 +50,8 @@
       "back": "Zurück",
       "discard": "Verwerfen",
       "submit": "Absenden",
-      "attention": "Warnung"
+      "attention": "Warnung",
+      "configure": "Konfigurieren"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

@@ -50,7 +50,8 @@
       "back": "Back",
       "discard": "Discard",
       "submit": "Submit",
-      "attention": "Warning"
+      "attention": "Warning",
+      "configure": "Configure"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

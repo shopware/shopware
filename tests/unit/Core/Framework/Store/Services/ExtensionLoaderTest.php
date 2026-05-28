@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Util\Exception\UtilXmlParsingException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -53,7 +54,6 @@ class ExtensionLoaderTest extends TestCase
             );
 
         $loader = new ExtensionLoader(
-            null,
             $this->createMock(AppLoader::class),
             $this->createMock(SourceResolver::class),
             $configurationService,
@@ -61,6 +61,7 @@ class ExtensionLoaderTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             $logger,
+            new EventDispatcher(),
         );
 
         $plugins = new PluginCollection([
@@ -89,7 +90,6 @@ class ExtensionLoaderTest extends TestCase
         $logger->expects($this->never())->method('error');
 
         $loader = new ExtensionLoader(
-            null,
             $this->createMock(AppLoader::class),
             $this->createMock(SourceResolver::class),
             $configurationService,
@@ -97,6 +97,7 @@ class ExtensionLoaderTest extends TestCase
             $this->createMock(LanguageLocaleCodeProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
             $logger,
+            new EventDispatcher(),
         );
 
         $plugins = new PluginCollection([

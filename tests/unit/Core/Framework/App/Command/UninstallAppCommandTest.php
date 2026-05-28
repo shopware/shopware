@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -43,28 +45,69 @@ class UninstallAppCommandTest extends TestCase
     public function testSkipThemeCompileSetsState(): void
     {
         $this->stubAppFound();
-        $captured = $this->captureLifecycleContext();
+        $captured = $this->captureLifecycleDelete();
 
         $tester = new CommandTester($this->command);
         $status = $tester->execute(['name' => 'AcmeApp', '--skip-theme-compile' => true]);
 
         static::assertSame(Command::SUCCESS, $status);
         static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
-        static::assertTrue($captured()->hasState('skip-theme-compilation'));
+        static::assertTrue($captured()['context']->hasState('skip-theme-compilation'));
     }
 
     #[TestDox('Without --skip-theme-compile, the lifecycle context does not carry the skip-theme-compilation state')]
     public function testWithoutSkipThemeCompileDoesNotSetState(): void
     {
         $this->stubAppFound();
-        $captured = $this->captureLifecycleContext();
+        $captured = $this->captureLifecycleDelete();
 
         $tester = new CommandTester($this->command);
         $status = $tester->execute(['name' => 'AcmeApp']);
 
         static::assertSame(Command::SUCCESS, $status);
         static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
-        static::assertFalse($captured()->hasState('skip-theme-compilation'));
+        static::assertFalse($captured()['context']->hasState('skip-theme-compilation'));
+    }
+
+    #[TestDox('--keep-user-data forwards true as the keepUserData arg to the lifecycle')]
+    public function testKeepUserDataOptionIsForwarded(): void
+    {
+        $this->stubAppFound();
+        $captured = $this->captureLifecycleDelete();
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['name' => 'AcmeApp', '--keep-user-data' => true]);
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
+        static::assertTrue($captured()['keepUserData']);
+    }
+
+    #[TestDox('Without --keep-user-data, the lifecycle receives false as the keepUserData arg')]
+    public function testWithoutKeepUserDataDefaultsToFalse(): void
+    {
+        $this->stubAppFound();
+        $captured = $this->captureLifecycleDelete();
+
+        $tester = new CommandTester($this->command);
+        $status = $tester->execute(['name' => 'AcmeApp']);
+
+        static::assertSame(Command::SUCCESS, $status);
+        static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
+        static::assertFalse($captured()['keepUserData']);
+    }
+
+    #[TestDox('Throws InvalidArgumentException when the name argument is not a string')]
+    public function testThrowsWhenNameArgumentIsNotString(): void
+    {
+        $input = static::createStub(InputInterface::class);
+        $input->method('getArgument')->willReturn(null);
+
+        $execute = new \ReflectionMethod(UninstallAppCommand::class, 'execute');
+
+        $this->expectExceptionObject(new \InvalidArgumentException('Argument $name must be an string'));
+
+        $execute->invoke($this->command, $input, new BufferedOutput());
     }
 
     #[TestDox('Returns FAILURE with an error when the named app is not installed')]
@@ -93,20 +136,21 @@ class UninstallAppCommandTest extends TestCase
     }
 
     /**
-     * Returns a closure that yields the Context most recently passed to AbstractAppLifecycle::delete.
+     * Returns a closure that yields the most recent AbstractAppLifecycle::delete call's $context and $keepUserData args.
      *
-     * @return \Closure(): ?Context
+     * @return \Closure(): ?array{context: Context, keepUserData: bool}
      */
-    private function captureLifecycleContext(): \Closure
+    private function captureLifecycleDelete(): \Closure
     {
-        $context = null;
+        /** @var ?array{context: Context, keepUserData: bool} $captured */
+        $captured = null;
         $this->appLifecycle->method('delete')
-            ->willReturnCallback(static function (string $name, array $config, Context $passed) use (&$context): void {
-                $context = $passed;
+            ->willReturnCallback(static function (string $name, array $config, Context $context, bool $keepUserData) use (&$captured): void {
+                $captured = ['context' => $context, 'keepUserData' => $keepUserData];
             });
 
-        return function () use (&$context): ?Context {
-            return $context;
+        return function () use (&$captured) {
+            return $captured;
         };
     }
 }

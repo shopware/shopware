@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -57,23 +57,21 @@ class UninstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $themeLifecycleHandler = null;
-        if (class_exists(ThemeAppLifecycleHandler::class)) {
-            $themeLifecycleHandler = $this->createMock(ThemeAppLifecycleHandler::class);
-            $themeLifecycleHandler->expects($this->once())
-                ->method('handleUninstall')
-                ->with(
-                    static::callback(static fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())
-                );
-        }
+        $dispatched = [];
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(AppSilentlyUninstalledEvent::class, function (AppSilentlyUninstalledEvent $event) use (&$dispatched): void {
+            $dispatched[] = $event->app->getName();
+        });
 
         $uninstallAppsResolver = new UninstallAppsStrategy(
             static::getContainer()->get('app.repository'),
             $this->shopIdProvider,
-            $themeLifecycleHandler
+            $dispatcher
         );
 
         $uninstallAppsResolver->resolve($this->context);
+
+        static::assertContains($app->getName(), $dispatched);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
 

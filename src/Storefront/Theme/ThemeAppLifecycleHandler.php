@@ -2,10 +2,13 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -33,6 +36,7 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
             AppUpdatedEvent::class => 'handleAppActivationOrUpdate',
             AppActivatedEvent::class => 'handleAppActivationOrUpdate',
             AppDeactivatedEvent::class => 'handleUninstall',
+            AppSilentlyUninstalledEvent::class => 'handleSilentUninstall',
         ];
     }
 
@@ -63,20 +67,30 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
 
     public function handleUninstall(AppDeactivatedEvent $event): void
     {
-        $appName = $event->getApp()->getName();
+        $this->uninstallTheme($event->getApp(), $event->getContext());
+    }
+
+    public function handleSilentUninstall(AppSilentlyUninstalledEvent $event): void
+    {
+        $this->uninstallTheme($event->app, $event->context);
+    }
+
+    private function uninstallTheme(AppEntity $app, Context $context): void
+    {
+        $appName = $app->getName();
         $config = $this->themeRegistry->getConfigurations()->getByTechnicalName($appName);
         $configurationCollection = $this->themeRegistry
             ->getConfigurations()
             ->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $appName);
 
         if (!$config) {
-            $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->getContext(), $configurationCollection);
+            $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
 
             return;
         }
 
-        $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext());
+        $this->themeLifecycleHandler->handleThemeUninstall($config, $context);
 
-        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->getContext(), $configurationCollection);
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
     }
 }

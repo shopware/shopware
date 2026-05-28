@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -112,5 +113,32 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         $app = (new AppEntity())->assign(['name' => 'ComponentTestApp']);
         $handler->handleUninstall(new AppDeactivatedEvent($app, Context::createDefaultContext()));
+    }
+
+    public function testSilentUninstallRunsTheSameThemeCleanupAsHandleUninstall(): void
+    {
+        $config = new StorefrontPluginConfiguration('ComponentTestApp');
+        $configurations = new StorefrontPluginConfigurationCollection([$config]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn($configurations);
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->once())->method('handleThemeUninstall')->with($config, static::isInstanceOf(Context::class));
+        $lifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+
+        $app = (new AppEntity())->assign(['name' => 'ComponentTestApp']);
+        $handler->handleSilentUninstall(new AppSilentlyUninstalledEvent($app, Context::createDefaultContext()));
+    }
+
+    public function testSubscribedEventsIncludesAppSilentlyUninstalledEvent(): void
+    {
+        $events = ThemeAppLifecycleHandler::getSubscribedEvents();
+
+        static::assertArrayHasKey(AppSilentlyUninstalledEvent::class, $events);
+        static::assertSame('handleSilentUninstall', $events[AppSilentlyUninstalledEvent::class]);
     }
 }

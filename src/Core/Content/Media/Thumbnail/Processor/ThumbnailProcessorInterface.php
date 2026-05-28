@@ -6,7 +6,7 @@ use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @experimental stableVersion:v6.8.0
+ * @experimental stableVersion:v6.8.0 feature:THUMBNAIL_PROCESSORS
  */
 #[Package('discovery')]
 interface ThumbnailProcessorInterface

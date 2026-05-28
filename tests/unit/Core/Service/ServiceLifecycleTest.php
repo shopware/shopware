@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Service\AppInfo;
 use Shopware\Core\Service\Event\ServiceInstalledEvent;
 use Shopware\Core\Service\Event\ServiceUpdatedEvent;
@@ -31,8 +30,10 @@ use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceSourceResolver;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -111,6 +112,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository(),
+            new ServiceStorage($this->buildAppRepository()),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -159,6 +161,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository(),
+            new ServiceStorage($this->buildAppRepository()),
             $this->logger,
             $manifestFactory,
             $this->sourceResolver,
@@ -222,6 +225,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->appRepo,
+            new ServiceStorage($this->appRepo),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -237,10 +241,7 @@ class ServiceLifecycleTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService', 'version' => '1.0.0', 'aclRoleId' => Uuid::randomHex()]);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
         /** @var StaticEntityRepository<AppCollection> $appRepo */
         $appRepo = new StaticEntityRepository([
             static function (Criteria $criteria) use ($app) {
@@ -319,6 +320,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $appRepo,
+            new ServiceStorage($appRepo),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -395,6 +397,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository(),
+            new ServiceStorage($this->buildAppRepository()),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -424,6 +427,7 @@ class ServiceLifecycleTest extends TestCase
             $serviceClientFactory,
             $appLifecycle,
             $this->buildAppRepository(),
+            new ServiceStorage($this->buildAppRepository()),
             $logger,
             $manifestFactory,
             $this->sourceResolver,
@@ -437,10 +441,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateLogsErrorIfAppCannotBeDownloaded(): void
     {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService']);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService');
 
         $this->serviceClient->expects($this->once())->method('latestAppInfo')->willThrowException(ServiceException::missingAppVersionInformation('app-version'));
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
@@ -462,6 +463,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository([$app]),
+            new ServiceStorage($this->buildAppRepository([$app])),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -475,10 +477,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateDoesNotPerformUpdateIfNoNewVersionIsAvailable(): void
     {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService', 'version' => '6.6.0.0-a1bcd', 'aclRoleId' => Uuid::randomHex()]);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.6.0.0-a1bcd']);
 
         $this->serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($this->appInfo);
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
@@ -492,6 +491,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository([$app]),
+            new ServiceStorage($this->buildAppRepository([$app])),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -505,10 +505,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateLogsErrorIfAppCannotBeUpdated(): void
     {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService', 'version' => '8.0.0', 'aclRoleId' => Uuid::randomHex()]);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '8.0.0']);
 
         $this->serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($this->appInfo);
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
@@ -542,6 +539,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository([$app]),
+            new ServiceStorage($this->buildAppRepository([$app])),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -555,10 +553,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdate(): void
     {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService', 'version' => '6.0.0', 'aclRoleId' => Uuid::randomHex()]);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.0.0']);
 
         $this->serviceClient->expects($this->once())->method('latestAppInfo')->willReturn($this->appInfo);
         $this->serviceClientFactory->expects($this->once())->method('newFor')->with($this->entry)->willReturn($this->serviceClient);
@@ -608,6 +603,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository([$app]),
+            new ServiceStorage($this->buildAppRepository([$app])),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -648,6 +644,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository(),
+            new ServiceStorage($this->buildAppRepository()),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,
@@ -661,10 +658,7 @@ class ServiceLifecycleTest extends TestCase
 
     public function testUpdateReturnsFalseWhenRequirementsAreInvalid(): void
     {
-        $app = new AppEntity();
-        $app->setId(Uuid::randomHex());
-        $app->setUniqueIdentifier(Uuid::randomHex());
-        $app->assign(['name' => 'MyCoolService', 'version' => '6.0.0', 'aclRoleId' => Uuid::randomHex()]);
+        $app = AppFixture::createAppEntity(name: 'MyCoolService')->assign(['version' => '6.0.0']);
 
         $invalidAppInfo = new AppInfo('MyCoolService', '6.6.0.0', 'a1bcd', '6.6.0.0-a1bcd', 'https://example.com/service/lifecycle/app-zip/6.6.0.0', ['invalid_requirement'], 'sha256', '6.6.0.0');
 
@@ -694,6 +688,7 @@ class ServiceLifecycleTest extends TestCase
             $this->serviceClientFactory,
             $this->appLifecycle,
             $this->buildAppRepository([$app]),
+            new ServiceStorage($this->buildAppRepository([$app])),
             $this->logger,
             $this->manifestFactory,
             $this->sourceResolver,

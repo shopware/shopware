@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -37,7 +38,7 @@ class AppStateServiceTest extends TestCase
             ->method('deactivate')
             ->with($deactivateApp, $context, true);
 
-        $appStateService = new AppStateService($appManager, $appRepository);
+        $appStateService = new AppStateService($appManager, new AppStorage($appRepository));
         $appStateService->activateApp('activate-app-id', $context);
         $appStateService->deactivateApp('deactivate-app-id', $context, true);
     }
@@ -46,7 +47,7 @@ class AppStateServiceTest extends TestCase
     {
         $appStateService = new AppStateService(
             $this->createMock(AppManager::class),
-            AppFixture::createAppRepository(),
+            new AppStorage(AppFixture::createAppRepository()),
         );
 
         $this->expectExceptionObject(AppException::notFound('missing-app-id'));

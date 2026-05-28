@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\Requirement\ServiceRequirement;
 
@@ -40,9 +39,7 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account']);
-
-        static::assertTrue($validator->isSatisfied($app));
+        static::assertTrue($validator->isSatisfied(['service_consent', 'shopware_account']));
     }
 
     public function testIsSatisfiedReturnsFalseWhenAnyNotMet(): void
@@ -52,9 +49,7 @@ class RequirementsValidatorTest extends TestCase
             'shopware_account' => $this->createRequirement(false),
         ]));
 
-        $app = $this->createApp(['service_consent', 'shopware_account']);
-
-        static::assertFalse($validator->isSatisfied($app));
+        static::assertFalse($validator->isSatisfied(['service_consent', 'shopware_account']));
     }
 
     public function testIsSatisfiedReturnsFalseForUnknown(): void
@@ -63,37 +58,7 @@ class RequirementsValidatorTest extends TestCase
             'service_consent' => $this->createRequirement(true),
         ]));
 
-        $app = $this->createApp(['service_consent', 'unknown_requirement']);
-
-        static::assertFalse($validator->isSatisfied($app));
-    }
-
-    /**
-     * @param list<string> $requirements
-     */
-    private function createApp(array $requirements): AppEntity
-    {
-        $sourceConfig = [
-            'version' => '1.0.0',
-            'hash' => 'a453f',
-            'revision' => '1.0.0-a453f',
-            'zip-url' => 'https://example.com/zip',
-            'hash-algorithm' => 'sha256',
-            'min-shop-supported-version' => '6.6.0.0',
-            'requirements' => $requirements,
-        ];
-
-        $app = new AppEntity();
-        $app->assign([
-            'id' => 'app-' . bin2hex(random_bytes(4)),
-            'name' => 'TestApp',
-            'selfManaged' => true,
-            'sourceConfig' => $sourceConfig,
-            'active' => true,
-            'requestedPrivileges' => ['some:privilege'],
-        ]);
-
-        return $app;
+        static::assertFalse($validator->isSatisfied(['service_consent', 'unknown_requirement']));
     }
 
     private function createRequirement(bool $satisfied): ServiceRequirement

@@ -18,7 +18,7 @@ class ActiveAdminAppLoaderTest extends TestCase
     #[TestDox('Returns an empty list when no active admin apps are present')]
     public function testReturnsEmptyListWhenNoRows(): void
     {
-        $loader = new ActiveAdminAppLoader($this->mockConnection([]));
+        $loader = new ActiveAdminAppLoader($this->stubConnection([]));
 
         static::assertSame([], $loader->getActiveAdminApps());
     }
@@ -31,7 +31,7 @@ class ActiveAdminAppLoaderTest extends TestCase
     #[DataProvider('privilegesProvider')]
     public function testPrivilegesNormalization(?string $rawPrivileges, array $expected): void
     {
-        $loader = new ActiveAdminAppLoader($this->mockConnection([
+        $loader = new ActiveAdminAppLoader($this->stubConnection([
             [
                 'name' => 'SomeApp',
                 'active' => 1,
@@ -85,9 +85,9 @@ class ActiveAdminAppLoaderTest extends TestCase
     /**
      * @param list<array{name: string, active: int, integrationId: string, baseUrl: string, version: string, privileges: ?string}> $rows
      */
-    private function mockConnection(array $rows): Connection
+    private function stubConnection(array $rows): Connection
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($rows);
 
         return $connection;

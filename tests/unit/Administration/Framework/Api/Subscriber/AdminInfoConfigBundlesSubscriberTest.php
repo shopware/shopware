@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Administration\Framework\Api\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber;
 use Shopware\Administration\Framework\App\ActiveAdminAppLoader;
@@ -44,7 +44,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     {
         $bundle = new BundleFixture('AcmeBundle', '/tmp/AcmeBundle');
 
-        $viteAccessor = $this->createMock(ViteFileAccessorDecorator::class);
+        $viteAccessor = static::createStub(ViteFileAccessorDecorator::class);
         $viteAccessor->method('getBundleData')->willReturn([
             'entryPoints' => [
                 'acme-bundle' => [
@@ -83,7 +83,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     {
         $bundle = new BundleFixture('AcmeBundle', '/tmp/AcmeBundle');
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn(true);
 
         $router = $this->createMock(RouterInterface::class);
@@ -102,7 +102,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     {
         $bundle = new BundleFixture('AcmeBundle', '/tmp/AcmeBundle');
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn(false);
 
         $bundles = $this->collectBundles(new StubKernel([$bundle]), filesystem: $filesystem);
@@ -115,10 +115,10 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     {
         $bundle = new BundleFixture('AcmeBundle', '/tmp/AcmeBundle');
 
-        $filesystem = $this->createMock(Filesystem::class);
+        $filesystem = static::createStub(Filesystem::class);
         $filesystem->method('exists')->willReturn(true);
 
-        $router = $this->createMock(RouterInterface::class);
+        $router = static::createStub(RouterInterface::class);
         $router->method('generate')->willThrowException(new \RuntimeException('no admin route'));
 
         $bundles = $this->collectBundles(new StubKernel([$bundle]), router: $router, filesystem: $filesystem);
@@ -130,7 +130,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
     #[TestDox('Active admin apps from the loader are merged into the bundles array')]
     public function testIncludesActiveAdminApps(): void
     {
-        $loader = $this->createMock(ActiveAdminAppLoader::class);
+        $loader = static::createStub(ActiveAdminAppLoader::class);
         $loader->method('getActiveAdminApps')->willReturn([
             [
                 'name' => 'AcmeApp',
@@ -184,7 +184,7 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
 
         $subscriber = new AdminInfoConfigBundlesSubscriber(
             $kernel,
-            $router ?? $this->createMock(RouterInterface::class),
+            $router ?? static::createStub(RouterInterface::class),
             $loader,
             $filesystem ?? new Filesystem(),
             $viteAccessor,
@@ -196,17 +196,17 @@ class AdminInfoConfigBundlesSubscriberTest extends TestCase
         return $event;
     }
 
-    private function emptyLoader(): ActiveAdminAppLoader&MockObject
+    private function emptyLoader(): ActiveAdminAppLoader&Stub
     {
-        $loader = $this->createMock(ActiveAdminAppLoader::class);
+        $loader = static::createStub(ActiveAdminAppLoader::class);
         $loader->method('getActiveAdminApps')->willReturn([]);
 
         return $loader;
     }
 
-    private function emptyViteAccessor(): ViteFileAccessorDecorator&MockObject
+    private function emptyViteAccessor(): ViteFileAccessorDecorator&Stub
     {
-        $vite = $this->createMock(ViteFileAccessorDecorator::class);
+        $vite = static::createStub(ViteFileAccessorDecorator::class);
         $vite->method('getBundleData')->willReturn(['entryPoints' => []]);
 
         return $vite;

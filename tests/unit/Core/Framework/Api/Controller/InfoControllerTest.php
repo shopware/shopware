@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -43,9 +44,9 @@ class InfoControllerTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StatsService&MockObject $statsService;
+    private StatsService&Stub $statsService;
 
-    private MigrationInfo&MockObject $migrationInfo;
+    private MigrationInfo&Stub $migrationInfo;
 
     private EventDispatcher $eventDispatcher;
 
@@ -53,8 +54,8 @@ class InfoControllerTest extends TestCase
     {
         parent::setUp();
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->statsService = $this->createMock(StatsService::class);
-        $this->migrationInfo = $this->createMock(MigrationInfo::class);
+        $this->statsService = static::createStub(StatsService::class);
+        $this->migrationInfo = static::createStub(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
@@ -235,15 +236,15 @@ class InfoControllerTest extends TestCase
         ]);
 
         return new InfoController(
-            $this->createMock(DefinitionService::class),
+            static::createStub(DefinitionService::class),
             $parameterBag,
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(IncrementGatewayRegistry::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(IncrementGatewayRegistry::class),
             $this->migrationInfo,
-            $this->createMock(AppUrlVerifier::class),
-            $this->createMock(FlowActionCollector::class),
+            static::createStub(AppUrlVerifier::class),
+            static::createStub(FlowActionCollector::class),
             new StaticSystemConfigService(),
-            $this->createMock(ApiRouteInfoResolver::class),
+            static::createStub(ApiRouteInfoResolver::class),
             StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
             $this->shopIdProvider,
             $this->statsService,

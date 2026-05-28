@@ -34,12 +34,6 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
-## StorefrontRenderEvent registration moved to Storefront
-
-The `StorefrontRenderEvent` listener that re-dispatches route- and scope-prefixed render events is now registered by `Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber` instead of `Shopware\Core\Framework\Routing\RouteEventSubscriber`. This removes the soft cross-package dependency in Core (the previous `class_exists(StorefrontRenderEvent::class)` guard).
-
-Behaviour is unchanged — the same `<route>.render` and `<scope>.scope.render` events are dispatched with the same listener priority. No action is required unless your code subclassed `RouteEventSubscriber` and relied on its `render()` method, in which case migrate the override to the new Storefront subscriber.
-
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.

@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -21,11 +20,6 @@ readonly class StorefrontRouteEventSubscriber implements EventSubscriberInterfac
 
     public static function getSubscribedEvents(): array
     {
-        // @deprecated tag:v6.8.0 - drop this gate (always register) when v6.8.0.0 becomes default; Core's RouteEventSubscriber owns the registration until then
-        if (!Feature::isActive('v6.8.0.0')) {
-            return [];
-        }
-
         return [
             StorefrontRenderEvent::class => ['render', -10],
         ];

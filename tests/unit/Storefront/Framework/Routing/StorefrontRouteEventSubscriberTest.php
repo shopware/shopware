@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber;
@@ -18,18 +17,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(StorefrontRouteEventSubscriber::class)]
 class StorefrontRouteEventSubscriberTest extends TestCase
 {
-    #[TestDox('Subscription is gated on v6.8.0.0 — empty without the flag, registers StorefrontRenderEvent with it')]
-    public function testSubscriptionGatedByFeatureFlag(): void
+    #[TestDox('Subscribed events register StorefrontRenderEvent at priority -10')]
+    public function testStorefrontRenderEventIsRegistered(): void
     {
-        Feature::fake([], static function (): void {
-            static::assertSame([], StorefrontRouteEventSubscriber::getSubscribedEvents());
-        });
+        $events = StorefrontRouteEventSubscriber::getSubscribedEvents();
 
-        Feature::fake(['v6.8.0.0'], static function (): void {
-            $events = StorefrontRouteEventSubscriber::getSubscribedEvents();
-            static::assertArrayHasKey(StorefrontRenderEvent::class, $events);
-            static::assertSame(['render', -10], $events[StorefrontRenderEvent::class]);
-        });
+        static::assertArrayHasKey(StorefrontRenderEvent::class, $events);
+        static::assertSame(['render', -10], $events[StorefrontRenderEvent::class]);
     }
 
     #[TestDox('render() re-dispatches the event under the route-name and per-scope prefixed names')]

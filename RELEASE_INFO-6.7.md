@@ -28,6 +28,10 @@ Admin-search autocomplete now flows through a new `completion` field (ngram-inde
 
 Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
 
+### StorefrontRenderEvent listener moved to Storefront
+
+The internal `StorefrontRenderEvent` re-dispatch listener (which emits `<route>.render` and `<scope>.scope.render` events) has moved from `Shopware\Core\Framework\Routing\RouteEventSubscriber` to a new `Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber`, removing a cross-package soft dependency in Core (the previous `class_exists(StorefrontRenderEvent::class)` guard). Both subscribers are internal and the dispatched events are unchanged.
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework

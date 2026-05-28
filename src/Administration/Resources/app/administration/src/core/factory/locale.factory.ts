@@ -145,7 +145,9 @@ function setSystemFallbackLocale(localeName: string | null): string | null {
 }
 
 /**
- * Checks if the {@link localStorage} has an item associated to the {@link localStorageKey} key.
+ * Resolves the locale for the administration.
+ * Prefers the stored admin locale, then a supported browser locale,
+ * then English, and finally the system default locale if English is not available.
  */
 function getLastKnownLocale(): string {
     if (window.localStorage.getItem(localStorageKey) !== null) {

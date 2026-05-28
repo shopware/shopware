@@ -28,6 +28,19 @@ Admin-search autocomplete now flows through a new `completion` field (ngram-inde
 
 Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
 
+### Telemetry metrics evolution
+
+The telemetry metrics abstraction behind the `TELEMETRY_METRICS` feature flag received several improvements ahead of stabilization in 6.8.
+See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the full reasoning.
+
+- **Breaking**: `MetricTransportInterface` now requires a `flush()` method. Implement it as a no-op if the transport does not need lifecycle management. A new `TelemetryFlushListener` calls `flush()` on `kernel.terminate`, `console.terminate`, and (throttled) on `WorkerRunningEvent` so emissions from long-running workers reach the backend.
+- Global kill-switch `shopware.telemetry.metrics.enabled` disables emission and removes services tagged `shopware.telemetry.subscriber` / `shopware.telemetry.periodic_metric_collector` via a compiler pass — zero overhead when off.
+- Per-label validation policies: each label in a metric definition must declare either `allowed_values` or `policy: open`. Unknown values are handled per `policy` (`replace` / `discard` / `open`), with type-aware defaults (additive types replace, gauges discard). Unknown label names throw in dev/test and log at error level in production; replacements log at notice level in dev/test so typos like `GETT` vs `GET` surface during development.
+- `PeriodicMetricCollectorInterface`: tag a service with `shopware.telemetry.periodic_metric_collector` to have its metrics collected by the `telemetry.collect_periodic_metrics` scheduled task (default 5 minutes, tunable via the standard scheduled-task administration). Useful for expensive aggregations and info metrics.
+- New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
+- Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
+
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework
@@ -172,18 +185,6 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 ### New `sha256` Twig filter
 
 A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
-
-### Telemetry metrics evolution
-
-The telemetry metrics abstraction behind the `TELEMETRY_METRICS` feature flag received several improvements ahead of stabilization in 6.8.
-See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the full reasoning.
-
-- **Breaking**: `MetricTransportInterface` now requires a `flush()` method. Implement it as a no-op if the transport does not need lifecycle management. A new `TelemetryFlushListener` calls `flush()` on `kernel.terminate`, `console.terminate`, and (throttled) on `WorkerRunningEvent` so emissions from long-running workers reach the backend.
-- Global kill-switch `shopware.telemetry.metrics.enabled` disables emission and removes services tagged `shopware.telemetry.subscriber` / `shopware.telemetry.periodic_metric_collector` via a compiler pass — zero overhead when off.
-- Per-label validation policies: each label in a metric definition must declare either `allowed_values` or `policy: open`. Unknown values are handled per `policy` (`replace` / `discard` / `open`), with type-aware defaults (additive types replace, gauges discard). Unknown label names throw in dev/test and log at error level in production; replacements log at notice level in dev/test so typos like `GETT` vs `GET` surface during development.
-- `PeriodicMetricCollectorInterface`: tag a service with `shopware.telemetry.periodic_metric_collector` to have its metrics collected by the `telemetry.collect_periodic_metrics` scheduled task (default 5 minutes, tunable via the standard scheduled-task administration). Useful for expensive aggregations and info metrics.
-- New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
-- Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
 
 ## Administration
 

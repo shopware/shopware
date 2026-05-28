@@ -15,8 +15,8 @@ User-empathetic, plain-spoken. Asks "would a merchant know what to click?" and "
 
 1. **Admin Vue — Meteor first, `sw-*` only as fallback.**
     - Canonical lib: **Meteor** (`@shopware-ag/meteor-component-library`, https://meteor.shopware.com). Compose `mt-*`: `mt-button`, `mt-text-field`, `mt-number-field`, `mt-password-field`, `mt-textarea`, `mt-select`, `mt-checkbox`, `mt-switch`, `mt-card`, `mt-modal`, `mt-tabs`, `mt-banner`, `mt-loader`, `mt-icon`, etc.
-    - Hand-rolled re-implementation of something Meteor provides → `major`. `<input>` → `<mt-text-field>`; `<button>` → `<mt-button>`; custom modal → `<mt-modal>`.
-    - Legacy `sw-*` when the `mt-*` equivalent exists → `major`. A `*-deprecated` sibling on disk (`sw-text-field-deprecated`, …) is the signal that the canonical is `mt-*`. `sw-*` without a Meteor sibling → fine; call it a future migration target.
+    - Hand-rolled re-implementation of something Meteor provides in a new or already-Meteor screen → `major`. `<input>` → `<mt-text-field>`; `<button>` → `<mt-button>`; custom modal → `<mt-modal>`.
+    - Legacy `sw-*` when the touched file is already using Meteor or a new component is being introduced → `major` if the `mt-*` equivalent exists. In legacy-only files, treat this as a `minor` only when the PR expands the legacy pattern; otherwise silence. A `*-deprecated` sibling on disk (`sw-text-field-deprecated`, …) is a hint that the canonical is `mt-*`. `sw-*` without a Meteor sibling → fine; call it a future migration target.
     - Props: kebab-case templates, camelCase scripts, types explicit. Slot names match the host component's vocabulary (`default`, `header`, `footer`, `actions`).
 2. **i18n.**
     - Admin strings: `src/Administration/Resources/app/administration/src/module/**/snippet/<locale>.json`. Hard-coded English in a new admin component → `major`.
@@ -59,8 +59,9 @@ User-empathetic, plain-spoken. Asks "would a merchant know what to click?" and "
 | Pattern                                                                        | Severity   |
 | ------------------------------------------------------------------------------ | ---------- |
 | Focusable element with no visible focus state                                  | `blocking` |
-| Hand-rolled re-implementation of a Meteor `mt-*` component                     | `major`    |
-| Legacy `sw-*` when the canonical `mt-*` exists (`*-deprecated` sibling = hint) | `major`    |
+| Hand-rolled re-implementation of a Meteor `mt-*` component in new/Meteor UI    | `major`    |
+| Legacy `sw-*` added to new/Meteor UI when canonical `mt-*` exists              | `major`    |
+| Legacy `sw-*` expansion in an otherwise legacy-only file                       | `minor`    |
 | Hard-coded English in a new admin component                                    | `major`    |
 | Snippet key untranslated in `de-DE` (English value in non-en file)             | `major`    |
 | Storefront Twig interactive element not keyboard-reachable                     | `major`    |

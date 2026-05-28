@@ -101,11 +101,9 @@
       }
     },
     "PerPersonaFinding": {
-      "allOf": [{ "$ref": "#/$defs/BaseFinding" }],
-      "additionalProperties": false
+      "$ref": "#/$defs/BaseFinding"
     },
     "MergedFinding": {
-      "allOf": [{ "$ref": "#/$defs/BaseFinding" }],
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -130,16 +128,44 @@
           "uniqueItems": true,
           "description": "Other personas that raised the same (file, line, normalised claim). Sorted alphabetically. Empty when only one persona raised the finding."
         },
-        "severity": true,
-        "category": true,
-        "file": true,
-        "line": true,
-        "claim": true,
-        "evidence": true,
-        "impact": true,
-        "suggested_fix": true,
-        "confidence": true,
-        "requires_human": true
+        "severity": { "$ref": "#/$defs/Severity" },
+        "category": { "$ref": "#/$defs/Category" },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repo-relative path that appears in the PR diff."
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-indexed line in the post-change file (right-hand side of the diff)."
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 280
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Verbatim quote from the diff or shell output. Never paraphrased."
+        },
+        "impact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 280
+        },
+        "suggested_fix": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "confidence": { "$ref": "#/$defs/Confidence" },
+        "requires_human": {
+          "type": "boolean",
+          "description": "True only when a human reviewer must validate before merge."
+        }
       }
     },
     "PerPersonaReview": {
@@ -233,6 +259,10 @@
         },
         "risk_level": { "$ref": "#/$defs/RiskLevel" },
         "decision": { "$ref": "#/$defs/Decision" },
+        "requires_human": {
+          "type": "boolean",
+          "description": "True iff any merged finding has requires_human: true."
+        },
         "persona_summaries": {
           "type": "object",
           "description": "Map from persona slug to that persona-worker's `summary` text.",

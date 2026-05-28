@@ -113,7 +113,7 @@ Orchestrator never invents content — kept findings come verbatim from a worker
 
 ---
 
-## Wrapper-fed input shape (`<input_json>`)
+## Wrapper-fed input shape (`<input_json>` or `<input_json_${NONCE}>`)
 
 ```json
 {
@@ -134,6 +134,22 @@ Orchestrator never invents content — kept findings come verbatim from a worker
         "deletions": 8,
         "changed_files": 5
     },
+    "commits": [
+        {
+            "sha": "abc123def",
+            "message": "fix: correct checkout rounding",
+            "verification": { "verified": true, "reason": "valid" }
+        }
+    ],
+    "linked_issues": [
+        {
+            "number": 12345,
+            "title": "Checkout rounds tax incorrectly",
+            "body": "…",
+            "state": "open",
+            "labels": ["domain/checkout"]
+        }
+    ],
     "diff": "…",
     "diff_path": "/tmp/review-abc123-a8f3.diff",
     "files": ["src/Core/…"]
@@ -151,6 +167,8 @@ Orchestrator never invents content — kept findings come verbatim from a worker
 | `pr.author`, `pr.author_association`               | May be `null` (local-diff). Workers must guard for `null`.                       |
 | `pr.base_ref_name`, `pr.head_ref_name`             | Branch names.                                                                    |
 | `pr.additions`, `pr.deletions`, `pr.changed_files` | Integers; used by size-cap throttle (`SKILL.md` §Step 2a).                       |
+| `commits`                                          | Optional commit metadata for `open-source`. If absent, commit-hygiene checks are unavailable and must be declared in the summary. |
+| `linked_issues`                                    | Optional issue bodies for `fixes #N` checks. If absent, workers may check for regression tests but must not claim the root cause was missed. |
 | `diff` or `diff_path`                              | Exactly one. `diff_path` when oversize.                                          |
 | `files`                                            | Repo-relative paths in the diff.                                                 |
 

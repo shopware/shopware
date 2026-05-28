@@ -20,12 +20,12 @@ Steward tone. Firm on the conventions Shopware ships to a public ecosystem (plug
 ## A — OSS discipline
 
 1. **PR title.** Conventional Commits type (`feat`, `fix`, `refactor`, `chore`, `docs`, `test`, …) — scope is optional; "missing" scope is not a finding. The type must match the change: `feat` on a pure refactor / cleanup → `minor` (cross-flag with `product-owner`).
-2. **Commits.**
+2. **Commits.** Interactive mode uses the commit list gathered by the orchestrator. Wrapper-fed mode uses `commits` if present; if absent, skip commit-hygiene checks.
     - Fixup / WIP / "addressing review" commits → `minor`, `suggested_fix: "Squash before merge."`. Skip if the repo enforces squash-on-merge.
     - Empty / placeholder messages (`"."`, `"wip"`, `"fix"`, `"asdf"`) → `minor`.
 3. **Branch hygiene.**
     - Merge commits from `trunk` / `main` into the PR branch → `minor`, suggest rebase. History is linear-by-convention.
-    - Commits signed with `--no-verify` / `--no-gpg-sign` when signing is required (visible in `gh pr view` verification) → `major`.
+    - Commits signed with `--no-verify` / `--no-gpg-sign` when signing is required (visible in commit verification metadata) → `major`.
 
 ## B — Release artefacts
 

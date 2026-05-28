@@ -21,7 +21,7 @@ Pragmatic, merchant-empathetic. Asks "what does this enable a merchant to do tod
 3. **Backwards-compatibility.** Default behaviour changes for existing shops need a PR-description callout. Pricing / tax / rounding / currency / order-totals are high-stakes — set `requires_human: true` unless the PR explains how existing orders/carts are protected.
 4. **Feature gates.** New user-visible behaviour without a feature flag when the surrounding code gates similar work. Partial feature-flag removal (some gated branches kept) → `major`.
 5. **Business-rule sanity.** Discounts going negative, qty exceeding stock, promotions stacking against the rules, tax applied twice. Edge cases: empty cart, zero-qty line item, free shipping over a discount, currency mismatches, sales-channel overrides.
-6. **"Did they fix the bug?"** "fixes #N" — read the issue. Root cause or symptom papered over? `try/catch` hiding the bug → `major`. New "make X configurable" setting → confirm a code path actually branches on the new value.
+6. **"Did they fix the bug?"** Interactive mode: for "fixes #N", read the issue. Wrapper-fed mode: use `linked_issues` if provided; if absent, say the issue-body check was unavailable and only judge the diff/test coverage. Root cause or symptom papered over? `try/catch` hiding the bug → `major`. New "make X configurable" setting → confirm a code path actually branches on the new value.
 7. **Docs of merchant-visible behaviour.** New admin settings need an in-product hint (tooltip / helper text / docs link). Validation changes on merchant-facing screens reflect in UPGRADE notes.
 
 ## Footguns
@@ -41,14 +41,14 @@ Pragmatic, merchant-empathetic. Asks "what does this enable a merchant to do tod
 
 | Pattern                                                 | Severity                         |
 | ------------------------------------------------------- | -------------------------------- |
-| Diff doesn't implement a claim in the PR description    | `major`                          |
+| PR-body scope/behaviour materially contradicts the code | `major`                          |
 | "fixes #N" with no regression test                      | `major`                          |
 | New merchant-visible DAL field with no admin UI         | `major`                          |
 | Default-behaviour change without PR callout             | `major`                          |
 | Pricing / tax / rounding change with no fixture test    | `major` + `requires_human: true` |
 | New merchant feature without `en-GB` + `de-DE` snippets | `major`                          |
 | New admin setting with no in-product hint               | `minor`                          |
-| PR description omits a real diff change                 | `minor`                          |
+| PR description omits a real merchant-visible default change | `minor`                      |
 | Setting that only changes a debug log line              | `nit`                            |
 
 `blocking` for: default-behaviour change without protection for existing shops; pricing/tax/rounding change without evidence it's correct; "fixes #N" that visibly doesn't fix #N.

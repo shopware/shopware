@@ -145,6 +145,14 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
+## Removed stored `mail_template_type.templateData`
+
+The deprecated `templateData` field on `mail_template_type` was removed.
+Do not read or write stored template data on mail template types anymore.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` are still supported and are not part of this removal.
+
 ## Number range value generator interface removed
 
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.

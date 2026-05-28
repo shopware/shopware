@@ -13,6 +13,14 @@ The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
 
 ## Core
 
+### Stored mail template type data deprecated
+
+The persisted `mail_template_type.templateData` field is deprecated and will be removed in Shopware 6.8.
+It was only used as stored preview data and is no longer needed after the mail template preview refactoring.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` remain supported and are not part of this deprecation.
+
 ### Number range value generator interface deprecated
 
 `NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.

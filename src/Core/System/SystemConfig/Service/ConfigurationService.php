@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\UtilException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
@@ -79,26 +80,26 @@ class ConfigurationService
                         continue;
                     }
 
-                    $fields = [];
+                    $elements = [];
 
-                    foreach ($card['elements'] ?? [] as $field) {
-                        if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
+                    foreach ($card['elements'] ?? [] as $element) {
+                        if (\array_key_exists('flag', $element) && !Feature::isActive($element['flag'])) {
                             continue;
                         }
 
-                        $config = $field;
+                        $config = $element;
 
                         unset($config['name'], $config['type']);
 
-                        $fields[] = [
-                            'name' => $domain . $field['name'],
-                            'config' => $config,
-                            'type' => $field['type'] ?? null,
-                        ];
+                        $elements[] = new SystemConfigElement(
+                            $domain . $element['name'],
+                            $config,
+                            $element['type'] ?? null
+                        );
                     }
 
                     $cards[] = new SystemConfigCard(
-                        $fields,
+                        $elements,
                         $card['title'] ?? [],
                         $card['name'] ?? null
                     );
@@ -257,10 +258,10 @@ class ConfigurationService
             foreach ($config as $tab) {
                 foreach ($tab->cards as $card) {
                     foreach ($card->elements as $element) {
-                        $element['value'] = $this->systemConfigService->get(
-                            $element['name'],
+                        $element->value = $this->systemConfigService->get(
+                            $element->name,
                             $salesChannelId
-                        ) ?? $element['config']['defaultValue'] ?? '';
+                        ) ?? $element->config['defaultValue'] ?? '';
                     }
                 }
             }

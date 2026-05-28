@@ -88,11 +88,11 @@ class SystemConfigValidator
             foreach ($formConfig as $tab) {
                 foreach ($tab->cards as $card) {
                     foreach ($card->elements as $element) {
-                        if (!\in_array($element['name'], $inputConfigKeys, true)) {
+                        if (!\in_array($element->name, $inputConfigKeys, true)) {
                             continue;
                         }
 
-                        $constraints[$element['name']] = $this->buildConstraintsWithConfigs($element['config'], $allowNulls);
+                        $constraints[$element->name] = $this->buildConstraintsWithConfigs($element->config, $allowNulls);
                     }
                 }
             }

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 class SystemConfigCard
 {
     /**
-     * @param list<array<string, mixed>> $elements
+     * @param list<SystemConfigElement> $elements
      * @param array<string, string|null> $title
      */
     public function __construct(

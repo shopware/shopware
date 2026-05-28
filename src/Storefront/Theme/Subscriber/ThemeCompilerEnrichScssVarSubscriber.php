@@ -7,6 +7,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -75,7 +76,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
                             continue;
                         }
 
-                        $event->addVariable($element['config']['css'], $element['value'] ?? $element['defaultValue']);
+                        $event->addVariable($element->config['css'], $element->value ?? $element->config['defaultValue']);
                     }
                 }
             }
@@ -98,8 +99,24 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $element will be of type `SystemConfigElement`
+     */
     private function hasCssValue(mixed $element): bool
     {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            /** @var SystemConfigElement $element */
+            if (!isset($element->config['css'])) {
+                return false;
+            }
+
+            if (!\is_string($element->value ?? $element->config['defaultValue'])) {
+                return false;
+            }
+
+            return true;
+        }
+
         if (!\is_array($element)) {
             return false;
         }

@@ -21,7 +21,7 @@ class AllServiceInstaller
     public function __construct(
         private readonly Client $serviceRegistryClient,
         private readonly ServiceLifecycle $serviceLifecycle,
-        private readonly ServiceRepository $serviceRepository,
+        private readonly ServiceStorage $serviceStorage,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
@@ -35,7 +35,7 @@ class AllServiceInstaller
      */
     public function install(Context $context): array
     {
-        $existingServices = $this->serviceRepository->findAll($context);
+        $existingServices = $this->serviceStorage->findAll($context);
 
         $installedServices = [];
         $newServices = $this->getNewServices($existingServices);

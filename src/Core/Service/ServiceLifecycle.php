@@ -39,7 +39,7 @@ class ServiceLifecycle
         private readonly ServiceClientFactory $serviceClientFactory,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
-        private readonly ServiceRepository $serviceRepository,
+        private readonly ServiceStorage $serviceStorage,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ServiceSourceResolver $sourceResolver,
@@ -105,7 +105,7 @@ class ServiceLifecycle
     {
         $serviceEntry = $this->serviceRegistryClient->get($serviceName);
 
-        $service = $this->serviceRepository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);

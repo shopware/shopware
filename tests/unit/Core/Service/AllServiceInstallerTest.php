@@ -12,7 +12,7 @@ use Shopware\Core\Service\Message\InstallServicesMessage;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
-use Shopware\Core\Service\ServiceRepository;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +35,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository()),
+            new ServiceStorage($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher
         );
@@ -77,7 +77,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository([$app1])),
+            new ServiceStorage($this->buildAppRepository([$app1])),
             $messageBus,
             $eventDispatcher
         );
@@ -115,7 +115,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository([$app1, $app2])),
+            new ServiceStorage($this->buildAppRepository([$app1, $app2])),
             $messageBus,
             $eventDispatcher,
         );
@@ -145,7 +145,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository()),
+            new ServiceStorage($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher
         );
@@ -171,7 +171,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository()),
+            new ServiceStorage($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );
@@ -198,7 +198,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository()),
+            new ServiceStorage($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );
@@ -236,7 +236,7 @@ class AllServiceInstallerTest extends TestCase
         $serviceInstaller = new AllServiceInstaller(
             $serviceRegistryClient,
             $serviceLifeCycle,
-            new ServiceRepository($this->buildAppRepository()),
+            new ServiceStorage($this->buildAppRepository()),
             $messageBus,
             $eventDispatcher,
         );

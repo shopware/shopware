@@ -9,16 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Repository for app-domain code.
+ * Storage facade for app-domain code.
  *
- * Keep app lookups behind this repository.
+ * Keep app lookups behind this storage.
  * Injecting the low-level DAL repository service (`app.repository`) should be a last resort for
  * cases that genuinely need low-level behavior this facade intentionally does not expose.
  *
  * @internal
  */
 #[Package('framework')]
-class AppRepository
+class AppStorage
 {
     /**
      * @param EntityRepository<AppCollection> $repository

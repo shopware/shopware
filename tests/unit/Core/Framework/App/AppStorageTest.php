@@ -5,15 +5,15 @@ namespace Shopware\Tests\Unit\Core\Framework\App;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppRepository;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
  */
-#[CoversClass(AppRepository::class)]
-class AppRepositoryTest extends TestCase
+#[CoversClass(AppStorage::class)]
+class AppStorageTest extends TestCase
 {
     public function testFindById(): void
     {
@@ -21,7 +21,7 @@ class AppRepositoryTest extends TestCase
         /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([[$app]]);
 
-        static::assertSame($app, (new AppRepository($repository))->findById('app-id', Context::createDefaultContext()));
+        static::assertSame($app, (new AppStorage($repository))->findById('app-id', Context::createDefaultContext()));
     }
 
     public function testFindByName(): void
@@ -30,7 +30,7 @@ class AppRepositoryTest extends TestCase
         /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([[$app]]);
 
-        static::assertSame($app, (new AppRepository($repository))->findByName('SwagTest', Context::createDefaultContext()));
+        static::assertSame($app, (new AppStorage($repository))->findByName('SwagTest', Context::createDefaultContext()));
     }
 
     public function testReturnsNullIfAppDoesNotExist(): void
@@ -40,9 +40,9 @@ class AppRepositoryTest extends TestCase
             [],
             [],
         ]);
-        $appRepository = new AppRepository($repository);
+        $appStorage = new AppStorage($repository);
 
-        static::assertNull($appRepository->findById('missing-id', Context::createDefaultContext()));
-        static::assertNull($appRepository->findByName('missing-name', Context::createDefaultContext()));
+        static::assertNull($appStorage->findById('missing-id', Context::createDefaultContext()));
+        static::assertNull($appStorage->findByName('missing-name', Context::createDefaultContext()));
     }
 }

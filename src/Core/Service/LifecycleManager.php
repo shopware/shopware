@@ -37,7 +37,7 @@ class LifecycleManager
         private readonly string $appEnv,
         private readonly Privileges $privileges,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ServiceRepository $repository,
+        private readonly ServiceStorage $serviceStorage,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
@@ -62,12 +62,12 @@ class LifecycleManager
 
     public function sync(Context $context): void
     {
-        $this->removeOrphanedServices($this->repository->findAll($context), $context);
+        $this->removeOrphanedServices($this->serviceStorage->findAll($context), $context);
     }
 
     public function syncState(string $serviceName, Context $context): void
     {
-        $service = $this->repository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
         if ($service === null) {
             throw ServiceException::serviceNotInstalled($serviceName);
         }
@@ -90,7 +90,7 @@ class LifecycleManager
      */
     public function syncRequirement(string $requirementName, Context $context): void
     {
-        foreach ($this->repository->findAll($context) as $service) {
+        foreach ($this->serviceStorage->findAll($context) as $service) {
             if (\in_array($requirementName, $service->requirements, true)) {
                 $this->syncPrivileges($service, $context);
             }
@@ -113,7 +113,7 @@ class LifecycleManager
      */
     public function disable(Context $context): void
     {
-        foreach ($this->repository->findAll($context) as $service) {
+        foreach ($this->serviceStorage->findAll($context) as $service) {
             $this->appLifecycle->delete($service->name, ['id' => $service->id], $context);
         }
 

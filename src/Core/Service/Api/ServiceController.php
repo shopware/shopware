@@ -15,7 +15,7 @@ use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
-use Shopware\Core\Service\ServiceRepository;
+use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +30,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ServiceController
 {
     public function __construct(
-        private readonly ServiceRepository $serviceRepository,
+        private readonly ServiceStorage $serviceStorage,
         private readonly MessageBusInterface $messageBus,
         private readonly AppStateService $appStateService,
         private readonly AbstractAppLifecycle $appLifecycle,
@@ -71,7 +71,7 @@ class ServiceController
     {
         $this->extractIntegrationIdOrFail($context);
 
-        $service = $this->serviceRepository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
@@ -99,7 +99,7 @@ class ServiceController
     {
         $this->extractIntegrationIdOrFail($context);
 
-        $service = $this->serviceRepository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
@@ -126,7 +126,7 @@ class ServiceController
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
         $this->extractIntegrationIdOrFail($context);
-        $service = $this->serviceRepository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
@@ -196,7 +196,7 @@ class ServiceController
     )]
     public function categorizedPermissions(string $serviceName, Context $context): Response
     {
-        $service = $this->serviceRepository->findByName($serviceName, $context);
+        $service = $this->serviceStorage->findByName($serviceName, $context);
 
         if ($service === null) {
             throw ServiceException::notFound('name', $serviceName);
@@ -226,7 +226,7 @@ class ServiceController
             'state' => $service->state->value,
             'domains' => $service->domains,
             'requirements' => $service->requirements,
-        ], $this->serviceRepository->findAll($context));
+        ], $this->serviceStorage->findAll($context));
     }
 
     private function loadService(Context $context): ?Service
@@ -234,7 +234,7 @@ class ServiceController
         $source = $context->getSource();
         \assert($source instanceof AdminApiSource);
 
-        return $this->serviceRepository->findByIntegrationId((string) $source->getIntegrationId(), $context);
+        return $this->serviceStorage->findByIntegrationId((string) $source->getIntegrationId(), $context);
     }
 
     private function extractIntegrationIdOrFail(Context $context): string

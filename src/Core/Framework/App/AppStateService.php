@@ -14,7 +14,7 @@ class AppStateService
 {
     public function __construct(
         private readonly AppManager $appManager,
-        private readonly AppRepository $appRepository,
+        private readonly AppStorage $appStorage,
     ) {
     }
 
@@ -30,7 +30,7 @@ class AppStateService
 
     private function loadApp(string $appId, Context $context): AppEntity
     {
-        $app = $this->appRepository->findById($appId, $context);
+        $app = $this->appStorage->findById($appId, $context);
         if (!$app instanceof AppEntity) {
             throw AppException::notFound($appId);
         }

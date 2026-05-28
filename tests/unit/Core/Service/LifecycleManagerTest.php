@@ -18,7 +18,7 @@ use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
-use Shopware\Core\Service\ServiceRepository;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -290,7 +290,7 @@ class LifecycleManagerTest extends TestCase
             $appEnv,
             $this->createMock(Privileges::class),
             new StaticSystemConfigService($systemConfig),
-            new ServiceRepository($this->createAppRepository()),
+            new ServiceStorage($this->createAppRepository()),
             $this->createMock(AppLifecycle::class),
             $this->createMock(AllServiceInstaller::class),
             $this->createMock(PermissionsService::class),
@@ -365,7 +365,7 @@ class LifecycleManagerTest extends TestCase
             'prod',
             $this->privileges,
             $this->systemConfigService,
-            new ServiceRepository($repository),
+            new ServiceStorage($repository),
             $this->appLifecycle,
             $this->serviceInstaller,
             $this->permissionsService,

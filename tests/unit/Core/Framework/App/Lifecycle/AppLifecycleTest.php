@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppRepository;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -32,7 +32,7 @@ class AppLifecycleTest extends TestCase
             ->method('install')
             ->with($manifest, $parameters, $context);
 
-        $appLifecycle = new AppLifecycle($appManager, new AppRepository(AppFixture::createAppRepository()));
+        $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository()));
 
         $appLifecycle->install($manifest, $parameters, $context);
     }
@@ -49,7 +49,7 @@ class AppLifecycleTest extends TestCase
             ->method('update')
             ->with($manifest, $parameters, $app, $context);
 
-        $appLifecycle = new AppLifecycle($appManager, new AppRepository(AppFixture::createAppRepository($app)));
+        $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository($app)));
 
         $appLifecycle->update($manifest, $parameters, ['id' => 'app-id', 'roleId' => 'role-id'], $context);
     }
@@ -64,14 +64,14 @@ class AppLifecycleTest extends TestCase
             ->method('delete')
             ->with($app, $context, true);
 
-        $appLifecycle = new AppLifecycle($appManager, new AppRepository(AppFixture::createAppRepository($app)));
+        $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository($app)));
 
         $appLifecycle->delete('test', ['id' => 'app-id'], $context, true);
     }
 
     public function testUpdateThrowsWhenAppDoesNotExist(): void
     {
-        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), new AppRepository(AppFixture::createAppRepository()));
+        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), new AppStorage(AppFixture::createAppRepository()));
 
         static::expectException(AppException::class);
 
@@ -80,7 +80,7 @@ class AppLifecycleTest extends TestCase
 
     public function testGetDecoratedThrows(): void
     {
-        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), new AppRepository(AppFixture::createAppRepository()));
+        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), new AppStorage(AppFixture::createAppRepository()));
 
         static::expectException(DecorationPatternException::class);
 

@@ -186,7 +186,7 @@
 
         <service id="Shopware\Core\Framework\App\AppStateService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
@@ -286,7 +286,7 @@
             <argument>%kernel.environment%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\App\AppRepository">
+        <service id="Shopware\Core\Framework\App\AppStorage">
             <argument type="service" id="app.repository"/>
         </service>
 
@@ -323,7 +323,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppRepository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">

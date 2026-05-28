@@ -15,7 +15,7 @@ use Shopware\Core\Service\DTO\Service;
  * @internal
  */
 #[Package('framework')]
-class ServiceRepository
+class ServiceStorage
 {
     /**
      * @param EntityRepository<AppCollection> $repository

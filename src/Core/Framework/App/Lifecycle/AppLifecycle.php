@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppRepository;
+use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -20,7 +20,7 @@ class AppLifecycle extends AbstractAppLifecycle
 {
     public function __construct(
         private readonly AppManager $appManager,
-        private readonly AppRepository $appRepository,
+        private readonly AppStorage $appStorage,
     ) {
     }
 
@@ -46,7 +46,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private function loadApp(string $id, Context $context): AppEntity
     {
-        $app = $this->appRepository->findById($id, $context);
+        $app = $this->appStorage->findById($id, $context);
         if ($app === null) {
             throw AppException::notFound($id);
         }

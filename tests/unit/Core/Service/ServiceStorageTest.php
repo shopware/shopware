@@ -9,15 +9,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Service\DTO\Service;
-use Shopware\Core\Service\ServiceRepository;
+use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
  */
-#[CoversClass(ServiceRepository::class)]
-class ServiceRepositoryTest extends TestCase
+#[CoversClass(ServiceStorage::class)]
+class ServiceStorageTest extends TestCase
 {
     public function testFindByName(): void
     {
@@ -31,7 +31,7 @@ class ServiceRepositoryTest extends TestCase
             },
         ]);
 
-        $service = (new ServiceRepository($repository))->findByName('MyService', Context::createDefaultContext());
+        $service = (new ServiceStorage($repository))->findByName('MyService', Context::createDefaultContext());
 
         static::assertInstanceOf(Service::class, $service);
         static::assertSame($app->getId(), $service->id);
@@ -50,7 +50,7 @@ class ServiceRepositoryTest extends TestCase
             },
         ]);
 
-        $service = (new ServiceRepository($repository))->findByIntegrationId('integration-id', Context::createDefaultContext());
+        $service = (new ServiceStorage($repository))->findByIntegrationId('integration-id', Context::createDefaultContext());
 
         static::assertInstanceOf(Service::class, $service);
         static::assertSame($app->getId(), $service->id);
@@ -68,7 +68,7 @@ class ServiceRepositoryTest extends TestCase
             },
         ]);
 
-        $services = (new ServiceRepository($repository))->findAll(Context::createDefaultContext());
+        $services = (new ServiceStorage($repository))->findAll(Context::createDefaultContext());
 
         static::assertCount(1, $services);
         static::assertSame($app->getId(), $services[0]->id);

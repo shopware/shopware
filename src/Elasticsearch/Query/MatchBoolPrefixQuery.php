@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-bool-prefix-query.html
  *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class MatchBoolPrefixQuery extends MatchQuery

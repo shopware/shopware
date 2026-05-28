@@ -63,7 +63,16 @@ export default {
             showModalDelete: false,
             showModalMove: false,
             showCoverSelectionModal: false,
+            isSmallPreviewName: false,
         };
+    },
+
+    mounted() {
+        this.updateNamePreviewMode();
+    },
+
+    updated() {
+        this.updateNamePreviewMode();
     },
 
     computed: {
@@ -79,6 +88,40 @@ export default {
 
         mediaNameFilter() {
             return Shopware.Filter.getByName('mediaName');
+        },
+
+        mediaDisplayName() {
+            return this.getMediaDisplayName(this.item);
+        },
+
+        mediaDisplayNameParts() {
+            const suffixLength = 12;
+
+            if (this.mediaDisplayName.length <= suffixLength * 2) {
+                return null;
+            }
+
+            return {
+                start: this.mediaDisplayName.slice(0, -suffixLength),
+                end: this.mediaDisplayName.slice(-suffixLength),
+            };
+        },
+
+        mediaDisplayDetails() {
+            const details = [
+                this.item.fileExtension?.toUpperCase(),
+                this.mediaDisplayFileSize,
+            ].filter(Boolean);
+
+            return details.join(' • ');
+        },
+
+        mediaDisplayFileSize() {
+            if (!this.item.fileSize) {
+                return null;
+            }
+
+            return this.fileSizeFilter(this.item.fileSize, this.locale).replace(/([\d.,])([A-Z])/u, '$1 $2');
         },
 
         /**
@@ -113,6 +156,41 @@ export default {
     },
 
     methods: {
+        shouldUseMiddleTruncation(isList) {
+            return Boolean(this.mediaDisplayNameParts && !isList && !this.isSmallPreviewName);
+        },
+
+        updateNamePreviewMode() {
+            this.$nextTick(() => {
+                const nameElement = this.$refs.itemName;
+
+                if (!nameElement) {
+                    this.isSmallPreviewName = false;
+                    return;
+                }
+
+                this.isSmallPreviewName = Boolean(nameElement.closest('.sw-media-grid__presentation--small-preview'));
+            });
+        },
+
+        getMediaDisplayName(item) {
+            if (!item?.fileName) {
+                return this.mediaNameFilter(item);
+            }
+
+            if (!item.fileExtension) {
+                return item.fileName;
+            }
+
+            const extension = `.${item.fileExtension}`;
+
+            if (item.fileName.toLowerCase().endsWith(extension.toLowerCase())) {
+                return item.fileName.slice(0, -extension.length);
+            }
+
+            return item.fileName;
+        },
+
         async onChangeName(updatedName, item, endInlineEdit) {
             if (!updatedName || !updatedName.trim()) {
                 this.rejectRenaming(endInlineEdit);

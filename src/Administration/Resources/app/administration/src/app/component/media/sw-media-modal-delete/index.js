@@ -1,7 +1,9 @@
 import template from './sw-media-modal-delete.html.twig';
 import './sw-media-modal-delete.scss';
+import { useSnackbar } from '@shopware-ag/meteor-component-library';
 
 const { Context, Mixin, Filter } = Shopware;
+const MAX_NOTIFICATION_NAME_LENGTH = 48;
 
 /**
  * @status ready
@@ -54,6 +56,10 @@ export default {
         },
         mediaNameFilter() {
             return Filter.getByName('mediaName');
+        },
+
+        snackbar() {
+            return useSnackbar();
         },
 
         snippets() {
@@ -156,25 +162,40 @@ export default {
             return repository
                 .delete(item.id, Context.api)
                 .then(() => {
-                    return true;
+                    return {
+                        item,
+                        success: true,
+                    };
                 })
                 .catch(() => {
                     const isMedia = item.getEntityName() === 'media';
                     const errorSnippet = 'global.sw-media-modal-delete.notification.errorSingle.message';
+                    const name = this.getDeleteItemName(item);
 
                     const message = isMedia
-                        ? this.$t(`${errorSnippet}.media`, 1, {
-                              name: this.mediaNameFilter(item),
-                          })
-                        : this.$t(`${errorSnippet}.folder`, 1, {
-                              name: item.name,
-                          });
+                        ? this.$t(
+                              `${errorSnippet}.media`,
+                              {
+                                  name,
+                              },
+                              1,
+                          )
+                        : this.$t(
+                              `${errorSnippet}.folder`,
+                              {
+                                  name,
+                              },
+                              1,
+                          );
 
                     this.createNotificationError({
                         message,
                     });
 
-                    return false;
+                    return {
+                        item,
+                        success: false,
+                    };
                 })
                 .finally(() => {
                     item.isLoading = false;
@@ -189,9 +210,9 @@ export default {
             const deletions = await Promise.all(deleteSelections);
 
             const amounts = deletions.reduce(
-                (acc, isSuccess) => {
-                    acc.success = isSuccess ? (acc.success += 1) : acc.success;
-                    acc.failure = isSuccess ? acc.failure : (acc.failure += 1);
+                (acc, deletion) => {
+                    acc.success = deletion.success ? (acc.success += 1) : acc.success;
+                    acc.failure = deletion.success ? acc.failure : (acc.failure += 1);
 
                     return acc;
                 },
@@ -203,45 +224,62 @@ export default {
             }
 
             this.$emit('media-delete-modal-items-delete', {
-                mediaIds: this.mediaItems.map((media) => {
+                mediaIds: this.getSuccessfulDeletedItems(deletions, 'media').map((media) => {
                     return media.id;
                 }),
-                folderIds: this.folders.map((folder) => {
+                folderIds: this.getSuccessfulDeletedItems(deletions, 'media_folder').map((folder) => {
                     return folder.id;
                 }),
             });
         },
 
-        async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
-            const notification = {
-                message: this.$t(this.snippets.successOverall, successAmount, {
-                    count: successAmount,
-                    total: totalAmount,
-                }),
-                growl: successAmount + failureAmount === totalAmount,
+        getSuccessfulDeletedItems(deletions, entityName) {
+            return deletions
+                .filter((deletion) => {
+                    return deletion.success && deletion.item.getEntityName() === entityName;
+                })
+                .map((deletion) => deletion.item);
+        },
+
+        getDeleteItemName(item) {
+            const isMedia = item.getEntityName() === 'media';
+            const fallback = isMedia
+                ? item.fileName ||
+                  item.name ||
+                  this.$t('global.sw-media-modal-delete.notification.errorSingle.fallback.media')
+                : item.name || this.$t('global.sw-media-modal-delete.notification.errorSingle.fallback.folder');
+            const name = isMedia ? this.mediaNameFilter(item, fallback) : fallback;
+
+            return this.truncateMiddle(name);
+        },
+
+        truncateMiddle(value, maxLength = MAX_NOTIFICATION_NAME_LENGTH) {
+            if (value.length <= maxLength) {
+                return value;
+            }
+
+            const ellipsis = '...';
+            const availableLength = maxLength - ellipsis.length;
+            const startLength = Math.ceil(availableLength / 2);
+            const endLength = Math.floor(availableLength / 2);
+
+            return `${value.slice(0, startLength)}${ellipsis}${value.slice(-endLength)}`;
+        },
+
+        updateSuccessNotification(successAmount, failureAmount, totalAmount) {
+            const snackbar = {
+                variant: 'success',
+                message: this.$t(
+                    this.snippets.successOverall,
+                    {
+                        count: successAmount,
+                        total: totalAmount,
+                    },
+                    successAmount,
+                ),
             };
 
-            if (this.notificationId !== null) {
-                await Shopware.Store.get('notification').updateNotification({
-                    uuid: this.notificationId,
-                    ...notification,
-                });
-
-                if (successAmount + failureAmount === totalAmount) {
-                    this.notificationId = null;
-                }
-
-                return;
-            }
-
-            const newNotificationId = await Shopware.Store.get('notification').createNotification({
-                variant: 'success',
-                ...notification,
-            });
-
-            if (successAmount + failureAmount < totalAmount) {
-                this.notificationId = newNotificationId;
-            }
+            this.snackbar.addSnackbar(snackbar);
         },
 
         _checkInUsage(mediaItem) {
@@ -263,7 +301,7 @@ export default {
             ];
 
             return mediaAssociations.some((association) => {
-                return mediaItem[association].length > 0;
+                return (mediaItem[association] ?? []).length > 0;
             });
         },
     },

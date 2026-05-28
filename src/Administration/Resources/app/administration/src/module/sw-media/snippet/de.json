@@ -44,14 +44,20 @@
       },
       "metadata": {
         "name": "Name",
+        "file": "Datei",
         "fileType": "Dateityp",
         "altText": "Alt-Text",
         "title": "Titel",
         "mimeType": "MIME-Type",
         "fileSize": "Größe",
+        "created": "Erstellt",
+        "uploaded": "Hochgeladen",
+        "uploadedBy": "von {user}",
+        "uploadedByTooltip": "Hochgeladen von {user}",
         "createdAt": "Hochgeladen am",
         "width": "Breite",
         "height": "Höhe",
+        "dimensions": "Abmessungen",
         "totalSize": "Insgesamt"
       },
       "usage": {
@@ -70,28 +76,58 @@
       }
     },
     "index": {
-      "buttonCreateFolder": "Neuen Ordner hinzufügen",
+      "buttonCreateFolder": "Neuer Ordner",
       "rootFolderName": "Medien"
     },
     "mediaLibrary": {
       "labelButtonLoadMore": "Weitere laden",
       "titleEmptyState": "Noch keine Medien vorhanden",
+      "titleFolderEmptyState": "Dieser Ordner ist leer",
+      "descriptionFolderEmptyState": "Dateien zum Hochladen hier ablegen.",
+      "titleFilteredEmptyState": "Keine Elemente entsprechen diesem Filter",
+      "descriptionFilteredEmptyState": "Wähle einen anderen Typ aus oder hebe den Filter auf.",
       "descriptionEmptyState": "Verwaltung von Medien."
     },
     "sorting": {
-      "labelSort": "Sortiere nach:",
-      "labelSortByNameAsc": "Name, A-Z",
-      "labelSortByNameDsc": "Name, Z-A",
+      "labelSort": "Sortiere nach",
+      "labelSortAction": "Sortieren",
+      "labelSortReset": "Zurücksetzen",
+      "labelSortByNameAsc": "Name, A → Z",
+      "labelSortByNameDsc": "Name, Z → A",
       "labelSortBySizeAsc": "Größe, aufsteigend",
       "labelSortBySizeDsc": "Größe, absteigend",
       "labelSortByCreatedAsc": "Erstelldatum, aufsteigend",
-      "labelSortByCreatedDsc": "Erstelldatum, absteigend"
+      "labelSortByCreatedDsc": "Erstelldatum, absteigend",
+      "labelSortByFileTypeAsc": "Dateityp, A → Z",
+      "labelSortByFileTypeDsc": "Dateityp, Z → A",
+      "labelSortName": "Name",
+      "labelSortCreatedAt": "Erstellt",
+      "labelSortSize": "Größe",
+      "labelSortFileType": "Dateityp",
+      "labelSortDirectionAscAlpha": "A → Z",
+      "labelSortDirectionDescAlpha": "Z → A",
+      "labelSortDirectionOldestFirst": "Älteste zuerst",
+      "labelSortDirectionNewestFirst": "Neueste zuerst",
+      "labelSortDirectionSmallestFirst": "Kleinste zuerst",
+      "labelSortDirectionLargestFirst": "Größte zuerst"
+    },
+    "filter": {
+      "labelType": "Typ",
+      "labelTypeFilterBy": "Filtern nach",
+      "labelTypeAll": "Alle auswählen",
+      "labelTypeClearSelection": "Auswahl aufheben",
+      "labelTypeFolders": "Ordner",
+      "labelTypeImages": "Bilder",
+      "labelTypeDocuments": "Dokumente",
+      "labelTypeVideos": "Videos",
+      "labelTypeAudio": "Audio",
+      "labelTypeSpatial": "3D"
     },
     "presentation": {
       "labelPresentation": "Darstellung:",
+      "labelPresentationLayout": "Layout",
       "labelPresentationSmall": "Kleine Vorschau",
       "labelPresentationMedium": "Normale Vorschau",
-      "labelPresentationLarge": "Große Vorschau",
       "labelPresentationList": "Liste"
     },
     "sw-media-modal": {

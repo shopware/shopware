@@ -35,6 +35,14 @@ const createWrapper = async (repositoryFactoryMock) => {
         global: {
             stubs: {
                 'router-link': true,
+                'sw-media-collapse': {
+                    props: ['title'],
+                    template: `
+                        <div class="sw-media-collapse-stub">
+                            <h4>{{ title }}</h4>
+                            <slot name="content"></slot>
+                        </div>`,
+                },
                 'sw-loader': true,
             },
             provide: {
@@ -90,7 +98,38 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         await wrapper.setProps({
             item: itemDeleteMock({ productMedia: [productMediaMock] }),
         });
-        expect(wrapper.vm.getUsages.some((usage) => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
+        const productUsage = wrapper.vm.getUsages.find((usage) => usage.name === productMediaMock.product.translated.name);
+
+        expect(productUsage).toBeTruthy();
+        expect(productUsage.typeLabel).toBe('sw-media.sidebar.usage.tooltipFoundInProducts');
+        expect(wrapper.vm.usageAriaLabel(productUsage)).toBe(
+            'name test, sw-media.sidebar.usage.tooltipFoundInProducts',
+        );
+    });
+
+    it('should hide used in section when media is not used', async () => {
+        await flushPromises();
+
+        expect(wrapper.vm.getUsages).toHaveLength(0);
+        expect(wrapper.find('.sw-media-collapse-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-quickinfo-usage__info-not-used').exists()).toBe(false);
+    });
+
+    it('should show used in section when media is used', async () => {
+        register('sw-product', moduleMock);
+        const productMediaMock = {
+            id: '98hhh7gh31d2d23dj292hjd7b',
+            product: {
+                translated: { name: 'name test' },
+            },
+        };
+
+        await wrapper.setProps({
+            item: itemDeleteMock({ productMedia: [productMediaMock] }),
+        });
+
+        expect(wrapper.find('.sw-media-collapse-stub').exists()).toBe(true);
+        expect(wrapper.find('.sw-media-collapse-stub').text()).toContain('sw-media.sidebar.sections.usage');
     });
 
     it('should be correct show all of media in used information', async () => {

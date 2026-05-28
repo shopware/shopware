@@ -28,10 +28,10 @@ const snippetData = {
         return `Uploading files (${params.processed}/${params.total})`;
     },
     'global.sw-media-upload.snackbar.errorMessage': (params) => `${params.count} upload(s) failed`,
+    'global.sw-media-upload.notification.success.message': (params) => `${params.count}/${params.total} uploaded`,
     'global.sw-media-upload.notification.illegalFilename.message': (params) => `Illegal filename: ${params.fileName}`,
     'global.sw-media-upload.notification.illegalFileUrl.message': (params) => `Illegal file URL: ${params.fileName}`,
-    'global.sw-media-upload.notification.fileTypeNotSupported.message': (params) =>
-        `File type not supported: ${params.fileName}`,
+    'global.sw-media-upload.notification.illegalFileType.message': (params) => `File type not supported: ${params.name}`,
     'global.sw-media-upload.notification.requestCanceled.message': (params) => `Request canceled: ${params.fileName}`,
     'global.sw-media-upload.notification.payloadTooLarge.message': (params) => `Payload too large: ${params.fileName}`,
     'global.sw-media-upload.notification.transportError.message': (params) => `Transport error: ${params.fileName}`,
@@ -403,7 +403,10 @@ describe('src/app/component/utils/sw-upload-status', () => {
 
         const config = wrapper.vm.snackbarConfig;
 
-        expect(config.uploadState).toBe('success');
+        expect(config.variant).toBe('success');
+        expect(config.message).toBe('1/1 uploaded');
+        expect(config.duration).toBe(5000);
+        expect(config.uploadState).toBeUndefined();
         expect(config.errorMessage).toBeUndefined();
     });
 
@@ -429,6 +432,60 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(config.uploadState).toBe('error');
         expect(config.errorMessage).toBe('2 upload(s) failed');
         expect(wrapper.vm.hasFailedUploads).toBe(true);
+    });
+
+    it('should show unsupported file type details in the snackbar', async () => {
+        const file = createFile('test.md', 'content', 'text/markdown');
+
+        wrapper.vm.updateSnackbar = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent([createUploadTask('target-123', file)]));
+
+        const error = createError('CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED', 'File type not supported');
+        wrapper.vm.onUploadEvent(createUploadFailedEvent('target-123', 'test.md', error));
+
+        const config = wrapper.vm.snackbarConfig;
+
+        expect(config.variant).toBe('error');
+        expect(config.message).toBe('File type not supported: test.md');
+        expect(config.duration).toBe(8000);
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it('should use the uploaded file name instead of a technical id in snackbar errors', async () => {
+        const file = createFile('readme.md', 'content', 'text/markdown');
+
+        wrapper.vm.updateSnackbar = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent([createUploadTask('018f3c6c785d73f7b937d245ec1e6ef8', file)]));
+
+        const error = createError('CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED', 'File type not supported');
+        wrapper.vm.onUploadEvent(
+            createUploadFailedEvent('018f3c6c785d73f7b937d245ec1e6ef8', '018f3c6c785d73f7b937d245ec1e6ef8', error),
+        );
+
+        const config = wrapper.vm.snackbarConfig;
+
+        expect(config.message).toBe('File type not supported: readme.md');
+    });
+
+    it('should truncate long upload file names in the middle', async () => {
+        const fileName = 'this-is-a-very-long-media-file-name-that-should-stay-readable-in-notifications.md';
+        const file = createFile(fileName, 'content', 'text/markdown');
+
+        wrapper.vm.updateSnackbar = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onUploadEvent(createUploadAddedEvent([createUploadTask('target-123', file)]));
+
+        const error = createError('CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED', 'File type not supported');
+        wrapper.vm.onUploadEvent(createUploadFailedEvent('target-123', fileName, error));
+
+        const config = wrapper.vm.snackbarConfig;
+
+        expect(config.message).toBe('File type not supported: this-is-a-very-long-med...le-in-notifications.md');
     });
 
     it('should show error notification for client-side request canceled error', async () => {
@@ -532,7 +589,7 @@ describe('src/app/component/utils/sw-upload-status', () => {
         expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
     });
 
-    it('should show multiple error notifications for multiple errors', async () => {
+    it('should show notifications only for errors that are not owned by the snackbar', async () => {
         wrapper.vm.createNotificationError = jest.fn();
 
         const error = {
@@ -561,12 +618,9 @@ describe('src/app/component/utils/sw-upload-status', () => {
             error,
         });
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(2);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'Illegal filename: test.jpg',
-        });
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'File type not supported: test.jpg',
         });
     });
 

@@ -278,7 +278,11 @@
       "justNow": "Just now",
       "minutesAgo": "One minute ago | {minutesAgo} minutes ago",
       "aboutNow": "About now",
-      "minutesFromNow": "One minute from now | {minutesFromNow} minutes from now"
+      "minutesFromNow": "One minute from now | {minutesFromNow} minutes from now",
+      "todayAt": "Today at {time}",
+      "yesterdayAt": "Yesterday at {time}",
+      "dayBeforeYesterdayAt": "The day before yesterday at {time}",
+      "dateAtTime": "{date} at {time}"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",
@@ -357,6 +361,10 @@
       "mediaInUsagesMessage": "The following media files are still in use",
       "notification": {
         "errorSingle": {
+          "fallback": {
+            "media": "selected file",
+            "folder": "selected folder"
+          },
           "message": {
             "media": "Error deleting file \"{name}\".",
             "folder": "Error deleting folder \"{name}\"."

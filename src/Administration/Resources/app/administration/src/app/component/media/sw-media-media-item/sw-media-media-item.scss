@@ -6,6 +6,11 @@
     .sw-media-preview-v2 .sw-media-preview-v2__item {
         max-width: calc(100% - 32px);
         max-height: calc(100% - 32px);
+
+        &.sw-media-preview-v2__placeholder {
+            max-width: var(--scale-size-64);
+            max-height: var(--scale-size-56);
+        }
     }
 
     .sw-media-base-item.is--list .sw-media-preview-v2 {

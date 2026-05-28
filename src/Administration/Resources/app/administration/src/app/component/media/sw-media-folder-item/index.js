@@ -1,5 +1,12 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
+import {
+    defaultFolderIconNames,
+    folderIconColors,
+    getFolderColorFamily,
+    getFolderThumbnailName,
+    normalizeIconName,
+} from '../media-folder-visuals.helper';
 
 const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
@@ -46,6 +53,7 @@ export default {
                 name: '',
                 color: 'inherit',
             },
+            defaultFolderEntity: null,
         };
     },
 
@@ -66,21 +74,31 @@ export default {
             return this.$attrs.item;
         },
 
-        iconName() {
-            switch (this.iconConfig.name) {
-                case 'regular-box':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-products':
-                    return 'multicolor-folder-thumbnail--green';
-                case 'regular-database':
-                    return 'multicolor-folder-thumbnail--grey';
-                case 'regular-content':
-                    return 'multicolor-folder-thumbnail--pink';
-                case 'regular-cog':
-                    return 'multicolor-folder-thumbnail--grey';
-                default:
-                    return 'multicolor-folder-thumbnail';
+        folderEntity() {
+            if (this.isAiGeneratedFolder) {
+                return 'ai_generated';
             }
+
+            return this.defaultFolderEntity;
+        },
+
+        isAiGeneratedFolder() {
+            return this.mediaFolder?.name === 'AI-generated';
+        },
+
+        displayIconConfig() {
+            if (this.isAiGeneratedFolder) {
+                return {
+                    name: defaultFolderIconNames.ai_generated,
+                    color: folderIconColors.blue,
+                };
+            }
+
+            return this.iconConfig;
+        },
+
+        iconName() {
+            return getFolderThumbnailName(this.folderEntity, this.iconConfig.name);
         },
 
         assetFilter() {
@@ -119,15 +137,18 @@ export default {
                 return;
             }
 
+            this.defaultFolderEntity = defaultFolder.entity;
+
             const module = this.moduleFactory.getModuleByEntityName(defaultFolder.entity);
 
             if (!module) {
                 warn('Missing module for default folder entity', defaultFolder.entity);
-                return;
             }
 
-            this.iconConfig.name = module.manifest?.icon ?? '';
-            this.iconConfig.color = module.manifest?.color ?? '#000000';
+            this.iconConfig.name = normalizeIconName(
+                defaultFolderIconNames[defaultFolder.entity] ?? module?.manifest?.icon ?? '',
+            );
+            this.iconConfig.color = folderIconColors[getFolderColorFamily(defaultFolder.entity, this.iconConfig.name)];
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

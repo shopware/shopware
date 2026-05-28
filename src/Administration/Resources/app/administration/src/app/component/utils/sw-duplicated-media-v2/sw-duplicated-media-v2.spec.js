@@ -20,9 +20,11 @@ const uploadTaskMock = {
 describe('components/utils/sw-duplicated-media-v2', () => {
     let wrapper;
     let uploads = {};
+    let mediaRepositorySearch;
 
     beforeEach(async () => {
         uploads = {};
+        mediaRepositorySearch = jest.fn(() => Promise.resolve([{ id: 'foo', hasFile: true }]));
         wrapper = mount(await wrapTestComponent('sw-duplicated-media-v2', { sync: true }), {
             global: {
                 provide: {
@@ -33,7 +35,7 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                     repositoryFactory: {
                         create: () => {
                             return {
-                                search: () => Promise.resolve([{ id: 'foo' }]),
+                                search: mediaRepositorySearch,
                                 get: () =>
                                     Promise.resolve({
                                         id: 'foo',
@@ -130,5 +132,41 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         await replaceButton.trigger('click');
 
         expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+    });
+
+    it('should resume the upload when the duplicated file no longer exists', async () => {
+        const uploadTask = { ...uploadTaskMock };
+        mediaRepositorySearch.mockResolvedValue([]);
+        wrapper.vm.defaultOption = 'Replace';
+        await wrapper.setData({ failedUploadTasks: [uploadTask] });
+
+        await wrapper.vm.solveDuplicate();
+
+        expect(uploads[uploadTask.uploadTag]).toContainEqual(
+            expect.objectContaining({
+                fileName: uploadTask.fileName,
+                targetId: uploadTask.targetId,
+            }),
+        );
+        expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+        expect(wrapper.vm.failedUploadTasks).toHaveLength(0);
+    });
+
+    it('should resume the upload when the existing media no longer has a file', async () => {
+        const uploadTask = { ...uploadTaskMock };
+        mediaRepositorySearch.mockResolvedValue([{ id: 'foo', hasFile: false }]);
+        wrapper.vm.defaultOption = 'Replace';
+        await wrapper.setData({ failedUploadTasks: [uploadTask] });
+
+        await wrapper.vm.solveDuplicate();
+
+        expect(uploads[uploadTask.uploadTag]).toContainEqual(
+            expect.objectContaining({
+                fileName: uploadTask.fileName,
+                targetId: uploadTask.targetId,
+            }),
+        );
+        expect(wrapper.vm.mediaService.runUploads).toHaveBeenCalledWith('upload-tag-sw-media-index');
+        expect(wrapper.vm.failedUploadTasks).toHaveLength(0);
     });
 });

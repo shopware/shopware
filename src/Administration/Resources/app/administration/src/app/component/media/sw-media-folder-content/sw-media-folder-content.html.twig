@@ -43,10 +43,17 @@
             <button class="sw-media-folder-content__button sw-media-folder-content__folder-button">
                 {% block sw_media_folder_content_folder_button_icon %}
                 <img
-                    :src="assetFilter('/administration/administration/static/img/media/folder-thumbnail.svg')"
+                    :src="assetFilter('/administration/administration/static/img/media/' + getFolderVisual(folder).thumbnailName + '.svg')"
                     class="sw-media-folder-content__folder-icon"
                     alt="Folder thumbnail"
                 >
+                <mt-icon
+                    v-if="getFolderVisual(folder).icon"
+                    class="sw-media-folder-content__folder-inner-icon"
+                    aria-hidden="true"
+                    v-bind="getFolderVisual(folder).icon"
+                    size="10px"
+                />
                 {% endblock %}
                 {{ folder.name }}
             </button>
@@ -56,7 +63,7 @@
                 v-if="getChildCount(folder) > 0"
                 class="sw-media-folder-content__switch-button"
                 name="regular-chevron-right-xxs"
-                size="12px"
+                size="8px"
             />
             {% endblock %}
             {% endblock %}

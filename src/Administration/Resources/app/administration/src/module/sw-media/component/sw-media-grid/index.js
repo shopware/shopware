@@ -19,7 +19,6 @@ export default {
                 return [
                     'small-preview',
                     'medium-preview',
-                    'large-preview',
                     'list-preview',
                 ].includes(value);
             },

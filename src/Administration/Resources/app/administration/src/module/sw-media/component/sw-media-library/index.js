@@ -4,6 +4,67 @@ import './sw-media-library.scss';
 const { Mixin, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
+const MEDIA_LIBRARY_PREFERENCES_KEY = 'media.library.preferences';
+const DEFAULT_PRESENTATION = 'medium-preview';
+const DEFAULT_SORTING = { sortBy: 'createdAt', sortDirection: 'desc' };
+const DEFAULT_TYPE_FILTERS = [
+    'folder',
+    'image',
+    'document',
+    'video',
+    'audio',
+    'spatial',
+];
+const VALID_PRESENTATIONS = [
+    'small-preview',
+    'medium-preview',
+    'list-preview',
+];
+const VALID_SORT_FIELDS = [
+    'createdAt',
+    'fileName',
+    'fileSize',
+    'fileExtension',
+];
+const VALID_SORT_DIRECTIONS = [
+    'asc',
+    'desc',
+];
+const VALID_TYPE_FILTERS = [
+    'all',
+    'folder',
+    'image',
+    'document',
+    'video',
+    'audio',
+    'spatial',
+];
+const DOCUMENT_FILE_EXTENSIONS = [
+    'csv',
+    'doc',
+    'docx',
+    'json',
+    'ods',
+    'odt',
+    'pdf',
+    'ppt',
+    'pptx',
+    'rtf',
+    'txt',
+    'xls',
+    'xlsx',
+    'xml',
+];
+const SPATIAL_FILE_EXTENSIONS = [
+    'glb',
+    'gltf',
+    'obj',
+    'step',
+    'stl',
+    'stp',
+    'usdz',
+];
+
 /**
  * @sw-package discovery
  */
@@ -16,6 +77,7 @@ export default {
         'acl',
         'searchRankingService',
         'feature',
+        'userConfigService',
     ],
 
     emits: [
@@ -120,18 +182,42 @@ export default {
             subFolders: [],
             currentFolder: null,
             parentFolder: null,
-            presentation: 'medium-preview',
-            sorting: { sortBy: 'fileName', sortDirection: 'asc' },
-            folderSorting: { sortBy: 'name', sortDirection: 'asc' },
+            presentation: DEFAULT_PRESENTATION,
+            sorting: { ...DEFAULT_SORTING },
+            typeFilter: [],
+            folderSorting: { sortBy: 'createdAt', sortDirection: 'desc' },
+            userPreferences: {},
+            isApplyingUserPreferences: false,
+            hasScrolledContent: false,
+            hasUnfilteredFolderItems: null,
         };
     },
 
     computed: {
+        mediaLibraryClasses() {
+            return {
+                'sw-media-library--has-scroll-fade': this.hasScrolledContent,
+            };
+        },
+
         shouldDisplayEmptyState() {
-            return (
-                !this.isLoading &&
-                (this.selectableItems.length === 0 || (this.isValidTerm(this.term) && this.selectableItems.length === 0))
-            );
+            return !this.isLoading && this.itemLoaderDone && this.folderLoaderDone && this.selectableItems.length === 0;
+        },
+
+        emptyStateHeadline() {
+            if (this.hasActiveTypeFilter && this.hasUnfilteredFolderItems !== false) {
+                return this.$t('sw-media.mediaLibrary.titleFilteredEmptyState');
+            }
+
+            return this.$t('sw-media.mediaLibrary.titleFolderEmptyState');
+        },
+
+        emptyStateDescription() {
+            if (this.hasActiveTypeFilter && this.hasUnfilteredFolderItems !== false) {
+                return this.$t('sw-media.mediaLibrary.descriptionFilteredEmptyState');
+            }
+
+            return this.$t('sw-media.mediaLibrary.descriptionFolderEmptyState');
         },
 
         mediaRepository() {
@@ -187,6 +273,7 @@ export default {
             const criteria = new Criteria(this.pageItem, this.limit);
 
             criteria.addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection)).setTerm(this.term);
+            this.addTypeFilter(criteria);
 
             // eslint-disable-next-line no-warning-comments
             // ToDo NEXT-22186 - will be replaced by a new overview
@@ -242,6 +329,26 @@ export default {
 
             return Context.app.adminEsEnable ?? false;
         },
+
+        normalizedTypeFilter() {
+            return this.normalizeTypeFilter(this.typeFilter);
+        },
+
+        selectedMediaTypeFilters() {
+            return this.normalizedTypeFilter.filter((type) => type !== 'folder');
+        },
+
+        hasActiveTypeFilter() {
+            return this.normalizedTypeFilter.length > 0;
+        },
+
+        shouldLoadFolders() {
+            return !this.hasActiveTypeFilter || this.normalizedTypeFilter.includes('folder');
+        },
+
+        shouldLoadMedia() {
+            return !this.hasActiveTypeFilter || this.selectedMediaTypeFilters.length > 0;
+        },
     },
 
     watch: {
@@ -258,6 +365,16 @@ export default {
 
         sorting() {
             this.mapFolderSorting();
+            this.saveUserPreferences();
+            this.refreshList();
+        },
+
+        presentation() {
+            this.saveUserPreferences();
+        },
+
+        typeFilter() {
+            this.saveUserPreferences();
             this.refreshList();
         },
 
@@ -274,14 +391,19 @@ export default {
         this.createdComponent();
     },
 
+    mounted() {
+        this.updateScrollPosition();
+    },
+
     beforeUnmount() {
         this.beforeUnmountedComponent();
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             Shopware.Utils.EventBus.on('sw-media-library-item-updated', this.refreshItem);
 
+            await this.loadUserPreferences();
             this.refreshList();
 
             if (this.allowMultiSelect) {
@@ -299,6 +421,156 @@ export default {
             Shopware.Utils.EventBus.off('sw-media-library-item-updated', this.refreshItem);
         },
 
+        async loadUserPreferences() {
+            if (!this.userConfigService?.search) {
+                return;
+            }
+
+            this.isApplyingUserPreferences = true;
+
+            try {
+                const response = await this.userConfigService.search([MEDIA_LIBRARY_PREFERENCES_KEY]);
+                const userPreferences = response?.data?.[MEDIA_LIBRARY_PREFERENCES_KEY];
+
+                if (!userPreferences || typeof userPreferences !== 'object') {
+                    return;
+                }
+
+                this.userPreferences = userPreferences;
+
+                if (VALID_PRESENTATIONS.includes(userPreferences.presentation)) {
+                    this.presentation = userPreferences.presentation;
+                }
+
+                if (this.isValidSorting(userPreferences.sorting)) {
+                    this.sorting = { ...userPreferences.sorting };
+                    this.mapFolderSorting();
+                }
+
+                if (this.isValidTypeFilter(userPreferences.typeFilter)) {
+                    this.typeFilter = this.normalizeTypeFilter(userPreferences.typeFilter);
+                }
+            } catch {
+                this.userPreferences = {};
+            } finally {
+                await this.$nextTick();
+                this.isApplyingUserPreferences = false;
+            }
+        },
+
+        async getStoredUserPreferences() {
+            try {
+                const response = await this.userConfigService.search([MEDIA_LIBRARY_PREFERENCES_KEY]);
+                const userPreferences = response?.data?.[MEDIA_LIBRARY_PREFERENCES_KEY];
+
+                if (!userPreferences || typeof userPreferences !== 'object') {
+                    return {};
+                }
+
+                return userPreferences;
+            } catch {
+                return this.userPreferences;
+            }
+        },
+
+        async saveUserPreferences() {
+            if (this.isApplyingUserPreferences || !this.userConfigService?.upsert) {
+                return Promise.resolve();
+            }
+
+            const storedUserPreferences = await this.getStoredUserPreferences();
+
+            this.userPreferences = {
+                ...storedUserPreferences,
+                presentation: this.presentation,
+                sorting: this.sorting,
+                typeFilter: this.normalizedTypeFilter,
+            };
+
+            return this.userConfigService
+                .upsert({
+                    [MEDIA_LIBRARY_PREFERENCES_KEY]: this.userPreferences,
+                })
+                .catch(() => {});
+        },
+
+        isValidSorting(sorting) {
+            return (
+                sorting &&
+                VALID_SORT_FIELDS.includes(sorting.sortBy) &&
+                VALID_SORT_DIRECTIONS.includes(sorting.sortDirection)
+            );
+        },
+
+        isValidTypeFilter(typeFilter) {
+            if (Array.isArray(typeFilter)) {
+                return typeFilter.every((type) => VALID_TYPE_FILTERS.includes(type));
+            }
+
+            return VALID_TYPE_FILTERS.includes(typeFilter);
+        },
+
+        normalizeTypeFilter(typeFilter) {
+            if (typeFilter === 'all') {
+                return [];
+            }
+
+            if (Array.isArray(typeFilter)) {
+                return typeFilter.filter((type) => DEFAULT_TYPE_FILTERS.includes(type));
+            }
+
+            if (DEFAULT_TYPE_FILTERS.includes(typeFilter)) {
+                return [typeFilter];
+            }
+
+            return [];
+        },
+
+        addTypeFilter(criteria) {
+            if (!this.hasActiveTypeFilter) {
+                return;
+            }
+
+            const selectedMediaTypeFilters = this.selectedMediaTypeFilters;
+
+            if (selectedMediaTypeFilters.length === DEFAULT_TYPE_FILTERS.length - 1) {
+                return;
+            }
+
+            const filters = selectedMediaTypeFilters
+                .map((typeFilter) => {
+                    switch (typeFilter) {
+                        case 'image':
+                            return Criteria.prefix('mimeType', 'image/');
+                        case 'document':
+                            return Criteria.equalsAny('fileExtension', DOCUMENT_FILE_EXTENSIONS);
+                        case 'video':
+                            return Criteria.prefix('mimeType', 'video/');
+                        case 'audio':
+                            return Criteria.prefix('mimeType', 'audio/');
+                        case 'spatial':
+                            return Criteria.multi('OR', [
+                                Criteria.prefix('mimeType', 'model/'),
+                                Criteria.equalsAny('fileExtension', SPATIAL_FILE_EXTENSIONS),
+                            ]);
+                        default:
+                            return null;
+                    }
+                })
+                .filter(Boolean);
+
+            if (filters.length === 0) {
+                return;
+            }
+
+            if (filters.length === 1) {
+                criteria.addFilter(filters[0]);
+                return;
+            }
+
+            criteria.addFilter(Criteria.multi('OR', filters));
+        },
+
         /*
          * Object fetching
          */
@@ -309,6 +581,7 @@ export default {
 
             this.subFolders = [];
             this.items = [];
+            this.hasUnfilteredFolderItems = null;
 
             this.isLoading = true;
 
@@ -321,7 +594,7 @@ export default {
             this.itemLoaderDone = false;
             this.folderLoaderDone = false;
 
-            this.loadItems();
+            return this.loadItems();
         },
 
         isValidTerm(term) {
@@ -378,11 +651,73 @@ export default {
                 this.folderLoaderDone = false;
             }
 
+            if (this.hasActiveTypeFilter && this.selectableItems.length === 0) {
+                await this.updateHasUnfilteredFolderItems();
+            }
+
             this.isLoading = false;
+            this.$nextTick(() => {
+                this.updateScrollPosition();
+            });
+        },
+
+        async updateHasUnfilteredFolderItems() {
+            const [
+                folders,
+                media,
+            ] = await Promise.allSettled([
+                this.hasUnfilteredFolders(),
+                this.hasUnfilteredMedia(),
+            ]);
+
+            this.hasUnfilteredFolderItems = [
+                folders,
+                media,
+            ].some((result) => {
+                return result.status === 'rejected' || result.value === true;
+            });
+        },
+
+        async hasUnfilteredFolders() {
+            const criteria = new Criteria(1, 1);
+
+            if (!this.term) {
+                criteria.addFilter(Criteria.equals('parentId', this.folderId));
+            }
+
+            const folders = await this.mediaFolderRepository.search(criteria, Context.api);
+
+            return folders.length > 0;
+        },
+
+        async hasUnfilteredMedia() {
+            const criteria = new Criteria(1, 1);
+
+            if (!this.isValidTerm(this.term)) {
+                criteria.addFilter(Criteria.equals('mediaFolderId', this.folderId));
+            }
+
+            if (this.folderId != null && this.isValidTerm(this.term)) {
+                criteria.addFilter(
+                    Criteria.multi('OR', [
+                        Criteria.equals('mediaFolderId', this.folderId),
+                        Criteria.contains('mediaFolder.path', this.folderId),
+                    ]),
+                );
+            }
+
+            const media = await this.mediaRepository.search(criteria, Context.api);
+
+            return media.length > 0;
         },
 
         async nextMedia() {
             if (this.itemLoaderDone) {
+                return [];
+            }
+
+            if (!this.shouldLoadMedia) {
+                this.itemLoaderDone = true;
                 return [];
             }
 
@@ -430,6 +765,11 @@ export default {
                 return [];
             }
 
+            if (!this.shouldLoadFolders) {
+                this.folderLoaderDone = true;
+                return [];
+            }
+
             const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
 
             this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
@@ -462,6 +802,10 @@ export default {
         clearSelection() {
             this.selectedItems = [];
             this.listSelectionStartItem = null;
+        },
+
+        updateScrollPosition() {
+            this.hasScrolledContent = (this.$refs.scrollContainer?.scrollTop ?? 0) > 0;
         },
 
         injectItem(item) {
@@ -512,6 +856,10 @@ export default {
 
         removeNewFolder() {
             this.subFolders.shift();
+        },
+
+        setListSelectionStartItem(item) {
+            this.listSelectionStartItem = item;
         },
 
         async refreshItem(mediaId) {

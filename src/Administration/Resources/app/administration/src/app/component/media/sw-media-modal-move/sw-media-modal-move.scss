@@ -11,16 +11,21 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
     .sw-media-modal-move-folder-breadcrumbs {
         display: flex;
         font-size: $font-size-xs;
-        line-height: 22px;
-        margin-bottom: 20px;
+        line-height: var(--font-line-height-xs);
+        margin-bottom: var(--scale-size-20);
         align-items: center;
+        gap: var(--scale-size-8);
     }
 
     .sw-media-modal-move__breadcrumb-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--scale-size-8);
         background: none;
         border: none;
         outline: none;
-        padding: 8px 6px 8px 0;
+        padding: var(--scale-size-4) var(--scale-size-8);
+        border-radius: $border-radius-default;
         color: $sw-media-modal-move-breadcrumbs-default-color;
         max-width: 400px;
 
@@ -46,8 +51,13 @@ $sw-media-modal-move-breadcrumbs-parent-color: $color-gray-300;
     }
 
     .sw-media-modal-move__folder-icon {
-        width: 16px;
-        margin-right: 10px;
-        margin-top: 2px;
+        flex: 0 0 auto;
+        width: var(--scale-size-16);
+        height: var(--scale-size-16);
+    }
+
+    .sw-media-modal-move__breadcrumb-chevron {
+        flex: 0 0 auto;
+        color: $sw-media-modal-move-breadcrumbs-right-arrow-color;
     }
 }

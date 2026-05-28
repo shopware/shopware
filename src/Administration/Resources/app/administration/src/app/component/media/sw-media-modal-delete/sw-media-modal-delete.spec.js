@@ -3,6 +3,14 @@
  */
 import { mount } from '@vue/test-utils';
 
+const mockSnackbar = {
+    addSnackbar: jest.fn(),
+};
+
+jest.mock('@shopware-ag/meteor-component-library', () => ({
+    useSnackbar: () => mockSnackbar,
+}));
+
 describe('components/media/sw-media-modal-delete', () => {
     const itemDeleteMock = (options = {}) => {
         return {
@@ -26,7 +34,11 @@ describe('components/media/sw-media-modal-delete', () => {
         };
     };
 
-    const createWrapper = async (itemDeleteOptions = null) => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    const createWrapper = async (itemDeleteOptions = null, deleteMock = jest.fn(() => Promise.resolve())) => {
         const itemsToDelete = itemDeleteOptions || [itemDeleteMock()];
 
         return mount(await wrapTestComponent('sw-media-modal-delete', { sync: true }), {
@@ -44,7 +56,29 @@ describe('components/media/sw-media-modal-delete', () => {
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => ({ search: () => Promise.resolve() }),
+                        create: () => ({
+                            delete: deleteMock,
+                            search: () => Promise.resolve(),
+                        }),
+                    },
+                },
+                mocks: {
+                    $t: (key, ...values) => {
+                        if (key === 'global.sw-media-modal-delete.notification.errorSingle.message.media') {
+                            const params = values[0];
+                            return `Error deleting file "${params?.name ?? ''}".`;
+                        }
+
+                        if (key === 'global.sw-media-modal-delete.notification.errorSingle.fallback.media') {
+                            return 'selected file';
+                        }
+
+                        if (key === 'global.sw-media-modal-delete.notification.successOverall.message.media') {
+                            const params = values[0];
+                            return `${params?.count}/${params?.total} files deleted.`;
+                        }
+
+                        return key;
                     },
                 },
             },
@@ -185,5 +219,117 @@ describe('components/media/sw-media-modal-delete', () => {
         expect(wrapper.vm.mediaInUsages).toHaveLength(0);
         expect(wrapper.find('.sw-media-quickinfo-usage').exists()).toBeFalsy();
         expect(wrapper.find('.sw-media-media-item').exists()).toBeFalsy();
+    });
+
+    it('should handle media without loaded usage associations', async () => {
+        const wrapper = await createWrapper([
+            {
+                getEntityName: () => {
+                    return 'media';
+                },
+                id: 'media-without-associations',
+                fileName: 'fresh-upload',
+                fileExtension: 'jpg',
+            },
+        ]);
+
+        expect(wrapper.vm.mediaQuickInfo).toBeNull();
+        expect(wrapper.vm.mediaInUsages).toHaveLength(0);
+    });
+
+    it('should use media filename fallback when delete notification cannot build a full media name', async () => {
+        const deleteMock = jest.fn(() => Promise.reject(new Error('Delete failed')));
+        const wrapper = await createWrapper(
+            [
+                itemDeleteMock({
+                    fileName: 'demo.jpg',
+                    fileExtension: undefined,
+                }),
+            ],
+            deleteMock,
+        );
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.deleteSelection();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Error deleting file "demo.jpg".',
+        });
+    });
+
+    it('should truncate long media names in delete error notifications', async () => {
+        const deleteMock = jest.fn(() => Promise.reject(new Error('Delete failed')));
+        const wrapper = await createWrapper(
+            [
+                itemDeleteMock({
+                    fileName: 'this-is-a-very-long-media-file-name-that-should-stay-readable-in-notifications',
+                    fileExtension: 'jpg',
+                }),
+            ],
+            deleteMock,
+        );
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.deleteSelection();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Error deleting file "this-is-a-very-long-med...e-in-notifications.jpg".',
+        });
+    });
+
+    it('should only emit successfully deleted items after partial delete failure', async () => {
+        const successfulMedia = itemDeleteMock({
+            id: 'successful-media-id',
+            fileName: 'success',
+            fileExtension: 'jpg',
+        });
+        const failedMedia = itemDeleteMock({
+            id: 'failed-media-id',
+            fileName: 'failed',
+            fileExtension: 'jpg',
+        });
+        const deleteMock = jest.fn((id) => {
+            if (id === failedMedia.id) {
+                return Promise.reject(new Error('Delete failed'));
+            }
+
+            return Promise.resolve();
+        });
+        const wrapper = await createWrapper(
+            [
+                successfulMedia,
+                failedMedia,
+            ],
+            deleteMock,
+        );
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.deleteSelection();
+
+        expect(wrapper.emitted('media-delete-modal-items-delete')[0][0]).toEqual({
+            mediaIds: ['successful-media-id'],
+            folderIds: [],
+        });
+    });
+
+    it('should show successful deletions in a snackbar', async () => {
+        const deleteMock = jest.fn(() => Promise.resolve());
+        const wrapper = await createWrapper(
+            [
+                itemDeleteMock({
+                    id: 'successful-media-id',
+                    fileName: 'success',
+                    fileExtension: 'jpg',
+                }),
+            ],
+            deleteMock,
+        );
+
+        await wrapper.vm.deleteSelection();
+
+        expect(mockSnackbar.addSnackbar).toHaveBeenCalledWith({
+            variant: 'success',
+            message: '1/1 files deleted.',
+        });
     });
 });

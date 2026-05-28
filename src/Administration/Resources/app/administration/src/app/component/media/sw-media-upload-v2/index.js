@@ -6,6 +6,11 @@ const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
+const FILE_DRAG_TYPE = 'Files';
+const CENTRALIZED_UPLOAD_ERROR_CODES = [
+    'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
+    'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED',
+];
 
 /**
  * @status ready
@@ -176,6 +181,12 @@ export default {
             required: false,
             default: null,
         },
+
+        showUploadModeSwitch: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     data() {
@@ -307,6 +318,10 @@ export default {
 
                 window.addEventListener('dragenter', this.onDragEnter);
                 window.addEventListener('dragleave', this.onDragLeave);
+                window.addEventListener('dragend', this.resetDragState);
+                window.addEventListener('drop', this.resetDragState);
+                window.addEventListener('blur', this.resetDragState);
+                document.addEventListener('visibilitychange', this.onVisibilityChange);
             }
         },
 
@@ -326,6 +341,10 @@ export default {
 
             window.removeEventListener('dragenter', this.onDragEnter);
             window.removeEventListener('dragleave', this.onDragLeave);
+            window.removeEventListener('dragend', this.resetDragState);
+            window.removeEventListener('drop', this.resetDragState);
+            window.removeEventListener('blur', this.resetDragState);
+            document.removeEventListener('visibilitychange', this.onVisibilityChange);
         },
 
         /*
@@ -354,8 +373,13 @@ export default {
             this.$emit('media-drop', dragData.mediaItem);
         },
 
-        onDragEnter() {
+        onDragEnter(event) {
             if (this.disabled) {
+                return;
+            }
+
+            if (!this.isFileDrag(event)) {
+                this.resetDragState();
                 return;
             }
 
@@ -363,18 +387,53 @@ export default {
         },
 
         onDragLeave(event) {
-            if (event.screenX === 0 && event.screenY === 0) {
-                this.isDragActive = false;
+            if (!this.isDragActive) {
+                return;
+            }
+
+            if (this.isLeavingViewport(event)) {
+                this.resetDragState();
                 return;
             }
 
             const target = event.target;
 
-            if (target.closest('.sw-media-upload-v2__dropzone')) {
+            if (target instanceof Element && target.closest('.sw-media-upload-v2__dropzone')) {
                 return;
             }
 
+            this.resetDragState();
+        },
+
+        resetDragState() {
             this.isDragActive = false;
+        },
+
+        onVisibilityChange() {
+            if (document.visibilityState === 'hidden') {
+                this.resetDragState();
+            }
+        },
+
+        isFileDrag(event) {
+            const types = Array.from(event?.dataTransfer?.types ?? []);
+
+            if (types.includes(FILE_DRAG_TYPE)) {
+                return true;
+            }
+
+            return Array.from(event?.dataTransfer?.items ?? []).some((item) => item.kind === 'file');
+        },
+
+        isLeavingViewport(event) {
+            if (event.screenX === 0 && event.screenY === 0) {
+                return true;
+            }
+
+            return event.clientX <= 0 ||
+                event.clientY <= 0 ||
+                event.clientX >= window.innerWidth ||
+                event.clientY >= window.innerHeight;
         },
 
         stopEventPropagation(event) {
@@ -535,6 +594,11 @@ export default {
 
         handleMediaServiceUploadEvent({ action, payload }) {
             if (action === 'media-upload-fail') {
+                if (this.isCentralizedUploadError(payload?.error)) {
+                    this.onRemoveMediaItem();
+                    return;
+                }
+
                 this.createNotificationError({
                     title: this.$t('global.default.error'),
                     message: this.getUploadFailureMessage(payload),
@@ -542,6 +606,12 @@ export default {
 
                 this.onRemoveMediaItem();
             }
+        },
+
+        isCentralizedUploadError(error) {
+            return error?.response?.data?.errors?.some((err) => {
+                return CENTRALIZED_UPLOAD_ERROR_CODES.includes(err.code);
+            });
         },
 
         getUploadFailureMessage(task) {

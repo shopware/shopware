@@ -36,7 +36,37 @@ $sw-media-index-page-background-color: var(--color-elevation-surface-default);
         grid-template-columns: 1fr auto;
     }
 
-    .sw-media-index__media-library {
+    .sw-media-index__media-library-container {
+        position: relative;
+        min-width: 0;
+        height: 100%;
         padding-top: 24px;
+    }
+
+    .sw-media-index__media-library {
+        height: 100%;
+    }
+
+    .sw-media-index__media-drop-upload {
+        position: absolute;
+        inset: 0 12px 12px;
+        z-index: $z-index-over-overlay;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease;
+
+        &.is--active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sw-media-upload-v2__content,
+        .sw-media-upload-v2__dropzone {
+            height: 100%;
+        }
+
+        .sw-media-upload-v2__dropzone {
+            justify-content: center;
+        }
     }
 }

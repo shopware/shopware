@@ -50,7 +50,7 @@
         <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
             {% block sw_media_preview_v2_file_type_video %}
             <img
-                v-if="mediaIsPrivate"
+                v-if="mediaIsPrivate || videoPreviewFailed"
                 class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
                 :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
@@ -64,6 +64,8 @@
                 :preload="videoPreloadValue"
                 controlsList="nodownload"
                 class="sw-media-preview-v2__item"
+                @loadedmetadata="loadVideoPreviewFrame"
+                @error="showVideoPreviewFallback"
             >
                 <source
                     :src="previewUrl"
@@ -72,7 +74,7 @@
                 {{ $t('global.sw-media-preview-v2.fallbackVideoTagSupport') }}
             </video>
             <button
-                v-if="!showControls && !mediaIsPrivate"
+                v-if="!showControls && !mediaIsPrivate && !videoPreviewFailed"
                 class="sw-media-preview-v2__play-button"
                 @click="onPlayClick"
             >

@@ -331,6 +331,75 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         expect(videoElement.attributes('preload')).toBe('metadata');
     });
 
+    it('loads a preview frame for videos without a cover', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video').element;
+        Object.defineProperty(videoElement, 'duration', {
+            value: 37,
+            configurable: true,
+        });
+
+        await wrapper.find('video').trigger('loadedmetadata');
+
+        expect(videoElement.currentTime).toBe(9.25);
+        expect(wrapper.find('.sw-media-preview-v2__play-button').exists()).toBe(true);
+    });
+
+    it('shows the video placeholder when a video preview fails to render', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                },
+            },
+        });
+
+        await flushPromises();
+        await wrapper.find('video').trigger('error');
+
+        expect(wrapper.vm.videoPreviewFailed).toBe(true);
+        expect(wrapper.find('video').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-preview-v2__placeholder').exists()).toBe(true);
+        expect(wrapper.find('.sw-media-preview-v2__play-button').exists()).toBe(false);
+    });
+
+    it('does not seek videos with a cover poster', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: {
+                    mimeType: 'video/mp4',
+                    url: 'video-url',
+                    extensions: {
+                        videoCoverMedia: { url: 'cover-url' },
+                    },
+                },
+            },
+        });
+
+        await flushPromises();
+
+        const videoElement = wrapper.find('video').element;
+        Object.defineProperty(videoElement, 'duration', {
+            value: 37,
+            configurable: true,
+        });
+
+        await wrapper.find('video').trigger('loadedmetadata');
+
+        expect(videoElement.currentTime).toBe(0);
+    });
+
     it('fetches cover media when only metadata id exists', async () => {
         const coverMedia = { id: 'cover-id', url: 'cover-url' };
         const getMock = jest.fn().mockResolvedValue(coverMedia);

@@ -5,6 +5,7 @@
         v-if="editable"
         :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
+        storage-key="actions"
     >
 
         {% block sw_media_quickinfo_folder_quickactions_content %}
@@ -105,6 +106,7 @@
     <sw-media-collapse
         :expand-on-loading="true"
         :title="$t('sw-media.sidebar.sections.metadata')"
+        storage-key="metadata"
     >
 
         {% block sw_media_quickinfo_folder_metadata_content %}
@@ -122,8 +124,10 @@
                         ref="inlineEditFieldName"
                         :disabled="!acl.can('media.creator')"
                         compact
+                        :aria-label="$t('sw-media.sidebar.metadata.name')"
                         :value="mediaFolder.name"
                         :error="mediaFolderNameError"
+                        size="small"
                         @input="onChangeFolderName"
                     />
                     <template v-else>
@@ -132,8 +136,8 @@
                 </sw-media-quickinfo-metadata-item>
 
                 <sw-media-quickinfo-metadata-item
-                    class="sw-media-quickinfo-metadata-createdAt"
-                    :label-name="$t('sw-media.sidebar.metadata.createdAt')"
+                    class="sw-media-folder-info-metadata-createdAt"
+                    :label-name="$t('sw-media.sidebar.metadata.created')"
                 >
                     {{ createdAt }}
                 </sw-media-quickinfo-metadata-item>

@@ -4,8 +4,11 @@
     :class="mediaItemClasses"
     role="button"
     tabindex="0"
+    :aria-label="itemAccessibleName || undefined"
+    :aria-disabled="disabled || undefined"
     @click="handleItemClick"
     @keydown.enter.self="handleItemClick"
+    @keydown.space.prevent.self="handleItemClick"
 >
 
     {% block sw_media_base_item_selected_indicator %}
@@ -30,10 +33,11 @@
         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
         {% block sw_media_base_spatial_label_indicator %}
         <div
-            v-if="isSpatial"
+            v-if="isSpatial || isGif"
             class="sw-media-base-item__labels"
         >
             <sw-label
+                v-if="isSpatial"
                 variant="neutral-reversed"
                 appearance="pill"
                 size="medium"
@@ -41,15 +45,24 @@
                 <mt-icon
                     v-if="item.config?.spatial?.arReady ?? defaultArReady"
                     name="regular-AR"
-                    size="16px"
+                    size="12px"
                 />
                 <mt-icon
                     v-else
                     name="regular-3d"
-                    size="16px"
+                    size="12px"
                 />
 
                 <span class="sw-media-base-item__labels-text">{{ (item.config?.spatial?.arReady ?? defaultArReady) ? $t('sw-product.mediaForm.arSubline') : $t('sw-product.mediaForm.spatialSubline') }}</span>
+            </sw-label>
+
+            <sw-label
+                v-if="isGif"
+                variant="neutral-reversed"
+                appearance="pill"
+                size="medium"
+            >
+                <span class="sw-media-base-item__labels-text">GIF</span>
             </sw-label>
         </div>
         {% endblock %}
@@ -63,14 +76,14 @@
     >
         <slot
             name="name"
-            v-bind="{ item, isInlineEdit, startInlineEdit, endInlineEdit }"
+            v-bind="{ item, isInlineEdit, isList, startInlineEdit, endInlineEdit }"
         ></slot>
     </div>
     {% endblock %}
 
     {% block sw_media_base_item_metadata_container %}
     <div
-        v-if="isList && showContextMenuButton"
+        v-if="isList"
         class="sw-media-base-item__metadata-container"
     >
         {% block sw_media_base_item_metadata %}

@@ -160,6 +160,40 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(fileInput.attributes().accept).toBe('*/*');
     });
 
+    it('should only activate the dropzone for file drags', async () => {
+        wrapper.vm.onDragEnter({
+            dataTransfer: {
+                types: ['text/plain'],
+            },
+        });
+
+        expect(wrapper.vm.isDragActive).toBe(false);
+
+        wrapper.vm.onDragEnter({
+            dataTransfer: {
+                types: ['Files'],
+            },
+        });
+
+        expect(wrapper.vm.isDragActive).toBe(true);
+    });
+
+    it('should reset the dropzone when dragging leaves the viewport', async () => {
+        await wrapper.setData({
+            isDragActive: true,
+        });
+
+        wrapper.vm.onDragLeave({
+            clientX: -1,
+            clientY: 200,
+            screenX: 100,
+            screenY: 100,
+            target: document.createElement('div'),
+        });
+
+        expect(wrapper.vm.isDragActive).toBe(false);
+    });
+
     it('context button should be enabled', async () => {
         await wrapper.setProps({
             variant: 'compact',
@@ -207,6 +241,19 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
         expect(switchModeButton.attributes().class).toBe('sw-context-button is--disabled sw-media-upload-v2__switch-mode');
+    });
+
+    it('should hide the context button switch mode when disabled by prop', async () => {
+        await wrapper.setProps({
+            showUploadModeSwitch: false,
+        });
+        await wrapper.setData({
+            isUploadUrlFeatureEnabled: true,
+        });
+        await flushPromises();
+
+        const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
+        expect(switchModeButton.exists()).toBe(false);
     });
 
     it('remove icon should be enabled', async () => {
@@ -515,6 +562,58 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
             title: 'global.default.error',
             message: 'SVG files with active content are not allowed.',
         });
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
+    it('should not show an error notification for duplicated file names', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME',
+                                    detail: 'A file with the name "image.png" already exists.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
+    it('should not show an error notification for unsupported file types', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    code: 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED',
+                                    detail: 'This file type is not supported.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
         expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
     });
 

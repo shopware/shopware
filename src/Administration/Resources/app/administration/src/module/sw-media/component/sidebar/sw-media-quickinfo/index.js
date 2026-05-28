@@ -5,6 +5,7 @@ import 'src/module/sw-media/mixin/video-cover.mixin';
 
 const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
+const { Criteria } = Shopware.Data;
 
 /**
  * @sw-package discovery
@@ -64,6 +65,7 @@ export default {
             arPlacementOptions: [],
             showCoverSelectionModal: false,
             showModelEditorModal: false,
+            detailedItem: null,
         };
     },
 
@@ -80,9 +82,135 @@ export default {
             return format.fileSize(this.item.fileSize);
         },
 
+        compactFileSize() {
+            return this.fileSize.replace(/([\d.,])([A-Z])/u, '$1 $2');
+        },
+
         createdAt() {
             const date = this.item.uploadedAt || this.item.createdAt;
             return format.date(date);
+        },
+
+        fileSummary() {
+            return [
+                this.item.fileExtension?.toUpperCase(),
+                this.compactFileSize,
+            ]
+                .filter(Boolean)
+                .join(' • ');
+        },
+
+        uploadedSummary() {
+            return this.createdAt;
+        },
+
+        uploadedTooltipConfig() {
+            return {
+                message: this.uploadedTooltipMessage,
+                disabled: !this.uploaderName,
+                width: 'auto',
+                showDelay: 300,
+                hideDelay: 100,
+            };
+        },
+
+        uploadedTooltipMessage() {
+            if (!this.uploaderName) {
+                return '';
+            }
+
+            return `
+                <span class="sw-media-quickinfo__uploaded-tooltip">
+                    ${this.uploaderAvatarMarkup}
+                    <span>${this.escapeTooltipText(
+                        this.$t('sw-media.sidebar.metadata.uploadedByTooltip', {
+                            user: this.uploaderName,
+                        }),
+                    )}</span>
+                </span>
+            `;
+        },
+
+        uploader() {
+            return this.detailedItem?.user ?? this.item.user ?? null;
+        },
+
+        uploaderName() {
+            const { uploader: user } = this;
+
+            if (!user) {
+                return null;
+            }
+
+            return (
+                [
+                    user.firstName,
+                    user.lastName,
+                ]
+                    .filter(Boolean)
+                    .join(' ') ||
+                user.username ||
+                user.email ||
+                null
+            );
+        },
+
+        uploaderInitials() {
+            const { uploader: user } = this;
+
+            if (!user) {
+                return '';
+            }
+
+            const initials = [
+                user.firstName?.charAt(0),
+                user.lastName?.charAt(0),
+            ]
+                .filter(Boolean)
+                .join('');
+
+            return (initials || this.uploaderName?.charAt(0) || '').toUpperCase();
+        },
+
+        uploaderAvatarUrl() {
+            const avatarMedia = this.uploader?.avatarMedia;
+
+            if (!avatarMedia?.url) {
+                return null;
+            }
+
+            const thumbnails = avatarMedia.thumbnails ?? [];
+            const [thumbnail] = [...thumbnails].sort((a, b) => a.width - b.width);
+
+            return thumbnail?.url ?? avatarMedia.url;
+        },
+
+        uploaderAvatarMarkup() {
+            if (this.uploaderAvatarUrl) {
+                return `
+                    <img
+                        class="sw-media-quickinfo__uploaded-tooltip-avatar"
+                        src="${this.escapeTooltipText(this.uploaderAvatarUrl)}"
+                        alt=""
+                    >
+                `;
+            }
+
+            return `
+                <span
+                    class="sw-media-quickinfo__uploaded-tooltip-avatar"
+                    aria-hidden="true"
+                >
+                    ${this.escapeTooltipText(this.uploaderInitials)}
+                </span>
+            `;
+        },
+
+        detailedMediaCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('user.avatarMedia');
+
+            return criteria;
         },
 
         fileNameClasses() {
@@ -167,6 +295,8 @@ export default {
          * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
          */
         fetchSpatialItemConfig() {
+            this.detailedItem = null;
+
             this.systemConfigApiService.getValues('core.media').then((values) => {
                 this.defaultArReady = values['core.media.defaultEnableAugmentedReality'];
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
@@ -187,10 +317,14 @@ export default {
                     });
             });
 
-            this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {
-                this.arReady = entity?.config?.spatial?.arReady;
-                this.arPlacement = entity?.config?.spatial?.arPlacement;
-            });
+            this.mediaRepository
+                .get(this.item.id, Shopware.Context.api, this.detailedMediaCriteria)
+                .catch(() => this.mediaRepository.get(this.item.id, Shopware.Context.api))
+                .then((entity) => {
+                    this.detailedItem = entity;
+                    this.arReady = entity?.config?.spatial?.arReady;
+                    this.arPlacement = entity?.config?.spatial?.arPlacement;
+                });
         },
 
         /**
@@ -205,6 +339,15 @@ export default {
             };
 
             return this.$t(snippet, data);
+        },
+
+        escapeTooltipText(value) {
+            return `${value ?? ''}`
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
         },
 
         loadCustomFieldSets() {

@@ -4,6 +4,14 @@
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 
+const mockSnackbar = {
+    addSnackbar: jest.fn(),
+};
+
+jest.mock('@shopware-ag/meteor-component-library', () => ({
+    useSnackbar: () => mockSnackbar,
+}));
+
 const rootFolderObject = {
     id: null,
     name: 'sw-media.index.rootFolderName',
@@ -27,6 +35,7 @@ const createFolderEntity = (options = {}) => {
 let repositoryFactoryMock;
 async function createWrapper() {
     repositoryFactoryMock = {
+        save: jest.fn((item) => Promise.resolve(item.id)),
         search: jest.fn(() => Promise.resolve([])),
     };
 
@@ -48,6 +57,10 @@ async function createWrapper() {
 }
 
 describe('components/media/sw-media-modal-move', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('removes parent folder if current folder is root folder', async () => {
         const wrapper = await createWrapper();
 
@@ -99,5 +112,30 @@ describe('components/media/sw-media-modal-move', () => {
         await wrapper.vm.fetchParentFolder(Shopware.Utils.createId());
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+    });
+
+    it('should show a snackbar after moving media items successfully', async () => {
+        const mediaId = Shopware.Utils.createId();
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            itemsToMove: [
+                createMediaEntity({ id: mediaId }),
+            ],
+        });
+        await wrapper.setData({
+            targetFolder: {
+                id: Shopware.Utils.createId(),
+            },
+        });
+        wrapper.vm.createNotificationSuccess = jest.fn();
+
+        await wrapper.vm.moveSelection();
+
+        expect(mockSnackbar.addSnackbar).toHaveBeenCalledWith({
+            variant: 'success',
+            message: 'global.sw-media-modal-move.notification.successOverall.message',
+        });
+        expect(wrapper.vm.createNotificationSuccess).not.toHaveBeenCalled();
     });
 });

@@ -136,10 +136,6 @@ export default {
 
             return usages;
         },
-
-        isNotUsed() {
-            return this.getUsages.length === 0;
-        },
     },
 
     watch: {
@@ -276,6 +272,7 @@ export default {
             return {
                 name: product.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',
                     id: product.id,
@@ -288,6 +285,7 @@ export default {
             return {
                 name: category.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInCategories'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInCategories'),
                 link: {
                     name: 'sw.category.detail',
                     id: category.id,
@@ -300,6 +298,7 @@ export default {
             return {
                 name: manufacturer.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
                 link: {
                     name: 'sw.manufacturer.detail',
                     id: manufacturer.id,
@@ -312,6 +311,7 @@ export default {
             return {
                 name: mailTemplate.translated.description,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInMailTemplate'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInMailTemplate'),
                 link: {
                     name: 'sw.mail.template.detail',
                     id: mailTemplate.id,
@@ -324,6 +324,7 @@ export default {
             return {
                 name: document.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInDocument'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInDocument'),
                 link: {
                     name: 'sw.settings.document.detail',
                     id: document.id,
@@ -336,6 +337,7 @@ export default {
             return {
                 name: user.username,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInUser'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInUser'),
                 link: {
                     name: 'sw.users.permissions.user.detail',
                     id: user.id,
@@ -348,6 +350,7 @@ export default {
             return {
                 name: paymentMethod.translated.distinguishableName,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInPayment'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInPayment'),
                 link: {
                     name: 'sw.settings.payment.detail',
                     id: paymentMethod.id,
@@ -360,6 +363,7 @@ export default {
             return {
                 name: shippingMethod.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundShipping'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundShipping'),
                 link: {
                     name: 'sw.settings.shipping.detail',
                     id: shippingMethod.id,
@@ -372,6 +376,7 @@ export default {
             return {
                 name: layout.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundLayout'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundLayout'),
                 link: {
                     name: 'sw.cms.detail',
                     id: layout.id,
@@ -384,12 +389,17 @@ export default {
             return {
                 name: landingPage.translated.name,
                 tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInLandingPages'),
+                typeLabel: this.$t('sw-media.sidebar.usage.tooltipFoundInLandingPages'),
                 link: {
                     name: 'sw.category.landingPageDetail',
                     id: landingPage.id,
                 },
                 icon: this.getIconForModule('sw-category'),
             };
+        },
+
+        usageAriaLabel(usage) {
+            return `${usage.name}, ${usage.tooltip}`;
         },
 
         getIconForModule(name) {

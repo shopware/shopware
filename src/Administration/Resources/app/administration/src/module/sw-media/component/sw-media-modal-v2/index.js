@@ -3,6 +3,8 @@ import './sw-media-modal-v2.scss';
 
 const { Context, Utils } = Shopware;
 
+const MEDIA_LIBRARY_PREFERENCES_KEY = 'media.library.preferences';
+
 /**
  * @event media-modal-selection-change EntityProxy[]
  * @event closeModal (void)
@@ -15,6 +17,7 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'userConfigService',
     ],
 
     emits: [
@@ -80,6 +83,9 @@ export default {
             term: '',
             id: Utils.createId(),
             selectedMediaItem: {},
+            isDropUploadActive: false,
+            userPreferences: {},
+            isApplyingUserPreferences: false,
         };
     },
 
@@ -110,6 +116,7 @@ export default {
     watch: {
         folderId() {
             this.fetchCurrentFolder();
+            this.saveLastFolderPreference();
         },
     },
 
@@ -126,17 +133,24 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
+            await this.loadUserPreferences();
             this.fetchCurrentFolder();
             this.addResizeListener();
         },
 
         mountedComponent() {
             this.getComponentWidth();
+            window.addEventListener('dragenter', this.onFileDragEnter);
+            window.addEventListener('dragleave', this.onFileDragLeave);
+            window.addEventListener('drop', this.onFileDrop);
         },
 
         beforeDestroyComponent() {
             this.removeOnResizeListener();
+            window.removeEventListener('dragenter', this.onFileDragEnter);
+            window.removeEventListener('dragleave', this.onFileDragLeave);
+            window.removeEventListener('drop', this.onFileDrop);
         },
 
         async fetchCurrentFolder() {
@@ -145,7 +159,74 @@ export default {
                 return;
             }
 
-            this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
+            try {
+                this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
+            } catch {
+                this.currentFolder = null;
+                this.folderId = null;
+            }
+        },
+
+        async loadUserPreferences() {
+            if (!this.userConfigService?.search) {
+                return;
+            }
+
+            this.isApplyingUserPreferences = true;
+
+            try {
+                const response = await this.userConfigService.search([MEDIA_LIBRARY_PREFERENCES_KEY]);
+                const userPreferences = response?.data?.[MEDIA_LIBRARY_PREFERENCES_KEY];
+
+                if (!userPreferences || typeof userPreferences !== 'object') {
+                    return;
+                }
+
+                this.userPreferences = userPreferences;
+
+                if (!this.initialFolderId && typeof userPreferences.lastFolderId === 'string') {
+                    this.folderId = userPreferences.lastFolderId;
+                }
+            } catch {
+                this.userPreferences = {};
+            } finally {
+                await this.$nextTick();
+                this.isApplyingUserPreferences = false;
+            }
+        },
+
+        async getStoredUserPreferences() {
+            try {
+                const response = await this.userConfigService.search([MEDIA_LIBRARY_PREFERENCES_KEY]);
+                const userPreferences = response?.data?.[MEDIA_LIBRARY_PREFERENCES_KEY];
+
+                if (!userPreferences || typeof userPreferences !== 'object') {
+                    return {};
+                }
+
+                return userPreferences;
+            } catch {
+                return this.userPreferences;
+            }
+        },
+
+        async saveLastFolderPreference() {
+            if (this.isApplyingUserPreferences || !this.userConfigService?.upsert) {
+                return Promise.resolve();
+            }
+
+            const storedUserPreferences = await this.getStoredUserPreferences();
+
+            this.userPreferences = {
+                ...storedUserPreferences,
+                lastFolderId: this.folderId,
+            };
+
+            return this.userConfigService
+                .upsert({
+                    [MEDIA_LIBRARY_PREFERENCES_KEY]: this.userPreferences,
+                })
+                .catch(() => {});
         },
 
         addResizeListener() {
@@ -154,6 +235,28 @@ export default {
 
         removeOnResizeListener() {
             window.removeEventListener('resize', this.getComponentWidth);
+        },
+
+        isFileDrag(event) {
+            return Array.from(event?.dataTransfer?.types ?? []).includes('Files');
+        },
+
+        onFileDragEnter(event) {
+            if (!this.isFileDrag(event)) {
+                return;
+            }
+
+            this.isDropUploadActive = true;
+        },
+
+        onFileDragLeave(event) {
+            if (event.screenX === 0 && event.screenY === 0) {
+                this.isDropUploadActive = false;
+            }
+        },
+
+        onFileDrop() {
+            this.isDropUploadActive = false;
         },
 
         getComponentWidth() {
@@ -193,12 +296,12 @@ export default {
          * selection
          */
         refreshList() {
-            this.$refs.mediaLibrary.refreshList();
+            return this.$refs.mediaLibrary?.refreshList?.() ?? Promise.resolve();
         },
 
         onMediaRemoveSelected({ item }) {
             const index = this.selection.findIndex((selectedItem) => {
-                return item.id === selectedItem.id;
+                return this.isSameMediaItem(item, selectedItem);
             });
             if (index === -1) {
                 return;
@@ -208,7 +311,7 @@ export default {
         },
 
         onMediaAddSelected({ item }) {
-            if (this.selection.includes(item)) {
+            if (this.selection.some((selectedItem) => this.isSameMediaItem(item, selectedItem))) {
                 return;
             }
 
@@ -265,9 +368,14 @@ export default {
                 this.uploads.push(updatedMedia);
             }
 
+            await this.refreshList();
+            this.selectUploadedMedia(updatedMedia);
+        },
+
+        selectUploadedMedia(updatedMedia) {
             if (this.allowMultiSelect) {
                 const foundSelectedItem = this.selection.some((selectedItem) => {
-                    return updatedMedia.id === selectedItem.id;
+                    return this.isSameMediaItem(updatedMedia, selectedItem);
                 });
                 if (!foundSelectedItem) {
                     this.selection.push(updatedMedia);
@@ -275,6 +383,8 @@ export default {
             } else {
                 this.selection = [updatedMedia];
             }
+
+            this.$refs.mediaLibrary?.setListSelectionStartItem?.(this.selection[0] ?? null);
         },
 
         onUploadFailed(task) {
@@ -294,10 +404,14 @@ export default {
 
         checkMediaItem(upload) {
             if (this.allowMultiSelect) {
-                return this.selection.includes(upload);
+                return this.selection.some((selectedItem) => this.isSameMediaItem(upload, selectedItem));
             }
 
-            return upload.id === this.selectedMediaItem.id;
+            return this.isSameMediaItem(upload, this.selectedMediaItem);
+        },
+
+        isSameMediaItem(item, itemToCompare) {
+            return item?.id === itemToCompare?.id && item?.getEntityName?.() === itemToCompare?.getEntityName?.();
         },
 
         onSearchTermChange(searchTerm) {

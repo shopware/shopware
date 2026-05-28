@@ -32,6 +32,39 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
         font-weight: normal;
         color: $sw-media-sidebar-color-headline;
         border-bottom: 1px solid $sw-media-sidebar-border-color-headline;
+
+        &.has--middle-truncation {
+            display: block;
+        }
+
+        &.has--middle-truncation:hover {
+            .sw-media-sidebar__headline-text-middle {
+                display: flex;
+            }
+
+            .sw-media-sidebar__headline-text {
+                display: none;
+            }
+        }
+    }
+
+    .sw-media-sidebar__headline-text-middle {
+        display: none;
+        min-width: 0;
+    }
+
+    .sw-media-sidebar__headline-text-middle-start {
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .sw-media-sidebar__headline-text-middle-separator {
+        flex: 0 0 auto;
+    }
+
+    .sw-media-sidebar__headline-text-middle-end {
+        flex: 0 0 auto;
     }
 
     .sw-media-sidebar__quickinfo-scroll-container {
@@ -51,12 +84,26 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
             flex-direction: column;
             align-content: center;
             justify-content: center;
+            background: var(--color-elevation-surface-sunken);
 
             & > * {
                 position: relative;
                 width: auto;
                 height: auto;
             }
+        }
+    }
+
+    .sw-media-sidebar__empty-state {
+        color: var(--color-text-secondary-default);
+
+        .mt-empty-state__icon {
+            background: var(--color-background-primary-disabled);
+            color: var(--color-icon-secondary-default);
+        }
+
+        .mt-empty-state__headline {
+            color: var(--color-text-secondary-default);
         }
     }
 
@@ -67,15 +114,25 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
 
     .sw-media-sidebar__metadata-list {
         .mt-field {
+            width: 100%;
             margin-bottom: 0;
+        }
+
+        .sw-confirm-field__button-list {
+            display: flex;
+            gap: var(--scale-size-4);
+        }
+
+        .sw-confirm-field--editing input {
+            padding-right: calc(var(--scale-size-80) - 22px);
         }
 
         @media screen and (min-width: 769px) {
             display: grid;
-            grid-template-columns: auto 1fr;
-            grid-auto-rows: minmax(24px, auto);
-            grid-row-gap: 12px;
-            grid-column-gap: 16px;
+            grid-template-columns: minmax(76px, max-content) minmax(0, 1fr);
+            grid-auto-rows: minmax(var(--scale-size-32), auto);
+            grid-row-gap: var(--scale-size-8);
+            grid-column-gap: 0;
             align-items: center;
             overflow: visible;
         }
@@ -87,12 +144,21 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
         @media screen and (min-width: 769px) {
             display: grid;
             grid-template-columns: 50% 50%;
+            grid-row-gap: var(--scale-size-12);
+            grid-column-gap: var(--scale-size-16);
         }
     }
 
     .sw-media-sidebar__quickaction {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--scale-size-20);
         cursor: pointer;
-        margin-bottom: 16px;
+        margin-bottom: var(--scale-size-12);
+
+        @media screen and (min-width: 769px) {
+            margin-bottom: 0;
+        }
 
         &:hover {
             color: $sw-media-sidebar-color-quick-action;
@@ -104,10 +170,9 @@ $sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
     }
 
     .sw-media-sidebar__quickactions-icon {
-        position: relative;
-        top: -2px;
+        flex: 0 0 auto;
         color: $sw-media-sidebar-color-quick-action;
-        margin-right: 0.25rem;
+        margin-right: var(--scale-size-4);
 
         &.is--danger {
             color: $sw-media-sidebar-color-quick-action-danger;

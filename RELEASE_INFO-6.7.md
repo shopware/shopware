@@ -19,6 +19,14 @@ A `debug:mcp` CLI command is available to list all registered MCP tools, prompts
 
 ## API
 
+### Empty `sw-*` id headers are treated as unset
+
+Admin API and Store API requests now treat empty id headers such as `sw-language-id`, `sw-currency-id`, `sw-app-integration-id`, and `sw-app-user-id` the same as missing headers.
+Empty values fall back to the default request context instead of being forwarded as invalid UUIDs.
+Whitespace-only values are still rejected as malformed ids.
+
+For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
+
 ### Number range previews can target a concrete number range
 
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.

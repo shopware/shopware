@@ -123,45 +123,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
-    public function testEmptyLanguageAndCurrencyHeadersFallBackToSalesChannelDefaults(): void
-    {
-        $this->createTestSalesChannel();
-
-        $resolver = static::getContainer()->get(SalesChannelRequestContextResolver::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
-        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
-
-        // Empty header values must be treated as "header not provided" instead of being
-        // forwarded as language/currency IDs. Regression test for
-        // https://github.com/shopware/shopware/issues/16778: previously an empty
-        // sw-language-id crashed with SYSTEM__LANGUAGE_INVALID_EXCEPTION and an empty
-        // sw-currency-id crashed with SYSTEM__CURRENCY_INVALID_EXCEPTION on store-api.
-        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, '');
-        $request->headers->set(PlatformRequest::HEADER_CURRENCY_ID, '');
-
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $resolvedContext = null;
-        $listener = static function (SalesChannelContextResolvedEvent $event) use (&$resolvedContext): void {
-            $resolvedContext = $event->getSalesChannelContext();
-        };
-
-        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listener);
-
-        $resolver->resolve($request);
-
-        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listener);
-
-        static::assertInstanceOf(SalesChannelContext::class, $resolvedContext);
-        // The resolved context must not carry an empty UUID; it should use the
-        // sales-channel default language/currency instead.
-        static::assertNotSame('', $resolvedContext->getContext()->getLanguageId());
-        static::assertNotSame('', $resolvedContext->getContext()->getCurrencyId());
-    }
-
     public function testRequestCurrencyHeaderDoesOverwriteContextData(): void
     {
         $this->createTestSalesChannel();

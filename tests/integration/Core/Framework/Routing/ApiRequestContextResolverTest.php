@@ -117,12 +117,6 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
-        // Empty header values must be treated as "header not provided" instead of being
-        // forwarded as language/currency IDs. Regression test for
-        // https://github.com/shopware/shopware/issues/16778: previously an empty
-        // sw-language-id crashed in getParentLanguageId with
-        // RoutingException::languageNotFound("") and an empty sw-currency-id crashed
-        // in getCashRounding with FRAMEWORK__INVALID_UUID.
         $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, '');
         $request->headers->set(PlatformRequest::HEADER_CURRENCY_ID, '');
 
@@ -142,10 +136,6 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
-        // An empty sw-app-integration-id must be treated as "header not provided".
-        // Regression test for https://github.com/shopware/shopware/issues/16778:
-        // previously an empty value reached fetchAppNameByIntegrationId(""), which
-        // crashed in Uuid::fromHexToBytes with FRAMEWORK__INVALID_UUID.
         $request->headers->set(PlatformRequest::HEADER_APP_INTEGRATION_ID, '');
 
         $this->resolver->resolve($request);
@@ -178,8 +168,6 @@ class ApiRequestContextResolverTest extends TestCase
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        // The app linked to the integration is required to reach the userId code path:
-        // without an app, userAppIntegrationHeaderPrivileged() bails out earlier.
         $connection->insert('app', [
             'id' => Uuid::fromHexToBytes($ids->create('app')),
             'name' => 'PHPUnit',
@@ -202,11 +190,6 @@ class ApiRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
 
-        // An empty sw-app-user-id must be treated as "header not provided".
-        // Regression test for https://github.com/shopware/shopware/issues/16778:
-        // previously an empty value passed the `!== null` guard and reached
-        // isAdmin("") / fetchPermissions(""), crashing in Uuid::fromHexToBytes
-        // with FRAMEWORK__INVALID_UUID.
         $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, '');
 
         $this->resolver->resolve($request);
@@ -215,7 +198,6 @@ class ApiRequestContextResolverTest extends TestCase
         static::assertInstanceOf(Context::class, $context);
         $source = $context->getSource();
         static::assertInstanceOf(AdminApiSource::class, $source);
-        // The empty header must not be forwarded as a user id.
         static::assertNull($source->getUserId());
         static::assertSame($ids->get('integration'), $source->getIntegrationId());
     }

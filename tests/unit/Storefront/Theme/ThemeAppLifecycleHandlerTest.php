@@ -4,10 +4,11 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
-use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
+use Shopware\Core\Framework\App\Event\AppsSilentlyUninstalledEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -115,30 +116,75 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         $handler->handleUninstall(new AppDeactivatedEvent($app, Context::createDefaultContext()));
     }
 
-    public function testSilentUninstallRunsTheSameThemeCleanupAsHandleUninstall(): void
+    public function testSilentUninstallUninstallsThemeForMatchingAppsAndRefreshesImportMapOnce(): void
     {
-        $config = new StorefrontPluginConfiguration('ComponentTestApp');
-        $configurations = new StorefrontPluginConfigurationCollection([$config]);
+        $themedConfig = new StorefrontPluginConfiguration('ThemedApp');
+        $unrelatedConfig = new StorefrontPluginConfiguration('SomeOtherTheme');
+        $configurations = new StorefrontPluginConfigurationCollection([$themedConfig, $unrelatedConfig]);
 
         $registry = $this->createMock(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')->willReturn($configurations);
 
         $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
         $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
-        $lifecycle->expects($this->once())->method('handleThemeUninstall')->with($config, static::isInstanceOf(Context::class));
+
+        // Only ThemedApp has a registered theme config; PlainApp must NOT trigger handleThemeUninstall.
+        $lifecycle->expects($this->once())
+            ->method('handleThemeUninstall')
+            ->with($themedConfig, static::isInstanceOf(Context::class));
+
+        // refreshAllActiveThemeImportMaps fires exactly once for the whole batch, with both names filtered out.
+        $lifecycle->expects($this->once())
+            ->method('refreshAllActiveThemeImportMaps')
+            ->with(
+                static::isInstanceOf(Context::class),
+                static::callback(static function (StorefrontPluginConfigurationCollection $remaining): bool {
+                    $names = array_map(
+                        static fn (StorefrontPluginConfiguration $c) => $c->getTechnicalName(),
+                        $remaining->getElements(),
+                    );
+                    static::assertSame(['SomeOtherTheme'], array_values($names));
+
+                    return true;
+                }),
+            );
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+
+        $themedApp = (new AppEntity())->assign(['name' => 'ThemedApp']);
+        $themedApp->setUniqueIdentifier('id-themed');
+        $plainApp = (new AppEntity())->assign(['name' => 'PlainApp']);
+        $plainApp->setUniqueIdentifier('id-plain');
+
+        $handler->handleSilentUninstall(new AppsSilentlyUninstalledEvent(
+            new AppCollection([$themedApp, $plainApp]),
+            Context::createDefaultContext(),
+        ));
+    }
+
+    public function testSilentUninstallWithEmptyBatchOnlyRefreshesImportMapOnce(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
         $lifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
 
         $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
 
-        $app = (new AppEntity())->assign(['name' => 'ComponentTestApp']);
-        $handler->handleSilentUninstall(new AppSilentlyUninstalledEvent($app, Context::createDefaultContext()));
+        $handler->handleSilentUninstall(new AppsSilentlyUninstalledEvent(
+            new AppCollection(),
+            Context::createDefaultContext(),
+        ));
     }
 
-    public function testSubscribedEventsIncludesAppSilentlyUninstalledEvent(): void
+    public function testSubscribedEventsIncludesAppsSilentlyUninstalledEvent(): void
     {
         $events = ThemeAppLifecycleHandler::getSubscribedEvents();
 
-        static::assertArrayHasKey(AppSilentlyUninstalledEvent::class, $events);
-        static::assertSame('handleSilentUninstall', $events[AppSilentlyUninstalledEvent::class]);
+        static::assertArrayHasKey(AppsSilentlyUninstalledEvent::class, $events);
+        static::assertSame('handleSilentUninstall', $events[AppsSilentlyUninstalledEvent::class]);
     }
 }

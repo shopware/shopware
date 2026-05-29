@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
+use Shopware\Core\Framework\App\Event\AppsSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -53,10 +53,19 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
     {
         $this->shopIdProvider->deleteShopId();
 
-        foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
+        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+
+        if ($apps->count() === 0) {
+            return;
+        }
+
+        // Dispatch once with the full set, before any delete, so listeners see live app entities
+        // and can batch cross-cutting work (e.g. import-map refresh) instead of repeating it per app.
+        $this->eventDispatcher->dispatch(new AppsSilentlyUninstalledEvent($apps, $context));
+
+        foreach ($apps as $app) {
             // Delete app manually, to not inform the app backend about the deactivation
             // as the app is still running in the old shop with the same shopId
-            $this->eventDispatcher->dispatch(new AppSilentlyUninstalledEvent($app, $context));
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
     }

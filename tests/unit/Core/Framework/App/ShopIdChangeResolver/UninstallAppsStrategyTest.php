@@ -9,7 +9,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
+use Shopware\Core\Framework\App\Event\AppsSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
@@ -70,8 +70,8 @@ class UninstallAppsStrategyTest extends TestCase
         $this->strategy->getDecorated();
     }
 
-    #[TestDox('resolve deletes the shop id once, dispatches AppSilentlyUninstalledEvent per app, and deletes each app via the repository')]
-    public function testResolveDeletesShopIdDispatchesEventsAndDeletesApps(): void
+    #[TestDox('resolve deletes the shop id, dispatches AppsSilentlyUninstalledEvent once with all apps, then deletes each app via the repository')]
+    public function testResolveDispatchesBatchedEventBeforeDeletingApps(): void
     {
         $appA = new AppEntity();
         $appA->setUniqueIdentifier('id-a');
@@ -84,11 +84,13 @@ class UninstallAppsStrategyTest extends TestCase
         $this->stubAppRepositorySearch([$appA, $appB]);
         $captureDeletes = $this->captureRepositoryDeletes();
 
-        $dispatchedAppNames = [];
+        $dispatchedEvents = [];
         $this->eventDispatcher->addListener(
-            AppSilentlyUninstalledEvent::class,
-            static function (AppSilentlyUninstalledEvent $event) use (&$dispatchedAppNames): void {
-                $dispatchedAppNames[] = $event->app->getName();
+            AppsSilentlyUninstalledEvent::class,
+            static function (AppsSilentlyUninstalledEvent $event) use (&$dispatchedEvents, $captureDeletes): void {
+                $dispatchedEvents[] = $event;
+                // Listener observes that no deletes have happened yet — entities still live.
+                static::assertSame([], $captureDeletes());
             }
         );
 
@@ -97,8 +99,32 @@ class UninstallAppsStrategyTest extends TestCase
         $context = Context::createDefaultContext();
         $this->strategy->resolve($context);
 
-        static::assertSame(['AppA', 'AppB'], $dispatchedAppNames);
+        static::assertCount(1, $dispatchedEvents);
+        static::assertSame(['AppA', 'AppB'], array_values(array_map(static fn (AppEntity $app) => $app->getName(), $dispatchedEvents[0]->apps->getElements())));
+        static::assertSame($context, $dispatchedEvents[0]->context);
         static::assertSame([[['id' => 'id-a']], [['id' => 'id-b']]], $captureDeletes());
+    }
+
+    #[TestDox('resolve does not dispatch the event when no apps are installed')]
+    public function testResolveSkipsEventWhenNoApps(): void
+    {
+        $this->stubAppRepositorySearch([]);
+        $captureDeletes = $this->captureRepositoryDeletes();
+
+        $dispatched = 0;
+        $this->eventDispatcher->addListener(
+            AppsSilentlyUninstalledEvent::class,
+            static function () use (&$dispatched): void {
+                ++$dispatched;
+            }
+        );
+
+        $this->shopIdProvider->expects($this->once())->method('deleteShopId');
+
+        $this->strategy->resolve(Context::createDefaultContext());
+
+        static::assertSame(0, $dispatched);
+        static::assertSame([], $captureDeletes());
     }
 
     /**

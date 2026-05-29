@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
-use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
+use Shopware\Core\Framework\App\Event\AppsSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -36,7 +36,7 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
             AppUpdatedEvent::class => 'handleAppActivationOrUpdate',
             AppActivatedEvent::class => 'handleAppActivationOrUpdate',
             AppDeactivatedEvent::class => 'handleUninstall',
-            AppSilentlyUninstalledEvent::class => 'handleSilentUninstall',
+            AppsSilentlyUninstalledEvent::class => 'handleSilentUninstall',
         ];
     }
 
@@ -70,9 +70,22 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
         $this->uninstallTheme($event->getApp(), $event->getContext());
     }
 
-    public function handleSilentUninstall(AppSilentlyUninstalledEvent $event): void
+    public function handleSilentUninstall(AppsSilentlyUninstalledEvent $event): void
     {
-        $this->uninstallTheme($event->app, $event->context);
+        $uninstalledNames = [];
+        foreach ($event->apps as $app) {
+            $uninstalledNames[] = $app->getName();
+            $config = $this->themeRegistry->getConfigurations()->getByTechnicalName($app->getName());
+            if ($config !== null) {
+                $this->themeLifecycleHandler->handleThemeUninstall($config, $event->context);
+            }
+        }
+
+        $remaining = $this->themeRegistry
+            ->getConfigurations()
+            ->filter(static fn (StorefrontPluginConfiguration $registeredConfig): bool => !\in_array($registeredConfig->getTechnicalName(), $uninstalledNames, true));
+
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($event->context, $remaining);
     }
 
     private function uninstallTheme(AppEntity $app, Context $context): void

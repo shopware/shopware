@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -16,7 +17,8 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
      */
     public function __construct(
         private readonly FilesystemOperator $fileSystem,
-        private readonly string $exportDirectory
+        private readonly string $exportDirectory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -93,6 +95,6 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
 
         $expireTimestamp = $productExport->getGeneratedAt()->getTimestamp() + $productExport->getInterval();
 
-        return (new \DateTime())->getTimestamp() > $expireTimestamp;
+        return $this->clock->now()->getTimestamp() > $expireTimestamp;
     }
 }

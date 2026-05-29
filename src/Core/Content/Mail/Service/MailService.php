@@ -8,6 +8,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -158,6 +159,10 @@ class MailService extends AbstractMailService
 
         $templateData['salesChannel'] = $salesChannel;
         $templateData['salesChannelId'] = $salesChannel?->getId();
+
+        $renderContextEvent = new MailTemplateRenderContextEvent($templateData, $context, $salesChannel);
+        $this->eventDispatcher->dispatch($renderContextEvent);
+        $templateData = $renderContextEvent->getTemplateData();
 
         $senderEmail = $this->getSender($data, $salesChannel?->getId());
         if ($senderEmail === '') {

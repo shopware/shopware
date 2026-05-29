@@ -234,6 +234,39 @@ describe('Plugin manager', () => {
         PluginManager.deregister('Async2', '#test-id');
     });
 
+    it('should continue initializing other plugins when one async import fails', async () => {
+        const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const failingAsyncImport = new Promise((resolve, reject) => {
+            reject(new Error('Chunk not found'));
+        });
+
+        const successfulAsyncImport = new Promise((resolve) => {
+            resolve({ default: AsyncPluginClass });
+        });
+
+        PluginManager.register('AsyncFailing', () => failingAsyncImport, '.test-class');
+        PluginManager.register('AsyncSuccess', () => successfulAsyncImport, '#test-id');
+        PluginManager.register('SyncSuccess', FooPluginClass, '[data-plugin]');
+
+        await PluginManager.initializePlugins();
+
+        expect(PluginManager.getPluginInstances('AsyncFailing').length).toBe(0);
+        expect(PluginManager.getPluginInstances('AsyncSuccess').length).toBe(1);
+        expect(PluginManager.getPluginInstances('AsyncSuccess')[0]._initialized).toBe(true);
+        expect(PluginManager.getPluginInstances('SyncSuccess').length).toBe(1);
+        expect(PluginManager.getPluginInstances('SyncSuccess')[0]._initialized).toBe(true);
+
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+            'The async plugin "AsyncFailing" could not be loaded and will be skipped.',
+            expect.any(Error),
+        );
+
+        PluginManager.deregister('AsyncFailing', '.test-class');
+        PluginManager.deregister('AsyncSuccess', '#test-id');
+        PluginManager.deregister('SyncSuccess', '[data-plugin]');
+    });
+
     it('should initialize plugins in correct order, regardless if they are async', async () => {
         document.body.innerHTML = `
             <div data-async-one="true"></div>
@@ -265,9 +298,8 @@ describe('Plugin manager', () => {
         expect(spyInit3).toHaveBeenCalledTimes(1);
 
         // Ensure plugins are initialized in correct order
-        expect(spyInit1.mock.invocationCallOrder[0]).toBe(1);
-        expect(spyInit2.mock.invocationCallOrder[0]).toBe(2);
-        expect(spyInit3.mock.invocationCallOrder[0]).toBe(3);
+        expect(spyInit1.mock.invocationCallOrder[0]).toBeLessThan(spyInit2.mock.invocationCallOrder[0]);
+        expect(spyInit2.mock.invocationCallOrder[0]).toBeLessThan(spyInit3.mock.invocationCallOrder[0]);
 
         PluginManager.deregister('Plugin1', '[data-async-one]');
         PluginManager.deregister('Plugin2', '[data-sync-plugin]');
@@ -390,6 +422,32 @@ describe('Plugin manager', () => {
         expect(PluginManager.getPluginInstances('AsyncSingleDomPlugin')[0]._initialized).toBe(true);
 
         PluginManager.deregister('AsyncSingleDomPlugin', element);
+    });
+
+    it('should skip single async plugin when async import fails', async () => {
+        document.body.innerHTML = `
+            <div data-async-single="true"></div>
+        `;
+
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const asyncImport = new Promise((resolve, reject) => {
+            reject(new Error('Chunk not found'));
+        });
+
+        PluginManager.register('AsyncSingleFailingPlugin', () => asyncImport, '[data-async-single]');
+
+        await PluginManager.initializePlugin('AsyncSingleFailingPlugin', '[data-async-single]', {});
+
+        await new Promise(process.nextTick);
+
+        expect(PluginManager.getPluginInstances('AsyncSingleFailingPlugin').length).toBe(0);
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'The async plugin "AsyncSingleFailingPlugin" could not be loaded and will be skipped.',
+            expect.any(Error),
+        );
+
+        PluginManager.deregister('AsyncSingleFailingPlugin', '[data-async-single]');
     });
 
     it('should not initialize single async plugin when selector is not found in the DOM', async () => {

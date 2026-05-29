@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Payment\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,13 +28,14 @@ final class CleanupPaymentTokenTaskHandler extends ScheduledTaskHandler
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
         private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void
     {
-        $now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->setTimezone(new \DateTimeZone('UTC'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->connection->executeStatement('DELETE FROM payment_token WHERE expires < :now', ['now' => $now]);
     }

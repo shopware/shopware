@@ -184,10 +184,10 @@ class PluginManagerSingleton {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {*} methodName 
-     * @param  {...any} args 
+     *
+     * @param {string} pluginName
+     * @param {*} methodName
+     * @param  {...any} args
      */
     callPluginMethod(pluginName, methodName, ...args) {
         const instances = this.getPluginInstances(pluginName);
@@ -242,6 +242,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -265,7 +268,7 @@ class PluginManagerSingleton {
     /**
      * Initializes all registered plugins, but only for elements within the parent element.
      *
-     * @param {HTMLElement} parentElement 
+     * @param {HTMLElement} parentElement
      * @returns {Promise<void>}
      */
     async initializePluginsInParentElement(parentElement) {
@@ -276,6 +279,9 @@ class PluginManagerSingleton {
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {
                 const plugin = this._registry.get(pluginName);
+                if (this._isUnresolvedAsyncPlugin(plugin)) {
+                    continue;
+                }
 
                 if (plugin.has('registrations')) {
                     for (const [, entry] of plugin.get('registrations')) {
@@ -359,23 +365,22 @@ class PluginManagerSingleton {
             return;
         }
 
-        // Fetch all needed plugins
-        try {
-            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
-                return queueItem.pluginClassPromise();
-            }));
-        } catch (error) {
-            console.error('An error occurred while fetching async JS-plugins', error);
-        }
+        // Fetch all needed plugins while keeping a single failing plugin from stopping the others.
+        fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
+            return this._loadAsyncPluginClass(queueItem.pluginName, queueItem.pluginClassPromise);
+        }));
 
         // Set the fetched plugin classes to the registry, so they can be initialized later.
         queue.forEach((plugin, index) => {
-            const pluginClass = fetchedPluginClasses[index].default;
+            const pluginClass = fetchedPluginClasses[index];
+            if (!pluginClass) {
+                return;
+            }
+
             const pluginName = plugin.pluginName;
             const pluginFromRegistry = this._registry.get(pluginName);
 
-            pluginFromRegistry.set('async', false);
-            pluginFromRegistry.set('class', pluginClass);
+            this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
         });
     }
 
@@ -389,6 +394,8 @@ class PluginManagerSingleton {
         if (!pluginFromRegistry.get('async')) {
             return;
         }
+
+        const pluginName = pluginFromRegistry.get('name');
 
         let needsFetch = false;
         if (selector instanceof Node) {
@@ -404,12 +411,53 @@ class PluginManagerSingleton {
             return;
         }
 
-        const pluginClassPromise = pluginFromRegistry.get('class')();
-        const fetchedPlugin = await pluginClassPromise;
-        const pluginClass = fetchedPlugin.default;
+        const pluginClass = await this._loadAsyncPluginClass(pluginName, pluginFromRegistry.get('class'));
+        if (!pluginClass) {
+            return;
+        }
 
+        this._setResolvedPluginClass(pluginFromRegistry, pluginClass);
+    }
+
+    /**
+     * @param {string} pluginName
+     * @param {Function} importFn - lazy import registered via PluginManager.register()
+     * @returns {Promise<typeof Plugin|null>}
+     * @private
+     */
+    async _loadAsyncPluginClass(pluginName, importFn) {
+        try {
+            const module = await importFn();
+
+            if (!module?.default) {
+                console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`);
+                return null;
+            }
+
+            return module.default;
+        } catch (error) {
+            console.warn(`The async plugin "${pluginName}" could not be loaded and will be skipped.`, error);
+            return null;
+        }
+    }
+
+    /**
+     * @param {Object} pluginFromRegistry
+     * @param {typeof Plugin} pluginClass
+     * @private
+     */
+    _setResolvedPluginClass(pluginFromRegistry, pluginClass) {
         pluginFromRegistry.set('async', false);
         pluginFromRegistry.set('class', pluginClass);
+    }
+
+    /**
+     * @param {Object} plugin
+     * @returns {boolean}
+     * @private
+     */
+    _isUnresolvedAsyncPlugin(plugin) {
+        return plugin.get('async');
     }
 
     /**
@@ -427,12 +475,22 @@ class PluginManagerSingleton {
         if (this._registry.has(pluginName, selector)) {
             plugin = this._registry.get(pluginName, selector);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             const registrationOptions = plugin.get('registrations').get(selector);
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, deepmerge(registrationOptions.options || {}, options || {}));
         } else {
             plugin = this._registry.get(pluginName);
             await this._fetchAsyncPlugin(plugin, selector);
+
+            if (this._isUnresolvedAsyncPlugin(plugin)) {
+                return Promise.resolve();
+            }
+
             pluginClass = plugin.get('class');
             mergedOptions = deepmerge(pluginClass.options || {}, options || {});
         }
@@ -726,11 +784,11 @@ export default class PluginManager {
 
     /**
      * Calls a method on all plugin instances.
-     * 
-     * @param {string} pluginName 
-     * @param {string} methodName 
-     * @param  {...any} args 
-     * @returns 
+     *
+     * @param {string} pluginName
+     * @param {string} methodName
+     * @param  {...any} args
+     * @returns
      */
     static callPluginMethod(pluginName, methodName, ...args) {
         return PluginManagerInstance.callPluginMethod(pluginName, methodName, ...args);

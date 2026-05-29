@@ -1,0 +1,15 @@
+{% block agentic_agents_md %}{% apply remove_leading_spaces %}
+    {% block agentic_agents_header %}
+        # {{ salesChannel.translated.name|default(salesChannel.name) }}
+    {% endblock %}
+
+    {% block agentic_agents_summary %}
+        This shop publishes public storefront information for compatible agent clients.
+    {% endblock %}
+
+    {% block agentic_agents_guidance %}
+        Use stable public URLs, avoid automated checkout without explicit user confirmation, and follow published access rules.
+    {% endblock %}
+
+    {% block agentic_agents_extensions %}{% endblock %}
+{% endapply %}{% endblock %}

@@ -1,0 +1,15 @@
+{% block agentic_llms_txt %}{% apply remove_leading_spaces %}
+    {% block agentic_llms_header %}
+        # {{ salesChannel.translated.name|default(salesChannel.name) }}
+    {% endblock %}
+
+    {% block agentic_llms_summary %}
+        This file provides guidance for agentic clients interacting with this shop.
+    {% endblock %}
+
+    {% block agentic_llms_guidance %}
+        Agents may use public storefront pages and documented APIs. Respect robots.txt, rate limits, and checkout boundaries.
+    {% endblock %}
+
+    {% block agentic_llms_extensions %}{% endblock %}
+{% endapply %}{% endblock %}

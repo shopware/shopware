@@ -55,6 +55,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChann
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
@@ -176,6 +177,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'),
+            (new OneToManyAssociationField('salesChannelFiles', SalesChannelFileDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, false))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
             new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'),

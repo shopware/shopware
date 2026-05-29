@@ -39,4 +39,27 @@ class TemplateIteratorTest extends TestCase
             }
         }
     }
+
+    public function testIteratorKeepsSymfonyDefaultDotFileBehavior(): void
+    {
+        $templateList = iterator_to_array($this->iterator, false);
+
+        foreach ($templateList as $template) {
+            static::assertStringNotContainsString('/.', $template);
+        }
+    }
+
+    public function testFilteredLookupIncludesHiddenTemplatePathsWhenRequested(): void
+    {
+        $templateList = iterator_to_array($this->iterator->getTemplatePathsForSubPath('files/agentic', true), false);
+
+        static::assertContains('files/agentic/llms.txt.twig', $templateList);
+    }
+
+    public function testFilteredLookupCanKeepDefaultDotFileBehavior(): void
+    {
+        $templateList = iterator_to_array($this->iterator->getTemplatePathsForSubPath('files/agentic'), false);
+
+        static::assertContains('files/agentic/llms.txt.twig', $templateList);
+    }
 }

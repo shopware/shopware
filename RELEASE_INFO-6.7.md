@@ -13,6 +13,14 @@ The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
 
 ## Core
 
+### Template-backed files for sales channels
+
+Sales channels can now serve template-backed files such as `llms.txt` and `agents.md` from Twig templates under `Resources/views/files/agentic/**.twig`. Extensions can add additional files, including nested paths such as `.well-known/*`.
+Plugins, apps, and themes can extend or overwrite these templates through the regular Shopware Twig inheritance mechanism.
+
+Merchant overrides and the enabled state are stored per sales channel, file family, and file in the new `sales_channel_file` entity.
+The Admin API exposes discovery and preview endpoints under `/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`.
+
 ### Number range value generator interface deprecated
 
 `NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.

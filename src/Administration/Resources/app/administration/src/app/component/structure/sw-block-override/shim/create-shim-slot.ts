@@ -128,6 +128,7 @@ export function createShimSlot(
                     return (helper as LegacyBlockHelper)(...args);
                 }
 
+                // Each shim helper call gets a stable local branch position inside its reserved range.
                 const branchIndex = legacyConditionBranchIndex + legacyConditionBranchOffset;
                 legacyConditionBranchOffset += 1;
 
@@ -156,6 +157,7 @@ export function createShimSlot(
         renderVersion += 1;
 
         if (legacyConditionBranchIndex !== undefined) {
+            // Reserve before mounting so later native branches wait for this shim chain to evaluate.
             reserveLegacyConditionBranches(
                 getLegacyBlockConditionKey(dataScopeRef.value, blockName),
                 legacyConditionBranchIndex,

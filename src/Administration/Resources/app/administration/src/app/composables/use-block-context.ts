@@ -4,13 +4,13 @@
 import { reactive, type Slot } from 'vue';
 
 type LegacyConditionChain = {
-    // Branch evaluation state keyed by branch slot index.
+    // Stores the result for each absolute branch position in the condition chain.
     branches: Record<number, boolean | undefined>;
-    // Next free slot for native (non-extension) branches.
+    // Points to the next absolute position for branches rendered in the current pass.
     nextIndex: number;
-    // Start offset for extension branch slots.
+    // Marks where shim-local branch indexes start inside the absolute chain.
     extensionStartIndex?: number;
-    // Keeps chain alive across ticks for extension-driven evaluation.
+    // Keeps shim chains alive across ticks until their owning shim component unmounts.
     persistent: boolean;
 };
 
@@ -57,12 +57,14 @@ function removeBlock(blockName: string, block?: Slot): void {
 /** Returns a stable branch slot, optionally inside the legacy shim extension range. */
 function getLegacyConditionBranchIndex(chain: LegacyConditionChain, branchIndex?: number): number {
     if (branchIndex === undefined) {
+        // Native branches render in sequence, so they can consume the next free absolute index.
         const nextIndex = chain.nextIndex;
         chain.nextIndex += 1;
 
         return nextIndex;
     }
 
+    // Shim branches only know their local index; this offset maps them back into the full chain.
     chain.extensionStartIndex ??= chain.nextIndex;
     chain.persistent = true;
 
@@ -168,6 +170,7 @@ function reserveLegacyConditionBranches(blockName: string, branchIndex: number, 
 
     for (let currentIndex = startIndex; currentIndex < startIndex + branchCount; currentIndex += 1) {
         if (!(currentIndex in chain.branches)) {
+            // Undefined means the branch exists, but the shim has not evaluated it yet.
             chain.branches[currentIndex] = undefined;
         }
     }

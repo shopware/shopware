@@ -280,6 +280,59 @@ const shimSlots: Slot[] =
 
 Shim slots are not registered in the global `blockContext` so that multiple simultaneous instances of `<sw-block name="foo">` each maintain their own isolated shim slots and cannot double-render each other's content.
 
+### 6. Conditional Chain Shim for `v-if` / `v-else`
+
+Vue normally expects a `v-if`, `v-else-if`, and `v-else` chain to be compiled as one adjacent sequence. The legacy Twig adapter has to bridge across that boundary: the first branch can live in a native `<sw-block name="...">`, while the continuation branch can live in a legacy Twig override that is reconstructed later as an independent ShimContent component.
+
+Example before the adapter rewrites it:
+
+```html
+<sw-block name="demo_block">
+    <div v-if="showCore">Core branch</div>
+</sw-block>
+```
+
+```js
+Shopware.Component.override('sw-demo', {
+    template: `
+{% block demo_block %}
+    {% parent %}
+    <div v-else>Legacy fallback</div>
+{% endblock %}
+`,
+});
+```
+
+If Vue saw this directly, the `v-else` in the shim would no longer be adjacent to the original `v-if`. The adapter therefore rewrites both sides to ordinary `v-if` expressions backed by shared legacy helper state:
+
+```html
+<div v-if="$swLegacyBlockIf('demo_block', showCore)">Core branch</div>
+<div v-if="$swLegacyBlockElse('demo_block')">Legacy fallback</div>
+```
+
+The helpers keep a reactive condition chain per host component and block name. This chain stores the result of each branch by its absolute branch position:
+
+- Native branches do not pass an explicit index. They consume `nextIndex`, which simply moves from left to right during the current render pass.
+- Shim branches pass a `branchIndex`. This index is local to the shim output, because the shim does not know how many native branches already rendered before it.
+- `extensionStartIndex` stores the absolute position where shim branches start. The final absolute position is `extensionStartIndex + branchIndex`.
+
+The reconstructed shim template still contains the plain helper call (`$swLegacyBlockElse('demo_block')`). `createShimSlot()` appends the local `branchIndex` when it forwards the call to the global helper, so plugin templates do not need any additional generated syntax.
+
+Before a shim component renders, `sw-block` counts the rewritten `$swLegacyBlockElseIf(...)` and `$swLegacyBlockElse(...)` calls in the reconstructed Twig template. `createShimSlot()` uses that count to reserve pending branch slots in the reactive chain. A pending slot is stored as `undefined`, which means: "this branch exists, but the shim has not evaluated it yet."
+
+That reservation is what keeps later branches correct. A later native fallback must not render while an earlier shim branch is still pending. During evaluation, `$swLegacyBlockElseIf` and `$swLegacyBlockElse` scan all earlier positions. If any earlier branch is `true` or still `undefined`, the current branch does not render.
+
+For a chain with a shim `v-else-if` followed by a later native fallback, the indexes look like this:
+
+| Step | Source                      | Stored position                    | Stored value                         |
+| ---- | --------------------------- | ---------------------------------- | ------------------------------------ |
+| 1    | Native `v-if`               | `0` from `nextIndex`               | `false`                              |
+| 2    | Shim reservation            | `1` from `extensionStartIndex + 0` | `undefined`                          |
+| 3    | Shim `v-else-if` evaluates  | `1`                                | `true`                               |
+| 4    | Later native fallback       | `2` from `nextIndex`               | `false` because position `1` matched |
+
+Shim-backed chains are marked as persistent, because the shim may evaluate in a later render tick than the native block that started the chain. The owning shim component clears the persistent chain state in `beforeUnmount`, so the state does not outlive the shim tree.
+
 ---
 
 ## File Overview

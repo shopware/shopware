@@ -97,6 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
         const shimSlots: Slot[] =
             props.name && hasBlockEntries(props.name)
                 ? getBlockEntries(props.name).map((entry) => {
+                      // The transformed Twig helper calls reveal how many conditional branches this shim must reserve.
                       const legacyConditionBranchCount =
                           entry.innerTemplate.match(/\$swLegacyBlockElse(?:If)?\(/g)?.length ?? 0;
                       const shimSlot = createShimSlot(

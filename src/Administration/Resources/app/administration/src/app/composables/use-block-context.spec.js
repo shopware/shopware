@@ -231,6 +231,35 @@ describe('use-block-context', () => {
         });
     });
 
+    it('uses nextIndex as extensionStartIndex for shim-local branch positions', () => {
+        // Native branches consume absolute indexes first.
+        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyElseIf('test', false)).toBe(false);
+
+        // The shim reserves two pending slots starting at the current nextIndex.
+        reserveLegacyConditionBranches('test', 0, 2);
+
+        // Shim-local indexes 0 and 1 are evaluated as absolute indexes 2 and 3.
+        expect(legacyElseIf('test', true, 0)).toBe(true);
+        expect(legacyElse('test', 1)).toBe(false);
+        // Later native branches continue after the reserved shim range.
+        expect(legacyElse('test')).toBe(false);
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                branches: {
+                    0: false,
+                    1: false,
+                    2: true,
+                    3: false,
+                    4: false,
+                },
+                extensionStartIndex: 2,
+                nextIndex: 5,
+                persistent: true,
+            },
+        });
+    });
+
     it('clears persisted legacy extension chains when the extension is removed', () => {
         expect(legacyIf('test', false)).toBe(false);
 

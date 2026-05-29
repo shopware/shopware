@@ -37,7 +37,7 @@ abstract class Extension implements StoppableEventInterface
      */
     public static function onPre(): string
     {
-        return self::getName() . '.pre';
+        return ExtensionDispatcher::pre(self::getName());
     }
 
     /**
@@ -46,7 +46,7 @@ abstract class Extension implements StoppableEventInterface
      */
     public static function onPost(): string
     {
-        return self::getName() . '.post';
+        return ExtensionDispatcher::post(self::getName());
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class Extension implements StoppableEventInterface
      */
     public static function onError(): string
     {
-        return self::getName() . '.error';
+        return ExtensionDispatcher::error(self::getName());
     }
 
     /**

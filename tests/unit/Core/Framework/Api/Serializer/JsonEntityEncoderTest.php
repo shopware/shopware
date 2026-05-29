@@ -162,6 +162,24 @@ class JsonEntityEncoderTest extends TestCase
         static::assertArrayNotHasKey('extensions', $extension);
     }
 
+    public function testExtensionExcludesRemovePlainJsonExtensionsWrapper(): void
+    {
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
+        $fixture = new TestBasicWithExtension();
+        $input = $this->getExtendableInputWithEntityNames($fixture);
+
+        $criteria = new Criteria();
+        $criteria->setExcludes([
+            'extendable' => ['extensions'],
+        ]);
+
+        $encoder = $this->createEncoder();
+        $actual = $encoder->encode($criteria, $extendableDefinition, $input, SerializationFixture::API_BASE_URL);
+
+        static::assertArrayNotHasKey('extensions', $actual);
+        static::assertSame('1d23c1b015bf43fb97e89008cf42d6fe', $actual['id']);
+    }
+
     public function testEncodeStructWithToManyExtension(): void
     {
         $extendableDefinition = $this->createExtendableDefinitionWithExtensions(includeScalarRuntimeExtension: false);

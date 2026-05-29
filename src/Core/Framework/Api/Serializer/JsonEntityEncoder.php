@@ -171,27 +171,22 @@ class JsonEntityEncoder
                 continue;
             }
 
-            if (!\is_array($value) || !isset($extensions[$property])) {
-                continue;
-            }
-
-            $extension = $extensions[$property];
-
-            if ($extension instanceof Collection) {
+            if (\is_array($value) && isset($extensions[$property]) && $extensions[$property] instanceof Collection) {
+                $extension = $extensions[$property];
                 $objects = array_values($extension->getElements());
 
                 foreach ($value as $index => $loop) {
-                    if (!\is_array($loop) || !isset($objects[$index]) || !$objects[$index] instanceof Struct) {
-                        continue;
+                    if (\is_array($loop) && isset($objects[$index]) && $objects[$index] instanceof Struct) {
+                        $decoded[$property][$index] = $this->filterDecodedFields($includes, $excludes, $loop, $objects[$index], false);
                     }
-
-                    $decoded[$property][$index] = $this->filterDecodedFields($includes, $excludes, $loop, $objects[$index], false);
                 }
 
                 continue;
             }
 
-            $decoded[$property] = $this->filterDecodedFields($includes, $excludes, $value, $extension, false);
+            if (\is_array($value) && isset($extensions[$property])) {
+                $decoded[$property] = $this->filterDecodedFields($includes, $excludes, $value, $extensions[$property], false);
+            }
         }
 
         return $decoded;

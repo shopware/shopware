@@ -26,7 +26,10 @@ export default {
         'cacheApiService',
     ],
 
-    emits: ['update-list'],
+    emits: [
+        'update-list',
+        'select-change',
+    ],
 
     mixins: ['sw-extension-error'],
 
@@ -34,6 +37,16 @@ export default {
         extension: {
             type: Object,
             required: true,
+        },
+        selected: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        deferReload: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -450,6 +463,10 @@ export default {
         },
 
         clearCacheAndReloadPage() {
+            if (this.deferReload) {
+                return Promise.resolve();
+            }
+
             return this.cacheApiService.clear().then(() => {
                 this._reloadPage();
             });

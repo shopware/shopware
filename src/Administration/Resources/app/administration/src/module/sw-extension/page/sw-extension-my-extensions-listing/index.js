@@ -8,12 +8,18 @@ import './sw-extension-my-extensions-listing.scss';
 export default {
     template,
 
-    inject: ['shopwareExtensionService'],
+    inject: [
+        'shopwareExtensionService',
+        'cacheApiService',
+        'acl',
+    ],
 
     data() {
         return {
             filterByActiveState: false,
             sortingOption: 'updated-at',
+            selectedNames: [],
+            isBulkRunning: false,
         };
     },
 
@@ -23,6 +29,11 @@ export default {
         },
 
         isLoading() {
+            // Prevents extension listing loading skeleton over the whole grid mid-batch
+            if (this.isBulkRunning) {
+                return false;
+            }
+
             const state = Shopware.Store.get('shopwareExtensions');
 
             return state.myExtensions.loading;
@@ -121,13 +132,58 @@ export default {
         extensionManagementDisabled() {
             return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
+
+        selectedExtensions() {
+            return this.myExtensions.filter((extension) => this.selectedNames.includes(extension.name));
+        },
+
+        hasSelection() {
+            return this.selectedExtensions.length > 0;
+        },
+
+        canManage() {
+            return !this.extensionManagementDisabled && this.acl.can('system.plugin_maintain');
+        },
+
+        applicableCounts() {
+            const actions = [
+                'install',
+                'activate',
+                'deactivate',
+                'update',
+                'uninstall',
+            ];
+
+            return actions.reduce((counts, action) => {
+                counts[action] = this.canManage
+                    ? this.selectedExtensions.filter((extension) => this.actionApplies(action, extension)).length
+                    : 0;
+
+                return counts;
+            }, {});
+        },
     },
 
     watch: {
         '$route.name'() {
             this.updateList();
             this.filterByActiveState = false;
+            this.clearSelection();
         },
+
+        // Never act on extensions that are no longer shown.
+        '$route.query.term'() {
+            this.clearSelection();
+        },
+
+        '$route.query.page'() {
+            this.clearSelection();
+        },
+    },
+
+    created() {
+        // Holds each card component instance so a bulk action can call its native method
+        this.cardRefs = {};
     },
 
     mounted() {
@@ -250,12 +306,129 @@ export default {
 
         changeActiveState(value) {
             this.filterByActiveState = value;
+            this.clearSelection();
         },
 
         filterExtensionsByActiveState(extensions) {
             return extensions.filter((extension) => {
                 return extension.active;
             });
+        },
+
+        isSelected(extension) {
+            return this.selectedNames.includes(extension.name);
+        },
+
+        onSelectChange(extension, checked) {
+            if (checked) {
+                if (!this.selectedNames.includes(extension.name)) {
+                    this.selectedNames = [
+                        ...this.selectedNames,
+                        extension.name,
+                    ];
+                }
+                return;
+            }
+
+            this.selectedNames = this.selectedNames.filter((name) => name !== extension.name);
+        },
+
+        selectAllVisible() {
+            this.selectedNames = this.extensionListPaginated.map((extension) => extension.name);
+        },
+
+        clearSelection() {
+            this.selectedNames = [];
+        },
+
+        actionApplies(action, extension) {
+            const installed = extension.installedAt !== null;
+
+            switch (action) {
+                case 'install':
+                    return !installed;
+                case 'activate':
+                    return installed && !extension.active;
+                case 'deactivate':
+                    return installed && extension.active && extension.allowDisable;
+                case 'update':
+                    return (
+                        installed &&
+                        extension.allowUpdate &&
+                        !!extension.latestVersion &&
+                        extension.latestVersion !== extension.version
+                    );
+                case 'uninstall':
+                    return installed;
+                default:
+                    return false;
+            }
+        },
+
+        registerCardRef(name, card) {
+            if (card) {
+                this.cardRefs[name] = card;
+            } else {
+                delete this.cardRefs[name];
+            }
+        },
+
+        async runBulkAction(action) {
+            const items = this.selectedExtensions.filter((extension) => this.actionApplies(action, extension));
+
+            if (!this.canManage || this.isBulkRunning || items.length === 0) {
+                return;
+            }
+
+            this.isBulkRunning = true;
+
+            try {
+                // Let defer reload prop reach the cards before action runs, so an individual card action does not reload the page mid-batch
+                await this.$nextTick();
+
+                // Drive each card own native action method, the exact same code path an individual click takes.
+                // So the loading animation and state transitions are identical to a single operation.
+                // The cards defer their per item reload, so the page reloads once at the end.
+                for (let i = 0; i < items.length; i += 1) {
+                    await this.runCardAction(action, items[i]);
+                }
+
+                this.clearSelection();
+
+                await this.cacheApiService.clear();
+                this._reloadPage();
+            } finally {
+                this.isBulkRunning = false;
+            }
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
+        runCardAction(action, extension) {
+            const card = this.cardRefs[extension.name];
+
+            // Selection is per page, so the card is normally mounted; guard defensively anyway.
+            if (!card) {
+                return Promise.resolve();
+            }
+
+            switch (action) {
+                case 'install':
+                    return card.installExtension();
+                case 'activate':
+                    return card.activateExtension();
+                case 'deactivate':
+                    return card.deactivateExtension();
+                case 'update':
+                    return card.updateExtension();
+                case 'uninstall':
+                    return card.closeModalAndUninstallExtension(false);
+                default:
+                    return Promise.resolve();
+            }
         },
     },
 };

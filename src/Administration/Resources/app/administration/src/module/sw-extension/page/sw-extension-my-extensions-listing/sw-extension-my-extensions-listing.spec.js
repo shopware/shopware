@@ -21,7 +21,38 @@ const routes = [
 const shopwareService = new ShopwareService({}, {}, {}, {});
 shopwareService.updateExtensionData = jest.fn();
 
-async function createWrapper() {
+function cardActionFns() {
+    return {
+        installExtension: jest.fn(() => Promise.resolve()),
+        activateExtension: jest.fn(() => Promise.resolve()),
+        deactivateExtension: jest.fn(() => Promise.resolve()),
+        updateExtension: jest.fn(() => Promise.resolve()),
+        closeModalAndUninstallExtension: jest.fn(() => Promise.resolve()),
+    };
+}
+
+function setMyExtensions(extensions) {
+    Shopware.Store.get('shopwareExtensions').setMyExtensions(extensions);
+}
+
+function makeCardStub({ methods = {}, emits = [], deferredClass = false } = {}) {
+    const template = deferredClass
+        ? '<div class="sw-self-maintained-extension-card" :class="{ \'is--deferred\': deferReload }">{{ extension.label }}</div>'
+        : '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>';
+
+    return {
+        template,
+        props: [
+            'extension',
+            'selected',
+            'deferReload',
+        ],
+        emits,
+        methods,
+    };
+}
+
+async function createWrapper({ aclCan = () => true, cardStub } = {}) {
     delete config.global.mocks.$router;
     delete config.global.mocks.$route;
 
@@ -42,11 +73,14 @@ async function createWrapper() {
                 plugins: [router],
                 stubs: {
                     'router-link': true,
-                    'sw-self-maintained-extension-card': {
+                    'sw-self-maintained-extension-card': cardStub ?? {
                         template: '<div class="sw-self-maintained-extension-card">{{ extension.label }}</div>',
                         props: ['extension'],
                     },
                     'sw-meteor-card': true,
+                    'sw-extension-bulk-actions-bar': await wrapTestComponent('sw-extension-bulk-actions-bar', {
+                        sync: true,
+                    }),
                     'sw-pagination': await wrapTestComponent('sw-pagination', {
                         sync: true,
                     }),
@@ -78,6 +112,12 @@ async function createWrapper() {
                         },
                     },
                     shopwareExtensionService: shopwareService,
+                    cacheApiService: {
+                        clear: jest.fn(() => Promise.resolve()),
+                    },
+                    acl: {
+                        can: aclCan,
+                    },
                 },
             },
             attachTo: document.body,
@@ -114,12 +154,17 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('shopwareExtensions').setMyExtensions([
+        setMyExtensions([
             {
                 name: 'Test',
                 installedAt: null,
             },
         ]);
+
+        Shopware.Store.get('context').app.config.settings.disableExtensionManagement = false;
+        Shopware.Store.get('context').app.config.settings.appUrlReachable = true;
+
+        shopwareService.updateExtensionData.mockClear();
     });
 
     it('runtime management disabled should be there', async () => {
@@ -259,7 +304,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     it('should search the extensions', async () => {
         const wrapper = await createWrapper();
 
-        // load 60 extensions
+        // load 40 extensions
         const extensions = Array(40)
             .fill()
             .map((_, i) => {
@@ -475,5 +520,686 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
 
         const alert = wrapper.find('.sw-extension-my-extensions-listing__app-url-warning');
         expect(alert.isVisible()).toBe(true);
+    });
+
+    describe('bulk operations: selection model', () => {
+        it('should report no selection initially', async () => {
+            setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.hasSelection).toBe(false);
+            expect(wrapper.vm.selectedExtensions).toEqual([]);
+        });
+
+        it('should add a name immutably and dedupe on select change with checked true', async () => {
+            const wrapper = await createWrapper();
+
+            const before = wrapper.vm.selectedNames;
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+            expect(wrapper.vm.selectedNames).not.toBe(before);
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+        });
+
+        it('should remove a name on select change with checked false', async () => {
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            wrapper.vm.onSelectChange({ name: 'A' }, false);
+
+            expect(wrapper.vm.selectedNames).toEqual(['B']);
+        });
+
+        it('should expose selectedExtensions filtered from the store by selected names', async () => {
+            setMyExtensions([
+                { name: 'A', installedAt: null, updatedAt: null },
+                { name: 'B', installedAt: null, updatedAt: null },
+                { name: 'C', installedAt: null, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'C' }, true);
+
+            expect(wrapper.vm.selectedExtensions.map((extension) => extension.name)).toEqual([
+                'A',
+                'C',
+            ]);
+            expect(wrapper.vm.hasSelection).toBe(true);
+        });
+
+        it('should report isSelected per extension', async () => {
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+
+            expect(wrapper.vm.isSelected({ name: 'A' })).toBe(true);
+            expect(wrapper.vm.isSelected({ name: 'B' })).toBe(false);
+        });
+
+        it('should select only the visible page on selectAllVisible', async () => {
+            const extensions = Array(40)
+                .fill()
+                .map((_, i) => ({
+                    name: `extension-${i}`,
+                    label: `extension-${i}`,
+                    installedAt: `foo-${i}`,
+                    updatedAt: null,
+                }));
+            setMyExtensions(extensions);
+
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.selectAllVisible();
+
+            // limit is 25, so only the first page is selected (per-page selection, not all 40)
+            expect(wrapper.vm.selectedNames).toHaveLength(25);
+            expect(wrapper.vm.selectedNames).toEqual(wrapper.vm.extensionListPaginated.map((extension) => extension.name));
+        });
+
+        it('should clear the selection on clearSelection', async () => {
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            wrapper.vm.clearSelection();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+    });
+
+    describe('bulk operations: actionApplies branch matrix', () => {
+        it.each([
+            [
+                'install',
+                { installedAt: null },
+                true,
+            ],
+            [
+                'install',
+                { installedAt: 'x' },
+                false,
+            ],
+            [
+                'activate',
+                { installedAt: 'x', active: false },
+                true,
+            ],
+            [
+                'activate',
+                { installedAt: 'x', active: true },
+                false,
+            ],
+            [
+                'activate',
+                { installedAt: null, active: false },
+                false,
+            ],
+            [
+                'deactivate',
+                { installedAt: 'x', active: true, allowDisable: true },
+                true,
+            ],
+            [
+                'deactivate',
+                { installedAt: 'x', active: true, allowDisable: false },
+                false,
+            ],
+            [
+                'deactivate',
+                { installedAt: 'x', active: false, allowDisable: true },
+                false,
+            ],
+            [
+                'update',
+                { installedAt: 'x', allowUpdate: true, latestVersion: '2.0', version: '1.0' },
+                true,
+            ],
+            [
+                'update',
+                { installedAt: 'x', allowUpdate: true, latestVersion: '1.0', version: '1.0' },
+                false,
+            ],
+            [
+                'update',
+                { installedAt: 'x', allowUpdate: false, latestVersion: '2.0', version: '1.0' },
+                false,
+            ],
+            [
+                'update',
+                { installedAt: 'x', allowUpdate: true, latestVersion: null, version: '1.0' },
+                false,
+            ],
+            [
+                'update',
+                { installedAt: 'x', allowUpdate: true, latestVersion: '', version: '1.0' },
+                false,
+            ],
+            [
+                'uninstall',
+                { installedAt: 'x' },
+                true,
+            ],
+            [
+                'uninstall',
+                { installedAt: null },
+                false,
+            ],
+            [
+                'foo',
+                { installedAt: 'x' },
+                false,
+            ],
+        ])('should compute actionApplies(%s) as %j -> %s', async (action, extension, expected) => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.actionApplies(action, extension)).toBe(expected);
+        });
+    });
+
+    describe('bulk operations: applicableCounts and canManage', () => {
+        it('should compute applicableCounts over the selected extensions when canManage is true', async () => {
+            setMyExtensions([
+                { name: 'install-only', installedAt: null, updatedAt: null },
+                { name: 'activate-only', installedAt: 'x', active: false, allowUpdate: false, updatedAt: null },
+                {
+                    name: 'deactivate-only',
+                    installedAt: 'x',
+                    active: true,
+                    allowDisable: true,
+                    allowUpdate: false,
+                    updatedAt: null,
+                },
+                {
+                    name: 'update-only',
+                    installedAt: 'x',
+                    active: true,
+                    allowDisable: false,
+                    allowUpdate: true,
+                    latestVersion: '2',
+                    version: '1',
+                    updatedAt: null,
+                },
+            ]);
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'install-only' }, true);
+            wrapper.vm.onSelectChange({ name: 'activate-only' }, true);
+            wrapper.vm.onSelectChange({ name: 'deactivate-only' }, true);
+            wrapper.vm.onSelectChange({ name: 'update-only' }, true);
+
+            expect(wrapper.vm.applicableCounts).toEqual({
+                install: 1,
+                activate: 1,
+                deactivate: 1,
+                update: 1,
+                uninstall: 3,
+            });
+        });
+
+        it('should zero all applicableCounts when canManage is false via acl', async () => {
+            setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ aclCan: () => false });
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+
+            expect(wrapper.vm.canManage).toBe(false);
+            expect(wrapper.vm.applicableCounts).toEqual({
+                install: 0,
+                activate: 0,
+                deactivate: 0,
+                update: 0,
+                uninstall: 0,
+            });
+        });
+
+        it('should zero all applicableCounts when extension management is disabled', async () => {
+            setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
+            Shopware.Store.get('context').app.config.settings.disableExtensionManagement = true;
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+
+            expect(wrapper.vm.extensionManagementDisabled).toBe(true);
+            expect(wrapper.vm.canManage).toBe(false);
+            expect(wrapper.vm.applicableCounts).toEqual({
+                install: 0,
+                activate: 0,
+                deactivate: 0,
+                update: 0,
+                uninstall: 0,
+            });
+        });
+    });
+
+    describe('bulk operations: runCardAction dispatch', () => {
+        it.each([
+            [
+                'install',
+                'installExtension',
+                [],
+            ],
+            [
+                'activate',
+                'activateExtension',
+                [],
+            ],
+            [
+                'deactivate',
+                'deactivateExtension',
+                [],
+            ],
+            [
+                'update',
+                'updateExtension',
+                [],
+            ],
+            [
+                'uninstall',
+                'closeModalAndUninstallExtension',
+                [false],
+            ],
+        ])('should dispatch runCardAction(%s) to card.%s', async (action, method, expectedArgs) => {
+            const wrapper = await createWrapper();
+            const card = cardActionFns();
+            wrapper.vm.cardRefs = { Foo: card };
+
+            await wrapper.vm.runCardAction(action, { name: 'Foo' });
+
+            const callArgs = Object.fromEntries(
+                Object.entries(card).map(
+                    ([
+                        name,
+                        fn,
+                    ]) => [
+                        name,
+                        fn.mock.calls,
+                    ],
+                ),
+            );
+            const expectedCallArgs = {
+                installExtension: [],
+                activateExtension: [],
+                deactivateExtension: [],
+                updateExtension: [],
+                closeModalAndUninstallExtension: [],
+                [method]: [expectedArgs],
+            };
+
+            expect(callArgs).toEqual(expectedCallArgs);
+        });
+
+        it('should resolve runCardAction when no card ref exists', async () => {
+            const wrapper = await createWrapper();
+            wrapper.vm.cardRefs = {};
+
+            await expect(wrapper.vm.runCardAction('install', { name: 'Absent' })).resolves.toBeUndefined();
+        });
+
+        it('should resolve runCardAction for an unknown action without calling any card method', async () => {
+            const wrapper = await createWrapper();
+            const card = cardActionFns();
+            wrapper.vm.cardRefs = { Foo: card };
+
+            await expect(wrapper.vm.runCardAction('foo', { name: 'Foo' })).resolves.toBeUndefined();
+            expect(card.installExtension).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('bulk operations: runBulkAction', () => {
+        it('should not run a bulk action when canManage is false', async () => {
+            setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ aclCan: () => false });
+            const card = cardActionFns();
+            wrapper.vm.cardRefs = { A: card };
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(card.installExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should not run a bulk action when one is already running', async () => {
+            setMyExtensions([{ name: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper();
+            const card = cardActionFns();
+            wrapper.vm.cardRefs = { A: card };
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.isBulkRunning = true;
+            await wrapper.vm.runBulkAction('install');
+
+            expect(card.installExtension).not.toHaveBeenCalled();
+            expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.isBulkRunning).toBe(true);
+        });
+
+        it('should not run a bulk action when no selected extension matches the action', async () => {
+            setMyExtensions([{ name: 'A', installedAt: 'x', updatedAt: null }]);
+            const wrapper = await createWrapper();
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(wrapper.vm.cacheApiService.clear).not.toHaveBeenCalled();
+            expect(reload).not.toHaveBeenCalled();
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+        });
+
+        it('should run the bulk action for every applicable selected extension, then clear, clear cache and reload', async () => {
+            const installedNames = [];
+            const cardStub = makeCardStub({
+                methods: {
+                    installExtension() {
+                        installedNames.push(this.extension.name);
+
+                        return Promise.resolve();
+                    },
+                },
+            });
+
+            setMyExtensions([
+                { name: 'A', label: 'A', installedAt: null, updatedAt: null },
+                { name: 'B', label: 'B', installedAt: null, updatedAt: null },
+                { name: 'C', label: 'C', installedAt: 'x', updatedAt: null },
+            ]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.onSelectChange({ name: 'B' }, true);
+            wrapper.vm.onSelectChange({ name: 'C' }, true);
+
+            await wrapper.vm.runBulkAction('install');
+
+            expect(installedNames).toEqual([
+                'A',
+                'B',
+            ]);
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+            expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
+            expect(reload).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.isBulkRunning).toBe(false);
+        });
+
+        it('should drive the real card ref registered via the template ref callback', async () => {
+            const fns = cardActionFns();
+            const richCardStub = makeCardStub({ methods: fns, deferredClass: true });
+
+            setMyExtensions([{ name: 'Solo', label: 'Solo', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub: richCardStub });
+            await flushPromises();
+
+            expect(typeof wrapper.vm.cardRefs.Solo.installExtension).toBe('function');
+
+            const reload = jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Solo' }, true);
+            await wrapper.vm.runBulkAction('install');
+
+            expect(fns.installExtension).toHaveBeenCalledTimes(1);
+            expect(wrapper.vm.selectedNames).toEqual([]);
+            expect(wrapper.vm.cacheApiService.clear).toHaveBeenCalledTimes(1);
+            expect(reload).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep deferring the per-card reload until the whole batch is done', async () => {
+            let resolveInstall;
+            let deferDuringRun = null;
+            const cardStub = makeCardStub({
+                deferredClass: true,
+                methods: {
+                    installExtension() {
+                        deferDuringRun = this.deferReload;
+
+                        return new Promise((resolve) => {
+                            resolveInstall = resolve;
+                        });
+                    },
+                },
+            });
+
+            setMyExtensions([{ name: 'Solo', label: 'Solo', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Solo' }, true);
+            const run = wrapper.vm.runBulkAction('install');
+            await flushPromises();
+
+            expect(deferDuringRun).toBe(true);
+
+            resolveInstall();
+            await run;
+        });
+    });
+
+    describe('bulk operations: template wiring', () => {
+        it('should bind defer-reload to isBulkRunning on the cards', async () => {
+            const cardStub = makeCardStub({ deferredClass: true });
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            const card = wrapper.findComponent('.sw-self-maintained-extension-card');
+            expect(card.props('deferReload')).toBe(false);
+
+            wrapper.vm.isBulkRunning = true;
+            await wrapper.vm.$nextTick();
+
+            expect(card.props('deferReload')).toBe(true);
+            expect(card.classes()).toContain('is--deferred');
+        });
+
+        it('should pass the selected prop to the card from isSelected', async () => {
+            const cardStub = makeCardStub();
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.findComponent('.sw-self-maintained-extension-card').props('selected')).toBe(true);
+        });
+
+        it('should update the selection when the card emits select-change', async () => {
+            const cardStub = makeCardStub({ emits: ['select-change'] });
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            const card = wrapper.findComponent('.sw-self-maintained-extension-card');
+
+            card.vm.$emit('select-change', true);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+
+            card.vm.$emit('select-change', false);
+            await wrapper.vm.$nextTick();
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+
+        it('should show the listing controls and hide the bulk bar when nothing is selected', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: 'x', updatedAt: null }]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-extension-bulk-actions-bar').exists()).toBe(false);
+            expect(wrapper.find('.sw-extension-my-extensions-listing-controls').exists()).toBe(true);
+        });
+
+        it('should swap to the bulk bar when a selection exists, passing counts and disabled', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.$nextTick();
+
+            const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
+            expect(bar.exists()).toBe(true);
+            expect(wrapper.find('.sw-extension-my-extensions-listing-controls').exists()).toBe(false);
+            expect(bar.props('selectedCount')).toBe(1);
+            expect(bar.props('applicableCounts')).toEqual(wrapper.vm.applicableCounts);
+            expect(bar.props('disabled')).toBe(false);
+        });
+
+        it('should wire the bulk bar select-all and clear events to the page methods', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', installedAt: null, updatedAt: null },
+                { name: 'B', label: 'B', installedAt: null, updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.$nextTick();
+
+            const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
+
+            bar.vm.$emit('select-all');
+            await wrapper.vm.$nextTick();
+            expect(wrapper.vm.selectedNames).toEqual([
+                'A',
+                'B',
+            ]);
+
+            bar.vm.$emit('clear');
+            await wrapper.vm.$nextTick();
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+
+        it('should wire the bulk bar run-action event through runBulkAction to the cards', async () => {
+            const fns = cardActionFns();
+            const cardStub = makeCardStub({ methods: fns });
+
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: null, updatedAt: null }]);
+            const wrapper = await createWrapper({ cardStub });
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            await wrapper.vm.$nextTick();
+
+            const bar = wrapper.findComponent('.sw-extension-bulk-actions-bar');
+            bar.vm.$emit('run-action', 'install');
+            await flushPromises();
+
+            expect(fns.installExtension).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('bulk operations: selection-clearing watchers', () => {
+        it('should clear selection, reset the active filter and reload the list when the route name changes', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: 'x', updatedAt: null }]);
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.filterByActiveState = true;
+            shopwareService.updateExtensionData.mockClear();
+
+            await wrapper.vm.$router.push(routes[1]);
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+            expect(wrapper.vm.filterByActiveState).toBe(false);
+            expect(shopwareService.updateExtensionData).toHaveBeenCalled();
+        });
+
+        it('should clear selection when the search term query changes', async () => {
+            setMyExtensions([{ name: 'A', label: 'A', installedAt: 'x', updatedAt: null }]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+
+            await wrapper.vm.$router.push({ name: wrapper.vm.$route.name, query: { term: 'x' } });
+            await flushPromises();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+
+        it('should clear selection when the page query changes', async () => {
+            const extensions = Array(40)
+                .fill()
+                .map((_, i) => ({
+                    name: `extension-${i}`,
+                    label: `extension-${i}`,
+                    installedAt: `foo-${i}`,
+                    updatedAt: null,
+                }));
+            setMyExtensions(extensions);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.selectAllVisible();
+            expect(wrapper.vm.selectedNames.length).toBeGreaterThan(0);
+
+            await wrapper.vm.$router.push({ name: wrapper.vm.$route.name, query: { page: 2 } });
+            await flushPromises();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+        });
+
+        it('should keep the selection when only the sorting option changes', async () => {
+            setMyExtensions([
+                { name: 'A', label: 'A', installedAt: 'x', updatedAt: null },
+                { name: 'B', label: 'B', installedAt: 'x', updatedAt: null },
+            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.changeSortingOption('name-asc');
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.selectedNames).toEqual(['A']);
+        });
+
+        it('should clear the selection when the active-state filter changes', async () => {
+            const wrapper = await createWrapper();
+
+            wrapper.vm.onSelectChange({ name: 'A' }, true);
+            wrapper.vm.changeActiveState(true);
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.vm.selectedNames).toEqual([]);
+            expect(wrapper.vm.filterByActiveState).toBe(true);
+        });
+    });
+
+    describe('bulk operations: registerCardRef', () => {
+        it('should store and delete card refs via registerCardRef', async () => {
+            setMyExtensions([]);
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.cardRefs).toEqual({});
+
+            wrapper.vm.registerCardRef('X', { foo: 1 });
+            expect(wrapper.vm.cardRefs.X).toEqual({ foo: 1 });
+
+            wrapper.vm.registerCardRef('X', null);
+            expect(wrapper.vm.cardRefs.X).toBeUndefined();
+        });
     });
 });

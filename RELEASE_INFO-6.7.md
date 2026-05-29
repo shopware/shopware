@@ -1550,6 +1550,16 @@ The following Administration component, methods, and computed properties are dep
 - computed `isAgenticCommerce`
 
 This functionality will be available in the **Agentic Commerce extension (SwagAgenticCommerce)** instead.
+### Bulk operations in the My Extensions listing
+
+The "My Extensions" listing can now act on several extensions at once instead of one card at a time, which noticeably speeds up maintaining shops with many extensions. Selecting one or more extensions replaces the listing controls with a bulk actions bar.
+
+The bar offers the same actions already available per card:
+- **Install**, **activate**, **deactivate**, **update**, and **uninstall** for all selected extensions in one step.
+- Each action is enabled only when it applies to at least one selected extension (for example, *activate* counts only "installed but inactive" extensions) and shows how many of the selection it affects.
+- All actions respect the existing `system.plugin_maintain` permission and the runtime extension-management setting, exactly like the single-card actions.
+
+The listing reloads once after the batch finishes rather than after every individual extension. With nothing selected, the listing behaves exactly as before, so the feature is fully opt-in.
 
 ## App System
 

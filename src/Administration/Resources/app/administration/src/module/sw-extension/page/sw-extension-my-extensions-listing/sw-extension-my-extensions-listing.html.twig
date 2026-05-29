@@ -82,10 +82,30 @@
 
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
-                <sw-extension-my-extensions-listing-controls
-                    @update:active-state="changeActiveState"
-                    @update:sorting-option="changeSortingOption"
-                />
+                {% block sw_extension_my_extensions_listing_controls_row %}
+                <div class="sw-extension-my-extensions-listing__controls-row">
+                    {% block sw_extension_my_extensions_listing_controls %}
+                    <sw-extension-my-extensions-listing-controls
+                        v-if="!hasSelection"
+                        @update:active-state="changeActiveState"
+                        @update:sorting-option="changeSortingOption"
+                    />
+                    {% endblock %}
+
+                    {% block sw_extension_my_extensions_listing_bulk_bar %}
+                    <sw-extension-bulk-actions-bar
+                        v-else
+                        class="sw-extension-my-extensions-listing__bulk-bar"
+                        :selected-count="selectedExtensions.length"
+                        :applicable-counts="applicableCounts"
+                        :disabled="isBulkRunning"
+                        @select-all="selectAllVisible"
+                        @clear="clearSelection"
+                        @run-action="runBulkAction"
+                    />
+                    {% endblock %}
+                </div>
+                {% endblock %}
 
                 <sw-extension-component-section
                     v-if="isThemeRoute"
@@ -116,7 +136,11 @@
                     >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                            :ref="(card) => registerCardRef(entry.name, card)"
                             :extension="entry"
+                            :selected="isSelected(entry)"
+                            :defer-reload="isBulkRunning"
+                            @select-change="onSelectChange(entry, $event)"
                             @update-list="updateList"
                         />
                     </template>

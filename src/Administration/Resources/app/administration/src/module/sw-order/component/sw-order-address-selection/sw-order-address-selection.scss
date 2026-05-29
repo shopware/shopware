@@ -49,17 +49,8 @@
         margin-top: 8px;
     }
 
-    &__selected-address-label {
-        margin: 0 0 8px;
-        color: var(--color-text-secondary-default);
-        font-size: $font-size-xs;
-    }
-
-    &__selected-address-content {
+    &__selected-address-content.sw-address {
+        color: var(--color-text-primary-default);
         margin-bottom: 0;
-        padding: 12px;
-        border: 1px solid var(--color-border-primary-default);
-        border-radius: $border-radius-default;
-        background: $color-gray-100;
     }
 }

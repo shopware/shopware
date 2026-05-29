@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Kernel;
 
 /**
  * @internal

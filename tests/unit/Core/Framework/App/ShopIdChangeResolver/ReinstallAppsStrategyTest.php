@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -14,12 +13,10 @@ use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -31,9 +28,9 @@ class ReinstallAppsStrategyTest extends TestCase
     private const FIXTURE_DIR = __DIR__ . '/_fixtures/test-app';
 
     /**
-     * @var Stub&EntityRepository<AppCollection>
+     * @var StaticEntityRepository<AppCollection>
      */
-    private EntityRepository&Stub $appRepository;
+    private StaticEntityRepository $appRepository;
 
     private AppSecretRotationService&MockObject $appSecretRotationService;
 
@@ -44,7 +41,9 @@ class ReinstallAppsStrategyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->appRepository = static::createStub(EntityRepository::class);
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
+        $this->appRepository = $appRepository;
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->eventDispatcher = new EventDispatcher();
@@ -80,8 +79,6 @@ class ReinstallAppsStrategyTest extends TestCase
     {
         $this->shopIdProvider->expects($this->once())->method('deleteShopId');
 
-        $this->stubAppRepositorySearch([]);
-
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
         $dispatchedEvents = [];
@@ -107,7 +104,7 @@ class ReinstallAppsStrategyTest extends TestCase
         $app->setUniqueIdentifier('id-a');
         $app->assign(['id' => 'id-a', 'name' => 'test-app']);
 
-        $this->stubAppRepositorySearch([$app]);
+        $this->appRepository->searches = [new AppCollection([$app])];
 
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
@@ -139,16 +136,5 @@ class ReinstallAppsStrategyTest extends TestCase
             $this->shopIdProvider,
             $this->eventDispatcher,
         );
-    }
-
-    /**
-     * @param list<AppEntity> $apps
-     */
-    private function stubAppRepositorySearch(array $apps): void
-    {
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $result = new EntitySearchResult('app', \count($apps), new AppCollection($apps), null, $criteria, $context);
-        $this->appRepository->method('search')->willReturn($result);
     }
 }

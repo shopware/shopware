@@ -5,17 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -24,9 +21,9 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 class UninstallAppsStrategyTest extends TestCase
 {
     /**
-     * @var Stub&EntityRepository<AppCollection>
+     * @var StaticEntityRepository<AppCollection>
      */
-    private EntityRepository&Stub $appRepository;
+    private StaticEntityRepository $appRepository;
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
@@ -35,7 +32,9 @@ class UninstallAppsStrategyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->appRepository = static::createStub(EntityRepository::class);
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection()]);
+        $this->appRepository = $appRepository;
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
         $this->strategy = new UninstallAppsStrategy(
             $this->appRepository,
@@ -75,8 +74,7 @@ class UninstallAppsStrategyTest extends TestCase
         $appB->setUniqueIdentifier('id-b');
         $appB->assign(['id' => 'id-b', 'name' => 'AppB']);
 
-        $this->stubAppRepositorySearch([$appA, $appB]);
-        $captureDeletes = $this->captureRepositoryDeletes();
+        $this->appRepository->searches = [new AppCollection([$appA, $appB])];
 
         $this->shopIdProvider->expects($this->once())->method('deleteShopId');
 
@@ -86,51 +84,17 @@ class UninstallAppsStrategyTest extends TestCase
             ['id' => 'id-a', 'name' => 'AppA'],
             ['id' => 'id-b', 'name' => 'AppB'],
         ], $affected);
-        static::assertSame([[['id' => 'id-a']], [['id' => 'id-b']]], $captureDeletes());
+        static::assertSame([[['id' => 'id-a']], [['id' => 'id-b']]], $this->appRepository->deletes);
     }
 
     #[TestDox('resolve returns an empty array and skips delete calls when no apps are installed')]
     public function testResolveReturnsEmptyArrayWhenNoApps(): void
     {
-        $this->stubAppRepositorySearch([]);
-        $captureDeletes = $this->captureRepositoryDeletes();
-
         $this->shopIdProvider->expects($this->once())->method('deleteShopId');
 
         $affected = $this->strategy->resolve(Context::createDefaultContext());
 
         static::assertSame([], $affected);
-        static::assertSame([], $captureDeletes());
-    }
-
-    /**
-     * @param list<AppEntity> $apps
-     */
-    private function stubAppRepositorySearch(array $apps): void
-    {
-        $result = static::createStub(EntitySearchResult::class);
-        $result->method('getEntities')->willReturn(new AppCollection($apps));
-        $this->appRepository->method('search')->willReturn($result);
-    }
-
-    /**
-     * @return \Closure(): list<array<int, array{id: string}>>
-     */
-    private function captureRepositoryDeletes(): \Closure
-    {
-        /** @var list<array<int, array{id: string}>> $payloads */
-        $payloads = [];
-        $writeResult = static::createStub(EntityWrittenContainerEvent::class);
-        $this->appRepository->method('delete')
-            ->willReturnCallback(static function (array $ids) use (&$payloads, $writeResult): EntityWrittenContainerEvent {
-                /** @var array<int, array{id: string}> $ids */
-                $payloads[] = $ids;
-
-                return $writeResult;
-            });
-
-        return function () use (&$payloads) {
-            return $payloads;
-        };
+        static::assertSame([], $this->appRepository->deletes);
     }
 }

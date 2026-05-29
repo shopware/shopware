@@ -5,7 +5,7 @@
       "textHeadline": "Mailer",
       "buttonSave": "Save",
       "helpText": "For more information please check out the",
-      "docsLabel": "documentation.",
+      "docsLabel": "documentation",
       "docsLink": "https://docs.shopware.com/en/shopware-6-en/settings/mailer"
     },
     "mailer-configuration": {

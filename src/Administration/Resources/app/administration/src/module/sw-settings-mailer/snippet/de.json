@@ -5,7 +5,7 @@
       "textHeadline": "Mailer",
       "buttonSave": "Speichern",
       "helpText": "Für weitere Informationen schaue bitte in die",
-      "docsLabel": "Dokumentation.",
+      "docsLabel": "Dokumentation",
       "docsLink": "https://docs.shopware.com/de/shopware-6-de/einstellungen/mailer"
     },
     "mailer-configuration": {

@@ -25,6 +25,14 @@
         "version": "Version",
         "update": "Aktualisierung"
       },
+      "bulk": {
+        "selectExtensionAria": "{name} auswählen",
+        "install": "Installieren",
+        "activate": "Aktivieren",
+        "deactivate": "Deaktivieren",
+        "update": "Aktualisieren",
+        "uninstall": "Deinstallieren"
+      },
       "account": {
         "headline": "Shopware Account",
         "isLoggedIn": "Du hast Dich erfolgreich mit dem Shopware Account verbunden. Gehe zur Registerkarte \"Apps\" oder \"Themes\" und prüfe, ob Deine gekauften Erweiterungen aufgeführt sind. Wenn nicht, gehe in den Shopware Account und stelle sicher, dass die richtige Domain für Erweiterungen eingestellt wurde.",

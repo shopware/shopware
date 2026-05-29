@@ -35,6 +35,7 @@ Shopware.Component.register(
     'sw-extension-my-extensions-listing-controls',
     () => import('./component/sw-extension-my-extensions-listing-controls'),
 );
+Shopware.Component.register('sw-extension-bulk-actions-bar', () => import('./component/sw-extension-bulk-actions-bar'));
 Shopware.Component.register('sw-extension-permissions-modal', () => import('./component/sw-extension-permissions-modal'));
 Shopware.Component.register('sw-extension-domains-modal', () => import('./component/sw-extension-domains-modal'));
 Shopware.Component.register(

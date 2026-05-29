@@ -42,22 +42,6 @@
                 :is-loading="isLoading"
                 :title="$t('sw-settings-mailer.mailer-configuration.card-title')"
             >
-                <mt-banner
-                    class="sw-settings-mailer__help-text"
-                    variant="info"
-                >
-                    <span>{{ $t('sw-settings-mailer.general.helpText') }}</span>
-
-                    <mt-link
-                        as="a"
-                        :to="$t('sw-settings-mailer.general.docsLink')"
-                        type="external"
-                        target="_blank"
-                    >
-                        {{ $t('sw-settings-mailer.general.docsLabel') }}
-                    </mt-link>
-                </mt-banner>
-
                 {% block sw_settings_mailer_first_configuration %}
                 <div
                     v-if="isFirstConfiguration"
@@ -104,6 +88,22 @@
                     class="sw-settings-mailer__switch-disable-delivery"
                     :label="$t('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
+
+                <mt-banner
+                    class="sw-settings-mailer__help-text"
+                    variant="info"
+                >
+                    <span>{{ $t('sw-settings-mailer.general.helpText') }}</span>
+
+                    <mt-link
+                        as="a"
+                        :to="$t('sw-settings-mailer.general.docsLink')"
+                        type="external"
+                        target="_blank"
+                    >
+                        {{ $t('sw-settings-mailer.general.docsLabel') }}
+                    </mt-link>
+                </mt-banner>
             </mt-card>
 
             {% block sw_settings_mailer_smtp %}

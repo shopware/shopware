@@ -14,12 +14,14 @@
  */
 
 import { h, shallowRef, type Slot } from 'vue';
+import useBlockContext from 'src/app/composables/use-block-context';
 import type { BlockEntry } from 'src/core/factory/twig-block-index';
 import swBlockParent from '../sw-block-parent/index';
 
 type DataScope = Record<string | symbol, unknown>;
 type DataScopeWithAppContext = DataScope & {
     $?: {
+        uid?: number;
         appContext?: {
             config?: {
                 globalProperties?: Record<string, unknown>;
@@ -43,6 +45,17 @@ function resolveAllowedLegacyBlockHelper(source: DataScope, helperName: string):
     return typeof helper === 'function' ? helper.bind(source) : helper;
 }
 
+/** Builds the same per-component condition key used by the global legacy helpers. */
+function getLegacyBlockConditionKey(source: DataScope, blockName: string): string {
+    const componentUid = (source as DataScopeWithAppContext).$?.uid;
+
+    if (typeof componentUid !== 'number') {
+        return blockName;
+    }
+
+    return `${componentUid}:${blockName}`;
+}
+
 /** Guards against accidentally exposing Vue internals or private properties into the shim template. */
 function isInternalKey(key: string | symbol): boolean {
     if (typeof key !== 'string' || allowedLegacyBlockHelperKeys.has(key)) {
@@ -53,7 +66,12 @@ function isInternalKey(key: string | symbol): boolean {
 }
 
 /** @private */
-export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
+export function createShimSlot(
+    entry: BlockEntry,
+    blockName: string,
+    legacyConditionBranchIndex?: number,
+    legacyConditionBranchCount = 0,
+): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
         console.warn(
@@ -79,13 +97,41 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     // reused shim instance even when the host component proxy identity is stable.
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
+    let legacyConditionBranchOffset = 0;
+    const { reserveLegacyConditionBranches, clearLegacyConditionChain } = useBlockContext();
+    /** Restarts branch numbering for each shim render pass. */
+    const resetLegacyConditionBranchOffset = () => {
+        legacyConditionBranchOffset = 0;
+    };
+    /** Drops persisted chain state when the owning shim component is removed. */
+    const clearExtensionChain = () => {
+        if (legacyConditionBranchCount < 1) {
+            return;
+        }
+
+        clearLegacyConditionChain(getLegacyBlockConditionKey(dataScopeRef.value, blockName));
+    };
     const methods = Object.fromEntries(
         Array.from(allowedLegacyBlockHelperKeys).map((helperName) => [
             helperName,
             (...args: unknown[]): unknown => {
                 const helper = resolveAllowedLegacyBlockHelper(dataScopeRef.value, helperName);
 
-                return typeof helper === 'function' ? (helper as LegacyBlockHelper)(...args) : undefined;
+                if (typeof helper !== 'function') {
+                    return undefined;
+                }
+
+                if (
+                    legacyConditionBranchIndex === undefined ||
+                    (helperName !== '$swLegacyBlockElseIf' && helperName !== '$swLegacyBlockElse')
+                ) {
+                    return (helper as LegacyBlockHelper)(...args);
+                }
+
+                const branchIndex = legacyConditionBranchIndex + legacyConditionBranchOffset;
+                legacyConditionBranchOffset += 1;
+
+                return (helper as LegacyBlockHelper)(...args, branchIndex);
             },
         ]),
     );
@@ -100,11 +146,22 @@ export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
             },
         },
         setup: () => buildSetupContext(() => dataScopeRef.value),
+        beforeMount: resetLegacyConditionBranchOffset,
+        beforeUpdate: resetLegacyConditionBranchOffset,
+        beforeUnmount: clearExtensionChain,
     };
 
     return (dataScope) => {
         dataScopeRef.value = (dataScope ?? {}) as DataScope;
         renderVersion += 1;
+
+        if (legacyConditionBranchIndex !== undefined) {
+            reserveLegacyConditionBranches(
+                getLegacyBlockConditionKey(dataScopeRef.value, blockName),
+                legacyConditionBranchIndex,
+                legacyConditionBranchCount,
+            );
+        }
 
         return [
             h(shimComponent, {

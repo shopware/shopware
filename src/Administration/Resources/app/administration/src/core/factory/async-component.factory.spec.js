@@ -3314,11 +3314,11 @@ describe('core/factory/async-component.factory.ts', () => {
                             $swLegacyBlockIf(blockName, expression) {
                                 return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
                             },
-                            $swLegacyBlockElseIf(blockName, expression) {
-                                return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression);
+                            $swLegacyBlockElseIf(blockName, expression, branchIndex) {
+                                return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, branchIndex);
                             },
-                            $swLegacyBlockElse(blockName) {
-                                return legacyElse(getLegacyBlockConditionKey(this, blockName));
+                            $swLegacyBlockElse(blockName, branchIndex) {
+                                return legacyElse(getLegacyBlockConditionKey(this, blockName), branchIndex);
                             },
                         },
                     },
@@ -3416,6 +3416,135 @@ describe('core/factory/async-component.factory.ts', () => {
 
             expect(wrapper.find('.true-branch').exists()).toBe(true);
             expect(wrapper.find('.false-branch').exists()).toBe(false);
+        });
+
+        it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentFactory.register('native-block-legacy-twig-shim-override-chain', {
+                data() {
+                    return {
+                        condition1: false,
+                        condition2: false,
+                    };
+                },
+                computed: {
+                    dataScope() {
+                        return this;
+                    },
+                },
+                template: `
+                    <div>
+                        <sw-block name="chained_condition_block" :data="dataScope">
+                            <div v-if="condition1" class="condition-one">Condition 1</div>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-shim-override-chain', {
+                template: `
+                    {% block chained_condition_block %}
+                        {% parent %}
+                        <h1 v-else-if="condition2" class="condition-two">Override</h1>
+                    {% endblock %}
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-shim-override-chain', {
+                template: `
+                    {% block chained_condition_block %}
+                        {% parent %}
+                        <h1 v-else class="fallback-condition">Override 2</h1>
+                    {% endblock %}
+                `,
+            });
+
+            let wrapper;
+
+            try {
+                wrapper = await mountNativeBlockComponent('native-block-legacy-twig-shim-override-chain');
+            } finally {
+                consoleWarn.mockRestore();
+            }
+
+            expect(wrapper.find('.condition-one').exists()).toBe(false);
+            expect(wrapper.find('.condition-two').exists()).toBe(false);
+            expect(wrapper.find('.fallback-condition').exists()).toBe(true);
+
+            await wrapper.setData({ condition2: true });
+
+            expect(wrapper.find('.condition-one').exists()).toBe(false);
+            expect(wrapper.find('.condition-two').exists()).toBe(true);
+            expect(wrapper.find('.fallback-condition').exists()).toBe(false);
+
+            await wrapper.setData({ condition1: true });
+
+            expect(wrapper.find('.condition-one').exists()).toBe(true);
+            expect(wrapper.find('.condition-two').exists()).toBe(false);
+            expect(wrapper.find('.fallback-condition').exists()).toBe(false);
+        });
+
+        it('keeps a later native fallback behind a legacy Twig shim condition', async () => {
+            const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            ComponentFactory.register('native-block-legacy-twig-mixed-override-chain', {
+                data() {
+                    return {
+                        condition1: false,
+                        condition2: true,
+                    };
+                },
+                computed: {
+                    dataScope() {
+                        return this;
+                    },
+                },
+                template: `
+                    <div>
+                        <sw-block name="mixed_chained_condition_block" :data="dataScope">
+                            <div v-if="condition1" class="condition-one">Condition 1</div>
+                        </sw-block>
+
+                        <sw-block extends="mixed_chained_condition_block">
+                            <sw-block-parent />
+                            <h1 v-else class="native-fallback-condition">Native fallback</h1>
+                        </sw-block>
+                    </div>
+                `,
+            });
+
+            ComponentFactory.override('native-block-legacy-twig-mixed-override-chain', {
+                template: `
+                    {% block mixed_chained_condition_block %}
+                        {% parent %}
+                        <h1 v-else-if="condition2" class="condition-two">Override</h1>
+                    {% endblock %}
+                `,
+            });
+
+            let wrapper;
+
+            try {
+                wrapper = await mountNativeBlockComponent('native-block-legacy-twig-mixed-override-chain');
+            } finally {
+                consoleWarn.mockRestore();
+            }
+
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.condition-one').exists()).toBe(false);
+            expect(wrapper.find('.condition-two').exists()).toBe(true);
+            expect(wrapper.find('.native-fallback-condition').exists()).toBe(false);
+
+            await wrapper.setData({ condition2: false });
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.condition-one').exists()).toBe(false);
+            expect(wrapper.find('.condition-two').exists()).toBe(false);
+            expect(wrapper.find('.native-fallback-condition').exists()).toBe(true);
         });
 
         it('preserves v-else-if chains that end inside a native block', async () => {

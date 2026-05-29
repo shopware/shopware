@@ -7,6 +7,8 @@ describe('use-block-context', () => {
     let legacyIf;
     let legacyElseIf;
     let legacyElse;
+    let reserveLegacyConditionBranches;
+    let clearLegacyConditionChain;
     let legacyConditionContext;
 
     beforeEach(async () => {
@@ -16,6 +18,8 @@ describe('use-block-context', () => {
         legacyIf = blockContext.legacyIf;
         legacyElseIf = blockContext.legacyElseIf;
         legacyElse = blockContext.legacyElse;
+        reserveLegacyConditionBranches = blockContext.reserveLegacyConditionBranches;
+        clearLegacyConditionChain = blockContext.clearLegacyConditionChain;
         legacyConditionContext = blockContext.legacyConditionContext;
     });
 
@@ -150,10 +154,14 @@ describe('use-block-context', () => {
         expect(legacyIf('test', false)).toBe(false);
         expect(legacyElseIf('test', true)).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
-            test: [
-                false,
-                true,
-            ],
+            test: {
+                branches: {
+                    0: false,
+                    1: true,
+                },
+                nextIndex: 2,
+                persistent: false,
+            },
         });
 
         await Promise.resolve();
@@ -165,5 +173,91 @@ describe('use-block-context', () => {
         expect(legacyIf('test', false)).toBe(false);
         expect(legacyElse('test')).toBe(true);
         expect(legacyConditionContext).toStrictEqual({});
+    });
+
+    it('keeps reserved extension branches pending until the shim renders', async () => {
+        expect(legacyIf('test', false)).toBe(false);
+
+        reserveLegacyConditionBranches('test', 0, 1);
+
+        expect(legacyElse('test')).toBe(false);
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                branches: {
+                    0: false,
+                    1: undefined,
+                    2: false,
+                },
+                extensionStartIndex: 1,
+                nextIndex: 3,
+                persistent: true,
+            },
+        });
+
+        await Promise.resolve();
+
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                branches: {
+                    0: false,
+                    1: undefined,
+                    2: false,
+                },
+                extensionStartIndex: 1,
+                nextIndex: 3,
+                persistent: true,
+            },
+        });
+    });
+
+    it('updates reserved extension branches by their stable branch index', () => {
+        expect(legacyIf('test', false)).toBe(false);
+
+        reserveLegacyConditionBranches('test', 0, 2);
+
+        expect(legacyElseIf('test', false, 0)).toBe(false);
+        expect(legacyElse('test', 1)).toBe(true);
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                branches: {
+                    0: false,
+                    1: false,
+                    2: true,
+                },
+                extensionStartIndex: 1,
+                nextIndex: 3,
+                persistent: true,
+            },
+        });
+    });
+
+    it('clears persisted legacy extension chains when the extension is removed', () => {
+        expect(legacyIf('test', false)).toBe(false);
+
+        reserveLegacyConditionBranches('test', 0, 1);
+        clearLegacyConditionChain('test');
+
+        expect(legacyConditionContext).toStrictEqual({});
+    });
+
+    it('keeps persisted extension state when the parent legacy chain renders again', () => {
+        expect(legacyIf('test', false)).toBe(false);
+
+        reserveLegacyConditionBranches('test', 0, 1);
+        expect(legacyElseIf('test', true, 0)).toBe(true);
+
+        expect(legacyIf('test', false)).toBe(false);
+        reserveLegacyConditionBranches('test', 0, 1);
+        expect(legacyConditionContext).toStrictEqual({
+            test: {
+                branches: {
+                    0: false,
+                    1: true,
+                },
+                extensionStartIndex: 1,
+                nextIndex: 2,
+                persistent: true,
+            },
+        });
     });
 });

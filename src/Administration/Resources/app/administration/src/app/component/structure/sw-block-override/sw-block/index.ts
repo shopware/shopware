@@ -93,9 +93,23 @@ export default Shopware.Component.wrapComponentConfig({
         // input focus. They are NOT registered in the global blockContext so that
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
+        let legacyConditionBranchIndex = 0;
         const shimSlots: Slot[] =
             props.name && hasBlockEntries(props.name)
-                ? getBlockEntries(props.name).map((entry) => createShimSlot(entry, props.name!))
+                ? getBlockEntries(props.name).map((entry) => {
+                      const legacyConditionBranchCount =
+                          entry.innerTemplate.match(/\$swLegacyBlockElse(?:If)?\(/g)?.length ?? 0;
+                      const shimSlot = createShimSlot(
+                          entry,
+                          props.name!,
+                          legacyConditionBranchCount > 0 ? legacyConditionBranchIndex : undefined,
+                          legacyConditionBranchCount,
+                      );
+
+                      legacyConditionBranchIndex += legacyConditionBranchCount;
+
+                      return shimSlot;
+                  })
                 : [];
 
         if (process.env.NODE_ENV !== 'production') {

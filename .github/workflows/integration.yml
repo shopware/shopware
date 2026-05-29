@@ -28,7 +28,7 @@ jobs:
           install: ${{ matrix.project != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
           install-admin: true
           install-storefront: true
-          skip-js-build: ${{ matrix.name == 'Install' && 'true' || 'false' }}
+          skip-js-build: ${{ matrix.project == 'Install' }}
           env: prod
       - uses: actions/setup-node@v6
         with:

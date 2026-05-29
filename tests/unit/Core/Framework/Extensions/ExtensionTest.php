@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Extensions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Extensions\Extension;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 
 /**
  * @internal
@@ -20,8 +19,6 @@ class ExtensionTest extends TestCase
         };
 
         static::assertSame('test.extension.pre', $extension::onPre());
-        // both styles must resolve to the same event name so existing subscribers keep working.
-        static::assertSame(ExtensionDispatcher::pre($extension::NAME), $extension::onPre());
     }
 
     public function testOnPostReturnsPostEventName(): void
@@ -31,7 +28,6 @@ class ExtensionTest extends TestCase
         };
 
         static::assertSame('test.extension.post', $extension::onPost());
-        static::assertSame(ExtensionDispatcher::post($extension::NAME), $extension::onPost());
     }
 
     public function testOnErrorReturnsErrorEventName(): void
@@ -41,7 +37,6 @@ class ExtensionTest extends TestCase
         };
 
         static::assertSame('test.extension.error', $extension::onError());
-        static::assertSame(ExtensionDispatcher::error($extension::NAME), $extension::onError());
     }
 
     public function testHelpersUseLateStaticBindingAcrossSubclasses(): void

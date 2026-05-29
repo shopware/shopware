@@ -346,10 +346,10 @@ class CartOrderRouteTest extends TestCase
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CheckoutPlaceOrderExtension::NAME), $post);
+        $dispatcher->addListener(CheckoutPlaceOrderExtension::onPost(), $post);
 
         $dispatcher->addListener(
-            ExtensionDispatcher::pre(CheckoutPlaceOrderExtension::NAME),
+            CheckoutPlaceOrderExtension::onPre(),
             static function (CheckoutPlaceOrderExtension $extension): void {
                 $extension->stopPropagation();
 

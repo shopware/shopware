@@ -360,12 +360,16 @@ export default {
         },
 
         fetchSystemCurrency() {
-            const systemCurrencyId = Shopware.Context.app.systemCurrencyId;
+            if (this.type !== 'price') {
+                return Promise.resolve();
+            }
 
-            this.createRepository('currency')
-                .get(systemCurrencyId)
-                .then((response) => {
-                    this.currency = response;
+            return Shopware.Store.get('adminReferenceData')
+                .loadSystemCurrency()
+                .then((currency) => {
+                    if (currency) {
+                        this.currency = currency;
+                    }
                 });
         },
 

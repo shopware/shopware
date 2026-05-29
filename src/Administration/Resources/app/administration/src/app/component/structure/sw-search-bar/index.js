@@ -148,10 +148,6 @@ export default {
             return this.repositoryFactory.create('sales_channel');
         },
 
-        salesChannelTypeRepository() {
-            return this.repositoryFactory.create('sales_channel_type');
-        },
-
         salesChannelCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('type');
@@ -864,12 +860,13 @@ export default {
         },
 
         loadSalesChannelType() {
-            return new Promise((resolve) => {
-                this.salesChannelTypeRepository.search(new Criteria(1, 25)).then((response) => {
-                    this.salesChannelTypes = response;
-                    resolve(response);
+            return Shopware.Store.get('adminReferenceData')
+                .loadSalesChannelTypes()
+                .then((salesChannelTypes) => {
+                    this.salesChannelTypes = [...salesChannelTypes];
+
+                    return salesChannelTypes;
                 });
-            });
         },
 
         getModuleEntities(searchTerm, limit = 5) {

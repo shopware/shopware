@@ -66,10 +66,6 @@ export default {
             return this.repositoryFactory.create('product');
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -183,7 +179,7 @@ export default {
         },
 
         loadSystemDefaultCurrency() {
-            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api);
+            return Shopware.Store.get('adminReferenceData').loadSystemCurrency();
         },
 
         loadProducts() {

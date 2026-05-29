@@ -56,16 +56,17 @@
     </sw-modal>
     {% endblock %}
     {% block sw_language_switch_select %}
-    <sw-entity-single-select
+    <sw-single-select
         id="language"
         class="sw-language-switch__select"
-        entity="language"
         :disabled="disabled || undefined"
-        :criteria="languageCriteria"
+        :is-loading="isLoadingLanguages"
+        :options="activeLanguages"
+        label-property="translated.name"
+        value-property="id"
         size="medium"
         required
         :value="languageId"
-        :result-limit="Infinity"
         @update:value="onInput"
     />
     {% endblock %}

@@ -5,14 +5,11 @@
 import template from './sw-maintain-currencies-modal.html.twig';
 import './sw-maintain-currencies-modal.scss';
 
-const { Criteria } = Shopware.Data;
-
 /**
  * @private
  */
 export default {
     template,
-    inject: ['repositoryFactory'],
 
     emits: [
         'update-prices',
@@ -114,11 +111,10 @@ export default {
         },
 
         loadCurrencies() {
-            this.repositoryFactory
-                .create('currency')
-                .search(new Criteria(1, 25))
-                .then((response) => {
-                    this.currencyCollection = response;
+            Shopware.Store.get('adminReferenceData')
+                .loadCurrencies()
+                .then((currencies) => {
+                    this.currencyCollection = [...currencies];
                     this.sortCurrencies();
                 });
         },

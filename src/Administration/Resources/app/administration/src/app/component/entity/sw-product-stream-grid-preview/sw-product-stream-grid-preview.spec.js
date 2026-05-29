@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import 'src/app/store/admin-reference-data.store';
 
 const mockProducts = [
     {
@@ -112,6 +113,9 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     const mockFilter = [{ type: 'equals', field: 'parentId', value: null }];
 
     beforeEach(async () => {
+        jest.restoreAllMocks();
+        Shopware.Store.get('adminReferenceData').$reset();
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadSystemCurrency').mockResolvedValue(mockCurrency);
         wrapper = await createWrapper();
     });
 

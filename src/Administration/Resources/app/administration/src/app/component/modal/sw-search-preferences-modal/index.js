@@ -17,7 +17,6 @@ export default {
     inject: [
         'searchPreferencesService',
         'searchRankingService',
-        'userConfigService',
     ],
 
     emits: ['modal-close'],
@@ -171,7 +170,7 @@ export default {
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
-            return this.userConfigService
+            return Shopware.Store.get('adminUserConfig')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

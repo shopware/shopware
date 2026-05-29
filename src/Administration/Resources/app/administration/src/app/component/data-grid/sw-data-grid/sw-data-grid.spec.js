@@ -5,6 +5,7 @@
 import { mount } from '@vue/test-utils';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import 'src/app/store/admin-user-config.store';
 
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -54,6 +55,16 @@ describe('components/data-grid/sw-data-grid', () => {
         if (!overrideProps) {
             props = { ...defaultProps, ...props };
         }
+
+        const adminUserConfigStore = Shopware.Store.get('adminUserConfig');
+        const configurationKey = `grid.setting.${(props ?? defaultProps).identifier}`;
+
+        adminUserConfigStore.configs = {
+            [configurationKey]: (userConfig ?? defaultUserConfig).value,
+        };
+        adminUserConfigStore.loaded = true;
+
+        jest.spyOn(adminUserConfigStore, 'upsert').mockResolvedValue();
 
         stubs = {
             'sw-data-grid-settings': await wrapTestComponent('sw-data-grid-settings', { sync: true }),
@@ -149,7 +160,9 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     beforeEach(() => {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
+        Shopware.Store.get('adminUserConfig').$reset();
     });
 
     it('should be in compact mode by default', async () => {
@@ -239,6 +252,24 @@ describe('components/data-grid/sw-data-grid', () => {
         await name.setChecked(valueChecked);
 
         expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
+    });
+
+    it('should save user configuration through the admin user config store', async () => {
+        const wrapper = await createWrapper({
+            showSettings: true,
+        });
+
+        await flushPromises();
+
+        wrapper.vm.onChangePreviews(true);
+
+        expect(Shopware.Store.get('adminUserConfig').upsert).toHaveBeenCalledWith({
+            'grid.setting.sw-customer-list': {
+                columns: wrapper.vm.currentColumns,
+                compact: wrapper.vm.compact,
+                previews: true,
+            },
+        });
     });
 
     it('remove property in client', async () => {

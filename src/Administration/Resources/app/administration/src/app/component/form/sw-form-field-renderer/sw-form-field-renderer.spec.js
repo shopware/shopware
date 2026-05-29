@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
+import 'src/app/store/admin-reference-data.store';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(
@@ -52,6 +53,11 @@ describe('components/form/sw-form-field-renderer', () => {
         global.repositoryFactoryMock.showError = false;
     });
 
+    beforeEach(() => {
+        jest.restoreAllMocks();
+        Shopware.Store.get('adminReferenceData').$reset();
+    });
+
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             slots: {
@@ -90,6 +96,8 @@ describe('components/form/sw-form-field-renderer', () => {
     });
 
     it('should init the current value when type is price without emit the update event', async () => {
+        jest.spyOn(Shopware.Store.get('adminReferenceData'), 'loadSystemCurrency').mockResolvedValue(null);
+
         const wrapper = await createWrapper({
             props: {
                 type: 'price',

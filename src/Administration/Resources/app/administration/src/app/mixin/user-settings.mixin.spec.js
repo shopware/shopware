@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import 'src/app/mixin/user-settings.mixin';
+import 'src/app/store/admin-user-config.store';
 import { mount } from '@vue/test-utils';
 
 let createRepositoryFactoryMock;
@@ -46,6 +47,8 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
             'user_config:create',
             'user_config:update',
         ];
+        Shopware.Store.get('adminUserConfig').$reset();
+        Shopware.Store.get('session').setCurrentUser({ id: 'current-user-id' });
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -169,7 +172,22 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
         );
     });
 
-    it('should save the user settings', async () => {
+    it('should save current user settings through the admin user config store', async () => {
+        const upsertMock = jest.spyOn(Shopware.Store.get('adminUserConfig'), 'upsert').mockResolvedValue();
+
+        const result = await wrapper.vm.saveUserSettings('my-identifier', {
+            entity: 'value',
+        });
+
+        expect(result).toBeUndefined();
+        expect(upsertMock).toHaveBeenCalledWith({
+            'custom.my-identifier': {
+                entity: 'value',
+            },
+        });
+    });
+
+    it('should save settings for another user through the user config repository', async () => {
         createRepositoryFactoryMock = {
             search: jest.fn(() =>
                 Promise.resolve([
@@ -187,9 +205,13 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
             ),
         };
 
-        const result = await wrapper.vm.saveUserSettings('my-identifier', {
-            entity: 'value',
-        });
+        const result = await wrapper.vm.saveUserSettings(
+            'my-identifier',
+            {
+                entity: 'value',
+            },
+            'another-user-id',
+        );
 
         expect(result).toEqual({
             save: 'success',
@@ -198,7 +220,7 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
         expect(createRepositoryFactoryMock.save).toHaveBeenCalledWith(
             expect.objectContaining({
                 key: 'custom.my-identifier',
-                userId: null,
+                userId: 'another-user-id',
                 value: {
                     entity: 'value',
                 },

@@ -2,7 +2,6 @@ import template from './sw-language-switch.html.twig';
 import './sw-language-switch.scss';
 
 const { warn } = Shopware.Utils.debug;
-const { Criteria } = Shopware.Data;
 
 /**
  * @sw-package framework
@@ -59,19 +58,10 @@ export default {
             languageId: '',
             lastLanguageId: '',
             newLanguageId: '',
+            activeLanguages: [],
+            isLoadingLanguages: false,
             showUnsavedChangesModal: false,
         };
-    },
-
-    computed: {
-        languageCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-            criteria.addFilter(Criteria.equals('active', true));
-
-            return criteria;
-        },
     },
 
     created() {
@@ -87,11 +77,28 @@ export default {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
+            this.loadActiveLanguages();
+
             Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
         },
 
         destroyedComponent() {
             Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
+        },
+
+        loadActiveLanguages() {
+            this.isLoadingLanguages = true;
+
+            return Shopware.Store.get('adminReferenceData')
+                .loadActiveLanguages()
+                .then((languages) => {
+                    this.activeLanguages = [...languages];
+
+                    return languages;
+                })
+                .finally(() => {
+                    this.isLoadingLanguages = false;
+                });
         },
 
         onInput(newLanguageId) {

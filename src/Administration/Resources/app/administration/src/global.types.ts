@@ -94,6 +94,8 @@ import type { CmsPageStore } from './module/sw-cms/store/cms-page.store';
 import type { TopBarButtonStore } from './app/store/topbar-button.store';
 import type { TeaserPopoverStore } from './app/store/teaser-popover.store';
 import type { AdminMenuStore } from './app/store/admin-menu.store';
+import type { AdminReferenceDataStore } from './app/store/admin-reference-data.store';
+import type { AdminUserConfigStore } from './app/store/admin-user-config.store';
 import type { InAppPurchasesStore } from './app/store/in-app-purchase-checkout.store';
 import type { CmsService } from './module/sw-cms/service/cms.service';
 import type { ExtensionComponentSectionsStore } from './app/store/extension-component-sections.store';
@@ -389,6 +391,8 @@ declare global {
         topBarButton: TopBarButtonStore;
         teaserPopover: TeaserPopoverStore;
         adminMenu: AdminMenuStore;
+        adminReferenceData: AdminReferenceDataStore;
+        adminUserConfig: AdminUserConfigStore;
         inAppPurchaseCheckout: InAppPurchasesStore;
         extensionComponentSections: ExtensionComponentSectionsStore;
         blockOverride: BlockOverrideStore;

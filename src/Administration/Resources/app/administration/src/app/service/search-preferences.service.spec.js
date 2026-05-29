@@ -3,8 +3,13 @@
  */
 import SearchPreferencesService from 'src/app/service/search-preferences.service';
 import orderDefaultSearchConfiguration from 'src/module/sw-order/default-search-configuration';
+import 'src/app/store/admin-user-config.store';
 
 describe('searchPreferencesService', () => {
+    beforeEach(() => {
+        Shopware.Store.get('adminUserConfig').$reset();
+    });
+
     it('is registered correctly', () => {
         let searchPreferencesService = new SearchPreferencesService({
             userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),

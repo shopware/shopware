@@ -7,6 +7,7 @@ import SearchRankingService, {
 } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import searchRankingModules from './_mocks/searchRankingModules.json';
+import 'src/app/store/admin-user-config.store';
 
 Shopware.Service().register('userConfigService', () => {
     return {
@@ -271,6 +272,8 @@ describe('app/service/search-ranking.service.js', () => {
 
     beforeEach(async () => {
         clearModules();
+        Shopware.Store.get('adminUserConfig').$reset();
+        Shopware.Service('userConfigService').search = () => Promise.resolve({ data: {} });
     });
 
     it('Should get default user search preferences', async () => {

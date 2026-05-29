@@ -4,7 +4,6 @@
 >
     <sw-loader v-if="isLoading" />
 
-    {% block sw_extension_card_base_select_checkbox %}
     <div class="sw-extension-card-base__select">
         <mt-checkbox
             :checked="selected"
@@ -12,7 +11,6 @@
             @update:checked="$emit('select-change', $event)"
         />
     </div>
-    {% endblock %}
 
     <div class="sw-extension-card-base__switch">
         {% block sw_extension_card_base_activation_switch_switch %}

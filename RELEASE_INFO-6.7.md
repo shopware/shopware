@@ -104,15 +104,6 @@ A `debug:mcp` CLI command is available to list all registered MCP tools, prompts
 
 ## API
 
-### Number range previews can target a concrete number range
-
-The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
-Use this route when editing an existing number range, because it reads the state for the concrete `number_range.id`.
-
-The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
-It can only resolve global number ranges and therefore does not support non-global number range state.
-The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
-
 ### New foreign key resolvers for the Sync API
 
 The Sync API now ships seven additional foreign key resolvers, allowing payloads to reference entities by stable human-readable keys instead of UUIDs:

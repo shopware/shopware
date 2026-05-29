@@ -4,9 +4,13 @@ namespace Shopware\Core\Content\Category\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\CategoryEvents;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
@@ -30,15 +34,34 @@ class CategorySubscriber implements EventSubscriberInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator,
         private readonly Connection $connection,
+        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
+            CategoryEvents::CATEGORY_LOADED_EVENT => 'categoryLoaded',
             'sales_channel.category.loaded' => 'salesChannelCategoryLoaded',
             EntityWriteEvent::class => 'beforeWriteCategory',
         ];
+    }
+
+    /**
+     * @param EntityLoadedEvent<CategoryEntity> $event
+     */
+    public function categoryLoaded(EntityLoadedEvent $event): void
+    {
+        $categories = $event->getEntities();
+
+        foreach ($categories as $category) {
+            $slotConfig = $this->cmsSlotConfigInheritanceBuilder->build(
+                $category->getTranslations(),
+                $event->getContext(),
+            );
+
+            $category->setSlotConfig($slotConfig);
+        }
     }
 
     /**

@@ -36,7 +36,6 @@ class CategoryRoute extends AbstractCategoryRoute
     public function __construct(
         private readonly SalesChannelRepository $categoryRepository,
         private readonly SalesChannelCmsPageLoaderInterface $cmsPageLoader,
-        private readonly EntityCmsSlotConfigInheritanceBuilder $cmsSlotConfigInheritanceBuilder,
         private readonly CategoryDefinition $categoryDefinition,
         private readonly CacheTagCollector $cacheTagCollector,
     ) {
@@ -89,7 +88,7 @@ class CategoryRoute extends AbstractCategoryRoute
             $pageId = $salesChannel->getHomeCmsPageId();
             $slotConfig = $salesChannel->getTranslation('homeSlotConfig');
         } else {
-            $slotConfig = $this->buildMergedCmsSlotConfig($category, $context);
+            $slotConfig = $category->getSlotConfig();
         }
 
         if (!$pageId) {
@@ -151,16 +150,5 @@ class CategoryRoute extends AbstractCategoryRoute
         }
 
         return $criteria;
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>|null
-     */
-    private function buildMergedCmsSlotConfig(CategoryEntity $category, SalesChannelContext $context): ?array
-    {
-        return $this->cmsSlotConfigInheritanceBuilder->build(
-            $category->getTranslations(),
-            $context,
-        );
     }
 }

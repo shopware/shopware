@@ -67,6 +67,7 @@
 
         <service id="Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="cache.object"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute" public="true">

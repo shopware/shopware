@@ -6,10 +6,12 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationEntity;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Cache\CacheInterface;
 
 #[Package('discovery')]
 readonly class EntityCmsSlotConfigInheritanceBuilder
@@ -19,6 +21,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
      */
     public function __construct(
         private Connection $connection,
+        private CacheInterface $cache,
     ) {
     }
 
@@ -29,10 +32,12 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
      *
      * @return array<string, array<string, mixed>>|null
      */
-    public function build(?EntityCollection $translations, SalesChannelContext $context): ?array
+    public function build(?EntityCollection $translations, SalesChannelContext|Context $context): ?array
     {
         $slotConfigs = $this->collectSlotConfigs($translations);
-        $languageInheritanceChain = $this->getLanguageInheritanceChain($context);
+        $languageInheritanceChain = $this->getLanguageInheritanceChain(
+            $context instanceof Context ? $context : $context->getContext()
+        );
 
         /**
          * Merge field-by-field within each slot so that partial slot overrides in the
@@ -78,7 +83,7 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
     /**
      * @return non-empty-list<string>
      */
-    private function getLanguageInheritanceChain(SalesChannelContext $context): array
+    private function getLanguageInheritanceChain(Context $context): array
     {
         $languageId = $context->getLanguageId();
 
@@ -107,18 +112,15 @@ readonly class EntityCmsSlotConfigInheritanceBuilder
 
     private function getParentLanguageId(string $languageId): ?string
     {
-        $parentId = $this->connection->createQueryBuilder()
-            ->select('LOWER(HEX(language.parent_id))')
-            ->from('language', 'language')
-            ->where('language.id = :id')
-            ->setParameter('id', Uuid::fromHexToBytes($languageId))
-            ->executeQuery()
-            ->fetchOne();
-
-        if ($parentId === false) {
-            return null;
-        }
-
-        return $parentId;
+        return $this->cache->get(
+            'language_parent_id_' . $languageId,
+            fn () => $this->connection->createQueryBuilder()
+                    ->select('LOWER(HEX(language.parent_id))')
+                    ->from('language', 'language')
+                    ->where('language.id = :id')
+                    ->setParameter('id', Uuid::fromHexToBytes($languageId))
+                    ->executeQuery()
+                    ->fetchOne() ?: null
+        );
     }
 }

@@ -7,7 +7,7 @@ description: >
     needs automated reviewer feedback.
 license: MIT
 allowed-tools: >
-    Agent
+    Task
     Bash(rg:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*)
     Bash(git blame:*) Bash(git status:*) Bash(git rev-parse:*)
     Bash(git branch:*)

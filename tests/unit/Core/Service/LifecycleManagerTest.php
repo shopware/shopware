@@ -8,7 +8,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\AllServiceInstaller;
@@ -16,6 +15,7 @@ use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
@@ -34,7 +34,7 @@ class LifecycleManagerTest extends TestCase
 
     private SystemConfigService&MockObject $systemConfigService;
 
-    private readonly AppLifecycle&MockObject $appLifecycle;
+    private readonly ServiceLifecycle&MockObject $serviceLifecycle;
 
     private AllServiceInstaller&MockObject $serviceInstaller;
 
@@ -50,7 +50,7 @@ class LifecycleManagerTest extends TestCase
     {
         $this->privileges = $this->createMock(Privileges::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->appLifecycle = $this->createMock(AppLifecycle::class);
+        $this->serviceLifecycle = $this->createMock(ServiceLifecycle::class);
         $this->serviceInstaller = $this->createMock(AllServiceInstaller::class);
         $this->permissionsService = $this->createMock(PermissionsService::class);
         $this->client = $this->createMock(Client::class);
@@ -108,11 +108,10 @@ class LifecycleManagerTest extends TestCase
             $this->createServiceEntity('service3', 'SwagService3'),
         ]);
 
-        $this->appLifecycle->expects($this->exactly($services->count()))
-            ->method('delete')
-            ->willReturnCallback(function ($name, $options, $context) use ($services): void {
-                static::assertContains($name, $services->map(static fn (AppEntity $service) => $service->getName()));
-                static::assertArrayHasKey('id', $options);
+        $this->serviceLifecycle->expects($this->exactly($services->count()))
+            ->method('uninstall')
+            ->willReturnCallback(function (string $serviceName, Context $context) use ($services): void {
+                static::assertContains($serviceName, $services->map(static fn (AppEntity $service) => $service->getName()));
                 static::assertSame($this->context, $context);
             });
 
@@ -133,8 +132,8 @@ class LifecycleManagerTest extends TestCase
     {
         $services = new AppCollection([]);
 
-        $this->appLifecycle->expects($this->never())
-            ->method('delete');
+        $this->serviceLifecycle->expects($this->never())
+            ->method('uninstall');
 
         $this->permissionsService->expects($this->once())
             ->method('revoke')
@@ -270,9 +269,9 @@ class LifecycleManagerTest extends TestCase
                 new ServiceEntry('SwagService2', 'Swag Service 2', 'https://swag-service2.example.com', '/app-endpoint'),
             ]);
 
-        $this->appLifecycle->expects($this->once())
-            ->method('delete')
-            ->with('OrphanedService', ['id' => 'service3'], $this->context);
+        $this->serviceLifecycle->expects($this->once())
+            ->method('uninstall')
+            ->with('OrphanedService', $this->context);
 
         $manager = $this->createManager($this->createAppRepository($services));
 
@@ -291,7 +290,7 @@ class LifecycleManagerTest extends TestCase
             $this->createMock(Privileges::class),
             new StaticSystemConfigService($systemConfig),
             new ServiceStorage($this->createAppRepository()),
-            $this->createMock(AppLifecycle::class),
+            $this->createMock(ServiceLifecycle::class),
             $this->createMock(AllServiceInstaller::class),
             $this->createMock(PermissionsService::class),
             $this->createMock(Client::class),
@@ -366,7 +365,7 @@ class LifecycleManagerTest extends TestCase
             $this->privileges,
             $this->systemConfigService,
             new ServiceStorage($repository),
-            $this->appLifecycle,
+            $this->serviceLifecycle,
             $this->serviceInstaller,
             $this->permissionsService,
             $this->client,

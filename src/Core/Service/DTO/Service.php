@@ -33,6 +33,7 @@ readonly class Service
         public State $state,
         public array $domains,
         public array $requirements,
+        public AppEntity $app,
     ) {
     }
 
@@ -56,6 +57,7 @@ readonly class Service
             State::state($app),
             array_values($app->getAllowedHosts() ?? []),
             self::requirements($app),
+            $app,
         );
     }
 

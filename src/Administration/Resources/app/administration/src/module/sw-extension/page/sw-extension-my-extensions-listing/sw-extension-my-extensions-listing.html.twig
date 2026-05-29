@@ -82,17 +82,13 @@
 
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">
-                {% block sw_extension_my_extensions_listing_controls_row %}
                 <div class="sw-extension-my-extensions-listing__controls-row">
-                    {% block sw_extension_my_extensions_listing_controls %}
                     <sw-extension-my-extensions-listing-controls
                         v-if="!hasSelection"
                         @update:active-state="changeActiveState"
                         @update:sorting-option="changeSortingOption"
                     />
-                    {% endblock %}
 
-                    {% block sw_extension_my_extensions_listing_bulk_bar %}
                     <sw-extension-bulk-actions-bar
                         v-else
                         class="sw-extension-my-extensions-listing__bulk-bar"
@@ -103,9 +99,7 @@
                         @clear="clearSelection"
                         @run-action="runBulkAction"
                     />
-                    {% endblock %}
                 </div>
-                {% endblock %}
 
                 <sw-extension-component-section
                     v-if="isThemeRoute"

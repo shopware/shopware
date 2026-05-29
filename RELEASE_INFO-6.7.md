@@ -2,6 +2,12 @@
 
 ## API
 
+### Plain JSON API includes preserve extension wrappers
+
+The Admin API plain JSON encoder now keeps extension association fields inside the `extensions` object when they are selected through `includes`.
+For example, including an extension association such as `toOne` on an entity returns `extensions.toOne` instead of promoting `toOne` to the top-level response.
+Nested extension entities also respect their own include definitions, so API clients can filter extension payload fields consistently.
+
 ### Number range previews can target a concrete number range
 
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.

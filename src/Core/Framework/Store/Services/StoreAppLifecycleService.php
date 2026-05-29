@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @internal - only for use by the app-system
@@ -33,9 +32,6 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     /**
      * @param EntityRepository<AppCollection> $appRepository
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
-     * @param ?EntityRepository<ThemeCollection> $themeRepository
-     *
-     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
      */
     public function __construct(
         private readonly StoreClient $storeClient,
@@ -43,7 +39,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly EntityRepository $appRepository,
         private readonly EntityRepository $salesChannelRepository,
-        private readonly ?EntityRepository $themeRepository,
+        private readonly ExtensionThemeIdResolver $themeIdResolver,
         private readonly AppStateService $appStateService,
         private readonly AppConfirmationDeltaProvider $appDeltaService
     ) {
@@ -157,14 +153,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 
     private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string
     {
-        if (!$this->themeRepository instanceof EntityRepository) {
-            return null;
-        }
-
-        return $this->themeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName)),
-            $context
-        )->firstId();
+        return $this->themeIdResolver->resolveThemeIdByTechnicalName($technicalName, $context);
     }
 
     private function validateExtensionCanBeRemoved(string $technicalName, string $id, Context $context): void

@@ -20,6 +20,10 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Store\Services\ExtensionThemeIdResolver" class="Shopware\Storefront\Theme\Extension\StorefrontExtensionThemeIdResolver">
+            <argument type="service" id="theme.repository"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">

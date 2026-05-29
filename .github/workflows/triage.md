@@ -54,7 +54,41 @@ safe-outputs:
 ## This run
 
 Triage issue **#${{ github.event.inputs.issue_number }}** using the policy and references
-above. Investigate read-only (no labels, comments, or writes). When done, write your
-single `TriageOutput` JSON object to a file named `triage-output.json` in the workspace
-root, then call the `upload_artifact` tool on that path. Emit ONLY the JSON to that file
-— no surrounding prose, no markdown fence.
+above. Investigate read-only (no labels, comments, or writes).
+
+**Two-step output, in this order:**
+
+1. **JSON artifact (for the validator):** write your single `TriageOutput`
+   JSON object to a file named `triage-output.json` in the workspace root,
+   then call the `upload_artifact` tool on that path. Emit ONLY the JSON to
+   that file — no surrounding prose, no markdown fence.
+
+2. **Human-readable summary on the run page:** also append a Markdown table
+   to `$GITHUB_STEP_SUMMARY` so reviewers can read the decision directly on
+   the Actions run page without downloading the artifact. Use this exact
+   `cat`-with-heredoc pattern (substitute your real values; the env var is
+   already set):
+
+   ```bash
+   cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+   ## Triage — Issue #<N>: <one-line defect description>
+
+   | Field | Value |
+   |---|---|
+   | **Disposition** | `<disposition>` |
+   | **Severity** | <severity> |
+   | **Confidence** | 0.XX |
+   | **Suggested labels** | `<label1>`, `<label2>` |
+   | **Duplicate of** | #N (or "—") |
+   | **Change size** | <change_size> |
+
+   **Reasoning:** <reasoning>
+
+   **Affected paths:** `<path1>`, `<path2>`
+
+   **Related:** #N, PR #N, `<sha> commit subject`
+   EOF
+   ```
+
+   The summary mirrors the JSON content — same disposition, same evidence,
+   same reasoning — but rendered as a table. Keep it under ~30 lines.

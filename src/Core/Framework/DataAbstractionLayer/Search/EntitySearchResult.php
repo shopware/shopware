@@ -49,6 +49,8 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
+     *
      * @return static<TEntityCollection>
      */
     public function filter(\Closure $closure): static
@@ -57,6 +59,8 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
+     *
      * @return static<TEntityCollection>
      */
     public function slice(int $offset, ?int $length = null): static
@@ -92,6 +96,9 @@ class EntitySearchResult extends EntityCollection
         return $this->context;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; the result wrapper becomes immutable.
+     */
     public function clear(): void
     {
         parent::clear();
@@ -99,6 +106,9 @@ class EntitySearchResult extends EntityCollection
         $this->entities->clear();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; the result wrapper becomes immutable.
+     */
     public function add($entity): void
     {
         parent::add($entity);
@@ -149,6 +159,9 @@ class EntitySearchResult extends EntityCollection
         return $this->entity;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 reason:remove-getter-setter - Will be removed; pass the entity name at construction.
+     */
     public function setEntity(string $entity): void
     {
         $this->entity = $entity;
@@ -163,6 +176,8 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
+     * @deprecated tag:v6.8.0 reason:return-type-change - Will return EntityCollection instead of EntitySearchResult in v6.8.0.
+     *
      * @param iterable<TElement> $elements
      *
      * @return static<TEntityCollection>

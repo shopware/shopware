@@ -49,6 +49,22 @@
         margin: 0 auto;
     }
 
+    &__controls-row {
+        display: flex;
+        align-items: center;
+        min-height: 46px;
+        margin-bottom: 32px;
+
+        .sw-extension-my-extensions-listing-controls {
+            flex: 1 1 auto;
+            margin-bottom: 0;
+        }
+    }
+
+    &__bulk-bar {
+        flex: 1 1 auto;
+    }
+
     .sw-pagination {
         background-color: transparent;
         border: none;

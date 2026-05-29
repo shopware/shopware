@@ -1,0 +1,109 @@
+{% block sw_extension_bulk_actions_bar %}
+<div class="sw-extension-bulk-actions-bar">
+    {% block sw_extension_bulk_actions_bar_count %}
+    <span class="sw-extension-bulk-actions-bar__label">
+        {{ $t('global.sw-data-grid.labelSelectionCount') }}
+    </span>
+    <span class="sw-extension-bulk-actions-bar__count">
+        {{ selectedCount }}
+    </span>
+    {% endblock %}
+
+    {% block sw_extension_bulk_actions_bar_selection %}
+    <span class="sw-extension-bulk-actions-bar__selection">
+        {% block sw_extension_bulk_actions_bar_select_all %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action sw-extension-bulk-actions-bar__select-all"
+            role="button"
+            tabindex="0"
+            @click="$emit('select-all')"
+            @keydown.enter="$emit('select-all')"
+        >
+            {{ $t('global.sw-data-grid.labelSelectAll') }}
+        </a>
+        {% endblock %}
+
+        {% block sw_extension_bulk_actions_bar_deselect %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action sw-extension-bulk-actions-bar__deselect"
+            role="button"
+            tabindex="0"
+            @click="$emit('clear')"
+            @keydown.enter="$emit('clear')"
+        >
+            {{ $t('global.sw-data-grid.labelDeSelectAll') }}
+        </a>
+        {% endblock %}
+    </span>
+    {% endblock %}
+
+    {% block sw_extension_bulk_actions_bar_actions %}
+    <span class="sw-extension-bulk-actions-bar__actions">
+        {% block sw_extension_bulk_actions_bar_action_install %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action"
+            :class="{ 'is--disabled': disabled || !applicableCounts.install }"
+            role="button"
+            tabindex="0"
+            @click="onAction('install', applicableCounts.install)"
+            @keydown.enter="onAction('install', applicableCounts.install)"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.install') }}
+        </a>
+        {% endblock %}
+
+        {% block sw_extension_bulk_actions_bar_action_activate %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action"
+            :class="{ 'is--disabled': disabled || !applicableCounts.activate }"
+            role="button"
+            tabindex="0"
+            @click="onAction('activate', applicableCounts.activate)"
+            @keydown.enter="onAction('activate', applicableCounts.activate)"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.activate') }}
+        </a>
+        {% endblock %}
+
+        {% block sw_extension_bulk_actions_bar_action_deactivate %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action"
+            :class="{ 'is--disabled': disabled || !applicableCounts.deactivate }"
+            role="button"
+            tabindex="0"
+            @click="onAction('deactivate', applicableCounts.deactivate)"
+            @keydown.enter="onAction('deactivate', applicableCounts.deactivate)"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.deactivate') }}
+        </a>
+        {% endblock %}
+
+        {% block sw_extension_bulk_actions_bar_action_update %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action"
+            :class="{ 'is--disabled': disabled || !applicableCounts.update }"
+            role="button"
+            tabindex="0"
+            @click="onAction('update', applicableCounts.update)"
+            @keydown.enter="onAction('update', applicableCounts.update)"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.update') }}
+        </a>
+        {% endblock %}
+
+        {% block sw_extension_bulk_actions_bar_action_uninstall %}
+        <a
+            class="link sw-extension-bulk-actions-bar__action sw-extension-bulk-actions-bar__action--danger"
+            :class="{ 'is--disabled': disabled || !applicableCounts.uninstall }"
+            role="button"
+            tabindex="0"
+            @click="onAction('uninstall', applicableCounts.uninstall)"
+            @keydown.enter="onAction('uninstall', applicableCounts.uninstall)"
+        >
+            {{ $t('sw-extension.my-extensions.bulk.uninstall') }}
+        </a>
+        {% endblock %}
+    </span>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+@import "~scss/variables";
+
+.sw-extension-bulk-actions-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    color: var(--color-text-primary-default);
+    font-size: $font-size-xs;
+
+    &__selection {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-left: 24px;
+    }
+
+    &__label {
+        margin-right: 12px;
+        font-weight: $font-weight-bold;
+    }
+
+    // Fixed minimum width + centered text so a growing count never pushes the following content around.
+    &__count {
+        display: inline-block;
+        min-width: 24px;
+        text-align: center;
+        font-weight: $font-weight-bold;
+    }
+
+    // margin-left: auto pushes the actions to the right edge of the bar.
+    &__actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 24px;
+        margin-left: auto;
+    }
+
+    &__action {
+        &--danger {
+            color: var(--color-text-critical-default);
+        }
+
+        &.is--disabled {
+            color: var(--color-text-secondary-default);
+            text-decoration: none;
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+}

@@ -7,8 +7,12 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryPrimitiveOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('framework')]
 class SwitchContextEvent implements ShopwareSalesChannelEvent
 {
@@ -16,7 +20,7 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
     public const DATABASE_CHECK = self::class . '.database_check';
 
     /**
-     * @param array<string, mixed> $parameters
+     * @param SalesChannelContextFactoryPrimitiveOptions $parameters
      */
     public function __construct(
         private readonly RequestDataBag $requestData,
@@ -47,7 +51,7 @@ class SwitchContextEvent implements ShopwareSalesChannelEvent
     }
 
     /**
-     * @return array<string, mixed>
+     * @return SalesChannelContextFactoryPrimitiveOptions
      */
     public function getParameters(): array
     {

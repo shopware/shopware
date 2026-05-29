@@ -147,6 +147,7 @@ class DummyContext extends SalesChannelContext
         parent::__construct(
             new Context($source, [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true, CartPrice::TAX_STATE_GROSS),
             'token',
+            'cart-token',
             'domain-id',
             (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]),
             (new CurrencyEntity())->assign(['id' => Defaults::CURRENCY]),

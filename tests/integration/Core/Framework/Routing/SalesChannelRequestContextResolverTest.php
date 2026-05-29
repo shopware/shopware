@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -402,8 +401,8 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($email, $isGuest);
 
-        $token = Random::getAlphanumericString(32);
-        static::getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);
+        $token = SalesChannelContextService::getNewToken();
+        static::getContainer()->get(SalesChannelContextPersister::class)->create($token, TestDefaults::SALES_CHANNEL, $customerId);
 
         return $token;
     }

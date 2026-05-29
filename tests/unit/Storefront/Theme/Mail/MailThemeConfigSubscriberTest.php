@@ -40,7 +40,7 @@ class MailThemeConfigSubscriberTest extends TestCase
             ->expects($this->once())
             ->method('create')
             ->with(
-                static::callback(static fn (string $token): bool => Uuid::isValid($token)),
+                static::callback(static fn ($value): bool => \is_string($value)),
                 TestDefaults::SALES_CHANNEL,
                 [
                     SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),

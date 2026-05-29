@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenExcepti
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoginRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutAllRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
@@ -55,6 +56,7 @@ class AuthController extends StorefrontController
         private readonly AbstractResetPasswordRoute $resetPasswordRoute,
         private readonly AbstractLoginRoute $loginRoute,
         private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly AbstractLogoutAllRoute $logoutAllRoute,
         private readonly AbstractImitateCustomerRoute $imitateCustomerRoute,
         private readonly StorefrontCartFacade $cartFacade,
         private readonly AccountRecoverPasswordPageLoader $recoverPasswordPageLoader
@@ -174,6 +176,29 @@ class AuthController extends StorefrontController
     }
 
     #[Route(
+        path: '/account/logout/all',
+        name: 'frontend.account.logout.all.page',
+        methods: [Request::METHOD_GET]
+    )]
+    public function logoutAll(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
+    {
+        if ($context->getCustomer() === null) {
+            return $this->redirectToRoute('frontend.account.login.page');
+        }
+
+        try {
+            $this->logoutAllRoute->logout($context, $dataBag);
+            $this->addFlash(self::SUCCESS, $this->trans('account.logoutSucceeded'));
+
+            $parameters = [];
+        } catch (ConstraintViolationException $formViolations) {
+            $parameters = ['formViolations' => $formViolations];
+        }
+
+        return $this->redirectToRoute('frontend.account.login.page', $parameters);
+    }
+
+    #[Route(
         path: '/account/login',
         name: 'frontend.account.login',
         defaults: ['XmlHttpRequest' => true],
@@ -189,7 +214,7 @@ class AuthController extends StorefrontController
 
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
-            $cartBeforeNewContext = $this->cartFacade->get($token, $context);
+            $cartBeforeNewContext = $this->cartFacade->get('', $context);
 
             if ($token !== '') {
                 $this->addCartErrors($cartBeforeNewContext);

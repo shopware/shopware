@@ -277,9 +277,10 @@ class CartOrderRouteTest extends TestCase
         // expire $originalToken context
         $connection->executeStatement(
             '
-            UPDATE sales_channel_api_context
-            SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
-            ['intervalInDays' => -$intervalInDays]
+            UPDATE sales_channel_context_token
+            SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)
+            WHERE token = :token',
+            ['intervalInDays' => -$intervalInDays, 'token' => $originalToken]
         );
 
         $this->browser->request('GET', '/store-api/checkout/cart');

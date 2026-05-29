@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
-use Shopware\Core\Content\MeasurementSystem\MeasurementUnitTypeEnum;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\SwTwigFunction;
 use Shopware\Core\Framework\Context;
@@ -53,11 +52,14 @@ class SalesChannelContext extends Struct
     /**
      * @internal
      *
+     * @param ContextToken $token
+     * @param CartToken $cartToken
      * @param array<string, array<string>> $areaRuleIds
      */
     public function __construct(
         protected Context $context,
         protected string $token,
+        protected string $cartToken,
         private ?string $domainId,
         protected SalesChannelEntity $salesChannel,
         protected CurrencyEntity $currency,
@@ -73,13 +75,7 @@ class SalesChannelContext extends Struct
         protected array $areaRuleIds = [],
         ?MeasurementUnits $measurementSystem = null,
     ) {
-        $this->measurementSystem = $measurementSystem ?? new MeasurementUnits(
-            MeasurementUnits::DEFAULT_MEASUREMENT_SYSTEM,
-            [
-                MeasurementUnitTypeEnum::LENGTH->value => MeasurementUnits::DEFAULT_LENGTH_UNIT,
-                MeasurementUnitTypeEnum::WEIGHT->value => MeasurementUnits::DEFAULT_WEIGHT_UNIT,
-            ]
-        );
+        $this->measurementSystem = $measurementSystem ?? MeasurementUnits::createDefaultUnits();
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -230,6 +226,9 @@ class SalesChannelContext extends Struct
         $this->permissionsLocked = true;
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getToken(): string
     {
         /**
@@ -242,6 +241,14 @@ class SalesChannelContext extends Struct
         }
 
         return $this->token;
+    }
+
+    /**
+     * @return CartToken
+     */
+    public function getCartToken(): string
+    {
+        return $this->cartToken;
     }
 
     public function getTaxState(): string

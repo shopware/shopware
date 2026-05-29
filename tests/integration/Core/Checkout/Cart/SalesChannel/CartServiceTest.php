@@ -101,13 +101,13 @@ class CartServiceTest extends TestCase
 
         $cartService = static::getContainer()->get(CartService::class);
 
-        $token = Uuid::randomHex();
-        $newCart = $cartService->createNew($token);
+        $cartToken = CartService::getNewToken();
+        $newCart = $cartService->createNew($cartToken);
 
         static::assertInstanceOf(CartCreatedEvent::class, $caughtEvent);
         static::assertSame($newCart, $caughtEvent->getCart());
-        static::assertSame($newCart, $cartService->getCart($token, $this->getSalesChannelContext()));
-        static::assertNotSame($newCart, $cartService->createNew($token));
+        static::assertSame($newCart, $cartService->getCart($cartToken, $this->getSalesChannelContext()));
+        static::assertNotSame($newCart, $cartService->createNew($cartToken));
     }
 
     public function testLineItemAddedEventFired(): void
@@ -181,7 +181,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -207,7 +207,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -233,7 +233,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -257,7 +257,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $this->productId, 'referencedId' => $this->productId], $context);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -294,7 +294,7 @@ class CartServiceTest extends TestCase
         $this->addTaxDataToSalesChannel($context, $product['tax']);
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
         $cart = $cartService->add($cart, $lineItem, $context);
 
         $lineItem = $cart->getLineItems()->get($productId);
@@ -357,7 +357,7 @@ class CartServiceTest extends TestCase
             $lineItems[] = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $product['id'], 'referencedId' => $product['id']], $context);
         }
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
         $cart = $cartService->add($cart, $lineItems, $context);
 
         static::assertCount(3, $cart->getLineItems());
@@ -403,7 +403,7 @@ class CartServiceTest extends TestCase
 
         $lineItem = (new ProductLineItemFactory(new PriceDefinitionFactory()))->create(['id' => $productId, 'referencedId' => $productId], $context);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -446,7 +446,7 @@ class CartServiceTest extends TestCase
 
         $cartService = static::getContainer()->get(CartService::class);
 
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
@@ -477,13 +477,13 @@ class CartServiceTest extends TestCase
     public function testCartCreatedWithGivenToken(): void
     {
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
-        $token = Uuid::randomHex();
+        $cartToken = CartService::getNewToken();
         $cartService = static::getContainer()->get(CartService::class);
-        $cart = $cartService->getCart($token, $context);
+        $cart = $cartService->getCart($cartToken, $context);
 
-        static::assertSame($token, $cart->getToken());
+        static::assertSame($cartToken, $cart->getToken());
     }
 
     private function createCustomer(string $addressId, string $mail, string $password, Context $context): void
@@ -522,7 +522,7 @@ class CartServiceTest extends TestCase
         $this->addCountriesToSalesChannel();
 
         return static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+            ->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
     }
 
     private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void

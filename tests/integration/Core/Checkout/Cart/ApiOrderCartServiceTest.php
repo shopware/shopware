@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -39,7 +38,7 @@ class ApiOrderCartServiceTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher, static::getContainer()->get(CartPersister::class));
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+            ->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
         $this->adminOrderCartService = static::getContainer()->get(ApiOrderCartService::class);
     }
 
@@ -47,7 +46,7 @@ class ApiOrderCartServiceTest extends TestCase
     {
         $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
         $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
-        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
+        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS]);
     }
 
@@ -58,11 +57,11 @@ class ApiOrderCartServiceTest extends TestCase
         $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
 
         static::assertArrayHasKey(SalesChannelContextService::PERMISSIONS, $payload);
-        static::assertCount(2, $payload[SalesChannelContextService::PERMISSIONS]);
-        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
+        static::assertCount(2, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
+        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS]);
 
-        static::assertArrayHasKey(CheckoutPermissions::SKIP_PROMOTION, $payload[SalesChannelContextService::PERMISSIONS]);
+        static::assertArrayHasKey(CheckoutPermissions::SKIP_PROMOTION, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][CheckoutPermissions::SKIP_PROMOTION]);
     }
 
@@ -70,12 +69,12 @@ class ApiOrderCartServiceTest extends TestCase
     {
         $this->adminOrderCartService->addPermission($this->salesChannelContext->getToken(), CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
         $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
-        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
+        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertTrue($payload[SalesChannelContextService::PERMISSIONS][CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS]);
 
         $this->adminOrderCartService->deletePermission($this->salesChannelContext->getToken(), CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $this->salesChannelContext->getSalesChannelId());
         $payload = $this->contextPersister->load($this->salesChannelContext->getToken(), $this->salesChannelContext->getSalesChannelId());
-        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS]);
+        static::assertArrayHasKey(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS, $payload[SalesChannelContextService::PERMISSIONS] ?? []);
         static::assertFalse($payload[SalesChannelContextService::PERMISSIONS][CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS]);
     }
 }

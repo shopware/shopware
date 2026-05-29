@@ -77,7 +77,7 @@ class CartOrderRouteBench extends AbstractBenchCase
             static::getContainer()->get('product.repository')->create($productPayload, $context);
         });
 
-        $this->cart = new Cart($this->context->getToken());
+        $this->cart = new Cart($this->context->getCartToken());
 
         foreach ($this->ids->prefixed('product-state-') as $id) {
             $this->cart->getLineItems()->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, $id));

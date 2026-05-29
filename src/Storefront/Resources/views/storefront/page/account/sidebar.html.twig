@@ -69,6 +69,14 @@
                                     {{- 'account.logout'|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
+
+                            {% block page_account_sidebar_logout_all %}
+                                <a href="{{ path('frontend.account.logout.all.page') }}"
+                                   class="btn btn-link account-aside-btn">
+                                    {% sw_icon 'log-out' -%}
+                                    {{- 'account.logoutAll'|trans|sw_sanitize }}
+                                </a>
+                            {% endblock %}
                         </div>
                     {% else %}
                         <div class="card-footer account-aside-footer account-guest-abort">

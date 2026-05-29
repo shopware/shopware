@@ -37,8 +37,15 @@ final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
         $time = new \DateTime();
         $time->modify(\sprintf('-%d day', $this->days));
 
+        // Clean up sales_channel_context_token entries which are older than the configured number of days
         $this->connection->executeStatement(
-            'DELETE FROM sales_channel_api_context WHERE updated_at <= :timestamp',
+            'DELETE FROM sales_channel_context_token WHERE updated_at <= :timestamp',
+            ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+        );
+
+        // Clean up sales_channel_context entries which are older than the configured number of days
+        $this->connection->executeStatement(
+            'DELETE FROM sales_channel_context WHERE updated_at <= :timestamp',
             ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
         );
     }

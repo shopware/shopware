@@ -130,7 +130,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             }
         }
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         /** @deprecated tag:v6.8.0 - states can be removed */
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {

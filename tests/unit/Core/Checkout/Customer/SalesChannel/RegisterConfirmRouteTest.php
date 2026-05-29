@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,6 +24,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -80,6 +82,41 @@ class RegisterConfirmRouteTest extends TestCase
     }
 
     public function testConfirmCustomer(): void
+    {
+        $customer = $this->mockCustomer();
+
+        $this->customerRepository->expects($this->exactly(2))
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'customer',
+                    1,
+                    new CustomerCollection([$customer]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $this->eventDispatcher->expects($this->atLeastOnce())
+            ->method('dispatch')
+            ->with(static::callback(function ($event) {
+                if ($event instanceof CustomerLoginEvent) {
+                    // The token should not change upon login, but only be enriched with the customer data
+                    return $event->getContextToken() === $this->context->getToken();
+                }
+
+                return true;
+            }));
+
+        $this->route->confirm($this->mockRequestDataBag(), $this->context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'MULTI_CONTEXT_TOKENS'])]
+    public function testConfirmCustomer67(): void
     {
         $customer = $this->mockCustomer();
 

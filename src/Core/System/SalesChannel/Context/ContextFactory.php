@@ -17,6 +17,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
+ *
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
  */
 #[Package('framework')]
 class ContextFactory
@@ -31,7 +33,7 @@ class ContextFactory
     }
 
     /**
-     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $options
+     * @param SalesChannelContextFactoryOptions $options
      */
     public function getContext(string $salesChannelId, array $options): Context
     {
@@ -69,7 +71,7 @@ class ContextFactory
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', (string) $data['sales_channel_language_ids']) : [];
         $languageIds = array_keys(array_flip($languageIds));
 
-        // check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_api_context`)
+        // check which language should be used in the current request (request header set, or context already contains a language - stored in `sales_channel_context`)
         $defaultLanguageId = Uuid::fromBytesToHex($data['sales_channel_default_language_id']);
 
         $languageChain = $this->buildLanguageChain($options, $defaultLanguageId, $languageIds);
@@ -90,7 +92,7 @@ class ContextFactory
     }
 
     /**
-     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $sessionOptions
+     * @param SalesChannelContextFactoryOptions $sessionOptions
      * @param array<string> $availableLanguageIds
      *
      * @return non-empty-list<string>

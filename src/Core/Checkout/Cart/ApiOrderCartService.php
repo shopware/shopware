@@ -24,13 +24,16 @@ class ApiOrderCartService
 
     public function updateShippingCosts(CalculatedPrice $calculatedPrice, SalesChannelContext $context): Cart
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         $cart->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, $calculatedPrice);
 
         return $this->cartService->recalculate($cart, $context);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function addPermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);
@@ -43,6 +46,9 @@ class ApiOrderCartService
         $this->contextPersister->save($token, $payload, $salesChannelId);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function deletePermission(string $token, string $permission, string $salesChannelId): void
     {
         $payload = $this->contextPersister->load($token, $salesChannelId);

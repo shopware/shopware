@@ -170,7 +170,7 @@ class RegisterController extends StorefrontController
             return $this->redirectToRoute($redirect);
         }
 
-        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
+        if ($this->cartService->getCart($context->getCartToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 

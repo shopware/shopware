@@ -19,8 +19,6 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class CartDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
-    private ?string $cartToken = null;
-
     private ?SalesChannelContext $salesChannelContext = null;
 
     /**
@@ -44,7 +42,6 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
     public function reset(): void
     {
         parent::reset();
-        $this->cartToken = null;
         $this->salesChannelContext = null;
     }
 
@@ -107,18 +104,17 @@ class CartDataCollectorSubscriber extends AbstractDataCollector implements Event
 
     public function onContextResolved(SalesChannelContextResolvedEvent $event): void
     {
-        $this->cartToken = $event->getUsedToken();
         $this->salesChannelContext = $event->getSalesChannelContext();
     }
 
     private function getCartData(): ?Cart
     {
-        if ($this->cartToken === null || $this->salesChannelContext === null) {
+        if ($this->salesChannelContext === null) {
             return null;
         }
 
         try {
-            return $this->cartPersister->load($this->cartToken, $this->salesChannelContext);
+            return $this->cartPersister->load($this->salesChannelContext->getCartToken(), $this->salesChannelContext);
         } catch (\Exception) {
             return null;
         }

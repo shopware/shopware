@@ -57,7 +57,7 @@ class PromotionCartEventTest extends TestCase
         $addListener->expects($this->exactly(1 + \count($codes)))->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, $addListener);
 
-        $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
+        $cart = $this->cartService->getCart($this->getContext()->getCartToken(), $this->getContext());
 
         // add all our prepared test fixtures
         // and promotions to our current cart.
@@ -89,7 +89,7 @@ class PromotionCartEventTest extends TestCase
         $removeListener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $removeListener);
 
-        $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
+        $cart = $this->cartService->getCart($this->getContext()->getCartToken(), $this->getContext());
 
         foreach ($codes as $code) {
             $cart = $this->addPromotionCode((string) $code, $cart, $this->cartService, $this->getContext());

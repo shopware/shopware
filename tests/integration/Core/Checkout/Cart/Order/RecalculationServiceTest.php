@@ -228,7 +228,6 @@ class RecalculationServiceTest extends TestCase
 
         // check token
         static::assertNotSame($cart->getToken(), $convertedCart->getToken());
-        static::assertTrue(Uuid::isValid($convertedCart->getToken()));
 
         // check lineItem sorting
         $idx = 0;
@@ -1635,7 +1634,7 @@ class RecalculationServiceTest extends TestCase
 
     private function generateDemoCart(?string $productId1 = null, ?string $productId2 = null): Cart
     {
-        $cart = new Cart(Uuid::randomHex());
+        $cart = new Cart($this->salesChannelContext->getCartToken());
 
         $cart = $this->addProduct($cart, $productId1 ?? Uuid::randomHex());
 

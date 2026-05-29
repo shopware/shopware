@@ -198,7 +198,7 @@ class DeleteAddressRouteTest extends TestCase
     public function testDeleteNewCreatedAddressGuest(): void
     {
         $customerId = $this->createCustomer(null, true);
-        $context = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
+        $context = $this->createCustomerContextToken($customerId, $this->ids->get('sales-channel'));
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $context);
 
         // Create

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -30,7 +31,7 @@ trait PromotionTestFixtureBehaviour
 
     public function createSetGroupFixture(string $packagerKey, int $value, string $sorterKey, string $promotionId, ContainerInterface $container): string
     {
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $repository = $container->get('promotion_setgroup.repository');
 
@@ -99,7 +100,7 @@ trait PromotionTestFixtureBehaviour
         /** @var EntityRepository<PromotionCollection> */
         $promotionRepository = $container->get('promotion.repository');
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $this->createPromotion(
             $promotionId,
@@ -119,7 +120,7 @@ trait PromotionTestFixtureBehaviour
         /** @var EntityRepository<PromotionCollection> */
         $promotionRepository = $container->get('promotion.repository');
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $this->createPromotion(
             $promotionId,
@@ -139,7 +140,7 @@ trait PromotionTestFixtureBehaviour
         /** @var EntityRepository<PromotionCollection> */
         $promotionRepository = $container->get('promotion.repository');
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $this->createSetGroupPromotion(
             $promotionId,
@@ -163,7 +164,7 @@ trait PromotionTestFixtureBehaviour
     ): string {
         $scope = PromotionDiscountEntity::SCOPE_SETGROUP . '-' . $groupIndex;
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $discountRepository = $container->get('promotion_discount.repository');
 
@@ -198,7 +199,7 @@ trait PromotionTestFixtureBehaviour
     {
         $pricesRepository = $container->get('promotion_discount_prices.repository');
 
-        $context = $container->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $context = $container->get(SalesChannelContextFactory::class)->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
 
         $pricesRepository->create(
             [

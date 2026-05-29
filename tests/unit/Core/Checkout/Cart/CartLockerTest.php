@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
@@ -32,22 +33,22 @@ class CartLockerTest extends TestCase
     public function testLockedExecutesClosure(): void
     {
         $called = false;
-        $context = Generator::generateSalesChannelContext(token: 'test-token');
-        $result = $this->locker->locked($context, static function () use (&$called) {
+        $contextToken = SalesChannelContextService::getNewToken();
+        $context = Generator::generateSalesChannelContext(token: $contextToken);
+        $result = $this->locker->locked($context, static function () use (&$called, $contextToken) {
             $called = true;
 
-            return 'test-result';
+            return $contextToken;
         });
 
         static::assertTrue($called);
-        static::assertSame('test-result', $result);
+        static::assertSame($contextToken, $result);
     }
 
     public function testLockedAcquiresAndReleasesLock(): void
     {
-        $token = 'test-token';
-        $context = Generator::generateSalesChannelContext(token: $token);
-        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
+        $context = Generator::generateSalesChannelContext();
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey(Generator::CART_TOKEN));
 
         // Lock should be available before
         static::assertTrue($lock->acquire());
@@ -65,7 +66,7 @@ class CartLockerTest extends TestCase
 
     public function testLockedReleasesLockOnException(): void
     {
-        $token = 'test-token';
+        $token = SalesChannelContextService::getNewToken();
         $context = Generator::generateSalesChannelContext(token: $token);
         $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
 
@@ -84,12 +85,11 @@ class CartLockerTest extends TestCase
 
     public function testLockedThrowsExceptionOnFailure(): void
     {
-        $token = 'test-token';
-        $context = Generator::generateSalesChannelContext(token: $token);
-        $lock = $this->lockFactory->createLock($this->locker->getLockKey($token));
+        $context = Generator::generateSalesChannelContext();
+        $lock = $this->lockFactory->createLock($this->locker->getLockKey(Generator::CART_TOKEN));
         $lock->acquire();
 
-        $this->expectExceptionObject(CartException::cartLocked($token));
+        $this->expectExceptionObject(CartException::cartLocked(Generator::CART_TOKEN));
 
         $this->locker->locked($context, static function (): void {
             // This should not be executed
@@ -98,7 +98,7 @@ class CartLockerTest extends TestCase
 
     public function testRecursiveUsageShouldNotThrowException(): void
     {
-        $token = 'test-token';
+        $token = SalesChannelContextService::getNewToken();
         $context = Generator::generateSalesChannelContext(token: $token);
 
         $this->locker->locked($context, function () use ($context): void {

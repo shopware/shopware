@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -75,7 +76,7 @@ class ExportController
             throw ProductExportException::salesChannelDomainNotFound($productExport->getId());
         }
 
-        $context = $this->contextFactory->create('', $domain->getSalesChannelId());
+        $context = $this->contextFactory->create(SalesChannelContextService::getNewToken(), $domain->getSalesChannelId());
 
         $filePath = $this->productExportFileHandler->getFilePath($productExport);
 

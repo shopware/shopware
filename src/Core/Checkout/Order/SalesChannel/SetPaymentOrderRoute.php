@@ -158,7 +158,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
-        $cart->setToken($salesChannelContext->getToken());
+        $cart->setToken($salesChannelContext->getCartToken());
 
         $this->cartService->setCart($cart);
         $request->attributes->set('orderId', $order->getId());

@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\DeliveryTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
@@ -44,6 +45,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('checkout')]
 class OrderConverter
 {
@@ -259,7 +263,7 @@ class OrderConverter
             throw OrderException::missingAssociation('deliveries');
         }
 
-        $cart = new Cart(Uuid::randomHex());
+        $cart = new Cart(CartService::getNewToken());
         $cart->setPrice($order->getPrice());
         $cart->setCustomerComment($order->getCustomerComment());
         $cart->setAffiliateCode($order->getAffiliateCode());
@@ -299,7 +303,7 @@ class OrderConverter
     }
 
     /**
-     * @param array<string, array<string, bool>|string> $overrideOptions
+     * @param SalesChannelContextFactoryOptions $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */
@@ -394,7 +398,7 @@ class OrderConverter
         $event = new BeforeSalesChannelContextAssembledEvent($order, $context, $options);
         $this->eventDispatcher->dispatch($event);
 
-        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $event->getOptions());
+        $salesChannelContext = $this->salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), $order->getSalesChannelId(), $event->getOptions());
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
         $salesChannelContext->addState(...$context->getStates());
         $salesChannelContext->setTaxState($order->getTaxStatus() ?? $order->getPrice()->getTaxStatus());

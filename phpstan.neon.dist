@@ -130,6 +130,18 @@ parameters:
             paths:
                 - tests/**
 
+        - # tests are allowed to use invalid context tokens
+            message: '#expects ContextToken(?:\|null)?, .* given.#'
+            identifier: argument.type
+            paths:
+                - tests/**
+
+        - # tests are allowed to use invalid cart tokens
+            message: '#expects CartToken(?:\|null)?, .* given.#'
+            identifier: argument.type
+            paths:
+                - tests/**
+
         # implementation of symfony flashbag interface which does not define iterable types
         - identifier: missingType.iterableValue
           path: src/Core/Framework/Adapter/Session/StatefulFlashBag.php

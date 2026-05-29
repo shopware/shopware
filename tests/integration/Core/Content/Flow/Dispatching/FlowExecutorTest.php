@@ -135,7 +135,7 @@ class FlowExecutorTest extends TestCase
 
     private function placeOrder(IdsCollection $ids): void
     {
-        $cart = $this->cartService->createNew($this->salesChannelContext->getToken());
+        $cart = $this->cartService->createNew($this->salesChannelContext->getCartToken());
         $cart = $this->addProducts($cart, $ids);
 
         $ids->set('order', $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag()));

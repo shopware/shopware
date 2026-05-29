@@ -110,7 +110,7 @@ class SitemapExporter implements SitemapExporterInterface
             return $salesChannelContext;
         }
 
-        $this->ruleLoader->loadByToken($salesChannelContext, $salesChannelContext->getToken());
+        $this->ruleLoader->loadByToken($salesChannelContext, $salesChannelContext->getCartToken());
 
         return $salesChannelContext;
     }

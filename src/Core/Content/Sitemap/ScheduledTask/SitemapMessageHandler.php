@@ -45,7 +45,7 @@ final readonly class SitemapMessageHandler
             return;
         }
 
-        $salesChannelContext = $this->salesChannelContextFactory->create('', $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
+        $salesChannelContext = $this->salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), $message->getLastSalesChannelId(), [SalesChannelContextService::LANGUAGE_ID => $message->getLastLanguageId()]);
 
         try {
             $this->sitemapExporter->generate($salesChannelContext, true, $message->getLastProvider(), $message->getNextOffset());

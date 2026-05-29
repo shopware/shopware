@@ -18,12 +18,22 @@ abstract class AbstractCartPersister
 
     abstract public function getDecorated(): AbstractCartPersister;
 
+    /**
+     * @param CartToken $token
+     */
     abstract public function load(string $token, SalesChannelContext $context): Cart;
 
     abstract public function save(Cart $cart, SalesChannelContext $context): void;
 
+    /**
+     * @param CartToken $token
+     */
     abstract public function delete(string $token, SalesChannelContext $context): void;
 
+    /**
+     * @param CartToken $oldToken
+     * @param CartToken $newToken
+     */
     abstract public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void;
 
     /**

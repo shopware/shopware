@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\MaintenanceRedirectEvent;
@@ -110,7 +110,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             : PlatformRequest::HEADER_CONTEXT_TOKEN;
 
         if ($this->shouldRenewToken($session, $salesChannelId, $tokenKey)) {
-            $token = Random::getAlphanumericString(32);
+            $token = SalesChannelContextService::getNewToken();
             $session->set($tokenKey, $token);
             $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
@@ -136,13 +136,16 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->updateSession($token);
     }
 
-    public function updateSessionAfterLogout(): void
+    public function updateSessionAfterLogout(CustomerLogoutEvent $event): void
     {
-        $newToken = Random::getAlphanumericString(32);
+        $token = $event->getSalesChannelContext()->getToken();
 
-        $this->updateSession($newToken, true);
+        $this->updateSession($token, true);
     }
 
+    /**
+     * @param ContextToken $token
+     */
     public function updateSession(string $token, bool $destroyOldSession = false): void
     {
         $mainRequest = $this->requestStack->getMainRequest();

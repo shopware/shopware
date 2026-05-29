@@ -6,9 +6,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -181,7 +181,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $context = $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $salesChannelId,
-                Uuid::randomHex(),
+                SalesChannelContextService::getNewToken(),
                 $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
                 $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_ID)

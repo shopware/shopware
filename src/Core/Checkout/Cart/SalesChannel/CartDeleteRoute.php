@@ -37,7 +37,7 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
     public function delete(SalesChannelContext $context): NoContentResponse
     {
         return $this->cartLocker->locked($context, function () use ($context) {
-            $this->cartPersister->delete($context->getToken(), $context);
+            $this->cartPersister->delete($context->getCartToken(), $context);
 
             $cartDeleteEvent = new CartDeletedEvent($context);
             $this->eventDispatcher->dispatch($cartDeleteEvent);

@@ -127,7 +127,7 @@ class CheckoutController extends StorefrontController
             return $this->redirectToRoute('frontend.checkout.register.page');
         }
 
-        if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
+        if ($this->cartService->getCart($context->getCartToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
 
@@ -226,7 +226,7 @@ class CheckoutController extends StorefrontController
             return $this->forwardToRoute('frontend.checkout.confirm.page', ['formViolations' => $formViolations]);
         } catch (InvalidCartException|Error|EmptyCartException) {
             $this->addCartErrors(
-                $this->cartService->getCart($context->getToken(), $context)
+                $this->cartService->getCart($context->getCartToken(), $context)
             );
 
             return $this->forwardToRoute('frontend.checkout.confirm.page');
@@ -260,7 +260,7 @@ class CheckoutController extends StorefrontController
     )]
     public function info(Request $request, SalesChannelContext $context): Response
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
         if ($cart->getLineItems()->count() <= 0) {
             return new Response(null, Response::HTTP_NO_CONTENT);
         }

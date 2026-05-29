@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
@@ -169,10 +170,13 @@ class CartRuleLoaderTest extends TestCase
         static::assertSame('0', (string) $count);
     }
 
-    private function createSalesChannelContext(string $token): SalesChannelContext
+    /**
+     * @param CartToken $cartToken
+     */
+    private function createSalesChannelContext(string $cartToken): SalesChannelContext
     {
         return static::getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create($token, TestDefaults::SALES_CHANNEL);
+            ->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CART_TOKEN => $cartToken]);
     }
 }

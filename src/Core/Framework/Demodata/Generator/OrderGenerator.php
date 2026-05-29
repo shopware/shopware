@@ -99,7 +99,7 @@ class OrderGenerator implements DemodataGeneratorInterface
 
             $salesChannelContext = $this->getContext($customerId, $salesChannelIds, $paymentMethodIds);
 
-            $cart = $this->cartService->createNew($salesChannelContext->getToken());
+            $cart = $this->cartService->createNew($salesChannelContext->getCartToken());
             foreach ($this->faker->randomElements($productLineItems, random_int(3, 5)) as $lineItem) {
                 $cart->add($lineItem);
             }
@@ -184,7 +184,7 @@ class OrderGenerator implements DemodataGeneratorInterface
             $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $this->faker->randomElement($paymentMethodIds);
         }
 
-        $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
+        $context = $this->contextFactory->create(SalesChannelContextService::getNewToken(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 
         return $this->contexts[$customerId] = $context;
     }

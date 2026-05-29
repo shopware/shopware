@@ -253,7 +253,7 @@ class PromotionSetGroupCalculationTest extends TestCase
     ): Cart {
         $promotionBuilder->buildPromotion();
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         // add 3 items to our cart
         // the cheapest one 1x and 2x the other product

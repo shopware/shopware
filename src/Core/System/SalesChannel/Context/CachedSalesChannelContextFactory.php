@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Context;
 
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
@@ -36,6 +37,9 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
             return $this->getDecorated()->create($token, $salesChannelId, $options);
         }
 
+        $cartToken = $options[SalesChannelContextService::CART_TOKEN] ?? null;
+        unset($options[SalesChannelContextService::CART_TOKEN]);
+
         ksort($options);
 
         $key = implode('-', [$name, Hasher::hash($options)]);
@@ -54,7 +58,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
             return $this->getDecorated()->create($token, $salesChannelId, $options);
         }
 
-        $context->assign(['token' => $token]);
+        $context->assign(['token' => $token, 'cartToken' => $cartToken ?? CartService::getNewToken()]);
 
         return $context;
     }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Service;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -69,8 +68,6 @@ class ProductExportGeneratorTest extends TestCase
 
     private MockObject&SalesChannelContextPersister $contextPersister;
 
-    private MockObject&Connection $connection;
-
     private MockObject&SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
     private MockObject&Environment $twig;
@@ -99,7 +96,6 @@ class ProductExportGeneratorTest extends TestCase
         $this->salesChannelContextService = $this->createMock(SalesChannelContextServiceInterface::class);
         $this->translator = $this->createMock(AbstractTranslator::class);
         $this->contextPersister = $this->createMock(SalesChannelContextPersister::class);
-        $this->connection = $this->createMock(Connection::class);
         $this->seoUrlPlaceholderHandler = $this->createMock(SeoUrlPlaceholderHandlerInterface::class);
         $this->twig = $this->createMock(Environment::class);
         $this->productDefinition = $productDefinition;
@@ -124,7 +120,6 @@ class ProductExportGeneratorTest extends TestCase
             $this->salesChannelContextService,
             $this->translator,
             $this->contextPersister,
-            $this->connection,
             1,
             $this->seoUrlPlaceholderHandler,
             $this->twig,
@@ -163,7 +158,6 @@ class ProductExportGeneratorTest extends TestCase
             $this->salesChannelContextService,
             $this->translator,
             $this->contextPersister,
-            $this->connection,
             1,
             $this->seoUrlPlaceholderHandler,
             $this->twig,
@@ -239,9 +233,7 @@ class ProductExportGeneratorTest extends TestCase
             ->with($productExport, "{\"url\":\"https://example.com/product/1\",\"title\":\"Product\"}\n")
             ->willReturn([]);
 
-        $this->connection->expects($this->once())
-            ->method('delete')
-            ->with('sales_channel_api_context', static::arrayHasKey('token'));
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $generator = $this->createGenerator();
         $result = $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
@@ -310,9 +302,7 @@ class ProductExportGeneratorTest extends TestCase
             ->with($productExport, $expectedNormalized)
             ->willReturn([]);
 
-        $this->connection->expects($this->once())
-            ->method('delete')
-            ->with('sales_channel_api_context', static::arrayHasKey('token'));
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $generator = $this->createGenerator();
         $result = $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
@@ -363,7 +353,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $this->seoUrlPlaceholderHandler->expects($this->never())->method('replace');
         $this->productExportValidator->expects($this->never())->method('validate');
-        $this->connection->expects($this->never())->method('delete');
+        $this->contextPersister->expects($this->never())->method('delete');
 
         $generator = $this->createGenerator();
 
@@ -419,7 +409,7 @@ class ProductExportGeneratorTest extends TestCase
             ->with('', '', $context)
             ->willReturn('');
         $this->productExportValidator->expects($this->never())->method('validate');
-        $this->connection->expects($this->once())->method('delete');
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $generator = $this->createGenerator();
 
@@ -459,7 +449,6 @@ class ProductExportGeneratorTest extends TestCase
         $this->productExportRender->method('renderBody')->willReturn('product');
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
         $this->productExportValidator->method('validate')->willReturn([]);
-        $this->connection->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
@@ -499,7 +488,6 @@ class ProductExportGeneratorTest extends TestCase
         $this->productExportRender->method('renderBody')->willReturn('variant');
         $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
         $this->productExportValidator->method('validate')->willReturn([]);
-        $this->connection->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
@@ -546,7 +534,7 @@ class ProductExportGeneratorTest extends TestCase
             ->method('validate')
             ->with($productExport, "{\"id\":\"variant-a\",\"url\":\"https://example.com/a\"}\n{\"id\":\"variant-b\",\"url\":\"https://example.com/b\"}\n")
             ->willReturn([]);
-        $this->connection->expects($this->once())->method('delete');
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
@@ -582,7 +570,7 @@ class ProductExportGeneratorTest extends TestCase
             ->willReturn(" \n\t ");
         $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->with('', '', $context)->willReturn('');
         $this->productExportValidator->expects($this->once())->method('validate')->with($productExport, '')->willReturn([]);
-        $this->connection->expects($this->once())->method('delete');
+        $this->contextPersister->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, true, false, false));
 
@@ -601,7 +589,6 @@ class ProductExportGeneratorTest extends TestCase
             $this->salesChannelContextService,
             $this->translator,
             $this->contextPersister,
-            $this->connection,
             1,
             $this->seoUrlPlaceholderHandler,
             $this->twig,

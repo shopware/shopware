@@ -96,7 +96,7 @@ trait StorefrontPageTestBehaviour
             ->setStackable(true);
 
         $cartService = static::getContainer()->get(CartService::class);
-        $cart = $cartService->getCart($context->getToken(), $context);
+        $cart = $cartService->getCart($context->getCartToken(), $context);
         $cart->add($lineItem);
 
         return $cartService->order($cart, $context, new RequestDataBag());
@@ -339,10 +339,10 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 
-        $context = $factory->create(Uuid::randomHex(), $salesChannelId, $options);
+        $context = $factory->create(SalesChannelContextService::getNewToken(), $salesChannelId, $options);
 
         $ruleLoader = static::getContainer()->get(CartRuleLoader::class);
-        $ruleLoader->loadByToken($context, $context->getToken());
+        $ruleLoader->loadByToken($context, $context->getCartToken());
 
         return $context;
     }

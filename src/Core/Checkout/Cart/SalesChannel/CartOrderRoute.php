@@ -96,7 +96,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
             if (Feature::isActive('v6.8.0.0')) {
                 // @deprecated tag:v6.8.0 - After the cart is deleted, the lock is no longer needed. The following operations should be moved outside the locked closure.
-                $this->cartPersister->delete($context->getToken(), $context);
+                $this->cartPersister->delete($context->getCartToken(), $context);
             }
 
             $criteria = new Criteria([$orderId]);
@@ -138,7 +138,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
 
             if (!Feature::isActive('v6.8.0.0')) {
                 // cart will delete immediately after order is created to avoid inconsistencies.
-                $this->cartPersister->delete($context->getToken(), $context);
+                $this->cartPersister->delete($context->getCartToken(), $context);
             }
 
             return new CartOrderRouteResponse($orderEntity);

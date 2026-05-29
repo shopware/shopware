@@ -1012,10 +1012,9 @@ class SalesChannelProxyControllerTest extends TestCase
             $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannelId());
             $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
             $payload = array_merge($payload, [
-                'customerId' => $customerId,
                 'paymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
             ]);
-            $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId());
+            $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannelId(), $customerId);
 
             $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $salesChannelContext);
 

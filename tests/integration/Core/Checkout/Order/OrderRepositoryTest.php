@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -144,8 +145,8 @@ class OrderRepositoryTest extends TestCase
 
     public function testDeleteOrder(): void
     {
-        $token = Uuid::randomHex();
-        $cart = new Cart($token);
+        $cartToken = CartService::getNewToken();
+        $cart = new Cart($cartToken);
 
         $id = Uuid::randomHex();
 
@@ -186,7 +187,7 @@ class OrderRepositoryTest extends TestCase
             ]
         );
 
-        static::getContainer()->get(CartRuleLoader::class)->loadByToken($context, $context->getToken());
+        static::getContainer()->get(CartRuleLoader::class)->loadByToken($context, $context->getCartToken());
 
         $cart = $this->processor->process($cart, $context, new CartBehavior());
 

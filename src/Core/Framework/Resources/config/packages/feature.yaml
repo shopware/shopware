@@ -56,6 +56,11 @@ shopware:
         major: false
         toggleable: true
         description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
+      - name: MULTI_CONTEXT_TOKENS
+        default: false
+        major: true
+        toggleable: true
+        description: "Allows multiple context tokens to be active for a customer at the same time\nThis feature will be standard as of v6.8.0"
       - name: DEFERRED_CART_ERRORS
         default: false
         major: false

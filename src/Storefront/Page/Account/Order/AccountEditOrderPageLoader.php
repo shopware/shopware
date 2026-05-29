@@ -180,7 +180,7 @@ class AccountEditOrderPageLoader
         $cart = $this->orderConverter->convertToCart($order, $context->getContext());
         $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
 
-        $cart->setToken($orderContext->getToken());
+        $cart->setToken($orderContext->getCartToken());
         $this->cartService->setCart($cart);
 
         $options = $this->checkoutGatewayRoute->load($event->getStoreApiRequest(), $cart, $orderContext);

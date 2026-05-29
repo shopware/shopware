@@ -68,7 +68,7 @@ class OrderService
      */
     public function createOrder(DataBag $data, SalesChannelContext $context): string
     {
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         $isDownloadLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_DIGITAL);
 

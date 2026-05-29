@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -40,7 +41,7 @@ class CartDataCollectorSubscriberTest extends TestCase
 
     public function testDataCollection(): void
     {
-        $cartToken = Uuid::randomHex();
+        $cartToken = CartService::getNewToken();
 
         $cart = new Cart('test-cart');
         $lineItem = new LineItem('line-item-id', 'product', 'product-id', 2);
@@ -88,7 +89,7 @@ class CartDataCollectorSubscriberTest extends TestCase
 
     public function testEmptyCart(): void
     {
-        $cartToken = Uuid::randomHex();
+        $cartToken = CartService::getNewToken();
 
         $cart = new Cart('empty-cart');
 
@@ -114,7 +115,7 @@ class CartDataCollectorSubscriberTest extends TestCase
 
     public function testReset(): void
     {
-        $cartToken = Uuid::randomHex();
+        $cartToken = CartService::getNewToken();
 
         $cart = new Cart('test-cart');
 

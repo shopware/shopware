@@ -190,7 +190,7 @@ class LoginRouteTest extends TestCase
     {
         $email = Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($email);
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken, [], $customerId);
         $this->createCart($contextToken, $salesChannelContext);

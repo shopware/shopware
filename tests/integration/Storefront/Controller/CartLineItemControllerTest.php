@@ -44,7 +44,7 @@ class CartLineItemControllerTest extends TestCase
     #[DataProvider('productNumbers')]
     public function testAddAndDeleteProductByNumber(string $productId, string $productNumber, bool $available = true): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
         if ($productId && $available) {
@@ -55,7 +55,7 @@ class CartLineItemControllerTest extends TestCase
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
 
-        $cart = $cartService->getCart($contextToken, $salesChannelContext);
+        $cart = $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext);
 
         $cartLineItem = $cart->getLineItems()->get($productId);
 
@@ -78,7 +78,7 @@ class CartLineItemControllerTest extends TestCase
 
         $response = static::getContainer()->get(CartLineItemController::class)->deleteLineItem($cart, $productId, $request, $salesChannelContext);
 
-        $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId);
+        $cartLineItem = $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext)->getLineItems()->get($productId);
 
         $flashBagEntries = $this->getFlashBag()->all();
 
@@ -95,7 +95,8 @@ class CartLineItemControllerTest extends TestCase
     #[DataProvider('productVariations')]
     public function testAddVariationProductByNumber(string $productId, string $productNumber, bool $containerProductHasChildren, bool $expected): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
+
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
 
         $request = $this->createRequest(['number' => $productNumber]);
@@ -108,7 +109,7 @@ class CartLineItemControllerTest extends TestCase
 
         $response = $controller->addProductByNumber($request, $salesChannelContext);
 
-        $cart = $cartService->getCart($contextToken, $salesChannelContext);
+        $cart = $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext);
 
         $cartLineItem = $cart->getLineItems()->first();
 
@@ -177,14 +178,14 @@ class CartLineItemControllerTest extends TestCase
 
     public function testAddPromotion(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
         $request = $this->createRequest(['code' => 'testCode']);
 
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
         static::getContainer()->get(CartLineItemController::class)->addPromotion(
-            $cartService->getCart($contextToken, $salesChannelContext),
+            $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext),
             $request,
             $salesChannelContext
         );
@@ -193,19 +194,19 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertArrayHasKey('danger', $flashBagEntries);
         static::assertSame(static::getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags('testCode')]), $flashBagEntries['danger'][0]);
-        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+        static::assertCount(0, $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext)->getLineItems());
     }
 
     public function testAddPromotionWithEmptyInputAddsValidationFlash(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
         $request = $this->createRequest(['code' => '   ']);
         $salesChannelContext = $this->createSalesChannelContext($contextToken);
 
         $response = static::getContainer()->get(CartLineItemController::class)->addPromotion(
-            $cartService->getCart($contextToken, $salesChannelContext),
+            $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext),
             $request,
             $salesChannelContext
         );
@@ -216,12 +217,12 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertArrayHasKey('danger', $flashBagEntries);
         static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
-        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+        static::assertCount(0, $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext)->getLineItems());
     }
 
     public function testAddProductByNumberTrimsInputBeforeLookup(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
         $productId = Uuid::randomHex();
 
         $this->createProduct($productId, ' test.123 ');
@@ -234,12 +235,12 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertArrayHasKey('success', $this->getFlashBag()->all());
-        static::assertNotNull($cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId));
+        static::assertNotNull($cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext)->getLineItems()->get($productId));
     }
 
     public function testAddProductByNumberWithEmptyInputAddsDangerFlash(): void
     {
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $cartService = static::getContainer()->get(CartService::class);
         $request = $this->createRequest(['number' => '   ']);
@@ -253,7 +254,7 @@ class CartLineItemControllerTest extends TestCase
 
         static::assertArrayHasKey('danger', $flashBagEntries);
         static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
-        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+        static::assertCount(0, $cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext)->getLineItems());
     }
 
     private function getFlashBag(): FlashBagInterface
@@ -318,12 +319,11 @@ class CartLineItemControllerTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], $context);
     }
 
-    private function createSalesChannelContext(string $contextToken, ?string $paymentMethodId = null): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken): SalesChannelContext
     {
         return static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
             TestDefaults::SALES_CHANNEL,
-            $paymentMethodId ? [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId] : []
         );
     }
 

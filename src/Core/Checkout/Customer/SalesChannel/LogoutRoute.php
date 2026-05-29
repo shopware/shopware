@@ -8,12 +8,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,7 +30,6 @@ class LogoutRoute extends AbstractLogoutRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfig,
         private readonly CartService $cartService,
-        private readonly SalesChannelContextServiceInterface $contextService,
     ) {
     }
 
@@ -57,28 +53,20 @@ class LogoutRoute extends AbstractLogoutRoute
         $customer = $context->getCustomer();
         if ($this->shouldDelete($context)) {
             $this->cartService->deleteCart($context);
-            $this->contextPersister->delete($context->getToken(), $context->getSalesChannelId());
+            $this->contextPersister->delete($context->getToken());
         } else {
-            $this->contextPersister->replace($context->getToken(), $context);
+            $this->contextPersister->deleteToken($context->getToken());
         }
-
-        // Update the context for the remainder of the request
-        $context = $this->contextService->get(
-            new SalesChannelContextServiceParameters(
-                $context->getSalesChannelId(),
-                Random::getAlphanumericString(32),
-            )
-        );
 
         $event = new CustomerLogoutEvent($context, $customer);
         $this->eventDispatcher->dispatch($event);
 
-        return new ContextTokenResponse($context->getToken());
+        return new ContextTokenResponse($event->getSalesChannelContext()->getToken());
     }
 
     private function shouldDelete(SalesChannelContext $context): bool
     {
-        $config = $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
+        $config = $this->systemConfig->getBool('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
 
         if ($config) {
             return true;

@@ -94,7 +94,7 @@ class CacheStateSubscriber implements EventSubscriberInterface
         /** @var SalesChannelContext $context */
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->cartService->getCart($context->getCartToken(), $context);
 
         $context->removeState(self::STATE_LOGGED_IN);
 

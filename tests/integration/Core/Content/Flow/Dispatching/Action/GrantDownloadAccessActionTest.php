@@ -245,7 +245,7 @@ class GrantDownloadAccessActionTest extends TestCase
     {
         $productDownloads ??= [[]];
 
-        $cart = $this->cartService->createNew($this->salesChannelContext->getToken());
+        $cart = $this->cartService->createNew($this->salesChannelContext->getCartToken());
         $cart = $this->addProducts($cart, $productDownloads);
 
         return $this->cartService->order($cart, $this->salesChannelContext, new RequestDataBag());

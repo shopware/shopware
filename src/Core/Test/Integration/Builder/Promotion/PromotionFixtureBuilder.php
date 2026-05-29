@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 
@@ -44,7 +45,7 @@ class PromotionFixtureBuilder
         private readonly EntityRepository $promotionSetgroupRepository,
         private readonly EntityRepository $promotionDiscountRepository
     ) {
-        $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $this->context = $salesChannelContextFactory->create(SalesChannelContextService::getNewToken(), TestDefaults::SALES_CHANNEL);
     }
 
     public function setCode(string $code): PromotionFixtureBuilder

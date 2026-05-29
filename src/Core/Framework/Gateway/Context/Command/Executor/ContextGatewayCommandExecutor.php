@@ -42,6 +42,7 @@ class ContextGatewayCommandExecutor
         if ($tokenCommand = $commands->getSingleTokenCommand()) {
             $this->registry->get($tokenCommand::COMMAND_KEY)->handle($tokenCommand, $context, $parameters);
 
+            /** @var ContextToken */
             $token = $parameters['token'];
             unset($parameters['token']);
 

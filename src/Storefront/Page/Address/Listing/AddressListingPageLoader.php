@@ -63,7 +63,7 @@ class AddressListingPageLoader
 
         $page->setAddresses($this->listAddressRoute->load($criteria, $salesChannelContext, $customer)->getAddressCollection());
 
-        $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
+        $page->setCart($this->cartService->getCart($salesChannelContext->getCartToken(), $salesChannelContext));
 
         $page->setAddress(
             $page->getAddresses()->get(RequestParamHelper::get($request, 'addressId'))

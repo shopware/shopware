@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
-use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -18,8 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -51,7 +48,6 @@ final readonly class ProductExportPartialGenerationHandler
         private AbstractTranslator $translator,
         private SalesChannelContextServiceInterface $salesChannelContextService,
         private SalesChannelContextPersister $contextPersister,
-        private Connection $connection,
         private int $readBufferSize,
         private LanguageLocaleCodeProvider $languageLocaleProvider,
         private ClockInterface $clock,
@@ -101,12 +97,12 @@ final readonly class ProductExportPartialGenerationHandler
     private function getContext(ProductExportPartialGeneration $productExportPartialGeneration): Context
     {
         $context = $this->salesChannelContextFactory->create(
-            Uuid::randomHex(),
+            SalesChannelContextService::getNewToken(),
             $productExportPartialGeneration->getSalesChannelId()
         );
 
         if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
-            throw new SalesChannelNotFoundException();
+            throw ProductExportException::salesChannelNotFound($context->getSalesChannel()->getId());
         }
 
         return $context->getContext();
@@ -158,7 +154,7 @@ final readonly class ProductExportPartialGenerationHandler
             throw ProductExportException::salesChannelDomainNotFound($productExport->getId());
         }
 
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
         $this->contextPersister->save(
             $contextToken,
             [
@@ -196,7 +192,7 @@ final readonly class ProductExportPartialGenerationHandler
             $footerContent
         );
 
-        $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
+        $this->contextPersister->delete($contextToken);
 
         if (!$writeProductExportSuccessful) {
             return;

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -35,13 +36,22 @@ class StorefrontCartFacade
     ) {
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $token will be removed and used from the context
+     *
+     * @param '' $token
+     */
     public function get(
         string $token,
         SalesChannelContext $originalContext,
         bool $caching = true,
         bool $taxed = false
     ): Cart {
-        $originalCart = $this->cartService->getCart($token, $originalContext, $caching, $taxed);
+        if ($token !== '') {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$token parameter will be removed.');
+        }
+
+        $originalCart = $this->cartService->getCart($originalContext->getCartToken(), $originalContext, $caching, $taxed);
         $cartErrors = $originalCart->getErrors();
         if (!$this->cartContainsBlockedMethods($cartErrors)) {
             return $originalCart;

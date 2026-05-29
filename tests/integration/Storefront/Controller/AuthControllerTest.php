@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutAllRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -62,6 +64,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * @internal
+ *
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
  */
 #[Package('checkout')]
 class AuthControllerTest extends TestCase
@@ -104,7 +108,7 @@ class AuthControllerTest extends TestCase
         $oldCartExists = $connection->fetchOne('SELECT 1 FROM cart WHERE token = ?', [$contextToken]);
         static::assertFalse($oldCartExists);
 
-        $oldContextExists = $connection->fetchOne('SELECT 1 FROM sales_channel_api_context WHERE token = ?', [$contextToken]);
+        $oldContextExists = $connection->fetchOne('SELECT 1 FROM sales_channel_context_token WHERE token = ?', [$contextToken]);
         static::assertFalse($oldContextExists);
     }
 
@@ -281,7 +285,7 @@ class AuthControllerTest extends TestCase
         $customer = $this->createCustomer();
         static::assertNotNull($customer);
 
-        $contextToken = Uuid::randomHex();
+        $contextToken = SalesChannelContextService::getNewToken();
         $productId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
@@ -297,12 +301,13 @@ class AuthControllerTest extends TestCase
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                'cartToken' => $salesChannelContext->getCartToken(),
             ],
             TestDefaults::SALES_CHANNEL,
             $customer->getId()
         );
 
-        $cart = new Cart($contextToken);
+        $cart = new Cart($salesChannelContext->getCartToken());
 
         $cart->add(new LineItem('productId', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 
@@ -324,7 +329,8 @@ class AuthControllerTest extends TestCase
 
         $salesChannelContextNew = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL,
+            [SalesChannelContextService::CART_TOKEN => $salesChannelContext->getCartToken()]
         );
 
         static::getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
@@ -719,6 +725,7 @@ class AuthControllerTest extends TestCase
             static::getContainer()->get(ResetPasswordRoute::class),
             static::getContainer()->get(LoginRoute::class),
             $this->createMock(AbstractLogoutRoute::class),
+            $this->createMock(AbstractLogoutAllRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
@@ -730,7 +737,7 @@ class AuthControllerTest extends TestCase
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, string> $salesChannelContextOptions
+     * @param SalesChannelContextFactoryOptions $salesChannelContextOptions
      */
     private function createRequest(string $route, array $params = [], array $salesChannelContextOptions = []): Request
     {

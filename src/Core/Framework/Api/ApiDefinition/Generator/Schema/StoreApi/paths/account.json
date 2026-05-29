@@ -838,6 +838,30 @@
                 ]
             }
         },
+        "/account/logout/all": {
+            "post": {
+                "tags": [
+                    "Login & Registration"
+                ],
+                "summary": "Log out a customer from all devices",
+                "description": "Logs out a customer from all devices.",
+                "operationId": "logoutCustomerFromAllDevices",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ]
+            }
+        },
         "/account/register-confirm": {
             "post": {
                 "tags": [

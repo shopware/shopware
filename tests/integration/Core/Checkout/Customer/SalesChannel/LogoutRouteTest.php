@@ -14,11 +14,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
@@ -114,7 +114,7 @@ class LogoutRouteTest extends TestCase
     public function testLogoutKeepsCartToBeAbleToRestore(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer($email);
+        $customerId = $this->createCustomer($email);
 
         $this->browser
             ->request(
@@ -144,11 +144,10 @@ class LogoutRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
-        $tokens = static::getContainer()->get(Connection::class)
-            ->fetchFirstColumn('SELECT token FROM sales_channel_api_context WHERE customer_id =  (SELECT id FROM customer where email = ?)', [$email]);
+        $cartToken = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT cart_token FROM sales_channel_context WHERE customer_id = ?', [Uuid::fromHexToBytes($customerId)]);
 
-        static::assertCount(1, $tokens);
-        static::assertNotContains($contextToken, $tokens, 'Old token should still exist');
+        static::assertNotFalse($cartToken, 'Cart token should still exist');
     }
 
     public function testLoggedOutKeepCustomerContextWithoutReplaceTokenParameter(): void
@@ -183,8 +182,8 @@ class LogoutRouteTest extends TestCase
                 '/store-api/account/logout',
             );
 
-        $customerIdWithOldToken = static::getContainer()->get(Connection::class)->fetchOne('SELECT customer_id FROM sales_channel_api_context WHERE token = ?', [$currentCustomerToken]);
-        static::assertFalse($customerIdWithOldToken, 'The old token should be gone');
+        $customerToken = static::getContainer()->get(Connection::class)->fetchOne('SELECT token FROM sales_channel_context_token WHERE token = ?', [$currentCustomerToken]);
+        static::assertFalse($customerToken, 'The old token should be gone');
     }
 
     public function testLogoutRouteReturnContextTokenResponse(): void
@@ -195,7 +194,7 @@ class LogoutRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $this->createCustomer($email);
 
-        $contextToken = Random::getAlphanumericString(32);
+        $contextToken = SalesChannelContextService::getNewToken();
 
         $salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
@@ -264,7 +263,7 @@ class LogoutRouteTest extends TestCase
         static::assertNotSame($login->getToken(), $logout->getToken());
 
         $exists = static::getContainer()->get(Connection::class)
-            ->fetchAllAssociative('SELECT * FROM sales_channel_api_context WHERE token = :token', ['token' => $login->getToken()]);
+            ->fetchAllAssociative('SELECT token FROM sales_channel_context_token WHERE token = :token', ['token' => $login->getToken()]);
 
         static::assertEmpty($exists);
     }
@@ -275,7 +274,7 @@ class LogoutRouteTest extends TestCase
         $customerId = $this->createCustomer($email, true);
         $this->browser->setServerParameter(
             'HTTP_SW_CONTEXT_TOKEN',
-            $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'))
+            $this->createCustomerContextToken($customerId, $this->ids->get('sales-channel'))
         );
 
         $this->browser

@@ -109,7 +109,7 @@ class ListAddressRouteTest extends TestCase
 
     public function testListAddressForGuest(): void
     {
-        $contextToken = $this->getLoggedInContextToken($this->createCustomer(null, true), $this->ids->get('sales-channel'));
+        $contextToken = $this->createCustomerContextToken($this->createCustomer(null, true), $this->ids->get('sales-channel'));
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 

@@ -5,14 +5,19 @@ namespace Shopware\Core\System\SalesChannel\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @phpstan-import-type SalesChannelContextFactoryOptions from AbstractSalesChannelContextFactory
+ */
 #[Package('framework')]
 class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
-     * @param array<string, mixed> $session
+     * @param ContextToken $usedToken
+     * @param SalesChannelContextFactoryOptions $session
      */
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
@@ -31,13 +36,16 @@ class SalesChannelContextCreatedEvent extends Event implements ShopwareSalesChan
         return $this->salesChannelContext->getContext();
     }
 
+    /**
+     * @return ContextToken
+     */
     public function getUsedToken(): string
     {
         return $this->usedToken;
     }
 
     /**
-     * @return array<string, mixed>
+     * @return SalesChannelContextFactoryOptions
      */
     public function getSession(): array
     {

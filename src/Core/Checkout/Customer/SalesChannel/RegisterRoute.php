@@ -223,14 +223,15 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $response = new CustomerResponse($customerEntity);
 
-        $newToken = $this->contextPersister->replace($context->getToken(), $context);
+        $token = $context->getToken();
+
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $token = $this->contextPersister->replace($context->getToken(), $context);
+        }
 
         $this->contextPersister->save(
-            $newToken,
+            $token,
             [
-                'customerId' => $customerEntity->getId(),
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
                 'domainId' => $context->getDomainId(),
             ],
             $context->getSalesChannelId(),
@@ -240,7 +241,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $new = $this->contextService->get(
             new SalesChannelContextServiceParameters(
                 $context->getSalesChannelId(),
-                $newToken,
+                $token,
                 $context->getLanguageId(),
                 $context->getCurrencyId(),
                 $context->getDomainId(),
@@ -257,10 +258,12 @@ class RegisterRoute extends AbstractRegisterRoute
             $this->eventDispatcher->dispatch(new GuestCustomerRegisterEvent($new, $customerEntity));
         }
 
-        $event = new CustomerLoginEvent($new, $customerEntity, $newToken);
+        $event = new CustomerLoginEvent($new, $customerEntity, $token);
         $this->eventDispatcher->dispatch($event);
 
-        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+        if (!Feature::isActive('v6.8.0.0') && !Feature::isActive('MULTI_CONTEXT_TOKENS')) {
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+        }
 
         // We don't want to leak the hash in store-api
         $customerEntity->setHash('');

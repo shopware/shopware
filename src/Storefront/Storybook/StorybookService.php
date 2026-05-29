@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -57,7 +58,7 @@ class StorybookService
 
     public function createSalesChannelContext(): SalesChannelContext
     {
-        return $this->contextFactory->create('', $this->getFirstAvailableSalesChannelId());
+        return $this->contextFactory->create(SalesChannelContextService::getNewToken(), $this->getFirstAvailableSalesChannelId());
     }
 
     public function getThemeId(string $salesChannelId): ?string

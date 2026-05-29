@@ -11,3 +11,7 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\FieldIsSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\BrandedStringTypeNodeResolverExtension
+        tags:
+            - phpstan.phpDoc.typeNodeResolverExtension

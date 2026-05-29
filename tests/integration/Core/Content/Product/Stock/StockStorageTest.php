@@ -970,7 +970,7 @@ class StockStorageTest extends TestCase
         $factory = new ProductLineItemFactory(new PriceDefinitionFactory());
         $lineItem = $factory->create(['id' => $id, 'referencedId' => $id, 'quantity' => $quantity], $this->context);
 
-        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->getCart($this->context->getCartToken(), $this->context);
 
         $cart = $this->cartService->add($cart, $lineItem, $this->context);
 

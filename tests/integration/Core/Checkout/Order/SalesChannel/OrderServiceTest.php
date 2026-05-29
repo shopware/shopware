@@ -441,7 +441,7 @@ class OrderServiceTest extends TestCase
     public function testCreateOrder(): void
     {
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         $orderId = $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -475,7 +475,7 @@ class OrderServiceTest extends TestCase
         );
 
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         $orderId = $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -499,7 +499,7 @@ class OrderServiceTest extends TestCase
         }
 
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -586,7 +586,7 @@ class OrderServiceTest extends TestCase
         }
 
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         $firstDomain = 'http://shopware.first-domain';
         $this->setDomainForSalesChannel($firstDomain, Defaults::LANGUAGE_SYSTEM);
@@ -636,7 +636,7 @@ class OrderServiceTest extends TestCase
         }
 
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
@@ -663,7 +663,7 @@ class OrderServiceTest extends TestCase
     private function performOrder(): string
     {
         $data = new RequestDataBag(['tos' => true]);
-        $this->fillCart($this->salesChannelContext->getToken());
+        $this->fillCart($this->salesChannelContext->getCartToken());
 
         return $this->orderService->createOrder($data, $this->salesChannelContext);
     }
@@ -706,9 +706,9 @@ class OrderServiceTest extends TestCase
         return $customerId;
     }
 
-    private function fillCart(string $contextToken): void
+    private function fillCart(string $cartToken): void
     {
-        $cart = static::getContainer()->get(CartService::class)->createNew($contextToken);
+        $cart = static::getContainer()->get(CartService::class)->createNew($cartToken);
 
         $productId = $this->createProduct();
         $cart->add(new LineItem('lineItem1', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));

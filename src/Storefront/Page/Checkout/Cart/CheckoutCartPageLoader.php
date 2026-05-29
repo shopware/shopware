@@ -30,7 +30,7 @@ class CheckoutCartPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly StorefrontCartFacade $cartService,
+        private readonly StorefrontCartFacade $cartFacade,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
         private readonly AbstractCountryRoute $countryRoute,
         private readonly AbstractTranslator $translator
@@ -51,7 +51,7 @@ class CheckoutCartPageLoader
 
         $page->setCountries($this->getCountries($salesChannelContext));
 
-        $cart = $this->cartService->get($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $this->cartFacade->get('', $salesChannelContext);
 
         $gatewayResponse = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
 

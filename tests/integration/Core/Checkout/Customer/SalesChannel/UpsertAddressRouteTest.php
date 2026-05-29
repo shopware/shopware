@@ -190,7 +190,7 @@ class UpsertAddressRouteTest extends TestCase
     public function testCreateAddressForGuest(): void
     {
         $customerId = $this->createCustomer(null, true);
-        $contextToken = $this->getLoggedInContextToken($customerId, $this->ids->get('sales-channel'));
+        $contextToken = $this->createCustomerContextToken($customerId, $this->ids->get('sales-channel'));
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $data = [

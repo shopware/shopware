@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -24,7 +25,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class CartService implements ResetInterface
 {
     /**
-     * @var Cart[]
+     * @var array<CartToken, Cart>
      */
     private array $cart = [];
 
@@ -45,16 +46,33 @@ class CartService implements ResetInterface
     ) {
     }
 
+    /**
+     * Generate a new cart token.
+     *
+     * @return CartToken
+     */
+    public static function getNewToken(): string
+    {
+        /** @var CartToken */
+        return Random::getAlphanumericString(32);
+    }
+
     public function setCart(Cart $cart): void
     {
         $this->cart[$cart->getToken()] = $cart;
     }
 
+    /**
+     * @param CartToken $token
+     */
     public function hasCart(string $token): bool
     {
         return isset($this->cart[$token]);
     }
 
+    /**
+     * @param CartToken $token
+     */
     public function createNew(string $token): Cart
     {
         $cart = $this->cartFactory->createNew($token);
@@ -62,6 +80,9 @@ class CartService implements ResetInterface
         return $this->cart[$cart->getToken()] = $cart;
     }
 
+    /**
+     * @param CartToken $token
+     */
     public function getCart(
         string $token,
         SalesChannelContext $context,
@@ -159,7 +180,7 @@ class CartService implements ResetInterface
             unset($this->cart[$cart->getToken()]);
         }
 
-        $cart = $this->createNew($context->getToken());
+        $cart = $this->createNew($context->getCartToken());
 
         $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 

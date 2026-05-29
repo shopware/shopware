@@ -35,7 +35,7 @@ const createRule = (defaultMaxLines = DEFAULT_MAX_LINES) => {
                 Program(node) {
                     context.report({
                         node,
-                        message: `Test file has ${lineCount} lines. Split test files with ${maxLines} lines or more into smaller specs.`,
+                        message: `Test file has ${lineCount} lines. Split test files with ${maxLines} lines or more into smaller specs. See adr/2026-05-06-split-large-administration-test-files.md.`,
                     });
                 },
             };

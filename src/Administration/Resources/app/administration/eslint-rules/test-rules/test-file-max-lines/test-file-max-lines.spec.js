@@ -28,7 +28,7 @@ ruleTester.run('test-file-max-lines-warning', warningRule, {
             options: [{ max: 500 }],
             errors: [
                 {
-                    message: 'Test file has 500 lines. Split test files with 500 lines or more into smaller specs.',
+                    message: 'Test file has 500 lines. Split test files with 500 lines or more into smaller specs. See adr/2026-05-06-split-large-administration-test-files.md.',
                 },
             ],
         },
@@ -50,7 +50,7 @@ ruleTester.run('test-file-max-lines-error', errorRule, {
             options: [{ max: 1000 }],
             errors: [
                 {
-                    message: 'Test file has 1000 lines. Split test files with 1000 lines or more into smaller specs.',
+                    message: 'Test file has 1000 lines. Split test files with 1000 lines or more into smaller specs. See adr/2026-05-06-split-large-administration-test-files.md.',
                 },
             ],
         },

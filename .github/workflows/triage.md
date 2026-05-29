@@ -17,7 +17,8 @@ concurrency:                 # explicit — workflow_dispatch default group canc
 engine:
   id: claude
   model: claude-sonnet-4-6   # explicit pin (Sonnet was already the default, just no drift)
-  max-turns: 15              # claude-only; bound the loop so Bash-denials don't burn turns
+  max-turns: 20              # claude-only; bound the loop. Allows ~12 investigation
+                             # turns + JSON write + upload_artifact + step summary render.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in
     # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads.
@@ -63,32 +64,22 @@ above. Investigate read-only (no labels, comments, or writes).
    then call the `upload_artifact` tool on that path. Emit ONLY the JSON to
    that file — no surrounding prose, no markdown fence.
 
-2. **Human-readable summary on the run page:** also append a Markdown table
-   to `$GITHUB_STEP_SUMMARY` so reviewers can read the decision directly on
-   the Actions run page without downloading the artifact. Use this exact
-   `cat`-with-heredoc pattern (substitute your real values; the env var is
-   already set):
+2. **Human-readable summary on the run page:** in **ONE** `cat`-heredoc call,
+   append a Markdown summary to `$GITHUB_STEP_SUMMARY` so reviewers see the
+   decision directly on the run page. Single bash call, exact template:
 
    ```bash
    cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
    ## Triage — Issue #<N>: <one-line defect description>
 
-   | Field | Value |
-   |---|---|
-   | **Disposition** | `<disposition>` |
-   | **Severity** | <severity> |
-   | **Confidence** | 0.XX |
-   | **Suggested labels** | `<label1>`, `<label2>` |
-   | **Duplicate of** | #N (or "—") |
-   | **Change size** | <change_size> |
+   | Disposition | Severity | Confidence | Labels | Duplicate of | Change size |
+   |---|---|---|---|---|---|
+   | `<disposition>` | <severity> | 0.XX | `<labels>` | #N or — | <change_size> |
 
-   **Reasoning:** <reasoning>
+   <reasoning sentence(s)>
 
-   **Affected paths:** `<path1>`, `<path2>`
-
-   **Related:** #N, PR #N, `<sha> commit subject`
+   **Affected:** `<path1>`, `<path2>` &nbsp;·&nbsp; **Related:** #N, PR #N
    EOF
    ```
 
-   The summary mirrors the JSON content — same disposition, same evidence,
-   same reasoning — but rendered as a table. Keep it under ~30 lines.
+   Do not split this into multiple bash calls — use the one heredoc above.

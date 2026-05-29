@@ -32,9 +32,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" class="Shopware\Core\Framework\Plugin\NullBundleConfigStyleFileResolver" />
+
         <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
             <argument type="service" id="kernel" />
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
+            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">

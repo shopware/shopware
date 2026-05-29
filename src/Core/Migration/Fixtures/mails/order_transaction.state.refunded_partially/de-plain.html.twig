@@ -4,7 +4,7 @@ der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (
 Die Bestellung hat jetzt den Zahlungsstatus: {{ order.transactions.first.stateMachineState.translated.name }}.
 
 Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode }, salesChannel.domains|first.url) }}
-Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
+Bei einer Gastbestellung können Sie den Status über den Link mit Ihrer E-Mail-Adresse und der Postleitzahl der Rechnungsanschrift abrufen.
 
 {% if a11yDocuments %}
     Folgend stellen wir barrierefreie Dokumente als HTML-Version zur Verfügung:

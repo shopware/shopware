@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
@@ -41,7 +42,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
         private readonly SalesChannelContextPersister $contextPersister,
-        private readonly SalesChannelContextServiceInterface $contextService
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -81,7 +83,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         $customerUpdate = [
             'id' => $customer->getId(),
-            'doubleOptInConfirmDate' => new \DateTimeImmutable(),
+            'doubleOptInConfirmDate' => $this->clock->now(),
         ];
         $this->customerRepository->update([$customerUpdate], $context->getContext());
 

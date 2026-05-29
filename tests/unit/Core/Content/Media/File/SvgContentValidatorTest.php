@@ -107,8 +107,7 @@ SVG);
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
 
             $this->validator->validate($file);
         } finally {
@@ -121,8 +120,7 @@ SVG);
         $file = $this->createSvgFile('<?xml version="1.0" encoding="UTF-8"?><xml/>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -135,8 +133,7 @@ SVG);
         $file = $this->createSvgFile('<svg xmlns="http://www.w3.org/2000/svg"><g></svg>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -149,8 +146,7 @@ SVG);
         $file = $this->createSvgFile('<svg xmlns="https://example.com/svg"></svg>');
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('The file is not a valid SVG document.');
+            $this->expectExceptionObject(MediaException::invalidFile('The file is not a valid SVG document.'));
 
             $this->validator->validate($file);
         } finally {
@@ -470,8 +466,7 @@ SVG);
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
 
             $this->validator->validate($file);
         } finally {
@@ -565,8 +560,7 @@ SVG);
         $file = $this->createSvgFile($svgContent);
 
         try {
-            $this->expectException(MediaException::class);
-            $this->expectExceptionMessage('SVG files with active content are not allowed.');
+            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
 
             $this->validator->validate($file);
         } finally {

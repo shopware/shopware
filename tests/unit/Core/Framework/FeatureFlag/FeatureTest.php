@@ -154,10 +154,6 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
-        set_error_handler(static function (int $errno, string $errstr): never {
-            throw new \Exception($errstr, $errno);
-        }, \E_USER_WARNING);
-
         $_SERVER['APP_ENV'] = 'test';
         $_ENV['APP_ENV'] = 'test';
 
@@ -168,14 +164,7 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
-        $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
-
-        try {
-            $template->render([]);
-        } catch (\Exception $e) {
-            restore_error_handler();
-            throw $e;
-        }
+        static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void
@@ -190,9 +179,7 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate($twig->getTemplateClass('featuretest_unregistered.html.twig'), 'featuretest_unregistered.html.twig');
 
-        $this->expectNotToPerformAssertions();
-
-        $template->render([]);
+        static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
     public function testRegisterFeaturesDoesNotOverrideMetaData(): void

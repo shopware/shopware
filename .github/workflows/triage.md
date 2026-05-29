@@ -9,6 +9,14 @@ on:
         description: "Issue number to triage"
         required: true
         type: number
+  # TEMP: registers the renamed workflow path on the feature branch so that
+  # `workflow_dispatch` becomes usable. Remove in the next commit once GitHub
+  # has picked up the file. Pattern documented in .github/aw/README.md.
+  push:
+    branches: [feat/ci-ai-triage-foundation]
+    paths:
+      - .github/workflows/triage.md
+      - .github/workflows/triage.lock.yml
 
 concurrency:                 # explicit — workflow_dispatch default group cancels parallel runs (gh-aw #19467)
   group: triage-${{ github.event.inputs.issue_number }}

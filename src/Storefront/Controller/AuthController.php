@@ -214,7 +214,7 @@ class AuthController extends StorefrontController
 
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
-            $cartBeforeNewContext = $this->cartFacade->get($token, $context);
+            $cartBeforeNewContext = $this->cartFacade->get('', $context);
 
             if ($token !== '') {
                 $this->addCartErrors($cartBeforeNewContext);

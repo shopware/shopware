@@ -379,13 +379,15 @@ class StorefrontCartFacadeTest extends TestCase
 
     public function testCartServiceIsCalledTaxedAndWithNoCaching(): void
     {
+        $context = Generator::generateSalesChannelContext();
+
         $cartService = static::createMock(CartService::class);
         $cartService
             ->expects($this->once())
             ->method('getCart')
             ->with(
-                'token',
-                static::isInstanceOf(SalesChannelContext::class),
+                $context->getCartToken(),
+                $context,
                 false,
                 true
             );
@@ -400,8 +402,8 @@ class StorefrontCartFacadeTest extends TestCase
         );
 
         $cartFacade->get(
-            'token',
-            static::createMock(SalesChannelContext::class),
+            '',
+            $context,
             false,
             true
         );

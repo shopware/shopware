@@ -66,7 +66,7 @@ class LogoutRoute extends AbstractLogoutRoute
 
     private function shouldDelete(SalesChannelContext $context): bool
     {
-        $config = $this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
+        $config = $this->systemConfig->getBool('core.loginRegistration.invalidateSessionOnLogOut', $context->getSalesChannelId());
 
         if ($config) {
             return true;

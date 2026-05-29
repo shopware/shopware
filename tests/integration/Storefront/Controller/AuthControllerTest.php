@@ -301,12 +301,13 @@ class AuthControllerTest extends TestCase
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
+                'cartToken' => $salesChannelContext->getCartToken(),
             ],
             TestDefaults::SALES_CHANNEL,
             $customer->getId()
         );
 
-        $cart = new Cart($contextToken);
+        $cart = new Cart($salesChannelContext->getCartToken());
 
         $cart->add(new LineItem('productId', LineItem::PRODUCT_LINE_ITEM_TYPE, $productId));
 
@@ -328,7 +329,8 @@ class AuthControllerTest extends TestCase
 
         $salesChannelContextNew = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            TestDefaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL,
+            [SalesChannelContextService::CART_TOKEN => $salesChannelContext->getCartToken()]
         );
 
         static::getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);

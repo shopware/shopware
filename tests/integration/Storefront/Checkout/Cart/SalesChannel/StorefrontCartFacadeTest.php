@@ -55,19 +55,19 @@ class StorefrontCartFacadeTest extends TestCase
     {
         $id = $this->changeShippingMethodAvailabilityRuleId();
 
-        static::getContainer()->get(SalesChannelContextPersister::class)
-            ->save($this->ids->get('token'), ['shippingMethodId' => $id], TestDefaults::SALES_CHANNEL);
-
         $this->context = self::getContainer()
             ->get(SalesChannelContextService::class)
             ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $this->ids->get('token')));
 
-        $cart = new Cart($this->ids->get('token'));
+        static::getContainer()->get(SalesChannelContextPersister::class)
+            ->save($this->ids->get('token'), ['shippingMethodId' => $id, 'cartToken' => $this->context->getCartToken()], TestDefaults::SALES_CHANNEL);
+
+        $cart = new Cart($this->context->getCartToken());
         $cart = $this->cartService->add($cart, $this->createProduct(), $this->context);
 
         static::assertInstanceOf(ShippingMethodBlockedError::class, $cart->getErrors()->first());
 
-        $result = $this->cartFacade->get($this->ids->get('token'), $this->context);
+        $result = $this->cartFacade->get('', $this->context);
 
         static::assertCount(1, $result->getErrors());
 
@@ -94,12 +94,12 @@ class StorefrontCartFacadeTest extends TestCase
 
         static::assertSame('Cash on delivery', $this->context->getPaymentMethod()->getName());
 
-        $cart = new Cart($this->ids->get('token'));
+        $cart = new Cart($this->context->getCartToken());
         $cart = $this->cartService->add($cart, $this->createProduct(), $this->context);
 
         static::assertInstanceOf(PaymentMethodBlockedError::class, $cart->getErrors()->first());
 
-        $result = $this->cartFacade->get($this->ids->get('token'), $this->context);
+        $result = $this->cartFacade->get('', $this->context);
 
         static::assertCount(1, $result->getErrors());
 

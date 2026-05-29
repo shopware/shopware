@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -316,6 +317,9 @@ class LogoutAllRouteTest extends TestCase
 
     public function testLogoutAll(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+        Feature::skipTestIfInActive('MULTI_CONTEXT_TOKENS', $this);
+
         $email = Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($email);
 

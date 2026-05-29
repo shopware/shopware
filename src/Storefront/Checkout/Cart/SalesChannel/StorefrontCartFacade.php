@@ -39,7 +39,7 @@ class StorefrontCartFacade
     /**
      * @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $token will be removed and used from the context
      *
-     * @param ContextToken $token
+     * @param '' $token
      */
     public function get(
         string $token,
@@ -47,7 +47,9 @@ class StorefrontCartFacade
         bool $caching = true,
         bool $taxed = false
     ): Cart {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', '$token parameter will be removed.');
+        if ($token !== '') {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', '$token parameter will be removed.');
+        }
 
         $originalCart = $this->cartService->getCart($originalContext->getCartToken(), $originalContext, $caching, $taxed);
         $cartErrors = $originalCart->getErrors();

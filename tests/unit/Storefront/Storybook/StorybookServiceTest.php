@@ -71,11 +71,11 @@ class StorybookServiceTest extends TestCase
         $this->salesChannelRepository->method('searchIds')
             ->willReturn($this->createSalesChannelIdSearchResult($salesChannelId));
 
-        $this->contextFactory->method('create')
-            ->with('', $salesChannelId)
-            ->willReturn($salesChannelContext);
-
         $result = $this->createService()->createSalesChannelContext();
+
+        $this->contextFactory->method('create')
+            ->with($result->getToken(), $salesChannelId)
+            ->willReturn($salesChannelContext);
 
         static::assertSame($salesChannelContext, $result);
     }

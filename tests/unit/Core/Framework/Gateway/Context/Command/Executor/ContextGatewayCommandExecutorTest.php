@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Gateway\GatewayException;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
@@ -43,7 +42,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
         $commands->add(RegisterCustomerCommand::createFromPayload(['data' => ['firstName' => 'Foo', 'lastName' => 'bar']]));
 
         $context = Generator::generateSalesChannelContext();
-        $newContextToken = SalesChannelContextService::getNewToken();
+        $newContextToken = 'hatoken';
         $newContext = Generator::generateSalesChannelContext(token: $newContextToken);
 
         $registry = new ContextGatewayCommandRegistry([new StubAllCommandsGatewayCommandHandler()]);
@@ -69,7 +68,7 @@ class ContextGatewayCommandExecutorTest extends TestCase
 
     public function testExecuteWithLoginCommand(): void
     {
-        $newContextToken = SalesChannelContextService::getNewToken();
+        $newContextToken = 'hatoken';
 
         $commands = new ContextGatewayCommandCollection();
         $commands->add(LoginCustomerCommand::createFromPayload(['customerEmail' => $newContextToken]));

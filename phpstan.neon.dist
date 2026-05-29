@@ -131,13 +131,13 @@ parameters:
                 - tests/**
 
         - # tests are allowed to use invalid context tokens
-            message: '#expects ContextToken, .* given.#'
+            message: '#expects ContextToken(?:\|null)?, .* given.#'
             identifier: argument.type
             paths:
                 - tests/**
 
         - # tests are allowed to use invalid cart tokens
-            message: '#expects CartToken, .* given.#'
+            message: '#expects CartToken(?:\|null)?, .* given.#'
             identifier: argument.type
             paths:
                 - tests/**

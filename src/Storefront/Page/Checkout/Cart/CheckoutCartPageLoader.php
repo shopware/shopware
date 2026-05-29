@@ -51,7 +51,7 @@ class CheckoutCartPageLoader
 
         $page->setCountries($this->getCountries($salesChannelContext));
 
-        $cart = $this->cartFacade->get($salesChannelContext->getToken(), $salesChannelContext);
+        $cart = $this->cartFacade->get('', $salesChannelContext);
 
         $gatewayResponse = $this->checkoutGatewayRoute->load($request, $cart, $salesChannelContext);
 

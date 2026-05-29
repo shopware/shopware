@@ -55,7 +55,7 @@ class CheckoutConfirmPageLoader
         $page = CheckoutConfirmPage::createFrom($page);
         $this->setMetaInformation($page);
 
-        $cart = $this->cartFacade->get($context->getToken(), $context, false, true);
+        $cart = $this->cartFacade->get('', $context, false, true);
 
         $response = $this->checkoutGatewayRoute->load($request, $cart, $context);
 

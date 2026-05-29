@@ -62,7 +62,7 @@ class CartRuleLoaderTest extends TestCase
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext
             ->expects($this->once())
-            ->method('getToken')
+            ->method('getCartToken')
             ->willReturn('test');
         $salesChannelContext
             ->expects($this->exactly(2))

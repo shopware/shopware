@@ -25,6 +25,29 @@ class ProductReviewResult extends EntitySearchResult
 
     protected int $totalReviewsInCurrentLanguage;
 
+    /**
+     * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
+     *
+     * @param EntitySearchResult<ProductReviewCollection> $result
+     */
+    public static function fromSearchResult(
+        EntitySearchResult $result,
+        RatingMatrix $matrix,
+        string $productId,
+        int $totalReviewsInCurrentLanguage,
+        ?ProductReviewEntity $customerReview = null,
+        ?string $parentId = null,
+    ): self {
+        $instance = self::createFrom($result);
+        $instance->matrix = $matrix;
+        $instance->productId = $productId;
+        $instance->totalReviewsInCurrentLanguage = $totalReviewsInCurrentLanguage;
+        $instance->customerReview = $customerReview;
+        $instance->parentId = $parentId;
+
+        return $instance;
+    }
+
     public function getProductId(): string
     {
         return $this->productId;

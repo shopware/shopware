@@ -27,6 +27,31 @@ class ProductListingResult extends EntitySearchResult
     protected ?string $streamId = null;
 
     /**
+     * Construction entry point with a stable signature across the v6.8.0 cut. Callers that adopt this method now will keep working after the structural change.
+     *
+     * @param EntitySearchResult<ProductCollection> $result
+     * @param array<string, int|float|string|bool|array<mixed>|null> $currentFilters
+     */
+    public static function fromSearchResult(
+        EntitySearchResult $result,
+        ?ProductSortingCollection $availableSortings = null,
+        ?string $sorting = null,
+        array $currentFilters = [],
+        ?string $streamId = null,
+    ): self {
+        $instance = self::createFrom($result);
+
+        if ($availableSortings !== null) {
+            $instance->availableSortings = $availableSortings;
+        }
+        $instance->sorting = $sorting;
+        $instance->currentFilters = $currentFilters;
+        $instance->streamId = $streamId;
+
+        return $instance;
+    }
+
+    /**
      * @param int|float|string|bool|array<mixed>|null $value
      */
     public function addCurrentFilter(string $key, $value): void

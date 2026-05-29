@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
  * @internal
@@ -57,27 +55,18 @@ class UninstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $themeLifecycleHandler = null;
-        if (class_exists(ThemeAppLifecycleHandler::class)) {
-            $themeLifecycleHandler = $this->createMock(ThemeAppLifecycleHandler::class);
-            $themeLifecycleHandler->expects($this->once())
-                ->method('handleUninstall')
-                ->with(
-                    static::callback(static fn (AppDeactivatedEvent $event) => $event->getApp()->getName() === $app->getName())
-                );
-        }
-
         $uninstallAppsResolver = new UninstallAppsStrategy(
             static::getContainer()->get('app.repository'),
             $this->shopIdProvider,
-            $themeLifecycleHandler
         );
 
-        $uninstallAppsResolver->resolve($this->context);
+        $affected = $uninstallAppsResolver->resolve($this->context);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
-
         static::assertNull($this->getInstalledApp($this->context));
+
+        static::assertCount(1, $affected);
+        static::assertSame($app->getName(), $affected[0]['name']);
     }
 
     private function changeAppUrl(): string

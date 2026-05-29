@@ -28,6 +28,7 @@ Default down when uncertain. Empty `findings` is correct for a clean slice.
 
 ## Context Budget
 
+- Respect input `tier` and `budget`.
 - Start with the assigned slice only.
 - Expand context only for a candidate finding.
 - For deleted code, check for moves/replacements before flagging removal.

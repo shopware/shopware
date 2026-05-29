@@ -19,7 +19,7 @@ class InstanceService
 
     public function getShopwareVersion(): string
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+        if (str_ends_with($this->shopwareVersion, '-dev')) {
             return '___VERSION___';
         }
 

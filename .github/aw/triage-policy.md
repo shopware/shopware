@@ -19,7 +19,7 @@ post-run schema/secret-scan validator
 assign, or comment on the issue — the structured result is the only
 deliverable.
 
-{{#runtime-import .claude/skills/triage/references/POLICY.md}}
+{{#runtime-import ../../.claude/skills/triage/references/POLICY.md}}
 
 ## Output contract
 

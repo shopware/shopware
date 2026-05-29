@@ -17,10 +17,13 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Routing\ApiRequestContextResolverTest
+ * @codeCoverageIgnore
+ *
+ * @see ApiRequestContextResolverTest
  */
 #[Package('framework')]
 class ApiRequestContextResolver implements RequestContextResolverInterface

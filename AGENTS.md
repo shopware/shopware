@@ -42,6 +42,14 @@ shopware/
 - `/store-api/` - Store API (customer-facing, storefront)
 - `/api/_action/sync` - Sync API (bulk operations)
 
+## AI Skills
+
+This repo ships portable Agent Skills under `.claude/skills/`. They auto-load in Claude Code / opencode / Codex CLI when you start a session in this directory and mention the skill's trigger phrase (e.g. "triage issue #16599" loads the `triage` skill). See `.claude/skills/README.md` for the catalogue.
+
+Skills can have an optional unattended twin via [GitHub Agentic Workflows](https://github.com/githubnext/gh-aw) at `.github/workflows/<name>.md` + `.github/aw/<name>-policy.md`. Editing or compiling these workflows requires the `gh aw` CLI extension; the current pin lives in [`.github/aw/README.md`](.github/aw/README.md) → "Pinning".
+
+To add a new skill (interactive or unattended), follow the checklist in [`coding-guidelines/core/agent-skills.md`](coding-guidelines/core/agent-skills.md).
+
 ## Coding Guidelines
 
 **MANDATORY**: All code must follow the guidelines in `coding-guidelines/`.

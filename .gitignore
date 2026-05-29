@@ -26,7 +26,11 @@ Thumbs.db
 yalc.lock
 
 # AI/LLM Development Tools
-.claude/
+# Ignore everything in .claude/ EXCEPT .claude/skills/ — that path holds shared,
+# portable Agent Skills that all AI runtimes (Claude Code, opencode, Codex CLI,
+# Cursor, etc.) auto-load. Skills are project content, not user-local config.
+.claude/*
+!.claude/skills/
 .codex/
 .cursor/
 .cursorrules
@@ -206,3 +210,8 @@ danger.phar
 
 # Vite deps
 **/.tmp/vite/*
+
+# gh aw run snapshots — personal scratch, do not commit. Track the README
+# inside the directory as a marker.
+.github/aw/logs/*
+!.github/aw/logs/README.md

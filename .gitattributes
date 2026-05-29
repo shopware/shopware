@@ -38,3 +38,5 @@
 # Use union merge strategy for these files to avoid merge conflicts
 /RELEASE_INFO-*.md merge=union
 /UPGRADE-*.md merge=union
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours

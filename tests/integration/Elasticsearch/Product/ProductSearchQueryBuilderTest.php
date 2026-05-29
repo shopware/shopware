@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
@@ -13,7 +12,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -27,7 +25,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -310,70 +307,6 @@ class ProductSearchQueryBuilderTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
-    }
-
-    /**
-     * @param array<string> $enabledFields
-     */
-    private function setSearchConfiguration(bool $andLogic = true, array $enabledFields = ['name']): void
-    {
-        $con = $this->connection;
-
-        // Toggle and logic
-        $con->executeStatement('UPDATE product_search_config SET and_logic = ? WHERE language_id = ?', [(int) $andLogic, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-
-        $configId = $con->fetchOne('SELECT id FROM product_search_config WHERE language_id = ?', [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
-
-        $con->executeStatement('DELETE FROM product_search_config_field WHERE product_search_config_id = ? AND field LIKE "customFields%"', [$configId]);
-
-        $con->executeStatement('UPDATE product_search_config_field SET searchable = 0 WHERE product_search_config_id = ?', [$configId]);
-
-        $con->executeStatement(
-            'UPDATE product_search_config_field SET searchable = 1 WHERE product_search_config_id = :configId and field in (:fields)',
-            [
-                'configId' => $configId,
-                'fields' => $enabledFields,
-            ],
-            [
-                'fields' => ArrayParameterType::STRING,
-            ]
-        );
-
-        foreach ($enabledFields as $enabledField) {
-            if (str_contains($enabledField, 'customFields')) {
-                $con->insert(
-                    'product_search_config_field',
-                    [
-                        'id' => Uuid::randomBytes(),
-                        'product_search_config_id' => $configId,
-                        'field' => $enabledField,
-                        'searchable' => 1,
-                        'tokenize' => 0,
-                        'ranking' => 0,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * @param array<string, int> $fields
-     */
-    private function setSearchScores(array $fields): void
-    {
-        // Reset all scores
-        $this->connection->executeStatement(
-            'UPDATE product_search_config_field SET ranking = 0 WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?)',
-            [Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
-        );
-
-        foreach ($fields as $field => $value) {
-            $this->connection->executeStatement(
-                'UPDATE product_search_config_field SET ranking = ? WHERE product_search_config_id = (SELECT id FROM product_search_config WHERE language_id = ?) and field = ?',
-                [$value, Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM), $field]
-            );
-        }
     }
 
     private function createData(IdsCollection $ids): void

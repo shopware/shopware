@@ -712,6 +712,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Privileges\Privileges">

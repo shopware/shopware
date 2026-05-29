@@ -24,6 +24,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -115,6 +117,17 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             ->setOffset($exportBehavior->offset())
             ->setLimit($this->readBufferSize);
 
+        if ($productExport->isIncludeVariants()) {
+            // Only fetch variants and standalone products; parent products that have variants are skipped
+            $criteria->addFilter(new OrFilter([
+                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]),
+                new EqualsFilter('childCount', 0),
+            ]));
+        } else {
+            // Only fetch main and standalone products so getTotal() and pagination reflect the renderable count
+            $criteria->addFilter(new EqualsFilter('parentId', null));
+        }
+
         foreach ($associations as $association) {
             $criteria->addAssociation($association);
         }
@@ -170,13 +183,6 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 foreach ($productResult->getEntities() as $product) {
                     $data = $productContext->getContext();
                     $data['product'] = $product;
-
-                    if ($productExport->isIncludeVariants() && !$product->getParentId() && $product->getChildCount() > 0) {
-                        continue; // Skip main product if variants are included
-                    }
-                    if (!$productExport->isIncludeVariants() && $product->getParentId()) {
-                        continue; // Skip variants unless they are included
-                    }
 
                     $renderedBody = $this->renderProductBody($productExport, $context, $data);
 

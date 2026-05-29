@@ -38,7 +38,11 @@ abstract class AbstractShopIdChangeStrategy
      */
     abstract public function getDescription(): string;
 
-    abstract public function resolve(Context $context): void;
+    /**
+     * @return list<array{id: string, name: string}> snapshot of apps the strategy touched (id + name pairs;
+     *                                               the Resolver wraps this in a ShopIdResolvedEvent for downstream listeners)
+     */
+    abstract public function resolve(Context $context): array;
 
     abstract public function getDecorated(): self;
 

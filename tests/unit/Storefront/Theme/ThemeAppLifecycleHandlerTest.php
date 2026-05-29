@@ -7,6 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\ShopIdResolvedEvent;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -112,5 +116,111 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         $app = (new AppEntity())->assign(['name' => 'ComponentTestApp']);
         $handler->handleUninstall(new AppDeactivatedEvent($app, Context::createDefaultContext()));
+    }
+
+    public function testHandleShopIdResolvedUninstallsThemeForMatchingAppsAndRefreshesImportMapOnce(): void
+    {
+        $themedConfig = new StorefrontPluginConfiguration('ThemedApp');
+        $unrelatedConfig = new StorefrontPluginConfiguration('SomeOtherTheme');
+        $configurations = new StorefrontPluginConfigurationCollection([$themedConfig, $unrelatedConfig]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn($configurations);
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+
+        // Only ThemedApp has a registered theme config; PlainApp must NOT trigger handleThemeUninstall.
+        $lifecycle->expects($this->once())
+            ->method('handleThemeUninstall')
+            ->with($themedConfig, static::isInstanceOf(Context::class));
+
+        // refreshAllActiveThemeImportMaps fires exactly once for the whole resolution, with both names filtered out.
+        $lifecycle->expects($this->once())
+            ->method('refreshAllActiveThemeImportMaps')
+            ->with(
+                static::isInstanceOf(Context::class),
+                static::callback(static function (StorefrontPluginConfigurationCollection $remaining): bool {
+                    $names = array_map(
+                        static fn (StorefrontPluginConfiguration $c) => $c->getTechnicalName(),
+                        $remaining->getElements(),
+                    );
+                    static::assertSame(['SomeOtherTheme'], array_values($names));
+
+                    return true;
+                }),
+            );
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+        $handler->handleShopIdResolved(new ShopIdResolvedEvent(
+            UninstallAppsStrategy::STRATEGY_NAME,
+            [
+                ['id' => 'id-themed', 'name' => 'ThemedApp'],
+                ['id' => 'id-plain', 'name' => 'PlainApp'],
+            ],
+            Context::createDefaultContext(),
+        ));
+    }
+
+    public function testHandleShopIdResolvedIsNoOpForReinstallStrategy(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->expects($this->never())->method('getConfigurations');
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
+        $lifecycle->expects($this->never())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+        $handler->handleShopIdResolved(new ShopIdResolvedEvent(
+            ReinstallAppsStrategy::STRATEGY_NAME,
+            [['id' => 'id-a', 'name' => 'AppA']],
+            Context::createDefaultContext(),
+        ));
+    }
+
+    public function testHandleShopIdResolvedIsNoOpForMoveShopPermanentlyStrategy(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->expects($this->never())->method('getConfigurations');
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
+        $lifecycle->expects($this->never())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+        $handler->handleShopIdResolved(new ShopIdResolvedEvent(
+            MoveShopPermanentlyStrategy::STRATEGY_NAME,
+            [['id' => 'id-a', 'name' => 'AppA']],
+            Context::createDefaultContext(),
+        ));
+    }
+
+    public function testHandleShopIdResolvedWithEmptyAffectedAppsOnlyRefreshesImportMapOnce(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
+        $lifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+        $handler->handleShopIdResolved(new ShopIdResolvedEvent(
+            UninstallAppsStrategy::STRATEGY_NAME,
+            [],
+            Context::createDefaultContext(),
+        ));
+    }
+
+    public function testSubscribedEventsIncludesShopIdResolvedEvent(): void
+    {
+        $events = ThemeAppLifecycleHandler::getSubscribedEvents();
+
+        static::assertArrayHasKey(ShopIdResolvedEvent::class, $events);
+        static::assertSame('handleShopIdResolved', $events[ShopIdResolvedEvent::class]);
     }
 }

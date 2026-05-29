@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Event\ShopIdResolvedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -16,7 +18,8 @@ readonly class Resolver
      * @param AbstractShopIdChangeStrategy[] $strategies
      */
     public function __construct(
-        private iterable $strategies
+        private iterable $strategies,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -24,7 +27,11 @@ readonly class Resolver
     {
         foreach ($this->strategies as $strategy) {
             if ($strategy->getName() === $strategyName) {
-                $strategy->resolve($context);
+                $affectedApps = $strategy->resolve($context);
+
+                $this->eventDispatcher->dispatch(
+                    new ShopIdResolvedEvent($strategyName, $affectedApps, $context)
+                );
 
                 return;
             }

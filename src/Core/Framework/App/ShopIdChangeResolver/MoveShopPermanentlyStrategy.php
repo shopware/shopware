@@ -52,20 +52,24 @@ class MoveShopPermanentlyStrategy extends AbstractShopIdChangeStrategy
         return 'This is typically the right option if you have permanently moved your shop to a different infrastructure or new environment. Shopware will notify apps (i.e. re-register at the app servers) using the same shop identifier and apps remain installed. Your shop will identify as the same shop as before. This means, that this instance will override the app data of the original installation.';
     }
 
-    public function resolve(Context $context): void
+    public function resolve(Context $context): array
     {
         try {
             $this->shopIdProvider->reset();
             $this->shopIdProvider->getShopId();
 
             // no resolution needed
-            return;
+            return [];
         } catch (ShopIdChangeSuggestedException $e) {
             $this->shopIdProvider->regenerateAndSetShopId($e->shopId->id);
         }
 
-        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context): void {
+        $affected = [];
+        $this->forEachInstalledApp($context, function (Manifest $manifest, AppEntity $app, Context $context) use (&$affected): void {
             $this->reRegisterApp($manifest, $app, $context);
+            $affected[] = ['id' => $app->getId(), 'name' => $app->getName()];
         });
+
+        return $affected;
     }
 }

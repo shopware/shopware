@@ -562,6 +562,7 @@
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver" public="true">
             <argument type="tagged_iterator" tag="shopware.app_url_changed_resolver"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy">
@@ -586,7 +587,6 @@
         <service id="Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
 
             <tag name="shopware.app_url_changed_resolver" priority="0"/>
         </service>

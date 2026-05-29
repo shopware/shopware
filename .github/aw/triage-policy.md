@@ -4,9 +4,10 @@ Frontmatter-free gh aw policy fragment for issue triage.
 This file holds only the **gh-aw-mode specifics** — invocation context and
 JSON output contract. The **shared policy** (role, trust boundaries,
 research workflow, tool budget, anti-reward-hacking) lives in
-`.claude/skills/triage/references/POLICY.md` and is runtime-imported below,
-so the interactive skill (.claude/skills/triage/SKILL.md) and this fragment
-cannot drift on the rubric.
+`.github/aw/shared/triage-policy.md` and is runtime-imported below, so the
+interactive skill (.claude/skills/triage/SKILL.md) and this fragment cannot
+drift on the rubric. (Shared policy must live under `.github/` — gh aw
+forbids runtime-imports outside `.github/` for security reasons.)
 -->
 
 ## Context (gh aw mode)
@@ -19,7 +20,7 @@ post-run schema/secret-scan validator
 assign, or comment on the issue — the structured result is the only
 deliverable.
 
-{{#runtime-import ../../.claude/skills/triage/references/POLICY.md}}
+{{#runtime-import .github/aw/shared/triage-policy.md}}
 
 ## Output contract
 

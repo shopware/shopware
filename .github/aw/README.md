@@ -19,6 +19,9 @@ the checklist for adding a new skill), see
 └── aw/
     ├── README.md            # this file
     ├── triage-policy.md     # gh-aw-mode policy, runtime-imported by the workflow
+    ├── shared/
+    │   └── triage-policy.md # shared rubric, runtime-imported by the gh-aw fragment
+    │                        # AND referenced by the interactive skill (single source)
     ├── actions-lock.json    # SHA pins for every action gh aw injects
     └── logs/                # gh aw run snapshots (gitignored — personal scratch)
 ```
@@ -34,7 +37,7 @@ The triage agent is read-only — it has no write permissions and cannot label, 
 ## Editing a workflow
 
 1. Edit the markdown source at `.github/workflows/<name>.md`.
-2. If the policy changes, edit the corresponding fragment in `.github/aw/<name>-policy.md` (or the shared `references/POLICY.md` under the skill).
+2. If the policy changes, edit the corresponding fragment in `.github/aw/<name>-policy.md` or the shared rubric at `.github/aw/shared/<name>-policy.md`. The shared file is runtime-imported by both the interactive skill and the gh-aw fragment — single source of the rubric.
 3. Compile:
    ```bash
    gh aw compile

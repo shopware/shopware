@@ -46,8 +46,11 @@ install command live in [`.github/aw/README.md`](../../.github/aw/README.md) →
 
 .github/workflows/<name>.md    # optional — gh aw SOURCE (edit this)
 .github/workflows/<name>.lock.yml   # compiled — `gh aw compile` regenerates
-.github/aw/<name>-policy.md    # optional — frontmatter-free policy fragment
+.github/aw/<name>-policy.md    # optional — gh-aw-mode-specific fragment,
                                # runtime-imported by the workflow
+.github/aw/shared/<name>-policy.md  # optional — shared rubric loaded by
+                                    # both the interactive skill and the
+                                    # gh aw policy fragment
 ```
 
 `.github/aw/actions-lock.json` and `.github/aw/logs/` are shared across all
@@ -62,10 +65,16 @@ skills — never per-skill.
 
 2. **References.** Move anything load-bearing but stable into
    `references/<TOPIC>.md`. The agent loads them on demand; they keep
-   SKILL.md scannable. If you build both an interactive surface and an
-   unattended twin, put the **shared policy** (role, research workflow,
-   anti-reward-hacking) in `references/POLICY.md`; see how the `triage` skill
-   wires it up for the exact pattern.
+   SKILL.md scannable.
+
+   **If you build both an interactive surface and an unattended twin,**
+   the shared policy must live under `.github/aw/shared/<name>-policy.md`,
+   not inside `.claude/skills/<name>/references/`. gh aw's runtime-import
+   security validation forbids importing files outside `.github/`. The
+   interactive skill references the same file via its repo-root path; the
+   gh aw policy fragment imports it via
+   `{{#runtime-import .github/aw/shared/<name>-policy.md}}`. See how the
+   `triage` skill wires it up for the exact pattern.
 
 3. **Decide on the unattended path.** If the skill should also run in CI:
    create `.github/workflows/<name>.md` (gh aw frontmatter) plus

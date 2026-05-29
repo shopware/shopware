@@ -47,7 +47,6 @@
             <div class="sw-settings-language-detail__snippet-link-wrapper">
                 <mt-link
                     class="sw-settings-language-detail__snippet-link"
-
                     :to="{ name: 'sw.settings.snippet.index' }"
                     type="internal"
                 >
@@ -129,6 +128,7 @@
                                 :text="`${getKey(item, 'translated.name')}, ${getKey(item, 'translated.territory')}`"
                                 :search-term="searchTerm"
                             />
+
                             <template v-else>
                                 {{ getKey(item, 'translated.name') }}, {{ getKey(item, 'translated.territory') }}
                             </template>
@@ -156,22 +156,22 @@
                                     message: $t('sw-settings-language.detail.textIsoCodeIsInUse'),
                                     disabled: !isLocaleAlreadyUsed(item?.id)
                                 }"
-
                                 :selected="isSelected(item)"
                                 v-bind="{ item, index }"
                                 @item-select="setValue"
                             >
-
                                 <sw-highlight-text
                                     v-if="highlightSearchTerm"
                                     :text="(getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)) + (isLocaleAlreadyUsed(item?.id) ? '*' : '')"
                                     :search-term="searchTerm"
                                 />
+
                                 <template v-else>
                                     {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                                 </template>
                             </sw-select-result>
                         </template>
+
                         <template #hint>
                             <div v-if="isLocaleAlreadyUsed(language.translationCodeId)">
                                 {{ $t('sw-settings-language.detail.textIsoCodeIsInUse') }}
@@ -214,6 +214,7 @@
                                 :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
                                 :search-term="searchTerm"
                             />
+
                             <template v-else>
                                 {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
                             </template>
@@ -222,7 +223,7 @@
                 </sw-entity-single-select>
                 {% endblock %}
 
-                    {% block sw_settings_language_detail_content_alert_change_parent %}
+                {% block sw_settings_language_detail_content_alert_change_parent %}
                 <mt-banner
                     v-if="showAlertForChangeParentLanguage"
                     class="sw-settings-language--alert-change-parent"
@@ -231,9 +232,9 @@
                 >
                     {{ $t('sw-settings-language.detail.textAlertChangeParent') }}
                 </mt-banner>
-                    {% endblock %}
-            </mt-card>
                 {% endblock %}
+            </mt-card>
+            {% endblock %}
 
             {% block sw_settings_language_detail_custom_field_sets %}
             <mt-card

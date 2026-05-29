@@ -5,7 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppSilentlyUninstalledEvent;
+use Shopware\Core\Framework\App\Event\AppsSilentlyUninstalledEvent;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
@@ -57,10 +57,12 @@ class UninstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $dispatched = [];
+        $dispatchedNames = [];
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(AppSilentlyUninstalledEvent::class, function (AppSilentlyUninstalledEvent $event) use (&$dispatched): void {
-            $dispatched[] = $event->app->getName();
+        $dispatcher->addListener(AppsSilentlyUninstalledEvent::class, function (AppsSilentlyUninstalledEvent $event) use (&$dispatchedNames): void {
+            foreach ($event->apps as $dispatchedApp) {
+                $dispatchedNames[] = $dispatchedApp->getName();
+            }
         });
 
         $uninstallAppsResolver = new UninstallAppsStrategy(
@@ -71,7 +73,7 @@ class UninstallAppsStrategyTest extends TestCase
 
         $uninstallAppsResolver->resolve($this->context);
 
-        static::assertContains($app->getName(), $dispatched);
+        static::assertContains($app->getName(), $dispatchedNames);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
 

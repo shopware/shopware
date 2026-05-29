@@ -34,8 +34,8 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
   "confidence": 0.92,
   "reasoning": "Export downloads lose their filename extension. rg located src/Core/Content/ImportExport/Service/DownloadService.php; git log surfaced 4cfe2b182ba 'fix: ... (#16632)' which closes #16599 — fix already on trunk. Workaround (rename file) exists, hence medium not high.",
   "evidence_quotes": [
-    "a file is generated that has no file extension",
-    "4cfe2b182ba fix: export temporary url file download missing filename (#16632)"
+    "[issue] a file is generated that has no file extension",
+    "[shell] 4cfe2b182ba fix: export temporary url file download missing filename (#16632)"
   ],
   "duplicate_of": null,
   "missing_template_fields": ["expected_behaviour"],
@@ -56,7 +56,7 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
   "suggested_labels": ["domain/framework", "component/core"],
   "confidence": 0.45,
   "reasoning": "Body says only 'shop is broken pls fix'. No version, area, actual/expected, or repro. Cannot describe defect. Domain + component labels are placeholders (rubric requires a component/* pair for framework); severity defaults low. No shell tools run.",
-  "evidence_quotes": ["shop is broken pls fix"],
+  "evidence_quotes": ["[issue] shop is broken pls fix"],
   "duplicate_of": null,
   "missing_template_fields": ["shopware_version", "affected_area", "actual_behaviour", "expected_behaviour", "reproduction_steps"],
   "affected_paths": [],
@@ -77,8 +77,8 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
   "confidence": 0.88,
   "reasoning": "Same defect as #15800: 'sw-media-upload-v2 cannot be cleared'. gh issue view 15800 shows matching actual_behaviour + repro. #15800 still open, no fix on trunk.",
   "evidence_quotes": [
-    "sw-media-upload-v2 ... can't be cleared anymore",
-    "issue #15800: 'media upload cannot be cleared once set'"
+    "[issue] sw-media-upload-v2 ... can't be cleared anymore",
+    "[shell] issue #15800: 'media upload cannot be cleared once set'"
   ],
   "duplicate_of": 15800,
   "missing_template_fields": [],
@@ -100,8 +100,8 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
   "confidence": 0.82,
   "reasoning": "Reporter: 'plugin XYZ doesn't work after install'. rg confirms plugin XYZ is third-party (not in src/). Behaviour matches the plugin's documented `shopware.yaml` config requirement. Not a core defect.",
   "evidence_quotes": [
-    "plugin XYZ doesn't work after install",
-    "rg --files src/ -g 'XYZ*' returned no matches"
+    "[issue] plugin XYZ doesn't work after install",
+    "[shell] rg --files src/ -g 'XYZ*' returned no matches"
   ],
   "duplicate_of": null,
   "missing_template_fields": [],
@@ -123,8 +123,8 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
   "confidence": 0.79,
   "reasoning": "Reporter wants product list sortable by margin. rg shows sw-product list view exposes a fixed sortable column set (name/stock/price); margin is not a stored column. New capability, not a regression.",
   "evidence_quotes": [
-    "product list does not let me sort by margin",
-    "sortable columns: name, stock, price"
+    "[issue] product list does not let me sort by margin",
+    "[shell] sortable columns: name, stock, price"
   ],
   "duplicate_of": null,
   "missing_template_fields": ["actual_behaviour"],

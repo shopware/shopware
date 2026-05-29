@@ -37,4 +37,5 @@ Absence rule: only flag what this PR adds or changes.
 | Brittle selector in a changed test, hard-coded tokenizable styling, developer-language error                        | `minor`    |
 | Case/style copy drift inside one screen                                                                             | `nit`      |
 
-Set `requires_human: true` for a11y fixes that need redesign, legal/compliance copy, or risky brand-token changes.
+Set `requires_human: true` for a11y fixes that need redesign,
+legal/compliance copy, or risky brand-token changes.

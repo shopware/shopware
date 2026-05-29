@@ -10,7 +10,10 @@ Lens = consistency with surrounding code, not personal preference.
 
 ## Do Not Flag
 
-Formatting, indentation, imports, line length, brace style, trailing commas, PSR-12, quote style, semicolons, phpdoc ordering, eslint/stylelint/prettier rules, SCSS property order, generated snapshots, anonymous TODOs, or `console.log`.
+Formatting, indentation, imports, line length, brace style, trailing commas,
+PSR-12, quote style, semicolons, phpdoc ordering, eslint/stylelint/prettier
+rules, SCSS property order, generated snapshots, anonymous TODOs, or
+`console.log`.
 
 ## Check
 
@@ -40,4 +43,5 @@ Formatting, indentation, imports, line length, brace style, trailing commas, PSR
 | Repeated naming drift, dead parameter, mixed language, inconsistent error shape | `minor`  |
 | Single local mismatch, obvious restating comment                                | `nit`    |
 
-`blocking` is never appropriate here. Use `requires_human: true` only for public renames where churn may outweigh the better name.
+`blocking` is never appropriate here. Use `requires_human: true` only for
+public renames where churn may outweigh the better name.

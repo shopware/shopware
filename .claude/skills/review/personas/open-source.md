@@ -33,4 +33,5 @@ Think like a maintainer shipping to plugin authors, agencies, and self-hosted sh
 | Missing/wrong UPGRADE for triggered public change, breaking change without signal | `major`    |
 | Dead changelog path, WIP/fixup commits                                            | `minor`    |
 
-Set `requires_human: true` for breaking-change classification, license questions, or external-contributor convention tradeoffs.
+Set `requires_human: true` for breaking-change classification, license
+questions, or external-contributor convention tradeoffs.

@@ -46,7 +46,9 @@ If evidence is only the literal changed line, cap confidence at `0.70`.
 
 ## Dedupe
 
-Group by `(file, line, normalized claim)`. Also collapse same `(file, line, category)` if wording differs but the issue is the same. Keep distinct categories.
+Group by `(file, line, normalized claim)`.
+Also collapse same `(file, line, category)` when wording differs but the issue is the same.
+Keep distinct categories.
 
 Tie-break:
 

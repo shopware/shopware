@@ -23,6 +23,12 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\System\SystemCheck\DeploymentReadinessCheck">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="string">%env(APP_URL)%</argument>
+            <tag name="shopware.system_check"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand">
             <tag name="console.command"/>
         </service>

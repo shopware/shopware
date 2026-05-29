@@ -145,6 +145,14 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
+## `system:is-installed` command removed
+
+The `system:is-installed` command has been removed. Use `system:check --context=cli` instead.
+
+**Why:** The old command only checked for the existence of the `migration` table, which was insufficient to verify a complete Shopware installation. The new command runs deployment readiness checks: pending migrations, admin user existence, a sales channel domain matching `APP_URL`, and registered scheduled tasks.
+
+**How to adapt:** Replace any call to `bin/console system:is-installed` with `bin/console system:check --context=cli`. The new command returns exit code `0` on success and `1` on failure, preserving the same scripting behaviour.
+
 ## Number range value generator interface removed
 
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.

@@ -7,6 +7,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -16,6 +17,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(SystemIsInstalledCommand::class)]
 class SystemIsInstalledCommandTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testInstalled(): void
     {
         $schemaManager = $this->createMock(AbstractSchemaManager::class);
@@ -30,6 +35,10 @@ class SystemIsInstalledCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $tester->execute([]));
     }
 
+    /**
+     * @deprecated tag:v6.8.0
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testNotInstalled(): void
     {
         $schemaManager = $this->createMock(AbstractSchemaManager::class);

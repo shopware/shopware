@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,6 +14,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * This command can be used to detect if the system is installed to script a Shopware installation or update.
+ *
+ * @deprecated tag:v6.8.0 - Use the "system:check" command instead, which provides comprehensive deployment readiness checks.
  *
  * @internal
  */
@@ -34,6 +37,13 @@ class SystemIsInstalledCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        $io->warning('system:is-installed is deprecated and will be removed in v6.8.0. Use "system:check --context=cli" instead, which provides comprehensive deployment readiness checks.');
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The "system:is-installed" command is deprecated and will be removed in v6.8.0. Use "system:check --context=cli" instead.'
+        );
 
         try {
             if (TableHelper::tableExists($this->connection, 'migration')) {

@@ -21,6 +21,13 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 
 ## Core
 
+### `system:is-installed` command deprecated
+
+The `system:is-installed` command is deprecated and will be removed in v6.8.0.
+Use `system:check --context=cli` instead, which runs a set of deployment readiness checks directly against the database.
+
+The new `DeploymentReadinessCheck` verifies: pending migrations, admin user existence, a sales channel domain matching `APP_URL`, and registered scheduled tasks.
+
 ### Number range value generator interface deprecated
 
 `NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.

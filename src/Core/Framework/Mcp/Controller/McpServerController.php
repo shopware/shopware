@@ -222,7 +222,7 @@ class McpServerController
     /**
      * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
      */
-    private function hasListFilter(string|null $method, array $allowlist): bool
+    private function hasListFilter(?string $method, array $allowlist): bool
     {
         return ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null)
             || ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null)
@@ -232,7 +232,7 @@ class McpServerController
     /**
      * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
      */
-    private function applyAllowlistFilter(\stdClass $responseData, string|null $method, array $allowlist): ?\stdClass
+    private function applyAllowlistFilter(\stdClass $responseData, ?string $method, array $allowlist): ?\stdClass
     {
         if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
             return $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);

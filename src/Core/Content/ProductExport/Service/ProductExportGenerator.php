@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
@@ -63,7 +65,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         Environment $twig,
         private readonly ProductDefinition $productDefinition,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        TwigVariableParserFactory $parserFactory
+        TwigVariableParserFactory $parserFactory,
+        private readonly ?CategoryBreadcrumbBuilder $breadcrumbBuilder = null
     ) {
         $this->twigVariableParser = $parserFactory->getParser($twig);
     }
@@ -137,6 +140,11 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 ->addFilter(new EqualsFilter('active', true));
         }
 
+        // Pre-load main_category so CategoryBreadcrumbBuilder::getProductSeoCategory()
+        // resolves the configured main category in-memory instead of issuing an extra
+        // product `search()` per exported row.
+        $criteria->addAssociation('mainCategories.category');
+
         $this->eventDispatcher->dispatch(
             new ProductExportProductCriteriaEvent($criteria, $productExport, $exportBehavior, $context)
         );
@@ -183,6 +191,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                 foreach ($productResult->getEntities() as $product) {
                     $data = $productContext->getContext();
                     $data['product'] = $product;
+
+                    $this->populateSeoCategory($product, $context);
 
                     $renderedBody = $this->renderProductBody($productExport, $context, $data);
 
@@ -250,6 +260,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
                     continue; // Skip variants unless they are included
                 }
 
+                $this->populateSeoCategory($product, $context);
+
                 $data = $baseContext;
                 $data['product'] = $product;
 
@@ -302,8 +314,26 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
     }
 
     /**
-     * @param array<string, mixed> $data
+     * Populate `seoCategory` so feed templates can render the configured main
+     * category. Mirrors what ProductDetailRoute does on the storefront.
      */
+    private function populateSeoCategory(ProductEntity $product, SalesChannelContext $context): void
+    {
+        if ($this->breadcrumbBuilder === null) {
+            return;
+        }
+        if (!$product instanceof SalesChannelProductEntity) {
+            return;
+        }
+        if ($product->getSeoCategory() !== null) {
+            return;
+        }
+
+        $product->setSeoCategory(
+            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+        );
+    }
+
     private function renderProductBody(
         ProductExportEntity $productExport,
         SalesChannelContext $context,

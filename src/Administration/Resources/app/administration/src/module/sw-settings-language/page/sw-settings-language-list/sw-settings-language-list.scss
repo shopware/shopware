@@ -1,12 +1,19 @@
 .sw-settings-language-list {
-    &__card .sw-data-grid {
-        border-radius: var(--border-radius-card);
+    &__card {
+        .mt-card__header {
+            gap: 0;
+        }
+        
+        .sw-data-grid {
+            border-radius: var(--border-radius-card);
+        }
     }
 
     &__collapse-title {
         font-size: var(--font-size-s);
         font-weight: var(--font-weight-regular);
         color: var(--color-text-primary-default);
+        margin: 0;
     }
 
     &__collapse-header {

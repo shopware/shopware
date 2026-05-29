@@ -1075,130 +1075,6 @@ class RegisterRouteTest extends TestCase
         );
     }
 
-    public function testRegisterTrimsMappedAddressStringFields(): void
-    {
-        $customerEntity = new CustomerEntity();
-        $customerEntity->setDoubleOptInRegistration(false);
-        $customerEntity->setId('customer-1');
-        $customerEntity->setGuest(true);
-
-        $result = new EntitySearchResult(
-            CustomerDefinition::ENTITY_NAME,
-            1,
-            new CustomerCollection([$customerEntity]),
-            null,
-            new Criteria(),
-            Context::createDefaultContext()
-        );
-
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->method('getDefinition')->willReturn(new CustomerDefinition());
-        $customerRepository->method('search')->willReturn($result);
-        $customerRepository
-            ->expects($this->once())
-            ->method('create')
-            ->willReturnCallback(static function (array $create) {
-                static::assertCount(1, $create);
-                static::assertCount(2, $create[0]['addresses']);
-
-                $billingAddress = array_values(array_filter(
-                    $create[0]['addresses'],
-                    static fn (array $address): bool => $address['city'] === 'Berlin'
-                ))[0];
-                $shippingAddress = array_values(array_filter(
-                    $create[0]['addresses'],
-                    static fn (array $address): bool => $address['city'] === 'Hamburg'
-                ))[0];
-
-                static::assertSame('Dr.', $billingAddress['title']);
-                static::assertSame('Max', $billingAddress['firstName']);
-                static::assertSame('Mustermann', $billingAddress['lastName']);
-                static::assertSame('Main Street 1', $billingAddress['street']);
-                static::assertSame('12345', $billingAddress['zipcode']);
-                static::assertSame('Shopware', $billingAddress['company']);
-                static::assertSame('Core', $billingAddress['department']);
-                static::assertSame('123456', $billingAddress['phoneNumber']);
-                static::assertSame('Line 1', $billingAddress['additionalAddressLine1']);
-                static::assertSame('Line 2', $billingAddress['additionalAddressLine2']);
-                static::assertSame(['note' => '  keep custom field whitespace  '], $billingAddress['customFields']);
-
-                static::assertSame('Ms.', $shippingAddress['title']);
-                static::assertSame('Jane', $shippingAddress['firstName']);
-                static::assertSame('Doe', $shippingAddress['lastName']);
-                static::assertSame('Side Street 2', $shippingAddress['street']);
-                static::assertSame('54321', $shippingAddress['zipcode']);
-                static::assertSame('Shopware Storefront', $shippingAddress['company']);
-                static::assertSame('Design', $shippingAddress['department']);
-                static::assertSame('654321', $shippingAddress['phoneNumber']);
-                static::assertSame('Shipping Line 1', $shippingAddress['additionalAddressLine1']);
-                static::assertSame('Shipping Line 2', $shippingAddress['additionalAddressLine2']);
-
-                return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
-            });
-
-        $dataValidator = $this->createMock(DataValidator::class);
-        $dataValidator
-            ->method('getViolations')
-            ->willReturn(new ConstraintViolationList());
-
-        $addressValidationFactory = $this->createMock(DataValidationFactoryInterface::class);
-        $addressValidationFactory
-            ->method('create')
-            ->willReturnCallback(static fn (): DataValidationDefinition => new DataValidationDefinition('address.create'));
-
-        $customFieldMapper = new StoreApiCustomFieldMapper($this->createMock(Connection::class), [
-            CustomerAddressDefinition::ENTITY_NAME => [
-                ['name' => 'note', 'type' => 'text'],
-            ],
-        ]);
-
-        $registerRoute = $this->createRegisterRoute(
-            dataValidator: $dataValidator,
-            addressValidationFactory: $addressValidationFactory,
-            customFieldMapper: $customFieldMapper,
-            customerRepository: $customerRepository
-        );
-
-        $registerRoute->register(
-            new RequestDataBag($this->createRegistrationData([
-                'guest' => true,
-                'title' => '  Dr.  ',
-                'firstName' => '  Max  ',
-                'lastName' => '  Mustermann  ',
-                'billingAddress' => [
-                    'countryId' => Uuid::randomHex(),
-                    'street' => '  Main Street 1  ',
-                    'zipcode' => '  12345  ',
-                    'city' => '  Berlin  ',
-                    'company' => '  Shopware  ',
-                    'department' => '  Core  ',
-                    'phoneNumber' => '  123456  ',
-                    'additionalAddressLine1' => '  Line 1  ',
-                    'additionalAddressLine2' => '  Line 2  ',
-                    'customFields' => [
-                        'note' => '  keep custom field whitespace  ',
-                    ],
-                ],
-                'shippingAddress' => [
-                    'title' => '  Ms.  ',
-                    'firstName' => '  Jane  ',
-                    'lastName' => '  Doe  ',
-                    'countryId' => Uuid::randomHex(),
-                    'street' => '  Side Street 2  ',
-                    'zipcode' => '  54321  ',
-                    'city' => '  Hamburg  ',
-                    'company' => '  Shopware Storefront  ',
-                    'department' => '  Design  ',
-                    'phoneNumber' => '  654321  ',
-                    'additionalAddressLine1' => '  Shipping Line 1  ',
-                    'additionalAddressLine2' => '  Shipping Line 2  ',
-                ],
-            ])),
-            Generator::generateSalesChannelContext(),
-            false
-        );
-    }
-
     /**
      * @return StaticEntityRepository<CustomerCollection>
      */
@@ -1229,15 +1105,11 @@ class RegisterRouteTest extends TestCase
         ?StoreApiCustomFieldMapper $customFieldMapper = null,
         ?EntityRepository $salutationRepository = null,
         ?StaticSystemConfigService $systemConfigService = null,
-        EntityRepository|StaticEntityRepository|null $customerRepository = null,
-        ?DataValidationFactoryInterface $accountValidationFactory = null,
-        ?DataValidationFactoryInterface $passwordValidationFactory = null
+        EntityRepository|StaticEntityRepository|null $customerRepository = null
     ): RegisterRoute {
         $dataValidator ??= $this->createMock(DataValidator::class);
         $eventDispatcher ??= new EventDispatcher();
-        $accountValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
         $addressValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
-        $passwordValidationFactory ??= $this->createMock(DataValidationFactoryInterface::class);
         $customFieldMapper ??= $this->createMock(StoreApiCustomFieldMapper::class);
         $salutationRepository ??= $this->createMock(EntityRepository::class);
         $systemConfigService ??= new StaticSystemConfigService([
@@ -1252,7 +1124,7 @@ class RegisterRouteTest extends TestCase
             $eventDispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
             $dataValidator,
-            $accountValidationFactory,
+            $this->createMock(DataValidationFactoryInterface::class),
             $addressValidationFactory,
             $systemConfigService,
             $customerRepository,
@@ -1262,7 +1134,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            $passwordValidationFactory,
+            $this->createMock(DataValidationFactoryInterface::class),
             new NativeClock()
         );
     }

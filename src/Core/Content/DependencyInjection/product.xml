@@ -152,6 +152,7 @@
 
         <service id="Shopware\Core\Content\Product\AbstractIsNewDetector" class="Shopware\Core\Content\Product\IsNewDetector">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>

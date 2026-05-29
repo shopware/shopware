@@ -63,8 +63,8 @@
 
         <service id="Shopware\Core\Framework\Webhook\Transport\WebhookTransportFactory">
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
-            <argument type="service" id="messenger.transport.async"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
+            <argument type="service_closure" id="messenger.transport.async"/>
+            <argument type="service_closure" id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver"/>
             <tag name="messenger.transport_factory"/>
         </service>
 

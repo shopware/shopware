@@ -98,7 +98,7 @@ export default {
         },
 
         criteria() {
-            return new Criteria(1, 500)
+            return new Criteria()
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('footerSalesChannels')
                 .addAssociation('serviceSalesChannels');

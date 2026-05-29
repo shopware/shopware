@@ -5,8 +5,7 @@ namespace Shopware\Core\Service;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -37,13 +36,12 @@ class ServiceLifecycle
     public function __construct(
         private readonly Client $serviceRegistryClient,
         private readonly ServiceClientFactory $serviceClientFactory,
-        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly AppManager $appManager,
         private readonly EntityRepository $appRepository,
         private readonly ServiceStorage $serviceStorage,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
         private readonly ServiceSourceResolver $sourceResolver,
-        private readonly AppStateService $appStateService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly RequirementsValidator $requirementsValidator,
     ) {
@@ -83,7 +81,7 @@ class ServiceLifecycle
         $manifest = $this->createManifest($fs->path('manifest.xml'), $serviceEntry->host, $appInfo);
 
         try {
-            $this->appLifecycle->install(
+            $this->appManager->install(
                 $manifest,
                 new AppInstallParameters(activate: $serviceEntry->activateOnInstall),
                 Context::createDefaultContext()
@@ -142,13 +140,10 @@ class ServiceLifecycle
         $manifest = $this->createManifest($fs->path('manifest.xml'), $serviceEntry->host, $latestAppInfo);
 
         try {
-            $this->appLifecycle->update(
+            $this->appManager->update(
                 $manifest,
                 new AppUpdateParameters(),
-                [
-                    'id' => $service->id,
-                    'roleId' => $service->aclRoleId,
-                ],
+                $service->app,
                 $context
             );
             $this->logger->debug(\sprintf('Installed service "%s"', $serviceEntry->name));
@@ -161,6 +156,39 @@ class ServiceLifecycle
 
             return false;
         }
+    }
+
+    public function activate(string $serviceName, Context $context): void
+    {
+        $service = $this->serviceStorage->findByName($serviceName, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        $this->appManager->activate($service->app, $context);
+    }
+
+    public function deactivate(string $serviceName, Context $context): void
+    {
+        $service = $this->serviceStorage->findByName($serviceName, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        $this->appManager->deactivate($service->app, $context);
+    }
+
+    public function uninstall(string $serviceName, Context $context): void
+    {
+        $service = $this->serviceStorage->findByName($serviceName, $context);
+
+        if (!$service) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        $this->appManager->delete($service->app, $context);
     }
 
     /**
@@ -200,7 +228,7 @@ class ServiceLifecycle
         );
 
         // it was possibly disabled during the update process
-        $this->appStateService->activateApp($appId, $context);
+        $this->activate($entry->name, $context);
 
         $result = $this->update($entry->name, $context);
 

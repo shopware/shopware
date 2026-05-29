@@ -4,8 +4,6 @@ namespace Shopware\Core\Service\Api;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\App\AppStateService;
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Utils;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -15,6 +13,7 @@ use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceException;
+use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceStorage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,8 +31,7 @@ class ServiceController
     public function __construct(
         private readonly ServiceStorage $serviceStorage,
         private readonly MessageBusInterface $messageBus,
-        private readonly AppStateService $appStateService,
-        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly ServiceLifecycle $serviceLifecycle,
         private readonly LifecycleManager $manager,
     ) {
     }
@@ -71,17 +69,9 @@ class ServiceController
     {
         $this->extractIntegrationIdOrFail($context);
 
-        $service = $this->serviceStorage->findByName($serviceName, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if (!$service->active) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->activateApp($service->id, $context);
-            });
-        }
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
+            $this->serviceLifecycle->activate($serviceName, $context);
+        });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -99,17 +89,9 @@ class ServiceController
     {
         $this->extractIntegrationIdOrFail($context);
 
-        $service = $this->serviceStorage->findByName($serviceName, $context);
-
-        if (!$service) {
-            throw ServiceException::notFound('name', $serviceName);
-        }
-
-        if ($service->active) {
-            $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-                $this->appStateService->deactivateApp($service->id, $context);
-            });
-        }
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
+            $this->serviceLifecycle->deactivate($serviceName, $context);
+        });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -126,14 +108,9 @@ class ServiceController
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
         $this->extractIntegrationIdOrFail($context);
-        $service = $this->serviceStorage->findByName($serviceName, $context);
 
-        if (!$service) {
-            throw ServiceException::notFound('name', $serviceName);
-        }
-
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
-            $this->appLifecycle->delete($service->id, ['id' => $service->id], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
+            $this->serviceLifecycle->uninstall($serviceName, $context);
         });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

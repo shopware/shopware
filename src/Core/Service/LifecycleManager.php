@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Service;
 
-use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -38,7 +37,7 @@ class LifecycleManager
         private readonly Privileges $privileges,
         private readonly SystemConfigService $systemConfigService,
         private readonly ServiceStorage $serviceStorage,
-        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly ServiceLifecycle $serviceLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
         private readonly PermissionsService $permissionsService,
         private readonly Client $client,
@@ -114,7 +113,7 @@ class LifecycleManager
     public function disable(Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
-            $this->appLifecycle->delete($service->name, ['id' => $service->id], $context);
+            $this->serviceLifecycle->uninstall($service->name, $context);
         }
 
         $this->permissionsService->revoke($context);
@@ -146,7 +145,7 @@ class LifecycleManager
 
         foreach ($services as $service) {
             if (!isset($registryServiceNames[$service->name])) {
-                $this->appLifecycle->delete($service->name, ['id' => $service->id], $context);
+                $this->serviceLifecycle->uninstall($service->name, $context);
             }
         }
     }

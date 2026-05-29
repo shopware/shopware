@@ -17,8 +17,7 @@ concurrency:                 # explicit — workflow_dispatch default group canc
 engine:
   id: claude
   model: claude-sonnet-4-6   # explicit pin (Sonnet was already the default, just no drift)
-  max-turns: 20              # claude-only; bound the loop. Allows ~12 investigation
-                             # turns + JSON write + upload_artifact + step summary render.
+  max-turns: 15              # claude-only; bound the loop so Bash-denials don't burn turns.
   env:
     # The repo's ANTHROPIC_API_KEY secret is empty; the real Quality-Initiative key is in
     # QUALITY_INITIATIVE_ANTHROPIC_API_KEY. Map it into what the claude engine reads.
@@ -55,31 +54,7 @@ safe-outputs:
 ## This run
 
 Triage issue **#${{ github.event.inputs.issue_number }}** using the policy and references
-above. Investigate read-only (no labels, comments, or writes).
-
-**Two-step output, in this order:**
-
-1. **JSON artifact (for the validator):** write your single `TriageOutput`
-   JSON object to a file named `triage-output.json` in the workspace root,
-   then call the `upload_artifact` tool on that path. Emit ONLY the JSON to
-   that file — no surrounding prose, no markdown fence.
-
-2. **Human-readable summary on the run page:** in **ONE** `cat`-heredoc call,
-   append a Markdown summary to `$GITHUB_STEP_SUMMARY` so reviewers see the
-   decision directly on the run page. Single bash call, exact template:
-
-   ```bash
-   cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-   ## Triage — Issue #<N>: <one-line defect description>
-
-   | Disposition | Severity | Confidence | Labels | Duplicate of | Change size |
-   |---|---|---|---|---|---|
-   | `<disposition>` | <severity> | 0.XX | `<labels>` | #N or — | <change_size> |
-
-   <reasoning sentence(s)>
-
-   **Affected:** `<path1>`, `<path2>` &nbsp;·&nbsp; **Related:** #N, PR #N
-   EOF
-   ```
-
-   Do not split this into multiple bash calls — use the one heredoc above.
+above. Investigate read-only (no labels, comments, or writes). When done, write your
+single `TriageOutput` JSON object to a file named `triage-output.json` in the workspace
+root, then call the `upload_artifact` tool on that path. Emit ONLY the JSON to that file
+— no surrounding prose, no markdown fence.

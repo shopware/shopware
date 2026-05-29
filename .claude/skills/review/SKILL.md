@@ -165,6 +165,7 @@ Do not load:
 
 - `SKILL.md`
 - unrelated personas
+- `tests/`
 
 Rules:
 
@@ -181,3 +182,4 @@ Rules:
 - `references/COST.md` — provider-neutral tier, budget, routing, and cache rules.
 - `references/DIFF-DISCIPLINE.md` — false-positive traps and size caps.
 - `references/SCHEMA.md` — JSON field rules.
+- `tests/` — eval fixtures only; never load during review runs.

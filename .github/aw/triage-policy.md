@@ -24,11 +24,42 @@ deliverable.
 
 ## Output contract
 
-Emit a single JSON object matching the `TriageOutput` shape — full field
-rules and worked examples in `.claude/skills/triage/assets/examples.md`.
-**No prose, no markdown fence, JSON only.**
+Emit a single JSON object matching the `TriageOutput` shape exactly. **No
+prose, no markdown fence, JSON only.** No extra fields beyond those listed
+here — the post-run validator enforces the exact shape and will fail on
+unknown keys, missing fields, or field-name typos.
 
-Quick reference for the two label rules:
-- `suggested_labels`: 1–2 entries from `references/DOMAINS.md`.
-- When the primary label is `domain/framework`, the second MUST be
+```json
+{
+  "disposition": "valid-bug | duplicate | needs-info | not-a-bug | feature-request",
+  "severity": "low | medium | high | critical",
+  "suggested_labels": ["domain/...", "component/... (only with domain/framework)"],
+  "confidence": 0.0,
+  "reasoning": "2-5 sentences referencing concrete paths, commit SHAs, related issue/PR numbers. Max 2000 chars.",
+  "evidence_quotes": ["[issue] or [shell] prefixed verbatim spans, max 500 chars each, max 5 entries"],
+  "duplicate_of": null,
+  "missing_template_fields": [],
+  "affected_paths": [],
+  "related_issues": [],
+  "related_prs": [],
+  "recent_commits_in_area": [],
+  "change_size_estimate": "quick-fix | small | medium | large | unknown"
+}
+```
+
+Field rules:
+- **All 13 fields are required.** Use `null` for `duplicate_of` when not a
+  duplicate; empty arrays `[]` for the list fields when nothing applies.
+- `suggested_labels`: 1–2 entries from `.claude/skills/triage/references/DOMAINS.md`.
+  When the primary label is `domain/framework`, the second MUST be
   `component/{core,administration,storefront}`.
+- `evidence_quotes`: prefix each entry `[issue]` (from issue body/comments)
+  or `[shell]` (from shell/MCP output).
+- `duplicate_of`: plain integer (e.g. `15800`), not `"15800"` or `"#15800"`.
+- `related_issues`/`related_prs`: arrays of plain integers, same shape rule.
+- Do **NOT** add fields like `issue_number`, `title`, `evidence`,
+  `summary` — they are not in the schema and will fail validation.
+
+Worked examples (for shape and tone, not normative content) are in
+`.claude/skills/triage/assets/examples.md` — accessible if the gh aw
+sandbox allows reading from `.claude/`, otherwise refer to the schema above.

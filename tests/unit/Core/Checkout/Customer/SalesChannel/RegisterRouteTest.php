@@ -45,6 +45,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -718,6 +719,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -828,6 +830,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -933,6 +936,7 @@ class RegisterRouteTest extends TestCase
             $this->createMock(EntityRepository::class),
             $definitionFactory,
             $this->createMock(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1145,6 +1149,7 @@ class RegisterRouteTest extends TestCase
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
             $doubleOptInService,
+            new NativeClock(),
         );
     }
 

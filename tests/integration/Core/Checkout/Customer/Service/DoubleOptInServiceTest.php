@@ -17,6 +17,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -165,6 +166,7 @@ class DoubleOptInServiceTest extends TestCase
             $eventDispatcher,
             $this->getSystemConfig(),
             static::getContainer()->get('sales_channel_domain.repository'),
+            new NativeClock(),
         );
     }
 

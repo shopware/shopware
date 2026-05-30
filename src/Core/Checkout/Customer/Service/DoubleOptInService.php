@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
@@ -32,6 +33,7 @@ class DoubleOptInService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $salesChannelDomainRepository,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -72,7 +74,7 @@ class DoubleOptInService
             return;
         }
 
-        $threshold = new \DateTimeImmutable('-' . $resendInterval . ' hours');
+        $threshold = $this->clock->now()->modify('-' . $resendInterval . ' hours');
         if ($sentDate > $threshold) {
             return;
         }
@@ -81,7 +83,7 @@ class DoubleOptInService
 
         // Update sent date as this serves as cooldown for subsequent login attempts
         $this->customerRepository->update([
-            ['id' => $customer->getId(), 'doubleOptInEmailSentDate' => new \DateTimeImmutable()],
+            ['id' => $customer->getId(), 'doubleOptInEmailSentDate' => $this->clock->now()],
         ], $context->getContext());
     }
 
@@ -104,7 +106,7 @@ class DoubleOptInService
         }
 
         $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
+        $customer['doubleOptInEmailSentDate'] = $this->clock->now();
         $customer['hash'] = Uuid::randomHex();
 
         return $customer;

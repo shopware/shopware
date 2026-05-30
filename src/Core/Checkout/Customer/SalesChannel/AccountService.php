@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -47,6 +48,7 @@ class AccountService
         private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
         private readonly CartRestorer $restorer,
         private readonly DoubleOptInService $doubleOptInService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -141,7 +143,7 @@ class AccountService
         }
 
         if (!$this->isCustomerConfirmed($customer)) {
-            // Make sure to only run this if branch after it has been verified it was a valid login
+            // Make sure to only resend after it has been verified it was a valid login
             $this->doubleOptInService->resendDoubleOptInMail($customer, $context);
             throw CustomerException::customerOptinNotCompleted($customer->getId());
         }
@@ -175,7 +177,7 @@ class AccountService
         $this->customerRepository->update([
             [
                 'id' => $customer->getId(),
-                'lastLogin' => new \DateTimeImmutable(),
+                'lastLogin' => $this->clock->now(),
             ],
         ], $context->getContext());
 

@@ -19,6 +19,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -447,6 +448,7 @@ class DoubleOptInServiceTest extends TestCase
             $this->eventDispatcher,
             new StaticSystemConfigService($systemConfig),
             $this->salesChannelDomainRepository,
+            new NativeClock(),
         );
     }
 

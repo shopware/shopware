@@ -102,6 +102,10 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             'legacyEncoder' => null,
         ];
 
+        if ($customer->getDoubleOptInRegistration() && $customer->getDoubleOptInConfirmDate() === null) {
+            $customerData['doubleOptInConfirmDate'] = $this->clock->now();
+        }
+
         $this->customerRepository->update([$customerData], $context->getContext());
         $this->deleteRecoveryForCustomer($customerRecovery, $context->getContext());
 

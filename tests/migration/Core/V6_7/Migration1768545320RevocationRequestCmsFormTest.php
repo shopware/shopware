@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_7;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,25 +25,14 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1768545320, (new Migration1768545320RevocationRequestCmsForm())->getCreationTimestamp());
+    }
+
     public function testUpdate(): void
     {
-        $cmsPageByteId = $this->getCmsPageId();
-        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
-        $cmsBlockByteId = $this->getCmsBlockId();
-
-        if ($cmsPageByteId !== null) {
-            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
-            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
-        }
-
-        if ($cmsSectionByteId !== null) {
-            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
-        }
-
-        if ($cmsBlockByteId !== null) {
-            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
-            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
-        }
+        $this->deletePageSectionBlockAndSlot();
 
         $migration = new Migration1768545320RevocationRequestCmsForm();
         $migration->update($this->connection);
@@ -83,6 +73,75 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertArrayHasKey('translations', $cmsSlotResult);
         static::assertIsArray($cmsSlotResult['translations']);
         static::assertCount(2, $cmsSlotResult['translations']);
+    }
+
+    public function testUpdateDoesNotReuseBlockWithSameNameFromDifferentSection(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+
+            $unrelatedBlockByteId = $this->insertUnrelatedCmsBlockWithSameName();
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+
+            static::assertIsString($cmsBlockResult['id']);
+            static::assertNotSame($unrelatedBlockByteId, $cmsBlockResult['id']);
+
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+            static::assertSame($cmsBlockResult['id'], $cmsSlotResult['cms_block_id']);
+        } finally {
+            $this->connection->rollBack();
+        }
+    }
+
+    public function testUpdateSkipsDuplicateTranslationsWhenGermanUsesSystemLanguage(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+
+            $systemLocaleByteId = $this->getLocaleIdByLanguageId(Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM));
+
+            $enLocaleByteId = $this->getLocaleIdByCode('en-GB');
+            $deLocaleByteId = $this->getLocaleIdByCode('de-DE');
+
+            static::assertIsString($enLocaleByteId);
+            static::assertIsString($deLocaleByteId);
+
+            // ensure en-GB locale is not there
+            $this->updateLocaleCode($enLocaleByteId, 'old-en-GB');
+
+            if ($systemLocaleByteId !== $deLocaleByteId) {
+                // ensure de-DE locale is not there
+                $this->updateLocaleCode($deLocaleByteId, 'old-de-DE');
+                // ensure system locale is de-DE
+                $this->updateLocaleCode($systemLocaleByteId, 'de-DE');
+            }
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            static::assertCount(1, $cmsPageResult['translations']);
+
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+
+            static::assertCount(1, $cmsSlotResult['translations']);
+        } finally {
+            $this->connection->rollBack();
+        }
     }
 
     /**
@@ -194,6 +253,10 @@ SQL;
             ['cmsPageId' => $cmsPageByteId]
         )->fetchOne();
 
+        if (!\is_string($cmsSectionByteId)) {
+            return null;
+        }
+
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSectionByteId))) {
             return null;
         }
@@ -208,10 +271,116 @@ SQL;
             ['cmsBlockName' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME]
         )->fetchOne();
 
+        if (!\is_string($cmsBlockByteId)) {
+            return null;
+        }
+
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlockByteId))) {
             return null;
         }
 
         return $cmsBlockByteId;
+    }
+
+    private function getLocaleIdByLanguageId(string $languageByteId): string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `locale_id` FROM `language` WHERE `id` = :languageId',
+            ['languageId' => $languageByteId]
+        );
+
+        static::assertIsString($localeByteId);
+
+        return $localeByteId;
+    }
+
+    private function getLocaleIdByCode(string $localeCode): ?string
+    {
+        $localeByteId = $this->connection->fetchOne(
+            'SELECT `id` FROM `locale` WHERE `code` = :code',
+            ['code' => $localeCode]
+        );
+
+        if (!\is_string($localeByteId)) {
+            return null;
+        }
+
+        return $localeByteId;
+    }
+
+    private function updateLocaleCode(string $localeByteId, string $localeCode): void
+    {
+        $this->connection->update(
+            'locale',
+            ['code' => $localeCode],
+            ['id' => $localeByteId]
+        );
+    }
+
+    private function insertUnrelatedCmsBlockWithSameName(): string
+    {
+        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $cmsPageByteId = Uuid::randomBytes();
+        $cmsSectionByteId = Uuid::randomBytes();
+        $cmsBlockByteId = Uuid::randomBytes();
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('cms_page', [
+            'id' => $cmsPageByteId,
+            'version_id' => $versionByteId,
+            'type' => 'page',
+            'locked' => 1,
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_section', [
+            'id' => $cmsSectionByteId,
+            'version_id' => $versionByteId,
+            'cms_page_id' => $cmsPageByteId,
+            'cms_page_version_id' => $versionByteId,
+            'position' => 0,
+            'type' => 'default',
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_block', [
+            'id' => $cmsBlockByteId,
+            'version_id' => $versionByteId,
+            'created_at' => $createdAt,
+            'cms_section_id' => $cmsSectionByteId,
+            'cms_section_version_id' => $versionByteId,
+            'locked' => 1,
+            'position' => 1,
+            'type' => 'form',
+            'name' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME,
+            'margin_top' => '20px',
+            'margin_bottom' => '20px',
+            'margin_left' => '20px',
+            'margin_right' => '20px',
+            'background_media_mode' => 'cover',
+        ]);
+
+        return $cmsBlockByteId;
+    }
+
+    private function deletePageSectionBlockAndSlot(): void
+    {
+        $cmsPageByteId = $this->getCmsPageId();
+        $cmsSectionByteId = $this->getCmsSectionId($cmsPageByteId);
+        $cmsBlockByteId = $this->getCmsBlockId();
+
+        if ($cmsPageByteId !== null) {
+            $this->connection->delete('cms_page', ['id' => $cmsPageByteId]);
+            $this->connection->delete('cms_section', ['cms_page_id' => $cmsPageByteId]);
+        }
+
+        if ($cmsSectionByteId !== null) {
+            $this->connection->delete('cms_block', ['cms_section_id' => $cmsSectionByteId]);
+        }
+
+        if ($cmsBlockByteId !== null) {
+            $this->connection->delete('cms_block', ['id' => $cmsBlockByteId]);
+            $this->connection->delete('cms_slot', ['cms_block_id' => $cmsPageByteId]);
+        }
     }
 }

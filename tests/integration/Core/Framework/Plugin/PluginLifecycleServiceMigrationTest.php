@@ -82,7 +82,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         $this->context = Context::createDefaultContext();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
 
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',

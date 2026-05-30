@@ -88,12 +88,17 @@ export default Shopware.Component.wrapComponentConfig({
                     message: this.$t('sw-app.component.sw-app-shop-id-change-modal.success.shop-id-change-succeeded'),
                 });
 
-                window.location.reload();
+                this._reloadPage();
             } catch {
                 this.createNotificationError({
                     message: this.$t('sw-app.component.sw-app-shop-id-change-modal.error.shop-id-change-failed'),
                 });
             }
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
         },
 
         getHumanReadableFingerprintName(identifier: string) {

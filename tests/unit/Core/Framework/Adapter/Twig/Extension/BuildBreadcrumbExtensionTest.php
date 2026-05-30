@@ -17,16 +17,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
 #[CoversClass(BuildBreadcrumbExtension::class)]
 class BuildBreadcrumbExtensionTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFunctions(): void
     {
         $functions = $this->getBuildBreadcrumbExtension()->getFunctions();
@@ -35,6 +39,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertSame('sw_breadcrumb_full_by_id', $functions[1]->getName());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbNoSeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -45,6 +50,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbWithEmptySeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -58,6 +64,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbWithSeoBreadCrumb(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -75,6 +82,29 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertArrayNotHasKey($notConsideredCategoryId, $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetFullBreadcrumbUsesSalesChannelContextFallback(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $category = new CategoryEntity();
+
+        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder
+            ->expects($this->once())
+            ->method('build')
+            ->with($category, $salesChannelContext->getSalesChannel())
+            ->willReturn([]);
+
+        $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
+            ->getFullBreadcrumb([
+                'context' => Context::createDefaultContext(),
+                'salesChannelContext' => $salesChannelContext,
+            ], $category, Context::createDefaultContext());
+
+        static::assertSame([], $breadCrumb);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbByIdWithNonExistingCategoryId(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -85,6 +115,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         static::assertSame([], $breadCrumb);
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetFullBreadcrumbById(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

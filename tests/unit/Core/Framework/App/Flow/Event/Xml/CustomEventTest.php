@@ -16,13 +16,13 @@ class CustomEventTest extends TestCase
     public function testFromXml(): void
     {
         $doc = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../_fixtures/Resources/flow-event-with-events.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
         $expected = [
-            'name' => 'swag.before.open_the_doors',
-            'aware' => ['customerAware'],
+            'name' => 'checkout.order.place.custom',
+            'aware' => ['orderAware', 'customerAware'],
         ];
 
         $events = $doc->getElementsByTagName('flow-events')->item(0);

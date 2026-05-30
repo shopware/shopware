@@ -55,8 +55,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(MigrationException::class);
-        $this->expectExceptionMessage('missing timestamp cap or --all option');
+        $this->expectExceptionObject(MigrationException::invalidArgument('missing timestamp cap or --all option'));
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
 
@@ -97,8 +96,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(MigrationException::class);
-        $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
+        $this->expectExceptionObject(MigrationException::invalidArgument('Running migrations for multiple identifiers without --all option or with --limit option is not supported.'));
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => \PHP_INT_MAX]), new BufferedOutput());
     }
 
@@ -108,8 +106,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $this->expectException(MigrationException::class);
-        $this->expectExceptionMessage('Running migrations for multiple identifiers without --all option or with --limit option is not supported.');
+        $this->expectExceptionObject(MigrationException::invalidArgument('Running migrations for multiple identifiers without --all option or with --limit option is not supported.'));
         $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
     }
 
@@ -147,8 +144,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $this->expectException(MigrationException::class);
-        $this->expectExceptionMessage('missing timestamp cap or --all option');
+        $this->expectExceptionObject(MigrationException::invalidArgument('missing timestamp cap or --all option'));
         $command->run(new ArrayInput([]), new BufferedOutput());
     }
 

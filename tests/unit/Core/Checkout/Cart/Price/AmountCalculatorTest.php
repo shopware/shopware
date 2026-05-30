@@ -96,459 +96,464 @@ class AmountCalculatorTest extends TestCase
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<string, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountForNetDeliveriesProvider(): array
+    public static function calculateAmountForNetDeliveriesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
 
-        return [
-            [
-                new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax),
-                ]),
-            ], [
-                new CartPrice(33.7, 33.7, 33.7, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
-                ]),
-            ], [
-                new CartPrice(33.70, 33.70, 33.70, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
-                ]),
-            ], [
-                new CartPrice(105.6, 105.6, 105.6, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
-                ]),
-            ], [
-                new CartPrice(105.60, 105.60, 105.60, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
-                ]),
-            ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
-                new PriceCollection([
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
-                ]),
-            ],
+        yield 'free tax state with one 19 percent delivery' => [
+            new CartPrice(19.5, 19.5, 19.5, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax),
+            ]),
+        ];
+        yield 'free tax state sums two 19 percent deliveries' => [
+            new CartPrice(33.7, 33.7, 33.7, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+            ]),
+        ];
+        yield 'free tax state sums mixed 19 and 7 percent deliveries' => [
+            new CartPrice(33.70, 33.70, 33.70, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
+            ]),
+        ];
+        yield 'free tax state sums multiple mixed tax deliveries' => [
+            new CartPrice(105.6, 105.6, 105.6, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+            ]),
+        ];
+        yield 'free tax state sums deliveries without tax rules' => [
+            new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE),
+            new PriceCollection([
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+            ]),
         ];
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<string, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountWithNetPricesProvider(): array
+    public static function calculateAmountWithNetPricesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        return [
-            [
-                new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+        yield 'net horizontal calculation with one 19 percent price' => [
+            new CartPrice(19.5, 22.61, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation sums two 19 percent prices' => [
+            new CartPrice(33.7, 39.08, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_NET),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation keeps separate 19 and 7 percent taxes' => [
+            new CartPrice(
+                33.70,
+                37.74,
+                33.70,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(3.11, 19, 19.50),
+                    new CalculatedTax(0.93, 7, 14.20),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(33.7, 39.08, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_NET),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+                $mixedTaxes,
+                CartPrice::TAX_STATE_NET
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation distributes mixed taxes across four prices' => [
+            new CartPrice(
+                105.6,
+                117.49,
+                105.6,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(8.43, 19, 52.8),
+                    new CalculatedTax(3.46, 7, 52.8),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    33.70,
-                    37.74,
-                    33.70,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(3.11, 19, 19.50),
-                        new CalculatedTax(0.93, 7, 14.20),
-                    ]),
-                    $mixedTaxes,
-                    CartPrice::TAX_STATE_NET
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
+                $mixedTaxes,
+                CartPrice::TAX_STATE_NET
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation handles many different tax rates' => [
+            new CartPrice(
+                244.5,
+                272.44,
+                244.5,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(8.43, 19, 52.8),
+                    new CalculatedTax(8.05, 18, 52.8),
+                    new CalculatedTax(7.67, 17, 52.8),
+                    new CalculatedTax(3.46, 7, 52.8),
+                    new CalculatedTax(0.33, 1, 33.3),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    105.6,
-                    117.49,
-                    105.6,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(8.43, 19, 52.8),
-                        new CalculatedTax(3.46, 7, 52.8),
-                    ]),
-                    $mixedTaxes,
-                    CartPrice::TAX_STATE_NET
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+                new TaxRuleCollection([
+                    new TaxRule(19),
+                    new TaxRule(18),
+                    new TaxRule(17),
+                    new TaxRule(7),
+                    new TaxRule(1),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    244.5,
-                    272.44,
-                    244.5,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(8.43, 19, 52.8),
-                        new CalculatedTax(8.05, 18, 52.8),
-                        new CalculatedTax(7.67, 17, 52.8),
-                        new CalculatedTax(3.46, 7, 52.8),
-                        new CalculatedTax(0.33, 1, 33.3),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                        new TaxRule(18),
-                        new TaxRule(17),
-                        new TaxRule(7),
-                        new TaxRule(1),
-                    ]),
-                    CartPrice::TAX_STATE_NET
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.97, 18, 19.50)]), new TaxRuleCollection([new TaxRule(18)])),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.08, 18, 33.30)]), new TaxRuleCollection([new TaxRule(18)])),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.83, 17, 19.50)]), new TaxRuleCollection([new TaxRule(17)])),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(4.84, 17, 33.30)]), new TaxRuleCollection([new TaxRule(17)])),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
+                CartPrice::TAX_STATE_NET
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.97, 18, 19.50)]), new TaxRuleCollection([new TaxRule(18)])),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.08, 18, 33.30)]), new TaxRuleCollection([new TaxRule(18)])),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.83, 17, 19.50)]), new TaxRuleCollection([new TaxRule(17)])),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(4.84, 17, 33.30)]), new TaxRuleCollection([new TaxRule(17)])),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation handles prices without tax rules' => [
+            new CartPrice(20, 20, 20, new CalculatedTaxCollection([]), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+            new PriceCollection([
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net horizontal calculation rounds many small 19 percent prices' => [
+            new CartPrice(
+                34.97,
+                41.67,
+                34.97,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(6.7, 19, 34.97),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection([]), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
-                new PriceCollection([
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+                new TaxRuleCollection([
+                    new TaxRule(19),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    34.97,
-                    41.67,
-                    34.97,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(6.7, 19, 34.97),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                    ]),
-                    CartPrice::TAX_STATE_NET
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.00, 2.00, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.00)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.45, 12.25, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 12.25)]), new TaxRuleCollection([new TaxRule(19)]), 5),
-                    new CalculatedPrice(0.50, 2.5, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.5)]), new TaxRuleCollection([new TaxRule(19)]), 5),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(3.78, 3.78, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 3.78)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(-0.96, -0.96, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -0.96)]), new TaxRuleCollection([new TaxRule(19)])),
+                CartPrice::TAX_STATE_NET
+            ),
+            new PriceCollection([
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.00, 2.00, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.00)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.45, 12.25, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 12.25)]), new TaxRuleCollection([new TaxRule(19)]), 5),
+                new CalculatedPrice(0.50, 2.5, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.5)]), new TaxRuleCollection([new TaxRule(19)]), 5),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(3.78, 3.78, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 3.78)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(-0.96, -0.96, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -0.96)]), new TaxRuleCollection([new TaxRule(19)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'net vertical calculation recalculates tax for one 19 percent price' => [
+            new CartPrice(19.5, 23.21, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.71, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
+        ];
+        yield 'net vertical calculation rounds many small 19 percent prices' => [
+            new CartPrice(
+                34.97,
+                41.61,
+                34.97,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(6.64, 19, 34.97),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(19.5, 23.21, 19.5, new CalculatedTaxCollection([new CalculatedTax(3.71, 19, 19.5)]), $highTax, CartPrice::TAX_STATE_NET),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new TaxRuleCollection([
+                    new TaxRule(19),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ], [
-                new CartPrice(
-                    34.97,
-                    41.61,
-                    34.97,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(6.64, 19, 34.97),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                    ]),
-                    CartPrice::TAX_STATE_NET
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.00, 2.00, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.00)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.45, 12.25, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 12.25)]), new TaxRuleCollection([new TaxRule(19)]), 5),
-                    new CalculatedPrice(0.50, 2.5, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.5)]), new TaxRuleCollection([new TaxRule(19)]), 5),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(3.78, 3.78, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 3.78)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(-0.96, -0.96, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -0.96)]), new TaxRuleCollection([new TaxRule(19)])),
-                ]),
-                SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ],
+                CartPrice::TAX_STATE_NET
+            ),
+            new PriceCollection([
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.00, 2.00, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.00)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.45, 12.25, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 12.25)]), new TaxRuleCollection([new TaxRule(19)]), 5),
+                new CalculatedPrice(0.50, 2.5, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 2.5)]), new TaxRuleCollection([new TaxRule(19)]), 5),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.40, 1.40, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.40)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(3.78, 3.78, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 3.78)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(-0.96, -0.96, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -0.96)]), new TaxRuleCollection([new TaxRule(19)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
         ];
     }
 
     /**
-     * @return list<array{0: CartPrice, 1: PriceCollection}>
+     * @return iterable<string, array{0: CartPrice, 1: PriceCollection}>
      */
-    public static function calculateAmountWithGrossPricesProvider(): array
+    public static function calculateAmountWithGrossPricesProvider(): iterable
     {
         $highTax = new TaxRuleCollection([new TaxRule(19)]);
         $lowTax = new TaxRuleCollection([new TaxRule(7)]);
         $mixedTaxes = new TaxRuleCollection([new TaxRule(19), new TaxRule(7)]);
 
-        return [
-            [
-                new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+        yield 'gross horizontal calculation with one 19 percent price' => [
+            new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation sums two 19 percent prices' => [
+            new CartPrice(28.32, 33.7, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_GROSS),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation keeps separate 19 and 7 percent taxes' => [
+            new CartPrice(
+                29.66,
+                33.70,
+                33.70,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(3.11, 19, 19.50),
+                    new CalculatedTax(0.93, 7, 14.20),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(28.32, 33.7, 33.7, new CalculatedTaxCollection([new CalculatedTax(5.38, 19, 33.7)]), $highTax, CartPrice::TAX_STATE_GROSS),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(2.27, 19, 14.20)]), $highTax),
+                $mixedTaxes,
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation distributes mixed taxes across four prices' => [
+            new CartPrice(
+                93.71,
+                105.6,
+                105.6,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(8.43, 19, 52.8),
+                    new CalculatedTax(3.46, 7, 52.8),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    29.66,
-                    33.70,
-                    33.70,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(3.11, 19, 19.50),
-                        new CalculatedTax(0.93, 7, 14.20),
-                    ]),
-                    $mixedTaxes,
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(14.20, 14.20, new CalculatedTaxCollection([new CalculatedTax(0.93, 7, 14.20)]), $lowTax),
+                $mixedTaxes,
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation handles many different tax rates' => [
+            new CartPrice(
+                216.56,
+                244.5,
+                244.5,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(8.43, 19, 52.8),
+                    new CalculatedTax(8.05, 18, 52.8),
+                    new CalculatedTax(7.67, 17, 52.8),
+                    new CalculatedTax(3.46, 7, 52.8),
+                    new CalculatedTax(0.33, 1, 33.30),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    93.71,
-                    105.6,
-                    105.6,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(8.43, 19, 52.8),
-                        new CalculatedTax(3.46, 7, 52.8),
-                    ]),
-                    $mixedTaxes,
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+                new TaxRuleCollection([
+                    new TaxRule(19),
+                    new TaxRule(18),
+                    new TaxRule(17),
+                    new TaxRule(7),
+                    new TaxRule(1),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    216.56,
-                    244.5,
-                    244.5,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(8.43, 19, 52.8),
-                        new CalculatedTax(8.05, 18, 52.8),
-                        new CalculatedTax(7.67, 17, 52.8),
-                        new CalculatedTax(3.46, 7, 52.8),
-                        new CalculatedTax(0.33, 1, 33.30),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                        new TaxRule(18),
-                        new TaxRule(17),
-                        new TaxRule(7),
-                        new TaxRule(1),
-                    ]),
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.97, 18, 19.50)]), new TaxRuleCollection([new TaxRule(18)])),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.08, 18, 33.30)]), new TaxRuleCollection([new TaxRule(18)])),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.83, 17, 19.50)]), new TaxRuleCollection([new TaxRule(17)])),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(4.84, 17, 33.30)]), new TaxRuleCollection([new TaxRule(17)])),
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
-                    new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.32, 19, 33.30)]), $highTax),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.97, 18, 19.50)]), new TaxRuleCollection([new TaxRule(18)])),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(5.08, 18, 33.30)]), new TaxRuleCollection([new TaxRule(18)])),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(2.83, 17, 19.50)]), new TaxRuleCollection([new TaxRule(17)])),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(4.84, 17, 33.30)]), new TaxRuleCollection([new TaxRule(17)])),
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(1.28, 7, 19.50)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(2.18, 7, 33.30)]), $lowTax),
+                new CalculatedPrice(33.30, 33.30, new CalculatedTaxCollection([new CalculatedTax(0.33, 1, 33.30)]), new TaxRuleCollection([new TaxRule(1)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation handles prices without tax rules' => [
+            new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
+            new PriceCollection([
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+                new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation rounds many small 19 percent prices' => [
+            new CartPrice(
+                35.00,
+                41.70,
+                41.70,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(6.7, 19, 41.70),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(20, 20, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
-                new PriceCollection([
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
-                    new CalculatedPrice(10.00, 10.00, new CalculatedTaxCollection([]), new TaxRuleCollection([])),
+                new TaxRuleCollection([
+                    new TaxRule(19),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    35.00,
-                    41.70,
-                    41.70,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(6.7, 19, 41.70),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                    ]),
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.38, 2.38, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.38)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(14.6, 14.6, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 14.6)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(3.0, 3.0, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.0)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(4.50, 4.50, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 4.50)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(-1.15, -1.15, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -1.15)]), new TaxRuleCollection([new TaxRule(19)])),
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.38, 2.38, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.38)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(14.6, 14.6, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 14.6)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(3.0, 3.0, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.0)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(4.50, 4.50, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 4.50)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(-1.15, -1.15, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -1.15)]), new TaxRuleCollection([new TaxRule(19)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross horizontal calculation zeroes fully discounted prices' => [
+            new CartPrice(
+                0,
+                0,
+                0,
+                new CalculatedTaxCollection([new CalculatedTax(0, 19, 0)]),
+                new TaxRuleCollection([new TaxRule(19)]),
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(55, 55, new CalculatedTaxCollection([new CalculatedTax(8.78, 19, 55)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(41, 41, new CalculatedTaxCollection([new CalculatedTax(6.55, 19, 41)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(-96, -96, new CalculatedTaxCollection([new CalculatedTax(-15.33, 19, -96)]), new TaxRuleCollection([new TaxRule(19)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
+        ];
+        yield 'gross vertical calculation with one 19 percent price' => [
+            new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
+            new PriceCollection([
+                new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
+        ];
+        yield 'gross vertical calculation rounds many small 19 percent prices' => [
+            new CartPrice(
+                35.04,
+                41.70,
+                41.70,
+                new CalculatedTaxCollection([
+                    new CalculatedTax(6.66, 19, 41.70),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(
-                    0,
-                    0,
-                    0,
-                    new CalculatedTaxCollection([new CalculatedTax(0, 19, 0)]),
-                    new TaxRuleCollection([new TaxRule(19)]),
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(55, 55, new CalculatedTaxCollection([new CalculatedTax(8.78, 19, 55)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(41, 41, new CalculatedTaxCollection([new CalculatedTax(6.55, 19, 41)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(-96, -96, new CalculatedTaxCollection([new CalculatedTax(-15.33, 19, -96)]), new TaxRuleCollection([new TaxRule(19)])),
+                new TaxRuleCollection([
+                    new TaxRule(19),
                 ]),
-                SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL,
-            ], [
-                new CartPrice(16.39, 19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax, CartPrice::TAX_STATE_GROSS),
-                new PriceCollection([
-                    new CalculatedPrice(19.50, 19.50, new CalculatedTaxCollection([new CalculatedTax(3.11, 19, 19.50)]), $highTax),
-                ]),
-                SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ], [
-                new CartPrice(
-                    35.04,
-                    41.70,
-                    41.70,
-                    new CalculatedTaxCollection([
-                        new CalculatedTax(6.66, 19, 41.70),
-                    ]),
-                    new TaxRuleCollection([
-                        new TaxRule(19),
-                    ]),
-                    CartPrice::TAX_STATE_GROSS
-                ),
-                new PriceCollection([
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(2.38, 2.38, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.38)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(14.6, 14.6, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 14.6)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(3.0, 3.0, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.0)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(4.50, 4.50, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 4.50)]), new TaxRuleCollection([new TaxRule(19)])),
-                    new CalculatedPrice(-1.15, -1.15, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -1.15)]), new TaxRuleCollection([new TaxRule(19)])),
-                ]),
-                SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
-            ],
+                CartPrice::TAX_STATE_GROSS
+            ),
+            new PriceCollection([
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(2.38, 2.38, new CalculatedTaxCollection([new CalculatedTax(0.38, 19, 2.38)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(14.6, 14.6, new CalculatedTaxCollection([new CalculatedTax(2.33, 19, 14.6)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(3.0, 3.0, new CalculatedTaxCollection([new CalculatedTax(0.48, 19, 3.0)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(1.67, 1.67, new CalculatedTaxCollection([new CalculatedTax(0.27, 19, 1.67)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(4.50, 4.50, new CalculatedTaxCollection([new CalculatedTax(0.72, 19, 4.50)]), new TaxRuleCollection([new TaxRule(19)])),
+                new CalculatedPrice(-1.15, -1.15, new CalculatedTaxCollection([new CalculatedTax(-0.18, 19, -1.15)]), new TaxRuleCollection([new TaxRule(19)])),
+            ]),
+            SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
         ];
     }
 
     /**
-     * @return array<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
+     * @return iterable<string, array{0: CashRoundingConfig, 1: CashRoundingConfig, 2: PriceCollection, 3: CartPrice}>
      */
-    public static function cashRoundingProvider(): array
+    public static function cashRoundingProvider(): iterable
     {
-        return [
-            'Item and total rounding with different decimals' => [
-                new CashRoundingConfig(4, 0.01, true),
-                new CashRoundingConfig(2, 0.01, true),
-                new PriceCollection([
-                    self::price(),
-                ]),
-                new CartPrice(
-                    46.3299,
-                    55.11,
-                    55.111,
-                    new CalculatedTaxCollection([new CalculatedTax(8.7811, 19, 55.111)]),
-                    new TaxRuleCollection([new TaxRule(19)]),
-                    CartPrice::TAX_STATE_GROSS,
-                    55.111
-                ),
-            ],
-            'Item and total rounding with multiple prices and different decimals and interval' => [
-                new CashRoundingConfig(4, 0.01, true),
-                new CashRoundingConfig(2, 0.05, true),
-                new PriceCollection([
-                    self::price(),
-                    self::price(),
-                    self::price(),
-                    self::price(),
-                ]),
-                new CartPrice(
-                    185.3196,
-                    220.45,
-                    220.444,
-                    new CalculatedTaxCollection([new CalculatedTax(35.1244, 19, 220.444)]),
-                    new TaxRuleCollection([new TaxRule(19)]),
-                    CartPrice::TAX_STATE_GROSS,
-                    220.444
-                ),
-            ],
+        yield 'Item and total rounding with different decimals' => [
+            new CashRoundingConfig(4, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
+            new PriceCollection([
+                self::price(),
+            ]),
+            new CartPrice(
+                46.3299,
+                55.11,
+                55.111,
+                new CalculatedTaxCollection([new CalculatedTax(8.7811, 19, 55.111)]),
+                new TaxRuleCollection([new TaxRule(19)]),
+                CartPrice::TAX_STATE_GROSS,
+                55.111
+            ),
+        ];
+        yield 'Item and total rounding with multiple prices and different decimals and interval' => [
+            new CashRoundingConfig(4, 0.01, true),
+            new CashRoundingConfig(2, 0.05, true),
+            new PriceCollection([
+                self::price(),
+                self::price(),
+                self::price(),
+                self::price(),
+            ]),
+            new CartPrice(
+                185.3196,
+                220.45,
+                220.444,
+                new CalculatedTaxCollection([new CalculatedTax(35.1244, 19, 220.444)]),
+                new TaxRuleCollection([new TaxRule(19)]),
+                CartPrice::TAX_STATE_GROSS,
+                220.444
+            ),
         ];
     }
 

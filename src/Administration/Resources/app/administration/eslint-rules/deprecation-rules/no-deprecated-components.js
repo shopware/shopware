@@ -38,7 +38,7 @@ module.exports = {
     },
     /** @param {RuleContext} context */
     create(context) {
-        return context.parserServices.defineTemplateBodyVisitor(
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags
             {
                 VElement(node) {

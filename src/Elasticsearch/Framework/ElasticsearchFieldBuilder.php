@@ -11,6 +11,52 @@ use Shopware\Elasticsearch\Product\ElasticsearchCustomFieldsMappingHelper;
 class ElasticsearchFieldBuilder
 {
     /**
+     * Lowercase normalizer applied to every keyword field so case folding is
+     * consistent across the index.
+     */
+    public const NORMALIZER_LOWERCASE = 'sw_lowercase_normalizer';
+
+    /**
+     * BM25 similarity profile with length normalisation enabled (`b=0.75`).
+     * Applied to the `.search` subfield of long-form text fields where document
+     * length should temper TF.
+     */
+    public const SIMILARITY_LENGTH_NORM = 'sw_length_norm';
+
+    /**
+     * Whitespace-only analyzer (whitespace tokenize + lowercase). The default
+     * for `.exact` subfields and for the language-agnostic `.search` subfield.
+     */
+    public const ANALYZER_WHITESPACE = 'sw_whitespace_analyzer';
+
+    /**
+     * N-gram analyzer for the `.ngram` subfield. Substring matching for prefix
+     * and partial-token queries. Min/max grams configured via
+     * `SHOPWARE_ES_NGRAM_MIN_GRAM` / `SHOPWARE_ES_NGRAM_MAX_GRAM`.
+     */
+    public const ANALYZER_NGRAM = 'sw_ngram_analyzer';
+
+    /**
+     * Index-side technical-term analyzer (`word_delimiter_graph` chain) for
+     * SKU-style fields where letter↔digit boundaries and `,` / `-` / `.`
+     * separators must survive into the inverted index.
+     */
+    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_word_delimiter_index_analyzer';
+
+    /**
+     * Search-side counterpart of {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX}
+     * with the cross-position deduplication filter appended.
+     */
+    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_word_delimiter_search_analyzer';
+
+    /**
+     * Common prefix of every language-agnostic analyzer this bundle ships.
+     * Used by {@see self::translated()} to derive language-specific analyzer
+     * names by string substitution (`sw_whitespace_…` → `sw_<lang>_…`).
+     */
+    public const ANALYZER_WHITESPACE_PREFIX = 'sw_whitespace_';
+
+    /**
      * @internal
      *
      * @param array<string, string> $languageAnalyzerMapping

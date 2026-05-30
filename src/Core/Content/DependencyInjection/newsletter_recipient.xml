@@ -25,6 +25,7 @@
             <argument type="service" id="scheduled_task.repository" />
             <argument type="service" id="logger"/>
             <argument type="service" id="newsletter_recipient.repository" />
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler" />
         </service>
 
@@ -47,12 +48,15 @@
             <argument type="service" id="newsletter_recipient.repository" />
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute" public="true">
             <argument type="service" id="newsletter_recipient.repository" />
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
         </service>
 
         <service id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexer">

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Ca
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
@@ -11,6 +12,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -95,6 +97,8 @@ class PromotionFixedPriceCalculationTest extends TestCase
     #[Group('promotions')]
     public function testRemoveOfFixedUnitPromotionsWithoutCode(): void
     {
+        Feature::skipTestIfActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -128,6 +132,33 @@ class PromotionFixedPriceCalculationTest extends TestCase
         static::assertSame(100.0, $cart->getPrice()->getPositionPrice());
         static::assertSame(100.0, $cart->getPrice()->getTotalPrice());
         static::assertSame(84.03, $cart->getPrice()->getNetPrice(), 'Even after promotion delete try it should be present and product should be discounted');
+    }
+
+    #[Group('promotions')]
+    public function testAutomaticFixedUnitPromotionsWithoutCodeAreNotRemovable(): void
+    {
+        Feature::skipTestIfInActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+
+        $this->createTestFixtureProduct($productId, 100, 19, static::getContainer(), $context);
+        $this->createTestFixtureFixedDiscountPromotion($promotionId, 40, PromotionDiscountEntity::SCOPE_CART, null, static::getContainer(), $context);
+
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $context);
+
+        $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertNotNull($discountLineItem);
+        static::assertFalse($discountLineItem->isRemovable());
+
+        static::assertSame(40.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(40.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(33.61, $cart->getPrice()->getNetPrice(), 'Discounted cart does not have expected net price');
+
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($discountLineItem->getId()));
+        $this->cartService->remove($cart, $discountLineItem->getId(), $context);
     }
 
     /**

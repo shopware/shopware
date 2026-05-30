@@ -40,13 +40,13 @@
             <header class="sw-sidebar-renderer__header">
                 <div class="sw-sidebar-renderer__header-content">
                     <h3 class="sw-sidebar-renderer__title">
-                        {{ $tc(sidebar.title) }}
+                        {{ $t(sidebar.title) }}
                     </h3>
                     <mt-button
                         v-if="sidebarDisplayOptions.isOverlayMode && sidebarDisplayOptions.isCollapsable"
                         show-front-icon="true"
                         class="sw-sidebar-renderer__button-collapse"
-                        :aria-label="$tc('sidebar.ariaLabelButtonCollapse')"
+                        :aria-label="$t('sidebar.ariaLabelButtonCollapse')"
                         variant="secondary"
                         @click="collapseSidebar"
                     >
@@ -58,14 +58,14 @@
                             />
                         </template>
 
-                        {{ $tc('sidebar.buttonCollapse') }}
+                        {{ $t('sidebar.buttonCollapse') }}
 
                     </mt-button>
                 </div>
 
                 <button
                     class="sw-sidebar-renderer__button-close"
-                    :aria-label="$tc('sidebar.ariaLabelButtonClose')"
+                    :aria-label="$t('sidebar.ariaLabelButtonClose')"
                     @click="closeSidebar(sidebar.locationId)"
                 >
                     <mt-icon
@@ -77,6 +77,7 @@
 
             <section class="sw-sidebar-renderer__content">
                 <sw-iframe-renderer
+                    :key="sidebar.locationId"
                     :src="sidebar.baseUrl"
                     :location-id="sidebar.locationId"
                     :full-screen="false"

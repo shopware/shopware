@@ -57,7 +57,6 @@ export default {
          */
         showSmartBar: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         /**
@@ -65,7 +64,6 @@ export default {
          */
         showSearchBar: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         /**

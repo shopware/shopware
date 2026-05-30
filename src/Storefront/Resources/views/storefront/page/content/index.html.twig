@@ -1,16 +1,28 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
 {# @var page \Shopware\Storefront\Page\LandingPage\LandingPage|\Shopware\Storefront\Page\CategoryPage\CategoryPage #}
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/content/meta.html.twig' %}
+{% endblock %}
+
 {% block base_main_inner %}
     <div class="container-main">
         {% block page_content %}
             {% block cms_breadcrumb %}
                 <div class="cms-breadcrumb container">
-                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                        context: context,
-                        themeIconConfig: themeIconConfig,
-                        categoryId: shopware.navigation.id,
-                    } only %}
+                    {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                            context: context,
+                            themeIconConfig: themeIconConfig,
+                            breadcrumb: page.breadcrumb
+                        } only %}
+                    {% else %}
+                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                            context: context,
+                            themeIconConfig: themeIconConfig,
+                            categoryId: shopware.navigation.id,
+                        } only %}
+                    {% endif %}
                 </div>
             {% endblock %}
 

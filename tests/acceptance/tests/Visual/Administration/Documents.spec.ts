@@ -32,11 +32,18 @@ test(
                 'credit_note',
                 'delivery_note',
                 'cancellation_invoice',
-                'embedded_zugferd_e_invoice',
+                'zugferd_embedded_invoice',
+                'zugferd_embedded_cancellation_invoice',
+                'zugferd_embedded_credit_note',
+            ];
+
+            const requiresCreditNote: DocumentTypes[] = [
+                'credit_note',
+                'zugferd_embedded_credit_note',
             ];
 
             for (const type of documents) {
-                if (type === 'credit_note') {
+                if (requiresCreditNote.includes(type)) {
                     await ShopAdmin.attemptsTo(AddCreditItem(order.id));
                 }
 

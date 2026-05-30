@@ -2,6 +2,7 @@ import template from './sw-data-grid.html.twig';
 import './sw-data-grid.scss';
 
 const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -36,6 +37,10 @@ export default {
         'feature',
     ],
 
+    mixins: [
+        Mixin.getByName('translate-with-fallback'),
+    ],
+
     emits: [
         'selection-change',
         'select-all-items',
@@ -66,21 +71,18 @@ export default {
 
         showSelection: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showActions: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
 
         showHeader: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -142,7 +144,6 @@ export default {
         compactMode: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -155,7 +156,6 @@ export default {
         showPreviews: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -236,9 +236,7 @@ export default {
             currentInlineEditId: '',
             hasPreviewSlots: false,
             hasResizeColumns: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
-            // eslint-disable-next-line vue/no-reserved-keys
             _isResizing: false,
         };
     },
@@ -580,6 +578,10 @@ export default {
             ];
         },
 
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
+        },
+
         getRowClasses(item, itemIndex) {
             return [
                 {
@@ -755,8 +757,15 @@ export default {
                 return;
             }
 
+            const recordId = record[this.itemIdentifierProperty];
+
+            // Keep the currently edited row stable until the user explicitly saves or cancels it.
+            if (this.isInlineEditActive && this.currentInlineEditId !== '' && this.currentInlineEditId !== recordId) {
+                return;
+            }
+
             this.enableInlineEdit();
-            this.currentInlineEditId = record[this.itemIdentifierProperty];
+            this.currentInlineEditId = recordId;
         },
 
         onClickHeaderCell(event, column) {

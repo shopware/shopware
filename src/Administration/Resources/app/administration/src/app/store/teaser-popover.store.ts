@@ -47,14 +47,12 @@ const teaserPopoverStore = Shopware.Store.register({
 
     actions: {
         addPopoverComponent(popoverComponent: TeaserPopoverConfig): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             this.identifier[popoverComponent.positionId] = {
                 ...popoverComponent,
             };
         },
 
         addSalesChannel(popoverComponent: TeaserSalesChannelConfig): void {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             this.salesChannels.push(popoverComponent);
         },
     },

@@ -69,31 +69,7 @@ export default {
         },
 
         ruleCriteria() {
-            const criteria = new Criteria();
-
-            criteria.addAssociation('tags');
-            criteria.addAssociation('flowSequences.flow');
-
-            const aggregationEntities = [
-                'personaPromotions',
-                'orderPromotions',
-                'cartPromotions',
-                'promotionDiscounts',
-                'promotionSetGroups',
-                'shippingMethodPriceCalculations',
-                'shippingMethodPrices',
-                'productPrices',
-                'shippingMethods',
-                'paymentMethods',
-            ];
-
-            aggregationEntities.forEach((entity) => {
-                criteria.addAggregation(
-                    Criteria.terms(entity, 'id', null, null, Criteria.count(entity, `rule.${entity}.id`)),
-                );
-            });
-
-            return criteria;
+            return this.createRuleCriteria();
         },
 
         appScriptConditionRepository() {
@@ -107,7 +83,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('rule.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('rule.editor'),
                     showOnDisabledElements: true,
                 };
@@ -129,20 +105,22 @@ export default {
         },
 
         tabItems() {
+            const id = this.ruleId || this.$route?.params?.id;
+
             return [
                 {
-                    title: this.$tc('sw-settings-rule.detail.tabGeneral'),
+                    title: this.$t('sw-settings-rule.detail.tabGeneral'),
                     route: {
                         name: 'sw.settings.rule.detail.base',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'general',
                 },
                 {
-                    title: this.$tc('sw-settings-rule.detail.tabAssignments'),
+                    title: this.$t('sw-settings-rule.detail.tabAssignments'),
                     route: {
                         name: 'sw.settings.rule.detail.assignments',
-                        params: { id: this.$route.params.id },
+                        params: { id },
                     },
                     cssClassSuffix: 'assignments',
                 },
@@ -228,6 +206,34 @@ export default {
     },
 
     methods: {
+        createRuleCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('tags');
+            criteria.addAssociation('flowSequences.flow');
+
+            const aggregationEntities = [
+                'personaPromotions',
+                'orderPromotions',
+                'cartPromotions',
+                'promotionDiscounts',
+                'promotionSetGroups',
+                'shippingMethodPriceCalculations',
+                'shippingMethodPrices',
+                'productPrices',
+                'shippingMethods',
+                'paymentMethods',
+            ];
+
+            aggregationEntities.forEach((entity) => {
+                criteria.addAggregation(
+                    Criteria.terms(entity, 'id', null, null, Criteria.count(entity, `rule.${entity}.id`)),
+                );
+            });
+
+            return criteria;
+        },
+
         loadConditionData() {
             const context = {
                 ...Context.api,
@@ -252,9 +258,10 @@ export default {
             this.isLoading = true;
             this.conditions = null;
 
-            this.ruleCriteria.addFilter(Criteria.equals('id', ruleId));
+            const criteria = this.createRuleCriteria();
+            criteria.addFilter(Criteria.equals('id', ruleId));
 
-            return this.ruleRepository.search(this.ruleCriteria).then((response) => {
+            return this.ruleRepository.search(criteria).then((response) => {
                 this.entityCount = this.extractEntityCount(response.aggregations);
 
                 this.rule = response.first();
@@ -265,8 +272,12 @@ export default {
         extractEntityCount(aggregations) {
             const entityCount = {};
 
+            if (!aggregations) {
+                return entityCount;
+            }
+
             Object.keys(aggregations).forEach((key) => {
-                entityCount[key] = aggregations[key].buckets.at(0)[key].count;
+                entityCount[key] = aggregations[key]?.buckets?.at(0)?.[key]?.count ?? 0;
             });
 
             return entityCount;
@@ -334,6 +345,10 @@ export default {
         },
 
         loadConditions(conditions = null) {
+            if (!this.rule) {
+                return Promise.resolve();
+            }
+
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
@@ -406,14 +421,14 @@ export default {
                 );
 
                 if (restrictions.isRestricted) {
-                    const message = this.$tc(
+                    const message = this.$t(
                         'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
                         {
                             conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
                                 restrictions.equalsAnyNotMatched,
                                 'sw-restricted-rules.or',
                             ),
-                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                            entityLabel: this.$t(restrictions.assignmentSnippet, 2),
                         },
                         0,
                     );
@@ -448,21 +463,26 @@ export default {
         },
 
         onSave() {
+            return this.saveRuleChanges();
+        },
+
+        saveRuleChanges({ reload = true, keepLoading = false } = {}) {
             if (!this.validateRuleAwareness()) {
-                return Promise.resolve();
+                return Promise.resolve(false);
             }
 
             if (!this.validateDateRange()) {
                 Shopware.Store.get('error').addApiError({
                     expression: `rule_condition.${this.rule.id}.value`,
                     error: new Shopware.Classes.ShopwareError({
-                        detail: this.$tc('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
+                        detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
                         code: 'INVALID_DATE_RANGE',
                     }),
                 });
+
                 this.showErrorNotification();
 
-                return Promise.resolve();
+                return Promise.resolve(false);
             }
 
             this.isSaveSuccessful = false;
@@ -470,17 +490,23 @@ export default {
 
             if (this.rule.isNew()) {
                 this.rule.conditions = this.conditionTree;
+
                 return this.saveRule()
                     .then(() => {
                         this.$router.push({
-                            name: 'sw.settings.rule.detail',
+                            name: 'sw.settings.rule.detail.base',
                             params: { id: this.rule.id },
                         });
+
                         this.isSaveSuccessful = true;
                         this.conditionsTreeContainsUserChanges = false;
+
+                        return true;
                     })
                     .catch(() => {
                         this.showErrorNotification();
+
+                        return false;
                     });
             }
 
@@ -488,16 +514,30 @@ export default {
                 .then(this.syncConditions)
                 .then(() => {
                     this.isSaveSuccessful = true;
-                    this.loadEntityData(this.rule.id).then(() => {
-                        this.setTreeFinishedLoading();
-                    });
+                    this.conditionsTreeContainsUserChanges = false;
+
+                    if (!reload) {
+                        return Promise.resolve();
+                    }
+
+                    return this.loadEntityData(this.rule.id);
                 })
                 .then(() => {
-                    this.isLoading = false;
+                    if (reload) {
+                        this.setTreeFinishedLoading();
+                    }
+
+                    if (!keepLoading) {
+                        this.isLoading = false;
+                    }
+
+                    return true;
                 })
                 .catch(() => {
                     this.isLoading = false;
                     this.showErrorNotification();
+
+                    return false;
                 });
         },
 
@@ -536,8 +576,9 @@ export default {
 
         showErrorNotification() {
             this.createNotificationError({
-                message: this.$tc('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
+                message: this.$t('sw-settings-rule.detail.messageSaveError', { name: this.rule.name }, 0),
             });
+
             this.isLoading = false;
         },
 
@@ -554,21 +595,32 @@ export default {
         },
 
         onDuplicate() {
-            return this.onSave().then(() => {
+            return this.saveRuleChanges({ reload: false, keepLoading: true }).then((isSuccessful) => {
+                if (!isSuccessful) {
+                    return Promise.resolve(false);
+                }
+
                 const behaviour = {
                     overwrites: {
-                        name: `${this.rule.name} ${this.$tc('global.default.copy')}`,
+                        name: `${this.rule.name} ${this.$t('global.default.copy')}`,
                         // setting the createdAt to null, so that api does set a new date
                         createdAt: null,
                     },
                 };
 
-                return this.ruleRepository.clone(this.rule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
-                    this.$router.push({
-                        name: 'sw.settings.rule.detail',
-                        params: { id: duplicatedData.id },
+                return this.ruleRepository
+                    .clone(this.rule.id, behaviour, Shopware.Context.api)
+                    .then((duplicatedData) => {
+                        return this.$router.push({
+                            name: 'sw.settings.rule.detail.base',
+                            params: { id: duplicatedData.id },
+                        });
+                    })
+                    .catch(() => {
+                        this.showErrorNotification();
+
+                        return false;
                     });
-                });
             });
         },
     },

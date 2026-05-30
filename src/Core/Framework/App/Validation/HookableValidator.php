@@ -16,8 +16,9 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 #[Package('framework')]
 class HookableValidator extends AbstractManifestValidator
 {
-    public function __construct(private readonly HookableEventCollector $hookableEventCollector)
-    {
+    public function __construct(
+        private readonly HookableEventCollector $hookableEventCollector,
+    ) {
     }
 
     public function validate(Manifest $manifest, Context $context): ErrorCollection
@@ -32,7 +33,7 @@ class HookableValidator extends AbstractManifestValidator
 
         $appPrivileges = $manifest->getPermissions();
         $appPrivileges = $appPrivileges ? $appPrivileges->asParsedPrivileges() : [];
-        $hookableEventNamesWithPrivileges = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context);
+        $hookableEventNamesWithPrivileges = $this->hookableEventCollector->getHookableEventNamesWithPrivileges($context, $manifest);
         $hookableEventNames = array_keys($hookableEventNamesWithPrivileges);
 
         $notHookable = [];

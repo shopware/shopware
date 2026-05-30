@@ -4,6 +4,7 @@
  * This module creates a live reload server for the Shopware storefront.
  *
  * @sw-package framework
+ * @deprecated tag:v6.8.0 - The HMR mode will be removed. Use the Vite dev server instead.
  */
 module.exports = function createLiveReloadServer(sslOptions) {
     return new Promise((resolve, reject) => {
@@ -27,11 +28,6 @@ module.exports = function createLiveReloadServer(sslOptions) {
             open: false,
             host: '0.0.0.0',
             server: serverConfig,
-            devMiddleware: {
-                stats: {
-                    colors: true,
-                },
-            },
         });
 
         // start the normal webpack dev server for hot reloading the files
@@ -43,8 +39,6 @@ module.exports = function createLiveReloadServer(sslOptions) {
             } catch (error) {
                 reject(error);
             }
-
-            console.log('Starting the hot reload server: \n');
         })();
 
         compiler.hooks.done.tap('resolveServer', () => {

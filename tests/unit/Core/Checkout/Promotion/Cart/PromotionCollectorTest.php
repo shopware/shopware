@@ -25,10 +25,12 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -53,7 +55,7 @@ class PromotionCollectorTest extends TestCase
         $this->promotionCollector = new PromotionCollector(
             $this->gateway,
             new PromotionItemBuilder(),
-            $this->createMock(HtmlSanitizer::class),
+            static::createStub(HtmlSanitizer::class),
             $this->connection
         );
 
@@ -121,7 +123,9 @@ class PromotionCollectorTest extends TestCase
 
     public function testPromotionWithInvalidOrderCountPerCustomerCount(): void
     {
-        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$this->context->getCustomerId() => 1]);
+        $customerId = $this->context->getCustomerId();
+        static::assertNotNull($customerId);
+        $cart = $this->prepareCart([Uuid::randomHex(), Uuid::randomHex()], Uuid::randomHex(), 1, 2, 1, [$customerId => 1]);
         $cartDataCollection = new CartDataCollection();
 
         $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
@@ -144,6 +148,51 @@ class PromotionCollectorTest extends TestCase
             new PromotionCollection([$promotion]),
             new PromotionCollection(),
         );
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        static::assertNull($cartDataCollection->get(PromotionProcessor::DATA_KEY));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    public function testCollectIgnoresBlockedPromotionsWhenFeatureEnabled(): void
+    {
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart([$discountId], $promotionId);
+        $extension = $cart->getExtensionOfType(CartExtension::KEY, CartExtension::class);
+        static::assertInstanceOf(CartExtension::class, $extension);
+        Feature::silent('PERMANENT_AUTOMATIC_PROMOTIONS', fn () => $extension->blockPromotion($promotionId));
+
+        $cartDataCollection = new CartDataCollection();
+
+        $this->promotionCollector->collect($cartDataCollection, $cart, $this->context, new CartBehavior());
+
+        /** @var LineItemCollection $promotions */
+        $promotions = $cartDataCollection->get(PromotionProcessor::DATA_KEY);
+
+        static::assertInstanceOf(LineItemCollection::class, $promotions);
+        static::assertCount(1, $promotions);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed
+     */
+    #[DisabledFeatures(['PERMANENT_AUTOMATIC_PROMOTIONS'])]
+    public function testCollectSkipsBlockedPromotionsWhenFeatureDisabled(): void
+    {
+        $discountId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $cart = $this->prepareCart([$discountId], $promotionId);
+        $extension = $cart->getExtensionOfType(CartExtension::KEY, CartExtension::class);
+        static::assertInstanceOf(CartExtension::class, $extension);
+        $extension->blockPromotion($promotionId);
 
         $cartDataCollection = new CartDataCollection();
 
@@ -194,13 +243,15 @@ class PromotionCollectorTest extends TestCase
         $discountId2 = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
 
+        $customerId = $this->context->getCustomerId();
+        static::assertNotNull($customerId);
         $cart = $this->prepareCart(
             [$discountId1, $discountId2],
             $promotionId,
             1,
             1,
             1,
-            [$this->context->getCustomerId() => 1]
+            [$customerId => 1]
         );
         $cart->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct(Uuid::randomHex()));
 

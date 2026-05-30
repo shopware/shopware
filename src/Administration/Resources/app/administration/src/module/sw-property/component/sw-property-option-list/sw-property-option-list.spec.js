@@ -63,6 +63,7 @@ function getOptionRepository() {
         create: () => ({
             get: () => Promise.resolve(),
         }),
+        delete: jest.fn(() => Promise.resolve()),
         save: jest.fn(() => Promise.resolve()),
     };
 }
@@ -257,5 +258,28 @@ describe('module/sw-property/component/sw-property-option-list', () => {
 
         expect(nameColumn).toBeTruthy();
         expect(nameColumn.naturalSorting).toBe(true);
+    });
+
+    it('should reset selection state after deleting selected options', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const selectedOption = {
+            ...propertyGroup.options[0],
+            _isNew: false,
+            isNew() {
+                return this._isNew;
+            },
+        };
+
+        wrapper.vm.$refs.grid.load = jest.fn(() => Promise.resolve());
+
+        wrapper.vm.onGridSelectionChanged({ [selectedOption.id]: selectedOption }, 1);
+        wrapper.vm.onDeleteOptions();
+        await flushPromises();
+
+        expect(wrapper.vm.optionRepository.delete).toHaveBeenCalledWith(selectedOption.id);
+        expect(wrapper.vm.selection).toBeNull();
+        expect(wrapper.vm.deleteButtonDisabled).toBe(true);
     });
 });

@@ -257,7 +257,6 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             {},
             {
                 renameMedia: () =>
-                    // eslint-disable-next-line prefer-promise-reject-errors
                     Promise.reject({
                         response: {
                             data: {

@@ -1,4 +1,8 @@
 .sw-flow-rule-modal {
+    &__product-type-warning {
+        margin-bottom: 16px;
+    }
+
     &__rule {
         & > .sw-condition-or-container {
             padding: 0;

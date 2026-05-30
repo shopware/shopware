@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -41,7 +42,8 @@ class ZugferdRendererTest extends TestCase
             $this->createMock(ZugferdBuilder::class),
             $this->createMock(EventDispatcherInterface::class),
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            new NativeClock()
         );
 
         static::assertSame('zugferd_invoice', $renderer->supports());
@@ -82,7 +84,7 @@ class ZugferdRendererTest extends TestCase
         $builder = $this->createMock(ZugferdBuilder::class);
         $builder
             ->expects($this->once())
-            ->method('buildDocument')
+            ->method('buildDocumentWithType')
             ->willReturn('<?xml version="1.0" encoding="UTF-8"?>');
 
         $renderer = new ZugferdRenderer(
@@ -91,7 +93,8 @@ class ZugferdRendererTest extends TestCase
             $builder,
             $this->createMock(EventDispatcherInterface::class),
             new DocumentConfigLoader($this->createMock(EntityRepository::class), $this->createMock(EntityRepository::class)),
-            $this->createMock(NumberRangeValueGeneratorInterface::class)
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            new NativeClock()
         );
 
         $rendered = $renderer->render(

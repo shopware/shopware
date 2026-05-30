@@ -1,8 +1,6 @@
 // The eslint import resolver vite does not support shared worker imports
-/* eslint-disable import/no-unresolved */
 import SharedAdminWorker from 'src/core/worker/admin-worker.shared-worker?sharedworker';
 import AdminWorker from 'src/core/worker/admin-worker.worker?worker';
-/* eslint-enable import/no-unresolved */
 
 import WorkerNotificationListener from 'src/core/worker/worker-notification-listener';
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
@@ -76,7 +74,7 @@ function enableAdminWorker(
     context: ApiContext,
     config: ContextStore['app']['config']['adminWorker'],
 ) {
-    // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
     const getMessage = () => {
@@ -476,8 +474,8 @@ function messageQueueNotification(
     }
 
     const config: NotificationType = {
-        title: $root.$tc(messages.title),
-        message: $root.$tc(messages.message, entry.size),
+        title: $root.$t(messages.title),
+        message: $root.$t(messages.message, entry.size),
         variant: 'info',
         metadata: {
             size: entry.size,
@@ -504,7 +502,7 @@ function messageQueueNotification(
         config.uuid = notificationId;
 
         if (entry.size === 0) {
-            config.title = $root.$tc(messages.title);
+            config.title = $root.$t(messages.title);
             config.message = $root.$t(messages.success);
             config.isLoading = false;
 

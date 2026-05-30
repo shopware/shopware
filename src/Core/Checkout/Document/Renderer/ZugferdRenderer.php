@@ -3,7 +3,10 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdBuilder;
@@ -23,9 +26,9 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'zugferd_invoice';
 
-    public const FILE_EXTENSION = 'xml';
+    public const FILE_EXTENSION = FileTypes::XML;
 
-    public const FILE_CONTENT_TYPE = 'application/xml';
+    public const FILE_CONTENT_TYPE = FileTypes::XML_CONTENT_TYPE;
 
     /**
      * @internal
@@ -39,6 +42,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         protected EventDispatcherInterface $eventDispatcher,
         protected DocumentConfigLoader $documentConfigLoader,
         protected NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -100,7 +104,7 @@ class ZugferdRenderer extends AbstractDocumentRenderer
 
         $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $config->merge([
             'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
@@ -114,7 +118,13 @@ class ZugferdRenderer extends AbstractDocumentRenderer
         $operation->setOrderVersionId($this->orderRepository->createVersion($order->getId(), $context, 'document'));
 
         try {
-            $content = $this->documentBuilder->buildDocument($order, $config, $context);
+            $content = $this->documentBuilder->buildDocumentWithType(
+                $order,
+                $config,
+                $context,
+                ZugferdInvoiceType::INVOICE,
+            );
+
             $renderResult->addSuccess(
                 $order->getId(),
                 new RenderedDocument(

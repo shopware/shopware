@@ -21,10 +21,16 @@ Thumbs.db
 /.vscode/
 !/.vscode/settings.json
 
+# Yalc
+.yalc/
+yalc.lock
+
 # AI/LLM Development Tools
 .claude/
+.codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -32,6 +38,13 @@ Thumbs.db
 .aiderignore
 .kite/
 .codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar
@@ -110,7 +123,10 @@ app/config/parameters.yml
 .env.dev
 
 # Local AI/LLM overrides
+# Claude.local.md
 *.local.md
+# AGENTS.override.md
+*.override.md
 *.cursorignore.local
 *.cursorindexingignore.local
 *.tabnineignore.local
@@ -127,6 +143,7 @@ src/Core/DevOps/Locust/**/__pycache__/
 /.shopware-project.yml
 /.tinkerwell
 /shop
+.codex
 
 .php-cs-fixer.cache
 

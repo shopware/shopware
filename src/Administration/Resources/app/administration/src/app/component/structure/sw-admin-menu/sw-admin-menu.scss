@@ -449,6 +449,7 @@ $sw-admin-menu-active-text: $color-white;
         z-index: $sw-admin-menu-z-index-flyout;
         background: $sw-admin-menu-background;
         list-style: none;
+        overflow-y: auto;
 
         .sw-admin-menu__navigation-list-item {
             border-left: 2px solid transparent;

@@ -10,12 +10,10 @@ async function createWrapper(propsData) {
             global: {
                 mocks: {
                     $t: (...args) => JSON.stringify([...args]),
-                    $tc: (...args) => JSON.stringify([...args]),
                 },
                 stubs: {
                     'sw-modal': {
                         props: ['title'],
-                        // eslint-disable-next-line max-len
                         template:
                             '<div><div class="sw-modal__title">{{ title }}</div><slot/><slot name="modal-footer"></slot></div>',
                     },

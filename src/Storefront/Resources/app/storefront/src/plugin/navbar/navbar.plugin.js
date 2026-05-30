@@ -109,8 +109,8 @@ export default class NavbarPlugin extends Plugin {
                 return;
             }
 
-            if (topLevelLink.parentNode.classList.contains('dropdown')) {
-                window.location.href = topLevelLink.href;
+            if (topLevelLink.classList.contains('dropdown-toggle')) {
+                this._navigateTo(topLevelLink.href);
             }
         }
     }
@@ -165,6 +165,14 @@ export default class NavbarPlugin extends Plugin {
                 activeNavItem.classList.add(this.options.activeClass);
             }
         });
+    }
+
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     * (non-configurable in JSDOM v26).
+     */
+    _navigateTo(url) {
+        window.location.href = url;
     }
 
     /**

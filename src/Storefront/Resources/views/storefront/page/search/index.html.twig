@@ -1,5 +1,9 @@
 {% sw_extends '@Storefront/storefront/base.html.twig' %}
 
+{% block base_head %}
+    {% sw_include '@Storefront/storefront/page/search/meta.html.twig' %}
+{% endblock %}
+
 {% block base_content %}
     {% block page_search %}
         <div class="cms-page search-page">

@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler;
 use Shopware\Core\Defaults;
@@ -19,7 +18,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CleanupCustomerRecoveryTaskHandler::class)]
 class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -34,7 +32,9 @@ class CleanupCustomerRecoveryTaskHandlerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->handler = static::getContainer()->get(CleanupCustomerRecoveryTaskHandler::class);
+        /** @var CleanupCustomerRecoveryTaskHandler $handler */
+        $handler = static::getContainer()->get(CleanupCustomerRecoveryTaskHandler::class);
+        $this->handler = $handler;
         $this->connection = static::getContainer()->get(Connection::class);
         $this->ids = new IdsCollection();
     }

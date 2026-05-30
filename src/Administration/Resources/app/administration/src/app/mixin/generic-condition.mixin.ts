@@ -25,7 +25,7 @@ interface Config {
 }
 
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
 
 /**
  * @private
@@ -155,11 +155,11 @@ export default Mixin.register(
             boolOptions() {
                 return [
                     {
-                        label: this.$tc('global.default.yes'),
+                        label: this.$t('global.default.yes'),
                         value: true,
                     },
                     {
-                        label: this.$tc('global.default.no'),
+                        label: this.$t('global.default.no'),
                         value: false,
                     },
                 ];
@@ -169,7 +169,6 @@ export default Mixin.register(
                 return {
                     'sw-condition__condition-value': !!this.config.operatorSet,
                     // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     [`sw-condition__condition-type-${this.condition.type}`]: true,
                 };
             },
@@ -200,10 +199,13 @@ export default Mixin.register(
                     fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
                 }
 
-                if (fieldClone.type === 'single-select' && fieldClone.config.options) {
+                if (
+                    (fieldClone.type === 'single-select' || fieldClone.type === 'multi-select') &&
+                    fieldClone.config.options
+                ) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$tc(
+                            label: this.$t(
                                 [
                                     ...snippetBasePath,
                                     'options',
@@ -221,7 +223,7 @@ export default Mixin.register(
                 }
 
                 if (this.$te(placeholderPath)) {
-                    fieldClone.config.placeholder = this.$tc(placeholderPath);
+                    fieldClone.config.placeholder = this.$t(placeholderPath);
                 }
 
                 fieldClone.config.name = `sw-field--${fieldClone.name}`;

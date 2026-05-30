@@ -42,7 +42,7 @@ return (new Config())
         $files = $context->platform->pullRequest->getFiles();
 
         if ($files->matches('changelog/_unreleased/*.md')->count() > 0) {
-            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');;
+            $context->failure('The Pull Request makes use of the old changelog format. Please document your changes in the `RELEASE_INFO-6.7.md` and `UPGRADE-6.8.md` file respectively. For detailed infos please refer to the [release documentation guide](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).');
         }
     })
 
@@ -63,7 +63,7 @@ return (new Config())
         [
             function (Context $context): void {
                 $filesWithIgnoredErrors = [];
-                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.neon')->getContent();
+                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.php')->getContent();
                 foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
                     if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
                         $filesWithIgnoredErrors[] = $fileName;
@@ -78,7 +78,7 @@ return (new Config())
                 }
             },
             function (Context $context): void {
-                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.neon');
+                $phpstanBaseline = $context->platform->pullRequest->getFiles()->get('phpstan-baseline.php');
                 if (!$phpstanBaseline instanceof File) {
                     return;
                 }
@@ -136,9 +136,54 @@ return (new Config())
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 
-        if ($files->matches('*/shopware.yaml')->count() > 0 && $files->matches('*/config-schema.json')->count() === 0) {
+        $shopwareYamlTouched = $files->matches('*/shopware.yaml')->count() > 0;
+        $configSchemaTouched = $files->matches('config-schema.json')->count() > 0;
+
+        if ($shopwareYamlTouched && !$configSchemaTouched) {
             $context->warning('You updated the shopware.yaml, please consider to update the config-schema.json');
         }
+    })
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
+
+        $agenticCommercePatterns = [
+            // PHP — product export provider, validators and tracking that back the agentic-commerce sales channel type
+            'src/Core/Content/ProductExport/Provider/*AgenticCommerce*',
+            'src/Core/Content/ProductExport/Provider/OpenAi*',
+            'src/Core/Content/ProductExport/Subscriber/*AgenticCommerce*',
+            'src/Core/Content/ProductExport/Validator/OpenAi*',
+            'src/Core/Content/ProductExport/Validator/AbstractProviderValidator.php',
+            'src/Core/Content/ProductExport/Error/JsonlValidationError.php',
+            'src/Core/Content/ProductExport/Error/ProviderValidationError.php',
+            'src/Core/Content/ProductExport/Tracking/**',
+            'src/Core/Migration/**/*AgenticCommerce*',
+            'src/Core/Migration/**/*AgenticAi*',
+            // Administration — agentic-commerce sales channel UI
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/agentic-product-export-templates/**',
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/**',
+            'src/Administration/Resources/app/administration/src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/**',
+        ];
+
+        $matched = [];
+        foreach ($agenticCommercePatterns as $pattern) {
+            foreach ($files->matches($pattern) as $file) {
+                $matched[$file->name] = true;
+            }
+        }
+
+        if (count($matched) === 0) {
+            return;
+        }
+
+        ksort($matched);
+
+        $context->warning(
+            'This Pull Request touches the <strong>Agentic Commerce Sales Channel</strong> feature.<br/>'
+            . 'If you added or changed functionality here, please consider porting the change to the compatibility plugin'
+            . ' SwagAgenticCommerce (https://github.com/shopware/SwagAgenticCommerce) so it is also available to merchants on older Shopware versions.<br/><br/>'
+            . 'Affected files:<br/>'
+            . implode('<br/>', array_keys($matched))
+        );
     })
     ->useRule(function (Context $context): void {
         function checkMigrationForBundle(string $bundle, Context $context): void
@@ -287,7 +332,6 @@ return (new Config())
             ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
             : $dom->load($phpUnitConfig);
 
-
         if ($domLoad) {
             $xpath = new DOMXPath($dom);
             foreach ($xpath->query('//source/exclude/directory') as $dirDomElement) {
@@ -344,6 +388,11 @@ return (new Config())
                 continue;
             }
 
+            // DependencyInjection service-wiring files (PHP closures using ContainerConfigurator) need no unit tests.
+            if (str_contains($file->name, '/DependencyInjection/') && str_contains($content, 'ContainerConfigurator')) {
+                continue;
+            }
+
             // process phpunit code coverage exclude lists
             if (in_array($file->name, $excludedFiles, true)) {
                 continue;
@@ -385,10 +434,10 @@ return (new Config())
         }
 
         if (\count($missingUnitTests) > 0) {
-            $context->warning(
+            $context->failure(
                 'Please be kind and add unit tests for your new code in these files: <br/><br/>'
                 . implode('<br/>', $missingUnitTests)
-                . '<br/><br/>If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
+                . '<br/> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
             );
         }
     })
@@ -401,8 +450,12 @@ return (new Config())
         }
 
         foreach ($composerFiles as $composerFile) {
+            $composerFileName = (string) $composerFile->name;
+
             if ($composerFile->status === File::STATUS_REMOVED
-                || str_contains((string) $composerFile->name, '/Test/')
+                || str_starts_with($composerFileName, 'tests/')
+                || str_contains($composerFileName, '/test/')
+                || str_contains($composerFileName, '/Test/')
             ) {
                 continue;
             }
@@ -523,6 +576,17 @@ return (new Config())
                 'Please add the integration test(s) within one of the core-batch testsuite of phpunit.xml.dist: <br/><br/>'
                 . implode('<br/>', array_unique($missing))
             );
+        }
+    })
+    ->useRule(function (Context $context): void {
+        $routesSnapshot = $context->platform->pullRequest->getFiles()->get('tests/integration/Core/Framework/_snapshots/routes_without_schema/snapshot.json');
+        if (!$routesSnapshot instanceof File) {
+            return;
+        }
+
+        $additions = $routesSnapshot->additions ?? 0;
+        if ($additions !== 0) {
+            $context->failure('Do not extend the `snapshot.json` file. Please create an open API schema for the new endpoint instead.');
         }
     })
 ;

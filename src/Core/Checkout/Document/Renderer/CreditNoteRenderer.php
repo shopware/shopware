@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -46,6 +48,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -154,7 +157,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
                 $config->merge([
-                    'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
                     'custom' => [
                         'creditNoteNumber' => $number,
@@ -371,14 +374,16 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 INNER JOIN order_line_item AS oli ON oli.order_id = d.order_id AND oli.order_version_id = d.order_version_id
             WHERE
                 d.referenced_document_id = :referencedInvoiceId
-                AND dt.technical_name = :creditTechnicalName
+                AND dt.technical_name IN (:creditTechnicalName)
                 AND oli.type = :creditType;
         ';
 
         $binaryIds = $this->connection->fetchFirstColumn($sql, [
             'referencedInvoiceId' => Uuid::fromHexToBytes($referencedInvoiceId),
-            'creditTechnicalName' => self::TYPE,
+            'creditTechnicalName' => [self::TYPE, ZugferdCreditNoteRenderer::TYPE, ZugferdEmbeddedCreditNoteRenderer::TYPE],
             'creditType' => LineItem::CREDIT_LINE_ITEM_TYPE,
+        ], [
+            'creditTechnicalName' => ArrayParameterType::STRING,
         ]);
 
         return array_map(static fn ($id): string => Uuid::fromBytesToHex($id), $binaryIds);

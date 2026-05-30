@@ -69,6 +69,26 @@ class TranslationMetadataLoader
         );
     }
 
+    public function getLocalMetadata(): MetadataCollection
+    {
+        $path = $this->getPath();
+
+        try {
+            $localMetadata = $this->filesystem->read($path);
+        } catch (FilesystemException) {
+            return new MetadataCollection();
+        }
+
+        $localMetadata = $this->decode($localMetadata);
+
+        $elements = [];
+        foreach ($localMetadata as $metadata) {
+            $elements[] = MetadataEntry::create($metadata);
+        }
+
+        return new MetadataCollection($elements);
+    }
+
     protected function getPath(): string
     {
         return Path::join(AbstractTranslationLoader::TRANSLATION_DIR, self::CROWDIN_METADATA_LOCK);
@@ -88,29 +108,9 @@ class TranslationMetadataLoader
      */
     private function decode(string $content): array
     {
-        $data = json_decode($content, true, \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
         return array_column($data, null, 'locale');
-    }
-
-    private function getLocalMetadata(): MetadataCollection
-    {
-        $path = $this->getPath();
-
-        try {
-            $localMetadata = $this->filesystem->read($path);
-        } catch (FilesystemException) {
-            return new MetadataCollection();
-        }
-
-        $localMetadata = $this->decode($localMetadata);
-
-        $elements = [];
-        foreach ($localMetadata as $metadata) {
-            $elements[] = MetadataEntry::create($metadata);
-        }
-
-        return new MetadataCollection($elements);
     }
 
     /**

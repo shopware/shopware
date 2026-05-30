@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Rule\LineItemTotalPriceRule;
@@ -17,6 +18,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -148,6 +150,8 @@ class PromotionExtensionCodesTest extends TestCase
     #[Group('promotions')]
     public function testAutoPromotionGetsBlockedWhenDeletingItem(): void
     {
+        Feature::skipTestIfActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
 
@@ -171,6 +175,28 @@ class PromotionExtensionCodesTest extends TestCase
         $extension = $cart->getExtension(CartExtension::KEY);
 
         static::assertTrue($extension->isPromotionBlocked($promotionId));
+    }
+
+    #[Group('promotions')]
+    public function testAutoPromotionCannotBeRemoved(): void
+    {
+        Feature::skipTestIfInActive('PERMANENT_AUTOMATIC_PROMOTIONS', $this);
+
+        $productId = Uuid::randomHex();
+        $promotionId = Uuid::randomHex();
+
+        $this->createTestFixtureProduct($productId, 119, 19, static::getContainer(), $this->context);
+        $this->createTestFixturePercentagePromotion($promotionId, null, 100, null, static::getContainer());
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+
+        $discountLineItem = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->first();
+        static::assertInstanceOf(LineItem::class, $discountLineItem);
+        static::assertFalse($discountLineItem->isRemovable());
+
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($discountLineItem->getId()));
+        $this->cartService->remove($cart, $discountLineItem->getId(), $this->context);
     }
 
     /**

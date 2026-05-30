@@ -104,17 +104,15 @@ class ListFieldSerializerTest extends TestCase
     }
 
     /**
-     * @return list<array{0: ListField, 1: string|null, 2: array<mixed>|null}>
+     * @return iterable<string, array{0: ListField, 1: string|null, 2: array<mixed>|null}>
      */
-    public static function decodeProvider(): array
+    public static function decodeProvider(): iterable
     {
-        return [
-            [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']],
-            [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']],
-            [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]],
-            [new ListField('data', 'data'), Json::encode(['foo' => 5.3]), [5.3]],
-            [new ListField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]],
-            [new ListField('data', 'data'), null, null],
-        ];
+        yield 'associative JSON object is decoded to list values' => [new ListField('data', 'data'), Json::encode(['foo' => 'bar']), ['bar']];
+        yield 'JSON list is decoded unchanged' => [new ListField('data', 'data'), Json::encode([0 => 'bar', 1 => 'foo']), ['bar', 'foo']];
+        yield 'numeric JSON value is decoded to list value' => [new ListField('data', 'data'), Json::encode(['foo' => 1]), [1]];
+        yield 'float JSON value is decoded to list value' => [new ListField('data', 'data'), Json::encode(['foo' => 5.3]), [5.3]];
+        yield 'nested JSON object is decoded to list value' => [new ListField('data', 'data'), Json::encode(['foo' => ['bar' => 'baz']]), [['bar' => 'baz']]];
+        yield 'null value stays null' => [new ListField('data', 'data'), null, null];
     }
 }

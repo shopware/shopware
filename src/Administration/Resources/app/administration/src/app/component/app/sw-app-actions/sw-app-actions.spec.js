@@ -21,7 +21,6 @@ describe('sw-app-actions', () => {
     let router = null;
     let stubs;
 
-    // eslint-disable-next-line no-shadow
     async function createWrapper(router, resultData = actionResultData) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;

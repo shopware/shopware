@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'system:config:set',
-    description: 'Get a config value',
+    description: 'Set a config value',
 )]
 #[Package('framework')]
 class ConfigSet extends Command

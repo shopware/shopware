@@ -10,6 +10,7 @@ async function createWrapper(customOptions = {}) {
         create: () => ({}),
         save: () => Promise.resolve({}),
         saveAll: () => Promise.resolve({}),
+        sync: () => Promise.resolve({}),
     };
 
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
@@ -48,6 +49,11 @@ async function createWrapper(customOptions = {}) {
             provide: {
                 fileValidationService: new FileValidationService(),
                 validationService: {},
+                mediaPresignedUploadService: {
+                    prepareUpload: jest.fn(),
+                    uploadToPresignedUrl: jest.fn(),
+                    finalizeUpload: jest.fn(),
+                },
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
@@ -271,11 +277,17 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     provide: {
                         fileValidationService: new FileValidationService(),
                         validationService: {},
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {
                             create: () => ({
                                 create: () => ({}),
                                 save: () => Promise.resolve({}),
                                 saveAll: () => Promise.resolve({}),
+                                sync: () => Promise.resolve({}),
                             }),
                         },
                         mediaService: {
@@ -338,11 +350,17 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                     provide: {
                         fileValidationService: new FileValidationService(),
                         validationService: {},
+                        mediaPresignedUploadService: {
+                            prepareUpload: jest.fn(),
+                            uploadToPresignedUrl: jest.fn(),
+                            finalizeUpload: jest.fn(),
+                        },
                         repositoryFactory: {
                             create: () => ({
                                 create: () => ({}),
                                 save: () => Promise.resolve({}),
                                 saveAll: () => Promise.resolve({}),
+                                sync: () => Promise.resolve({}),
                             }),
                         },
                         mediaService: {
@@ -472,6 +490,34 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
     });
 
+    it('should show backend error notification on failed upload event', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+        wrapper.vm.onRemoveMediaItem = jest.fn();
+
+        wrapper.vm.handleMediaServiceUploadEvent({
+            action: 'media-upload-fail',
+            payload: {
+                error: {
+                    response: {
+                        data: {
+                            errors: [
+                                {
+                                    detail: 'SVG files with active content are not allowed.',
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            title: 'global.default.error',
+            message: 'SVG files with active content are not allowed.',
+        });
+        expect(wrapper.vm.onRemoveMediaItem).toHaveBeenCalled();
+    });
+
     it('should able emit "media-upload-add-file" event when file type and file size are matched', async () => {
         await wrapper.setProps({
             fileAccept: 'application/pdf',
@@ -531,14 +577,14 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 uploadTag: 'my-upload',
             },
         });
-        wrapper.vm.mediaRepository.saveAll = jest.fn();
+        wrapper.vm.mediaRepository.sync = jest.fn().mockResolvedValue({});
 
         await wrapper.vm.handleUpload([
             new File([''], 'foo.jpg'),
             new File([''], 'bar.gif'),
         ]);
 
-        expect(wrapper.vm.mediaRepository.saveAll).toHaveBeenCalled();
+        expect(wrapper.vm.mediaRepository.sync).toHaveBeenCalled();
     });
 
     it('should show a single preview in single mode', async () => {

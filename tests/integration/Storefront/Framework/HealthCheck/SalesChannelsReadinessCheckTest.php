@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\HealthCheck;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -23,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[CoversClass(SalesChannelsReadinessCheck::class)]
 class SalesChannelsReadinessCheckTest extends TestCase
 {
     use CacheTestBehaviour;

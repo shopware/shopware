@@ -5,6 +5,11 @@ const utils = Shopware.Utils;
 
 type Placements = 'top' | 'right' | 'bottom' | 'left';
 
+type TooltipPosition = {
+    top: number;
+    left: number;
+};
+
 const availableTooltipPlacements: Placements[] = [
     'top',
     'right',
@@ -15,8 +20,7 @@ const availableTooltipPlacements: Placements[] = [
 /**
  * @private
  */
-// eslint-disable-next-line max-len
-// eslint-disable-next-line no-use-before-define,import/prefer-default-export,sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
@@ -365,28 +369,59 @@ class Tooltip {
         const boundingBox = this._parentDOMElement.getBoundingClientRect();
         const secureOffset = 10;
 
-        let top;
-        let left;
+        let top = 0;
+        let left = 0;
 
         switch (placement) {
             case 'bottom':
-                top = `${boundingBox.top + boundingBox.height + secureOffset}px`;
-                left = `${boundingBox.left + boundingBox.width / 2 - this._DOMElement!.offsetWidth / 2}px`;
+                top = boundingBox.top + boundingBox.height + secureOffset;
+                left = boundingBox.left + boundingBox.width / 2 - this._DOMElement!.offsetWidth / 2;
                 break;
             case 'left':
-                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2}px`;
-                left = `${boundingBox.left - secureOffset - this._DOMElement!.offsetWidth}px`;
+                top = boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2;
+                left = boundingBox.left - secureOffset - this._DOMElement!.offsetWidth;
                 break;
             case 'right':
-                top = `${boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2}px`;
-                left = `${boundingBox.right + secureOffset}px`;
+                top = boundingBox.top + boundingBox.height / 2 - this._DOMElement!.offsetHeight / 2;
+                left = boundingBox.right + secureOffset;
                 break;
             case 'top':
             default:
-                top = `${boundingBox.top - this._DOMElement!.offsetHeight - secureOffset}px`;
-                left = `${boundingBox.left + boundingBox.width / 2 - this._DOMElement!.offsetWidth / 2}px`;
+                top = boundingBox.top - this._DOMElement!.offsetHeight - secureOffset;
+                left = boundingBox.left + boundingBox.width / 2 - this._DOMElement!.offsetWidth / 2;
         }
-        return { top: top, left: left };
+
+        const position = this._clampTooltipPosition({ top, left }, placement, secureOffset);
+
+        return {
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+        };
+    }
+
+    _clampTooltipPosition(position: TooltipPosition, placement: Placements, secureOffset: number): TooltipPosition {
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+        if (placement === 'top' || placement === 'bottom') {
+            return {
+                ...position,
+                left: this._clamp(position.left, secureOffset, windowWidth - this._DOMElement!.offsetWidth - secureOffset),
+            };
+        }
+
+        return {
+            ...position,
+            top: this._clamp(position.top, secureOffset, windowHeight - this._DOMElement!.offsetHeight - secureOffset),
+        };
+    }
+
+    _clamp(value: number, min: number, max: number): number {
+        if (max < min) {
+            return min;
+        }
+
+        return Math.min(Math.max(value, min), max);
     }
 
     _isElementInViewport(element: HTMLElement) {
@@ -558,7 +593,6 @@ Shopware.Directive.register('tooltip', {
     },
 
     updated: (el: HTMLElement, binding) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
 
@@ -568,7 +602,6 @@ Shopware.Directive.register('tooltip', {
     mounted: (el: HTMLElement) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             tooltip!.init();
         }
     },

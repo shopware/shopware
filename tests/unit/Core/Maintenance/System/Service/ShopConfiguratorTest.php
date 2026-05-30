@@ -64,8 +64,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testSetDefaultLanguageWithoutCurrentLocale(): void
     {
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('Default language locale not found');
+        $this->expectExceptionObject(MaintenanceException::shopConfigurationNotValid('Default language locale not found'));
 
         $this->connection->expects($this->once())->method('fetchAssociative')->willReturnCallback(static function (string $sql, array $parameters): false {
             static::assertSame(
@@ -127,8 +126,7 @@ class ShopConfiguratorTest extends TestCase
 
     public function testSetDefaultLanguageWithUnavailableIso(): void
     {
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('Locale with iso-code "vi-VN" not found');
+        $this->expectExceptionObject(MaintenanceException::shopConfigurationNotValid('Locale with iso-code "vi-VN" not found'));
 
         $currentLocaleId = Uuid::randomBytes();
 
@@ -165,7 +163,7 @@ class ShopConfiguratorTest extends TestCase
     /**
      * @param array<string, string> $expectedStateTranslations
      * @param array<string, string> $expectedMissingTranslations
-     * @param callable(string, array<string, string>): void $insertCallback
+     * @param callable(string, array<string, string>): int $insertCallback
      */
     #[DataProvider('countryStateTranslationsProvider')]
     public function testSetDefaultLanguageShouldAddMissingCountryStatesTranslations(

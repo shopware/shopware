@@ -148,7 +148,7 @@ export default {
 
                 if (promotionCodeLength > 0 && latestTag.isInvalid) {
                     this.promotionError = {
-                        detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                        detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                     };
                 }
             },
@@ -265,7 +265,7 @@ export default {
          */
         handleUnsavedOrderChangesResponse() {
             this.createNotificationWarning({
-                message: this.$tc('sw-order.detailBase.textUnsavedChanges', 0),
+                message: this.$t('sw-order.detailBase.textUnsavedChanges', 0),
             });
         },
 
@@ -298,7 +298,7 @@ export default {
                 .then(() => {
                     this.automaticPromotions.forEach((promotion) => {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-order.detailBase.textPromotionRemoved', { promotion: promotion.label }, 0),
+                            message: this.$t('sw-order.detailBase.textPromotionRemoved', { promotion: promotion.label }, 0),
                         });
                     });
                 })

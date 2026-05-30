@@ -42,8 +42,12 @@ export default class AddressManagerPlugin extends Plugin {
             this.options.initialTab = SHIPPING;
         }
 
-        this.el.removeEventListener('click', this._getModal.bind(this));
-        this.el.addEventListener('click', this._getModal.bind(this));
+        if (!this._boundOnClickGetModal) {
+            this._boundOnClickGetModal = this._getModal.bind(this);
+        }
+
+        this.el.removeEventListener('click', this._boundOnClickGetModal);
+        this.el.addEventListener('click', this._boundOnClickGetModal);
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._client = new HttpClient();
@@ -121,7 +125,7 @@ export default class AddressManagerPlugin extends Plugin {
         const modal = pseudoModal.getModal();
         modal.children[0].classList.add(
             this.options.addressModalDialogScrollableClass,
-            this.options.addressModalDialogSelectorClass
+            this.options.addressModalDialogSelectorClass,
         );
 
         if (this.options.initialTab === BILLING) {

@@ -99,7 +99,6 @@ export default {
 
         disableContextMenu: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -132,7 +131,6 @@ export default {
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -167,7 +165,6 @@ export default {
         displayCheckbox: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -176,7 +173,6 @@ export default {
         allowNewCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -185,7 +181,6 @@ export default {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -194,7 +189,6 @@ export default {
         allowCreateWithoutPosition: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -203,7 +197,6 @@ export default {
         allowDuplicate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -250,7 +243,6 @@ export default {
                 return this.item.checked;
             },
             set(isChecked) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = isChecked;
             },
         },
@@ -263,7 +255,6 @@ export default {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -326,7 +317,7 @@ export default {
 
             return {
                 showDelay: 300,
-                message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
+                message: this.$t(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
                 disabled: !this.disableContextMenu,
             };
         },
@@ -340,14 +331,10 @@ export default {
         },
 
         contentSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content;
         },
 
         actionsSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions;
         },
     },
@@ -528,11 +515,9 @@ export default {
         toggleItemCheck(event, item) {
             if (this.checkedGhost && !item.checked) {
                 this.checked = true;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = true;
             } else {
                 this.checked = event;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = event;
             }
 
@@ -612,14 +597,10 @@ export default {
         },
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content({ item, openTreeItem, getName });
         },
 
         renderActionsSlotNode({ item, openTreeItem }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions({ item, openTreeItem });
         },
     },

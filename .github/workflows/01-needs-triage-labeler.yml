@@ -29,6 +29,11 @@ jobs:
               return;
             }
 
+            if (context.eventName === "issues" && context.payload.issue?.title?.startsWith("[Test Plan]")) {
+              console.debug("Test plan issue detected. Skipping needs-triage label management.");
+              return;
+            }
+
             const issue_number = context.payload.number ?? context.payload.issue.number;
 
             // get labels via api

@@ -104,7 +104,6 @@ class ThemeCompilerTest extends TestCase
 
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->tempFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
-
         $this->mockSalesChannelId = '98432def39fc4624b33213a56b8c944d';
     }
 
@@ -198,7 +197,7 @@ class ThemeCompilerTest extends TestCase
     }
 
     /**
-     * @param array<string> $config
+     * @param array<string, mixed> $config
      */
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void

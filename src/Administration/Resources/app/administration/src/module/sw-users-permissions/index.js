@@ -3,7 +3,7 @@
  */
 import './acl';
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-users-permissions', () => import('./page/sw-users-permissions'));
 Shopware.Component.register(
     'sw-users-permissions-user-listing',
@@ -58,8 +58,12 @@ Shopware.Component.register(
     'sw-user-sso-access-key-create-modal',
     () => import('./components/sw-user-sso-access-key-create-modal'),
 );
+Shopware.Component.register(
+    'sw-users-permissions-role-mcp-reference-modal',
+    () => import('./component/sw-users-permissions-role-mcp-reference-modal'),
+);
 
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-users-permissions', {
@@ -70,7 +74,7 @@ Shopware.Module.register('sw-users-permissions', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     color: '#9AA8B5',
-    icon: 'solid-cog',
+    icon: 'regular-user',
     favicon: 'icon-module-settings.png',
     entity: 'user',
 

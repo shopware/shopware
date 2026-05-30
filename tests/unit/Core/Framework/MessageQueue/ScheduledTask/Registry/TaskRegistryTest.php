@@ -100,6 +100,7 @@ class TaskRegistryTest extends TestCase
         $registeredTask->setDefaultRunInterval(CleanupCartTask::getDefaultInterval());
         $registeredTask->setStatus(ScheduledTaskDefinition::STATUS_SCHEDULED);
         $registeredTask->setNextExecutionTime(new \DateTimeImmutable());
+        /** @phpstan-ignore argument.type (wrong class string is needed for test case) */
         $registeredTask->setScheduledTaskClass('InvalidClass');
         $result = $this->createMock(EntitySearchResult::class);
         $result->method('getEntities')->willReturn(new ScheduledTaskCollection([$registeredTask]));
@@ -496,8 +497,7 @@ class TaskRegistryTest extends TestCase
 
         $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist');
+        $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 
         $registry->scheduleTask('non.existing.task', false, false, Context::createDefaultContext());
     }
@@ -630,8 +630,7 @@ class TaskRegistryTest extends TestCase
 
         $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist');
+        $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 
         $registry->deactivateTask('non.existing.task', false, Context::createDefaultContext());
     }

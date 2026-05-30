@@ -70,14 +70,13 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_unique(array_filter($ids));
+        $ids = array_values(array_unique(array_filter($ids)));
         if ($ids === []) {
             return;
         }
 
-        $criteria = new Criteria();
+        $criteria = new Criteria($ids);
         $criteria->addAssociation('mediaThumbnailSizes');
-        $criteria->setIds($ids);
 
         $context = $message->getContext();
 
@@ -95,7 +94,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
             ]);
         }
 
-        $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new MediaFolderConfigurationIndexerEvent($ids, $context, array_values($message->getSkip())));
     }
 
     public function getTotal(): int

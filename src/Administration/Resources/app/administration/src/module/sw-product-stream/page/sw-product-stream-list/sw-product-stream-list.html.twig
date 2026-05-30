@@ -5,7 +5,7 @@
     <template #search-bar>
         <sw-search-bar
             initial-search-type="product_stream"
-            :placeholder="$tc('sw-product-stream.general.placeholderSearchBar')"
+            :placeholder="$t('sw-product-stream.general.placeholderSearchBar')"
             :initial-search="term"
             @search="onSearch"
         />
@@ -17,7 +17,7 @@
         {% block sw_product_stream_list_smart_bar_header_title %}
         <h2>
             {% block sw_product_stream_list_smart_bar_header_title_text %}
-            {{ $tc('sw-product-stream.list.textProductStreamOverview') }}
+            {{ $t('sw-product-stream.list.textProductStreamOverview') }}
             {% endblock %}
 
             {% block sw_product_stream_list_smart_bar_header_amount %}
@@ -44,7 +44,7 @@
             size="default"
             @click="$router.push({ name: 'sw.product.stream.create' })"
         >
-            {{ $tc('sw-product-stream.list.buttonAddProductStream') }}
+            {{ $t('sw-product-stream.list.buttonAddProductStream') }}
         </mt-button>
         {% endblock %}
     </template>
@@ -107,11 +107,11 @@
                 {% block sw_product_stream_list_grid_column_invalid %}
                 <template #column-invalid="{item}">
                     <template v-if="item.invalid">
-                        {{ $tc('sw-product-stream.list.status.invalid') }}
+                        {{ $t('sw-product-stream.list.status.invalid') }}
                     </template>
 
                     <template v-else>
-                        {{ $tc('sw-product-stream.list.status.valid') }}
+                        {{ $t('sw-product-stream.list.status.valid') }}
                     </template>
                 </template>
                 {% endblock %}
@@ -135,7 +135,7 @@
                         class="sw-entity-listing__context-menu-edit-duplicate"
                         @click="onDuplicate(item)"
                     >
-                        {{ $tc('global.default.duplicate') }}
+                        {{ $t('global.default.duplicate') }}
                     </sw-context-menu-item>
                     {% endblock %}
                 </template>
@@ -150,7 +150,7 @@
                         variant="danger"
                         @click="showDelete(item.id)"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $t('global.default.delete') }}
                     </sw-context-menu-item>
                 </template>
                 {% endblock %}
@@ -167,7 +167,7 @@
             {% block sw_product_stream_list_sidebar_refresh %}
             <sw-sidebar-item
                 icon="regular-undo"
-                :title="$tc('sw-product-stream.list.titleSidebarItemRefresh')"
+                :title="$t('sw-product-stream.list.titleSidebarItemRefresh')"
                 @click="onRefresh"
             />
             {% endblock %}

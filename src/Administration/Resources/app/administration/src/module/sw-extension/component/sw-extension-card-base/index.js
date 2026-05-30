@@ -173,15 +173,15 @@ export default {
         },
 
         consentAffirmationModalActionLabel() {
-            return this.$tc('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
+            return this.$t('sw-extension-store.component.sw-extension-permissions-modal.acceptAndUpdate');
         },
 
         consentAffirmationModalCloseLabel() {
-            return this.$tc('global.default.cancel');
+            return this.$t('global.default.cancel');
         },
 
         consentAffirmationModalTitle() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.titleNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -191,7 +191,7 @@ export default {
         },
 
         consentAffirmationModalDescription() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.descriptionNewPermissions',
                 {
                     extensionLabel: this.extension.label,
@@ -359,7 +359,7 @@ export default {
                 return;
             }
 
-            this.permissionModalActionLabel = this.$tc(
+            this.permissionModalActionLabel = this.$t(
                 'sw-extension-store.component.sw-extension-card-base.labelAcceptAndInstall',
             );
             this.showPermissionsModal = true;
@@ -422,9 +422,14 @@ export default {
             this.showPrivacyModal = false;
         },
 
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         clearCacheAndReloadPage() {
             return this.cacheApiService.clear().then(() => {
-                window.location.reload();
+                this._reloadPage();
             });
         },
 

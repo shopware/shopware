@@ -150,7 +150,6 @@ export default {
          * @return Promise for possible override fallback logic
          */
         loadIconSvgData(variant, iconName, iconFullName) {
-            // eslint-disable-next-line max-len
             return import(
                 `./../../../../../node_modules/@shopware-ag/meteor-icon-kit/icons/${variant}/${iconName}.svg?raw`
             ).then((iconSvgData) => {

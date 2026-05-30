@@ -28,7 +28,7 @@ class ProductMaxPurchaseCalculatorTest extends TestCase
     }
 
     /**
-     * @param array<array<string>> $entityData
+     * @param array<string, int|bool> $entityData
      */
     #[DataProvider('cases')]
     public function testCalculate(array $entityData, int $expected): void

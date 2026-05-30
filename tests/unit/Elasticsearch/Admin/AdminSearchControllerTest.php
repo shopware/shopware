@@ -53,8 +53,7 @@ class AdminSearchControllerTest extends TestCase
         $request = new Request();
         $request->request->set('term', 'test');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Admin elasticsearch is not enabled');
+        $this->expectExceptionObject(new \RuntimeException('Admin elasticsearch is not enabled'));
 
         $controller->elastic($request, Context::createDefaultContext());
     }
@@ -71,8 +70,7 @@ class AdminSearchControllerTest extends TestCase
         $request = new Request();
         $request->request->set('term', '   ');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Parameter "term" is missing.');
+        $this->expectExceptionObject(new \RuntimeException('Parameter "term" is missing.'));
 
         $controller->elastic($request, Context::createDefaultContext());
     }

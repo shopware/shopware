@@ -94,7 +94,6 @@ export default {
             required: false,
             default: null,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -145,6 +144,10 @@ export default {
 
             if (this.componentName === 'sw-entity-multi-id-select') {
                 bind.repository = this.createRepository(this.config.entity);
+            }
+
+            if (this.type === 'multi-select') {
+                bind.enableMultiSelection = true;
             }
 
             return bind;

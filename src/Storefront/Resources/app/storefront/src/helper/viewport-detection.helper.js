@@ -36,7 +36,7 @@ export default class ViewportDetection {
             {
                 capture: true,
                 passive: true,
-            }
+            },
         );
     }
 

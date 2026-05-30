@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
@@ -51,6 +52,7 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -248,6 +250,66 @@ class ControllerRateLimiterTest extends TestCase
         static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
     }
 
+    public function testNewsletterSubscribeFormControllerRateLimit(): void
+    {
+        $newsletterRequestRoute = $this->createMock(AbstractNewsletterSubscribeRoute::class);
+        $newsletterRequestRoute->method('subscribe')->willThrowException(new RateLimitExceededException(time() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            $newsletterRequestRoute,
+            static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            static::getContainer()->get(RevocationRequestRoute::class),
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->handleNewsletter(new Request(), new RequestDataBag(['option' => FormController::SUBSCRIBE]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
+    public function testNewsletterUnsubscribeFormControllerRateLimit(): void
+    {
+        $newsletterRequestRoute = $this->createMock(NewsletterUnsubscribeRoute::class);
+        $newsletterRequestRoute->method('unsubscribe')->willThrowException(new RateLimitExceededException(time() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            static::getContainer()->get(NewsletterSubscribeRoute::class),
+            $newsletterRequestRoute,
+            static::getContainer()->get(RevocationRequestRoute::class),
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->handleNewsletter(new Request(), new RequestDataBag([]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
     public function testRevocationRequestFormControllerRateLimit(): void
     {
         $abstractRevocationRequestRoute = $this->createMock(AbstractRevocationRequestRoute::class);
@@ -290,6 +352,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get('event_dispatcher'),
             static::getContainer()->get(AccountService::class),
             new GuestAuthenticator(),
+            new NativeClock(),
         );
 
         $order = $this->createCustomerWithOrder();

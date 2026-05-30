@@ -108,7 +108,8 @@ export default {
 
             // Get the latest addresses from customer's db
             try {
-                this.addresses = await this.addressRepository.search(this.addressCriteria);
+                const addresses = await this.addressRepository.search(this.addressCriteria);
+                this.addresses = Array.isArray(addresses) ? addresses : [];
 
                 this.selectedAddressId =
                     this.activeCustomer[this.address.contextId] || this.activeCustomer[this.address.contextDataDefaultId];
@@ -116,7 +117,7 @@ export default {
                 await Shopware.Store.get('error').resetApiErrors();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageFetchCustomerAddressesError'),
+                    message: this.$t('sw-order.create.messageFetchCustomerAddressesError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -218,7 +219,7 @@ export default {
                 this.closeModal();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError'),
+                    message: this.$t('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;
@@ -266,7 +267,7 @@ export default {
                 this.showAddressFormModal = false;
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-order.detail.messageSaveError'),
+                    message: this.$t('sw-order.detail.messageSaveError'),
                 });
             } finally {
                 this.isLoading = false;

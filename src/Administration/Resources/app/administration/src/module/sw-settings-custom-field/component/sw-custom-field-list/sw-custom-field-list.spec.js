@@ -144,7 +144,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         const repoMock = {
             search: jest.fn(() => Promise.resolve(mockCustomFieldRepository().search())),
             save: jest.fn(() =>
-                // eslint-disable-next-line prefer-promise-reject-errors
                 Promise.reject({
                     response: {
                         data: {

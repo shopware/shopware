@@ -46,12 +46,10 @@ export default {
     ],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true,
         },
@@ -83,7 +81,6 @@ export default {
         hasParent: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
@@ -139,6 +136,9 @@ export default {
                 }
 
                 if (!this.isInherited && newValue !== this.inheritedValue) {
+                    if (newValue === null || newValue === undefined || (Array.isArray(newValue) && newValue.length <= 0)) {
+                        this.forceInheritanceRemove = true;
+                    }
                     this.updateValue(newValue, 'restore');
                     return;
                 }

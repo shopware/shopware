@@ -34,7 +34,7 @@ class NewsletterRecipientServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @param array<int, array<int, array<string, string|null>>> $testData
+     * @param array{email: string|null, salutationId: string|null, option: string|null} $testData
      */
     #[DataProvider('dataProvider_testSubscribeNewsletterExpectsConstraintViolationException')]
     public function testSubscribeNewsletterExpectsConstraintViolationException(array $testData): void
@@ -42,17 +42,17 @@ class NewsletterRecipientServiceTest extends TestCase
         $this->installTestData();
         $dataBag = new RequestDataBag($testData);
 
-        self::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         static::getContainer()->get(NewsletterSubscribeRoute::class)
-            ->subscribe($dataBag, $context, false);
+            ->subscribeWithResponse($dataBag, $context, false);
     }
 
     /**
-     * @return array<int, array<int, array<string, string|null>>>
+     * @return list<array{array{email: string|null, salutationId: string|null, option: string|null}}>
      */
     public static function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
     {
@@ -70,10 +70,10 @@ class NewsletterRecipientServiceTest extends TestCase
         $testDataEmail5 = ['email' => 'notValid@foo.', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'subscribe'];
 
         // test not valid option
-        $testDataOption1 = ['option' => '', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
-        $testDataOption2 = ['option' => 'notValid', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
-        $testDataOption3 = ['option' => 'unitTest', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
-        $testDataOption4 = ['option' => 'otherValue', 'email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339'];
+        $testDataOption1 = ['email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => ''];
+        $testDataOption2 = ['email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'notValid'];
+        $testDataOption3 = ['email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'unitTest'];
+        $testDataOption4 = ['email' => 'valid@email.foo', 'salutationId' => 'ad165c1faac14059832b6258ac0a7339', 'option' => 'otherValue'];
 
         return [
             [$testData1],
@@ -124,7 +124,7 @@ class NewsletterRecipientServiceTest extends TestCase
             ],
             'domains' => [
                 [
-                    'url' => 'http://test.de',
+                    'url' => 'https://test.de',
                     'currencyId' => Defaults::CURRENCY,
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getRandomId('snippet_set'),
@@ -139,9 +139,9 @@ class NewsletterRecipientServiceTest extends TestCase
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), $id);
         static::getContainer()
             ->get(NewsletterSubscribeRoute::class)
-            ->subscribe($dataBag, $context, false);
+            ->subscribeWithResponse($dataBag, $context, false);
 
-        /** @var EntityRepository<NewsletterRecipientCollection> */
+        /** @var EntityRepository<NewsletterRecipientCollection> $repository */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('email', $email));
@@ -157,13 +157,13 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         $dataBag = new RequestDataBag(['hash' => 'notExistentHash']);
 
-        self::expectException(NewsletterException::class);
+        $this->expectException(NewsletterException::class);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         static::getContainer()
             ->get(NewsletterConfirmRoute::class)
-            ->confirm($dataBag, $context);
+            ->confirmWithResponse($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectsConstraintViolationException(): void
@@ -172,13 +172,13 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $dataBag = new RequestDataBag(['em' => 'notValidHash', 'hash' => 'b4b45f58088d41289490db956ca19af7']);
 
-        self::expectException(ConstraintViolationException::class);
+        $this->expectException(ConstraintViolationException::class);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         static::getContainer()
             ->get(NewsletterConfirmRoute::class)
-            ->confirm($dataBag, $context);
+            ->confirmWithResponse($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectedUpdatedDatabaseRow(): void
@@ -196,9 +196,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         static::getContainer()
             ->get(NewsletterConfirmRoute::class)
-            ->confirm($dataBag, $context);
+            ->confirmWithResponse($dataBag, $context);
 
-        /** @var EntityRepository<NewsletterRecipientCollection> */
+        /** @var EntityRepository<NewsletterRecipientCollection> $repository */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
 
         $criteria = new Criteria();
@@ -222,13 +222,13 @@ class NewsletterRecipientServiceTest extends TestCase
             'option' => 'unsubscribe',
         ]);
 
-        self::expectException(NewsletterException::class);
+        $this->expectException(NewsletterException::class);
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         static::getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
-            ->unsubscribe($dataBag, $context);
+            ->unsubscribeWithResponse($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectsUpdatedDatabaseRow(): void
@@ -246,7 +246,7 @@ class NewsletterRecipientServiceTest extends TestCase
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         static::getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
-            ->unsubscribe($dataBag, $context);
+            ->unsubscribeWithResponse($dataBag, $context);
 
         /** @var EntityRepository<NewsletterRecipientCollection> $repository */
         $repository = static::getContainer()->get('newsletter_recipient.repository');
@@ -264,11 +264,8 @@ class NewsletterRecipientServiceTest extends TestCase
 
     private function getRandomId(string $table): string
     {
-        /** @var string $id */
-        $id = static::getContainer()->get(Connection::class)
+        return static::getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
-
-        return $id;
     }
 
     private function installTestData(): void

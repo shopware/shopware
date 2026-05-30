@@ -64,14 +64,12 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: int, 1:int}>
+     * @return iterable<string, array{0: int, 1:int}>
      */
-    public static function limitOffsetProvider(): array
+    public static function limitOffsetProvider(): iterable
     {
-        return [
-            'zero-offset' => [10, 0],
-            'mid-offset' => [10, 5],
-        ];
+        yield 'zero-offset' => [10, 0];
+        yield 'mid-offset' => [10, 5];
     }
 
     public function testExecuteWithoutConfirmDoesNotPerformDelete(): void
@@ -359,9 +357,9 @@ class DeleteNotUsedMediaCommandTest extends TestCase
     }
 
     /**
-     * @param array<int> $batches
+     * @param list<int> $batches
      *
-     * @return callable(): \Generator
+     * @return callable(): \Generator<MediaEntity>
      */
     private function generatorOfMedia(array $batches): callable
     {

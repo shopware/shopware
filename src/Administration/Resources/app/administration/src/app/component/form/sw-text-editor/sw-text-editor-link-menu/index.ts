@@ -64,22 +64,22 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     id: 1,
                     value: 'primary',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantPrimary'),
                 },
                 {
                     id: 2,
                     value: 'secondary',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantSecondary'),
                 },
                 {
                     id: 3,
                     value: 'primary-sm',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
                 },
                 {
                     id: 4,
                     value: 'secondary-sm',
-                    label: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
                 },
             ],
         };
@@ -114,32 +114,32 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     id: 1,
                     value: 'link',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelUrl'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelUrl'),
                 },
                 {
                     id: 2,
                     value: 'detail',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelProduct'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelProduct'),
                 },
                 {
                     id: 3,
                     value: 'navigation',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelCategory'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelCategory'),
                 },
                 {
                     id: 4,
                     value: 'media',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelMedia'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelMedia'),
                 },
                 {
                     id: 5,
                     value: 'email',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelEmail'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelEmail'),
                 },
                 {
                     id: 6,
                     value: 'phone',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelPhoneNumber'),
                 },
             ];
         },

@@ -58,7 +58,7 @@ class NavigationLoader implements NavigationLoaderInterface
         return $event->getNavigation();
     }
 
-    private function getTree(?string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
+    private function getTree(string $rootId, CategoryCollection $categories, ?CategoryEntity $active): Tree
     {
         $parents = [];
         $items = [];
@@ -66,7 +66,10 @@ class NavigationLoader implements NavigationLoaderInterface
             $item = clone $this->treeItem;
             $item->setCategory($category);
 
-            $parents[$category->getParentId()][$category->getId()] = $item;
+            $categoryParentId = $category->getParentId();
+            if ($categoryParentId !== null) {
+                $parents[$categoryParentId][$category->getId()] = $item;
+            }
             $items[$category->getId()] = $item;
         }
 

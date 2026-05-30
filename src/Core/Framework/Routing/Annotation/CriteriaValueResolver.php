@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -24,26 +25,27 @@ class CriteriaValueResolver implements ValueResolverInterface
     ) {
     }
 
+    /**
+     * @return \Generator<Criteria>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== Criteria::class) {
             return;
         }
 
-        /** @var string|null $entity */
-        $entity = $request->attributes->get(PlatformRequest::ATTRIBUTE_ENTITY);
-
-        if (!$entity) {
+        $entity = $request->attributes->getString(PlatformRequest::ATTRIBUTE_ENTITY);
+        if ($entity === '') {
             $route = $request->attributes->get('_route');
 
-            throw new \RuntimeException('Missing _entity route default for route: ' . $route);
+            throw RoutingException::missingRouteAttribute('default "_entity" value', $route);
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if (!$context instanceof Context) {
             $route = $request->attributes->get('_route');
 
-            throw new \RuntimeException('Missing context for route ' . $route);
+            throw RoutingException::missingRouteAttribute('context', $route);
         }
 
         yield $this->criteriaBuilder->handleRequest(

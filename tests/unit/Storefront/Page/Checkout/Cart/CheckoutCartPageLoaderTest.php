@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -25,6 +25,7 @@ use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -108,11 +109,11 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
-        $checkoutGatewayRoute
-            ->method('load')
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn(new StorefrontCartGatewayResult(new Cart('test'), $response));
 
         $countryRoute = $this->createMock(CountryRoute::class);
         $countryRoute
@@ -120,7 +121,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             ->withAnyParameters()
             ->willReturn($countryResponse);
 
-        $page = $this->createLoader(checkoutGatewayRoute: $checkoutGatewayRoute, countryRoute: $countryRoute)->load(
+        $page = $this->createLoader(cartService: $cartService, countryRoute: $countryRoute)->load(
             new Request(),
             $this->createMock(SalesChannelContext::class)
         );
@@ -164,17 +165,33 @@ class CheckoutCartPageLoaderTest extends TestCase
 
     private function createLoader(
         ?GenericPageLoader $pageLoader = null,
-        ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
+        ?StorefrontCartFacade $cartService = null,
         ?CountryRoute $countryRoute = null,
     ): CheckoutCartPageLoader {
         return new CheckoutCartPageLoader(
             $pageLoader ?? $this->createMock(GenericPageLoader::class),
             $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $checkoutGatewayRoute ?? $this->createMock(AbstractCheckoutGatewayRoute::class),
+            $cartService ?? $this->createCartService(),
             $countryRoute ?? $this->createMock(CountryRoute::class),
             $this->createMock(AbstractTranslator::class),
         );
+    }
+
+    private function createCartService(): StorefrontCartFacade
+    {
+        $cartService = $this->createMock(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
+            ->willReturn(new StorefrontCartGatewayResult(
+                new Cart('test'),
+                new CheckoutGatewayRouteResponse(
+                    new PaymentMethodCollection(),
+                    new ShippingMethodCollection(),
+                    new ErrorCollection()
+                )
+            ));
+
+        return $cartService;
     }
 
     private function getContextWithDummyCustomer(): SalesChannelContext
@@ -191,6 +208,9 @@ class CheckoutCartPageLoaderTest extends TestCase
         $context
             ->method('getCustomer')
             ->willReturn($customer);
+        $context
+            ->method('getToken')
+            ->willReturn('token');
 
         return $context;
     }

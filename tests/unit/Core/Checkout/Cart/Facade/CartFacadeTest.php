@@ -95,8 +95,7 @@ class CartFacadeTest extends TestCase
             $this->createMock(SalesChannelContext::class)
         );
 
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Cart instance of the cart facade were never calculated. Please call calculate() before using the cart facade.');
+        $this->expectExceptionObject(CartException::missingCartBehavior());
 
         $facade->calculate();
     }

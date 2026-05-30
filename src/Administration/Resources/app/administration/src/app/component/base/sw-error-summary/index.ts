@@ -21,7 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         errors(): { [key: string]: number } {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             const allErrors = (Shopware.Store.get('error').getAllApiErrors() || []) as Array<unknown>;
 
             // Helper function to recursively get all error objects
@@ -52,7 +51,7 @@ export default Shopware.Component.wrapComponentConfig({
                 let message = error._detail;
 
                 if (this.$te(`global.error-codes.${error._code}`)) {
-                    message = this.$tc(`global.error-codes.${error._code}`);
+                    message = this.$t(`global.error-codes.${error._code}`);
                 }
 
                 return {

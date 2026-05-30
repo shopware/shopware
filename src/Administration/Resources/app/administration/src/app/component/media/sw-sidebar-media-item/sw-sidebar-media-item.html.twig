@@ -3,7 +3,7 @@
     ref="sidebarItem"
     class="sw-sidebar-media-item"
     icon="regular-image"
-    :title="$tc('global.sw-sidebar-media-item.title')"
+    :title="$t('global.sw-sidebar-media-item.title')"
     :disabled="disabled"
 >
 
@@ -26,7 +26,6 @@
 
         {% block sw_sidebar_media_item_media_item_list %}
         {% block sw_sidebar_media_item_media_item_list_folder_item %}
-        <!-- eslint-disable vue/no-use-v-if-with-v-for -->
         <sw-media-folder-item
             v-for="folder in subFolders"
             v-if="!term.length"
@@ -73,7 +72,7 @@
             @click="onLoadMore"
         >
 
-            {{ $tc('global.sw-sidebar-media-item.labelLoadMore') }}
+            {{ $t('global.sw-sidebar-media-item.labelLoadMore') }}
         </mt-button>
         {% endblock %}
         {% endblock %}

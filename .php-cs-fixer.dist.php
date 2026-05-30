@@ -18,6 +18,9 @@ return (new Config())
         'class_attributes_separation' => ['elements' => ['property' => 'one', 'method' => 'one']],
         'concat_space' => ['spacing' => 'one'],
         'declare_strict_types' => true,
+        'fully_qualified_strict_types' => [
+            'import_symbols' => true,
+        ],
         'fopen_flags' => false,
         'general_phpdoc_annotation_remove' => ['annotations' => ['copyright', 'category']],
         'linebreak_after_opening_tag' => false,

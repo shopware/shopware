@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin;
@@ -86,12 +87,13 @@ class InfoControllerTest extends TestCase
             'adminWorker' => [
                 'enableAdminWorker' => true,
                 'enableNotificationWorker' => true,
-                'transports' => ['async', 'low_priority'],
+                'transports' => ['webhook', 'async', 'low_priority'],
                 'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],
             'settings' => [
                 'enableUrlFeature' => true,
+                'presignedUploadSupported' => false,
                 'appUrlReachable' => true,
                 'appsRequireAppUrl' => false,
                 'firstMigrationDate' => null,
@@ -336,6 +338,8 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     CustomerAware::class,
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
+                    LogAware::class,
+                    lcfirst((new \ReflectionClass(LogAware::class))->getShortName()),
                 ],
             ],
             [
@@ -443,6 +447,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));
@@ -519,6 +524,7 @@ class InfoControllerTest extends TestCase
             static::getContainer()->get(ShopIdProvider::class),
             $this->createMock(StatsService::class),
             new EventDispatcher(),
+            null,
         );
 
         $infoController->setContainer($this->createMock(Container::class));

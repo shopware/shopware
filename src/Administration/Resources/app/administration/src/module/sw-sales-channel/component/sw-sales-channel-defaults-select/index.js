@@ -186,7 +186,7 @@ export default {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
                             {
                                 url: domain.url,
@@ -225,7 +225,7 @@ export default {
         },
 
         getActiveIconColor(item) {
-            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
+            return this.isDisabledItem(item) ? 'var(--color-icon-secondary-default)' : 'var(--color-icon-positive-default)';
         },
     },
 };

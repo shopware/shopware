@@ -3,7 +3,7 @@
     {% block sw_media_quickinfo_multiple_quickactions %}
     <sw-media-collapse
         v-if="editable"
-        :title="$tc('sw-media.sidebar.sections.actions')"
+        :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
     >
 
@@ -25,7 +25,7 @@
                         name="regular-file-export"
                         class="sw-media-sidebar__quickactions-icon"
                     />
-                    {{ $tc('sw-media.sidebar.actions.move') }}
+                    {{ $t('sw-media.sidebar.actions.move') }}
                 </li>
                 {% endblock %}
 
@@ -45,7 +45,7 @@
                         name="regular-trash"
                         class="sw-media-sidebar__quickactions-icon is--danger"
                     />
-                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                    {{ $t('sw-media.sidebar.actions.delete') }}
                 </li>
                 {% endblock %}
 
@@ -65,7 +65,7 @@
                         name="regular-spinner-star"
                         class="sw-media-sidebar__quickactions-icon"
                     />
-                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                    {{ $t('sw-media.sidebar.actions.dissolve') }}
                 </li>
                 {% endblock %}
             </ul>
@@ -77,7 +77,7 @@
     {% block sw_media_quickinfo_multiple_file_names %}
     <sw-media-collapse
         :expand-on-loading="true"
-        :title="$tc('sw-media.sidebar.sections.selectedFiles')"
+        :title="$t('sw-media.sidebar.sections.selectedFiles')"
     >
 
         {% block sw_media_quickinfo_multiple_file_names_content %}

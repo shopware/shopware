@@ -17,8 +17,5 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
  *   'https://github.com/advisories/GHSA-xxxx-xxxx-xxxx', // pkg-name issue, severity, devDep only, no fix available
  */
 runNpmAudit({
-    ignoredGHSAs: [
-        'https://github.com/advisories/GHSA-3ppc-4f35-3m26', // minimatch ReDoS, high severity, devDep only, fix planned in ESLint 9 + Jest 30 update
-        "https://github.com/advisories/GHSA-vpq2-c234-7xj6", // require jest update, which is in progress https://github.com/shopware/shopware/pull/15182
-    ],
+    ignoredGHSAs: [],
 });

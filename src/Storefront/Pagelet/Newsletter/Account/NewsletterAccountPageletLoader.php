@@ -157,12 +157,12 @@ class NewsletterAccountPageletLoader
     {
         try {
             if (Feature::isActive('v6.8.0.0')) {
-                $this->newsletterUnsubscribeRoute->unsubscribe(
+                $this->newsletterUnsubscribeRoute->unsubscribeWithResponse(
                     $this->hydrateFromCustomer($dataBag, $customer),
                     $context
                 );
             } else {
-                $this->newsletterUnsubscribeRoute->unsubscribeWithResponse(
+                $this->newsletterUnsubscribeRoute->unsubscribe(
                     $this->hydrateFromCustomer($dataBag, $customer),
                     $context
                 );

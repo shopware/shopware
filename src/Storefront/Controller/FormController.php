@@ -176,7 +176,12 @@ class FormController extends StorefrontController
         try {
             $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
-            $this->subscribeRoute->subscribe($data, $context, false);
+            if (Feature::isActive('v6.8.0.0')) {
+                $this->subscribeRoute->subscribeWithResponse($data, $context, false);
+            } else {
+                $this->subscribeRoute->subscribe($data, $context, false);
+            }
+
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionPersistedSuccess'),

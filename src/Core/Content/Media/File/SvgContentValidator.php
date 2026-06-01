@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Media\File;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('discovery')]
 class SvgContentValidator extends AbstractFileContentValidator
@@ -18,6 +21,12 @@ class SvgContentValidator extends AbstractFileContentValidator
     private const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
     private const XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/';
     private const XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace';
+    private const DISALLOWED_NODE_TYPE = 'Node types not allowed';
+    private const DISALLOWED_ELEMENT = 'Elements not allowed';
+    private const DISALLOWED_EVENT_HANDLER_ATTRIBUTE = 'Event handler attributes not allowed';
+    private const DISALLOWED_ATTRIBUTE = 'Attributes not allowed';
+    private const DISALLOWED_EXTERNAL_REFERENCE = 'External references not allowed';
+    private const DISALLOWED_EXTERNAL_STYLE_REFERENCE = 'External style references not allowed';
 
     /**
      * @var list<string>
@@ -34,6 +43,8 @@ class SvgContentValidator extends AbstractFileContentValidator
      */
     private readonly array $allowedReferenceAttributes;
 
+    private readonly ConstraintViolationList $violations;
+
     /**
      * @internal
      *
@@ -49,6 +60,7 @@ class SvgContentValidator extends AbstractFileContentValidator
         $this->allowedElements = $this->normalizeAllowlist($allowedElements);
         $this->allowedAttributes = $this->normalizeAllowlist($allowedAttributes);
         $this->allowedReferenceAttributes = $this->normalizeAllowlist($allowedReferenceAttributes);
+        $this->violations = new ConstraintViolationList();
     }
 
     public function getDecorated(): AbstractFileContentValidator
@@ -67,6 +79,10 @@ class SvgContentValidator extends AbstractFileContentValidator
             return;
         }
 
+        while ($this->violations->count() > 0) {
+            $this->violations->offsetUnset(0);
+        }
+
         $previousErrorHandling = $this->captureLibxmlErrors();
 
         try {
@@ -81,6 +97,10 @@ class SvgContentValidator extends AbstractFileContentValidator
             if ($this->hasCollectedLibxmlErrors()) {
                 throw MediaException::invalidFile(self::PARSE_ERROR_MESSAGE);
             }
+
+            if ($this->violations->count() > 0) {
+                throw MediaException::invalidFile($this->getViolationsMessage());
+            }
         } finally {
             $this->restoreLibxmlErrorHandling($previousErrorHandling);
         }
@@ -92,7 +112,7 @@ class SvgContentValidator extends AbstractFileContentValidator
 
         while ($reader->read()) {
             if ($this->isDisallowedNodeType($reader->nodeType)) {
-                $this->rejectActiveContent();
+                $this->buildViolation(self::DISALLOWED_NODE_TYPE, $reader->name);
             }
 
             if ($reader->nodeType !== \XMLReader::ELEMENT) {
@@ -136,7 +156,7 @@ class SvgContentValidator extends AbstractFileContentValidator
     private function assertElementAllowed(string $elementName): void
     {
         if (!\in_array($elementName, $this->allowedElements, true)) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_ELEMENT, $elementName);
         }
     }
 
@@ -160,20 +180,20 @@ class SvgContentValidator extends AbstractFileContentValidator
         $attributeName = mb_strtolower($reader->name);
 
         if ($this->isEventHandlerAttribute($attributeName)) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_EVENT_HANDLER_ATTRIBUTE, $attributeName);
         }
 
         if (!$this->isAllowedAttribute($reader, $attributeName)) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_ATTRIBUTE, $attributeName);
         }
 
         $isReferenceAttribute = \in_array($attributeName, $this->allowedReferenceAttributes, true);
         if ($isReferenceAttribute && $this->isExternalReference($reader->value)) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_EXTERNAL_REFERENCE, $attributeName);
         }
 
         if ($this->containsExternalStyleReference($reader->value)) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_EXTERNAL_STYLE_REFERENCE, $attributeName);
         }
     }
 
@@ -189,13 +209,56 @@ class SvgContentValidator extends AbstractFileContentValidator
         }
 
         if ($this->containsExternalStyleReference($reader->readInnerXml())) {
-            $this->rejectActiveContent();
+            $this->buildViolation(self::DISALLOWED_EXTERNAL_STYLE_REFERENCE, $elementName);
         }
     }
 
-    private function rejectActiveContent(): never
+    private function buildViolation(string $violation, string $invalidValue): void
     {
-        throw MediaException::invalidFile(self::ACTIVE_CONTENT_MESSAGE);
+        $this->violations->add(new ConstraintViolation(
+            $violation,
+            '',
+            [],
+            null,
+            '',
+            $invalidValue
+        ));
+    }
+
+    private function getViolationsMessage(): string
+    {
+        $groupedInvalidValues = array_reduce(
+            iterator_to_array($this->violations->getIterator()),
+            static function (array $acc, ConstraintViolationInterface $violation): array {
+                $acc[(string) $violation->getMessage()] = array_unique(
+                    array_merge(
+                        $acc[(string) $violation->getMessage()] ?? [],
+                        [$violation->getInvalidValue()]
+                    )
+                );
+
+                return $acc;
+            },
+            []
+        );
+
+        return \sprintf(
+            '%s%s%s',
+            self::ACTIVE_CONTENT_MESSAGE,
+            \PHP_EOL,
+            implode(
+                \PHP_EOL,
+                array_map(
+                    static fn (string $message, array $values): string => \sprintf(
+                        '%s: %s',
+                        $message,
+                        implode(', ', $values)
+                    ),
+                    array_keys($groupedInvalidValues),
+                    $groupedInvalidValues,
+                )
+            )
+        );
     }
 
     /**

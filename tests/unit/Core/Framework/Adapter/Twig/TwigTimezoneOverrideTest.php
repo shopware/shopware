@@ -72,8 +72,7 @@ class TwigTimezoneOverrideTest extends TestCase
 
     public function testRestoresTimezoneWhenCallbackThrows(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('boom');
+        static::expectExceptionObject(new \RuntimeException('boom'));
 
         try {
             TwigTimezoneOverride::run($this->twig, 'Europe/Berlin', static function (): never {

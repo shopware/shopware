@@ -26,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
-          ref: "v6.7.10.1"
+          ref: "v6.7.10.2"
           fetch-depth: "0"
           fetch-tags: "true"
 
@@ -107,7 +107,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
         with:
-          ref: "v6.7.10.1"
+          ref: "v6.7.10.2"
           fetch-depth: "0"
           fetch-tags: "true"
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
@@ -139,16 +139,16 @@ jobs:
 
       - name: Require core version
         run: |
-          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "v6.7.10.1" tag
+          bash .github/bin/split.bash require_core_version "${{ matrix.package }}" "v6.7.10.2" tag
 
       - name: Commit assets
         if: matrix.package != 'core'
         run: |
-          bash .github/bin/split.bash commit "${{ matrix.package }}" "v6.7.10.1 (+ assets)"
+          bash .github/bin/split.bash commit "${{ matrix.package }}" "v6.7.10.2 (+ assets)"
 
       - name: Tag commit
         run: |
-          bash .github/bin/split.bash tag "${{ matrix.package }}" "v6.7.10.1"
+          bash .github/bin/split.bash tag "${{ matrix.package }}" "v6.7.10.2"
 
       - name: Diff
         if: matrix.package != 'core'
@@ -159,7 +159,7 @@ jobs:
 
       - name: Push
         run: |
-          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "v6.7.10.1"
+          bash .github/bin/split.bash push "${{ matrix.package }}" https://x-access-token:${{ steps.sts-shopware-split.outputs.token }}@github.com/shopware "v6.7.10.2"
 
   draft-release-notes:
     needs: split
@@ -179,7 +179,7 @@ jobs:
           DRY_RUN: ''
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/create_github_release.bash draft "v6.7.10.1"
+          bash .github/bin/create_github_release.bash draft "v6.7.10.2"
 
   create-sbp-release:
     needs: split
@@ -200,7 +200,7 @@ jobs:
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
-          bash .github/bin/sbp_release.bash create "v6.7.10.1"
+          bash .github/bin/sbp_release.bash create "v6.7.10.2"
 
   update-milestones:
     needs: split

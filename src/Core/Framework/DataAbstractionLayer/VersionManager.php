@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -44,6 +45,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
@@ -157,6 +159,11 @@ class VersionManager
 
     public function merge(string $versionId, WriteContext $writeContext): void
     {
+        $targetVersionId = $writeContext->getContext()->getVersionId();
+        if ($targetVersionId === $versionId) {
+            throw DataAbstractionLayerException::versionMergeSameVersion($versionId);
+        }
+
         // acquire a lock to prevent multiple merges of the same version
         $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
 
@@ -171,15 +178,15 @@ class VersionManager
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
 
-        // create context for live and version
+        // create context for source and target versions
         $versionContext = $writeContext->createWithVersionId($versionId);
-        $liveContext = $writeContext->createWithVersionId(Defaults::LIVE_VERSION);
+        $targetContext = $writeContext->createWithVersionId($targetVersionId);
 
         $versionContext->addState(self::MERGE_SCOPE);
-        $liveContext->addState(self::MERGE_SCOPE);
+        $targetContext->addState(self::MERGE_SCOPE);
 
         // group all payloads by their action (insert, update, delete) and by their entity name
-        $writes = $this->buildWrites($commits);
+        $writes = $this->buildWrites($commits, $versionId, $targetVersionId);
 
         $this->eventDispatcher->dispatch($event = new BeforeVersionMergeEvent($writes));
         $writes = $event->filterWrites(static function ($operation) {
@@ -187,10 +194,10 @@ class VersionManager
         });
 
         // execute writes and get access to the write result to dispatch events later on
-        $result = $this->executeWrites($writes, $liveContext);
+        $result = $this->executeWrites($writes, $targetContext);
 
-        // remove commits which reference the version and create a "merge commit" for the live version with all payloads
-        $this->updateVersionData($commits, $writeContext, $versionId);
+        // remove commits which reference the version and create a "merge commit" for the target version with all payloads
+        $this->updateVersionData($commits, $writeContext, $versionId, $targetVersionId);
 
         // delete all versioned records
         $this->deleteClones($commits, $versionContext, $versionId);
@@ -199,9 +206,9 @@ class VersionManager
         $lock->release();
 
         // dispatch events to trigger indexer and other subscribers
-        $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $liveContext->getContext(), []);
+        $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $targetContext->getContext(), []);
 
-        $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $liveContext->getContext(), []);
+        $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $targetContext->getContext(), []);
 
         if ($deletes->getEvents() !== null) {
             $writes->addEvent(...$deletes->getEvents()->getElements());
@@ -209,7 +216,7 @@ class VersionManager
         $this->eventDispatcher->dispatch($writes);
 
         $versionContext->removeState(self::MERGE_SCOPE);
-        $liveContext->addState(self::MERGE_SCOPE);
+        $targetContext->removeState(self::MERGE_SCOPE);
     }
 
     /**
@@ -269,7 +276,9 @@ class VersionManager
             }
         }
 
-        $data = array_replace_recursive($data, $behavior->getOverwrites());
+        $data = Feature::isActive('v6.8.0.0')
+            ? $this->mergeOverwrites($definition, $data, $behavior->getOverwrites())
+            : array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -527,11 +536,23 @@ class VersionManager
      *
      * @return array<string, mixed>
      */
-    private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
+    private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId, ?string $sourceVersionId = null): array
     {
         $fields = $definition->getFields()->filter(static fn (Field $field) => $field instanceof VersionField || $field instanceof ReferenceVersionField);
 
         foreach ($fields as $field) {
+            if ($field instanceof ReferenceVersionField && $sourceVersionId !== null) {
+                $propertyName = $field->getPropertyName();
+
+                if (\array_key_exists($propertyName, $payload)) {
+                    if ($payload[$propertyName] !== $sourceVersionId) {
+                        continue;
+                    }
+                } elseif ($field->getVersionReferenceDefinition() !== $definition->getParentDefinition()) {
+                    continue;
+                }
+            }
+
             $payload[$field->getPropertyName()] = $versionId;
         }
 
@@ -665,8 +686,14 @@ class VersionManager
      *
      * @return array<string, mixed>
      */
-    private function addTranslationToPayload(array $entityId, array $payload, EntityDefinition $definition, VersionCommitEntity $commit): array
-    {
+    private function addTranslationToPayload(
+        array $entityId,
+        array $payload,
+        EntityDefinition $definition,
+        VersionCommitEntity $commit,
+        string $sourceVersionId,
+        string $targetVersionId
+    ): array {
         $translationDefinition = $definition->getTranslationDefinition();
 
         if (!$translationDefinition) {
@@ -696,7 +723,7 @@ class VersionManager
                 continue;
             }
 
-            $translations[] = $this->addVersionToPayload($translation, $translationDefinition, Defaults::LIVE_VERSION);
+            $translations[] = $this->addVersionToPayload($translation, $translationDefinition, $targetVersionId, $sourceVersionId);
         }
 
         $payload['translations'] = $translations;
@@ -739,7 +766,7 @@ class VersionManager
     /**
      * @return array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>}
      */
-    private function buildWrites(VersionCommitCollection $commits): array
+    private function buildWrites(VersionCommitCollection $commits, string $sourceVersionId, string $targetVersionId): array
     {
         $writes = [
             'insert' => [],
@@ -762,14 +789,21 @@ class VersionManager
                         if ($payload === null || $payload === []) {
                             break;
                         }
-                        $payload = $this->addVersionToPayload($payload, $definition, Defaults::LIVE_VERSION);
-                        $payload = $this->addTranslationToPayload($data->getEntityId(), $payload, $definition, $commit);
+                        $payload = $this->addVersionToPayload($payload, $definition, $targetVersionId, $sourceVersionId);
+                        $payload = $this->addTranslationToPayload(
+                            $data->getEntityId(),
+                            $payload,
+                            $definition,
+                            $commit,
+                            $sourceVersionId,
+                            $targetVersionId
+                        );
                         $writes[$data->getAction()][$definition->getEntityName()][] = $payload;
 
                         break;
                     case 'delete':
                         $id = $data->getEntityId();
-                        $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
+                        $id = $this->addVersionToPayload($id, $definition, $targetVersionId, $sourceVersionId);
                         $writes['delete'][$definition->getEntityName()][] = $id;
 
                         break;
@@ -784,7 +818,7 @@ class VersionManager
     /**
      * @param array{insert:array<string, list<array<string, mixed>>>, update:array<string, list<array<string, mixed>>>, delete:array<string, list<array<string, mixed>>>} $writes
      */
-    private function executeWrites(array $writes, WriteContext $liveContext): WriteResult
+    private function executeWrites(array $writes, WriteContext $targetContext): WriteResult
     {
         $operations = [];
 
@@ -804,10 +838,10 @@ class VersionManager
             return new WriteResult([], [], []);
         }
 
-        return $this->entityWriter->sync($operations, $liveContext);
+        return $this->entityWriter->sync($operations, $targetContext);
     }
 
-    private function updateVersionData(VersionCommitCollection $commits, WriteContext $writeContext, string $versionId): void
+    private function updateVersionData(VersionCommitCollection $commits, WriteContext $writeContext, string $versionId, string $targetVersionId): void
     {
         $new = [];
 
@@ -820,9 +854,9 @@ class VersionManager
                 $definition = $this->registry->getByEntityName($data->getEntityName());
 
                 $id = $data->getEntityId();
-                $id = $this->addVersionToPayload($id, $definition, Defaults::LIVE_VERSION);
+                $id = $this->addVersionToPayload($id, $definition, $targetVersionId, $versionId);
 
-                $payload = $this->addVersionToPayload($data->getPayload(), $definition, Defaults::LIVE_VERSION);
+                $payload = $this->addVersionToPayload($data->getPayload(), $definition, $targetVersionId, $versionId);
 
                 $new[] = [
                     'entityId' => $id,
@@ -837,7 +871,7 @@ class VersionManager
         }
 
         $commit = [
-            'versionId' => Defaults::LIVE_VERSION,
+            'versionId' => $targetVersionId,
             'data' => $new,
             'userId' => $writeContext->getContext()->getSource() instanceof AdminApiSource ? $writeContext->getContext()->getSource()->getUserId() : null,
             'isMerge' => true,
@@ -887,5 +921,66 @@ class VersionManager
         );
 
         return $exists->has($versionId);
+    }
+
+    /**
+     * Merge overwrite data with cloned entity data, properly handling ListField
+     * This method recursively handles nested fields in any field type that has property mappings.
+     *
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $overwrites
+     * @param list<Field>|null $nestedFields Optional nested field definitions for recursive calls
+     *
+     * @return array<string, mixed>
+     */
+    private function mergeOverwrites(EntityDefinition $definition, array $data, array $overwrites, ?array $nestedFields = null): array
+    {
+        foreach ($overwrites as $key => $value) {
+            $field = $this->getFieldDefinition($key, $definition, $nestedFields);
+
+            // ListField should be completely replaced, not merged
+            if ($field instanceof ListField) {
+                $data[$key] = $value;
+                continue;
+            }
+
+            $isBothArrays = \is_array($value) && \array_key_exists($key, $data) && \is_array($data[$key]);
+
+            // For fields with nested property mappings, recursively handle them
+            if ($isBothArrays && $field && method_exists($field, 'getPropertyMapping')) {
+                $propertyMapping = $field->getPropertyMapping();
+                if ($propertyMapping !== []) {
+                    $data[$key] = $this->mergeOverwrites($definition, $data[$key], $value, $propertyMapping);
+                    continue;
+                }
+            }
+
+            // For other arrays, use array_replace_recursive; otherwise assign directly
+            $data[$key] = $isBothArrays
+                ? array_replace_recursive($data[$key], $value)
+                : $value;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get field definition from nested fields or entity definition.
+     *
+     * @param list<Field>|null $nestedFields
+     */
+    private function getFieldDefinition(string $key, EntityDefinition $definition, ?array $nestedFields): ?Field
+    {
+        if ($nestedFields !== null) {
+            foreach ($nestedFields as $field) {
+                if ($field->getPropertyName() === $key) {
+                    return $field;
+                }
+            }
+
+            return null;
+        }
+
+        return $definition->getFields()->get($key);
     }
 }

@@ -48,27 +48,24 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function codePreviewDataProvider(): array
+    public static function codePreviewDataProvider(): iterable
     {
-        return [
-            ['%s', '/([A-Z]){1}/'],
-            ['%d', '/(\d){1}/'],
-            ['%s%s%s', '/([A-Z]){3}/'],
-            ['%d%d%d', '/(\d){3}/'],
-            ['%s%d%s', '/([A-Z]\d[A-Z])/'],
-            ['%d%s%d', '/(\d[A-Z]\d)/'],
-            ['PREFIX_%s%s%d%d', '/PREFIX_([A-Z]){2}(\d){2}/'],
-            ['%d%d%s%s_SUFFIX', '/(\d){2}([A-Z]){2}_SUFFIX/'],
-            ['PREFIX_%s%s_SUFFIX', '/PREFIX_([A-Z]){2}_SUFFIX/'],
-            ['PREFIX_%d%d_SUFFIX', '/PREFIX_(\d){2}_SUFFIX/'],
-            ['PREFIX_%s%d_SUFFIX', '/PREFIX_([A-Z]\d)_SUFFIX/'],
-            ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'],
-            ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'],
-            ['PREFIX_%d%s_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX', '/PREFIX_(\d[A-Z])_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX/'],
-            ['ILLEGAL_VAR_STOPS_THE_CHAIN_%d%s%q%d%s_SUFFIX', '/ILLEGAL_VAR_STOPS_THE_CHAIN_(\d[A-Z])%q%d%s_SUFFIX/'],
-        ];
+        yield 'single letter placeholder expands to one uppercase character' => ['%s', '/([A-Z]){1}/'];
+        yield 'single digit placeholder expands to one digit' => ['%d', '/(\d){1}/'];
+        yield 'three letter placeholders expand to three uppercase characters' => ['%s%s%s', '/([A-Z]){3}/'];
+        yield 'three digit placeholders expand to three digits' => ['%d%d%d', '/(\d){3}/'];
+        yield 'mixed letter digit letter placeholders expand in order' => ['%s%d%s', '/([A-Z]\d[A-Z])/'];
+        yield 'mixed digit letter digit placeholders expand in order' => ['%d%s%d', '/(\d[A-Z]\d)/'];
+        yield 'prefixed letter and digit placeholders preserve the prefix' => ['PREFIX_%s%s%d%d', '/PREFIX_([A-Z]){2}(\d){2}/'];
+        yield 'suffixed digit and letter placeholders preserve the suffix' => ['%d%d%s%s_SUFFIX', '/(\d){2}([A-Z]){2}_SUFFIX/'];
+        yield 'prefixed and suffixed letter placeholders preserve static text' => ['PREFIX_%s%s_SUFFIX', '/PREFIX_([A-Z]){2}_SUFFIX/'];
+        yield 'prefixed and suffixed digit placeholders preserve static text' => ['PREFIX_%d%d_SUFFIX', '/PREFIX_(\d){2}_SUFFIX/'];
+        yield 'prefixed and suffixed letter digit placeholders preserve static text' => ['PREFIX_%s%d_SUFFIX', '/PREFIX_([A-Z]\d)_SUFFIX/'];
+        yield 'prefixed and suffixed digit letter placeholders preserve static text' => ['PREFIX_%d%s_SUFFIX', '/PREFIX_(\d[A-Z])_SUFFIX/'];
+        yield 'unrendered placeholders after static text remain unchanged' => ['PREFIX_%d%s_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX', '/PREFIX_(\d[A-Z])_NOW_WITH_UNRENDERED_VARS_%s%s%d%d_SUFFIX/'];
+        yield 'unsupported placeholder stops further preview rendering' => ['ILLEGAL_VAR_STOPS_THE_CHAIN_%d%s%q%d%s_SUFFIX', '/ILLEGAL_VAR_STOPS_THE_CHAIN_(\d[A-Z])%q%d%s_SUFFIX/'];
     }
 
     public function testGenerateIndividualCodesWith0RequestedCodes(): void
@@ -94,16 +91,12 @@ class PromotionCodeServiceTest extends TestCase
     }
 
     /**
-     * @return array<array<int>>
+     * @return iterable<array<int>>
      */
-    public static function generateIndividualCodesDataProvider(): array
+    public static function generateIndividualCodesDataProvider(): iterable
     {
-        return [
-            [1],
-            [10],
-            [500],
-            [20000],
-        ];
+        yield 'generate individual codes 1' => [1];
+        yield 'generate individual codes 20000' => [20000];
     }
 
     #[DataProvider('generateIndividualCodesWithInsufficientPatternDataProvider')]
@@ -112,20 +105,17 @@ class PromotionCodeServiceTest extends TestCase
         // Only has 10 possibilities -> 6 or more requested codes would be invalid
         $pattern = 'PREFIX_%d_SUFFIX';
 
-        $this->expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $this->codesService->generateIndividualCodes($pattern, $requestedCodeAmount);
     }
 
     /**
-     * @return array<array<int>>
+     * @return iterable<array<int>>
      */
-    public static function generateIndividualCodesWithInsufficientPatternDataProvider(): array
+    public static function generateIndividualCodesWithInsufficientPatternDataProvider(): iterable
     {
-        return [
-            [6],
-            [10],
-            [20],
-        ];
+        yield 'generate individual codes with insufficient pattern 6' => [6];
+        yield 'generate individual codes with insufficient pattern 20' => [20];
     }
 
     public function testReplaceIndividualCodes(): void
@@ -176,7 +166,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->createPromotionWithCustomData(['individualCodePattern' => $duplicatePattern], $promotionRepository, $salesChannelContext);
         $this->createPromotionWithCustomData(['id' => $id], $promotionRepository, $salesChannelContext);
 
-        $this->expectExceptionMessage('Code pattern already exists in another promotion. Please provide a different pattern.');
+        $this->expectExceptionObject(PromotionException::patternAlreadyInUse());
         $this->codesService->replaceIndividualCodes($id, $duplicatePattern, 1, $salesChannelContext->getContext());
     }
 
@@ -202,7 +192,7 @@ class PromotionCodeServiceTest extends TestCase
         $this->addCodesAndAssertCount($id, 200, 300);
         $this->addCodesAndAssertCount($id, 200, 500);
 
-        $this->expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $this->addCodesAndAssertCount($id, 1, 501);
     }
 

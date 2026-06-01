@@ -32,11 +32,14 @@ class SearchController extends StorefrontController
 {
     /**
      * @internal
+     *
+     * @param list<string> $redirectOnSingleHitFields
      */
     public function __construct(
         private readonly SearchPageLoader $searchPageLoader,
         private readonly SuggestPageLoader $suggestPageLoader,
-        private readonly AbstractProductSearchRoute $productSearchRoute
+        private readonly AbstractProductSearchRoute $productSearchRoute,
+        private readonly array $redirectOnSingleHitFields = ['productNumber', 'ean', 'manufacturerNumber']
     ) {
     }
 
@@ -162,8 +165,29 @@ class SearchController extends StorefrontController
             return null;
         }
 
-        if ($request->query->get('search') === mb_strtolower($product->getProductNumber())) {
-            return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+        $search = $request->query->get('search');
+        if (!\is_string($search)) {
+            return null;
+        }
+
+        $search = mb_strtolower(trim($search));
+        if ($search === '') {
+            return null;
+        }
+
+        foreach ($this->redirectOnSingleHitFields as $field) {
+            if (!$product->has($field)) {
+                continue;
+            }
+
+            $value = $product->get($field);
+            if (!\is_string($value) || $value === '') {
+                continue;
+            }
+
+            if ($search === mb_strtolower(trim($value))) {
+                return $this->redirectToRoute('frontend.detail.page', ['productId' => $product->getId()]);
+            }
         }
 
         return null;

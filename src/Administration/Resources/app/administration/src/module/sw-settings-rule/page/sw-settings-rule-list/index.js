@@ -219,7 +219,7 @@ export default {
 
             this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
                 this.$router.push({
-                    name: 'sw.settings.rule.detail',
+                    name: 'sw.settings.rule.detail.base',
                     params: { id: duplicatedData.id },
                 });
             });

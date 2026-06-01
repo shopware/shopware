@@ -2,7 +2,9 @@
   "sw-customer": {
     "error": {
       "COMPANY_IS_REQUIRED": "Bei gewerblichen Kunden ist die Firma ein Pflichtfeld",
-      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein."
+      "passwordDoNotMatch": "Die Eingaben für Passwort und Passwortbestätigung stimmen nicht überein.",
+      "VIOLATION::PASSWORD_IS_TOO_LONG": "Das gewählte Passwort ist zu lang.",
+      "VIOLATION::PASSWORD_IS_TOO_SHORT": "Das gewählte Passwort ist zu kurz."
     },
     "notification": {
       "requiredFields": "Bitte fülle alle Pflichtfelder aus."

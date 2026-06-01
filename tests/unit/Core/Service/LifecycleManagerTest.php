@@ -151,8 +151,7 @@ class LifecycleManagerTest extends TestCase
     {
         $manager = $this->createManager($this->createAppRepository());
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('The service is not installed.');
+        $this->expectExceptionObject(ServiceException::serviceNotInstalled('NonExistentService'));
 
         $manager->syncState('NonExistentService', $this->context);
     }

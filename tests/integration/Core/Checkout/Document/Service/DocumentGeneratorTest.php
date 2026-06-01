@@ -40,7 +40,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,7 +50,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('after-sales')]
 class DocumentGeneratorTest extends TestCase
 {
-    use AppSystemTestBehaviour;
     use DocumentTrait;
 
     private SalesChannelContext $salesChannelContext;
@@ -306,7 +304,9 @@ class DocumentGeneratorTest extends TestCase
             false,
             new Request([
                 'extension' => PdfRenderer::FILE_EXTENSION,
-            ]),
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen('this is some content'),
+            ], 'this is some content'),
             true,
             DocumentException::generationError('Parameter "fileName" is missing'),
         ];

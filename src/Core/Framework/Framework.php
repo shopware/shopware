@@ -21,11 +21,15 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\OverwriteSessionFactoryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TelemetrySubscriberCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
@@ -41,6 +45,7 @@ use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
@@ -97,6 +102,11 @@ class Framework extends Bundle
         $loader->load('notification.xml');
         $loader->load('sso.xml');
 
+        // @codeCoverageIgnoreStart
+        $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
+        $phpLoader->load('mcp.php');
+        // @codeCoverageIgnoreEnd
+
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
             $loader->load('store_test.xml');
@@ -129,6 +139,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new MessageHandlerCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new CreateGeneratorScaffoldingCommandPass());
         $container->addCompilerPass(new RedisConnectionsCompilerPass());
+        $container->addCompilerPass(new TelemetrySubscriberCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());
@@ -136,6 +147,9 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
+        $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
+        $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
 
         $container->addCompilerPass(new DemodataCompilerPass());
 

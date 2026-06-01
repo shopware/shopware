@@ -76,6 +76,92 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    private const TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_MAPPING = [
+        'properties' => [
+            'lang_en' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_english_word_delimiter_index_analyzer',
+                        'search_analyzer' => 'sw_english_word_delimiter_search_analyzer',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            'lang_de' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_german_word_delimiter_index_analyzer',
+                        'search_analyzer' => 'sw_german_word_delimiter_search_analyzer',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    private const TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING = [
+        'properties' => [
+            'lang_en' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_english_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            'lang_de' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_german_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
     private const SEARCHABLE_MAPPING = [
         'type' => 'keyword',
         'ignore_above' => 10000,
@@ -84,6 +170,51 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'search' => [
                 'type' => 'text',
                 'analyzer' => 'sw_whitespace_analyzer',
+            ],
+            'ngram' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+            ],
+        ],
+    ];
+
+    private const EXACT_SEARCHABLE_MAPPING = [
+        'type' => 'keyword',
+        'ignore_above' => 10000,
+        'normalizer' => 'sw_lowercase_normalizer',
+        'fields' => [
+            'exact' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+                'norms' => false,
+            ],
+            'search' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+            ],
+            'ngram' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+            ],
+        ],
+    ];
+
+    private const EXACT_TECHNICAL_SEARCHABLE_MAPPING = [
+        'type' => 'keyword',
+        'ignore_above' => 10000,
+        'normalizer' => 'sw_lowercase_normalizer',
+        'fields' => [
+            'exact' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+                'norms' => false,
+            ],
+            'search' => [
+                'type' => 'text',
+                'analyzer' => 'sw_whitespace_word_delimiter_index_analyzer',
+                'search_analyzer' => 'sw_whitespace_word_delimiter_search_analyzer',
             ],
             'ngram' => [
                 'type' => 'text',
@@ -191,12 +322,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'autoIncrement' => [
                     'type' => 'long',
                 ],
-                'manufacturerNumber' => self::SEARCHABLE_MAPPING,
-                'description' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'manufacturerNumber' => self::EXACT_SEARCHABLE_MAPPING,
+                'description' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'metaTitle' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
-                'metaDescription' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'metaDescription' => self::TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'displayGroup' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
-                'ean' => self::SEARCHABLE_MAPPING,
+                'ean' => self::EXACT_TECHNICAL_SEARCHABLE_MAPPING,
                 'height' => [
                     'type' => 'double',
                 ],
@@ -216,7 +347,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 'markAsTopseller' => [
                     'type' => 'boolean',
                 ],
-                'name' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'name' => self::TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_MAPPING,
                 'options' => [
                     'type' => 'nested',
                     'properties' => [
@@ -228,7 +359,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'productNumber' => self::SEARCHABLE_MAPPING,
+                'productNumber' => self::EXACT_TECHNICAL_SEARCHABLE_MAPPING,
                 'properties' => [
                     'type' => 'nested',
                     'properties' => [
@@ -316,7 +447,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'customSearchKeywords' => self::TRANSLATABLE_SEARCHABLE_MAPPING,
+                'customSearchKeywords' => self::TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_MAPPING,
                 'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

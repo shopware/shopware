@@ -24,6 +24,16 @@ interface CustomerFilterRef {
     term: string;
 }
 
+type ApiErrorResponse = {
+    response?: {
+        data?: {
+            errors?: Array<{
+                code?: string;
+            }>;
+        };
+    };
+};
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Component.wrapComponentConfig({
     template,
@@ -273,9 +283,21 @@ export default Component.wrapComponentConfig({
                 this.setCustomer(this.customer);
 
                 await this.updateCustomerContext();
-            } catch {
+            } catch (error) {
+                let message = this.$t('sw-order.create.messageSwitchCustomerError');
+                const errorCode = (error as ApiErrorResponse).response?.data?.errors?.[0]?.code;
+
+                if (errorCode) {
+                    const messageKey = `global.error-codes.${errorCode}`;
+                    const translatedMessage = this.$t(messageKey);
+
+                    if (translatedMessage !== messageKey) {
+                        message = `${message}: ${translatedMessage}`;
+                    }
+                }
+
                 this.createNotificationError({
-                    message: this.$t('sw-order.create.messageSwitchCustomerError'),
+                    message,
                 });
             } finally {
                 this.isSwitchingCustomer = false;

@@ -78,7 +78,10 @@ abstract class StorefrontController extends AbstractController
 
         $this->container->get('event_dispatcher')->dispatch($event);
 
-        $iconCacheEnabled = $this->getSystemConfigService()->get('core.storefrontSettings.iconCache') ?? true;
+        $iconCacheEnabled = $this->getSystemConfigService()->get(
+            'core.storefrontSettings.iconCache',
+            $event->getSalesChannelContext()->getSalesChannelId()
+        ) ?? true;
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::enable();

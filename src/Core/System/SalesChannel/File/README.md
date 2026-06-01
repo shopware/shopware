@@ -53,10 +53,12 @@ classDiagram
     }
 
     class SalesChannelFile {
-        +getFileFamily() string
-        +getFileName() string
-        +getTemplatePath() string
-        +getTemplates() array
+        +fileFamily string
+        +fileName string
+        +templatePath string
+        +contentType string
+        +baseTemplateName string
+        +templates array
     }
 
     SalesChannelFileDiscovery --> CacheInterface : caches discovered catalogue

@@ -44,14 +44,14 @@ class SalesChannelFileController extends AbstractController
         $files = [];
 
         foreach ($this->discovery->discover($fileFamily) as $file) {
-            $configuration = $configurations[$file->getFileName()] ?? null;
+            $configuration = $configurations[$file->fileName] ?? null;
 
             $files[] = [
-                'fileFamily' => $file->getFileFamily(),
-                'fileName' => $file->getFileName(),
-                'templatePath' => $file->getTemplatePath(),
-                'contentType' => $file->getContentType(),
-                'templates' => $this->serializeTemplates($file->getTemplates()),
+                'fileFamily' => $file->fileFamily,
+                'fileName' => $file->fileName,
+                'templatePath' => $file->templatePath,
+                'contentType' => $file->contentType,
+                'templates' => $this->serializeTemplates($file->templates),
                 'configuration' => $configuration === null ? null : $this->serializeConfiguration($configuration),
             ];
         }
@@ -86,9 +86,9 @@ class SalesChannelFileController extends AbstractController
         }
 
         return new JsonResponse([
-            'fileName' => $result->getFileName(),
-            'contentType' => $result->getContentType(),
-            'content' => $result->getContent(),
+            'fileName' => $result->fileName,
+            'contentType' => $result->contentType,
+            'content' => $result->content,
         ]);
     }
 

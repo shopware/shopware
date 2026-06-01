@@ -32,8 +32,8 @@ class SalesChannelFileLoader
         }
 
         $configuration = $this->configurationLoader->load(
-            $file->getFileFamily(),
-            $file->getFileName(),
+            $file->fileFamily,
+            $file->fileName,
             $context->getSalesChannelId(),
             $context->getContext()
         );
@@ -46,9 +46,9 @@ class SalesChannelFileLoader
         );
 
         return new SalesChannelFileRenderResult(
-            $file->getFileName(),
+            $file->fileName,
             $this->renderer->render($file, $context, $configuration->getTemplateOverrides()),
-            $file->getContentType(),
+            $file->contentType,
         );
     }
 
@@ -63,9 +63,9 @@ class SalesChannelFileLoader
         }
 
         return new SalesChannelFileRenderResult(
-            $file->getFileName(),
+            $file->fileName,
             $this->renderer->render($file, $context, $templateOverrides),
-            $file->getContentType(),
+            $file->contentType,
         );
     }
 }

@@ -4,6 +4,9 @@ namespace Shopware\Core\System\SalesChannel\File\Discovery;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore Simple value object without behavior.
+ */
 #[Package('framework')]
 final readonly class SalesChannelFile
 {
@@ -17,45 +20,12 @@ final readonly class SalesChannelFile
      * @param array<string, string> $templates Twig namespace mapped to resolved template name
      */
     public function __construct(
-        private string $fileFamily,
-        private string $fileName,
-        private string $templatePath,
-        private string $contentType,
-        private string $baseTemplateName,
-        private array $templates,
+        public string $fileFamily,
+        public string $fileName,
+        public string $templatePath,
+        public string $contentType,
+        public string $baseTemplateName,
+        public array $templates,
     ) {
-    }
-
-    public function getFileFamily(): string
-    {
-        return $this->fileFamily;
-    }
-
-    public function getFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function getTemplatePath(): string
-    {
-        return $this->templatePath;
-    }
-
-    public function getContentType(): string
-    {
-        return $this->contentType;
-    }
-
-    public function getBaseTemplateName(): string
-    {
-        return $this->baseTemplateName;
-    }
-
-    /**
-     * @return array<string, string> Twig namespace mapped to resolved template name
-     */
-    public function getTemplates(): array
-    {
-        return $this->templates;
     }
 }

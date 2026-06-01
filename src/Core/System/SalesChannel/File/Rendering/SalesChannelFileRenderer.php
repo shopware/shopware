@@ -32,7 +32,7 @@ class SalesChannelFileRenderer
         return $this->templateOverrideLoader->withTemplateOverrides(
             $overrideTemplates,
             fn (): string => $this->twig->render(
-                $this->templateFinder->find($file->getBaseTemplateName()),
+                $this->templateFinder->find($file->baseTemplateName),
                 $parameters
             )
         );
@@ -47,7 +47,7 @@ class SalesChannelFileRenderer
     {
         $overrideTemplates = [];
 
-        foreach ($file->getTemplates() as $twigNamespace => $templateName) {
+        foreach ($file->templates as $twigNamespace => $templateName) {
             $override = $templateOverrides[$twigNamespace] ?? null;
 
             if (!\is_string($override)) {

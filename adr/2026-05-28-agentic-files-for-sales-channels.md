@@ -176,87 +176,18 @@ The Twig override loader is deliberately not a database loader. Persisted overri
 
 Initial built-in files are opt-in per sales channel. Switching a file from opt-in to opt-out later can be done with a simple migration on a per-file basis.
 
-## Public Surface and Extension Points
+## Public API and Extension Point
 
-The public surface should be intentionally small. The following contracts become part of the backward compatibility promise once the feature is released:
+The public API surface should be intentionally small. Only the documented HTTP behavior becomes part of the backward compatibility promise once the feature is released. All PHP services, DAL entities, database tables, generated entity endpoints, template context objects, and implementation details are internal unless they are separately documented as public API.
 
-### Template Contract
+### Administration HTTP API
 
-- The template registration convention `Resources/views/files/<file-family>/**/*.twig`.
-- The initial `agentic` file family and the built-in file paths `files/agentic/llms.txt.twig` and `files/agentic/agents.md.twig`.
-- Public path derivation by stripping `files/agentic/` and the `.twig` suffix for the served agentic file.
-- Subfolder support below the file family, including dot-prefixed folders such as `.well-known`.
-- Normal Shopware Twig inheritance for those templates, including extension by core, plugins, apps, and themes through Twig namespaces.
-- The rendering context variables `context`, `salesChannel`, and `salesChannelFile`. The `salesChannelFile` value exposes the file family, file name, template path, content type, base template name, and resolved Twig template map for read-only template use.
-- The explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions`.
+The Administration needs an HTTP API to list discovered files and preview unsaved overrides. The HTTP route contract is public, while the PHP controller class remains internal implementation.
 
-The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks may exist to keep templates readable, but extensions should prefer the explicit extension blocks for additive content.
+- `GET /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`
+- `POST /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview`
 
-### Storage and Admin API Contract
-
-- The DAL entity `sales_channel_file`.
-- The `salesChannelFiles` association on `sales_channel`.
-- The fields `id`, `salesChannelId`, `fileFamily`, `fileName`, `enabled`, and `templateOverrides`.
-- The uniqueness semantics of one row per sales channel, file family, and file name.
-- The `templateOverrides` JSON shape as an object keyed by Twig namespace with string Twig template content as values.
-- The generated Administration API entity endpoints for reading and writing `sales_channel_file` rows.
-
-The database stores merchant configuration only. Shipped templates remain in code or app template storage and are intentionally not part of persisted state.
-
-### Action API Contract
-
-The Administration needs an API to list discovered files and preview unsaved overrides. The HTTP route contract is public, while the PHP controller class remains internal implementation.
-
-`GET /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}` returns:
-
-```json
-{
-    "data": [
-        {
-            "fileFamily": "agentic",
-            "fileName": "llms.txt",
-            "templatePath": "files/agentic/llms.txt.twig",
-            "contentType": "text/plain; charset=utf-8",
-            "templates": [
-                {
-                    "twigNamespace": "Framework",
-                    "templateName": "@Framework/files/agentic/llms.txt.twig"
-                }
-            ],
-            "configuration": {
-                "id": "018f...",
-                "enabled": true,
-                "templateOverrides": {
-                    "Framework": "{% block agentic_llms_extensions %}...{% endblock %}"
-                }
-            }
-        }
-    ]
-}
-```
-
-`POST /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview` accepts:
-
-```json
-{
-    "fileName": "llms.txt",
-    "templateOverrides": {
-        "Framework": "{% block agentic_llms_extensions %}...{% endblock %}"
-    }
-}
-```
-
-and returns:
-
-```json
-{
-    "fileName": "llms.txt",
-    "contentType": "text/plain; charset=utf-8",
-    "content": "rendered preview content"
-}
-```
-
-### Public HTTP Contract
+### Public File HTTP API
 
 - Eligible agentic files are served on sales channel domains by their derived public path, for example `/llms.txt`, `/agents.md`, or `/.well-known/ucp.json`.
 - Existing explicit routes keep precedence because the file serving runs only as an unresolved 404 fallback.
@@ -264,9 +195,13 @@ and returns:
 - Disabled files, files without a matching `sales_channel_file` row, invalid paths, and undiscovered files behave like normal 404s.
 - The response content type is derived from the public file extension and includes UTF-8 charset.
 
-### Internal Implementation Surface
+### Designed Extension Point
 
-The PHP services and implementation classes under `Shopware\Core\System\SalesChannel\File`, including discovery, loaders, rendering, request path resolving, the 404 subscriber, and the API controller class, are internal. They are not service decoration or direct injection extension points. Extensions should use the documented template, DAL/Admin API, action API, and Twig block contracts instead.
+Template files are the only designed extension point for this feature. Core, plugins, apps, and themes can ship templates below `Resources/views/files/<file-family>/**/*.twig` and use normal Shopware Twig inheritance through Twig namespaces.
+
+The initial extension point is the `agentic` file family with the built-in file paths `files/agentic/llms.txt.twig` and `files/agentic/agents.md.twig`. Subfolders below the file family are supported, including dot-prefixed folders such as `.well-known`.
+
+The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content.
 
 ## Consequences
 

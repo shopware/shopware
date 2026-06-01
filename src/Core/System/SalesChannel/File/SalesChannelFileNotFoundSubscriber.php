@@ -80,9 +80,9 @@ class SalesChannelFileNotFoundSubscriber implements EventSubscriberInterface
         $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
 
         $event->setResponse(new Response(
-            $file->getContent(),
+            $file->content,
             Response::HTTP_OK,
-            ['content-type' => $file->getContentType()],
+            ['content-type' => $file->contentType],
         ));
     }
 }

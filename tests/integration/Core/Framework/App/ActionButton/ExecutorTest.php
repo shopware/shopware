@@ -13,11 +13,9 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payload\Source;
 use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -336,7 +334,7 @@ class ExecutorTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
         $this->signResponse($this->app->getAppSecret());
 
-        $this->expectExceptionObject(new ShopIdChangeSuggestedException(ShopId::v2('123'), new FingerprintComparisonResult([], [], 75)));
+        $this->expectExceptionObject(AppException::actionButtonProcessException($action->getActionId(), 'Changes in your system were detected that suggest a change of the shop ID.'));
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

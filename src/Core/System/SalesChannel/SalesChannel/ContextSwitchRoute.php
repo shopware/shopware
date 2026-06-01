@@ -92,12 +92,12 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         if ($context->getCustomer()) {
             $addressCriteria->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomerId()));
         } else {
-            // do not allow to set address ids if the customer is not logged in
-            if (isset($parameters[self::SHIPPING_ADDRESS_ID])) {
+            // do not allow setting address ids if the customer is not logged in
+            if (isset($parameters[self::SHIPPING_ADDRESS_ID]) && $parameters[self::SHIPPING_ADDRESS_ID] !== '') {
                 throw SalesChannelException::customerNotLoggedIn();
             }
 
-            if (isset($parameters[self::BILLING_ADDRESS_ID])) {
+            if (isset($parameters[self::BILLING_ADDRESS_ID]) && $parameters[self::BILLING_ADDRESS_ID] !== '') {
                 throw SalesChannelException::customerNotLoggedIn();
             }
         }

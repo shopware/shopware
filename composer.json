@@ -197,7 +197,7 @@
         "nikic/php-parser": "^5.4.0",
         "opis/json-schema": "^2.3.0",
         "phpat/phpat": "0.12.4",
-        "phpbench/phpbench": "^1.2.15",
+        "phpbench/phpbench": "^1.6.1",
         "phpdocumentor/reflection-docblock": "^5.6.4",
         "phpdocumentor/type-resolver": "^1.7.1",
         "phpstan/extension-installer": "^1.4.3",

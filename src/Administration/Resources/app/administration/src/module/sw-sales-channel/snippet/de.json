@@ -239,12 +239,14 @@
             "agenticCommerce": {
                 "tabIntegration": "Integration",
                 "openAiSettingsTitle": "OpenAI-Einstellungen",
+                "googleSettingsTitle": "Google-Einstellungen",
                 "buttonResetTemplate": "Auf Standard zurücksetzen",
                 "resetTemplateSuccess": "Template wurde auf Standard zurückgesetzt. Bitte speichern, um die Änderungen zu übernehmen.",
                 "errorLoadingTemplate": "Standard-Template konnte nicht geladen werden.",
                 "templates": {
                     "template-label": {
-                        "open-ai": "OpenAI (JSONL)"
+                        "open-ai": "OpenAI (JSONL)",
+                        "google": "Google Shopping (XML)"
                     }
                 },
                 "integration": {
@@ -258,6 +260,14 @@
                                 "description": "Dieser Verkaufskanal generiert einen JSONL-Produkt-Feed, damit Produkte in den ChatGPT-Suchergebnissen erscheinen können. Dazu müssen Sie sich als Merchant bewerben und die Feed URL mit OpenAI teilen. Alles Weitere wird in der folgenden Schritt-für-Schritt-Anleitung erklärt."
                             },
                             "stepByStep": "<li>Bewirb dich als Merchant unter <a href=\"https://chatgpt.com/merchants/\" target=\"_blank\" rel=\"noopener noreferrer\">chatgpt.com/merchants</a></li><li>Kopiere die Export-URL (unten) und teile diese mit OpenAI gemäß der <a href=\"https://developers.openai.com/commerce/product-feeds\" target=\"_blank\" rel=\"noopener noreferrer\">Produkt-Feed-Dokumentation</a></li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist</li>"
+                        },
+                        "google": {
+                            "cardTitle": "Google-Merchant-Center-Verbindung",
+                            "introduction": {
+                                "title": "Anleitung: Einrichten und verbinden",
+                                "description": "Dieser Verkaufskanal generiert einen XML-Produkt-Feed im Google-Merchant-Center-Format, damit Produkte in Google Shopping und in KI-Shopping-Oberflächen erscheinen können. Füge die unten stehende Export-URL im Merchant Center unter Einstellungen &rsaquo; Datenquellen als geplanten Dateiabruf hinzu."
+                            },
+                            "stepByStep": "<li>Erstelle ein Merchant-Center-Konto unter <a href=\"https://merchants.google.com\" target=\"_blank\" rel=\"noopener noreferrer\">merchants.google.com</a> und verifiziere die URL deines Onlineshops</li><li>Öffne im Merchant Center <em>Einstellungen &rsaquo; Datenquellen</em> und klicke auf <em>Produktquelle hinzufügen</em></li><li>Wähle <em>Datei</em>, dann <em>Geplanten Abruf von einer URL hinzufügen</em>, und füge die Export-URL (unten) als Datei-URL ein</li><li>Stelle sicher, dass die Export-URL öffentlich erreichbar ist (ohne Authentifizierung)</li><li>Prüfe die <a href=\"https://support.google.com/merchants/answer/7052112\" target=\"_blank\" rel=\"noopener noreferrer\">Google-Produktdaten-Spezifikation</a> und passe die Attribute bei Bedarf an</li>"
                         }
                     }
                 }

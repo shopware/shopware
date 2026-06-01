@@ -57,9 +57,14 @@ class IconCacheTwigFilterTest extends TestCase
         $controller->setTemplateFinder($twig->getExtension(NodeExtension::class)->getFinder());
 
         $controller->systemConfigService = self::createMock(SystemConfigService::class);
-        $controller->systemConfigService->method('get')->willReturn(true);
+        $controller->systemConfigService
+            ->expects($this->once())
+            ->method('get')
+            ->with('core.storefrontSettings.iconCache', 'sales-channel-id')
+            ->willReturn(true);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
 
         $rendered = $controller->testRenderStorefront('@StorefrontTest/test/base.html.twig', $salesChannelContext);
         static::assertSame(str_replace(' ', '', '<span class="icon icon-minus-large icon-xs icon-filter-panel-item-toggle" aria-hidden="true">

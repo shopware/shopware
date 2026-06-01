@@ -1,5 +1,12 @@
 # 6.7.12.0 (upcoming)
 
+## Storefront
+
+### Checkout gateway blocked method fallback
+
+Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
+The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
+
 ## API
 
 ### Number range previews can target a concrete number range
@@ -10,6 +17,14 @@ Use this route when editing an existing number range, because it reads the state
 The previous type-based preview route `/api/_action/number-range/preview-pattern/{type}` remains available in 6.7 for backwards compatibility, but is deprecated and will be removed in 6.8.
 It can only resolve global number ranges and therefore does not support non-global number range state.
 The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
+
+### Empty `sw-*` id headers are treated as unset
+
+Admin API and Store API requests now treat empty ID headers such as `sw-language-id`, `sw-currency-id`, `sw-app-integration-id`, and `sw-app-user-id` the same as missing headers.
+Empty values fall back to the default request context instead of being forwarded as invalid UUIDs.
+Whitespace-only values are still rejected as malformed IDs.
+
+For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
 
 ## Core
 
@@ -39,6 +54,12 @@ See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the
 - `PeriodicMetricCollectorInterface`: tag a service with `shopware.telemetry.periodic_metric_collector` to have its metrics collected by the `telemetry.collect_periodic_metrics` scheduled task (default 5 minutes, tunable via the standard scheduled-task administration). Useful for expensive aggregations and info metrics.
 - New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
 - Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
+
+### Auto-resend double opt-in confirmation email on failed login
+
+When a customer with an unconfirmed double opt-in account tries to log in, Shopware now automatically resends the confirmation email if the original was sent more than a configurable interval ago.
+
+The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `24` hours). Setting it to `0` disables the auto-resend entirely.
 
 ## Administration
 

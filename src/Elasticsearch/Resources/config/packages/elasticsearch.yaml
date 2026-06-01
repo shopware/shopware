@@ -150,6 +150,14 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase']
+            sw_whitespace_word_delimiter_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates']
+            sw_whitespace_word_delimiter_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates']
             sw_ngram_analyzer:
                 type: custom
                 tokenizer: whitespace
@@ -158,15 +166,39 @@ elasticsearch:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_english_stop_filter']
+            sw_english_word_delimiter_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates', 'sw_english_stop_filter']
+            sw_english_word_delimiter_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates', 'sw_english_stop_filter']
             sw_german_analyzer:
                 type: custom
                 tokenizer: whitespace
                 filter: ['lowercase', 'sw_german_stop_filter']
+            sw_german_word_delimiter_index_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'flatten_graph', 'lowercase', 'remove_duplicates', 'sw_german_stop_filter']
+            sw_german_word_delimiter_search_analyzer:
+                type: custom
+                tokenizer: whitespace
+                filter: ['sw_word_delimiter_filter', 'lowercase', 'remove_duplicates', 'sw_german_stop_filter']
         filter:
             sw_ngram_filter:
                 type: ngram
                 min_gram: "%env(int:SHOPWARE_ES_NGRAM_MIN_GRAM)%"
                 max_gram: "%env(int:SHOPWARE_ES_NGRAM_MAX_GRAM)%"
+            sw_word_delimiter_filter:
+                type: word_delimiter_graph
+                preserve_original: true
+                catenate_all: true
+                catenate_words: true
+                split_on_case_change: true
+                generate_word_parts: true
+                split_on_numerics: false
             sw_english_stop_filter:
                 type: 'stop'
                 stopwords: '_english_'

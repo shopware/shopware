@@ -22,9 +22,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
@@ -199,19 +201,15 @@ class McpServerController
             return $psrResponse;
         }
 
-        $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
+        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
 
-        if (!$responseData instanceof \stdClass) {
+        if ($response === null) {
             return $psrResponse;
         }
 
-        $filtered = $this->applyAllowlistFilter($responseData, $method, $allowlist);
+        $this->applyAllowlistFilter($response, $method, $allowlist);
 
-        if ($filtered === null) {
-            return $psrResponse;
-        }
-
-        $newBody = json_encode($filtered, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
+        $newBody = $response->encode();
         $newStream = $this->streamFactory->createStream($newBody);
 
         return $psrResponse
@@ -232,19 +230,15 @@ class McpServerController
     /**
      * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
      */
-    private function applyAllowlistFilter(\stdClass $responseData, ?string $method, array $allowlist): ?\stdClass
+    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, array $allowlist): void
     {
         if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
-            return $this->allowlistFilter->filterToolsListResponse($responseData, $allowlist[McpAllowlistProvider::TOOLS]);
+            $response->filterTools($allowlist[McpAllowlistProvider::TOOLS]);
+        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+            $response->filterResources($allowlist[McpAllowlistProvider::RESOURCES]);
+        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+            $response->filterPrompts($allowlist[McpAllowlistProvider::PROMPTS]);
         }
-        if ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
-            return $this->allowlistFilter->filterResourcesListResponse($responseData, $allowlist[McpAllowlistProvider::RESOURCES]);
-        }
-        if ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
-            return $this->allowlistFilter->filterPromptsListResponse($responseData, $allowlist[McpAllowlistProvider::PROMPTS]);
-        }
-
-        return null;
     }
 
     private function enrichInitializeResponse(Request $request, PsrResponseInterface $psrResponse): PsrResponseInterface
@@ -257,9 +251,9 @@ class McpServerController
             return $psrResponse;
         }
 
-        $responseData = $this->decodeJson((string) $psrResponse->getBody(), false);
+        $response = McpJsonRpcResponse::fromJson((string) $psrResponse->getBody());
 
-        if (!$responseData instanceof \stdClass) {
+        if ($response === null) {
             return $psrResponse;
         }
 
@@ -273,39 +267,11 @@ class McpServerController
             return $psrResponse;
         }
 
-        $shopwareMeta = new \stdClass();
-        if ($source->getUserId() !== null) {
-            $shopwareMeta->user = (object) ['id' => $source->getUserId()];
-        }
-        if ($source->getIntegrationId() !== null) {
-            $shopwareMeta->integration = (object) ['id' => $source->getIntegrationId()];
-        }
-
-        if (!isset($shopwareMeta->user) && !isset($shopwareMeta->integration)) {
+        if (!$response->addShopwareMeta($source->getUserId(), $source->getIntegrationId())) {
             return $psrResponse;
         }
 
-        $result = $responseData->result ?? null;
-        if (!$result instanceof \stdClass) {
-            return $psrResponse;
-        }
-
-        if (!isset($result->_meta) || !$result->_meta instanceof \stdClass) {
-            $result->_meta = new \stdClass();
-        }
-
-        if (!isset($result->_meta->shopware) || !$result->_meta->shopware instanceof \stdClass) {
-            $result->_meta->shopware = new \stdClass();
-        }
-
-        if (isset($shopwareMeta->user)) {
-            $result->_meta->shopware->user = $shopwareMeta->user;
-        }
-        if (isset($shopwareMeta->integration)) {
-            $result->_meta->shopware->integration = $shopwareMeta->integration;
-        }
-
-        $newBody = json_encode($responseData, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
+        $newBody = $response->encode();
         $newStream = $this->streamFactory->createStream($newBody);
 
         return $psrResponse
@@ -315,22 +281,22 @@ class McpServerController
 
     private function jsonRpcError(mixed $id, string $message): Response
     {
-        $payload = json_encode([
+        $payload = Json::encode([
             'jsonrpc' => '2.0',
             'id' => $id,
             'error' => [
                 'code' => -32001,
                 'message' => $message,
             ],
-        ], \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_UNICODE);
+        ]);
 
         return new Response($payload, Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
-    private function decodeJson(string $content, bool $associative = true): mixed
+    private function decodeJson(string $content): mixed
     {
         try {
-            return json_decode($content, $associative, 512, \JSON_THROW_ON_ERROR);
+            return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
         }

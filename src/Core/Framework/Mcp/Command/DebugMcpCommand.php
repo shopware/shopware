@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
@@ -164,7 +165,7 @@ class DebugMcpCommand extends Command
                 $req = \in_array($paramName, $required, true) ? 'required' : 'optional';
                 $desc = isset($def['description']) && \is_string($def['description']) ? $def['description'] : '';
                 if (isset($def['default'])) {
-                    $desc .= ($desc !== '' ? '. ' : '') . 'Default: ' . \json_encode($def['default']);
+                    $desc .= ($desc !== '' ? '. ' : '') . 'Default: ' . Json::encode($def['default']);
                 }
                 $rows[] = [$paramName, $type, $req, $desc];
             }

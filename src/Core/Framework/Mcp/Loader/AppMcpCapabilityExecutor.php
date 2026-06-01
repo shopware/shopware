@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,7 +50,7 @@ class AppMcpCapabilityExecutor
             return $this->executeSubRequest($capabilityName, $url, $arguments);
         }
 
-        $payload = json_encode([
+        $payload = Json::encode([
             'tool' => $capabilityName,
             'arguments' => $arguments,
             'source' => [
@@ -57,7 +58,7 @@ class AppMcpCapabilityExecutor
                 'shopId' => $this->shopIdProvider->getShopId()->id,
                 'appVersion' => $appVersion,
             ],
-        ], \JSON_THROW_ON_ERROR);
+        ]);
 
         $headers = [
             'Content-Type' => 'application/json',
@@ -99,10 +100,10 @@ class AppMcpCapabilityExecutor
                 'error' => $e->getMessage(),
             ]);
 
-            return json_encode([
+            return Json::encode([
                 'success' => false,
                 'error' => \sprintf('App capability "%s" execution failed: %s', $capabilityName, $e->getMessage()),
-            ], \JSON_THROW_ON_ERROR);
+            ]);
         }
     }
 
@@ -113,7 +114,7 @@ class AppMcpCapabilityExecutor
     {
         $parent = $this->requestStack->getCurrentRequest();
         if ($parent === null) {
-            return json_encode(['success' => false, 'error' => 'No active request context'], \JSON_THROW_ON_ERROR);
+            return Json::encode(['success' => false, 'error' => 'No active request context']);
         }
 
         try {
@@ -125,7 +126,7 @@ class AppMcpCapabilityExecutor
             }
             $server['CONTENT_TYPE'] = 'application/json';
 
-            $body = json_encode(['arguments' => $arguments], \JSON_THROW_ON_ERROR);
+            $body = Json::encode(['arguments' => $arguments]);
             $subRequest = Request::create($url, 'POST', [], [], [], $server, $body);
             $subRequest->attributes->add($route);
 
@@ -151,10 +152,10 @@ class AppMcpCapabilityExecutor
                 'error' => $e->getMessage(),
             ]);
 
-            return json_encode([
+            return Json::encode([
                 'success' => false,
                 'error' => \sprintf('App capability "%s" internal execution failed: %s', $capabilityName, $e->getMessage()),
-            ], \JSON_THROW_ON_ERROR);
+            ]);
         }
     }
 }

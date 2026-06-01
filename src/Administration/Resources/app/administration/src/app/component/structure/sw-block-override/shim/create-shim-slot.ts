@@ -69,8 +69,8 @@ function isInternalKey(key: string | symbol): boolean {
 export function createShimSlot(
     entry: BlockEntry,
     blockName: string,
-    legacyConditionBranchIndex?: number,
-    legacyConditionBranchCount = 0,
+    legacyConditionChainIndex?: number,
+    legacyConditionCaseCount = 0,
 ): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
@@ -97,15 +97,15 @@ export function createShimSlot(
     // reused shim instance even when the host component proxy identity is stable.
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
-    let legacyConditionBranchOffset = 0;
-    const { reserveLegacyConditionBranches, clearLegacyConditionChain } = useBlockContext();
-    /** Restarts branch numbering for each shim render pass. */
-    const resetLegacyConditionBranchOffset = () => {
-        legacyConditionBranchOffset = 0;
+    let legacyConditionChainOffset = 0;
+    const { reserveLegacyConditionCases, clearLegacyConditionChain } = useBlockContext();
+    /** Restarts condition chain numbering for each shim render pass. */
+    const resetLegacyConditionChainOffset = () => {
+        legacyConditionChainOffset = 0;
     };
     /** Drops persisted chain state when the owning shim component is removed. */
     const clearExtensionChain = () => {
-        if (legacyConditionBranchCount < 1) {
+        if (legacyConditionCaseCount < 1) {
             return;
         }
 
@@ -122,17 +122,17 @@ export function createShimSlot(
                 }
 
                 if (
-                    legacyConditionBranchIndex === undefined ||
+                    legacyConditionChainIndex === undefined ||
                     (helperName !== '$swLegacyBlockElseIf' && helperName !== '$swLegacyBlockElse')
                 ) {
                     return (helper as LegacyBlockHelper)(...args);
                 }
 
-                // Each shim helper call gets a stable local branch position inside its reserved range.
-                const branchIndex = legacyConditionBranchIndex + legacyConditionBranchOffset;
-                legacyConditionBranchOffset += 1;
+                // Each shim helper call gets a stable local position inside its reserved condition range.
+                const shimConditionChainIndex = legacyConditionChainIndex + legacyConditionChainOffset;
+                legacyConditionChainOffset += 1;
 
-                return (helper as LegacyBlockHelper)(...args, branchIndex);
+                return (helper as LegacyBlockHelper)(...args, shimConditionChainIndex);
             },
         ]),
     );
@@ -147,8 +147,8 @@ export function createShimSlot(
             },
         },
         setup: () => buildSetupContext(() => dataScopeRef.value),
-        beforeMount: resetLegacyConditionBranchOffset,
-        beforeUpdate: resetLegacyConditionBranchOffset,
+        beforeMount: resetLegacyConditionChainOffset,
+        beforeUpdate: resetLegacyConditionChainOffset,
         beforeUnmount: clearExtensionChain,
     };
 
@@ -156,12 +156,12 @@ export function createShimSlot(
         dataScopeRef.value = (dataScope ?? {}) as DataScope;
         renderVersion += 1;
 
-        if (legacyConditionBranchIndex !== undefined) {
-            // Reserve before mounting so later native branches wait for this shim chain to evaluate.
-            reserveLegacyConditionBranches(
+        if (legacyConditionChainIndex !== undefined) {
+            // Reserve before mounting so later native cases wait for this shim chain to evaluate.
+            reserveLegacyConditionCases(
                 getLegacyBlockConditionKey(dataScopeRef.value, blockName),
-                legacyConditionBranchIndex,
-                legacyConditionBranchCount,
+                legacyConditionChainIndex,
+                legacyConditionCaseCount,
             );
         }
 

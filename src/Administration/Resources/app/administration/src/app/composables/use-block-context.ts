@@ -4,11 +4,11 @@
 import { reactive, type Slot } from 'vue';
 
 type LegacyConditionChain = {
-    // Stores the result for each absolute branch position in the condition chain.
-    branches: Record<number, boolean | undefined>;
-    // Points to the next absolute position for branches rendered in the current pass.
+    // Stores the result for each absolute condition chain position.
+    caseResults: Record<number, boolean | undefined>;
+    // Points to the next absolute position for cases rendered in the current pass.
     nextIndex: number;
-    // Marks where shim-local branch indexes start inside the absolute chain.
+    // Marks where shim-local condition chain indexes start inside the absolute chain.
     extensionStartIndex?: number;
     // Keeps shim chains alive across ticks until their owning shim component unmounts.
     persistent: boolean;
@@ -54,21 +54,21 @@ function removeBlock(blockName: string, block?: Slot): void {
     }
 }
 
-/** Returns a stable branch slot, optionally inside the legacy shim extension range. */
-function getLegacyConditionBranchIndex(chain: LegacyConditionChain, branchIndex?: number): number {
-    if (branchIndex === undefined) {
-        // Native branches render in sequence, so they can consume the next free absolute index.
+/** Returns a stable condition chain index, optionally inside the legacy shim extension range. */
+function getLegacyConditionChainIndex(chain: LegacyConditionChain, shimConditionChainIndex?: number): number {
+    if (shimConditionChainIndex === undefined) {
+        // Native cases render in sequence, so they can consume the next free absolute index.
         const nextIndex = chain.nextIndex;
         chain.nextIndex += 1;
 
         return nextIndex;
     }
 
-    // Shim branches only know their local index; this offset maps them back into the full chain.
+    // Shim cases only know their local index; this offset maps them back into the full chain.
     chain.extensionStartIndex ??= chain.nextIndex;
     chain.persistent = true;
 
-    return chain.extensionStartIndex + branchIndex;
+    return chain.extensionStartIndex + shimConditionChainIndex;
 }
 
 /** Starts a legacy conditional chain for one block render. */
@@ -77,7 +77,7 @@ function legacyIf(blockName: string, expression: unknown): boolean {
 
     if (!legacyConditionContext[blockName]) {
         legacyConditionContext[blockName] = {
-            branches: {},
+            caseResults: {},
             nextIndex: 0,
             persistent: false,
         };
@@ -86,67 +86,67 @@ function legacyIf(blockName: string, expression: unknown): boolean {
     const chain = legacyConditionContext[blockName];
     chain.nextIndex = 0;
     delete chain.extensionStartIndex;
-    chain.branches[getLegacyConditionBranchIndex(chain)] = result;
+    chain.caseResults[getLegacyConditionChainIndex(chain)] = result;
     scheduleLegacyConditionCleanup(blockName, chain);
 
     return result;
 }
 
-/** Continues the chain only when no earlier branch matched. */
-function legacyElseIf(blockName: string, expression: unknown, branchIndex?: number): boolean {
+/** Continues the chain only when no earlier case matched. */
+function legacyElseIf(blockName: string, expression: unknown, shimConditionChainIndex?: number): boolean {
     const chain = legacyConditionContext[blockName];
 
     if (!chain) {
         return false;
     }
 
-    const index = getLegacyConditionBranchIndex(chain, branchIndex);
+    const index = getLegacyConditionChainIndex(chain, shimConditionChainIndex);
     const result = Boolean(expression);
-    let hasPendingPreviousCondition = false;
-    let previousConditionMatched = false;
+    let hasPendingPreviousCase = false;
+    let previousCaseMatched = false;
 
     for (let currentIndex = 0; currentIndex < index; currentIndex += 1) {
-        const branch = chain.branches[currentIndex];
+        const previousCaseResult = chain.caseResults[currentIndex];
 
-        previousConditionMatched = previousConditionMatched || branch === true;
-        hasPendingPreviousCondition = hasPendingPreviousCondition || branch === undefined;
+        previousCaseMatched = previousCaseMatched || previousCaseResult === true;
+        hasPendingPreviousCase = hasPendingPreviousCase || previousCaseResult === undefined;
 
-        if (previousConditionMatched || hasPendingPreviousCondition) {
+        if (previousCaseMatched || hasPendingPreviousCase) {
             break;
         }
     }
 
-    const branchResult = !hasPendingPreviousCondition && !previousConditionMatched && result;
-    chain.branches[index] = branchResult;
+    const caseResult = !hasPendingPreviousCase && !previousCaseMatched && result;
+    chain.caseResults[index] = caseResult;
 
-    return branchResult;
+    return caseResult;
 }
 
-/** Finishes the chain and renders only when all previous branches missed. */
-function legacyElse(blockName: string, branchIndex?: number): boolean {
+/** Finishes the chain and renders only when all previous cases missed. */
+function legacyElse(blockName: string, shimConditionChainIndex?: number): boolean {
     const chain = legacyConditionContext[blockName];
 
     if (!chain) {
         return false;
     }
 
-    const index = getLegacyConditionBranchIndex(chain, branchIndex);
-    let hasPendingPreviousCondition = false;
-    let previousConditionMatched = false;
+    const index = getLegacyConditionChainIndex(chain, shimConditionChainIndex);
+    let hasPendingPreviousCase = false;
+    let previousCaseMatched = false;
 
     for (let currentIndex = 0; currentIndex < index; currentIndex += 1) {
-        const branch = chain.branches[currentIndex];
+        const previousCaseResult = chain.caseResults[currentIndex];
 
-        previousConditionMatched = previousConditionMatched || branch === true;
-        hasPendingPreviousCondition = hasPendingPreviousCondition || branch === undefined;
+        previousCaseMatched = previousCaseMatched || previousCaseResult === true;
+        hasPendingPreviousCase = hasPendingPreviousCase || previousCaseResult === undefined;
 
-        if (previousConditionMatched || hasPendingPreviousCondition) {
+        if (previousCaseMatched || hasPendingPreviousCase) {
             break;
         }
     }
 
-    const result = !hasPendingPreviousCondition && !previousConditionMatched;
-    chain.branches[index] = result;
+    const result = !hasPendingPreviousCase && !previousCaseMatched;
+    chain.caseResults[index] = result;
 
     if (!chain.persistent) {
         delete legacyConditionContext[blockName];
@@ -155,27 +155,27 @@ function legacyElse(blockName: string, branchIndex?: number): boolean {
     return result;
 }
 
-/** Reserves branch slots for shim components before their render function runs. */
-function reserveLegacyConditionBranches(blockName: string, branchIndex: number, branchCount: number): void {
+/** Reserves condition chain slots for shim cases before their render function runs. */
+function reserveLegacyConditionCases(blockName: string, shimConditionChainIndex: number, caseCount: number): void {
     const chain = legacyConditionContext[blockName];
 
-    if (!chain || branchCount < 1) {
+    if (!chain || caseCount < 1) {
         return;
     }
 
     chain.extensionStartIndex ??= chain.nextIndex;
     chain.persistent = true;
 
-    const startIndex = chain.extensionStartIndex + branchIndex;
+    const startIndex = chain.extensionStartIndex + shimConditionChainIndex;
 
-    for (let currentIndex = startIndex; currentIndex < startIndex + branchCount; currentIndex += 1) {
-        if (!(currentIndex in chain.branches)) {
-            // Undefined means the branch exists, but the shim has not evaluated it yet.
-            chain.branches[currentIndex] = undefined;
+    for (let currentIndex = startIndex; currentIndex < startIndex + caseCount; currentIndex += 1) {
+        if (!(currentIndex in chain.caseResults)) {
+            // Undefined means the case exists, but the shim has not evaluated it yet.
+            chain.caseResults[currentIndex] = undefined;
         }
     }
 
-    chain.nextIndex = Math.max(chain.nextIndex, startIndex + branchCount);
+    chain.nextIndex = Math.max(chain.nextIndex, startIndex + caseCount);
 }
 
 /** Clears persistent shim chain state when the owning shim tree is removed. */
@@ -196,7 +196,7 @@ export default function useBlockContext() {
         legacyIf,
         legacyElseIf,
         legacyElse,
-        reserveLegacyConditionBranches,
+        reserveLegacyConditionCases,
         clearLegacyConditionChain,
     };
 }

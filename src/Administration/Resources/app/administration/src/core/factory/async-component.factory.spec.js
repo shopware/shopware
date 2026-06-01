@@ -3314,11 +3314,15 @@ describe('core/factory/async-component.factory.ts', () => {
                             $swLegacyBlockIf(blockName, expression) {
                                 return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
                             },
-                            $swLegacyBlockElseIf(blockName, expression, branchIndex) {
-                                return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, branchIndex);
+                            $swLegacyBlockElseIf(blockName, expression, shimConditionChainIndex) {
+                                return legacyElseIf(
+                                    getLegacyBlockConditionKey(this, blockName),
+                                    expression,
+                                    shimConditionChainIndex,
+                                );
                             },
-                            $swLegacyBlockElse(blockName, branchIndex) {
-                                return legacyElse(getLegacyBlockConditionKey(this, blockName), branchIndex);
+                            $swLegacyBlockElse(blockName, shimConditionChainIndex) {
+                                return legacyElse(getLegacyBlockConditionKey(this, blockName), shimConditionChainIndex);
                             },
                         },
                     },
@@ -3342,7 +3346,7 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.text()).toBe('kept');
         });
 
-        it('renders the legacy else branch without compiler errors', async () => {
+        it('renders the legacy else case without compiler errors', async () => {
             ComponentFactory.register('native-block-legacy-else', {
                 data() {
                     return {
@@ -3352,12 +3356,12 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: `
                     <div>
                         <sw-block name="test-block" :data="{}">
-                            <div v-if="isConditionTrue" class="true-branch">true</div>
+                            <div v-if="isConditionTrue" class="true-case">true</div>
                         </sw-block>
 
                         <sw-block extends="test-block">
                             <sw-block-parent />
-                            <div v-else class="false-branch">false</div>
+                            <div v-else class="false-case">false</div>
                         </sw-block>
                     </div>
                 `,
@@ -3365,11 +3369,11 @@ describe('core/factory/async-component.factory.ts', () => {
 
             const wrapper = await mountNativeBlockComponent('native-block-legacy-else');
 
-            expect(wrapper.find('.true-branch').exists()).toBe(false);
-            expect(wrapper.find('.false-branch').exists()).toBe(true);
+            expect(wrapper.find('.true-case').exists()).toBe(false);
+            expect(wrapper.find('.false-case').exists()).toBe(true);
         });
 
-        it('renders a legacy Twig shim v-else branch using the host component condition scope', async () => {
+        it('renders a legacy Twig shim v-else case using the host component condition scope', async () => {
             const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
             ComponentFactory.register('native-block-legacy-twig-shim-else', {
@@ -3386,7 +3390,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: `
                     <div>
                         <sw-block name="twig_shim_test_block" :data="dataScope">
-                            <div v-if="isConditionTrue" class="true-branch">true</div>
+                            <div v-if="isConditionTrue" class="true-case">true</div>
                         </sw-block>
                     </div>
                 `,
@@ -3396,7 +3400,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 template: `
                     {% block twig_shim_test_block %}
                         {% parent %}
-                        <div v-else class="false-branch">false</div>
+                        <div v-else class="false-case">false</div>
                     {% endblock %}
                 `,
             });
@@ -3409,13 +3413,13 @@ describe('core/factory/async-component.factory.ts', () => {
                 consoleWarn.mockRestore();
             }
 
-            expect(wrapper.find('.true-branch').exists()).toBe(false);
-            expect(wrapper.find('.false-branch').exists()).toBe(true);
+            expect(wrapper.find('.true-case').exists()).toBe(false);
+            expect(wrapper.find('.false-case').exists()).toBe(true);
 
             await wrapper.setData({ isConditionTrue: true });
 
-            expect(wrapper.find('.true-branch').exists()).toBe(true);
-            expect(wrapper.find('.false-branch').exists()).toBe(false);
+            expect(wrapper.find('.true-case').exists()).toBe(true);
+            expect(wrapper.find('.false-case').exists()).toBe(false);
         });
 
         it('renders legacy Twig shim condition chains across multiple template overrides', async () => {
@@ -3558,18 +3562,18 @@ describe('core/factory/async-component.factory.ts', () => {
                     template: `
                         <div>
                             <sw-block name="${blockName}" :data="{}">
-                                <div v-if="showBlue" class="blue-branch">blue</div>
-                                <div v-else-if="showGreen" class="green-branch">green</div>
+                                <div v-if="showBlue" class="blue-case">blue</div>
+                                <div v-else-if="showGreen" class="green-case">green</div>
                             </sw-block>
 
                             <sw-block extends="${blockName}">
                                 <sw-block-parent />
-                                <div v-else-if="showRed" class="red-branch">red</div>
+                                <div v-else-if="showRed" class="red-case">red</div>
                             </sw-block>
 
                             <sw-block extends="${blockName}">
                                 <sw-block-parent />
-                                <div v-else class="fallback-branch">fallback</div>
+                                <div v-else class="fallback-case">fallback</div>
                             </sw-block>
                         </div>
                     `,
@@ -3598,12 +3602,12 @@ describe('core/factory/async-component.factory.ts', () => {
             const redWrapper = await mountNativeBlockComponent('native-block-legacy-else-if-red');
             const greenWrapper = await mountNativeBlockComponent('native-block-legacy-else-if-green');
 
-            expect(fallbackWrapper.find('.fallback-branch').exists()).toBe(true);
-            expect(redWrapper.find('.red-branch').exists()).toBe(true);
-            expect(redWrapper.find('.fallback-branch').exists()).toBe(false);
-            expect(greenWrapper.find('.green-branch').exists()).toBe(true);
-            expect(greenWrapper.find('.red-branch').exists()).toBe(false);
-            expect(greenWrapper.find('.fallback-branch').exists()).toBe(false);
+            expect(fallbackWrapper.find('.fallback-case').exists()).toBe(true);
+            expect(redWrapper.find('.red-case').exists()).toBe(true);
+            expect(redWrapper.find('.fallback-case').exists()).toBe(false);
+            expect(greenWrapper.find('.green-case').exists()).toBe(true);
+            expect(greenWrapper.find('.red-case').exists()).toBe(false);
+            expect(greenWrapper.find('.fallback-case').exists()).toBe(false);
         });
     });
 

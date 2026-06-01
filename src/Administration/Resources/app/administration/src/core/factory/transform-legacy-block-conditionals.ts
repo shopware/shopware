@@ -29,7 +29,7 @@ function escapeDoubleQuotedString(value: string): string {
     return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }
 
-/** Builds the replacement v-if expression that links a branch to the legacy chain state. */
+/** Builds the replacement v-if expression that links a case to the legacy condition state. */
 function createLegacyHelperExpression(helperName: string, blockName: string, expression?: string | null): string {
     const escapedBlockName = escapeSingleQuotedString(blockName);
 
@@ -223,7 +223,7 @@ function rewriteLeadingConditionalChain(
     return hasChanges;
 }
 
-/** Rewrites v-else-if / v-else branches that continue in following sibling sw-blocks. */
+/** Rewrites v-else-if / v-else cases that continue in following sibling sw-blocks. */
 function rewriteFollowingNamedBlockConditionals(
     blockName: string,
     blockElement: Element,
@@ -240,7 +240,7 @@ function rewriteFollowingNamedBlockConditionals(
             return hasChanges;
         }
 
-        const hasFinalElseBranch = leadingConditionalChain.at(-1)?.hasAttribute('v-else') ?? false;
+        const hasFinalElseCase = leadingConditionalChain.at(-1)?.hasAttribute('v-else') ?? false;
 
         if (!rewriteLeadingConditionalChain(blockName, leadingConditionalChain, helpers)) {
             return hasChanges;
@@ -249,7 +249,7 @@ function rewriteFollowingNamedBlockConditionals(
         rewrittenContinuationBlocks.add(nextBlockElement);
         hasChanges = true;
 
-        if (hasFinalElseBranch) {
+        if (hasFinalElseCase) {
             return hasChanges;
         }
 

@@ -216,16 +216,16 @@ export default class VueAdapter extends ViewAdapter {
             this: ComponentPublicInstance,
             blockName: string,
             expression: unknown,
-            branchIndex?: number,
+            shimConditionChainIndex?: number,
         ): boolean {
-            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, branchIndex);
+            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, shimConditionChainIndex);
         };
         this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
             this: ComponentPublicInstance,
             blockName: string,
-            branchIndex?: number,
+            shimConditionChainIndex?: number,
         ): boolean {
-            return legacyElse(getLegacyBlockConditionKey(this, blockName), branchIndex);
+            return legacyElse(getLegacyBlockConditionKey(this, blockName), shimConditionChainIndex);
         };
 
         /**

@@ -7,7 +7,7 @@ describe('use-block-context', () => {
     let legacyIf;
     let legacyElseIf;
     let legacyElse;
-    let reserveLegacyConditionBranches;
+    let reserveLegacyConditionCases;
     let clearLegacyConditionChain;
     let legacyConditionContext;
 
@@ -18,7 +18,7 @@ describe('use-block-context', () => {
         legacyIf = blockContext.legacyIf;
         legacyElseIf = blockContext.legacyElseIf;
         legacyElse = blockContext.legacyElse;
-        reserveLegacyConditionBranches = blockContext.reserveLegacyConditionBranches;
+        reserveLegacyConditionCases = blockContext.reserveLegacyConditionCases;
         clearLegacyConditionChain = blockContext.clearLegacyConditionChain;
         legacyConditionContext = blockContext.legacyConditionContext;
     });
@@ -145,17 +145,17 @@ describe('use-block-context', () => {
         expect(legacyElse('test')).toBe(true);
     });
 
-    it('does not render orphaned legacy else branches', () => {
+    it('does not render orphaned legacy else cases', () => {
         expect(legacyElseIf('test', true)).toBe(false);
         expect(legacyElse('test')).toBe(false);
     });
 
-    it('cleans up legacy if chains without an else branch', async () => {
+    it('cleans up legacy if chains without an else case', async () => {
         expect(legacyIf('test', false)).toBe(false);
         expect(legacyElseIf('test', true)).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: true,
                 },
@@ -169,21 +169,21 @@ describe('use-block-context', () => {
         expect(legacyConditionContext).toStrictEqual({});
     });
 
-    it('keeps legacy else branches available during the current render tick', () => {
+    it('keeps legacy else cases available during the current render tick', () => {
         expect(legacyIf('test', false)).toBe(false);
         expect(legacyElse('test')).toBe(true);
         expect(legacyConditionContext).toStrictEqual({});
     });
 
-    it('keeps reserved extension branches pending until the shim renders', async () => {
+    it('keeps reserved extension cases pending until the shim renders', async () => {
         expect(legacyIf('test', false)).toBe(false);
 
-        reserveLegacyConditionBranches('test', 0, 1);
+        reserveLegacyConditionCases('test', 0, 1);
 
         expect(legacyElse('test')).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: undefined,
                     2: false,
@@ -198,7 +198,7 @@ describe('use-block-context', () => {
 
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: undefined,
                     2: false,
@@ -210,16 +210,16 @@ describe('use-block-context', () => {
         });
     });
 
-    it('updates reserved extension branches by their stable branch index', () => {
+    it('updates reserved extension cases by their stable shim condition chain index', () => {
         expect(legacyIf('test', false)).toBe(false);
 
-        reserveLegacyConditionBranches('test', 0, 2);
+        reserveLegacyConditionCases('test', 0, 2);
 
         expect(legacyElseIf('test', false, 0)).toBe(false);
         expect(legacyElse('test', 1)).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: false,
                     2: true,
@@ -231,22 +231,22 @@ describe('use-block-context', () => {
         });
     });
 
-    it('uses nextIndex as extensionStartIndex for shim-local branch positions', () => {
-        // Native branches consume absolute indexes first.
+    it('uses nextIndex as extensionStartIndex for shim condition chain indexes', () => {
+        // Native cases consume absolute indexes first.
         expect(legacyIf('test', false)).toBe(false);
         expect(legacyElseIf('test', false)).toBe(false);
 
         // The shim reserves two pending slots starting at the current nextIndex.
-        reserveLegacyConditionBranches('test', 0, 2);
+        reserveLegacyConditionCases('test', 0, 2);
 
         // Shim-local indexes 0 and 1 are evaluated as absolute indexes 2 and 3.
         expect(legacyElseIf('test', true, 0)).toBe(true);
         expect(legacyElse('test', 1)).toBe(false);
-        // Later native branches continue after the reserved shim range.
+        // Later native cases continue after the reserved shim range.
         expect(legacyElse('test')).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: false,
                     2: true,
@@ -263,7 +263,7 @@ describe('use-block-context', () => {
     it('clears persisted legacy extension chains when the extension is removed', () => {
         expect(legacyIf('test', false)).toBe(false);
 
-        reserveLegacyConditionBranches('test', 0, 1);
+        reserveLegacyConditionCases('test', 0, 1);
         clearLegacyConditionChain('test');
 
         expect(legacyConditionContext).toStrictEqual({});
@@ -272,14 +272,14 @@ describe('use-block-context', () => {
     it('keeps persisted extension state when the parent legacy chain renders again', () => {
         expect(legacyIf('test', false)).toBe(false);
 
-        reserveLegacyConditionBranches('test', 0, 1);
+        reserveLegacyConditionCases('test', 0, 1);
         expect(legacyElseIf('test', true, 0)).toBe(true);
 
         expect(legacyIf('test', false)).toBe(false);
-        reserveLegacyConditionBranches('test', 0, 1);
+        reserveLegacyConditionCases('test', 0, 1);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                branches: {
+                caseResults: {
                     0: false,
                     1: true,
                 },

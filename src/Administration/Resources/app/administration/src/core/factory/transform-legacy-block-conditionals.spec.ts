@@ -7,16 +7,16 @@ import transformLegacyBlockConditionals, {
 } from './transform-legacy-block-conditionals';
 
 describe('core/factory/transform-legacy-block-conditionals.ts', () => {
-    it('rewrites legacy v-if / v-else branches across sw-block boundaries', () => {
+    it('rewrites legacy v-if / v-else cases across sw-block boundaries', () => {
         const template = `
             <div>
                 <sw-block name="test-block">
-                    <div v-if="isConditionTrue" class="true-branch">true</div>
+                    <div v-if="isConditionTrue" class="true-case">true</div>
                 </sw-block>
 
                 <sw-block extends="test-block">
                     <sw-block-parent />
-                    <div v-else class="false-branch">false</div>
+                    <div v-else class="false-case">false</div>
                 </sw-block>
             </div>
         `;
@@ -25,7 +25,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('test-block', isConditionTrue)"`);
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
-        expect(transformedTemplate).not.toContain('v-else class="false-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="false-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
@@ -33,18 +33,18 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const template = `
             <div>
                 <sw-block name="test-block">
-                    <div v-if="showBlue" class="blue-branch">blue</div>
-                    <div v-else-if="showGreen" class="green-branch">green</div>
+                    <div v-if="showBlue" class="blue-case">blue</div>
+                    <div v-else-if="showGreen" class="green-case">green</div>
                 </sw-block>
 
                 <sw-block extends="test-block">
                     <sw-block-parent />
-                    <div v-else-if="showRed" class="red-branch">red</div>
+                    <div v-else-if="showRed" class="red-case">red</div>
                 </sw-block>
 
                 <sw-block extends="test-block">
                     <sw-block-parent />
-                    <div v-else class="fallback-branch">fallback</div>
+                    <div v-else class="fallback-case">fallback</div>
                 </sw-block>
             </div>
         `;
@@ -62,13 +62,13 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const template = `
             <div>
                 <sw-block name="test-block">
-                    <div v-if="showDefault" class="default-branch">default</div>
+                    <div v-if="showDefault" class="default-case">default</div>
                 </sw-block>
 
                 <sw-block extends="test-block">
                     <div class="before-parent">before</div>
                     <sw-block-parent />
-                    <div v-else class="fallback-branch">fallback</div>
+                    <div v-else class="fallback-case">fallback</div>
                 </sw-block>
             </div>
         `;
@@ -77,19 +77,19 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('test-block', showDefault)"`);
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
-        expect(transformedTemplate).not.toContain('v-else class="fallback-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="fallback-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
-    it('rewrites v-else branches that continue in the following named sw-block', () => {
+    it('rewrites v-else cases that continue in the following named sw-block', () => {
         const template = `
             <div>
                 <sw-block name="grid-block">
-                    <sw-data-grid v-if="items.length" class="grid-branch"></sw-data-grid>
+                    <sw-data-grid v-if="items.length" class="grid-case"></sw-data-grid>
                 </sw-block>
 
                 <sw-block name="empty-state-block">
-                    <mt-empty-state v-else class="empty-branch"></mt-empty-state>
+                    <mt-empty-state v-else class="empty-case"></mt-empty-state>
                 </sw-block>
             </div>
         `;
@@ -99,7 +99,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockIf('grid-block', items.length)"`);
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('grid-block')"`);
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('empty-state-block'`);
-        expect(transformedTemplate).not.toContain('v-else class="empty-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="empty-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
@@ -107,15 +107,15 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const template = `
             <div>
                 <sw-block name="blue-block">
-                    <div v-if="showBlue" class="blue-branch">blue</div>
+                    <div v-if="showBlue" class="blue-case">blue</div>
                 </sw-block>
 
                 <sw-block name="green-block">
-                    <div v-else-if="showGreen" class="green-branch">green</div>
+                    <div v-else-if="showGreen" class="green-case">green</div>
                 </sw-block>
 
                 <sw-block name="fallback-block">
-                    <div v-else class="fallback-branch">fallback</div>
+                    <div v-else class="fallback-case">fallback</div>
                 </sw-block>
             </div>
         `;
@@ -128,7 +128,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('green-block'`);
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('fallback-block'`);
         expect(transformedTemplate).not.toContain('v-else-if="showGreen"');
-        expect(transformedTemplate).not.toContain('v-else class="fallback-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="fallback-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
@@ -136,7 +136,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const template = `
             <div>
                 <sw-block name="test-block">
-                    <div class="default-branch">default</div>
+                    <div class="default-case">default</div>
                 </sw-block>
             </div>
         `;
@@ -144,24 +144,24 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformLegacyBlockConditionals(template)).toBe(template);
     });
 
-    it('rewrites legacy Twig shim v-else branches after sw-block-parent', () => {
+    it('rewrites legacy Twig shim v-else cases after sw-block-parent', () => {
         const template = `
             <sw-block-parent />
-            <div v-else class="false-branch">false</div>
+            <div v-else class="false-case">false</div>
         `;
 
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
 
         expect(transformedTemplate).toContain('<sw-block-parent></sw-block-parent>');
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
-        expect(transformedTemplate).not.toContain('v-else class="false-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="false-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
-    it('rewrites legacy Twig shim v-else-if branches after sw-block-parent', () => {
+    it('rewrites legacy Twig shim v-else-if cases after sw-block-parent', () => {
         const template = `
             <sw-block-parent />
-            <div v-else-if="showRed" class="red-branch">red</div>
+            <div v-else-if="showRed" class="red-case">red</div>
         `;
 
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
@@ -171,18 +171,18 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
-    it('rewrites legacy Twig shim v-else branches after a later sw-block-parent', () => {
+    it('rewrites legacy Twig shim v-else cases after a later sw-block-parent', () => {
         const template = `
             <div class="before-parent">before</div>
             <sw-block-parent />
-            <div v-else class="false-branch">false</div>
+            <div v-else class="false-case">false</div>
         `;
 
         const transformedTemplate = transformLegacyBlockExtensionConditionals('test-block', template);
 
         expect(transformedTemplate).toContain('<sw-block-parent></sw-block-parent>');
         expect(transformedTemplate).toContain(`v-if="$swLegacyBlockElse('test-block')"`);
-        expect(transformedTemplate).not.toContain('v-else class="false-branch"');
+        expect(transformedTemplate).not.toContain('v-else class="false-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 });

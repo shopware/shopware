@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer;
+use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderResult;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -22,6 +23,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 #[Package('framework')]
 #[CoversClass(SalesChannelFileLoader::class)]
+#[CoversClass(SalesChannelFileRenderResult::class)]
 class SalesChannelFileLoaderTest extends TestCase
 {
     public function testItTagsRenderedFilesWithSalesChannelFileConfigurationId(): void
@@ -82,7 +84,9 @@ class SalesChannelFileLoaderTest extends TestCase
         $result = (new SalesChannelFileLoader($discovery, $configurationLoader, $renderer, $cacheTagCollector))->load($templatePath, $salesChannelContext);
 
         static::assertNotNull($result);
+        static::assertSame('llms.txt', $result->getFileName());
         static::assertSame('rendered content', $result->getContent());
+        static::assertSame('text/plain; charset=utf-8', $result->getContentType());
     }
 
     public function testItDoesNotLoadSalesChannelFileConfigurationForUnknownDiscoveredFile(): void

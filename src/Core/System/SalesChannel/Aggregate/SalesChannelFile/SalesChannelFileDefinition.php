@@ -52,7 +52,7 @@ class SalesChannelFileDefinition extends EntityDefinition
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new ApiAware(AdminApiSource::class))->setDescription('Unique identity of the sales channel file configuration.'),
             (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required(), new ApiAware(AdminApiSource::class))->setDescription('Unique identity of the configured sales channel.'),
-            (new StringField('file_family', 'fileFamily', 255))->addFlags(new Required(), new ApiAware(AdminApiSource::class))->setDescription('File family below Resources/views/files.'),
+            (new StringField('file_family', 'fileFamily', 64))->addFlags(new Required(), new ApiAware(AdminApiSource::class))->setDescription('File family below Resources/views/files.'),
             (new StringField('file_name', 'fileName', 512))->addFlags(new Required(), new ApiAware(AdminApiSource::class))->setDescription('Normalized public file path without a leading slash.'),
             (new BoolField('enabled', 'enabled'))->addFlags(new Required(), new ApiAware(AdminApiSource::class))->setDescription('Controls whether the file is served for this sales channel.'),
             (new JsonField('template_overrides', 'templateOverrides', [], []))->addFlags(new ApiAware(AdminApiSource::class))->setDescription('Twig template overrides keyed by Twig namespace.'),

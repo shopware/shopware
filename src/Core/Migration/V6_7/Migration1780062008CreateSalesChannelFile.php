@@ -24,7 +24,7 @@ class Migration1780062008CreateSalesChannelFile extends MigrationStep
 CREATE TABLE IF NOT EXISTS `sales_channel_file` (
     `id` BINARY(16) NOT NULL,
     `sales_channel_id` BINARY(16) NOT NULL,
-    `file_family` VARCHAR(255) NOT NULL,
+    `file_family` VARCHAR(64) NOT NULL,
     `file_name` VARCHAR(512) NOT NULL,
     `enabled` TINYINT(1) NOT NULL DEFAULT 0,
     `template_overrides` JSON NULL,

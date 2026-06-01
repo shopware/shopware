@@ -11,6 +11,8 @@ use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 #[Package('framework')]
 final class SalesChannelFileRequestPathResolver
 {
+    private const MAX_FILE_FAMILY_LENGTH = 64;
+
     public function buildTemplatePath(string $fileFamily, string $fileName): string
     {
         $this->validateFileFamily($fileFamily);
@@ -24,6 +26,7 @@ final class SalesChannelFileRequestPathResolver
         if ($fileFamily === ''
             || $fileFamily === '.'
             || $fileFamily === '..'
+            || mb_strlen($fileFamily) > self::MAX_FILE_FAMILY_LENGTH
             || preg_match('/^[A-Za-z0-9_-]+$/', $fileFamily) !== 1
         ) {
             throw SalesChannelFileException::invalidFileFamily($fileFamily);

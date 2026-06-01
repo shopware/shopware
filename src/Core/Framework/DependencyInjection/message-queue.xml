@@ -26,6 +26,7 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Service\MessageSizeCalculator"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
 
         <!--Controller-->

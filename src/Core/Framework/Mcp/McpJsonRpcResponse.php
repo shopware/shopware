@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Mcp\Exception\InvalidArgumentException;
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Schema\Implementation;
 use Mcp\Schema\JsonRpc\ResultInterface;
 use Mcp\Schema\Prompt;
 use Mcp\Schema\Resource;
@@ -10,6 +12,7 @@ use Mcp\Schema\Result\InitializeResult;
 use Mcp\Schema\Result\ListPromptsResult;
 use Mcp\Schema\Result\ListResourcesResult;
 use Mcp\Schema\Result\ListToolsResult;
+use Mcp\Schema\ServerCapabilities;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -43,11 +46,11 @@ class McpJsonRpcResponse implements \JsonSerializable
             return null;
         }
 
-        if (!\is_array($data) || !\is_array($data['result'] ?? null)) {
+        if (!\is_array($data)) {
             return null;
         }
 
-        $result = self::parseResult($data['result']);
+        $result = self::parseResult($data['result'] ?? null);
 
         if ($result === null) {
             return null;
@@ -160,8 +163,12 @@ class McpJsonRpcResponse implements \JsonSerializable
         ];
     }
 
-    private static function parseResult(array $resultData): ?ResultInterface
+    private static function parseResult(mixed $resultData): ?ResultInterface
     {
+        if (!\is_array($resultData)) {
+            return null;
+        }
+
         try {
             if (\array_key_exists('tools', $resultData)) {
                 return ListToolsResult::fromArray($resultData);
@@ -173,12 +180,46 @@ class McpJsonRpcResponse implements \JsonSerializable
                 return ListPromptsResult::fromArray($resultData);
             }
             if (\array_key_exists('capabilities', $resultData)) {
-                return InitializeResult::fromArray($resultData);
+                return self::parseInitializeResult($resultData);
             }
         } catch (InvalidArgumentException) {
             return null;
         }
 
         return null;
+    }
+
+    private static function parseInitializeResult(mixed $resultData): ?InitializeResult
+    {
+        if (!\is_array($resultData)) {
+            return null;
+        }
+
+        $protocolVersion = $resultData['protocolVersion'] ?? null;
+        $capabilitiesData = $resultData['capabilities'] ?? null;
+        $serverInfoData = $resultData['serverInfo'] ?? null;
+
+        if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {
+            return null;
+        }
+
+        $serverName = $serverInfoData['name'] ?? null;
+        $serverVersion = $serverInfoData['version'] ?? null;
+
+        if (!\is_string($serverName) || !\is_string($serverVersion)) {
+            return null;
+        }
+
+        try {
+            return new InitializeResult(
+                capabilities: ServerCapabilities::fromArray($capabilitiesData),
+                serverInfo: new Implementation(name: $serverName, version: $serverVersion),
+                instructions: \is_string($resultData['instructions'] ?? null) ? $resultData['instructions'] : null,
+                meta: \is_array($resultData['_meta'] ?? null) ? $resultData['_meta'] : null,
+                protocolVersion: ProtocolVersion::tryFrom($protocolVersion),
+            );
+        } catch (InvalidArgumentException) {
+            return null;
+        }
     }
 }

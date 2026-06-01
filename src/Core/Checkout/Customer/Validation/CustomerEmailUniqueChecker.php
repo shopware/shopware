@@ -6,9 +6,14 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriberTest;
 
 /**
  * @final
+ *
+ * @codeCoverageIgnore Tested via integration tests.
+ *
+ * @see CustomerEmailUniqueSubscriberTest
  */
 #[Package('checkout')]
 class CustomerEmailUniqueChecker

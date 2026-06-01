@@ -15,12 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore Tested via integration tests.
+ *
+ * @see CustomerEmailUniqueSubscriberTest
  */
 #[Package('checkout')]
 class CustomerEmailUniqueSubscriber implements EventSubscriberInterface

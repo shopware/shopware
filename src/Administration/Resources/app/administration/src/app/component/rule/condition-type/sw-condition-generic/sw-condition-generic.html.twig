@@ -19,7 +19,16 @@
             :key="index"
         >
             <div class="sw-condition-generic__input-wrapper">
+                <sw-condition-value-between-date
+                    v-if="isBetweenDateField(field)"
+                    :value="values[field.name]"
+                    :date-type="field.type"
+                    :disabled="isDisabled || undefined"
+                    @update:value="updateBetweenDateValue(field.name, $event)"
+                />
+
                 <sw-form-field-renderer
+                    v-else
                     v-bind="getBind(field)"
                     :disabled="isDisabled || undefined"
                     :value="getVisibleValue(field.name)"

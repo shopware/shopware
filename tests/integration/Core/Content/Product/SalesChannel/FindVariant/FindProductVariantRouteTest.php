@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\FindVariant;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -151,12 +151,10 @@ class FindProductVariantRouteTest extends TestCase
             $this->ids->get('new') => $this->ids->get('new'),
         ];
 
-        static::expectException(VariantNotFoundException::class);
-        static::expectExceptionMessage(
-            'Variant for productId '
-            . $this->ids->get('base') . ' with options {"' . $this->ids->get('new') . '":"' . $this->ids->get('new')
-            . '"} not found.'
-        );
+        $this->expectExceptionObject(ProductException::variantNotFound(
+            $this->ids->get('base'),
+            [$this->ids->get('new') => $this->ids->get('new')]
+        ));
 
         $this->findProductVariantRoute->load(
             $this->ids->get('base'),

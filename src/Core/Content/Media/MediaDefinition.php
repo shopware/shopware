@@ -139,6 +139,7 @@ class MediaDefinition extends EntityDefinition
             (new OneToManyAssociationField('appPaymentMethods', AppPaymentMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToManyAssociationField('appShippingMethods', AppShippingMethodDefinition::class, 'original_media_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new OneToOneAssociationField('documentFile', 'id', 'media_id', DocumentFileDefinition::class, false))->addFlags(new RestrictDelete()),
+            (new StringField('file_name_sort_key', 'fileNameSortKey'))->removeFlag(ApiAware::class)->addFlags(new Computed(), new Runtime()),
             (new StringField('file_hash', 'fileHash'))->addFlags(new Computed()),
         ]);
     }

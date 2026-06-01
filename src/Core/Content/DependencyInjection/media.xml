@@ -445,7 +445,16 @@
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaVisibilityRestrictionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <!-- Keep this decorator inside the Elasticsearch decorators: ES must see the original criteria first, and this rewrite should only run for DBAL fallback searches. -->
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileNameSortSearcher"
+                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"
+                 decoration-priority="1500">
+            <argument type="service" id=".inner"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber">

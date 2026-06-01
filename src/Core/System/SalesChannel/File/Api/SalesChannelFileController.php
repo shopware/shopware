@@ -13,8 +13,8 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
-use Shopware\Core\System\SalesChannel\File\SalesChannelFileException;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -64,7 +64,7 @@ class SalesChannelFileController extends AbstractController
     {
         $fileName = $dataBag->get('fileName');
         if (!\is_string($fileName)) {
-            throw SalesChannelFileException::missingFileName();
+            throw SalesChannelException::missingSalesChannelFileName();
         }
 
         $templatePath = $this->requestPathResolver->buildTemplatePath($fileFamily, $fileName);
@@ -75,14 +75,14 @@ class SalesChannelFileController extends AbstractController
         }
 
         if (!\is_array($templateOverrides)) {
-            throw SalesChannelFileException::invalidTemplateOverrides();
+            throw SalesChannelException::invalidSalesChannelFileTemplateOverrides();
         }
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
         $result = $this->loader->preview($templatePath, $salesChannelContext, $templateOverrides);
 
         if ($result === null) {
-            throw SalesChannelFileException::fileNotFound($fileFamily, $fileName);
+            throw SalesChannelException::salesChannelFileNotFound($fileFamily, $fileName);
         }
 
         return new JsonResponse([

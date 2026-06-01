@@ -7,6 +7,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,7 +69,7 @@ class SalesChannelFileNotFoundSubscriber implements EventSubscriberInterface
                 SalesChannelFile::DEFAULT_FILE_FAMILY,
                 ltrim($request->getPathInfo(), '/'),
             );
-        } catch (SalesChannelFileException) {
+        } catch (SalesChannelException) {
             return;
         }
 

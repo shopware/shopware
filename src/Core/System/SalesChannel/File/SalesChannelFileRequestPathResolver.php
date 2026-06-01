@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\File;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 
 /**
  * @internal
@@ -29,7 +30,7 @@ final class SalesChannelFileRequestPathResolver
             || mb_strlen($fileFamily) > self::MAX_FILE_FAMILY_LENGTH
             || preg_match('/^[A-Za-z0-9_-]+$/', $fileFamily) !== 1
         ) {
-            throw SalesChannelFileException::invalidFileFamily($fileFamily);
+            throw SalesChannelException::invalidSalesChannelFileFamily($fileFamily);
         }
     }
 
@@ -42,19 +43,19 @@ final class SalesChannelFileRequestPathResolver
             || str_contains($path, "\0")
             || preg_match('/^[A-Za-z]:/', $path) === 1
         ) {
-            throw SalesChannelFileException::invalidPath($path);
+            throw SalesChannelException::invalidSalesChannelFilePath($path);
         }
 
         $segments = explode('/', $path);
         foreach ($segments as $segment) {
             if ($segment === '' || $segment === '.' || $segment === '..' || preg_match('/^[A-Za-z0-9._-]+$/', $segment) !== 1) {
-                throw SalesChannelFileException::invalidPath($path);
+                throw SalesChannelException::invalidSalesChannelFilePath($path);
             }
         }
 
         $fileName = (string) end($segments);
         if (pathinfo($fileName, \PATHINFO_EXTENSION) === '' || pathinfo($fileName, \PATHINFO_FILENAME) === '') {
-            throw SalesChannelFileException::invalidPath($path);
+            throw SalesChannelException::invalidSalesChannelFilePath($path);
         }
     }
 }

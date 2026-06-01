@@ -24,6 +24,7 @@ use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -177,7 +178,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'),
-            (new OneToManyAssociationField('salesChannelFiles', SalesChannelFileDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ApiAware(), new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannelFiles', SalesChannelFileDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ApiAware(AdminApiSource::class), new CascadeDelete()),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, false))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
             new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'),

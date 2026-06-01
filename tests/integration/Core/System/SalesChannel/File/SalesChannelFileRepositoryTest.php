@@ -49,10 +49,14 @@ class SalesChannelFileRepositoryTest extends TestCase
         static::assertSame('agentic', $entity->getFileFamily());
         static::assertSame('llms.txt', $entity->getFileName());
         static::assertTrue($entity->isEnabled());
+
+        $templateOverrides = $entity->getTemplateOverrides();
+        ksort($templateOverrides);
+
         static::assertSame([
             'Framework' => 'merchant override',
             'Ucp' => 'plugin override',
-        ], $entity->getTemplateOverrides());
+        ], $templateOverrides);
     }
 
     public function testSalesChannelAssociationLoadsFiles(): void

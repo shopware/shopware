@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
@@ -22,6 +23,7 @@ use Shopware\Core\Migration\V6_6\Migration1737105721MigrateOrderStateChangeDocum
 #[CoversClass(Migration1737105721MigrateOrderStateChangeDocumentToA11Y::class)]
 class Migration1737105721MigrateOrderStateChangeDocumentToA11YTest extends TestCase
 {
+    use DatabaseTransactionBehaviour;
     use ImportTranslationsTrait;
     use KernelTestBehaviour;
 

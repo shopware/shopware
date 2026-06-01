@@ -288,6 +288,13 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+## Fixed `ListField` overwrites during entity clone
+
+`VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.
+For entity fields declared as `ListField` (including `ListField` properties nested inside a `JsonField`), this produced incorrect results: an overwrite like `['value2']` against `['value1', 'value2', 'value3']` yielded `['value2', 'value2', 'value3']` instead of replacing the list.
+Overwrites are now applied with a field-aware merge that fully replaces `ListField` values and recurses through nested property mappings.
+Behaviour for all other field types is unchanged.
+
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
 Following helper methods have been removed from the `EntityDefinitionQueryHelper`:
@@ -1075,7 +1082,13 @@ Use the parent blocks instead
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
 
 ## File accessibility changed from public to private
-`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js`
+
+## Removal of component sw-settings-storefront-configuration
+`sw-settings-storefront-configuration` is removed without replacement.
+The Storefront settings Administration page owns its settings fields directly.
 
 ## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`

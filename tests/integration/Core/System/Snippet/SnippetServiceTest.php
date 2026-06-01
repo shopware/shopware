@@ -130,7 +130,7 @@ class SnippetServiceTest extends TestCase
             'baz.bar' => 'baz_bar_default2',
         ], $snippets);
 
-        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPre(), $listener);
+        $eventDispatcher->removeListener(StorefrontSnippetsExtension::onPost(), $listener);
     }
 
     public function testGetStorefrontSnippetsForNotExistingSnippetSet(): void

@@ -43,7 +43,6 @@ Admin-search autocomplete now flows through a new `completion` field (ngram-inde
 
 Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
 
-<<<<<<< feat-extended-event-system-helper-methods
 ### Type-safe subscription helpers on `Extension`
 
 `Shopware\Core\Framework\Extensions\Extension` now exposes three static helpers — `onPre()`, `onPost()`, and `onError()` — that return the dispatched event name for the corresponding phase. Extensions need `::NAME` constant for the methods to work.
@@ -64,7 +63,6 @@ public static function getSubscribedEvents(): array
 Dispatchers and subscribers no longer have to concatenate event-name strings - it gives type safety, IDE autocomplete, and rename-refactor support. Also subscribers don't have to depend on `ExtensionDispatcher`.
 
 The previous styles — `MyExtension::NAME . '.post'` and `ExtensionDispatcher::post(MyExtension::NAME)` — continue to work and are not deprecated. No migration is required.
-=======
 ### Telemetry metrics evolution
 
 The telemetry metrics abstraction behind the `TELEMETRY_METRICS` feature flag received several improvements ahead of stabilization in 6.8.
@@ -76,7 +74,6 @@ See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the
 - `PeriodicMetricCollectorInterface`: tag a service with `shopware.telemetry.periodic_metric_collector` to have its metrics collected by the `telemetry.collect_periodic_metrics` scheduled task (default 5 minutes, tunable via the standard scheduled-task administration). Useful for expensive aggregations and info metrics.
 - New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
 - Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
->>>>>>> trunk
 
 ## Administration
 

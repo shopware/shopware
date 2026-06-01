@@ -429,7 +429,7 @@ describe('src/app/service/rule-condition.service.js', () => {
         expect(result).toBeFalsy();
     });
 
-    it('should have the correct operators for date', async () => {
+    it('should have the correct operators for date & datetime', async () => {
         const ruleConditionService = new RuleConditionService();
 
         const expected = [
@@ -457,11 +457,14 @@ describe('src/app/service/rule-condition.service.js', () => {
                 identifier: '!=',
                 label: 'global.sw-condition.operator.notEquals',
             },
+            {
+                identifier: 'between',
+                label: 'global.sw-condition.operator.between',
+            },
         ];
 
-        const operators = ruleConditionService.getOperatorSet('date');
-
-        expect(operators).toEqual(expected);
+        expect(ruleConditionService.getOperatorSet('date')).toEqual(expected);
+        expect(ruleConditionService.getOperatorSet('datetime')).toEqual(expected);
     });
 
     it('should get the restrictedConditions', () => {

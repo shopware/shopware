@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
 use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -156,7 +157,9 @@ class ProductLineItemCommandValidatorTest extends TestCase
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
         $this->expectExceptionObject(
-            (new WriteException())->add(new ProductLineItemInconsistentException($first->getId()))
+            (new WriteException())
+                ->add(new ProductLineItemDifferentIdException($first->getId()))
+                ->add(new ProductLineItemInconsistentException($first->getId()))
         );
 
         $this->lineItemRepository->update([

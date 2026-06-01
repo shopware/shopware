@@ -1,0 +1,61 @@
+{#
+-- Radio Group Component --
+
+This component makes it easier to use radio groups in a form.
+It wraps the individual radio inputs inside a fieldset and renders the form field feedback.
+It will implement all necessary accessibility best-practices and field validation for you.
+
+Properties:
+
+* id (optional) - The id attriute of the radio group.
+* name (required) - The name attribute of the input field.
+* options (required) - The options of the radio group. Use the set method in Twig to create a template string that will rendered.
+* label (optional) - The text content of the field label.
+* disabled (optional) - The disabled attribute of the input field.
+* validationRules (optional) - A comma-separated list of rules the field should be validated against via client validation.
+* violationPath (optional) - The key under which validation errors are stored within the response of a server validation.
+* additionalClass (optional) - Additional css class names that are added to the form-group wrapper element.
+* additionalInputClass (optional) - Additional css class names that are added to the input element.
+* attributes (optional) - Additional attributes that are added to the input element.
+
+@example
+{% set sizeOptions %}
+    {% sw_include '@Storefront/storefront/component/form/form-radio.html.twig' with {
+        name: 'sizeChoice',
+        id: 'sm',
+        label: 'Small',
+        validationRules: 'required'
+    } %}
+
+    {% sw_include '@Storefront/storefront/component/form/form-radio.html.twig' with {
+        name: 'sizeChoice',
+        id: 'md',
+        label: 'Medium',
+        validationRules: 'required'
+    } %}
+{% endset %}
+
+{% sw_include '@Storefront/storefront/component/form/form-radio-group.html.twig' with {
+    name: 'sizeChoice',
+    label: 'Choose a size',
+    options: sizeOptions,
+} %}
+#}
+
+<fieldset class="form-radio-group mb-3">
+    {% set feedbackId = "#{name}-feedback" %}
+
+    <legend class="form-radio-group-legend fs-5 fw-bold">
+        {{ label|raw }} <span class="form-required-label" aria-hidden="true">{{ 'general.required'|trans|sw_sanitize }}</span>
+    </legend>
+
+    {{ options }}
+
+    <div id="{{ feedbackId }}" class="form-field-feedback">
+        {% block component_form_radio_group_feedback_violations %}
+            {% if violationPath is not empty and formViolations.getViolations(violationPath) is not empty %}
+                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+            {% endif %}
+        {% endblock %}
+    </div>
+</fieldset>

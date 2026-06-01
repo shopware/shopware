@@ -10,12 +10,10 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
@@ -32,7 +30,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -62,7 +59,6 @@ use Symfony\Component\Validator\Constraints\IsNull;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
-use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
@@ -91,6 +87,7 @@ class RegisterRoute extends AbstractRegisterRoute
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $salutationRepository,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly DoubleOptInService $doubleOptInService,
         private readonly ClockInterface $clock,
     ) {
     }
@@ -177,7 +174,7 @@ class RegisterRoute extends AbstractRegisterRoute
             }
         }
 
-        $customer = $this->addDoubleOptInData($customer, $context);
+        $customer = $this->doubleOptInService->mapCustomerDoubleOptInData($customer, $context);
 
         $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
 
@@ -205,14 +202,12 @@ class RegisterRoute extends AbstractRegisterRoute
         \assert(assertion: $customerEntity !== null);
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch(
-                $this->getDoubleOptInEvent(
-                    $customerEntity,
-                    $context,
-                    $data->get('storefrontUrl'),
-                    $data->get('redirectTo'),
-                    $data->get('redirectParameters')
-                )
+            $this->doubleOptInService->sendDoubleOptInMail(
+                $customerEntity,
+                $context,
+                (string) $data->get('storefrontUrl'),
+                $data->get('redirectTo'),
+                $data->get('redirectParameters')
             );
 
             // We don't want to leak the hash in store-api
@@ -266,54 +261,6 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity->setHash('');
 
         return $response;
-    }
-
-    private function getDoubleOptInEvent(
-        CustomerEntity $customer,
-        SalesChannelContext $context,
-        string $url,
-        ?string $redirectTo,
-        ?string $redirectParameters
-    ): Event {
-        $url .= $this->getConfirmUrl($context, $customer);
-
-        if ($redirectTo) {
-            $params = \is_string($redirectParameters) ? (\json_decode($redirectParameters, true) ?? []) : [];
-            $url .= '&' . \http_build_query(array_merge(['redirectTo' => $redirectTo], $params));
-        }
-
-        if ($customer->getGuest()) {
-            $event = new DoubleOptInGuestOrderEvent($customer, $context, $url);
-        } else {
-            $event = new CustomerDoubleOptInRegistrationEvent($customer, $context, $url);
-        }
-
-        return $event;
-    }
-
-    /**
-     * @param array<string, mixed> $customer
-     *
-     * @return array<string, mixed>
-     */
-    private function addDoubleOptInData(array $customer, SalesChannelContext $context): array
-    {
-        $configKey = $customer['guest']
-            ? 'core.loginRegistration.doubleOptInGuestOrder'
-            : 'core.loginRegistration.doubleOptInRegistration';
-
-        $doubleOptInRequired = $this->systemConfigService
-            ->get($configKey, $context->getSalesChannelId());
-
-        if (!$doubleOptInRequired) {
-            return $customer;
-        }
-
-        $customer['doubleOptInRegistration'] = true;
-        $customer['doubleOptInEmailSentDate'] = $this->clock->now();
-        $customer['hash'] = Uuid::randomHex();
-
-        return $customer;
     }
 
     private function validateRegistrationData(
@@ -619,25 +566,6 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         return $country->get('vatIdRequired');
-    }
-
-    private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
-    {
-        $urlTemplate = $this->systemConfigService->getString(
-            'core.loginRegistration.confirmationUrl',
-            $context->getSalesChannelId()
-        ) ?: '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
-
-        $emailHash = Hasher::hash($customer->getEmail(), 'sha1');
-
-        $urlEvent = new CustomerConfirmRegisterUrlEvent($context, $urlTemplate, $emailHash, $customer->getHash(), $customer);
-        $this->eventDispatcher->dispatch($urlEvent);
-
-        return str_replace(
-            ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
-            [$emailHash, (string) $customer->getHash()],
-            $urlEvent->getConfirmUrl()
-        );
     }
 
     private function getDefaultSalutationId(SalesChannelContext $context): ?string

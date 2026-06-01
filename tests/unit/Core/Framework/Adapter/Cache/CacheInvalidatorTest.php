@@ -18,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -314,6 +315,8 @@ class CacheInvalidatorTest extends TestCase
                 ]
             );
 
+        $clock = new MockClock('2025-06-13 12:00:00');
+
         $adapter = new ArrayAdapter();
         $invalidator = new CacheInvalidator(
             [],
@@ -326,7 +329,7 @@ class CacheInvalidatorTest extends TestCase
             true,
             true,
             $this->createBacktraceCollectorMock(CacheInvalidationSubscriber::class, 'invalidatePropertyFilters'),
-            new NativeClock()
+            $clock
         );
 
         $invalidator->invalidate(['foo'], true);
@@ -334,9 +337,7 @@ class CacheInvalidatorTest extends TestCase
         static::assertTrue($adapter->hasItem('http_invalidation_foo_timestamp'));
 
         $itemValue = $adapter->getItem('http_invalidation_foo_timestamp')->get();
-        static::assertIsInt($itemValue);
-
-        static::assertTrue(time() >= $itemValue, 'Timestamp should be set to current time or later');
+        static::assertSame($clock->now()->getTimestamp(), $itemValue);
     }
 
     public function testInvalidBacktraceHandling(): void

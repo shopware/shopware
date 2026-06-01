@@ -1,23 +1,28 @@
-@import "~scss/variables";
-
 .sw-settings-mailer {
-    .sw-settings-mailer__first-configuration {
-        margin-bottom: 16px;
+    &__first-configuration {
+        margin-bottom: var(--scale-size-32);
     }
 
-    .sw-settings-mailer__headline {
-        font-weight: bold;
-        margin-bottom: 16px;
+    .mt-card__content .sw-settings-mailer__headline {
+        font-weight: var(--font-weight-medium);
+        margin-bottom: var(--scale-size-8);
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
     }
 
-    .sw-settings-mailer__additional_settings {
-        margin-left: 10px;
-        margin-bottom: 5px;
+    &__description {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
-    .sw-settings-mailer__radio-selection {
+    &__additional_settings {
+        margin-left: var(--scale-size-10);
+        margin-bottom: var(--scale-size-4);
+    }
+
+    &__radio-selection {
         .sw-field--radio {
-            margin-bottom: 8px;
+            margin-bottom: var(--scale-size-8);
         }
 
         .sw-field__radio-group {
@@ -25,7 +30,7 @@
         }
 
         .sw-field__radio-option {
-            margin-right: 32px;
+            margin-right: var(--scale-size-32);
         }
     }
 }

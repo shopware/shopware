@@ -12,6 +12,8 @@ use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterfac
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueCheck;
+use Shopware\Core\Checkout\Customer\Validation\CustomerEmailUniqueChecker;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
@@ -20,9 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -34,7 +33,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -85,12 +83,12 @@ class AdministrationController extends AbstractController
         private readonly HtmlSanitizer $htmlSanitizer,
         private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
         ParameterBagInterface $params,
-        private readonly SystemConfigService $systemConfigService,
         private readonly FilesystemOperator $fileSystem,
         private readonly string $serviceRegistryUrl,
         private readonly EntityRepository $languageRepository,
         private readonly SymfonyBearerTokenValidator $tokenValidator,
         private readonly string $analyticsGatewayUrl,
+        private readonly CustomerEmailUniqueChecker $customerEmailUniqueChecker,
         private readonly string $refreshTokenTtl = 'P1W',
     ) {
         // param is only available if the elasticsearch bundle is enabled
@@ -303,16 +301,18 @@ class AdministrationController extends AbstractController
         }
 
         $email = (string) $request->request->get('email');
-        $isCustomerBoundSalesChannel = $this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
-        $boundSalesChannelId = null;
-        if ($isCustomerBoundSalesChannel) {
-            $boundSalesChannelId = $request->request->get('boundSalesChannelId');
-            if ($boundSalesChannelId !== null && !\is_string($boundSalesChannelId)) {
-                throw RoutingException::invalidRequestParameter('boundSalesChannelId');
-            }
+        $boundSalesChannelId = $request->request->get('boundSalesChannelId');
+        if ($boundSalesChannelId !== null && !\is_string($boundSalesChannelId)) {
+            throw RoutingException::invalidRequestParameter('boundSalesChannelId');
         }
 
-        $customer = $this->getCustomerByEmail((string) $request->request->get('id'), $email, $context, $boundSalesChannelId);
+        $customerId = $request->request->get('id');
+        $conflictingCustomerId = $this->customerEmailUniqueChecker->findConflictingCustomerId(new CustomerEmailUniqueCheck(
+            email: $email,
+            customerId: $customerId !== null ? (string) $customerId : null,
+            boundSalesChannelId: $boundSalesChannelId,
+        ));
+        $customer = $conflictingCustomerId !== null ? $this->getCustomerById($conflictingCustomerId, $context) : null;
         if ($customer === null) {
             return new JsonResponse(
                 ['isValid' => true]
@@ -410,22 +410,10 @@ class AdministrationController extends AbstractController
         return array_pop($sortedSupportedApiVersions);
     }
 
-    private function getCustomerByEmail(string $customerId, string $email, Context $context, ?string $boundSalesChannelId): ?CustomerEntity
+    private function getCustomerById(string $customerId, Context $context): ?CustomerEntity
     {
-        $criteria = new Criteria();
-        $criteria->setLimit(1);
-        if ($boundSalesChannelId) {
-            $criteria->addAssociation('boundSalesChannel');
-        }
-
-        $criteria->addFilter(new EqualsFilter('email', $email));
-        $criteria->addFilter(new EqualsFilter('guest', false));
-        $criteria->addFilter(new NotEqualsFilter('id', $customerId));
-
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('boundSalesChannelId', null),
-            new EqualsFilter('boundSalesChannelId', $boundSalesChannelId),
-        ]));
+        $criteria = new Criteria([$customerId]);
+        $criteria->addAssociation('boundSalesChannel');
 
         return $this->customerRepository->search($criteria, $context)->getEntities()->first();
     }

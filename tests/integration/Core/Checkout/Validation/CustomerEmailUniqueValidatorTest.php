@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -24,8 +25,21 @@ class CustomerEmailUniqueValidatorTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    protected function tearDown(): void
+    {
+        static::getContainer()
+            ->get(SystemConfigService::class)
+            ->delete('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+
+        parent::tearDown();
+    }
+
     public function testSameCustomerEmailWithExistedBoundAccount(): void
     {
+        static::getContainer()
+            ->get(SystemConfigService::class)
+            ->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+
         $email = 'john.doe@example.com';
 
         $salesChannelContext1 = $this->createSalesChannelContext();

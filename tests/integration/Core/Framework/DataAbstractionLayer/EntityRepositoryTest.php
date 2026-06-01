@@ -1004,6 +1004,7 @@ class EntityRepositoryTest extends TestCase
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
+            'guest' => true,
             'lastName' => 'not',
             'firstName' => $matchTerm,
             'salutationId' => $salutation,

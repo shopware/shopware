@@ -403,7 +403,6 @@ SQL;
 
     private function createCustomer(string $customerID): void
     {
-        $email = 'foo@bar.de';
         $addressId = Uuid::randomHex();
 
         $customer = [
@@ -421,12 +420,12 @@ SQL;
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => $email,
+            'email' => $customerID . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerID,
         ];
 
         $this->customerRepository->create([$customer], Context::createDefaultContext());

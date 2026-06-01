@@ -534,12 +534,12 @@ class ProductControllerTest extends TestCase
             ],
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
-            'email' => 'testuser@example.com',
+            'email' => $customerId . '@example.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
         ];
 
         $repo = static::getContainer()->get('customer.repository');

@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
@@ -44,6 +45,7 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -698,6 +700,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -713,6 +718,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -804,6 +811,9 @@ class RegisterRouteTest extends TestCase
             ->method('create')
             ->willReturn(new DataValidationDefinition());
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         $registerRoute = new RegisterRoute(
             new EventDispatcher(),
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -819,6 +829,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $doubleOptInService,
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -923,6 +935,8 @@ class RegisterRouteTest extends TestCase
             $this->createMock(StoreApiCustomFieldMapper::class),
             $this->createMock(EntityRepository::class),
             $definitionFactory,
+            $this->createMock(DoubleOptInService::class),
+            new NativeClock(),
         );
 
         $salesChannelContext = Generator::generateSalesChannelContext();
@@ -1116,6 +1130,9 @@ class RegisterRouteTest extends TestCase
         ]);
         $customerRepository ??= $this->createCustomerRepository();
 
+        $doubleOptInService = $this->createMock(DoubleOptInService::class);
+        $doubleOptInService->method('mapCustomerDoubleOptInData')->willReturnArgument(0);
+
         return new RegisterRoute(
             $eventDispatcher,
             $this->createMock(NumberRangeValueGeneratorInterface::class),
@@ -1131,6 +1148,8 @@ class RegisterRouteTest extends TestCase
             $customFieldMapper,
             $salutationRepository,
             $this->createMock(DataValidationFactoryInterface::class),
+            $doubleOptInService,
+            new NativeClock(),
         );
     }
 

@@ -180,46 +180,33 @@ class McpJsonRpcResponse implements \JsonSerializable
                 return ListPromptsResult::fromArray($resultData);
             }
             if (\array_key_exists('capabilities', $resultData)) {
-                return self::parseInitializeResult($resultData);
+                $protocolVersion = $resultData['protocolVersion'] ?? null;
+                $capabilitiesData = $resultData['capabilities'] ?? null;
+                $serverInfoData = $resultData['serverInfo'] ?? null;
+
+                if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {
+                    return null;
+                }
+
+                $serverName = $serverInfoData['name'] ?? null;
+                $serverVersion = $serverInfoData['version'] ?? null;
+
+                if (!\is_string($serverName) || !\is_string($serverVersion)) {
+                    return null;
+                }
+
+                return new InitializeResult(
+                    capabilities: ServerCapabilities::fromArray($capabilitiesData),
+                    serverInfo: new Implementation(name: $serverName, version: $serverVersion),
+                    instructions: \is_string($resultData['instructions'] ?? null) ? $resultData['instructions'] : null,
+                    meta: \is_array($resultData['_meta'] ?? null) ? $resultData['_meta'] : null,
+                    protocolVersion: ProtocolVersion::tryFrom($protocolVersion),
+                );
             }
         } catch (InvalidArgumentException) {
             return null;
         }
 
         return null;
-    }
-
-    private static function parseInitializeResult(mixed $resultData): ?InitializeResult
-    {
-        if (!\is_array($resultData)) {
-            return null;
-        }
-
-        $protocolVersion = $resultData['protocolVersion'] ?? null;
-        $capabilitiesData = $resultData['capabilities'] ?? null;
-        $serverInfoData = $resultData['serverInfo'] ?? null;
-
-        if (!\is_string($protocolVersion) || !\is_array($capabilitiesData) || !\is_array($serverInfoData)) {
-            return null;
-        }
-
-        $serverName = $serverInfoData['name'] ?? null;
-        $serverVersion = $serverInfoData['version'] ?? null;
-
-        if (!\is_string($serverName) || !\is_string($serverVersion)) {
-            return null;
-        }
-
-        try {
-            return new InitializeResult(
-                capabilities: ServerCapabilities::fromArray($capabilitiesData),
-                serverInfo: new Implementation(name: $serverName, version: $serverVersion),
-                instructions: \is_string($resultData['instructions'] ?? null) ? $resultData['instructions'] : null,
-                meta: \is_array($resultData['_meta'] ?? null) ? $resultData['_meta'] : null,
-                protocolVersion: ProtocolVersion::tryFrom($protocolVersion),
-            );
-        } catch (InvalidArgumentException) {
-            return null;
-        }
     }
 }

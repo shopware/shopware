@@ -209,7 +209,7 @@ class McpServerController
 
         $this->applyAllowlistFilter($response, $method, $allowlist);
 
-        $newBody = $response->encode();
+        $newBody = Json::encode($response);
         $newStream = $this->streamFactory->createStream($newBody);
 
         return $psrResponse
@@ -271,7 +271,7 @@ class McpServerController
             return $psrResponse;
         }
 
-        $newBody = $response->encode();
+        $newBody = Json::encode($response);
         $newStream = $this->streamFactory->createStream($newBody);
 
         return $psrResponse

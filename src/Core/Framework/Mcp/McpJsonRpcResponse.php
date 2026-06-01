@@ -15,7 +15,6 @@ use Mcp\Schema\Result\ListToolsResult;
 use Mcp\Schema\ServerCapabilities;
 use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Json;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -147,11 +146,6 @@ class McpJsonRpcResponse implements \JsonSerializable
         );
 
         return true;
-    }
-
-    public function encode(): string
-    {
-        return Json::encode($this);
     }
 
     public function jsonSerialize(): mixed

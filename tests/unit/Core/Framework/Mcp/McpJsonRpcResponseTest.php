@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpJsonRpcResponse;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal
@@ -125,7 +126,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterTools(['tool-a', 'tool-c']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         $names = array_column($data['result']['tools'], 'name');
         static::assertSame(['tool-a', 'tool-c'], $names);
     }
@@ -137,7 +138,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterTools([]);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame([], $data['result']['tools']);
     }
 
@@ -148,7 +149,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterTools(['tool-b']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey(0, $data['result']['tools']);
         static::assertSame('tool-b', $data['result']['tools'][0]['name']);
     }
@@ -161,7 +162,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterTools(['tool-a']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('tools', $data['result']);
     }
 
@@ -182,7 +183,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterTools(['tool-a']);
 
-        static::assertStringContainsString('"properties":{}', $response->encode(), 'Empty properties must encode as {} not []');
+        static::assertStringContainsString('"properties":{}', Json::encode($response), 'Empty properties must encode as {} not []');
     }
 
     // ── filterResources ───────────────────────────────────────────────────────
@@ -198,7 +199,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterResources(['shopware://entities', 'shopware://currencies']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         $uris = array_column($data['result']['resources'], 'uri');
         static::assertSame(['shopware://entities', 'shopware://currencies'], $uris);
     }
@@ -212,7 +213,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterResources([]);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame([], $data['result']['resources']);
     }
 
@@ -226,7 +227,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterResources(['shopware://currencies']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey(0, $data['result']['resources']);
         static::assertSame('shopware://currencies', $data['result']['resources'][0]['uri']);
     }
@@ -238,7 +239,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterResources(['shopware://entities']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('resources', $data['result']);
     }
 
@@ -251,7 +252,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterPrompts(['shopware-context']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         $names = array_column($data['result']['prompts'], 'name');
         static::assertSame(['shopware-context'], $names);
     }
@@ -263,7 +264,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterPrompts([]);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame([], $data['result']['prompts']);
     }
 
@@ -274,7 +275,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->filterPrompts(['shopware-context']);
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayNotHasKey('prompts', $data['result']);
     }
 
@@ -304,7 +305,7 @@ class McpJsonRpcResponseTest extends TestCase
         $added = $response->addShopwareMeta('user-123', null);
 
         static::assertTrue($added);
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('user-123', $data['result']['_meta']['shopware']['user']['id']);
         static::assertArrayNotHasKey('integration', $data['result']['_meta']['shopware']);
     }
@@ -317,7 +318,7 @@ class McpJsonRpcResponseTest extends TestCase
         $added = $response->addShopwareMeta(null, 'integration-456');
 
         static::assertTrue($added);
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('integration-456', $data['result']['_meta']['shopware']['integration']['id']);
         static::assertArrayNotHasKey('user', $data['result']['_meta']['shopware']);
     }
@@ -329,7 +330,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->addShopwareMeta('user-123', 'integration-456');
 
-        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode(Json::encode($response), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('user-123', $data['result']['_meta']['shopware']['user']['id']);
         static::assertSame('integration-456', $data['result']['_meta']['shopware']['integration']['id']);
     }
@@ -341,7 +342,7 @@ class McpJsonRpcResponseTest extends TestCase
 
         $response->addShopwareMeta('user-123', null);
 
-        $encoded = $response->encode();
+        $encoded = Json::encode($response);
         static::assertStringContainsString('"tools":{', $encoded, 'capabilities.tools must encode as {} not []');
         static::assertStringContainsString('"prompts":{', $encoded, 'capabilities.prompts must encode as {} not []');
         static::assertStringContainsString('"resources":{', $encoded, 'capabilities.resources must encode as {} not []');

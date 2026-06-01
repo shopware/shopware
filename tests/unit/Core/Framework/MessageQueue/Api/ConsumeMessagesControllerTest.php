@@ -42,8 +42,7 @@ class ConsumeMessagesControllerTest extends TestCase
             $this->createMock(LockFactory::class)
         );
 
-        static::expectException(MessageQueueException::class);
-        static::expectExceptionMessage('No receiver name provided.');
+        $this->expectExceptionObject(MessageQueueException::validReceiverNameNotProvided());
 
         $controller->consumeMessages(new Request());
     }
@@ -72,8 +71,7 @@ class ConsumeMessagesControllerTest extends TestCase
             $lockFactory
         );
 
-        static::expectException(MessageQueueException::class);
-        static::expectExceptionMessage('Another worker is already running for receiver: "async"');
+        $this->expectExceptionObject(MessageQueueException::workerIsLocked('async'));
 
         $request = new Request();
         $request->request->set('receiver', 'async');

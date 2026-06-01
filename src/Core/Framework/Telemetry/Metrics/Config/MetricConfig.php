@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  * @internal
  *
  * @phpstan-import-type MetricTypeValues from Type
+ * @phpstan-import-type LabelDefinition from LabelConfig
  *
  * @phpstan-type MetricDefinition array{
  *    type: MetricTypeValues,
@@ -16,17 +17,15 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
  *    unit?: string,
  *    parameters?: array<string, mixed>,
  *    enabled: bool,
- *    labels?: array<string, array{allowed_values: array<mixed>}>
+ *    labels?: array<string, LabelDefinition>
  * }
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 readonly class MetricConfig
 {
     /**
      * @param array<string, mixed> $parameters
-     * @param array<string, array{allowed_values: array<mixed>}> $labels
+     * @param array<string, LabelConfig> $labels
      */
     public function __construct(
         public string $name,
@@ -44,13 +43,18 @@ readonly class MetricConfig
      */
     public static function fromDefinition(string $name, array $definition): self
     {
+        $labels = [];
+        foreach ($definition['labels'] ?? [] as $labelName => $labelDefinition) {
+            $labels[$labelName] = LabelConfig::fromDefinition($labelDefinition);
+        }
+
         return new self(
             name: $name,
             description: $definition['description'],
             type: Type::from($definition['type']),
             enabled: $definition['enabled'],
             parameters: $definition['parameters'] ?? [],
-            labels: $definition['labels'] ?? [],
+            labels: $labels,
             unit: $definition['unit'] ?? null
         );
     }

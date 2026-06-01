@@ -54,8 +54,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::buildTextFieldConfig());
-        $languageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true));
         $languageFieldsWithLengthNorm = $this->fieldBuilder->translated(self::getTextFieldWithLengthNormConfig());
+        $technicalLanguageFieldsWithExact = $this->fieldBuilder->translated(self::buildTextFieldConfig(withExact: true, technicalTerms: true));
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
@@ -71,11 +71,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
-            'name' => $languageFieldsWithExact,
+            'name' => $technicalLanguageFieldsWithExact,
             'description' => $languageFieldsWithLengthNorm,
             'metaTitle' => $languageFields,
             'metaDescription' => $languageFieldsWithLengthNorm,
-            'customSearchKeywords' => $languageFieldsWithExact,
+            'customSearchKeywords' => $technicalLanguageFieldsWithExact,
             'categories' => ElasticsearchFieldBuilder::nested([
                 'name' => $languageFields,
             ]),
@@ -111,11 +111,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'manufacturerNumber' => self::buildTextFieldConfig(withExact: true),
             'deliveryTimeId' => self::KEYWORD_FIELD,
             'displayGroup' => self::KEYWORD_FIELD,
-            'ean' => self::buildTextFieldConfig(withExact: true),
+            'ean' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'height' => self::FLOAT_FIELD,
             'length' => self::FLOAT_FIELD,
             'markAsTopseller' => self::BOOLEAN_FIELD,
-            'productNumber' => self::buildTextFieldConfig(withExact: true),
+            'productNumber' => self::buildTextFieldConfig(withExact: true, technicalTerms: true),
             'ratingAverage' => self::FLOAT_FIELD,
             'releaseDate' => ElasticsearchFieldBuilder::datetime(),
             'createdAt' => ElasticsearchFieldBuilder::datetime(),

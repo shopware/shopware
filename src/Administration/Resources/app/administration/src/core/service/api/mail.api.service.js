@@ -37,7 +37,7 @@ class MailApiService extends ApiService {
         salesChannelId,
         testMode = false,
         documentIds = [],
-        templateData = {},
+        templateData = null,
         mailTemplateTypeId = null,
         mailTemplateId = null,
         additionalHeaders = {},
@@ -45,7 +45,7 @@ class MailApiService extends ApiService {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
         if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            if (!templateData || Object.keys(templateData).length === 0) {
+            if (!templateData) {
                 templateData = mailTemplate.mailTemplateType.templateData;
             }
         }
@@ -97,7 +97,7 @@ class MailApiService extends ApiService {
             salesChannelId,
             true,
             documentIds,
-            {},
+            null,
             mailTemplateTypeId,
             mailTemplateId,
         );

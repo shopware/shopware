@@ -2,6 +2,11 @@
 
 ## Storefront
 
+### Country state field visibility in address forms
+
+Storefront address forms now respect the country `displayStateInRegistration` setting.
+When disabled, the country state field is hidden unless `forceStateInRegistration` is enabled, in which case the required state field is still shown.
+
 ### Checkout gateway blocked method fallback
 
 Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.

@@ -26,6 +26,56 @@ class McpJsonRpcResponseTest extends TestCase
         static::assertNull(McpJsonRpcResponse::fromJson('[]'));
     }
 
+    public function testFromJsonReturnsNullForScalarJson(): void
+    {
+        // valid JSON that decodes to a non-array (int) — exercises the !is_array($data) guard
+        static::assertNull(McpJsonRpcResponse::fromJson('42'));
+    }
+
+    public function testFromJsonReturnsNullWhenResultParsingThrows(): void
+    {
+        // 'tools' routes to ListToolsResult::fromArray, but the malformed tool entry
+        // (missing required "name") makes the SDK throw InvalidArgumentException.
+        $json = (string) json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'result' => ['tools' => [['description' => 'no name here']]],
+        ]);
+
+        static::assertNull(McpJsonRpcResponse::fromJson($json));
+    }
+
+    public function testFromJsonReturnsNullWhenInitializeFieldsHaveWrongTypes(): void
+    {
+        // 'capabilities' routes to the initialize parser, but protocolVersion is not a string.
+        $json = (string) json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'result' => [
+                'protocolVersion' => 123,
+                'capabilities' => new \stdClass(),
+                'serverInfo' => ['name' => 'shopware', 'version' => '6.7.0'],
+            ],
+        ]);
+
+        static::assertNull(McpJsonRpcResponse::fromJson($json));
+    }
+
+    public function testFromJsonReturnsNullWhenServerInfoFieldsAreNotStrings(): void
+    {
+        $json = (string) json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'result' => [
+                'protocolVersion' => '2024-11-05',
+                'capabilities' => new \stdClass(),
+                'serverInfo' => ['name' => 123, 'version' => false],
+            ],
+        ]);
+
+        static::assertNull(McpJsonRpcResponse::fromJson($json));
+    }
+
     public function testFromJsonReturnsNullForUnknownResultType(): void
     {
         static::assertNull(McpJsonRpcResponse::fromJson('{"id":1,"jsonrpc":"2.0","result":{"unknown":"value"}}'));
@@ -181,6 +231,17 @@ class McpJsonRpcResponseTest extends TestCase
         static::assertSame('shopware://currencies', $data['result']['resources'][0]['uri']);
     }
 
+    public function testFilterResourcesIsNoOpForNonResourcesResponse(): void
+    {
+        $response = McpJsonRpcResponse::fromJson($this->toolsListJson(['tool-a']));
+        static::assertNotNull($response);
+
+        $response->filterResources(['shopware://entities']);
+
+        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayNotHasKey('resources', $data['result']);
+    }
+
     // ── filterPrompts ─────────────────────────────────────────────────────────
 
     public function testFilterPromptsKeepsAllowedPrompts(): void
@@ -204,6 +265,17 @@ class McpJsonRpcResponseTest extends TestCase
 
         $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame([], $data['result']['prompts']);
+    }
+
+    public function testFilterPromptsIsNoOpForNonPromptsResponse(): void
+    {
+        $response = McpJsonRpcResponse::fromJson($this->toolsListJson(['tool-a']));
+        static::assertNotNull($response);
+
+        $response->filterPrompts(['shopware-context']);
+
+        $data = json_decode($response->encode(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayNotHasKey('prompts', $data['result']);
     }
 
     // ── addShopwareMeta ───────────────────────────────────────────────────────

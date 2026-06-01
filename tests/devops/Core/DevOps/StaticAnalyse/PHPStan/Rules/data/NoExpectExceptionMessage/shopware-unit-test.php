@@ -11,8 +11,26 @@ class BarTest extends TestCase
     public function testFlagged(): void
     {
         $this->expectException(\RuntimeException::class);
-        // not allowed
+        // not allowed — instance method call form
         $this->expectExceptionMessage('boom');
+
+        throw new \RuntimeException('boom');
+    }
+
+    public function testFlaggedStatic(): void
+    {
+        static::expectException(\RuntimeException::class);
+        // not allowed — static::expectExceptionMessage form
+        static::expectExceptionMessage('boom');
+
+        throw new \RuntimeException('boom');
+    }
+
+    public function testFlaggedSelf(): void
+    {
+        self::expectException(\RuntimeException::class);
+        // not allowed — self::expectExceptionMessage form
+        self::expectExceptionMessage('boom');
 
         throw new \RuntimeException('boom');
     }

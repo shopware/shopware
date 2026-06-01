@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -93,6 +94,7 @@ class ResetPasswordRouteTest extends TestCase
             $requestStack,
             $rateLimiter,
             $passwordValidationFactory,
+            new NativeClock()
         );
 
         $context = $this->createMock(SalesChannelContext::class);

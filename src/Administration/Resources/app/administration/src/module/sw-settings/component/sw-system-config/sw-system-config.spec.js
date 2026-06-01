@@ -1115,6 +1115,102 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
     });
 
+    async function switchToHeadless() {
+        const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+        await salesChannelSwitch.find('.sw-select__selection').trigger('click');
+        await flushPromises();
+        await salesChannelSwitch.find('.sw-select-option--2').trigger('click');
+        await flushPromises();
+    }
+
+    it('should keep an sw-entity-single-select empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.entitySelectField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('pullover'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent value and can unlink
+        let field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-entity-single-select__selection-text').text()).toBe('Pullover');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value, becomes editable
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('pullover'));
+
+        // Clear the selection -> emits null
+        await field.find('.sw-select__select-indicator-clear').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null, inheritance NOT restored,
+        // and the inherited value is no longer displayed.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(field.find('.sw-entity-single-select__selection-text').text()).not.toBe('Pullover');
+    });
+
+    it('should keep an sw-media-field empty after clearing a field whose inheritance was removed', async () => {
+        const name = 'ConfigRenderer.config.mediaField';
+        const fieldSelector = `.sw-system-config--field-${kebabCase(name)}`;
+
+        wrapper = await createWrapper({
+            'ConfigRenderer.config': {
+                null: {
+                    [name]: uuid.get('funny-image'),
+                },
+            },
+        });
+        await flushPromises();
+
+        await switchToHeadless();
+
+        // Inherited: child shows the parent media and can unlink
+        let field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(field.find('.sw-media-base-item__name').text()).toBe('funny-image.jpg');
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Unlink inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
+
+        // Remove inheritance -> child takes over the parent value
+        await field.find('.sw-inheritance-switch .mt-icon').trigger('click');
+        await flushPromises();
+
+        field = wrapper.find(fieldSelector);
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBe(uuid.get('funny-image'));
+
+        // Unlink the media -> emits null
+        await field.find('.sw-media-field__toggle-button').trigger('click');
+        await flushPromises();
+        await field.find('.sw-media-field__action-button.is--remove').trigger('click');
+        await flushPromises();
+
+        // The cleared value must stick: still null and inheritance NOT restored.
+        field = wrapper.find(fieldSelector);
+        await wrapper.vm.$forceUpdate();
+        await flushPromises();
+        expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
+        expect(field.find('.sw-inheritance-switch').attributes('aria-label')).toBe('Link inheritance');
+    });
+
     it('should contain ai badge in second card', async () => {
         wrapper = await createWrapper();
         await flushPromises();

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @codeCoverageIgnore
@@ -24,12 +25,12 @@ final readonly class FrwState
 
     public static function completedState(?\DateTimeImmutable $completedAt = null): FrwState
     {
-        return new FrwState($completedAt ?? new \DateTimeImmutable());
+        return new FrwState($completedAt ?? Clock::get()->now());
     }
 
     public static function failedState(?\DateTimeImmutable $failedAt = null, int $failureCount = 0): FrwState
     {
-        return new FrwState(null, $failedAt ?? new \DateTimeImmutable(), $failureCount);
+        return new FrwState(null, $failedAt ?? Clock::get()->now(), $failureCount);
     }
 
     public function getCompletedAt(): ?\DateTimeImmutable

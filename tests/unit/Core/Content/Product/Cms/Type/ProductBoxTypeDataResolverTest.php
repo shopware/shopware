@@ -259,8 +259,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $slot->setType('product-box');
         $slot->setFieldConfig($fieldConfig);
 
-        $this->expectException(PropertyNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf('Property "foo" does not exist in entity "%s".', SalesChannelProductEntity::class));
+        $this->expectExceptionObject(new PropertyNotFoundException('foo', SalesChannelProductEntity::class));
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
     }

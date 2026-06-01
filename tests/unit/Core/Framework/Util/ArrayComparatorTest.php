@@ -53,16 +53,14 @@ class ArrayComparatorTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testCompareThrowExceptionDeprecated(): void
     {
-        static::expectException(ComparatorException::class);
-        $this->expectExceptionMessage(ComparatorException::operatorNotSupported('>')->getMessage());
+        $this->expectExceptionObject(ComparatorException::operatorNotSupported('>'));
 
         ArrayComparator::compare([1], [2], '>');
     }
 
     public function testCompareThrowException(): void
     {
-        static::expectException(UtilException::class);
-        $this->expectExceptionMessage(UtilException::operatorNotSupported('>')->getMessage());
+        $this->expectExceptionObject(UtilException::operatorNotSupported('>'));
 
         ArrayComparator::compare([1], [2], '>');
     }

@@ -44,6 +44,8 @@ class ProductExportEntity extends Entity
      */
     protected ?string $provider = null;
 
+    protected ?string $feedLabel = null;
+
     protected ?ProductStreamEntity $productStream = null;
 
     protected ?SalesChannelEntity $storefrontSalesChannel = null;
@@ -170,6 +172,16 @@ class ProductExportEntity extends Entity
     public function setProvider(?string $provider): void
     {
         $this->provider = $provider;
+    }
+
+    public function getFeedLabel(): ?string
+    {
+        return $this->feedLabel;
+    }
+
+    public function setFeedLabel(?string $feedLabel): void
+    {
+        $this->feedLabel = $feedLabel;
     }
 
     public function getProductStream(): ?ProductStreamEntity

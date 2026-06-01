@@ -40,6 +40,23 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
 {
     use AssertValuesTrait;
 
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    protected function setUp(): void
+    {
+        $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                ProductDefinition::class => ProductDefinition::class,
+                MediaDefinition::class => MediaDefinition::class,
+                UserDefinition::class => UserDefinition::class,
+                ExtendableDefinition::class => ExtendableDefinition::class,
+                ExtendedDefinition::class => ExtendedDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+    }
+
     /**
      * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
      */
@@ -143,10 +160,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
             $extendableDefinition->addExtension(new ScalarRuntimeExtension());
         }
 
-        $this->createDefinitionRegistry([
-            $extendableDefinition::class => $extendableDefinition,
-            ExtendedDefinition::class,
-        ]);
+        $extendableDefinition->compile($this->definitionRegistry);
 
         return $extendableDefinition;
     }
@@ -161,24 +175,6 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
      */
     private function createDefinition(string $definitionClass): EntityDefinition
     {
-        return $this->createDefinitionRegistry()->get($definitionClass);
-    }
-
-    /**
-     * @param array<int|string, class-string<EntityDefinition>|EntityDefinition> $definitions
-     */
-    private function createDefinitionRegistry(array $definitions = []): DefinitionInstanceRegistry
-    {
-        return new StaticDefinitionInstanceRegistry(
-            $definitions + [
-                ProductDefinition::class => ProductDefinition::class,
-                MediaDefinition::class => MediaDefinition::class,
-                UserDefinition::class => UserDefinition::class,
-                ExtendableDefinition::class => ExtendableDefinition::class,
-                ExtendedDefinition::class => ExtendedDefinition::class,
-            ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
+        return $this->definitionRegistry->get($definitionClass);
     }
 }

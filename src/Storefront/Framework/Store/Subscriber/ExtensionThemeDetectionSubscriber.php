@@ -53,10 +53,7 @@ class ExtensionThemeDetectionSubscriber implements EventSubscriberInterface, Res
             return;
         }
 
-        $implementedInterfaces = class_implements($baseClass);
-        if (!\is_array($implementedInterfaces)) {
-            return;
-        }
+        $implementedInterfaces = class_implements($baseClass) ?: [];
 
         if (\array_key_exists(ThemeInterface::class, $implementedInterfaces)) {
             $event->isTheme = true;

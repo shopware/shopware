@@ -105,7 +105,6 @@ class McpExceptionListenerTest extends TestCase
         static::assertSame(-32001, $body['error']['code']);
     }
 
-
     #[TestDox('converts generic exception on MCP route to 500 JSON-RPC error')]
     public function testConvertsGenericExceptionToServerError(): void
     {

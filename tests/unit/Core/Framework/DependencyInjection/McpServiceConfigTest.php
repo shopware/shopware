@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpPersister;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
-
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
@@ -31,7 +30,6 @@ use Shopware\Core\Framework\Mcp\Tool\MediaUploadTool;
 use Shopware\Core\Framework\Mcp\Tool\OrderStateTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
-
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;

@@ -51,7 +51,6 @@ class DefinitionValidator
         'order.billingAddress',
         'product_search_config.excludedTerms',
         'media.metaDataRaw',
-        'media.file_name_sort_key',
         'product.sortedProperties',
         'product.cheapestPriceContainer',
         'product.cheapest_price',

@@ -450,18 +450,6 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <!-- Keep the filename sort-key column hidden from the DAL contract: public media criteria still sort by fileName, only DBAL SQL generation orders by the generated column. -->
-        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileNameSortCriteriaQueryBuilder"
-                 decorates="Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder"/>
-            <argument type="service"
-                      id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\CriteriaPartResolver"/>
-        </service>
-
         <service id="Shopware\Core\Content\Media\Subscriber\MediaCreationSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>

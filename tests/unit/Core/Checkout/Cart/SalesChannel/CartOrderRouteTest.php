@@ -358,8 +358,7 @@ class CartOrderRouteTest extends TestCase
         );
 
         // we don't care about the follow-up order process, the event listener above are already tested
-        static::expectException(CartException::class);
-        static::expectExceptionMessage('Order payment failed. The order was not stored.');
+        $this->expectExceptionObject(CartException::invalidPaymentOrderNotStored(Uuid::randomHex()));
 
         $route->order($cart, $context, new RequestDataBag());
     }

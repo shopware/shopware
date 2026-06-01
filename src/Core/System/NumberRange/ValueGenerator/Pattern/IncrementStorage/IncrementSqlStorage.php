@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator\IncrementSqlStorageTest;
 
 /**
- * @codeCoverageIgnore tested via integration test,
+ * @codeCoverageIgnore
  *
  * @see IncrementSqlStorageTest
  */

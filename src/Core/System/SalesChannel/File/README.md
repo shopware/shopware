@@ -15,7 +15,7 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 ## Key Decisions
 
 - Discovery is template based. Core, plugins, apps, and themes contribute files by shipping Twig templates in the registered template system. There is no provider interface for individual files.
-- The database stores sales-channel state only: one `sales_channel_file` row per sales channel, file family, and file name. The row controls enablement and stores merchant overrides in `template_overrides`, keyed by Twig namespace.
+- The database stores sales-channel state only: one `sales_channel_file` row per sales channel, file family, and file name. The row controls enablement and stores merchant overrides in `template_overrides`, keyed by Twig namespace. The reserved `user_provided_content` key stores plain merchant notes that are rendered through a generated Twig override for the dedicated block of the same name.
 - Shipped template content is never copied into the database. When code templates change, no migration is needed to update stored rows.
 - Public serving is a fallback. Normal routes keep precedence because `SalesChannelFileNotFoundSubscriber` only handles unresolved 404s for main `GET` and `HEAD` requests that already have a sales channel context.
 - Request paths are validated before they are mapped to a template path. Template discovery paths come from code and registered template storage.

@@ -13,11 +13,14 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
+use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Twig\Environment;
+use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -26,12 +29,16 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Package('framework')]
 class SalesChannelFileController extends AbstractController
 {
+    private const USER_PROVIDED_CONTENT_BLOCK = 'user_provided_content';
+
     public function __construct(
         private readonly SalesChannelFileDiscovery $discovery,
         private readonly SalesChannelFileConfigurationLoader $configurationLoader,
         private readonly SalesChannelFileLoader $loader,
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly SalesChannelFileRequestPathResolver $requestPathResolver,
+        private readonly Environment $twig,
+        private readonly SalesChannelFileSourceLoader $sourceLoader,
     ) {
     }
 
@@ -51,7 +58,8 @@ class SalesChannelFileController extends AbstractController
                 'fileName' => $file->fileName,
                 'templatePath' => $file->templatePath,
                 'contentType' => $file->contentType,
-                'templates' => $this->serializeTemplates($file->templates),
+                'templates' => $this->serializeTemplates($file->templates, $context),
+                'supportsUserProvidedContent' => $this->supportsUserProvidedContent($file->templates),
                 'configuration' => $configuration === null ? null : $this->serializeConfiguration($configuration),
             ];
         }
@@ -107,19 +115,53 @@ class SalesChannelFileController extends AbstractController
     /**
      * @param array<string, string> $templates Twig namespace mapped to resolved template name
      *
-     * @return list<array{twigNamespace: string, templateName: string}>
+     * @return list<array{twigNamespace: string, templateName: string, templateContent: string, sourceName: string, sourceType: string, sourceIcon: string|null, role: string}>
      */
-    private function serializeTemplates(array $templates): array
+    private function serializeTemplates(array $templates, Context $context): array
     {
         $serialized = [];
+        $baseTwigNamespace = array_key_last($templates);
+        $sources = $this->sourceLoader->load(array_keys($templates), $context);
 
         foreach ($templates as $twigNamespace => $templateName) {
+            $source = $sources[$twigNamespace];
+
             $serialized[] = [
                 'twigNamespace' => $twigNamespace,
                 'templateName' => $templateName,
+                'templateContent' => $this->loadTemplateContent($templateName),
+                'sourceName' => $source['sourceName'],
+                'sourceType' => $source['sourceType'],
+                'sourceIcon' => $source['sourceIcon'],
+                'role' => $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
             ];
         }
 
         return $serialized;
+    }
+
+    private function loadTemplateContent(string $templateName): string
+    {
+        try {
+            return $this->twig->getLoader()->getSourceContext($templateName)->getCode();
+        } catch (LoaderError) {
+            return '';
+        }
+    }
+
+    /**
+     * @param array<string, string> $templates Twig namespace mapped to resolved template name
+     */
+    private function supportsUserProvidedContent(array $templates): bool
+    {
+        foreach ($templates as $templateName) {
+            $source = $this->loadTemplateContent($templateName);
+
+            if (preg_match('/{%-?\s*block\s+' . self::USER_PROVIDED_CONTENT_BLOCK . '\b/', $source) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

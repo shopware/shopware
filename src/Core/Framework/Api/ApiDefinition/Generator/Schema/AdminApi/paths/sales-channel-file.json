@@ -136,7 +136,7 @@
                         "type": "boolean"
                     },
                     "templateOverrides": {
-                        "description": "Merchant-provided Twig overrides keyed by Twig namespace.",
+                        "description": "Merchant-provided Twig overrides keyed by Twig namespace. The reserved `user_provided_content` key stores plain text for the dedicated append block when supported by the template chain.",
                         "type": "object",
                         "additionalProperties": {
                             "type": "string"
@@ -152,6 +152,7 @@
                     "templatePath",
                     "contentType",
                     "templates",
+                    "supportsUserProvidedContent",
                     "configuration"
                 ],
                 "properties": {
@@ -188,6 +189,10 @@
                         "items": {
                             "$ref": "#/components/schemas/SalesChannelFileTemplate"
                         }
+                    },
+                    "supportsUserProvidedContent": {
+                        "description": "Whether the template chain exposes the `user_provided_content` block for simple appended merchant notes.",
+                        "type": "boolean"
                     },
                     "configuration": {
                         "description": "Stored sales-channel configuration for this file, or null when it has not been configured yet.",
@@ -231,7 +236,7 @@
                         ]
                     },
                     "templateOverrides": {
-                        "description": "Unsaved Twig overrides keyed by Twig namespace.",
+                        "description": "Unsaved Twig overrides keyed by Twig namespace. The reserved `user_provided_content` key stores plain text for the dedicated append block when supported by the template chain.",
                         "type": "object",
                         "additionalProperties": {
                             "type": "string"
@@ -265,7 +270,12 @@
                 "type": "object",
                 "required": [
                     "twigNamespace",
-                    "templateName"
+                    "templateName",
+                    "templateContent",
+                    "sourceName",
+                    "sourceType",
+                    "sourceIcon",
+                    "role"
                 ],
                 "properties": {
                     "twigNamespace": {
@@ -277,6 +287,43 @@
                         "type": "string",
                         "examples": [
                             "@Framework/files/agentic/llms.txt.twig"
+                        ]
+                    },
+                    "templateContent": {
+                        "description": "Original source template content. Administration clients can use this as the default text when editing a template override.",
+                        "type": "string"
+                    },
+                    "sourceName": {
+                        "description": "Human-readable source name. Core templates are reported as `Shopware`; plugin and app templates use their translated label when available.",
+                        "type": "string"
+                    },
+                    "sourceType": {
+                        "description": "Kind of source that contributed the template.",
+                        "type": "string",
+                        "enum": [
+                            "shopware",
+                            "plugin",
+                            "app",
+                            "bundle"
+                        ]
+                    },
+                    "sourceIcon": {
+                        "description": "Base64 encoded plugin or app icon, or null when no icon is available.",
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "role": {
+                        "description": "Whether this source provides the base template or extends another source in the resolved template chain.",
+                        "type": "string",
+                        "enum": [
+                            "base",
+                            "extension"
                         ]
                     }
                 }

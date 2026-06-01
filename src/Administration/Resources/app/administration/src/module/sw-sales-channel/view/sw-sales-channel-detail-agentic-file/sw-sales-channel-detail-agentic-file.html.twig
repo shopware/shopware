@@ -1,0 +1,334 @@
+{% block sw_sales_channel_detail_agentic_file %}
+<div
+    v-if="salesChannel"
+    class="sw-sales-channel-detail-agentic-file"
+>
+    {% block sw_sales_channel_detail_agentic_file_top_bar %}
+    <div class="sw-sales-channel-detail-agentic-file__top-bar">
+        <router-link
+            class="sw-sales-channel-detail-agentic-file__back-link"
+            :to="listRoute"
+        >
+            <mt-icon
+                name="regular-chevron-left-xs"
+                size="12px"
+            />
+            {{ $t('sw-sales-channel.detail.agenticFiles.detail.backToList') }}
+        </router-link>
+    </div>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_agentic_file_details %}
+    <mt-card
+        v-if="file"
+        position-identifier="sw-sales-channel-detail-agentic-file-details"
+        class="sw-sales-channel-detail-agentic-file__details"
+        :is-loading="isLoading || undefined"
+    >
+        <template #title>
+            <div class="sw-sales-channel-detail-agentic-file__header">
+                <div class="sw-sales-channel-detail-agentic-file__headline-row">
+                    <h3 class="sw-sales-channel-detail-agentic-file__headline">
+                        {{ getDisplayFileName(file) }}
+                    </h3>
+
+                    <sw-label
+                        appearance="pill"
+                        size="medium"
+                        :variant="getEnabledVariant(file)"
+                    >
+                        {{ getEnabledLabel(file) }}
+                    </sw-label>
+                </div>
+
+                <p
+                    v-if="description"
+                    class="sw-sales-channel-detail-agentic-file__description sw-sales-channel-detail-agentic-file__header-description"
+                >
+                    {{ description }}
+                </p>
+            </div>
+        </template>
+
+        <template #headerRight>
+            <mt-button
+                class="sw-sales-channel-detail-agentic-file__state-action"
+                size="small"
+                variant="secondary"
+                :disabled="isSaving"
+                @click="onToggleEnabled"
+            >
+                {{ getToggleLabel(file) }}
+            </mt-button>
+        </template>
+
+        {% block sw_sales_channel_detail_agentic_file_preview %}
+        <div class="sw-sales-channel-detail-agentic-file__preview-section">
+            <div class="sw-sales-channel-detail-agentic-file__title">
+                <h3 class="sw-sales-channel-detail-agentic-file__section-headline">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.detail.previewTitle') }}
+                </h3>
+
+                <p class="sw-sales-channel-detail-agentic-file__description">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.detail.previewDescription') }}
+                </p>
+            </div>
+
+            <pre
+                v-if="previewContent"
+                class="sw-sales-channel-detail-agentic-file__preview"
+            ><code>{{ previewContent }}</code></pre>
+
+            <p
+                v-else
+                class="sw-sales-channel-detail-agentic-file__empty-preview"
+            >
+                {{ $t('sw-sales-channel.detail.agenticFiles.detail.previewEmpty') }}
+            </p>
+
+            <div
+                v-if="supportsCustomNotes"
+                class="sw-sales-channel-detail-agentic-file__custom-notes"
+            >
+                <div class="sw-sales-channel-detail-agentic-file__title">
+                    <h3 class="sw-sales-channel-detail-agentic-file__section-headline">
+                        {{ $t('sw-sales-channel.detail.agenticFiles.detail.customNotesTitle') }}
+                    </h3>
+
+                    <p class="sw-sales-channel-detail-agentic-file__description">
+                        {{ $t('sw-sales-channel.detail.agenticFiles.detail.customNotesDescription') }}
+                    </p>
+                </div>
+
+                <mt-textarea
+                    v-model="customNotes"
+                    class="sw-sales-channel-detail-agentic-file__custom-notes-input"
+                    name="sw-field--sales-channel-agentic-file-custom-notes"
+                    :placeholder="$t('sw-sales-channel.detail.agenticFiles.detail.customNotesPlaceholder')"
+                    :disabled="isLoading || undefined"
+                />
+            </div>
+        </div>
+        {% endblock %}
+
+        <div class="sw-sales-channel-detail-agentic-file__metadata">
+            <div class="sw-sales-channel-detail-agentic-file__metadata-item">
+                <span class="sw-sales-channel-detail-agentic-file__metadata-label">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.detail.labelPublicPath') }}
+                </span>
+
+                <div class="sw-sales-channel-detail-agentic-file__public-path">
+                    <a
+                        v-if="publicPreviewUrl"
+                        v-tooltip="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
+                        class="sw-sales-channel-detail-agentic-file__public-path-link"
+                        :href="publicPreviewUrl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        :aria-label="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
+                        :title="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
+                    >
+                        <span class="sw-sales-channel-detail-agentic-file__metadata-value">
+                            {{ getPublicPath(file) }}
+                        </span>
+                    </a>
+
+                    <span
+                        v-else
+                        class="sw-sales-channel-detail-agentic-file__metadata-value"
+                    >
+                        {{ getPublicPath(file) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="sw-sales-channel-detail-agentic-file__metadata-item">
+                <span class="sw-sales-channel-detail-agentic-file__metadata-label">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.detail.labelContentType') }}
+                </span>
+                <span class="sw-sales-channel-detail-agentic-file__metadata-value">
+                    {{ file.contentType }}
+                </span>
+            </div>
+        </div>
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_agentic_file_templates %}
+    <mt-card
+        v-if="file"
+        position-identifier="sw-sales-channel-detail-agentic-file-templates"
+        class="sw-sales-channel-detail-agentic-file__templates"
+        :class="{ 'sw-sales-channel-detail-agentic-file__templates--collapsed': !isContentSourcesExpanded }"
+    >
+        <template #title>
+            <div class="sw-sales-channel-detail-agentic-file__header">
+                <div class="sw-sales-channel-detail-agentic-file__headline-row">
+                    <h3 class="sw-sales-channel-detail-agentic-file__section-headline">
+                        {{ $t('sw-sales-channel.detail.agenticFiles.detail.templatesTitle') }}
+                    </h3>
+                </div>
+
+                <p class="sw-sales-channel-detail-agentic-file__description sw-sales-channel-detail-agentic-file__header-description">
+                    {{ $t('sw-sales-channel.detail.agenticFiles.detail.templatesDescription') }}
+                </p>
+            </div>
+        </template>
+
+        <template #headerRight>
+            <mt-button
+                class="sw-sales-channel-detail-agentic-file__state-action sw-sales-channel-detail-agentic-file__content-sources-toggle"
+                size="small"
+                variant="secondary"
+                @click="isContentSourcesExpanded = !isContentSourcesExpanded"
+            >
+                <mt-icon
+                    :name="contentSourcesToggleIcon"
+                    size="12px"
+                />
+                {{ contentSourcesToggleLabel }}
+            </mt-button>
+        </template>
+
+        <template #grid>
+            <sw-data-grid
+                v-if="isContentSourcesExpanded"
+                identifier="sw-sales-channel-detail-agentic-file-template-list"
+                :data-source="file.templates"
+                :columns="templateColumns"
+                :show-selection="false"
+                :show-actions="true"
+                :plain-appearance="true"
+            >
+                <template #column-sourceName="{ item }">
+                    <button
+                        type="button"
+                        class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-button"
+                        @click="openTemplateOverrideModal(item)"
+                    >
+                        <span
+                            class="sw-sales-channel-detail-agentic-file__source-icon"
+                            :class="{ 'sw-sales-channel-detail-agentic-file__source-icon--shopware': isShopwareSource(item) }"
+                        >
+                            <img
+                                v-if="getSourceIconSrc(item)"
+                                :src="getSourceIconSrc(item)"
+                                :alt="item.sourceName"
+                            >
+
+                            <span
+                                v-else-if="isShopwareSource(item)"
+                                class="sw-sales-channel-detail-agentic-file__shopware-source-logo"
+                            ></span>
+
+                            <mt-icon
+                                v-else
+                                :name="getSourceFallbackIcon(item)"
+                                size="16px"
+                            />
+                        </span>
+
+                        <span class="sw-sales-channel-detail-agentic-file__source-name">
+                            {{ item.sourceName }}
+                        </span>
+                    </button>
+                </template>
+
+                <template #column-role="{ item }">
+                    <sw-label
+                        appearance="pill"
+                        size="small"
+                        :variant="getTemplateRoleVariant(item)"
+                    >
+                        {{ getTemplateRoleLabel(item) }}
+                    </sw-label>
+                </template>
+
+                <template #column-override="{ item }">
+                    <sw-label
+                        appearance="pill"
+                        size="small"
+                        :variant="getOverrideVariant(item)"
+                    >
+                        {{ getOverrideLabel(item) }}
+                    </sw-label>
+                </template>
+
+                <template #actions="{ item }">
+                    <sw-context-menu-item @click="openTemplateOverrideModal(item)">
+                        {{ $t('sw-sales-channel.detail.agenticFiles.detail.actionEditOverride') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-data-grid>
+        </template>
+    </mt-card>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_agentic_file_override_modal %}
+    <sw-modal
+        v-if="selectedTemplate"
+        class="sw-sales-channel-detail-agentic-file__override-modal"
+        variant="large"
+        :title="$t('sw-sales-channel.detail.agenticFiles.detail.overrideModalTitle', { source: selectedTemplate.sourceName }, 0)"
+        @modal-close="closeTemplateOverrideModal"
+    >
+        <div class="sw-sales-channel-detail-agentic-file__override-modal-content">
+            <p class="sw-sales-channel-detail-agentic-file__description">
+                {{ $t('sw-sales-channel.detail.agenticFiles.detail.overrideModalDescription') }}
+            </p>
+
+            <sw-code-editor
+                v-model:value="templateOverrideDraft"
+                class="sw-sales-channel-detail-agentic-file__override-input"
+                name="sw-field--sales-channel-agentic-file-template-override"
+                mode="twig"
+                :soft-wraps="true"
+                :set-focus="true"
+                :label="$t('sw-sales-channel.detail.agenticFiles.detail.overrideModalFieldLabel')"
+            />
+        </div>
+
+        <template #modal-footer>
+            <mt-button
+                class="sw-sales-channel-detail-agentic-file__override-modal-reset"
+                size="small"
+                variant="secondary"
+                :disabled="!canResetTemplateOverride"
+                @click="resetTemplateOverride"
+            >
+                {{ $t('sw-sales-channel.detail.agenticFiles.detail.overrideModalReset') }}
+            </mt-button>
+
+            <mt-button
+                size="small"
+                variant="secondary"
+                @click="closeTemplateOverrideModal"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+
+            <mt-button
+                class="sw-sales-channel-detail-agentic-file__override-modal-apply"
+                size="small"
+                variant="primary"
+                @click="applyTemplateOverride"
+            >
+                {{ $t('sw-sales-channel.detail.agenticFiles.detail.overrideModalApply') }}
+            </mt-button>
+        </template>
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_sales_channel_detail_agentic_file_empty_state %}
+    <mt-card
+        v-if="!file && !isLoading"
+        position-identifier="sw-sales-channel-detail-agentic-file-empty"
+    >
+        <mt-empty-state
+            icon="regular-file"
+            :headline="$t('sw-sales-channel.detail.agenticFiles.detail.emptyState')"
+        />
+    </mt-card>
+    {% endblock %}
+</div>
+{% endblock %}

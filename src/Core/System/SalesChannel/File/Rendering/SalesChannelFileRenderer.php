@@ -14,6 +14,10 @@ use Twig\Environment;
 #[Package('framework')]
 class SalesChannelFileRenderer
 {
+    private const USER_PROVIDED_CONTENT_OVERRIDE_KEY = 'user_provided_content';
+
+    private const USER_PROVIDED_CONTENT_TEMPLATE = '@SalesChannelFileUserProvidedContent/%s';
+
     public function __construct(
         private readonly Environment $twig,
         private readonly TemplateFinder $templateFinder,
@@ -28,13 +32,17 @@ class SalesChannelFileRenderer
     {
         $overrideTemplates = $this->buildOverrideTemplates($file, $templateOverrides);
         $parameters = $this->buildParameters($file, $context);
+        $templateName = $this->templateFinder->find($file->baseTemplateName);
+
+        $userProvidedContent = $this->getUserProvidedContent($templateOverrides);
+        if ($userProvidedContent !== null) {
+            $templateName = \sprintf(self::USER_PROVIDED_CONTENT_TEMPLATE, $file->templatePath);
+            $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($file, $userProvidedContent);
+        }
 
         return $this->templateOverrideLoader->withTemplateOverrides(
             $overrideTemplates,
-            fn (): string => $this->twig->render(
-                $this->templateFinder->find($file->baseTemplateName),
-                $parameters
-            )
+            fn (): string => $this->twig->render($templateName, $parameters)
         );
     }
 
@@ -58,6 +66,32 @@ class SalesChannelFileRenderer
         }
 
         return $overrideTemplates;
+    }
+
+    /**
+     * @param array<string, mixed> $templateOverrides
+     */
+    private function getUserProvidedContent(array $templateOverrides): ?string
+    {
+        $userProvidedContent = $templateOverrides[self::USER_PROVIDED_CONTENT_OVERRIDE_KEY] ?? null;
+
+        if (!\is_string($userProvidedContent) || trim($userProvidedContent) === '') {
+            return null;
+        }
+
+        return $userProvidedContent;
+    }
+
+    private function buildUserProvidedContentTemplate(SalesChannelFile $file, string $userProvidedContent): string
+    {
+        $encodedContent = json_encode($userProvidedContent, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        \assert(\is_string($encodedContent));
+
+        return \sprintf(
+            "{%% sw_extends '%s' %%}\n\n{%% block user_provided_content %%}{{ %s|raw }}{%% endblock %%}",
+            $file->baseTemplateName,
+            $encodedContent
+        );
     }
 
     /**

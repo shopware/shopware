@@ -70,6 +70,49 @@ class SalesChannelFileRendererTest extends TestCase
         static::assertSame('merchant plugin + merchant core', $content);
         static::assertSame('plugin + core', $renderer->render($file, $context));
     }
+
+    public function testUserProvidedContentIsRenderedThroughDedicatedBlock(): void
+    {
+        $templateOverrideLoader = new SalesChannelFileTemplateOverrideLoader();
+        $loader = new ChainLoader([
+            $templateOverrideLoader,
+            new ArrayLoader([
+                '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% block user_provided_content %}{% endblock %}{% endblock %}',
+            ]),
+        ]);
+        $twig = new Environment($loader);
+        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
+
+        $hierarchyBuilder = new NamespaceHierarchyBuilder([
+            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => 0]),
+        ]);
+        $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
+
+        $twig->addExtension(new NodeExtension($templateFinder, $scopeDetector));
+
+        $renderer = new SalesChannelFileRenderer($twig, $templateFinder, $templateOverrideLoader);
+
+        $file = new SalesChannelFile(
+            'agentic',
+            'llms.txt',
+            'files/agentic/llms.txt.twig',
+            'text/plain; charset=utf-8',
+            'files/agentic/llms.txt.twig',
+            [
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+            ],
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getSalesChannel')->willReturn(new SalesChannelEntity());
+
+        $content = $renderer->render($file, $context, [
+            'user_provided_content' => '{{ salesChannel.name }} must stay literal.',
+        ]);
+
+        static::assertSame('core{{ salesChannel.name }} must stay literal.', $content);
+    }
 }
 
 /**

@@ -15,9 +15,12 @@ use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
+use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderResult;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
@@ -42,6 +45,23 @@ class SalesChannelFileControllerTest extends TestCase
             ],
         );
         $configuration = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
+        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
+        $sourceLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with(['Ucp', 'Framework'], $context)
+            ->willReturn([
+                'Ucp' => [
+                    'sourceName' => 'UCP',
+                    'sourceType' => 'plugin',
+                    'sourceIcon' => 'base64-plugin-icon',
+                ],
+                'Framework' => [
+                    'sourceName' => 'Shopware',
+                    'sourceType' => 'shopware',
+                    'sourceIcon' => null,
+                ],
+            ]);
 
         $discovery = $this->createMock(SalesChannelFileDiscovery::class);
         $discovery
@@ -57,7 +77,7 @@ class SalesChannelFileControllerTest extends TestCase
             ->with('agentic', $salesChannelId, $context)
             ->willReturn(['llms.txt' => $configuration]);
 
-        $response = $this->createController($discovery, $configurationLoader)->list('agentic', $salesChannelId, $context);
+        $response = $this->createController($discovery, $configurationLoader, sourceLoader: $sourceLoader)->list('agentic', $salesChannelId, $context);
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame([
@@ -71,12 +91,23 @@ class SalesChannelFileControllerTest extends TestCase
                         [
                             'twigNamespace' => 'Ucp',
                             'templateName' => '@Ucp/files/agentic/llms.txt.twig',
+                            'templateContent' => '{% block user_provided_content %}{% endblock %}',
+                            'sourceName' => 'UCP',
+                            'sourceType' => 'plugin',
+                            'sourceIcon' => 'base64-plugin-icon',
+                            'role' => 'extension',
                         ],
                         [
                             'twigNamespace' => 'Framework',
                             'templateName' => '@Framework/files/agentic/llms.txt.twig',
+                            'templateContent' => 'Core template',
+                            'sourceName' => 'Shopware',
+                            'sourceType' => 'shopware',
+                            'sourceIcon' => null,
+                            'role' => 'base',
                         ],
                     ],
+                    'supportsUserProvidedContent' => true,
                     'configuration' => [
                         'id' => $configuration->getId(),
                         'enabled' => true,
@@ -153,6 +184,8 @@ class SalesChannelFileControllerTest extends TestCase
         ?SalesChannelFileConfigurationLoader $configurationLoader = null,
         ?SalesChannelFileLoader $salesChannelFileLoader = null,
         ?AbstractSalesChannelContextFactory $salesChannelContextFactory = null,
+        ?Environment $twig = null,
+        ?SalesChannelFileSourceLoader $sourceLoader = null,
     ): SalesChannelFileController {
         return new SalesChannelFileController(
             $discovery ?? $this->createMock(SalesChannelFileDiscovery::class),
@@ -160,6 +193,11 @@ class SalesChannelFileControllerTest extends TestCase
             $salesChannelFileLoader ?? $this->createMock(SalesChannelFileLoader::class),
             $salesChannelContextFactory ?? $this->createMock(AbstractSalesChannelContextFactory::class),
             new SalesChannelFileRequestPathResolver(),
+            $twig ?? new Environment(new ArrayLoader([
+                '@Ucp/files/agentic/llms.txt.twig' => '{% block user_provided_content %}{% endblock %}',
+                '@Framework/files/agentic/llms.txt.twig' => 'Core template',
+            ])),
+            $sourceLoader ?? $this->createMock(SalesChannelFileSourceLoader::class),
         );
     }
 

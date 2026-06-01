@@ -70,6 +70,11 @@
             <argument type="service" id="sales_channel_file.repository"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader">
+            <argument type="service" id="plugin.repository"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
 
         <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer">
@@ -102,6 +107,8 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

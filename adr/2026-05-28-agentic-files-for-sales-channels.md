@@ -50,6 +50,8 @@ Merchant overrides are applied through an internal high-priority Twig loader tha
 
 The Administration adds an "Agentic files" tab to Storefront and Headless sales channel detail pages. The tab shows a list of discovered files. Selecting a file opens a detail page with rendered preview, enablement, public URL, detected content type, and a list of Twig namespaces that can be overridden individually. The UI stores only merchant overrides and does not copy shipped templates into the database.
 
+The detail page offers two customization levels. Merchants can add simple append-only text through Custom Notes when the template chain exposes `user_provided_content`. Advanced users can open an individual content source and edit the override for that source directly. This keeps the common customization path non-technical while still making full source overrides available when needed.
+
 ## Template Examples
 
 Core can ship a base template:
@@ -70,9 +72,11 @@ Agents may use the public storefront and documented APIs. Respect robots.txt, ra
 {% endblock %}
 
 {% block agentic_llms_extensions %}{% endblock %}
+
+{% block user_provided_content %}{% endblock %}
 ```
 
-Built-in text templates expose empty extension blocks such as `agentic_llms_extensions` and `agentic_agents_extensions` so extensions can append their own content without taking over the core-owned structure blocks.
+Built-in text templates expose empty extension blocks such as `agentic_llms_extensions` and `agentic_agents_extensions` so extensions can append their own content without taking over the core-owned structure blocks. They also expose `user_provided_content`, which the Administration can fill with simple merchant notes through a generated override.
 
 A UCP plugin can extend that template:
 
@@ -170,6 +174,10 @@ The table contains one row per sales channel, file family, and public file:
 }
 ```
 
+The reserved `user_provided_content` key stores plain merchant notes. During rendering, it is converted into a generated Twig override for the `user_provided_content` block instead of exposing Twig editing for simple append-only additions.
+
+Resetting an individual source override removes the matching Twig namespace key from `template_overrides`. It never writes the currently shipped template content into the database, so later core or extension template changes become visible again after the reset.
+
 Only overrides are stored in the database. Base templates remain in core, plugin, app, or theme template storage. When a shipped template changes, there is no need to update database rows with a migration.
 
 The Twig override loader is deliberately not a database loader. Persisted overrides are loaded by the sales-channel file application service before rendering, and preview overrides can be supplied directly by the Administration request. This avoids making the global Twig loader depend on sales-channel request state and prevents one sales channel's override from being selected for another sales channel that renders the same Twig template name.
@@ -187,6 +195,8 @@ The Administration needs an HTTP API to list discovered files and preview unsave
 - `GET /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`
 - `POST /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview`
 
+The list response includes resolved source metadata and the current source template content so the Administration can render the content sources table and prefill the advanced override editor without persisting shipped templates. The exact response shape is documented in the OpenAPI schema.
+
 ### Public File HTTP API
 
 - Eligible agentic files are served on sales channel domains by their derived public path, for example `/llms.txt`, `/agents.md`, or `/.well-known/ucp.json`.
@@ -201,7 +211,7 @@ Template files are the only designed extension point for this feature. Core, plu
 
 The initial extension point is the `agentic` file family with the built-in file paths `files/agentic/llms.txt.twig` and `files/agentic/agents.md.twig`. Subfolders below the file family are supported, including dot-prefixed folders such as `.well-known`.
 
-The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content.
+The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content. Templates can expose `user_provided_content` when they want the Administration to offer a simple "Custom Notes" field that appends merchant-provided text.
 
 ## Consequences
 

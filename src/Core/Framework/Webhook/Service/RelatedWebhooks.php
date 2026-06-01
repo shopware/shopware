@@ -6,11 +6,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\RelatedWebhooksTest
+ * @codeCoverageIgnore
+ *
+ * @see RelatedWebhooksTest
  */
 #[Package('framework')]
 class RelatedWebhooks

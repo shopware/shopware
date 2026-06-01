@@ -926,7 +926,7 @@ class CriteriaParserTest extends TestCase
         $sortedFilterArray = $sortedFilter->toArray();
 
         // Unset the 'source' key before comparison.
-        unset($sortedFilterArray['script']['script']['inline']);
+        unset($sortedFilterArray['script']['script']['source']);
 
         if (!Feature::isActive('v6.6.0.0')) {
             unset($sortedFilterArray['script']['script']['id']);

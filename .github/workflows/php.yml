@@ -29,7 +29,7 @@ jobs:
           keep-composer-tools: true
 
       - name: Cache CS Fixer
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./var/cache/cs_fixer
           key: ${{ runner.os }}-cs-fixer-${{ hashFiles('vendor-bin/cs-fixer/composer.json') }}
@@ -66,7 +66,7 @@ jobs:
     name: "BC check"
     steps:
       - name: Clone shopware
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: '0'
           fetch-tags: '1'
@@ -186,7 +186,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
       - name: composer.json changed
         id: changed-composer-json
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v46
         with:
           files: composer.json
       - name: Check license

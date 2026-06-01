@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Kernel;
 
 /**
  * @internal
@@ -19,7 +18,7 @@ class InstanceService
 
     public function getShopwareVersion(): string
     {
-        if ($this->shopwareVersion === Kernel::SHOPWARE_FALLBACK_VERSION) {
+        if (str_ends_with($this->shopwareVersion, '-dev')) {
             return '___VERSION___';
         }
 

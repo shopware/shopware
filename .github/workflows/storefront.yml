@@ -24,7 +24,7 @@ jobs:
           shopware-repository: ${{ github.repository }}
 
       - name: Cache ESLint and Stylelint
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             src/Storefront/Resources/app/storefront/node_modules/.eslintcache
@@ -66,13 +66,13 @@ jobs:
       WHITELISTED_JS_PACKAGES: 'abab@2.0.1;administration;taffydb@2.6.2'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: package*.json changed
         id: changed-package-json
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@v46
         with:
           files: src/Storefront/Resources/app/storefront/package*.json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: steps.changed-package-json.outputs.any_changed == 'true'
         with:
           node-version: 20

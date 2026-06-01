@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 
 /**
  * @internal
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Plugin\Composer\Factory;
  */
 class FactoryTest extends TestCase
 {
+    use EnvTestBehaviour;
+
     public function testCreateComposer(): void
     {
         if (isset($_SERVER['COMPOSER_ROOT_VERSION'])) {
@@ -26,12 +29,10 @@ class FactoryTest extends TestCase
 
     public function testCreateComposerWithVersion(): void
     {
-        $_SERVER['COMPOSER_ROOT_VERSION'] = '6.4.9999999-dev';
+        $this->setEnvVars(['COMPOSER_ROOT_VERSION' => '6.4.9999999-dev']);
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
 
         static::assertSame('shopware/platform', $composer->getPackage()->getName());
         static::assertSame('6.4.9999999.9999999-dev', $composer->getPackage()->getVersion());
-
-        unset($_SERVER['COMPOSER_ROOT_VERSION']);
     }
 }

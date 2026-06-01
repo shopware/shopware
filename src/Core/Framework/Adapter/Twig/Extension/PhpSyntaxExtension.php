@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Squirrel\TwigPhpSyntax\ExpressionParser\BinaryOperatorExpressionParser;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -23,7 +24,6 @@ use Squirrel\TwigPhpSyntax\Test\TrueTest;
 use Squirrel\TwigPhpSyntax\TokenParser\BreakTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ContinueTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ForeachTokenParser;
-use Twig\ExpressionParser;
 use Twig\Extension\AbstractExtension;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
@@ -172,18 +172,21 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getOperators(): array
     {
         return [
-            [
-            ],
-            [
-                // instead of "or" the PHP operator "||" does the same
-                '||' => ['precedence' => 10, 'class' => OrBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "and" the PHP operator "&&" does the same
-                '&&' => ['precedence' => 15, 'class' => AndBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "is same as(expression)" it becomes "=== expression"
-                '===' => ['precedence' => 20, 'class' => SameAsBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "is not same as(expression)" it becomes "!== expression"
-                '!==' => ['precedence' => 20, 'class' => NotSameAsBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-            ],
+            [],
+            [],
+        ];
+    }
+
+    /**
+     * @return list<BinaryOperatorExpressionParser>
+     */
+    public function getExpressionParsers(): array
+    {
+        return [
+            new BinaryOperatorExpressionParser(OrBinary::class, '||', 10),
+            new BinaryOperatorExpressionParser(AndBinary::class, '&&', 15),
+            new BinaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
+            new BinaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
         ];
     }
 

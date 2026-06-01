@@ -53,6 +53,11 @@ export const productProfileOnlyRequired = [
         key: 'productMediaVersionId',
         mappedKey: 'product_media_version_id',
     },
+    {
+        id: 'acb3632b82994453aa48b6a666e33fea',
+        key: 'canonicalProductVersionId',
+        mappedKey: 'canonicalProductVersionId',
+    },
 ];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

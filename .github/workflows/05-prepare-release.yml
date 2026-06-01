@@ -23,7 +23,7 @@ jobs:
           - "3306:3306"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: "0"
           fetch-tags: "true"
@@ -33,13 +33,13 @@ jobs:
           php-version: 8.2
           coverage: none
           extensions: gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: build shopware
         run: |
           composer setup
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: context
           include-hidden-files: true
@@ -73,7 +73,7 @@ jobs:
       GIT_COMMITTER_EMAIL: "shopwarebot@shopware.com"
       GIT_COMMITTER_NAME: "shopwareBot"
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: context
       - name: Is protected
@@ -123,7 +123,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Draft release
@@ -150,7 +150,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Create sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"

@@ -74,6 +74,7 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'productNumber',
             'stock',
             'name',
+            'canonicalProductVersionId',
             'cmsPageVersionId',
             'createdAt',
         ].sort());

@@ -23,6 +23,7 @@ class NoExpectExceptionMessageRuleTest extends RuleTestCase
             [$message, 15],
             [$message, 24],
             [$message, 33],
+            [$message, 42],
         ]);
     }
 

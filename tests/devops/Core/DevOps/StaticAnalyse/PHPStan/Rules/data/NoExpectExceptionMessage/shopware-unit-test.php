@@ -35,6 +35,15 @@ class BarTest extends TestCase
         throw new \RuntimeException('boom');
     }
 
+    public function testFlaggedParent(): void
+    {
+        parent::expectException(\RuntimeException::class);
+        // not allowed — parent::expectExceptionMessage form (resolves to TestCase)
+        parent::expectExceptionMessage('boom');
+
+        throw new \RuntimeException('boom');
+    }
+
     public function testAllowed(): void
     {
         // allowed

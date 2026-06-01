@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_8\Migration1780315490AddMediaFileNameSortKey;
 
@@ -19,7 +19,7 @@ use Shopware\Core\Migration\V6_8\Migration1780315490AddMediaFileNameSortKey;
  * @internal
  */
 #[Package('discovery')]
-class MediaFileNameSortSearcherTest extends TestCase
+class MediaFileNameSortCriteriaQueryBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -30,16 +30,20 @@ class MediaFileNameSortSearcherTest extends TestCase
 
     private Context $context;
 
+    public static function setUpBeforeClass(): void
+    {
+        // The core content test database is migrated only to the current stable schema. Run this DDL before
+        // transaction-wrapped tests start so MySQL does not implicitly commit an active test transaction.
+        (new Migration1780315490AddMediaFileNameSortKey())->update(KernelLifecycleManager::getConnection());
+    }
+
     protected function setUp(): void
     {
-        $connection = static::getContainer()->get(Connection::class);
-        (new Migration1780315490AddMediaFileNameSortKey())->update($connection);
-
         $this->mediaRepository = static::getContainer()->get('media.repository');
         $this->context = Context::createDefaultContext();
     }
 
-    public function testMediaFileNameSortingUsesInternalGeneratedColumn(): void
+    public function testMediaFileNameSortingUsesPublicCriteriaField(): void
     {
         $alphaId = Uuid::randomHex();
         $zuluId = Uuid::randomHex();

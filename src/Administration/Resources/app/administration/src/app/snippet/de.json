@@ -702,7 +702,8 @@
         "isNoneOf": "Ist keine von | Sind keine von",
         "gross": "Brutto",
         "net": "Netto",
-        "empty": "Ist leer | Sind leer"
+        "empty": "Ist leer | Sind leer",
+        "between": "Ist zwischen | Sind zwischen"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",

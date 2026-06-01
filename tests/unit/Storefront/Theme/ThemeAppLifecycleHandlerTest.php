@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Event\ShopIdResolvedEvent;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\UninstallAppsStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -112,5 +114,68 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         $app = (new AppEntity())->assign(['name' => 'ComponentTestApp']);
         $handler->handleUninstall(new AppDeactivatedEvent($app, Context::createDefaultContext()));
+    }
+
+    public function testShopIdResolvedUninstallStrategyCleansUpThemesForAffectedApps(): void
+    {
+        $config = new StorefrontPluginConfiguration('ComponentTestApp');
+        $configurations = new StorefrontPluginConfigurationCollection([$config]);
+
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn($configurations);
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->once())->method('handleThemeUninstall')->with($config, static::isInstanceOf(Context::class));
+        $lifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+
+        $event = new ShopIdResolvedEvent(
+            UninstallAppsStrategy::STRATEGY_NAME,
+            [['id' => 'app-1', 'name' => 'ComponentTestApp']],
+            Context::createDefaultContext(),
+        );
+        $handler->handleShopIdResolved($event);
+    }
+
+    public function testShopIdResolvedUninstallStrategySkipsAppsWithoutThemeConfig(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
+        $lifecycle->expects($this->once())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+
+        $event = new ShopIdResolvedEvent(
+            UninstallAppsStrategy::STRATEGY_NAME,
+            [['id' => 'app-1', 'name' => 'PlainApp']],
+            Context::createDefaultContext(),
+        );
+        $handler->handleShopIdResolved($event);
+    }
+
+    public function testShopIdResolvedIgnoresNonUninstallStrategies(): void
+    {
+        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry->expects($this->never())->method('getConfigurations');
+
+        $factory = $this->createMock(AbstractStorefrontPluginConfigurationFactory::class);
+        $lifecycle = $this->createMock(ThemeLifecycleHandler::class);
+        $lifecycle->expects($this->never())->method('handleThemeUninstall');
+        $lifecycle->expects($this->never())->method('refreshAllActiveThemeImportMaps');
+
+        $handler = new ThemeAppLifecycleHandler($registry, $factory, $lifecycle);
+
+        $event = new ShopIdResolvedEvent(
+            'reinstall-apps',
+            [['id' => 'app-1', 'name' => 'ComponentTestApp']],
+            Context::createDefaultContext(),
+        );
+        $handler->handleShopIdResolved($event);
     }
 }

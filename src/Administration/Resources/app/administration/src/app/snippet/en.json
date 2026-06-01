@@ -702,7 +702,8 @@
         "isNoneOf": "Is none of | Are none of",
         "gross": "Gross",
         "net": "Net",
-        "empty": "Is empty | Are empty"
+        "empty": "Is empty | Are empty",
+        "between": "Is between | Are between"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",

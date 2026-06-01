@@ -579,4 +579,46 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         expect(mockSave).not.toHaveBeenCalled();
         expect(wrapper.vm.isLoading).toBe(false);
     });
+
+    it('should ignore required fields of inactive providers when validating agentic commerce config', async () => {
+        const wrapper = await createWrapper({
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+                productExports: {
+                    first: () => ({ provider: 'google' }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData({
+            agenticCommerceExportConfig: [
+                {
+                    provider: 'open-ai',
+                    elements: [
+                        {
+                            name: 'core.openAiProductExport.returnPolicyUrl',
+                            config: { required: true },
+                        },
+                    ],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+                {
+                    provider: 'google',
+                    elements: [],
+                    values: {},
+                    errors: {},
+                    isLoaded: true,
+                    isLoading: false,
+                },
+            ],
+        });
+
+        expect(wrapper.vm.productExport.provider).toBe('google');
+        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
+    });
 });

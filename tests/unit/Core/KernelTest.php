@@ -13,6 +13,9 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Routing\Loader\PhpFileLoader;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 /**
@@ -111,10 +114,31 @@ class KernelTest extends TestCase
         )));
     }
 
-    private function createKernel(): Kernel
+    public function testConfigureRoutesImportsProjectRoutesScopedToEnvironment(): void
+    {
+        $confDir = $this->tmpProjectDir . '/config';
+
+        $captured = $this->captureRouteImports('test');
+
+        static::assertContains([$confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    public function testConfigureRoutesDoesNotImportForeignEnvironmentGlobs(): void
+    {
+        $confDir = $this->tmpProjectDir . '/config';
+
+        $captured = $this->captureRouteImports('prod');
+
+        static::assertContains([$confDir . '/{routes}/prod/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+        static::assertNotContains([$confDir . '/{routes}/test/**/*' . Kernel::CONFIG_EXTS, 'glob'], $captured);
+    }
+
+    private function createKernel(string $environment = 'fooBar'): Kernel
     {
         return new Kernel(
-            'fooBar',
+            $environment,
             true,
             $this->createMock(StaticKernelPluginLoader::class),
             'cacheId',
@@ -122,6 +146,29 @@ class KernelTest extends TestCase
             $this->createMock(Connection::class),
             $this->tmpProjectDir,
         );
+    }
+
+    /**
+     * @return list<array{0: mixed, 1: ?string}>
+     */
+    private function captureRouteImports(string $environment): array
+    {
+        $captured = [];
+        $loader = $this->createMock(PhpFileLoader::class);
+        $loader->method('import')->willReturnCallback(
+            function (mixed $resource, ?string $type = null) use (&$captured): array {
+                $captured[] = [$resource, $type];
+
+                return [];
+            }
+        );
+
+        (new \ReflectionMethod(Kernel::class, 'configureRoutes'))->invoke(
+            $this->createKernel($environment),
+            new RoutingConfigurator(new RouteCollection(), $loader, '/tmp', '/tmp'),
+        );
+
+        return $captured;
     }
 
     /**

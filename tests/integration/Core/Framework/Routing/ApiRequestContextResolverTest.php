@@ -108,6 +108,100 @@ class ApiRequestContextResolverTest extends TestCase
         }
     }
 
+    public function testEmptyLanguageAndCurrencyHeadersFallBackToDefaults(): void
+    {
+        $user = $this->createUser([], true);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, '');
+        $request->headers->set(PlatformRequest::HEADER_CURRENCY_ID, '');
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $context->getLanguageId());
+        static::assertSame(Defaults::CURRENCY, $context->getCurrencyId());
+    }
+
+    public function testEmptyAppIntegrationIdHeaderIsIgnored(): void
+    {
+        $user = $this->createUser([], true);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, $user->getUserId());
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $request->headers->set(PlatformRequest::HEADER_APP_INTEGRATION_ID, '');
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        static::assertInstanceOf(AdminApiSource::class, $context->getSource());
+    }
+
+    public function testEmptyAppUserIdHeaderIsIgnoredForIntegrationAuth(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $ids = new IdsCollection();
+
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+
+        $connection->insert('integration', [
+            'id' => Uuid::fromHexToBytes($ids->create('integration')),
+            'access_key' => $accessKey,
+            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
+            'label' => 'test integration',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'admin' => 0,
+        ]);
+
+        $connection->insert('acl_role', [
+            'id' => Uuid::fromHexToBytes($ids->create('acl_role')),
+            'name' => 'integration',
+            'privileges' => '["currency:read"]',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('app', [
+            'id' => Uuid::fromHexToBytes($ids->create('app')),
+            'name' => 'PHPUnit',
+            'path' => 'foo',
+            'active' => 1,
+            'configurable' => 0,
+            'version' => '0.0.1',
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $connection->insert('integration_role', [
+            'integration_id' => Uuid::fromHexToBytes($ids->get('integration')),
+            'acl_role_id' => Uuid::fromHexToBytes($ids->get('acl_role')),
+        ]);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $accessKey);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, '');
+
+        $this->resolver->resolve($request);
+
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        static::assertInstanceOf(Context::class, $context);
+        $source = $context->getSource();
+        static::assertInstanceOf(AdminApiSource::class, $source);
+        static::assertNull($source->getUserId());
+        static::assertSame($ids->get('integration'), $source->getIntegrationId());
+    }
+
     public function testContextSkipTriggerFlowState(): void
     {
         $user = $this->createUser([], true);

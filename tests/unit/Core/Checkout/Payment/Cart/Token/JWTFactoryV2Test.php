@@ -21,6 +21,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -39,7 +40,7 @@ class JWTFactoryV2Test extends TestCase
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
         $this->connection = $this->createMock(Connection::class);
-        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection);
+        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection, new NativeClock());
     }
 
     #[DataProvider('dataProviderExpiration')]
@@ -106,7 +107,7 @@ class JWTFactoryV2Test extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new StrictValidAt(new MockClock(new \DateTimeImmutable('now - 1 day'))));
-        $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
+        $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class), new NativeClock());
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
@@ -127,7 +128,7 @@ class JWTFactoryV2Test extends TestCase
             ->method('fetchOne')
             ->willReturn(false);
 
-        $tokenFactory = new JWTFactoryV2($configuration, $this->connection);
+        $tokenFactory = new JWTFactoryV2($configuration, $this->connection, new NativeClock());
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);

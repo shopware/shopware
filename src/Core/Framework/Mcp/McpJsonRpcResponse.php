@@ -2,35 +2,58 @@
 
 namespace Shopware\Core\Framework\Mcp;
 
+use Mcp\Exception\InvalidArgumentException;
+use Mcp\Schema\JsonRpc\ResultInterface;
+use Mcp\Schema\Prompt;
+use Mcp\Schema\Resource;
+use Mcp\Schema\Result\InitializeResult;
+use Mcp\Schema\Result\ListPromptsResult;
+use Mcp\Schema\Result\ListResourcesResult;
+use Mcp\Schema\Result\ListToolsResult;
+use Mcp\Schema\Tool;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
  *
- * Wraps a decoded JSON-RPC response body and exposes typed mutation methods.
+ * Typed DTO for a JSON-RPC response body received from the MCP SDK.
  *
- * Internally uses \stdClass (json_decode with associative=false) to preserve
- * JSON object semantics during encode — empty {} stays {} not [].
+ * Decodes the response using the SDK's own typed result classes so that
+ * serialization — including empty JSON objects like inputSchema.properties: {} —
+ * is handled correctly by each result's JsonSerializable implementation.
  *
  * @internal
  */
 #[Package('framework')]
-class McpJsonRpcResponse
+class McpJsonRpcResponse implements \JsonSerializable
 {
-    private function __construct(private readonly \stdClass $data)
-    {
+    private function __construct(
+        private readonly string|int $id,
+        private readonly string $jsonrpc,
+        private ResultInterface $result,
+    ) {
     }
 
     public static function fromJson(string $json): ?self
     {
         try {
-            $decoded = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
+            $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
         }
 
-        return $decoded instanceof \stdClass ? new self($decoded) : null;
+        if (!\is_array($data) || !\is_array($data['result'] ?? null)) {
+            return null;
+        }
+
+        $result = self::parseResult($data['result']);
+
+        if ($result === null) {
+            return null;
+        }
+
+        return new self($data['id'] ?? '', $data['jsonrpc'] ?? '2.0', $result);
     }
 
     /**
@@ -38,10 +61,18 @@ class McpJsonRpcResponse
      */
     public function filterTools(array $allowlist): void
     {
-        $this->filterResultList(
-            'tools',
-            static fn (\stdClass $item): bool => \in_array($item->name ?? '', $allowlist, true),
+        if (!$this->result instanceof ListToolsResult) {
+            return;
+        }
+
+        $filtered = array_values(
+            array_filter(
+                $this->result->tools,
+                static fn (Tool $tool): bool => \in_array($tool->name, $allowlist, true),
+            ),
         );
+
+        $this->result = new ListToolsResult($filtered, $this->result->nextCursor);
     }
 
     /**
@@ -49,10 +80,18 @@ class McpJsonRpcResponse
      */
     public function filterResources(array $allowlist): void
     {
-        $this->filterResultList(
-            'resources',
-            static fn (\stdClass $item): bool => \in_array($item->uri ?? '', $allowlist, true),
+        if (!$this->result instanceof ListResourcesResult) {
+            return;
+        }
+
+        $filtered = array_values(
+            array_filter(
+                $this->result->resources,
+                static fn (Resource $resource): bool => \in_array($resource->uri, $allowlist, true),
+            ),
         );
+
+        $this->result = new ListResourcesResult($filtered, $this->result->nextCursor);
     }
 
     /**
@@ -60,10 +99,18 @@ class McpJsonRpcResponse
      */
     public function filterPrompts(array $allowlist): void
     {
-        $this->filterResultList(
-            'prompts',
-            static fn (\stdClass $item): bool => \in_array($item->name ?? '', $allowlist, true),
+        if (!$this->result instanceof ListPromptsResult) {
+            return;
+        }
+
+        $filtered = array_values(
+            array_filter(
+                $this->result->prompts,
+                static fn (Prompt $prompt): bool => \in_array($prompt->name, $allowlist, true),
+            ),
         );
+
+        $this->result = new ListPromptsResult($filtered, $this->result->nextCursor);
     }
 
     /**
@@ -72,56 +119,66 @@ class McpJsonRpcResponse
      */
     public function addShopwareMeta(?string $userId, ?string $integrationId): bool
     {
+        if (!$this->result instanceof InitializeResult) {
+            return false;
+        }
+
         if ($userId === null && $integrationId === null) {
             return false;
         }
 
-        $result = $this->data->result ?? null;
-        if (!$result instanceof \stdClass) {
-            return false;
-        }
-
-        if (!isset($result->_meta) || !$result->_meta instanceof \stdClass) {
-            $result->_meta = new \stdClass();
-        }
-
-        if (!isset($result->_meta->shopware) || !$result->_meta->shopware instanceof \stdClass) {
-            $result->_meta->shopware = new \stdClass();
-        }
-
+        $shopware = [];
         if ($userId !== null) {
-            $result->_meta->shopware->user = (object) ['id' => $userId];
+            $shopware['user'] = ['id' => $userId];
+        }
+        if ($integrationId !== null) {
+            $shopware['integration'] = ['id' => $integrationId];
         }
 
-        if ($integrationId !== null) {
-            $result->_meta->shopware->integration = (object) ['id' => $integrationId];
-        }
+        $this->result = new InitializeResult(
+            $this->result->capabilities,
+            $this->result->serverInfo,
+            $this->result->instructions,
+            array_merge($this->result->meta ?? [], ['shopware' => $shopware]),
+            $this->result->protocolVersion,
+        );
 
         return true;
     }
 
     public function encode(): string
     {
-        return Json::encode($this->data);
+        return Json::encode($this);
     }
 
-    private function filterResultList(string $key, \Closure $predicate): void
+    public function jsonSerialize(): mixed
     {
-        $result = $this->data->result ?? null;
-        if (!$result instanceof \stdClass) {
-            return;
+        return [
+            'jsonrpc' => $this->jsonrpc,
+            'id' => $this->id,
+            'result' => $this->result,
+        ];
+    }
+
+    private static function parseResult(array $resultData): ?ResultInterface
+    {
+        try {
+            if (\array_key_exists('tools', $resultData)) {
+                return ListToolsResult::fromArray($resultData);
+            }
+            if (\array_key_exists('resources', $resultData)) {
+                return ListResourcesResult::fromArray($resultData);
+            }
+            if (\array_key_exists('prompts', $resultData)) {
+                return ListPromptsResult::fromArray($resultData);
+            }
+            if (\array_key_exists('capabilities', $resultData)) {
+                return InitializeResult::fromArray($resultData);
+            }
+        } catch (InvalidArgumentException) {
+            return null;
         }
 
-        $items = $result->{$key} ?? null;
-        if (!\is_array($items)) {
-            return;
-        }
-
-        $result->{$key} = array_values(
-            array_filter(
-                $items,
-                static fn (mixed $item): bool => $item instanceof \stdClass && $predicate($item),
-            ),
-        );
+        return null;
     }
 }

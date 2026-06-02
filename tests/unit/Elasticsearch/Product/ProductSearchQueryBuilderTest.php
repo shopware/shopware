@@ -161,6 +161,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             'config' => [
                 self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
                 self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
+                self::config(field: 'parent.name', ranking: 800, tokenize: true, and: false),
             ],
             'term' => 'foo',
             'expected' => self::bool([
@@ -174,6 +175,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                     self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
                     self::prefix('tags.name.search', 'foo', 0.4),
                 ], 500)),
+                self::nested('parent', self::disMax([
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                    self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 800)),
             ]),
         ];
 
@@ -191,6 +197,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'ean', ranking: 2000),
                 self::config(field: 'restockTime', ranking: 1500),
                 self::config(field: 'tags.name', ranking: 500),
+                self::config(field: 'parent.name', ranking: 800),
             ],
             'term' => 'foo 2023',
             'expected' => self::disMax([
@@ -211,6 +218,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                             self::prefix('tags.name.search', 'foo', 0.4),
                         ], 500)),
+                        self::nested('parent', self::disMax([
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                            self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                            self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                        ], 800)),
                     ]),
                     self::bool([
                         self::disMax([
@@ -229,6 +241,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::match('tags.name.search', '2023', 0.8, 0, 'and', 10),
                             self::prefix('tags.name.search', '2023', 0.4),
                         ], 500)),
+                        self::nested('parent', self::disMax([
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 1),
+                            self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.8, 0, 'and', 10),
+                            self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.4),
+                        ], 800)),
                     ]),
                 ], BoolQuery::MUST),
                 self::bool([
@@ -247,6 +264,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                         self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
+                    self::nested('parent', self::disMax([
+                        self::must('parent.name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                        self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
+                        self::matchPhrasePrefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                    ], 800)),
                 ]),
             ]),
         ];
@@ -316,6 +338,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
                 self::config(field: 'tags.name', ranking: 500, tokenize: true, and: false),
                 self::config(field: 'categories.name', ranking: 200, tokenize: true, and: false),
+                self::config(field: 'parent.name', ranking: 800, tokenize: true, and: false),
             ],
             'term' => 'foo',
             'expected' => self::bool([
@@ -341,6 +364,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                         self::prefix('categories.name.' . self::SECOND_LANGUAGE_ID . '.search', 'foo', 0.4),
                     ], 160),
                 ])),
+                self::nested('parent', self::disMax([
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                    self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 800)),
             ]),
         ];
 
@@ -350,6 +378,7 @@ class ProductSearchQueryBuilderTest extends TestCase
                 self::config(field: 'ean', ranking: 2000),
                 self::config(field: 'restockTime', ranking: 1500),
                 self::config(field: 'tags.name', ranking: 500),
+                self::config(field: 'parent.name', ranking: 800),
             ],
             'term' => 'foo 2023',
             'expected' => self::disMax([
@@ -370,6 +399,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::match('tags.name.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
                             self::prefix('tags.name.search', 'foo', 0.4),
                         ], 500)),
+                        self::nested('parent', self::disMax([
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                            self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'and', 5),
+                            self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                        ], 800)),
                     ]),
                     self::bool([
                         self::disMax([
@@ -388,6 +422,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                             self::match('tags.name.search', '2023', 0.8, 0, 'and', 10),
                             self::prefix('tags.name.search', '2023', 0.4),
                         ], 500)),
+                        self::nested('parent', self::disMax([
+                            self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 1),
+                            self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.8, 0, 'and', 10),
+                            self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', '2023', 0.4),
+                        ], 800)),
                     ]),
                 ], BoolQuery::MUST),
                 self::bool([
@@ -406,6 +445,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                         self::match('tags.name.search', 'foo 2023', 0.8, 0, 'and', 10),
                         self::matchPhrasePrefix('tags.name.search', 'foo 2023', 0.6, 3, 10),
                     ], 500)),
+                    self::nested('parent', self::disMax([
+                        self::must('parent.name.' . Defaults::LANGUAGE_SYSTEM, ['foo', '2023'], 1),
+                        self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.8, 0, 'and', 10),
+                        self::matchPhrasePrefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo 2023', 0.6, 3, 10),
+                    ], 800)),
                 ]),
             ]),
         ];
@@ -557,6 +601,35 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $builder->getDecorated();
+    }
+
+    public function testBuildIncludesParentNameWhenConfigured(): void
+    {
+        $builder = $this->getBuilder([
+            self::config(field: 'name', ranking: 1000, tokenize: true, and: false),
+            self::config(field: 'parent.name', ranking: 800, tokenize: true, and: false),
+        ]);
+
+        $criteria = new Criteria();
+        $criteria->setTerm('foo');
+
+        $parsed = $builder->build($criteria, Context::createDefaultContext());
+
+        static::assertEquals(
+            self::bool([
+                self::disMax([
+                    self::exactAnalyzed('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                    self::match('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 1000),
+                self::nested('parent', self::disMax([
+                    self::exactAnalyzed('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 1),
+                    self::match('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.8, 'AUTO:3,8', 'or', 5),
+                    self::prefix('parent.name.' . Defaults::LANGUAGE_SYSTEM . '.search', 'foo', 0.4),
+                ], 800)),
+            ]),
+            $parsed->toArray()
+        );
     }
 
     private function getDefinition(): EntityDefinition

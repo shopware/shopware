@@ -16,6 +16,22 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEve
 class IndexCreator
 {
     /**
+     * Names of every analyzer in `elasticsearch.yaml` that already runs the
+     * `word_delimiter_graph` chain. The `sw_dimension_normalize` char_filter
+     * is conceptually part of that chain (it pre-collapses dimensional
+     * notations before tokenization), so it gets injected into exactly these
+     * analyzers when the bundle parameter is enabled.
+     */
+    private const TECHNICAL_TERM_ANALYZERS = [
+        'sw_whitespace_word_delimiter_index_analyzer',
+        'sw_whitespace_word_delimiter_search_analyzer',
+        'sw_english_word_delimiter_index_analyzer',
+        'sw_english_word_delimiter_search_analyzer',
+        'sw_german_word_delimiter_index_analyzer',
+        'sw_german_word_delimiter_search_analyzer',
+    ];
+
+    /**
      * @var array<mixed>
      */
     private readonly array $config;
@@ -30,7 +46,8 @@ class IndexCreator
         array $config,
         private readonly IndexMappingProvider $mappingProvider,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly ElasticsearchHelper $helper
+        private readonly ElasticsearchHelper $helper,
+        bool $dimensionNormalizeEnabled = false
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -40,6 +57,10 @@ class IndexCreator
             if (\array_key_exists('number_of_replicas', $config['settings']['index']) && $config['settings']['index']['number_of_replicas'] === null) {
                 unset($config['settings']['index']['number_of_replicas']);
             }
+        }
+
+        if ($dimensionNormalizeEnabled) {
+            $config = $this->enableDimensionNormalize($config);
         }
 
         $this->config = $config;
@@ -86,6 +107,52 @@ class IndexCreator
     private function indexExists(string $index): bool
     {
         return $this->client->indices()->exists(['index' => $index]);
+    }
+
+    /**
+     * Prepends `sw_dimension_normalize` to the `char_filter` list of every
+     * technical-term analyzer chain. The char_filter definition itself ships
+     * unconditionally in `elasticsearch.yaml`; this only toggles whether the
+     * analyzer chains reference it, so the same yaml is used regardless of
+     * environment and the only behavioral difference is which analyzers
+     * invoke the regex.
+     *
+     * @param array<mixed> $config
+     *
+     * @return array<mixed>
+     */
+    private function enableDimensionNormalize(array $config): array
+    {
+        if (!isset($config['settings']['analysis']['analyzer']) || !\is_array($config['settings']['analysis']['analyzer'])) {
+            return $config;
+        }
+
+        foreach (self::TECHNICAL_TERM_ANALYZERS as $analyzer) {
+            if (!isset($config['settings']['analysis']['analyzer'][$analyzer])) {
+                continue;
+            }
+
+            $charFilters = $config['settings']['analysis']['analyzer'][$analyzer]['char_filter'] ?? [];
+            \assert(\is_array($charFilters));
+
+            if (\in_array('sw_dimension_normalize', $charFilters, true)) {
+                continue;
+            }
+
+            // Prepend so the dimension regex runs before locale-scoped
+            // char_filters (e.g. sw_decimal_normalize on German) and before
+            // the universal sw_unit_glue. Order is immaterial for the
+            // canonical patterns but keeping the most-specific filter first
+            // matches the "analysis pipeline" mental model: pre-normalize
+            // specific notational variants, then bridge generic numeric
+            // boundaries.
+            $config['settings']['analysis']['analyzer'][$analyzer]['char_filter'] = array_merge(
+                ['sw_dimension_normalize'],
+                $charFilters,
+            );
+        }
+
+        return $config;
     }
 
     private function createAliasIfNotExisting(string $index, string $alias): void

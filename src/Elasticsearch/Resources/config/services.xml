@@ -85,6 +85,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument>%elasticsearch.dimension_normalize%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexManager">

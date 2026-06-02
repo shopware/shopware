@@ -27,7 +27,7 @@ class SalesChannelFileAdministrationReader
     }
 
     /**
-     * @return list<array{fileFamily: string, fileName: string, contentType: string, configuration: array{id: string, enabled: bool, templateOverrides: array<string, string>}|null}>
+     * @return list<SalesChannelFileAdministrationListItem>
      */
     public function list(string $fileFamily, string $salesChannelId, Context $context): array
     {
@@ -37,21 +37,18 @@ class SalesChannelFileAdministrationReader
         foreach ($this->discovery->discover($fileFamily) as $file) {
             $configuration = $configurations[$file->fileName] ?? null;
 
-            $files[] = [
-                'fileFamily' => $file->fileFamily,
-                'fileName' => $file->fileName,
-                'contentType' => $file->contentType,
-                'configuration' => $configuration === null ? null : $this->serializeConfiguration($configuration),
-            ];
+            $files[] = new SalesChannelFileAdministrationListItem(
+                $file->fileFamily,
+                $file->fileName,
+                $file->contentType,
+                $configuration === null ? null : $this->serializeConfiguration($configuration),
+            );
         }
 
         return $files;
     }
 
-    /**
-     * @return array{fileFamily: string, fileName: string, templatePath: string, contentType: string, templates: list<array{twigNamespace: string, templateName: string, templateContent: string, role: string}>, supportsUserProvidedContent: bool, configuration: array{id: string, enabled: bool, templateOverrides: array<string, string>}|null}|null
-     */
-    public function detail(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?array
+    public function detail(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?SalesChannelFileAdministrationDetail
     {
         $file = $this->discovery->discover($fileFamily)[$fileName] ?? null;
         if (!$file instanceof SalesChannelFile) {
@@ -60,33 +57,30 @@ class SalesChannelFileAdministrationReader
 
         $configuration = $this->configurationLoader->load($fileFamily, $fileName, $salesChannelId, $context);
 
-        return [
-            'fileFamily' => $file->fileFamily,
-            'fileName' => $file->fileName,
-            'templatePath' => $file->templatePath,
-            'contentType' => $file->contentType,
-            'templates' => $this->serializeTemplates($file->templates),
-            'supportsUserProvidedContent' => $this->supportsUserProvidedContent($file->templates),
-            'configuration' => $configuration === null ? null : $this->serializeConfiguration($configuration),
-        ];
+        return new SalesChannelFileAdministrationDetail(
+            $file->fileFamily,
+            $file->fileName,
+            $file->templatePath,
+            $file->contentType,
+            $this->serializeTemplates($file->templates),
+            $this->supportsUserProvidedContent($file->templates),
+            $configuration === null ? null : $this->serializeConfiguration($configuration),
+        );
     }
 
-    /**
-     * @return array{id: string, enabled: bool, templateOverrides: array<string, string>}
-     */
-    private function serializeConfiguration(SalesChannelFileEntity $configuration): array
+    private function serializeConfiguration(SalesChannelFileEntity $configuration): SalesChannelFileAdministrationConfiguration
     {
-        return [
-            'id' => $configuration->getId(),
-            'enabled' => $configuration->isEnabled(),
-            'templateOverrides' => $configuration->getTemplateOverrides(),
-        ];
+        return new SalesChannelFileAdministrationConfiguration(
+            $configuration->getId(),
+            $configuration->isEnabled(),
+            $configuration->getTemplateOverrides(),
+        );
     }
 
     /**
      * @param array<string, string> $templates Twig namespace mapped to resolved template name
      *
-     * @return list<array{twigNamespace: string, templateName: string, templateContent: string, role: string}>
+     * @return list<SalesChannelFileAdministrationTemplate>
      */
     private function serializeTemplates(array $templates): array
     {
@@ -94,12 +88,12 @@ class SalesChannelFileAdministrationReader
         $baseTwigNamespace = array_key_first($templates);
 
         foreach ($templates as $twigNamespace => $templateName) {
-            $serialized[] = [
-                'twigNamespace' => $twigNamespace,
-                'templateName' => $templateName,
-                'templateContent' => $this->loadTemplateContent($templateName),
-                'role' => $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
-            ];
+            $serialized[] = new SalesChannelFileAdministrationTemplate(
+                $twigNamespace,
+                $templateName,
+                $this->loadTemplateContent($templateName),
+                $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
+            );
         }
 
         return $serialized;

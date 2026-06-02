@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationDetail;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationListItem;
 use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader;
 use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileController;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
@@ -29,14 +31,7 @@ class SalesChannelFileControllerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $salesChannelId = Uuid::randomHex();
-        $files = [
-            [
-                'fileFamily' => 'agentic',
-                'fileName' => 'llms.txt',
-                'contentType' => 'text/plain; charset=utf-8',
-                'configuration' => null,
-            ],
-        ];
+        $files = [new SalesChannelFileAdministrationListItem('agentic', 'llms.txt', 'text/plain; charset=utf-8', null)];
 
         $administrationReader = $this->createMock(SalesChannelFileAdministrationReader::class);
         $administrationReader
@@ -48,22 +43,31 @@ class SalesChannelFileControllerTest extends TestCase
         $response = $this->createController($administrationReader)->list('agentic', $salesChannelId, $context);
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame(['data' => $files], $this->decodeResponse($response->getContent()));
+        static::assertSame([
+            'data' => [
+                [
+                    'fileFamily' => 'agentic',
+                    'fileName' => 'llms.txt',
+                    'contentType' => 'text/plain; charset=utf-8',
+                    'configuration' => null,
+                ],
+            ],
+        ], $this->decodeResponse($response->getContent()));
     }
 
     public function testDetailDelegatesToAdministrationReader(): void
     {
         $context = Context::createDefaultContext();
         $salesChannelId = Uuid::randomHex();
-        $file = [
-            'fileFamily' => 'agentic',
-            'fileName' => '.well-known/ucp.json',
-            'templatePath' => 'files/agentic/.well-known/ucp.json.twig',
-            'contentType' => 'application/json; charset=utf-8',
-            'templates' => [],
-            'supportsUserProvidedContent' => false,
-            'configuration' => null,
-        ];
+        $file = new SalesChannelFileAdministrationDetail(
+            'agentic',
+            '.well-known/ucp.json',
+            'files/agentic/.well-known/ucp.json.twig',
+            'application/json; charset=utf-8',
+            [],
+            false,
+            null,
+        );
 
         $administrationReader = $this->createMock(SalesChannelFileAdministrationReader::class);
         $administrationReader
@@ -80,7 +84,17 @@ class SalesChannelFileControllerTest extends TestCase
         );
 
         static::assertSame(200, $response->getStatusCode());
-        static::assertSame(['data' => $file], $this->decodeResponse($response->getContent()));
+        static::assertSame([
+            'data' => [
+                'fileFamily' => 'agentic',
+                'fileName' => '.well-known/ucp.json',
+                'templatePath' => 'files/agentic/.well-known/ucp.json.twig',
+                'contentType' => 'application/json; charset=utf-8',
+                'templates' => [],
+                'supportsUserProvidedContent' => false,
+                'configuration' => null,
+            ],
+        ], $this->decodeResponse($response->getContent()));
     }
 
     public function testDetailThrowsNotFoundForUnknownFile(): void

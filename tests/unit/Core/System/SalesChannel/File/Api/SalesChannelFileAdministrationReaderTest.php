@@ -8,7 +8,11 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileEntity;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationConfiguration;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationDetail;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationListItem;
 use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationTemplate;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
@@ -49,19 +53,19 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $this->createTwigEnvironment(),
         );
 
-        static::assertSame([
-            [
-                'fileFamily' => 'agentic',
-                'fileName' => 'llms.txt',
-                'contentType' => 'text/plain; charset=utf-8',
-                'configuration' => [
-                    'id' => $configuration->getId(),
-                    'enabled' => true,
-                    'templateOverrides' => [
+        static::assertEquals([
+            new SalesChannelFileAdministrationListItem(
+                'agentic',
+                'llms.txt',
+                'text/plain; charset=utf-8',
+                new SalesChannelFileAdministrationConfiguration(
+                    $configuration->getId(),
+                    true,
+                    [
                         'Framework' => 'Merchant override',
                     ],
-                ],
-            ],
+                ),
+            ),
         ], $reader->list('agentic', $salesChannelId, $context));
     }
 
@@ -92,34 +96,34 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             $this->createTwigEnvironment(),
         );
 
-        static::assertSame([
-            'fileFamily' => 'agentic',
-            'fileName' => 'llms.txt',
-            'templatePath' => 'files/agentic/llms.txt.twig',
-            'contentType' => 'text/plain; charset=utf-8',
-            'templates' => [
-                [
-                    'twigNamespace' => 'Framework',
-                    'templateName' => '@Framework/files/agentic/llms.txt.twig',
-                    'templateContent' => 'Core template',
-                    'role' => 'base',
-                ],
-                [
-                    'twigNamespace' => 'Ucp',
-                    'templateName' => '@Ucp/files/agentic/llms.txt.twig',
-                    'templateContent' => '{% block user_provided_content %}{% endblock %}',
-                    'role' => 'extension',
-                ],
+        static::assertEquals(new SalesChannelFileAdministrationDetail(
+            'agentic',
+            'llms.txt',
+            'files/agentic/llms.txt.twig',
+            'text/plain; charset=utf-8',
+            [
+                new SalesChannelFileAdministrationTemplate(
+                    'Framework',
+                    '@Framework/files/agentic/llms.txt.twig',
+                    'Core template',
+                    'base',
+                ),
+                new SalesChannelFileAdministrationTemplate(
+                    'Ucp',
+                    '@Ucp/files/agentic/llms.txt.twig',
+                    '{% block user_provided_content %}{% endblock %}',
+                    'extension',
+                ),
             ],
-            'supportsUserProvidedContent' => true,
-            'configuration' => [
-                'id' => $configuration->getId(),
-                'enabled' => true,
-                'templateOverrides' => [
+            true,
+            new SalesChannelFileAdministrationConfiguration(
+                $configuration->getId(),
+                true,
+                [
                     'Framework' => 'Merchant override',
                 ],
-            ],
-        ], $reader->detail('agentic', 'llms.txt', $salesChannelId, $context));
+            ),
+        ), $reader->detail('agentic', 'llms.txt', $salesChannelId, $context));
     }
 
     public function testDetailReturnsNullForUnknownFile(): void

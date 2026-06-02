@@ -65,6 +65,7 @@ async function createWrapper(options = {}) {
         : {
               id: 'sales-channel-id',
               accessKey: 'sales-channel-access-key',
+              typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
               domains: [
                   {
                       url: 'https://shop.example.com/storefront/',
@@ -422,25 +423,22 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         });
     });
 
-    it('adds the sales channel access key when no domain is configured', async () => {
-        const originalAppUrl = Shopware.Store.get('context').app.config.appUrl;
-        Shopware.Store.get('context').app.config.appUrl = 'https://admin.example.com/subdirectory';
-
+    it('does not link the public path for non-storefront sales channels', async () => {
         const { wrapper } = await createWrapper({
             salesChannel: {
                 id: 'sales-channel-id',
                 accessKey: 'headless-access-key',
+                typeId: Shopware.Defaults.apiSalesChannelTypeId,
                 domains: [],
             },
         });
 
         await flushPromises();
 
-        expect(wrapper.vm.publicPreviewUrl).toBe(
-            'https://admin.example.com/subdirectory/llms.txt?sw-access-key=headless-access-key',
-        );
-
-        Shopware.Store.get('context').app.config.appUrl = originalAppUrl;
+        expect(wrapper.vm.publicPreviewUrl).toBeNull();
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-link').exists()).toBe(false);
+        expect(wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-disabled').text()).toBe('/llms.txt');
+        expect(wrapper.vm.publicPreviewDisabledTooltip.disabled).toBe(true);
     });
 
     it('toggles the enabled state from the detail page', async () => {

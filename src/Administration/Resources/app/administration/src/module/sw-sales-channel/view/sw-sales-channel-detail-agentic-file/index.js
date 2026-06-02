@@ -7,7 +7,7 @@
 import template from './sw-sales-channel-detail-agentic-file.html.twig';
 import './sw-sales-channel-detail-agentic-file.scss';
 
-const { Mixin, Context } = Shopware;
+const { Mixin, Context, Defaults } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 const FILE_FAMILY_AGENTIC = 'agentic';
@@ -147,7 +147,7 @@ export default {
         },
 
         publicPreviewUrl() {
-            if (!this.file || !this.salesChannel || !this.isEnabled(this.file)) {
+            if (!this.file || !this.salesChannel || !this.isEnabled(this.file) || !this.isStorefrontSalesChannel()) {
                 return null;
             }
 
@@ -156,15 +156,7 @@ export default {
                 return this.buildPublicUrl(domainUrl, this.file.fileName);
             }
 
-            const appUrl = this.getAppUrl();
-            if (!appUrl || !this.salesChannel.accessKey) {
-                return null;
-            }
-
-            const url = new URL(this.buildPublicUrl(appUrl, this.file.fileName));
-            url.searchParams.set('sw-access-key', this.salesChannel.accessKey);
-
-            return url.toString();
+            return null;
         },
 
         publicPreviewDisabledTooltip() {
@@ -540,8 +532,8 @@ export default {
             return domains[0]?.url ?? null;
         },
 
-        getAppUrl() {
-            return Shopware.Store.get('context')?.app?.config?.appUrl ?? null;
+        isStorefrontSalesChannel() {
+            return this.salesChannel?.typeId === Defaults.storefrontSalesChannelTypeId;
         },
 
         buildPublicUrl(baseUrl, fileName) {

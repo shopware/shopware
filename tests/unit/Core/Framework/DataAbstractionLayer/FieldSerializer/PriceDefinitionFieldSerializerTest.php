@@ -29,8 +29,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
-use Shopware\Core\Framework\Rule\MissingConditionRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
@@ -117,7 +117,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
         $filter = $decoded->getFilter();
-        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
         static::assertSame('unknownPluginRule', $filter->getOriginalName());
     }
 
@@ -136,7 +136,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(AbsolutePriceDefinition::class, $decoded);
         $filter = $decoded->getFilter();
-        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
         static::assertSame('unknownPluginRule', $filter->getOriginalName());
     }
 
@@ -157,7 +157,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(CurrencyPriceDefinition::class, $decoded);
         $filter = $decoded->getFilter();
-        static::assertInstanceOf(MissingConditionRule::class, $filter);
+        static::assertInstanceOf(UnknownConditionRule::class, $filter);
         static::assertSame('unknownPluginRule', $filter->getOriginalName());
     }
 
@@ -191,7 +191,7 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         $rules = $filter->getRules();
         static::assertCount(2, $rules);
         static::assertInstanceOf(CurrencyRule::class, $rules[0]);
-        static::assertInstanceOf(MissingConditionRule::class, $rules[1]);
+        static::assertInstanceOf(UnknownConditionRule::class, $rules[1]);
         static::assertSame('unknownPluginRule', $rules[1]->getOriginalName());
     }
 
@@ -206,6 +206,62 @@ class PriceDefinitionFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
         static::assertNull($decoded->getFilter());
+    }
+
+    public function testEncodePreservesUnknownRuleConditionInsteadOfThrowing(): void
+    {
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ, 'identifiers' => ['foo']];
+        $definition = new PercentagePriceDefinition(-20, new UnknownConditionRule($originalFilter));
+
+        $stored = $this->encodeDefinition($definition);
+
+        // The write must not be rejected (this is what order versioning / recalculation triggers) and the
+        // original rule payload must be preserved verbatim, so the order is restored once the plugin returns.
+        static::assertSame($originalFilter, $stored['filter']);
+    }
+
+    public function testDecodeEncodeRoundTripPreservesUnknownRuleConditionLosslessly(): void
+    {
+        $originalFilter = ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ];
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => $originalFilter,
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+
+        $stored = $this->encodeDefinition($decoded);
+
+        static::assertSame($originalFilter, $stored['filter']);
+    }
+
+    public function testEncodePreservesUnknownRuleConditionNestedInContainer(): void
+    {
+        $encoded = json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => [
+                '_name' => 'andContainer',
+                'rules' => [
+                    ['_name' => 'currency', 'operator' => Rule::OPERATOR_EQ, 'currencyIds' => [Defaults::CURRENCY]],
+                    ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ],
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+
+        $stored = $this->encodeDefinition($decoded);
+
+        static::assertSame('andContainer', $stored['filter']['_name']);
+        static::assertCount(2, $stored['filter']['rules']);
+        static::assertSame(
+            ['_name' => 'unknownPluginRule', 'operator' => Rule::OPERATOR_EQ],
+            $stored['filter']['rules'][1]
+        );
     }
 
     #[DataProvider('serializerProvider')]
@@ -274,5 +330,24 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'percentage price definition with bool custom field rule' => [
             new PercentagePriceDefinition(-20, $rule),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function encodeDefinition(PriceDefinitionInterface $definition): array
+    {
+        $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $definition, true),
+            new WriteParameterBag($this->createMock(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
+        ));
+
+        static::assertArrayHasKey('test', $encoded);
+
+        return json_decode((string) $encoded['test'], true, 512, \JSON_THROW_ON_ERROR);
     }
 }

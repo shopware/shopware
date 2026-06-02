@@ -71,9 +71,14 @@ Implement `previewPatternByNumberRangeId()` for persisted number-range previews 
 
 The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
 Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
-### Order detail page no longer breaks on missing rule conditions in price definitions
 
-If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound` when reading the order. Unknown conditions are substituted with a new internal `MissingConditionRule` whose `match()` always returns `false`, so the order can be viewed without recalculation silently expanding the discount/restriction to items that were never originally eligible.
+### Orders no longer break on missing rule conditions in price definitions
+
+If an order's `AbsolutePriceDefinition`, `CurrencyPriceDefinition`, or `PercentagePriceDefinition` references a rule condition that is no longer registered (e.g. a plugin contributing it has been uninstalled), `PriceDefinitionFieldSerializer` no longer throws `ConditionTypeNotFound`/`InvalidConditionException`. Such conditions are substituted with a new internal `UnknownConditionRule` whose `match()` always returns `false`.
+
+The original rule payload is preserved verbatim on reads, order versioning and normal saves, so the order stays fully accessible and editable in the Administration and is restored automatically once the contributing plugin is reinstalled. Recalculation also succeeds, but because it recomputes the cart, a discount whose missing condition no longer matches any line item is removed (fail-closed) rather than preserved — so an order that is recalculated and saved may lose that discount line.
+
+Note that `match()` returning `false` only yields a fail-closed result for a standalone condition or inside an `AndRule`. Inside an `OrRule`/`XorRule` the surrounding container can still match through its other branches, and inside a `NotRule` the result is inverted to always-match.
 
 ### Backward compatible invalid locales
 

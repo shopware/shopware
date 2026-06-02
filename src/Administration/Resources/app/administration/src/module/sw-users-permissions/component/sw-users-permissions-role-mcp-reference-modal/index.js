@@ -161,6 +161,18 @@ export default {
     },
 
     methods: {
+        getBadgeVariant(chip) {
+            if (!chip.isDynamic && chip.isGranted) {
+                return 'positive';
+            }
+
+            if (!chip.isDynamic && !chip.isGranted) {
+                return 'critical';
+            }
+
+            return 'neutral';
+        },
+
         loadTools() {
             this.isLoading = true;
 

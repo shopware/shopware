@@ -75,7 +75,9 @@ export default Component.wrapComponentConfig({
 
         async createdComponent() {
             if (!localStorage.getItem('sw-admin-locale')) {
-                await Shopware.Store.get('session').setAdminLocale(navigator.language);
+                const localeFactory = Shopware.Application.getContainer('factory').locale;
+
+                await Shopware.Store.get('session').setAdminLocale(localeFactory.getLastKnownLocale());
             }
 
             this.loginConfig = await this.loginService.getLoginTemplateConfig();

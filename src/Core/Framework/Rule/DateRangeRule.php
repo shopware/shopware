@@ -122,10 +122,10 @@ class DateRangeRule extends Rule
         $data = parent::jsonSerialize();
 
         if ($this->fromDate instanceof \DateTimeInterface) {
-            $data['fromDate'] = $this->fromDate->format(self::DATETIME_FORMAT);
+            $data['fromDate'] = $this->fromDate->format(\DateTime::ATOM);
         }
         if ($this->toDate instanceof \DateTimeInterface) {
-            $data['toDate'] = $this->toDate->format(self::DATETIME_FORMAT);
+            $data['toDate'] = $this->toDate->format(\DateTime::ATOM);
         }
 
         return $data;

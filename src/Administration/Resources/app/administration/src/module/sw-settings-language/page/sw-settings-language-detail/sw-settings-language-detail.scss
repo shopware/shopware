@@ -1,27 +1,14 @@
-@import "~scss/variables";
-
 .sw-settings-language-detail {
-    .sw-settings-language--alert-change-parent {
-        margin-top: 30px;
-        margin-bottom: 0;
-    }
-
-    .sw-settings-language-detail__field_default {
-        position: relative;
-
-        .sw-help-text {
-            position: absolute;
-            top: 38px;
-            right: 18px;
-        }
-    }
-
-    .sw-settings-language-detail__snippet-link-wrapper {
+    &__snippet-link-wrapper {
         display: flex;
         justify-content: flex-end;
-        margin-bottom: 8px;
-        max-width: $content-width;
+        margin-bottom: var(--scale-size-8);
+        max-width: 60rem;
         margin-left: auto;
         margin-right: auto;
+    }
+
+    &__content-card.is--loading .mt-card__content {
+        min-height: var(--scale-size-96);
     }
 }

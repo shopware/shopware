@@ -198,8 +198,8 @@ class MailDataSimulatorTest extends TestCase
         ]));
 
         $provider = new TestMailTemplateProvider(
-            $this->createStub(EventDispatcherInterface::class),
-            $this->createStub(ContainerInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
             [],
         );
         $provider->wasCalled = false;
@@ -301,8 +301,8 @@ class MailDataSimulatorTest extends TestCase
         ]));
 
         $provider = new TestMailTemplateProvider(
-            $this->createStub(EventDispatcherInterface::class),
-            $this->createStub(ContainerInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
             ['mappingChildren'],
         );
 

@@ -30,7 +30,6 @@ class SnippetControllerTest extends TestCase
         if ($exception !== null) {
             $snippetService->expects($this->never())->method('getList');
             static::expectExceptionObject($exception);
-            static::expectExceptionMessage($exception->getMessage());
 
             $controller = new SnippetController($snippetService, new SnippetFileCollection());
 

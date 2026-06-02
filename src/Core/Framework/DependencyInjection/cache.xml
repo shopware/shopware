@@ -250,6 +250,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
     </services>
 </container>

@@ -66,8 +66,7 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund with id ' . $this->ids->get('refund') . '.');
+        $this->expectExceptionObject(PaymentException::unknownRefund($this->ids->get('refund')));
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
@@ -110,8 +109,7 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $this->ids->get('refund') . '.');
+        $this->expectExceptionObject(PaymentException::unknownRefundHandler($this->ids->get('refund')));
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
@@ -144,8 +142,7 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The Refund process failed with following exception: Can not process refund with id ' . $refund['id'] . ' as refund has state ' . $stateMachineState . '.');
+        $this->expectExceptionObject(PaymentException::refundInvalidTransition($refund['id'], $stateMachineState));
 
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }

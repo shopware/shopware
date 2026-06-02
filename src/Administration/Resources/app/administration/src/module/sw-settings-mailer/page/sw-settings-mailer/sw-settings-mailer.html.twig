@@ -93,17 +93,22 @@
                     class="sw-settings-mailer__help-text"
                     variant="info"
                 >
-                    <span>{{ $t('sw-settings-mailer.general.helpText') }}</span>
-
-                    <mt-link
-                        as="a"
-                        :to="$t('sw-settings-mailer.general.docsLink')"
-                        type="external"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <i18n-t
+                        keypath="sw-settings-mailer.general.helpText"
+                        tag="span"
                     >
-                        {{ $t('sw-settings-mailer.general.docsLabel') }}
-                    </mt-link>
+                        <template #documentation>
+                            <mt-link
+                                as="a"
+                                :to="$t('sw-settings-mailer.general.docsLink')"
+                                type="external"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ $t('sw-settings-mailer.general.docsLabel') }}
+                            </mt-link>
+                        </template>
+                    </i18n-t>
                 </mt-banner>
             </mt-card>
 

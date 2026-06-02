@@ -104,8 +104,7 @@ class ProductExportRendererTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('error');
+        $this->expectExceptionObject(ProductExportException::renderHeaderException(AdapterException::renderingTemplateFailed('error')->getMessage()));
 
         $renderer->renderHeader($productExport, $this->context);
     }
@@ -208,8 +207,7 @@ class ProductExportRendererTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('error');
+        $this->expectExceptionObject(ProductExportException::renderFooterException(AdapterException::renderingTemplateFailed('error')->getMessage()));
 
         $renderer->renderFooter($productExport, $this->context);
     }
@@ -228,8 +226,7 @@ class ProductExportRendererTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('Template body not set');
+        $this->expectExceptionObject(ProductExportException::templateBodyNotSet());
 
         $renderer->renderBody($productExport, $this->context, []);
     }
@@ -259,8 +256,7 @@ class ProductExportRendererTest extends TestCase
             $dispatcher,
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('error');
+        $this->expectExceptionObject(ProductExportException::renderProductException(AdapterException::renderingTemplateFailed('error')->getMessage()));
 
         $renderer->renderBody($productExport, $this->context, []);
     }

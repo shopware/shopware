@@ -1,0 +1,25 @@
+{% block sw_condition_value_between_date %}
+<div class="sw-condition-value-between-date">
+    <mt-datepicker
+        v-model="from"
+        class="sw-condition-value-between-date__from"
+        name="sw-field--betweenFrom"
+        size="medium"
+        required
+        :date-type="dateType"
+        :disabled="disabled"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
+    />
+
+    <mt-datepicker
+        v-model="to"
+        class="sw-condition-value-between-date__to"
+        name="sw-field--betweenTo"
+        size="medium"
+        required
+        :date-type="dateType"
+        :disabled="disabled"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
+    />
+</div>
+{% endblock %}

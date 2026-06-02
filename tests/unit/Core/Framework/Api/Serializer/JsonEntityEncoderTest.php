@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
@@ -12,20 +13,25 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithExtension;
@@ -35,15 +41,39 @@ use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollec
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
+#[CoversClass(JsonEntityEncoder::class)]
 class JsonEntityEncoderTest extends TestCase
 {
     use AssertValuesTrait;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use KernelTestBehaviour;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    protected function setUp(): void
+    {
+        $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                ProductDefinition::class => ProductDefinition::class,
+                MediaDefinition::class => MediaDefinition::class,
+                UserDefinition::class => UserDefinition::class,
+                MediaFolderDefinition::class => MediaFolderDefinition::class,
+                RuleDefinition::class => RuleDefinition::class,
+                CustomFieldTestDefinition::class => CustomFieldTestDefinition::class,
+                CustomFieldTestTranslationDefinition::class => CustomFieldTestTranslationDefinition::class,
+                ExtendableDefinition::class => ExtendableDefinition::class,
+                ExtendedDefinition::class => ExtendedDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+    }
 
     /**
      * @return iterable<array<mixed>>
@@ -63,8 +93,8 @@ class JsonEntityEncoderTest extends TestCase
     {
         $this->expectExceptionObject(ApiException::unsupportedEncoderInput());
 
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
-        $encoder->encode(new Criteria(), static::getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
+        $encoder = $this->createEncoder();
+        $encoder->encode(new Criteria(), $this->createDefinition(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
     /**
@@ -87,28 +117,19 @@ class JsonEntityEncoderTest extends TestCase
     #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
-        $definition = static::getContainer()->get($definitionClass);
-        static::assertInstanceOf(EntityDefinition::class, $definition);
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $definition = $this->createDefinition($definitionClass);
+        $encoder = $this->createEncoder();
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
 
-    /**
-     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
-     */
     public function testEncodeStructWithExtension(): void
     {
-        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
-        $extendableDefinition = new ExtendableDefinition();
-        $extendableDefinition->addExtension(new AssociationExtension());
-        $extendableDefinition->addExtension(new ScalarRuntimeExtension());
-
-        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
         $fixture = new TestBasicWithExtension();
 
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         unset($actual['apiAlias']);
@@ -116,19 +137,76 @@ class JsonEntityEncoderTest extends TestCase
         $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
 
-    /**
-     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
-     */
+    public function testConcreteExtensionIncludeKeepsExtensionsWrapper(): void
+    {
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
+        $fixture = new TestBasicWithExtension();
+        $input = $this->getExtendableInputWithEntityNames($fixture);
+
+        $criteria = new Criteria();
+        $criteria->setIncludes([
+            'extendable' => ['id', 'toOne'],
+        ]);
+
+        $encoder = $this->createEncoder();
+        $actual = $encoder->encode($criteria, $extendableDefinition, $input, SerializationFixture::API_BASE_URL);
+
+        static::assertSame('1d23c1b015bf43fb97e89008cf42d6fe', $actual['id']);
+        static::assertArrayNotHasKey('createdAt', $actual);
+        static::assertArrayHasKey('extensions', $actual);
+        static::assertArrayHasKey('toOne', $actual['extensions']);
+        static::assertSame('toOne', $actual['extensions']['toOne']['name']);
+    }
+
+    public function testExtensionEntityIncludesFilterPlainJsonExtensionPayload(): void
+    {
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
+        $fixture = new TestBasicWithExtension();
+        $input = $this->getExtendableInputWithEntityNames($fixture);
+
+        $criteria = new Criteria();
+        $criteria->setIncludes([
+            'extendable' => ['id', 'extensions', 'toOne'],
+            'extended' => ['name'],
+        ]);
+
+        $encoder = $this->createEncoder();
+        $actual = $encoder->encode($criteria, $extendableDefinition, $input, SerializationFixture::API_BASE_URL);
+
+        static::assertArrayHasKey('extensions', $actual);
+        static::assertArrayHasKey('toOne', $actual['extensions']);
+
+        $extension = $actual['extensions']['toOne'];
+        static::assertSame('toOne', $extension['name']);
+        static::assertArrayNotHasKey('id', $extension);
+        static::assertArrayNotHasKey('translated', $extension);
+        static::assertArrayNotHasKey('extensions', $extension);
+    }
+
+    public function testExtensionExcludesRemovePlainJsonExtensionsWrapper(): void
+    {
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
+        $fixture = new TestBasicWithExtension();
+        $input = $this->getExtendableInputWithEntityNames($fixture);
+
+        $criteria = new Criteria();
+        $criteria->setExcludes([
+            'extendable' => ['extensions'],
+        ]);
+
+        $encoder = $this->createEncoder();
+        $actual = $encoder->encode($criteria, $extendableDefinition, $input, SerializationFixture::API_BASE_URL);
+
+        static::assertArrayNotHasKey('extensions', $actual);
+        static::assertSame('1d23c1b015bf43fb97e89008cf42d6fe', $actual['id']);
+    }
+
     public function testEncodeStructWithToManyExtension(): void
     {
-        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
-        $extendableDefinition = new ExtendableDefinition();
-        $extendableDefinition->addExtension(new AssociationExtension());
-
-        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions(includeScalarRuntimeExtension: false);
         $fixture = new TestBasicWithExtension();
 
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         unset($actual['apiAlias']);
@@ -142,10 +220,9 @@ class JsonEntityEncoderTest extends TestCase
     #[DataProvider('customFieldsProvider')]
     public function testCustomFields(array $input, array $output): void
     {
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
 
-        $definition = new CustomFieldTestDefinition();
-        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
         $struct = new class extends Entity {
             use EntityCustomFieldsTrait;
         };
@@ -232,10 +309,9 @@ class JsonEntityEncoderTest extends TestCase
 
     public function testExtensionsForeignKeysAreRemoved(): void
     {
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
 
-        $definition = new CustomFieldTestDefinition();
-        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
 
         $struct1 = new class extends Entity {
             use EntityCustomFieldsTrait;
@@ -256,10 +332,9 @@ class JsonEntityEncoderTest extends TestCase
 
     public function testExtensionsRemovedCompletely(): void
     {
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
 
-        $definition = new CustomFieldTestDefinition();
-        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
 
         $struct2 = new class extends Entity {
             use EntityCustomFieldsTrait;
@@ -275,10 +350,9 @@ class JsonEntityEncoderTest extends TestCase
 
     public function testExtensionsRemovalPartialEntity(): void
     {
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
 
-        $definition = new CustomFieldTestDefinition();
-        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
 
         $struct2 = new PartialEntity();
         $struct2->set('id', 'test-id-2');
@@ -289,15 +363,62 @@ class JsonEntityEncoderTest extends TestCase
 
     public function testArrayEntity(): void
     {
-        $encoder = static::getContainer()->get(JsonEntityEncoder::class);
+        $encoder = $this->createEncoder();
 
-        $definition = new CustomFieldTestDefinition();
-        $definition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $definition = $this->createDefinition(CustomFieldTestDefinition::class);
 
         $struct2 = new ArrayEntity();
         $struct2->set('id', 'test-id-2');
         $actual = $encoder->encode(new Criteria(), $definition, $struct2, SerializationFixture::API_BASE_URL);
 
         static::assertSame(['translated' => [], 'id' => 'test-id-2', 'apiAlias' => 'array'], $actual);
+    }
+
+    private function createExtendableDefinitionWithExtensions(bool $includeScalarRuntimeExtension = true): ExtendableDefinition
+    {
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+
+        if ($includeScalarRuntimeExtension) {
+            $extendableDefinition->addExtension(new ScalarRuntimeExtension());
+        }
+
+        $extendableDefinition->compile($this->definitionRegistry);
+
+        return $extendableDefinition;
+    }
+
+    private function getExtendableInputWithEntityNames(TestBasicWithExtension $fixture): Entity
+    {
+        $input = $fixture->getInput();
+        static::assertInstanceOf(Entity::class, $input);
+
+        $input->internalSetEntityData('extendable', new FieldVisibility([]));
+
+        $toOne = $input->getExtension('toOne');
+        static::assertInstanceOf(Entity::class, $toOne);
+        $toOne->internalSetEntityData('extended', new FieldVisibility([]));
+
+        $toMany = $input->getExtension('toMany');
+        static::assertInstanceOf(EntityCollection::class, $toMany);
+
+        foreach ($toMany as $extension) {
+            $extension->internalSetEntityData('extended', new FieldVisibility([]));
+        }
+
+        return $input;
+    }
+
+    private function createEncoder(): JsonEntityEncoder
+    {
+        return new JsonEntityEncoder(new Serializer([new StructNormalizer()], [new JsonEncoder()]));
+    }
+
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     */
+    private function createDefinition(string $definitionClass): EntityDefinition
+    {
+        return $this->definitionRegistry->get($definitionClass);
     }
 }

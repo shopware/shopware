@@ -84,8 +84,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testBuildEmptyQuery(): void
     {
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty query provided');
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
 
         $builder = $this->getBuilder([
             self::config(field: 'restockTime', ranking: 500, tokenize: true, and: false),
@@ -100,8 +99,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testBuildWithoutFields(): void
     {
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty query provided');
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
 
         $builder = $this->getBuilder(null);
 

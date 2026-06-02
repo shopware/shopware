@@ -9,6 +9,12 @@ The fallback method is selected from the checkout gateway response, preferring t
 
 ## API
 
+### Plain JSON API includes preserve extension wrappers
+
+The Admin API plain JSON encoder now keeps extension association fields inside the `extensions` object when they are selected through `includes`.
+For example, including an extension association such as `toOne` on an entity returns `extensions.toOne` instead of promoting `toOne` to the top-level response.
+Nested extension entities also respect their own include definitions, so API clients can filter extension payload fields consistently.
+
 ### Number range previews can target a concrete number range
 
 The Admin API now supports previewing a persisted number range by id via `/api/_action/number-range/{numberRangeId}/preview-pattern`.
@@ -42,6 +48,27 @@ Use `previewPatternByNumberRangeId()` when previewing or editing an existing num
 Admin-search autocomplete now flows through a new `completion` field (ngram-indexed, populated with name-shaped values per entity). The ngram subfield has been dropped from `text`/`textBoosted` so identifiers (EAN, productNumber, orderNumber, etc.) no longer feed ngram scoring — fixing a regression where a full GTIN search could be outranked by unrelated products with overlapping digit substrings.
 
 Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
+
+### Type-safe subscription helpers on `Extension`
+
+`Shopware\Core\Framework\Extensions\Extension` now exposes three static helpers — `onPre()`, `onPost()`, and `onError()` — that return the dispatched event name for the corresponding phase. Extensions need `::NAME` constant for the methods to work.
+
+Use them in `getSubscribedEvents()` instead of string concatenation or `ExtensionDispatcher::pre/post/error()`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [
+        ResolveListingExtension::onPre()  => 'method1',
+        ResolveListingExtension::onPost() => 'method2',
+        ResolveListingExtension::onError() => 'method3',
+    ];
+}
+```
+
+Dispatchers and subscribers no longer have to concatenate event-name strings - it gives type safety, IDE autocomplete, and rename-refactor support. Also subscribers don't have to depend on `ExtensionDispatcher`.
+
+The previous styles — `MyExtension::NAME . '.post'` and `ExtensionDispatcher::post(MyExtension::NAME)` — continue to work and are not deprecated. No migration is required.
 
 ### Telemetry metrics evolution
 
@@ -310,6 +337,10 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Support test file splitting
+
+Administration Jest tests can now be split into multiple files using `*.spec/` directories.
+ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 

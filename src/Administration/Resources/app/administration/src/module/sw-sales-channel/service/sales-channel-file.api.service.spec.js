@@ -28,15 +28,12 @@ describe('src/module/sw-sales-channel/service/sales-channel-file.api.service', (
         const result = await service.list('agentic', 'sales-channel-id');
 
         expect(result).toEqual(response);
-        expect(httpClient.get).toHaveBeenCalledWith(
-            '/_action/sales-channel-file/agentic/sales-channel-id',
-            {
-                headers: expect.objectContaining({
-                    Authorization: 'Bearer test-token',
-                    'Content-Type': 'application/json',
-                }),
-            },
-        );
+        expect(httpClient.get).toHaveBeenCalledWith('/_action/sales-channel-file/agentic/sales-channel-id', {
+            headers: expect.objectContaining({
+                Authorization: 'Bearer test-token',
+                'Content-Type': 'application/json',
+            }),
+        });
     });
 
     it('loads a preview for a file with unsaved template overrides', async () => {
@@ -195,15 +192,11 @@ describe('src/module/sw-sales-channel/service/sales-channel-file.api.service', (
             enabled: true,
             templateOverrides: {},
         });
-        expect(httpClient.post).toHaveBeenCalledWith(
-            '/sales-channel-file',
-            result,
-            {
-                headers: expect.objectContaining({
-                    Authorization: 'Bearer test-token',
-                }),
-            },
-        );
+        expect(httpClient.post).toHaveBeenCalledWith('/sales-channel-file', result, {
+            headers: expect.objectContaining({
+                Authorization: 'Bearer test-token',
+            }),
+        });
 
         Shopware.Utils.createId.mockRestore();
     });

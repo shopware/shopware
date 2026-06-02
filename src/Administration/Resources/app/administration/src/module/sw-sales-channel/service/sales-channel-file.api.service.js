@@ -23,27 +23,34 @@ class SalesChannelFileApiService extends ApiService {
 
     preview(fileFamily, salesChannelId, fileName, templateOverrides = {}) {
         return this.httpClient
-            .post(`/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/preview`, {
-                fileName,
-                templateOverrides,
-            }, {
-                headers: this.getBasicHeaders(),
-            })
+            .post(
+                `/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/preview`,
+                {
+                    fileName,
+                    templateOverrides,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
     }
 
     saveConfiguration(file, salesChannelId, enabled, templateOverrides = file.configuration?.templateOverrides ?? {}) {
-
         if (file.configuration?.id) {
             return this.httpClient
-                .patch(`/sales-channel-file/${file.configuration.id}`, {
-                    enabled,
-                    templateOverrides,
-                }, {
-                    headers: this.getBasicHeaders(),
-                })
+                .patch(
+                    `/sales-channel-file/${file.configuration.id}`,
+                    {
+                        enabled,
+                        templateOverrides,
+                    },
+                    {
+                        headers: this.getBasicHeaders(),
+                    },
+                )
                 .then(() => {
                     return {
                         ...file.configuration,

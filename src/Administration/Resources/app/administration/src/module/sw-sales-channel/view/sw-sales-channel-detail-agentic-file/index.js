@@ -137,8 +137,10 @@ export default {
                 return false;
             }
 
-            return this.hasTemplateOverride(this.selectedTemplate)
-                || this.templateOverrideDraft !== this.selectedTemplateDefaultContent;
+            return (
+                this.hasTemplateOverride(this.selectedTemplate) ||
+                this.templateOverrideDraft !== this.selectedTemplateDefaultContent
+            );
         },
 
         publicPreviewUrl() {
@@ -386,9 +388,13 @@ export default {
                 return null;
             }
 
-            return salesChannelFiles.find((configuration) => {
-                return configuration.fileFamily === this.file?.fileFamily && configuration.fileName === this.file?.fileName;
-            }) ?? null;
+            return (
+                salesChannelFiles.find((configuration) => {
+                    return (
+                        configuration.fileFamily === this.file?.fileFamily && configuration.fileName === this.file?.fileName
+                    );
+                }) ?? null
+            );
         },
 
         writeConfigurationToSalesChannel(configuration) {

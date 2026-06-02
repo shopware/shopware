@@ -2,10 +2,7 @@
  * @sw-package discovery
  */
 
-import {
-    mount,
-    RouterLinkStub,
-} from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 const discoveredFiles = [
     {
@@ -52,9 +49,11 @@ function cloneDiscoveredFiles() {
 
 async function createWrapper(options = {}) {
     const { serviceResponse } = options;
-    const salesChannel = Object.hasOwn(options, 'salesChannel') ? options.salesChannel : {
-        id: 'sales-channel-id',
-    };
+    const salesChannel = Object.hasOwn(options, 'salesChannel')
+        ? options.salesChannel
+        : {
+              id: 'sales-channel-id',
+          };
     const salesChannelFileApiService = {
         list: jest.fn(async () => serviceResponse ?? { data: cloneDiscoveredFiles() }),
         saveConfiguration: jest.fn(async (file, salesChannelId, enabled) => {
@@ -74,7 +73,8 @@ async function createWrapper(options = {}) {
             global: {
                 stubs: {
                     'mt-card': {
-                        template: '<div class="mt-card"><slot name="title"></slot><slot></slot><slot name="grid"></slot></div>',
+                        template:
+                            '<div class="mt-card"><slot name="title"></slot><slot></slot><slot name="grid"></slot></div>',
                         props: [
                             'title',
                             'isLoading',
@@ -106,7 +106,8 @@ async function createWrapper(options = {}) {
                         ],
                     },
                     'sw-label': {
-                        template: '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
+                        template:
+                            '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
                         props: [
                             'appearance',
                             'size',
@@ -114,7 +115,8 @@ async function createWrapper(options = {}) {
                         ],
                     },
                     'sw-pagination': {
-                        template: '<button class="sw-pagination" @click="$emit(\'page-change\', { page: 2, limit })"><slot></slot></button>',
+                        template:
+                            '<button class="sw-pagination" @click="$emit(\'page-change\', { page: 2, limit })"><slot></slot></button>',
                         props: [
                             'page',
                             'limit',
@@ -249,7 +251,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
 
         expect(wrapper.vm.getDisplayFileName(file)).toBe('unknown.json');
         expect(wrapper.vm.getPublicPath(file)).toBe('/.well-known/unknown.json');
-        expect(wrapper.vm.getDescriptionSnippetKey(file)).toBe('sw-sales-channel.detail.agenticFiles.descriptions["agentic"][".well-known/unknown.json"]');
+        expect(wrapper.vm.getDescriptionSnippetKey(file)).toBe(
+            'sw-sales-channel.detail.agenticFiles.descriptions["agentic"][".well-known/unknown.json"]',
+        );
         expect(wrapper.vm.getDescription(file)).toBe('');
         expect(wrapper.vm.getDescriptionTooltip(file)).toEqual({
             message: '',
@@ -329,16 +333,18 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
 
         await flushPromises();
 
-        expect(wrapper.findComponent('.sw-pagination').props()).toEqual(expect.objectContaining({
-            page: 1,
-            limit: 10,
-            steps: [
-                10,
-                25,
-                50,
-            ],
-            total: 26,
-        }));
+        expect(wrapper.findComponent('.sw-pagination').props()).toEqual(
+            expect.objectContaining({
+                page: 1,
+                limit: 10,
+                steps: [
+                    10,
+                    25,
+                    50,
+                ],
+                total: 26,
+            }),
+        );
         expect(wrapper.findComponent('.sw-data-grid').props('dataSource')).toHaveLength(10);
 
         await wrapper.find('.sw-pagination').trigger('click');

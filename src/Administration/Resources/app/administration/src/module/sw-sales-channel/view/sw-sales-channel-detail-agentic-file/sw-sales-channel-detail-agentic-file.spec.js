@@ -2,10 +2,7 @@
  * @sw-package discovery
  */
 
-import {
-    mount,
-    RouterLinkStub,
-} from '@vue/test-utils';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 import swSalesChannelDetailAgenticFile from './index';
 
@@ -72,120 +69,129 @@ function cloneDiscoveredFiles() {
 }
 
 async function createWrapper(options = {}) {
-    const salesChannel = Object.hasOwn(options, 'salesChannel') ? options.salesChannel : {
-        id: 'sales-channel-id',
-        accessKey: 'sales-channel-access-key',
-        domains: [
-            {
-                url: 'https://shop.example.com/storefront/',
-            },
-        ],
-    };
+    const salesChannel = Object.hasOwn(options, 'salesChannel')
+        ? options.salesChannel
+        : {
+              id: 'sales-channel-id',
+              accessKey: 'sales-channel-access-key',
+              domains: [
+                  {
+                      url: 'https://shop.example.com/storefront/',
+                  },
+              ],
+          };
     const routeFileName = options.routeFileName ?? 'llms.txt';
     const salesChannelFileApiService = {
         list: jest.fn(async () => options.serviceResponse ?? { data: cloneDiscoveredFiles() }),
-        preview: jest.fn(async () => options.previewResponse ?? {
-            fileName: 'llms.txt',
-            contentType: 'text/plain; charset=utf-8',
-            content: '# Demo shop\nUse public catalog pages.',
-        }),
-        saveConfiguration: jest.fn(async (file, salesChannelId, enabled, templateOverrides = file.configuration?.templateOverrides ?? {}) => {
-            return {
-                id: file.configuration?.id ?? `${file.fileName}-configuration-id`,
-                enabled,
-                templateOverrides,
-            };
-        }),
+        preview: jest.fn(
+            async () =>
+                options.previewResponse ?? {
+                    fileName: 'llms.txt',
+                    contentType: 'text/plain; charset=utf-8',
+                    content: '# Demo shop\nUse public catalog pages.',
+                },
+        ),
+        saveConfiguration: jest.fn(
+            async (file, salesChannelId, enabled, templateOverrides = file.configuration?.templateOverrides ?? {}) => {
+                return {
+                    id: file.configuration?.id ?? `${file.fileName}-configuration-id`,
+                    enabled,
+                    templateOverrides,
+                };
+            },
+        ),
     };
 
-    const wrapper = mount(
-        swSalesChannelDetailAgenticFile,
-        {
-            global: {
-                stubs: {
-                    'mt-card': {
-                        template: '<div class="mt-card" :class="$attrs.class"><slot name="title"></slot><slot name="headerRight"></slot><slot name="action"></slot><slot></slot><slot name="grid"></slot></div>',
-                        props: [
-                            'positionIdentifier',
-                            'isLoading',
-                        ],
-                    },
-                    'mt-button': {
-                        template: '<button class="mt-button" v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                        emits: [
-                            'click',
-                        ],
-                        props: [
-                            'size',
-                            'variant',
-                            'disabled',
-                            'square',
-                        ],
-                    },
-                    'mt-icon': {
-                        template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
-                        props: [
-                            'name',
-                            'size',
-                        ],
-                    },
-                    'mt-textarea': {
-                        template: `
+    const wrapper = mount(swSalesChannelDetailAgenticFile, {
+        global: {
+            stubs: {
+                'mt-card': {
+                    template:
+                        '<div class="mt-card" :class="$attrs.class"><slot name="title"></slot><slot name="headerRight"></slot><slot name="action"></slot><slot></slot><slot name="grid"></slot></div>',
+                    props: [
+                        'positionIdentifier',
+                        'isLoading',
+                    ],
+                },
+                'mt-button': {
+                    template:
+                        '<button class="mt-button" v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
+                    emits: [
+                        'click',
+                    ],
+                    props: [
+                        'size',
+                        'variant',
+                        'disabled',
+                        'square',
+                    ],
+                },
+                'mt-icon': {
+                    template: '<span class="mt-icon" :data-name="name"><slot></slot></span>',
+                    props: [
+                        'name',
+                        'size',
+                    ],
+                },
+                'mt-textarea': {
+                    template: `
                             <textarea
                                 class="mt-textarea"
                                 :value="modelValue"
                                 @input="$emit('update:modelValue', $event.target.value)"
                             ></textarea>
                         `,
-                        props: [
-                            'modelValue',
-                            'name',
-                            'label',
-                            'placeholder',
-                            'disabled',
-                        ],
-                    },
-                    'sw-modal': {
-                        template: '<div class="sw-modal" :class="$attrs.class"><h2>{{ title }}</h2><slot></slot><slot name="modal-footer"></slot></div>',
-                        emits: [
-                            'modal-close',
-                        ],
-                        props: [
-                            'title',
-                            'variant',
-                        ],
-                    },
-                    'sw-code-editor': {
-                        template: `
+                    props: [
+                        'modelValue',
+                        'name',
+                        'label',
+                        'placeholder',
+                        'disabled',
+                    ],
+                },
+                'sw-modal': {
+                    template:
+                        '<div class="sw-modal" :class="$attrs.class"><h2>{{ title }}</h2><slot></slot><slot name="modal-footer"></slot></div>',
+                    emits: [
+                        'modal-close',
+                    ],
+                    props: [
+                        'title',
+                        'variant',
+                    ],
+                },
+                'sw-code-editor': {
+                    template: `
                             <textarea
                                 class="sw-code-editor"
                                 :value="value"
                                 @input="$emit('update:value', $event.target.value)"
                             ></textarea>
                         `,
-                        emits: [
-                            'update:value',
-                        ],
-                        props: [
-                            'value',
-                            'name',
-                            'mode',
-                            'softWraps',
-                            'setFocus',
-                            'label',
-                        ],
-                    },
-                    'router-link': RouterLinkStub,
-                    'sw-label': {
-                        template: '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
-                        props: [
-                            'appearance',
-                            'size',
-                            'variant',
-                        ],
-                    },
-                    'sw-data-grid': {
-                        template: `
+                    emits: [
+                        'update:value',
+                    ],
+                    props: [
+                        'value',
+                        'name',
+                        'mode',
+                        'softWraps',
+                        'setFocus',
+                        'label',
+                    ],
+                },
+                'router-link': RouterLinkStub,
+                'sw-label': {
+                    template:
+                        '<span class="sw-label" :data-appearance="appearance" :data-size="size" :data-variant="variant"><slot></slot></span>',
+                    props: [
+                        'appearance',
+                        'size',
+                        'variant',
+                    ],
+                },
+                'sw-data-grid': {
+                    template: `
                             <div class="sw-data-grid">
                                 <div
                                     v-for="item in dataSource"
@@ -199,59 +205,59 @@ async function createWrapper(options = {}) {
                                 </div>
                             </div>
                         `,
-                        props: [
-                            'identifier',
-                            'dataSource',
-                            'columns',
-                            'showSelection',
-                            'showActions',
-                            'plainAppearance',
-                        ],
-                    },
-                    'sw-context-menu-item': {
-                        template: '<button class="sw-context-menu-item" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
-                        emits: [
-                            'click',
-                        ],
-                        props: [
-                            'disabled',
-                            'routerLink',
-                            'variant',
-                        ],
-                    },
-                    'mt-empty-state': {
-                        template: '<div class="mt-empty-state">{{ headline }}</div>',
-                        props: [
-                            'headline',
-                            'icon',
-                        ],
-                    },
+                    props: [
+                        'identifier',
+                        'dataSource',
+                        'columns',
+                        'showSelection',
+                        'showActions',
+                        'plainAppearance',
+                    ],
                 },
-                provide: {
-                    salesChannelFileApiService,
-                    repositoryFactory: {
-                        create: () => ({
-                            create: () => ({
-                                id: 'new-sales-channel-file-id',
-                            }),
-                        }),
-                    },
+                'sw-context-menu-item': {
+                    template:
+                        '<button class="sw-context-menu-item" :disabled="disabled" @click="$emit(\'click\')"><slot></slot></button>',
+                    emits: [
+                        'click',
+                    ],
+                    props: [
+                        'disabled',
+                        'routerLink',
+                        'variant',
+                    ],
                 },
-                mocks: {
-                    $route: {
-                        params: {
-                            id: 'sales-channel-id',
-                            fileName: routeFileName,
-                        },
-                    },
-                    $te: (key) => key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
+                'mt-empty-state': {
+                    template: '<div class="mt-empty-state">{{ headline }}</div>',
+                    props: [
+                        'headline',
+                        'icon',
+                    ],
                 },
             },
-            props: {
-                salesChannel,
+            provide: {
+                salesChannelFileApiService,
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => ({
+                            id: 'new-sales-channel-file-id',
+                        }),
+                    }),
+                },
+            },
+            mocks: {
+                $route: {
+                    params: {
+                        id: 'sales-channel-id',
+                        fileName: routeFileName,
+                    },
+                },
+                $te: (key) => key.includes('["llms.txt"]') || key.includes('["agents.md"]'),
             },
         },
-    );
+        props: {
+            salesChannel,
+        },
+    });
 
     return {
         wrapper,
@@ -266,14 +272,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         await flushPromises();
 
         expect(salesChannelFileApiService.list).toHaveBeenCalledWith('agentic', 'sales-channel-id');
-        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith(
-            'agentic',
-            'sales-channel-id',
-            'llms.txt',
-            {
-                Framework: 'custom llms text',
-            },
-        );
+        expect(salesChannelFileApiService.preview).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt', {
+            Framework: 'custom llms text',
+        });
         expect(wrapper.vm.file).toEqual(discoveredFiles[0]);
         expect(wrapper.text()).toContain('# Demo shop');
     });
@@ -309,7 +310,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         expect(labels.at(0).attributes('data-variant')).toBe('success');
 
         const publicPathPreview = wrapper.find('.sw-sales-channel-detail-agentic-file__public-path-link');
-        expect(publicPathPreview.attributes('aria-label')).toBe('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath');
+        expect(publicPathPreview.attributes('aria-label')).toBe(
+            'sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath',
+        );
         expect(publicPathPreview.text()).toBe('/llms.txt');
 
         expect(wrapper.findComponent(RouterLinkStub).props('to')).toEqual({
@@ -344,14 +347,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
             Framework: 'Updated Framework override',
         });
         expect(salesChannelFileApiService.saveConfiguration).not.toHaveBeenCalled();
-        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith(
-            'agentic',
-            'sales-channel-id',
-            'llms.txt',
-            {
-                Framework: 'Updated Framework override',
-            },
-        );
+        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'llms.txt', {
+            Framework: 'Updated Framework override',
+        });
     });
 
     it('opens a source override modal from the context menu and can reset to default content', async () => {
@@ -375,12 +373,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
         );
         expect(configuration.templateOverrides).toEqual({});
         expect(salesChannelFileApiService.saveConfiguration).not.toHaveBeenCalled();
-        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith(
-            'agentic',
-            'sales-channel-id',
-            'llms.txt',
-            {},
-        );
+        expect(salesChannelFileApiService.preview).toHaveBeenLastCalledWith('agentic', 'sales-channel-id', 'llms.txt', {});
     });
 
     it('links the public path to the first configured sales channel domain', async () => {
@@ -410,7 +403,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
         await flushPromises();
 
-        expect(wrapper.vm.publicPreviewUrl).toBe('https://admin.example.com/subdirectory/llms.txt?sw-access-key=headless-access-key');
+        expect(wrapper.vm.publicPreviewUrl).toBe(
+            'https://admin.example.com/subdirectory/llms.txt?sw-access-key=headless-access-key',
+        );
 
         Shopware.Context.api.installationPath = originalInstallationPath;
     });
@@ -440,7 +435,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
         await flushPromises();
 
-        await wrapper.find('.sw-sales-channel-detail-agentic-file__custom-notes-input').setValue('Ask before starting checkout.');
+        await wrapper
+            .find('.sw-sales-channel-detail-agentic-file__custom-notes-input')
+            .setValue('Ask before starting checkout.');
         await flushPromises();
 
         const configuration = wrapper.vm.salesChannel.salesChannelFiles.find((item) => item.fileName === 'agents.md');

@@ -188,9 +188,11 @@ export default {
                 return null;
             }
 
-            return salesChannelFiles.find((configuration) => {
-                return configuration.fileFamily === file.fileFamily && configuration.fileName === file.fileName;
-            }) ?? null;
+            return (
+                salesChannelFiles.find((configuration) => {
+                    return configuration.fileFamily === file.fileFamily && configuration.fileName === file.fileName;
+                }) ?? null
+            );
         },
 
         ensureSalesChannelFileCollection() {

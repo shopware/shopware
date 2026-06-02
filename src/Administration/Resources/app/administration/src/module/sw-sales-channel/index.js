@@ -37,8 +37,14 @@ Shopware.Component.extend(
 Shopware.Component.register('sw-sales-channel-list', () => import('./page/sw-sales-channel-list'));
 Shopware.Component.register('sw-sales-channel-detail-base', () => import('./view/sw-sales-channel-detail-base'));
 Shopware.Component.register('sw-sales-channel-detail-products', () => import('./view/sw-sales-channel-detail-products'));
-Shopware.Component.register('sw-sales-channel-detail-agentic-files', () => import('./view/sw-sales-channel-detail-agentic-files'));
-Shopware.Component.register('sw-sales-channel-detail-agentic-file', () => import('./view/sw-sales-channel-detail-agentic-file'));
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-files',
+    () => import('./view/sw-sales-channel-detail-agentic-files'),
+);
+Shopware.Component.register(
+    'sw-sales-channel-detail-agentic-file',
+    () => import('./view/sw-sales-channel-detail-agentic-file'),
+);
 Shopware.Component.register('sw-sales-channel-detail-analytics', () => import('./view/sw-sales-channel-detail-analytics'));
 Shopware.Component.extend(
     'sw-sales-channel-create-base',

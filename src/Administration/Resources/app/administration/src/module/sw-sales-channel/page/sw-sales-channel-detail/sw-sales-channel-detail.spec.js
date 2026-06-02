@@ -31,10 +31,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const {
-        routeParams = { id: '1a2b3c4d' },
-        salesChannelResponse = {},
-    } = normalizedOptions;
+    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,

@@ -6,6 +6,8 @@
 
 Storefront address forms now respect the country `displayStateInRegistration` setting.
 When disabled, the country state field is hidden unless `forceStateInRegistration` is enabled, in which case the required state field is still shown.
+Countries with existing states are migrated to display the state field by default.
+This keeps existing storefront address forms showing their state selector until the setting is disabled explicitly.
 
 ### Checkout gateway blocked method fallback
 

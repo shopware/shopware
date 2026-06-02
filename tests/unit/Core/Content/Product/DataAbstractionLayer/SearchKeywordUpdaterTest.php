@@ -12,12 +12,9 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-<<<<<<< refactor/replace-native-time-usage-in-framework
 use Symfony\Component\Clock\MockClock;
-=======
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
->>>>>>> trunk
 
 /**
  * @internal
@@ -110,6 +107,7 @@ class SearchKeywordUpdaterTest extends TestCase
             $this->createMock(EntityRepository::class),
             $productRepository,
             $this->createMock(ProductSearchKeywordAnalyzerInterface::class),
+            new MockClock()
         );
     }
 

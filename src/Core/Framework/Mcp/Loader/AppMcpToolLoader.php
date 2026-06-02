@@ -28,8 +28,8 @@ class AppMcpToolLoader extends AbstractAppMcpLoader
     public function __construct(
         Connection $connection,
         AppMcpCapabilityExecutor $executor,
+        LoggerInterface $logger,
         private readonly array $allowedTools = [],
-        ?LoggerInterface $logger = null,
     ) {
         parent::__construct($connection, $executor, $logger);
     }

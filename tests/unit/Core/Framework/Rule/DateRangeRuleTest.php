@@ -244,7 +244,6 @@ class DateRangeRuleTest extends TestCase
             new \DateTime('2024-01-15 10:30:45'),
             new \DateTime('2024-01-31 23:59:59'),
             true,
-            new \DateTimeZone('UTC')
         );
 
         $serialized = json_encode($rule);
@@ -253,8 +252,8 @@ class DateRangeRuleTest extends TestCase
 
         $data = json_decode($serialized, true);
 
-        static::assertSame('2024-01-15T10:30:45', $data['fromDate']);
-        static::assertSame('2024-01-31T23:59:59', $data['toDate']);
+        static::assertSame('2024-01-15T10:30:45+00:00', $data['fromDate']);
+        static::assertSame('2024-01-31T23:59:59+00:00', $data['toDate']);
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         $constraints = $rule->getConstraints();
@@ -271,7 +270,6 @@ class DateRangeRuleTest extends TestCase
             'fromDate' => '2024-01-15T10:30:45',
             'toDate' => '2024-01-31T23:59:59',
             'useTime' => true,
-            'timezone' => 'UTC',
         ]);
 
         $scopeMock = $this->createMock(RuleScope::class);

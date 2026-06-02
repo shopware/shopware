@@ -103,8 +103,7 @@ class StoreHandshakeTest extends TestCase
             new NativeClock(),
         );
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('License for app "TestApp" could not be verified');
+        $this->expectExceptionObject(AppException::licenseCouldNotBeVerified('TestApp'));
 
         $handshake->assembleRequest();
     }

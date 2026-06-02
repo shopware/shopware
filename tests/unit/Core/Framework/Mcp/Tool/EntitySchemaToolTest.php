@@ -109,6 +109,20 @@ class EntitySchemaToolTest extends TestCase
         static::assertNotNull($activeField);
         static::assertFalse($activeField['required']);
     }
+
+    public function testUnknownEntityReturnsError(): void
+    {
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->expects($this->never())->method('getByEntityName');
+
+        $tool = new EntitySchemaTool($registry);
+        $result = json_decode(($tool)('unknown_entity'), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertFalse($result['success']);
+        static::assertStringContainsString('unknown_entity', $result['error']);
+        static::assertStringContainsString('shopware://entities', $result['error']);
+    }
 }
 
 /**

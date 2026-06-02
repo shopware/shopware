@@ -125,6 +125,57 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ],
     ];
 
+    private const TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_LENGTH_NORM_MAPPING = [
+        'properties' => [
+            'lang_en' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_english_word_delimiter_index_analyzer',
+                        'search_analyzer' => 'sw_english_word_delimiter_search_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+            'lang_de' => [
+                'type' => 'keyword',
+                'ignore_above' => 10000,
+                'normalizer' => 'sw_lowercase_normalizer',
+                'fields' => [
+                    'exact' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_whitespace_analyzer',
+                        'search_analyzer' => 'sw_whitespace_analyzer',
+                        'norms' => false,
+                    ],
+                    'search' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_german_word_delimiter_index_analyzer',
+                        'search_analyzer' => 'sw_german_word_delimiter_search_analyzer',
+                        'similarity' => 'sw_length_norm',
+                    ],
+                    'ngram' => [
+                        'type' => 'text',
+                        'analyzer' => 'sw_ngram_analyzer',
+                    ],
+                ],
+            ],
+        ],
+    ];
+
     private const TRANSLATABLE_SEARCHABLE_LENGTH_NORM_MAPPING = [
         'properties' => [
             'lang_en' => [
@@ -435,7 +486,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                         ],
                     ],
                 ],
-                'customSearchKeywords' => self::TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_MAPPING,
+                'customSearchKeywords' => self::TRANSLATABLE_EXACT_TECHNICAL_SEARCHABLE_LENGTH_NORM_MAPPING,
                 'type' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'states' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'manufacturerId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,

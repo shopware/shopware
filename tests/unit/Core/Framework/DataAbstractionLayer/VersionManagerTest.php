@@ -124,8 +124,7 @@ class VersionManagerTest extends TestCase
         ]);
 
         $productId = 'product-id';
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::cannotCreateNewVersion('product', $productId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::cannotCreateNewVersion('product', $productId));
 
         $registry = new StaticDefinitionInstanceRegistry(
             [
@@ -165,8 +164,7 @@ class VersionManagerTest extends TestCase
         ]);
 
         $versionId = 'version-id';
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::versionMergeAlreadyLocked($versionId));
 
         $this->versionManager->merge(
             $versionId,
@@ -194,8 +192,7 @@ class VersionManagerTest extends TestCase
 
         $versionId = 'non-existent-version-id';
 
-        static::expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage(DataAbstractionLayerException::versionNotExists($versionId)->getMessage());
+        $this->expectExceptionObject(DataAbstractionLayerException::versionNotExists($versionId));
 
         $versionManager->merge($versionId, $this->createMock(WriteContext::class));
     }

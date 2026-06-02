@@ -12,6 +12,7 @@ use Mcp\Server\Session\SessionInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
@@ -35,7 +36,7 @@ class AppMcpResourceLoaderTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->executor = $this->createMock(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpResourceLoader($this->connection, $this->executor);
+        $this->loader = new AppMcpResourceLoader($this->connection, $this->executor, new NullLogger());
     }
 
     public function testLoadWithDBALExceptionRegistersNoResources(): void

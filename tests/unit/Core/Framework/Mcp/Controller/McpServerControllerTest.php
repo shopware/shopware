@@ -620,6 +620,45 @@ class McpServerControllerTest extends TestCase
         static::assertSame(['prompt-a'], array_values($names));
     }
 
+    public function testListResponseIsPassedThroughWhenBodyCannotBeParsed(): void
+    {
+        // A tools/list request without a prior initialize handshake: the MCP server answers
+        // with a JSON-RPC error body (no "result"), which McpJsonRpcResponse::fromJson() cannot
+        // parse. filterListResponse() must then return the upstream response untouched.
+        $server = Server::builder()
+            ->addTool(static fn (): string => '[]', name: 'tool-a', description: 'Tool A')
+            ->build();
+
+        $listBody = json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 2,
+            'method' => 'tools/list',
+            'params' => [],
+        ], \JSON_THROW_ON_ERROR);
+
+        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
+        $allowlistProvider->method('forCurrentRequest')->willReturn([
+            'tools' => ['tool-a'],
+            'resources' => null,
+            'prompts' => null,
+        ]);
+
+        $psrRequest = new ServerRequest(
+            'POST',
+            '/api/_mcp',
+            ['Content-Type' => 'application/json'],
+            $listBody,
+        );
+
+        $controller = $this->buildController($psrRequest, new HttpFoundationFactory(), $allowlistProvider, server: $server);
+        $sfRequest = Request::create('/api/_mcp', 'POST', content: $listBody);
+        $response = $controller->handle($sfRequest);
+
+        $data = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($data);
+        static::assertArrayNotHasKey('result', $data, 'Unparseable upstream body must be passed through unfiltered');
+    }
+
     public function testHandleLogsRequestWhenLoggerIsProvided(): void
     {
         $logger = $this->createMock(LoggerInterface::class);

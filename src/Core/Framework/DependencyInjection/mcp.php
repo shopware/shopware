@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
-use Psr\Clock\ClockInterface;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;

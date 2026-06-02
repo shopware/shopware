@@ -620,19 +620,29 @@ class MailDataSimulator
         try {
             $entityClass = $definition->getEntityClass();
 
-            return new $entityClass();
+            $entity = new $entityClass();
+            \assert($entity instanceof Entity);
+
+            return $entity;
         } catch (\Throwable) {
             // MappingEntityDefinition throws for example, so we need to catch that and return a default entity.
             return new Entity();
         }
     }
 
+    /**
+     * @return EntityCollection<Entity>
+     */
     private function getCollection(EntityDefinition $definition): EntityCollection
     {
         try {
+            /** @var class-string<EntityCollection<Entity>> $collectionClass */
             $collectionClass = $definition->getCollectionClass();
 
-            return new $collectionClass();
+            $collection = new $collectionClass();
+            \assert($collection instanceof EntityCollection);
+
+            return $collection;
         } catch (\Throwable) {
             // MappingEntityDefinition throws for example, so we need to catch that and return a default collection.
             return new EntityCollection();

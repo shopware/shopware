@@ -277,7 +277,6 @@
                 "cardTitle": "Agentic-Dateien",
                 "description": "Verwalte KI-lesbare Dateien, die für diesen Verkaufskanal öffentlich ausgeliefert werden, zum Beispiel llms.txt und agents.md. Sie geben Assistenten einen kompakten Überblick über Deinen Shop und Hinweise zur Nutzung öffentlicher Inhalte.",
                 "columnFileName": "Datei",
-                "columnPublicPath": "Öffentlicher Pfad",
                 "columnEnabled": "Status",
                 "columnDescription": "Beschreibung",
                 "emptyState": "Keine Agentic-Dateien gefunden",

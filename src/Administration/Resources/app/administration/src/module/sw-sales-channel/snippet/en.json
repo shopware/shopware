@@ -277,7 +277,6 @@
                 "cardTitle": "Agentic files",
                 "description": "Manage AI-readable files served publicly for this Sales Channel, such as llms.txt and agents.md. They give assistants a concise overview of your shop and guidance for using public content.",
                 "columnFileName": "File",
-                "columnPublicPath": "Public path",
                 "columnEnabled": "Status",
                 "columnDescription": "Description",
                 "emptyState": "No agentic files found",

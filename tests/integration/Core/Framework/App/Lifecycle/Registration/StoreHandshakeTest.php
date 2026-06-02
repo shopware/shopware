@@ -101,8 +101,7 @@ class StoreHandshakeTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION
         );
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('License for app "TestApp" could not be verified');
+        $this->expectExceptionObject(AppException::licenseCouldNotBeVerified('TestApp'));
 
         $handshake->assembleRequest();
     }

@@ -14,12 +14,17 @@ export default {
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
         },
-
         detailedPrivileges: {
             type: Array,
             required: true,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 };

@@ -4,6 +4,7 @@
 import { mount, RouterLinkStub } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import 'src/app/mixin/translate-with-fallback.mixin';
 
 async function createWrapper(privileges = [], isSso = { isSso: false }) {
     return mount(
@@ -256,7 +257,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
 
             const activeText = user.active ? 'active' : 'inactive';
             const statusLabel = wrapper.findByText(
-                'span',
+                '.sw-user-sso-status-label',
                 `sw-users-permissions.sso.user-listing.status-label.${activeText}`,
             );
             expect(statusLabel.exists()).toBe(true);

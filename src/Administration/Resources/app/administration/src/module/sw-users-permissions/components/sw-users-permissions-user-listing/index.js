@@ -28,8 +28,8 @@ export default {
     ],
 
     created() {
-        this.ssoSettingsService.isSso().then((isSso) => {
-            this.isSso = isSso.isSso;
+        this.ssoSettingsService.isSso().then((response) => {
+            this.isSso = response.isSso;
         });
     },
 

@@ -12,7 +12,8 @@ class SearchFieldConfig
         private float $ranking,
         private readonly bool $tokenize,
         private readonly bool $andLogic = false,
-        private readonly bool $prefixMatch = true
+        private readonly bool $prefixMatch = true,
+        private readonly bool $useExactSubfield = false,
     ) {
     }
 
@@ -49,6 +50,11 @@ class SearchFieldConfig
     public function usePrefixMatch(): bool
     {
         return $this->prefixMatch;
+    }
+
+    public function useExactSubfield(): bool
+    {
+        return $this->useExactSubfield;
     }
 
     public function getFuzziness(string $token): string|int

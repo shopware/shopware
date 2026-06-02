@@ -12,12 +12,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
+use Shopware\Tests\Integration\Core\Installer\Configuration\ShopConfigurationServiceTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
- * as the sole purpose of this class is to configure the DB according to the configuration
+ * @codeCoverageIgnore
+ *
+ * @see ShopConfigurationServiceTest
  *
  * @phpstan-import-type Shop from ShopConfigurationController
  */

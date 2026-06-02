@@ -979,8 +979,7 @@ class UnusedMediaPurgerTest extends TestCase
 
     public function testDeleteNotUsedMediaThrowsExceptionWithInvalidFolderRestriction(): void
     {
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Could not find a default folder with entity "product"');
+        $this->expectExceptionObject(MediaException::defaultMediaFolderWithEntityNotFound('product'));
 
         $this->configureRegistry([
             'Media' => $mediaDefinition = $this->getMediaDefinition([]),

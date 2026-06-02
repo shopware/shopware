@@ -37,8 +37,7 @@ class PromotionCodeServiceTest extends TestCase
             $this->createMock(Connection::class)
         );
 
-        static::expectException(PromotionException::class);
-        static::expectExceptionMessage('These promotions "promotionId" are not found');
+        $this->expectExceptionObject(PromotionException::promotionsNotFound(['promotionId']));
         $codeService->addIndividualCodes('promotionId', 10, $context);
     }
 
@@ -59,8 +58,7 @@ class PromotionCodeServiceTest extends TestCase
             $this->createMock(Connection::class)
         );
 
-        static::expectException(PromotionException::class);
-        static::expectExceptionMessage('The amount of possible codes is too low for the current pattern. Make sure your pattern is sufficiently complex.');
+        $this->expectExceptionObject(PromotionException::patternNotComplexEnough());
         $codeService->addIndividualCodes('promotionId', 10, $context);
     }
 

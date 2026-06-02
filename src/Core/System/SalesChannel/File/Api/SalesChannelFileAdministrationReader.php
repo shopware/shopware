@@ -91,7 +91,7 @@ class SalesChannelFileAdministrationReader
     private function serializeTemplates(array $templates): array
     {
         $serialized = [];
-        $baseTwigNamespace = array_key_last($templates);
+        $baseTwigNamespace = array_key_first($templates);
 
         foreach ($templates as $twigNamespace => $templateName) {
             $serialized[] = [

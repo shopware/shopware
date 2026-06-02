@@ -99,16 +99,16 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'contentType' => 'text/plain; charset=utf-8',
             'templates' => [
                 [
-                    'twigNamespace' => 'Ucp',
-                    'templateName' => '@Ucp/files/agentic/llms.txt.twig',
-                    'templateContent' => '{% block user_provided_content %}{% endblock %}',
-                    'role' => 'extension',
-                ],
-                [
                     'twigNamespace' => 'Framework',
                     'templateName' => '@Framework/files/agentic/llms.txt.twig',
                     'templateContent' => 'Core template',
                     'role' => 'base',
+                ],
+                [
+                    'twigNamespace' => 'Ucp',
+                    'templateName' => '@Ucp/files/agentic/llms.txt.twig',
+                    'templateContent' => '{% block user_provided_content %}{% endblock %}',
+                    'role' => 'extension',
                 ],
             ],
             'supportsUserProvidedContent' => true,
@@ -156,8 +156,8 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
     }

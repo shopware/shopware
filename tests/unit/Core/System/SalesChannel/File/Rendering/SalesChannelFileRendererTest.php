@@ -62,7 +62,6 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository()
@@ -75,8 +74,8 @@ class SalesChannelFileRendererTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
 
@@ -98,6 +97,7 @@ class SalesChannelFileRendererTest extends TestCase
             $templateOverrideLoader,
             new ArrayLoader([
                 '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% block user_provided_content %}{% endblock %}{% endblock %}',
+                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'@Framework/files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
             ]),
         ]);
         $twig = new Environment($loader);
@@ -105,7 +105,7 @@ class SalesChannelFileRendererTest extends TestCase
         $scopeDetector->method('getScopes')->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 
         $hierarchyBuilder = new NamespaceHierarchyBuilder([
-            new SalesChannelFileRendererTestHierarchyBuilder(['Framework' => 0]),
+            new SalesChannelFileRendererTestHierarchyBuilder(['Ucp' => -10, 'Framework' => 0]),
         ]);
         $templateFinder = new TemplateFinder($twig, $loader, '', $hierarchyBuilder, $scopeDetector);
 
@@ -114,7 +114,6 @@ class SalesChannelFileRendererTest extends TestCase
         $seoUrlPlaceholderHandler = $this->createSeoUrlPlaceholderHandler();
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository()
@@ -128,6 +127,7 @@ class SalesChannelFileRendererTest extends TestCase
             'files/agentic/llms.txt.twig',
             [
                 'Framework' => '@Framework/files/agentic/llms.txt.twig',
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
             ],
         );
 
@@ -137,7 +137,7 @@ class SalesChannelFileRendererTest extends TestCase
             'user_provided_content' => '{{ salesChannel.name }} must stay literal.',
         ]);
 
-        static::assertSame('core{{ salesChannel.name }} must stay literal.', $content);
+        static::assertSame('plugin + core{{ salesChannel.name }} must stay literal.', $content);
     }
 
     public function testSeoUrlPlaceholdersAreReplacedAfterRendering(): void
@@ -172,7 +172,6 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
             $templateOverrideLoader,
             $seoUrlPlaceholderHandler,
             $this->createSalesChannelRepository()
@@ -235,7 +234,6 @@ class SalesChannelFileRendererTest extends TestCase
 
         $renderer = new SalesChannelFileRenderer(
             $twig,
-            $templateFinder,
             $templateOverrideLoader,
             $this->createSeoUrlPlaceholderHandler(),
             $salesChannelRepository

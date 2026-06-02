@@ -23,6 +23,19 @@ class SalesChannelFileApiService extends ApiService {
             });
     }
 
+    detail(fileFamily, salesChannelId, fileName) {
+        return this.httpClient
+            .get(
+                `/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/detail/${this.encodeFileName(fileName)}`,
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
     preview(fileFamily, salesChannelId, fileName, templateOverrides = {}) {
         return this.httpClient
             .post(
@@ -76,6 +89,13 @@ class SalesChannelFileApiService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then(() => configuration);
+    }
+
+    encodeFileName(fileName) {
+        return fileName
+            .split('/')
+            .map((segment) => encodeURIComponent(segment))
+            .join('/');
     }
 }
 

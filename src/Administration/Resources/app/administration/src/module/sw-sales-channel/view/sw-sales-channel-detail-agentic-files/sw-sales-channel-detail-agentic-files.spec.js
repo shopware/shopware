@@ -8,18 +8,7 @@ const discoveredFiles = [
     {
         fileFamily: 'agentic',
         fileName: 'llms.txt',
-        templatePath: 'files/agentic/llms.txt.twig',
         contentType: 'text/plain; charset=utf-8',
-        templates: [
-            {
-                twigNamespace: 'Framework',
-                templateName: '@Framework/files/agentic/llms.txt.twig',
-            },
-            {
-                twigNamespace: 'Storefront',
-                templateName: '@Storefront/files/agentic/llms.txt.twig',
-            },
-        ],
         configuration: {
             id: 'configured-file-id',
             enabled: true,
@@ -31,14 +20,7 @@ const discoveredFiles = [
     {
         fileFamily: 'agentic',
         fileName: 'agents.md',
-        templatePath: 'files/agentic/agents.md.twig',
         contentType: 'text/markdown; charset=utf-8',
-        templates: [
-            {
-                twigNamespace: 'Framework',
-                templateName: '@Framework/files/agentic/agents.md.twig',
-            },
-        ],
         configuration: null,
     },
 ];
@@ -320,9 +302,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         const files = Array.from({ length: 26 }, (_, index) => ({
             fileFamily: 'agentic',
             fileName: `file-${index}.txt`,
-            templatePath: `files/agentic/file-${index}.txt.twig`,
             contentType: 'text/plain; charset=utf-8',
-            templates: [],
             configuration: null,
         }));
         const { wrapper } = await createWrapper({

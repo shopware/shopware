@@ -75,6 +75,13 @@
             <argument type="service" id="app.repository"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader"/>
+            <argument type="service" id="twig"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader"/>
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
 
         <service id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer">
@@ -102,13 +109,10 @@
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileController" public="true">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
-            <argument type="service" id="twig"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

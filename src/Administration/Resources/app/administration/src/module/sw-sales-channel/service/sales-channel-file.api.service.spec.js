@@ -36,6 +36,44 @@ describe('src/module/sw-sales-channel/service/sales-channel-file.api.service', (
         });
     });
 
+    it('loads detail data for a discovered file', async () => {
+        const response = {
+            data: {
+                fileFamily: 'agentic',
+                fileName: '.well-known/ucp.json',
+                templates: [
+                    {
+                        twigNamespace: 'Framework',
+                        templateContent: 'Core template',
+                    },
+                ],
+            },
+        };
+        const httpClient = {
+            get: jest.fn(async () => ({
+                data: response,
+                headers: {},
+            })),
+        };
+        const loginService = {
+            getToken: () => 'test-token',
+        };
+
+        const service = new SalesChannelFileApiService(httpClient, loginService);
+        const result = await service.detail('agentic', 'sales-channel-id', '.well-known/ucp.json');
+
+        expect(result).toEqual(response);
+        expect(httpClient.get).toHaveBeenCalledWith(
+            '/_action/sales-channel-file/agentic/sales-channel-id/detail/.well-known/ucp.json',
+            {
+                headers: expect.objectContaining({
+                    Authorization: 'Bearer test-token',
+                    'Content-Type': 'application/json',
+                }),
+            },
+        );
+    });
+
     it('loads a preview for a file with unsaved template overrides', async () => {
         const response = {
             fileName: 'llms.txt',

@@ -82,7 +82,11 @@ async function createWrapper(options = {}) {
           };
     const routeFileName = options.routeFileName ?? 'llms.txt';
     const salesChannelFileApiService = {
-        list: jest.fn(async () => options.serviceResponse ?? { data: cloneDiscoveredFiles() }),
+        detail: jest.fn(async (_fileFamily, _salesChannelId, requestedFileName) => {
+            const file = cloneDiscoveredFiles().find((item) => item.fileName === requestedFileName) ?? null;
+
+            return options.serviceResponse ?? { data: file };
+        }),
         preview: jest.fn(
             async () =>
                 options.previewResponse ?? {
@@ -271,7 +275,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file'
 
         await flushPromises();
 
-        expect(salesChannelFileApiService.list).toHaveBeenCalledWith('agentic', 'sales-channel-id');
+        expect(salesChannelFileApiService.detail).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt');
         expect(salesChannelFileApiService.preview).toHaveBeenCalledWith('agentic', 'sales-channel-id', 'llms.txt', {
             Framework: 'custom llms text',
         });

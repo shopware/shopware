@@ -1,0 +1,223 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\System\SalesChannel\File\Api;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileEntity;
+use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader;
+use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
+use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
+use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader;
+use Twig\Environment;
+use Twig\Loader\ArrayLoader;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(SalesChannelFileAdministrationReader::class)]
+class SalesChannelFileAdministrationReaderTest extends TestCase
+{
+    public function testListReturnsLightweightFileDescriptorsWithStoredConfiguration(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $file = $this->createSalesChannelFile();
+        $configuration = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
+
+        $discovery = $this->createMock(SalesChannelFileDiscovery::class);
+        $discovery
+            ->expects($this->once())
+            ->method('discover')
+            ->with('agentic')
+            ->willReturn(['llms.txt' => $file]);
+
+        $configurationLoader = $this->createMock(SalesChannelFileConfigurationLoader::class);
+        $configurationLoader
+            ->expects($this->once())
+            ->method('loadForFileFamily')
+            ->with('agentic', $salesChannelId, $context)
+            ->willReturn(['llms.txt' => $configuration]);
+
+        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
+        $sourceLoader
+            ->expects($this->never())
+            ->method('load');
+
+        $reader = new SalesChannelFileAdministrationReader(
+            $discovery,
+            $configurationLoader,
+            $this->createTwigEnvironment(),
+            $sourceLoader,
+        );
+
+        static::assertSame([
+            [
+                'fileFamily' => 'agentic',
+                'fileName' => 'llms.txt',
+                'contentType' => 'text/plain; charset=utf-8',
+                'configuration' => [
+                    'id' => $configuration->getId(),
+                    'enabled' => true,
+                    'templateOverrides' => [
+                        'Framework' => 'Merchant override',
+                    ],
+                ],
+            ],
+        ], $reader->list('agentic', $salesChannelId, $context));
+    }
+
+    public function testDetailReturnsTemplateSourcesAndContent(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $file = $this->createSalesChannelFile();
+        $configuration = $this->createConfiguration($salesChannelId, 'agentic', 'llms.txt');
+
+        $discovery = $this->createMock(SalesChannelFileDiscovery::class);
+        $discovery
+            ->expects($this->once())
+            ->method('discover')
+            ->with('agentic')
+            ->willReturn(['llms.txt' => $file]);
+
+        $configurationLoader = $this->createMock(SalesChannelFileConfigurationLoader::class);
+        $configurationLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with('agentic', 'llms.txt', $salesChannelId, $context)
+            ->willReturn($configuration);
+
+        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
+        $sourceLoader
+            ->expects($this->once())
+            ->method('load')
+            ->with(['Ucp', 'Framework'], $context)
+            ->willReturn([
+                'Ucp' => [
+                    'sourceName' => 'UCP',
+                    'sourceType' => 'plugin',
+                    'sourceIcon' => 'base64-plugin-icon',
+                ],
+                'Framework' => [
+                    'sourceName' => 'Shopware',
+                    'sourceType' => 'shopware',
+                    'sourceIcon' => null,
+                ],
+            ]);
+
+        $reader = new SalesChannelFileAdministrationReader(
+            $discovery,
+            $configurationLoader,
+            $this->createTwigEnvironment(),
+            $sourceLoader,
+        );
+
+        static::assertSame([
+            'fileFamily' => 'agentic',
+            'fileName' => 'llms.txt',
+            'templatePath' => 'files/agentic/llms.txt.twig',
+            'contentType' => 'text/plain; charset=utf-8',
+            'templates' => [
+                [
+                    'twigNamespace' => 'Ucp',
+                    'templateName' => '@Ucp/files/agentic/llms.txt.twig',
+                    'templateContent' => '{% block user_provided_content %}{% endblock %}',
+                    'sourceName' => 'UCP',
+                    'sourceType' => 'plugin',
+                    'sourceIcon' => 'base64-plugin-icon',
+                    'role' => 'extension',
+                ],
+                [
+                    'twigNamespace' => 'Framework',
+                    'templateName' => '@Framework/files/agentic/llms.txt.twig',
+                    'templateContent' => 'Core template',
+                    'sourceName' => 'Shopware',
+                    'sourceType' => 'shopware',
+                    'sourceIcon' => null,
+                    'role' => 'base',
+                ],
+            ],
+            'supportsUserProvidedContent' => true,
+            'configuration' => [
+                'id' => $configuration->getId(),
+                'enabled' => true,
+                'templateOverrides' => [
+                    'Framework' => 'Merchant override',
+                ],
+            ],
+        ], $reader->detail('agentic', 'llms.txt', $salesChannelId, $context));
+    }
+
+    public function testDetailReturnsNullForUnknownFile(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $discovery = $this->createMock(SalesChannelFileDiscovery::class);
+        $discovery
+            ->expects($this->once())
+            ->method('discover')
+            ->with('agentic')
+            ->willReturn([]);
+
+        $configurationLoader = $this->createMock(SalesChannelFileConfigurationLoader::class);
+        $configurationLoader
+            ->expects($this->never())
+            ->method('load');
+
+        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
+        $sourceLoader
+            ->expects($this->never())
+            ->method('load');
+
+        $reader = new SalesChannelFileAdministrationReader(
+            $discovery,
+            $configurationLoader,
+            $this->createTwigEnvironment(),
+            $sourceLoader,
+        );
+
+        static::assertNull($reader->detail('agentic', 'missing.txt', Uuid::randomHex(), $context));
+    }
+
+    private function createSalesChannelFile(): SalesChannelFile
+    {
+        return new SalesChannelFile(
+            'agentic',
+            'llms.txt',
+            'files/agentic/llms.txt.twig',
+            'text/plain; charset=utf-8',
+            'files/agentic/llms.txt.twig',
+            [
+                'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
+            ],
+        );
+    }
+
+    private function createConfiguration(string $salesChannelId, string $fileFamily, string $fileName): SalesChannelFileEntity
+    {
+        $configuration = new SalesChannelFileEntity();
+        $configuration->setId(Uuid::randomHex());
+        $configuration->setSalesChannelId($salesChannelId);
+        $configuration->setFileFamily($fileFamily);
+        $configuration->setFileName($fileName);
+        $configuration->setEnabled(true);
+        $configuration->setTemplateOverrides(['Framework' => 'Merchant override']);
+
+        return $configuration;
+    }
+
+    private function createTwigEnvironment(): Environment
+    {
+        return new Environment(new ArrayLoader([
+            '@Ucp/files/agentic/llms.txt.twig' => '{% block user_provided_content %}{% endblock %}',
+            '@Framework/files/agentic/llms.txt.twig' => 'Core template',
+        ]));
+    }
+}

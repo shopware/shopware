@@ -8,7 +8,7 @@
                     "Sales Channel Files"
                 ],
                 "summary": "List discovered sales channel files",
-                "description": "Lists all discovered public files for a file family and sales channel, including content type, contributing Twig templates, and the stored sales-channel configuration when one exists.",
+                "description": "Lists all discovered public files for a file family and sales channel, including content type and the stored sales-channel configuration when one exists.",
                 "operationId": "listSalesChannelFiles",
                 "parameters": [
                     {
@@ -47,6 +47,72 @@
                     "400": {
                         "description": "Invalid file family.",
                         "$ref": "#/components/responses/400"
+                    }
+                }
+            }
+        },
+        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail/{fileName}": {
+            "get": {
+                "tags": [
+                    "Sales Channel Files"
+                ],
+                "summary": "Load sales channel file detail",
+                "description": "Loads detail data for a discovered public file, including contributing Twig templates, their source content, source metadata, and the stored sales-channel configuration when one exists.",
+                "operationId": "getSalesChannelFileDetail",
+                "parameters": [
+                    {
+                        "name": "fileFamily",
+                        "in": "path",
+                        "description": "File family below `Resources/views/files`, for example `agentic`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                        }
+                    },
+                    {
+                        "name": "salesChannelId",
+                        "in": "path",
+                        "description": "Identifier of the sales channel for which stored configuration should be loaded.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
+                        "name": "fileName",
+                        "in": "path",
+                        "description": "Public file path without a leading slash. Subfolders are supported, for example `.well-known/ucp.json`.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "examples": [
+                                "llms.txt",
+                                ".well-known/ucp.json"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail data for the discovered sales channel file.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SalesChannelFileDetailResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid file family or file name.",
+                        "$ref": "#/components/responses/400"
+                    },
+                    "404": {
+                        "description": "The requested sales channel file was not discovered.",
+                        "$ref": "#/components/responses/404"
                     }
                 }
             }
@@ -149,6 +215,48 @@
                 "required": [
                     "fileFamily",
                     "fileName",
+                    "contentType",
+                    "configuration"
+                ],
+                "properties": {
+                    "fileFamily": {
+                        "description": "File family below `Resources/views/files`.",
+                        "type": "string",
+                        "maxLength": 64
+                    },
+                    "fileName": {
+                        "description": "Public file path without a leading slash.",
+                        "type": "string",
+                        "examples": [
+                            "llms.txt",
+                            ".well-known/ucp.json"
+                        ]
+                    },
+                    "contentType": {
+                        "description": "Detected response content type for the public file.",
+                        "type": "string",
+                        "examples": [
+                            "text/plain; charset=utf-8"
+                        ]
+                    },
+                    "configuration": {
+                        "description": "Stored sales-channel configuration for this file, or null when it has not been configured yet.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/SalesChannelFileConfiguration"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "SalesChannelFileDetail": {
+                "type": "object",
+                "required": [
+                    "fileFamily",
+                    "fileName",
                     "templatePath",
                     "contentType",
                     "templates",
@@ -204,6 +312,17 @@
                                 "type": "null"
                             }
                         ]
+                    }
+                }
+            },
+            "SalesChannelFileDetailResponse": {
+                "type": "object",
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/SalesChannelFileDetail"
                     }
                 }
             },

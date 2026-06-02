@@ -193,9 +193,10 @@ The public API surface should be intentionally small. Only the documented HTTP b
 The Administration needs an HTTP API to list discovered files and preview unsaved overrides. The HTTP route contract is public, while the PHP controller class remains internal implementation.
 
 - `GET /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}`
+- `GET /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail/{fileName}`
 - `POST /api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/preview`
 
-The list response includes resolved source metadata and the current source template content so the Administration can render the content sources table and prefill the advanced override editor without persisting shipped templates. The exact response shape is documented in the OpenAPI schema.
+The list response is intentionally lightweight and does not include resolved Twig templates or template source content. The detail response includes resolved source metadata and the current source template content so the Administration can render the content sources table and prefill the advanced override editor without persisting shipped templates. The exact response shape is documented in the OpenAPI schema.
 
 ### Public File HTTP API
 

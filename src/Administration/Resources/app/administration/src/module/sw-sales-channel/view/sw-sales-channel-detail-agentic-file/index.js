@@ -208,8 +208,12 @@ export default {
             this.closeTemplateOverrideModal();
 
             try {
-                const response = await this.salesChannelFileApiService.list(FILE_FAMILY_AGENTIC, this.salesChannel.id);
-                this.file = (response?.data ?? []).find((file) => file.fileName === this.routeFileName) ?? null;
+                const response = await this.salesChannelFileApiService.detail(
+                    FILE_FAMILY_AGENTIC,
+                    this.salesChannel.id,
+                    this.routeFileName,
+                );
+                this.file = response?.data ?? null;
 
                 if (this.file) {
                     this.file.configuration = this.findSalesChannelFileConfiguration() ?? this.file.configuration;

@@ -47,17 +47,51 @@ class SalesChannelFileControllerTest extends TestCase
         static::assertSame(['agents.md', 'llms.txt'], array_keys($files));
         static::assertSame('agentic', $files['llms.txt']['fileFamily']);
         static::assertSame('text/plain; charset=utf-8', $files['llms.txt']['contentType']);
-        static::assertTrue($files['llms.txt']['supportsUserProvidedContent']);
-        static::assertSame('Framework', $files['llms.txt']['templates'][0]['twigNamespace']);
-        static::assertSame('Shopware', $files['llms.txt']['templates'][0]['sourceName']);
-        static::assertSame('shopware', $files['llms.txt']['templates'][0]['sourceType']);
-        static::assertNull($files['llms.txt']['templates'][0]['sourceIcon']);
-        static::assertSame('base', $files['llms.txt']['templates'][0]['role']);
-        static::assertIsString($files['llms.txt']['templates'][0]['templateContent']);
-        static::assertStringContainsString('agentic_llms_txt', $files['llms.txt']['templates'][0]['templateContent']);
+        static::assertArrayNotHasKey('templatePath', $files['llms.txt']);
+        static::assertArrayNotHasKey('templates', $files['llms.txt']);
+        static::assertArrayNotHasKey('supportsUserProvidedContent', $files['llms.txt']);
         static::assertIsString($files['llms.txt']['configuration']['id']);
         static::assertTrue($files['llms.txt']['configuration']['enabled']);
         static::assertSame(['Framework' => 'merchant override'], $files['llms.txt']['configuration']['templateOverrides']);
+    }
+
+    public function testItLoadsDiscoveredFileDetailWithTemplateContent(): void
+    {
+        $this->getSalesChannelFileRepository()->upsert([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'fileFamily' => 'agentic',
+                'fileName' => 'llms.txt',
+                'enabled' => true,
+                'templateOverrides' => [
+                    'Framework' => 'merchant override',
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->getBrowser()->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/detail/llms.txt');
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
+
+        $response = $this->decodeResponse();
+        $file = $response['data'];
+
+        static::assertSame('agentic', $file['fileFamily']);
+        static::assertSame('llms.txt', $file['fileName']);
+        static::assertSame('files/agentic/llms.txt.twig', $file['templatePath']);
+        static::assertSame('text/plain; charset=utf-8', $file['contentType']);
+        static::assertTrue($file['supportsUserProvidedContent']);
+        static::assertSame('Framework', $file['templates'][0]['twigNamespace']);
+        static::assertSame('Shopware', $file['templates'][0]['sourceName']);
+        static::assertSame('shopware', $file['templates'][0]['sourceType']);
+        static::assertNull($file['templates'][0]['sourceIcon']);
+        static::assertSame('base', $file['templates'][0]['role']);
+        static::assertIsString($file['templates'][0]['templateContent']);
+        static::assertStringContainsString('agentic_llms_txt', $file['templates'][0]['templateContent']);
+        static::assertIsString($file['configuration']['id']);
+        static::assertTrue($file['configuration']['enabled']);
+        static::assertSame(['Framework' => 'merchant override'], $file['configuration']['templateOverrides']);
     }
 
     public function testItPreviewsSalesChannelFileWithMerchantOverrides(): void

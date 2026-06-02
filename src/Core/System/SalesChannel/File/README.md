@@ -27,6 +27,7 @@ Templates are registered below `Resources/views/files/<file-family>/**/*.twig`. 
 - `Discovery`: catalogues available files and resolves the contributing Twig template chain for each file.
 - `Loader`: loads sales-channel configuration and coordinates public or preview rendering.
 - `Rendering`: activates merchant override templates and renders the resolved Twig stack.
+- `Api`: exposes Administration HTTP endpoints and assembles Administration read payloads.
 - Root namespace: request path validation, 404 fallback serving, cache invalidation, and exceptions.
 
 ## Discovery Flow
@@ -82,7 +83,13 @@ classDiagram
 
     class SalesChannelFileController {
         +list(fileFamily, salesChannelId, context) JsonResponse
+        +detail(fileFamily, salesChannelId, fileName, context) JsonResponse
         +preview(fileFamily, salesChannelId, dataBag) JsonResponse
+    }
+
+    class SalesChannelFileAdministrationReader {
+        +list(fileFamily, salesChannelId, context) array
+        +detail(fileFamily, fileName, salesChannelId, context) ?array
     }
 
     class SalesChannelFileRequestPathResolver {
@@ -103,6 +110,10 @@ classDiagram
     class SalesChannelFileConfigurationLoader {
         +load(fileFamily, fileName, salesChannelId, context) ?SalesChannelFileEntity
         +loadForFileFamily(fileFamily, salesChannelId, context) array
+    }
+
+    class SalesChannelFileSourceLoader {
+        +load(twigNamespaces, context) array
     }
 
     class SalesChannelFileRenderer {
@@ -128,9 +139,12 @@ classDiagram
     SalesChannelFileNotFoundSubscriber --> SalesChannelFileRequestPathResolver : validates request path
     SalesChannelFileNotFoundSubscriber --> SalesChannelFileLoader : public load
     SalesChannelFileController --> SalesChannelFileRequestPathResolver : validates API input
-    SalesChannelFileController --> SalesChannelFileDiscovery : lists discovered files
-    SalesChannelFileController --> SalesChannelFileConfigurationLoader : lists stored rows
+    SalesChannelFileController --> SalesChannelFileAdministrationReader : list/detail payloads
     SalesChannelFileController --> SalesChannelFileLoader : preview
+    SalesChannelFileAdministrationReader --> SalesChannelFileDiscovery : lists discovered files
+    SalesChannelFileAdministrationReader --> SalesChannelFileConfigurationLoader : loads stored rows
+    SalesChannelFileAdministrationReader --> SalesChannelFileSourceLoader : resolves source metadata
+    SalesChannelFileAdministrationReader --> Environment : reads template source
     SalesChannelFileLoader --> SalesChannelFileDiscovery : resolves descriptor
     SalesChannelFileLoader --> SalesChannelFileConfigurationLoader : loads enabled row
     SalesChannelFileLoader --> CacheTagCollector : tags public response

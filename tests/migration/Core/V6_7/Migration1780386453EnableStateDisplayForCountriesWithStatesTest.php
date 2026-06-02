@@ -23,7 +23,7 @@ class Migration1780386453EnableStateDisplayForCountriesWithStatesTest extends Te
     private Migration1780386453EnableStateDisplayForCountriesWithStates $migration;
 
     /**
-     * @var list<array{id: string, display_state_in_registration: int|string}>
+     * @var list<array{id: string, displayStateInRegistration: int}>
      */
     private array $originalStateCountryDisplayStates = [];
 
@@ -36,12 +36,20 @@ class Migration1780386453EnableStateDisplayForCountriesWithStatesTest extends Te
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->migration = new Migration1780386453EnableStateDisplayForCountriesWithStates();
-        $this->originalStateCountryDisplayStates = $this->connection->fetchAllAssociative('
+
+        $countriesWithStates = $this->connection->fetchAllAssociative('
             SELECT DISTINCT c.`id`, c.`display_state_in_registration`
             FROM `country` c
             INNER JOIN `country_state` cs
                 ON cs.`country_id` = c.`id`
         ');
+
+        foreach ($countriesWithStates as $country) {
+            $this->originalStateCountryDisplayStates[] = [
+                'id' => (string) $country['id'],
+                'displayStateInRegistration' => (int) $country['display_state_in_registration'],
+            ];
+        }
     }
 
     protected function tearDown(): void
@@ -49,7 +57,7 @@ class Migration1780386453EnableStateDisplayForCountriesWithStatesTest extends Te
         foreach ($this->originalStateCountryDisplayStates as $country) {
             $this->connection->update(
                 'country',
-                ['display_state_in_registration' => $country['display_state_in_registration']],
+                ['display_state_in_registration' => $country['displayStateInRegistration']],
                 ['id' => $country['id']]
             );
         }

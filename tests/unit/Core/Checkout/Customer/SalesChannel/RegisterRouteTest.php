@@ -1172,13 +1172,13 @@ class RegisterRouteTest extends TestCase
         $registerRoute->register(
             new RequestDataBag($this->createRegistrationData([
                 'guest' => true,
-                'title' => "  Dr.  ",
+                'title' => '  Dr.  ',
                 'firstName' => "\nMax\t",
                 'lastName' => "\rMustermann ",
                 'billingAddress' => [
                     'countryId' => Uuid::randomHex(),
                     'street' => "\t Main Street 1 \n",
-                    'zipcode' => "  12345  ",
+                    'zipcode' => '  12345  ',
                     'city' => "\rBerlin\n",
                     'company' => "\tShopware ",
                     'department' => "\nCore        ",
@@ -1198,7 +1198,7 @@ class RegisterRouteTest extends TestCase
                     'zipcode' => "\t54321\n",
                     'city' => "\nHamburg\r",
                     'company' => "\tShopware Storefront\n",
-                    'department' => "    Design    ",
+                    'department' => '    Design    ',
                     'phoneNumber' => "\n654321 ",
                     'additionalAddressLine1' => " Shipping Line 1\n",
                     'additionalAddressLine2' => "\rShipping Line 2 ",

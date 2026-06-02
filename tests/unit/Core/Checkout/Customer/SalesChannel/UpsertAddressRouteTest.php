@@ -186,7 +186,7 @@ class UpsertAddressRouteTest extends TestCase
             'department' => "\nCore    ",
             'title' => "\tDr.\n",
             'phoneNumber' => "\t123456\n",
-            'additionalAddressLine1' => "        Line 1         ",
+            'additionalAddressLine1' => '        Line 1         ',
             'additionalAddressLine2' => "    Line 2\r",
             'customFields' => [
                 'note' => '  keep custom field whitespace  ',

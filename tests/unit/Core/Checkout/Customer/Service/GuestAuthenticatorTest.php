@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 class GuestAuthenticatorTest extends TestCase
 {
     #[DataProvider('provideRequestData')]
-    public function testGuestAuthentication(Request $request, ?\Throwable $expectedException): void
+    public function testGuestAuthentication(Request $request, ?\Exception $expectedException): void
     {
         $order = new OrderEntity();
         $orderCustomer = new OrderCustomerEntity();
@@ -59,7 +59,7 @@ class GuestAuthenticatorTest extends TestCase
     }
 
     #[DataProvider('provideZipcodeWhitespaceData')]
-    public function testGuestAuthenticationKeepsZipcodeWhitespaceSignificant(string $storedZipcode, string $requestZipcode, ?\Throwable $expectedException): void
+    public function testGuestAuthenticationKeepsZipcodeWhitespaceSignificant(string $storedZipcode, string $requestZipcode, ?\Exception $expectedException): void
     {
         $order = $this->createGuestOrder($storedZipcode);
         $request = new Request([
@@ -77,7 +77,7 @@ class GuestAuthenticatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: \Throwable|null}>
+     * @return array<string, array{0: Request, 1: \Exception|null}>
      */
     public static function provideRequestData(): array
     {
@@ -123,7 +123,7 @@ class GuestAuthenticatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: string, 2: \Throwable|null}>
+     * @return array<string, array{0: string, 1: string, 2: \Exception|null}>
      */
     public static function provideZipcodeWhitespaceData(): array
     {

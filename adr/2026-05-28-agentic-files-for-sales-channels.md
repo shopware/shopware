@@ -207,11 +207,13 @@ The list response includes resolved source metadata and the current source templ
 
 ### Designed Extension Point
 
-Template files are the only designed extension point for this feature. Core, plugins, apps, and themes can ship templates below `Resources/views/files/<file-family>/**/*.twig` and use normal Shopware Twig inheritance through Twig namespaces.
+Public file template files are the only designed extension point for this feature. Core, plugins, apps, and themes can ship templates below `Resources/views/files/<file-family>/**/*.twig` and use normal Shopware Twig inheritance through Twig namespaces.
 
 The initial extension point is the `agentic` file family with the built-in file paths `files/agentic/llms.txt.twig` and `files/agentic/agents.md.twig`. Subfolders below the file family are supported, including dot-prefixed folders such as `.well-known`.
 
-The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content. Templates can expose `user_provided_content` when they want the Administration to offer a simple "Custom Notes" field that appends merchant-provided text.
+The exact default text shipped by core is not part of the BC promise and may evolve. Core-owned structure blocks in public file templates may exist to keep templates readable, but extensions should prefer the explicit built-in extension blocks `agentic_llms_extensions` and `agentic_agents_extensions` for additive content. Templates can expose `user_provided_content` when they want the Administration to offer a simple "Custom Notes" field that appends merchant-provided text.
+
+Administration components, services, and Administration Twig templates for this feature are private implementation. They are not designed extension points, are not part of the BC promise, and intentionally do not expose Administration Twig blocks for extension.
 
 ## Consequences
 

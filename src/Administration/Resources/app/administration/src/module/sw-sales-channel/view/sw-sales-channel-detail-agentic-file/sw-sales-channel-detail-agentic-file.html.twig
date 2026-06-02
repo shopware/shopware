@@ -1,9 +1,7 @@
-{% block sw_sales_channel_detail_agentic_file %}
 <div
     v-if="salesChannel"
     class="sw-sales-channel-detail-agentic-file"
 >
-    {% block sw_sales_channel_detail_agentic_file_top_bar %}
     <div class="sw-sales-channel-detail-agentic-file__top-bar">
         <router-link
             class="sw-sales-channel-detail-agentic-file__back-link"
@@ -16,9 +14,7 @@
             {{ $t('sw-sales-channel.detail.agenticFiles.detail.backToList') }}
         </router-link>
     </div>
-    {% endblock %}
 
-    {% block sw_sales_channel_detail_agentic_file_details %}
     <mt-card
         v-if="file"
         position-identifier="sw-sales-channel-detail-agentic-file-details"
@@ -62,7 +58,6 @@
             </mt-button>
         </template>
 
-        {% block sw_sales_channel_detail_agentic_file_preview %}
         <div class="sw-sales-channel-detail-agentic-file__preview-section">
             <div class="sw-sales-channel-detail-agentic-file__title">
                 <h3 class="sw-sales-channel-detail-agentic-file__section-headline">
@@ -109,7 +104,6 @@
                 />
             </div>
         </div>
-        {% endblock %}
 
         <div class="sw-sales-channel-detail-agentic-file__metadata">
             <div class="sw-sales-channel-detail-agentic-file__metadata-item">
@@ -152,9 +146,7 @@
             </div>
         </div>
     </mt-card>
-    {% endblock %}
 
-    {% block sw_sales_channel_detail_agentic_file_templates %}
     <mt-card
         v-if="file"
         position-identifier="sw-sales-channel-detail-agentic-file-templates"
@@ -262,9 +254,7 @@
             </sw-data-grid>
         </template>
     </mt-card>
-    {% endblock %}
 
-    {% block sw_sales_channel_detail_agentic_file_override_modal %}
     <sw-modal
         v-if="selectedTemplate"
         class="sw-sales-channel-detail-agentic-file__override-modal"
@@ -317,9 +307,7 @@
             </mt-button>
         </template>
     </sw-modal>
-    {% endblock %}
 
-    {% block sw_sales_channel_detail_agentic_file_empty_state %}
     <mt-card
         v-if="!file && !isLoading"
         position-identifier="sw-sales-channel-detail-agentic-file-empty"
@@ -329,6 +317,4 @@
             :headline="$t('sw-sales-channel.detail.agenticFiles.detail.emptyState')"
         />
     </mt-card>
-    {% endblock %}
 </div>
-{% endblock %}

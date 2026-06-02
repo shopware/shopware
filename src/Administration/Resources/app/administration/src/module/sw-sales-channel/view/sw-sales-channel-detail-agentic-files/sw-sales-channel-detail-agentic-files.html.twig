@@ -1,11 +1,9 @@
-{% block sw_sales_channel_detail_agentic_files %}
 <mt-card
     v-if="salesChannel"
     position-identifier="sw-sales-channel-detail-agentic-files"
     class="sw-sales-channel-detail-agentic-files"
     :is-loading="isLoading || undefined"
 >
-    {% block sw_sales_channel_detail_agentic_files_title %}
     <template #title>
         <div class="sw-sales-channel-detail-agentic-files__title">
             <h3 class="sw-sales-channel-detail-agentic-files__headline">
@@ -17,10 +15,8 @@
             </p>
         </div>
     </template>
-    {% endblock %}
 
     <template #grid>
-        {% block sw_sales_channel_detail_agentic_files_grid %}
         <sw-data-grid
             v-if="files.length > 0 || isLoading"
             identifier="sw-sales-channel-detail-agentic-files-list"
@@ -31,7 +27,6 @@
             :plain-appearance="true"
             :is-loading="isLoading"
         >
-            {% block sw_sales_channel_detail_agentic_files_grid_column_file_name %}
             <template #column-fileName="{ item }">
                 <router-link
                     class="sw-sales-channel-detail-agentic-files__file-link"
@@ -56,9 +51,7 @@
                     </span>
                 </router-link>
             </template>
-            {% endblock %}
 
-            {% block sw_sales_channel_detail_agentic_files_grid_column_enabled %}
             <template #column-enabled="{ item }">
                 <sw-label
                     appearance="pill"
@@ -68,9 +61,7 @@
                     {{ getEnabledLabel(item) }}
                 </sw-label>
             </template>
-            {% endblock %}
 
-            {% block sw_sales_channel_detail_agentic_files_grid_column_description %}
             <template #column-description="{ item }">
                 <span
                     v-tooltip="getDescriptionTooltip(item)"
@@ -79,9 +70,7 @@
                     {{ getDescription(item) }}
                 </span>
             </template>
-            {% endblock %}
 
-            {% block sw_sales_channel_detail_agentic_files_grid_actions %}
             <template #actions="{ item }">
                 <sw-context-menu-item :router-link="getDetailRoute(item)">
                     {{ $t('sw-sales-channel.detail.agenticFiles.actionEdit') }}
@@ -94,9 +83,7 @@
                     {{ getToggleLabel(item) }}
                 </sw-context-menu-item>
             </template>
-            {% endblock %}
 
-            {% block sw_sales_channel_detail_agentic_files_grid_pagination %}
             <template #pagination>
                 <sw-pagination
                     v-bind="{ page, limit, total }"
@@ -106,17 +93,12 @@
                     @page-change="onChangePage"
                 />
             </template>
-            {% endblock %}
         </sw-data-grid>
-        {% endblock %}
 
-        {% block sw_sales_channel_detail_agentic_files_empty_state %}
         <mt-empty-state
             v-else
             icon="regular-file"
             :headline="$t('sw-sales-channel.detail.agenticFiles.emptyState')"
         />
-        {% endblock %}
     </template>
 </mt-card>
-{% endblock %}

@@ -119,7 +119,6 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_sales_channel_detail_content_tab_agentic_files %}
                 <sw-tabs-item
                     v-if="isHeadless || isStorefront"
                     :route="{ name: 'sw.sales.channel.detail.agenticFiles', params: { id: $route.params.id } }"
@@ -127,7 +126,6 @@
                 >
                     {{ $t('sw-sales-channel.detail.tabAgenticFiles') }}
                 </sw-tabs-item>
-                {% endblock %}
             </sw-tabs>
             {% endblock %}
 

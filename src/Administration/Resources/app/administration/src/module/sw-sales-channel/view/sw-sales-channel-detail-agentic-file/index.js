@@ -1,5 +1,7 @@
 /**
  * @sw-package discovery
+ *
+ * @private
  */
 
 import template from './sw-sales-channel-detail-agentic-file.html.twig';

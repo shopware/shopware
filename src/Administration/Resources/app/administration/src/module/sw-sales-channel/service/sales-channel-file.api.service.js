@@ -1,5 +1,7 @@
 /**
  * @sw-package discovery
+ *
+ * @private
  */
 
 const { Application } = Shopware;

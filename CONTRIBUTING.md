@@ -5,49 +5,87 @@ Shopware is available under the MIT license. If you want to contribute code (fea
 If you want more details about available licensing or the contribution agreements we offer, you can contact us at <contact@shopware.com>.
 
 ## Contributing to the Shopware code base
+
 If you want to learn how to contribute code to Shopware, please refer to [Contributing Code](https://developer.shopware.com/docs/resources/guidelines/code/contribution.html).
 Also, make sure that if you change something in a manner that is relevant to external developers please describe your change in a meaningful way. For more information refer to [this document](https://github.com/shopware/shopware/blob/trunk/delivery-process/documenting-a-release.md).
 
-## Local Docker Setup
-The repository contains a Docker setup to run the application locally.
+## Docker Setup (Recommended)
 
-Checkout the repository and navigate to the directory. To start the containers run:
+The repository includes a Docker Compose setup that provides all required services (PHP, MySQL, OpenSearch, Redis, Mailpit). This is the **recommended** way to set up your development environment.
 
-```
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- Git
+
+### Getting Started
+
+Checkout the repository and start the containers:
+
+```bash
+git clone git@github.com:shopware/shopware.git
+cd shopware
 docker compose up -d
 ```
 
-When the containers have started successfully you can call commands inside the container by adding `docker compose exec web` as a prefix to your command. You can now build Shopware by runnning:
+Once the containers are running, execute all commands inside the `web` container by prefixing them with `docker compose exec web`:
 
-```
+```bash
 docker compose exec web composer setup
 ```
 
-This will download the necessary dependencies and set up the environment for development. After the setup is complete, you can access the application at [http://localhost:8000](http://localhost:8000).
+This runs `composer setup` which performs the full setup:
+1. Installs PHP dependencies (`composer install -o`)
+2. Creates the database and installs Shopware (`init:db`)
+3. Installs JavaScript dependencies (`init:js`)
+4. Builds all frontend assets (`build:js`)
+5. Activates the Storefront theme
 
-The Administration can be accessed at [http://localhost:8000/admin](http://localhost:8000/admin) and the Username is `admin` with the Password `shopware`.
+After the setup is complete, you can access the application:
 
-To run the Administration Watcher you can use:
+| Service      | URL                                   |
+|-------------|---------------------------------------|
+| Storefront   | [http://localhost:8000](http://localhost:8000) |
+| Administration | [http://localhost:8000/admin](http://localhost:8000/admin) |
+| Database (Adminer) | [http://localhost:9080](http://localhost:9080) |
+| Mailpit (Mail catcher) | [http://localhost:8025](http://localhost:8025) |
 
-```bash
-docker compose exec web composer watch:admin
-```
+**Default login**: Username `admin`, Password `shopware`.
 
-The watched Administration is available at [http://localhost:5173](http://localhost:5173).
-
-To run the Storefront Watcher you can use:
-
-```bash
-docker compose exec web composer watch:storefront
-```
-
-The watched Storefront is available at [http://localhost:9998](http://localhost:9998).
-
-To access the database you can go to [http://localhost:9080](http://localhost:9080) and use the following credentials:
-
+**Database credentials (Adminer)**:
 - Server: `database`
 - Username: `root`
 - Password: `root`
+
+### Common Setup Commands
+
+Depending on what you're working on, you may not need the full `composer setup`. Here are the individual steps:
+
+| Command | Description |
+|---------|-------------|
+| `composer setup` | Full setup (install, database, JS, build) |
+| `composer install -o` | Install PHP dependencies with optimized autoloader |
+| `composer init:db` | Drop existing database and reinstall Shopware |
+| `composer init:js` | Install all JavaScript dependencies (admin + storefront + extensions) |
+| `composer init:testdb` | Initialize the test database |
+| `composer build:js` | Build all frontend assets (admin + storefront) |
+| `composer build:js:admin` | Build only the administration frontend |
+| `composer build:js:storefront` | Build only the storefront frontend |
+| `composer reset` | Reset database and rebuild all assets |
+
+### Development Watchers
+
+For frontend development, use the watchers to get hot module replacement (HMR):
+
+```bash
+# Administration watcher (available at http://localhost:5173)
+docker compose exec web composer watch:admin
+
+# Storefront watcher (available at http://localhost:9998)
+docker compose exec web composer watch:storefront
+```
+
+The watched Administration is available at [http://localhost:5173](http://localhost:5173) and the watched Storefront at [http://localhost:9998](http://localhost:9998).
 
 ### Configuring PHPStorm to Run in Docker
 
@@ -62,25 +100,26 @@ You will need to prepend to all commands `docker compose exec web` to run the co
 docker compose exec web composer setup
 ```
 
-For all commands see [Command Overview](#command-overview).
+For all available commands see [Command Overview](#command-overview).
 
-### Using Dev Containers in VS Code
-If you are using VS Code or other IDEs based on VS Code, like Cursor AI, you can use the Dev Containers feature to access the container with your IDE to get full terminal support and other improvements.
+### Using Dev Containers in VS Code / Cursor
 
-**Usage**
-- Make sure to install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension in VS Code.
+If you are using VS Code, Cursor AI, or any VS Code-based IDE, you can use the Dev Containers feature to work directly inside the container with full terminal support and other improvements.
+
+**Prerequisites**:
+- Install the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension.
 - Open the repository in your IDE.
-- From the VS Code command palette (Ctrl + Shift + P), enter: **Dev Containers: Reopen in Container**.
+- From the command palette (`Ctrl + Shift + P` / `Cmd + Shift + P`), run: **Dev Containers: Reopen in Container**.
 
-The IDE should now restart the window with your environment set up for editing right within the container. It will also start the Docker container if you haven't done yet, so everytime you reopen the project as the container setup, the container will start automatically. The terminal and other tools, such as agent commands in Cursor, will now use the correct shell of the container. Also, PHP tools and other extensions should be set up for optimized use with Shopware.
+The IDE will restart with your environment set up inside the container. The container starts automatically each time you reopen the project. The terminal and other tools (including AI agent commands in Cursor) will use the container shell. PHP tooling and other extensions will be configured for optimal use with Shopware.
 
-### Changing environment variables
+### Changing Environment Variables
 
-You can create a `.env` file to override the default environment variables. These are loaded automatically without having to restart the containers. **Except for the `APP_ENV` variable**, which requires `docker compose up -d` to apply the changes.
+You can create a `.env` file to override the default environment variables. These are loaded automatically without having to restart the containers.
 
-### Enable Profiler/Debugging for PHP
+### Enable Profiler / Debugging (XDebug)
 
-To enable XDebug, you will need to create a `compose.override.yaml`
+To enable XDebug, create a `compose.override.yaml`:
 
 ```yaml
 services:
@@ -91,9 +130,9 @@ services:
             - PHP_PROFILER=xdebug
 ```
 
-and then run `docker compose up -d` to apply the changes.
+Then run `docker compose up -d` to apply the changes.
 
-It also supports `blackfire`, `tideways` and `pcov`. For `tideways` and `blackfire` you will need a separate container like:
+The profiler also supports `blackfire`, `tideways`, and `pcov`. For `tideways` and `blackfire` you need a separate container:
 
 ```yaml
 services:
@@ -109,10 +148,9 @@ services:
 
 ### Using OrbStack Routing
 
-Instead of using regular ports, you can also use the OrbStack URL generation feature. OrbStack generates for each running container a URL like `https://web.orb.local` and allows for easier access to your services without needing to manage port mappings.
-This allows running multiple Shopware instances at the same time without port conflicts.
+Instead of using regular ports, you can use OrbStack's URL generation feature. OrbStack generates URLs like `https://web.orb.local` for each running container, allowing easier access without managing port mappings. This also lets you run multiple Shopware instances simultaneously without port conflicts.
 
-Create a `compose.override.yaml` with:
+Create a `compose.override.yaml`:
 
 ```yaml
 services:
@@ -133,32 +171,146 @@ services:
         ports: !override []
 ```
 
-The APP_URL environment variable always starts with `web.<project-name>.orb.local` and the rest of the URL is generated by the project name. The project name is the folder name of the project. So if you have a project called `shopware`, the URL will be `https://web.shopware.orb.local`. If you have a project called `shopware-6`, the URL will be `https://web.shopware-6.orb.local`.
+The `APP_URL` follows the pattern `web.<project-name>.orb.local` — the project name is your folder name. So for a folder called `shopware`, the URL becomes `https://web.shopware.orb.local`. You can also visit `https://orb.local` in your browser to see all running containers and their URLs.
 
-You can also open `https://orb.local` in your browser and see all running containers and their URLs.
+The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using `.orb.local` domains.
 
-The `SYMFONY_TRUSTED_PROXIES` setting is required to access Shopware via HTTPS using OrbStack's `.orb.local` domains.
-
-To run the Storefront Watcher you will need to set an additional `PROXY_URL` environment variable. This is needed to make the watcher work with the OrbStack routing.
+For the Storefront watcher with OrbStack, set the `PROXY_URL` environment variable:
 
 ```bash
 docker compose run --rm -p 9998:9998 -p 9999:9999 -e PROXY_URL=http://localhost web composer watch:storefront
 ```
-and for the admin watcher accordingly:
+
+And for the Admin watcher:
+
 ```bash
 docker compose run --rm -p 5173:5173 -e PROXY_URL=http://localhost web composer watch:admin
 ```
 
 ## Command Overview
 
-- `composer phpstan` to run PHPStan
-- `composer ecs-fix` to run PHP CS
-- `composer storefront:unit` to run Jest for the Storefront
-- `composer admin:unit` to run Jest for the Administration
-- `composer stylelint:storefront:fix` to run Stylelint for the Storefront
-- `composer stylelint:admin:fix` to run Stylelint for the Administration
-- `composer eslint:storefront` to run ESLint for the Storefront
-- `composer eslint:admin` to run ESLint for the Administration
+All commands below should be run inside the Docker container prefixed with `docker compose exec web`.
+
+### Setup & Build
+
+| Command | Description |
+|---------|-------------|
+| `composer setup` | Full setup: install dependencies, init DB, install JS, build assets |
+| `composer install -o` | Install PHP dependencies with optimized autoloader |
+| `composer init:db` | Drop existing database and reinstall Shopware with demo data |
+| `composer init:js` | Install all JavaScript dependencies (admin + storefront + extensions) |
+| `composer init:testdb` | Initialize the test database |
+| `composer build:js` | Build all frontend assets (admin + storefront) |
+| `composer build:js:admin` | Build only the administration frontend |
+| `composer build:js:storefront` | Build only the storefront frontend |
+| `composer reset` | Reset database and rebuild all assets (quick full reset) |
+
+### Development Watchers
+
+| Command | Description |
+|---------|-------------|
+| `composer watch:admin` | Start the administration dev server with HMR (http://localhost:5173) |
+| `composer watch:storefront` | Start the storefront dev server with HMR (http://localhost:9998) |
+| `composer storefront:dev-server` | Start the storefront dev server (without HMR proxy) |
+| `composer storefront:storybook` | Start Storybook for storefront component development |
+
+### Linting & Code Style
+
+| Command | Description |
+|---------|-------------|
+| `composer lint` | Run all linters (stylelint + ESLint + CS + translations) |
+| `composer cs` | Check PHP code style (dry-run) |
+| `composer cs-fix` | Fix PHP code style automatically |
+| `composer eslint` | Run all ESLint checks (admin + storefront) |
+| `composer eslint:admin` | Run ESLint for the administration |
+| `composer eslint:admin:fix` | Auto-fix ESLint issues in the administration |
+| `composer eslint:storefront` | Run ESLint for the storefront |
+| `composer eslint:storefront:fix` | Auto-fix ESLint issues in the storefront |
+| `composer stylelint` | Run Stylelint for all SCSS files |
+| `composer stylelint:admin:fix` | Auto-fix Stylelint issues in the administration |
+| `composer stylelint:storefront:fix` | Auto-fix Stylelint issues in the storefront |
+| `composer ludtwig:storefront` | Lint Twig templates in the storefront |
+| `composer ludtwig:storefront:fix` | Auto-fix Twig template issues |
+| `composer format:admin` | Check Prettier formatting in the administration |
+| `composer format:admin:fix` | Auto-fix Prettier formatting in the administration |
+| `composer lint:snippets` | Validate translation snippet files |
+| `composer translation:lint` | Validate translations |
+
+### Static Analysis
+
+| Command | Description |
+|---------|-------------|
+| `composer phpstan` | Run PHPStan static analysis |
+| `composer static-analyze` | Run PHPStan on the `src/` directory |
+| `composer rector` | Run Rector for automated PHP refactoring |
+| `composer phpstan-errors-by-area` | Print PHPStan baseline errors grouped by area |
+
+### Testing
+
+| Command | Description |
+|---------|-------------|
+| `composer phpunit` | Run PHPUnit test suite |
+| `composer admin:unit` | Run Jest unit tests for the administration |
+| `composer admin:unit:watch` | Run admin unit tests in watch mode |
+| `composer storefront:unit` | Run Jest unit tests for the storefront |
+| `composer storefront:unit:watch` | Run storefront unit tests in watch mode |
+| `composer storefront:components:unit` | Run storefront component unit tests |
+| `composer storefront:components:unit:watch` | Run storefront component tests in watch mode |
+| `composer phpbench` | Run PHPBench performance benchmarks |
+
+### Other Utilities
+
+| Command | Description |
+|---------|-------------|
+| `composer admin:generate-entity-schema-types` | Generate TypeScript types from entity schema |
+| `composer admin:generate-blocks-list` | Generate the administration blocks list |
+| `composer admin:code-mods` | Run administration code mods |
+| `composer framework:schema:dump` | Dump the entity schema for the administration |
+| `composer bc-check` | Run backward compatibility checks |
+| `composer check:license` | Check license compliance of dependencies |
+| `composer make:coverage` | Generate test coverage for changed PHP files |
+
+### Common Development Workflows
+
+**Working on the administration:**
+```bash
+# Start the admin watcher before editing; changes are reflected at http://localhost:5173
+docker compose exec web composer watch:admin
+
+# Before committing, run linting and tests
+docker compose exec web composer eslint:admin:fix
+docker compose exec web composer admin:unit
+```
+
+**Working on the storefront:**
+```bash
+# Start the storefront watcher before editing; changes are reflected at http://localhost:9998
+docker compose exec web composer watch:storefront
+
+# Before committing, run linting and tests
+docker compose exec web composer eslint:storefront:fix
+docker compose exec web composer stylelint:storefront:fix
+docker compose exec web composer storefront:unit
+```
+
+**Working on PHP backend:**
+```bash
+# After changing PHP code, the container picks it up automatically
+# Run static analysis and tests before committing
+docker compose exec web composer phpstan
+docker compose exec web composer cs-fix
+docker compose exec web composer phpunit
+```
+
+**Full reset after switching branches:**
+```bash
+docker compose exec web composer setup
+```
+
+**Quick asset rebuild after JS/SCSS changes (without watcher):**
+```bash
+docker compose exec web composer build:js
+```
 
 ## Documentation
 

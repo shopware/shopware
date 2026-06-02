@@ -26,6 +26,7 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
+use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailFactory;
@@ -587,8 +588,7 @@ class SendMailActionTest extends TestCase
             $mailFilterEvent = $event;
         });
 
-        static::expectException(MailEventConfigurationException::class);
-        static::expectExceptionMessage('The recipient value in the flow action configuration is missing.');
+        $this->expectExceptionObject(new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', StorableFlow::class));
 
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);

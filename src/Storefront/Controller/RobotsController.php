@@ -19,9 +19,9 @@ use Symfony\Component\Routing\Attribute\Route;
  * we use both API and Storefront route scope here, so that the robots.txt can be accessed
  * via all sales channel domains (+ path routing) + all top level domains without any sales channel domain
  *
- * @see RobotsControllerTest
+ * @codeCoverageIgnore
  *
- * @codeCoverageIgnore -> covered by integration tests
+ * @see RobotsControllerTest
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID, StorefrontRouteScope::ID], 'auth_required' => false])]
 #[Package('framework')]

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -202,7 +203,7 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($this->entitySearchResult);
 
-        if ($provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
+        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
             $this->mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
@@ -213,6 +214,8 @@ class SendMailActionTest extends TestCase
                     ],
                 ],
             ], $context);
+        } else {
+            $this->mailTemplateTypeRepository->expects($this->never())->method('update');
         }
 
         $action->handleFlow($flow);

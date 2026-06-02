@@ -112,8 +112,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $this->createMock(RequestStack::class),
         );
 
-        static::expectException(NewsletterException::class);
-        static::expectExceptionMessage('The email parameter is missing.');
+        $this->expectExceptionObject(NewsletterException::missingEmailParameter());
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
@@ -147,8 +146,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $this->createMock(RequestStack::class),
         );
 
-        static::expectException(NewsletterException::class);
-        static::expectExceptionMessage('The NewsletterRecipient with the identifier "email" - test@example.com was not found.');
+        $this->expectExceptionObject(NewsletterException::recipientNotFound('email', 'test@example.com'));
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }

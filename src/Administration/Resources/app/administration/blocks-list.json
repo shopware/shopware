@@ -1337,6 +1337,7 @@
  "sw_condition_type_select",
  "sw_condition_unit_menu",
  "sw_condition_value_before_content",
+ "sw_condition_value_between_date",
  "sw_condition_value_content",
  "sw_condtion_tree_node",
  "sw_confirm_field",

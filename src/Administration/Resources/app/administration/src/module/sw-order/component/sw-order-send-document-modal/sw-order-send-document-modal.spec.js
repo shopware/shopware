@@ -157,16 +157,6 @@ const mockMailTemplates = [
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice_mail',
-            templateData: {
-                order: {
-                    ...mockOrderWithoutCustomerName,
-                    orderCustomer: {
-                        email: 'personal@ema.il',
-                        firstName: 'Personal',
-                        lastName: 'Data',
-                    },
-                },
-            },
         },
         contentHtml: '<div>{{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}}</div>\n',
         subject: 'Personal data from order',

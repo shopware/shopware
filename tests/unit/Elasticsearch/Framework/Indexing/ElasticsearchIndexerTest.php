@@ -155,8 +155,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $offset = new IndexerOffset(['foo'], null);
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition foo not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('foo'));
 
         $indexer->iterate($offset);
     }
@@ -223,8 +222,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Definition not_existing not found');
+        $this->expectExceptionObject(ElasticsearchException::definitionNotFound('not_existing'));
 
         $indexer($message);
     }
@@ -243,8 +241,7 @@ class ElasticsearchIndexerTest extends TestCase
 
         $indexer = $this->getIndexer();
 
-        static::expectException(ElasticsearchException::class);
-        static::expectExceptionMessage('Empty indexing request provided');
+        $this->expectExceptionObject(ElasticsearchException::emptyIndexingRequest());
 
         $indexer($message);
     }

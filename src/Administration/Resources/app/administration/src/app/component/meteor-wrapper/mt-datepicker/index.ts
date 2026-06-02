@@ -89,6 +89,7 @@ export default Shopware.Component.wrapComponentConfig({
             const defaultFormat = {
                 hour12: !this.is24HourFormat,
                 locale: this.userLocale,
+                timeZone: this.timeZone || this.userTimeZone,
             };
 
             let format: {
@@ -124,6 +125,42 @@ export default Shopware.Component.wrapComponentConfig({
                 ...defaultFormat,
                 ...format,
             };
+        },
+
+        datePickerFormat(): string {
+            const formatter = new Intl.DateTimeFormat(this.userLocale, this.formatterOptions);
+            const sampleDate = new Date(2024, 0, 15, 14, 30, 0);
+
+            return formatter
+                .formatToParts(sampleDate)
+                .map((part) => {
+                    if (part.type === 'year') {
+                        return 'yyyy';
+                    }
+
+                    if (part.type === 'month') {
+                        return 'MM';
+                    }
+
+                    if (part.type === 'day') {
+                        return 'dd';
+                    }
+
+                    if (part.type === 'hour') {
+                        return this.is24HourFormat ? 'HH' : 'hh';
+                    }
+
+                    if (part.type === 'minute') {
+                        return 'mm';
+                    }
+
+                    if (part.type === 'dayPeriod') {
+                        return 'aa';
+                    }
+
+                    return part.value;
+                })
+                .join('');
         },
     },
 

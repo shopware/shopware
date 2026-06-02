@@ -31,6 +31,7 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
 
         // Click on input to open datepicker
         await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+        await flushPromises();
 
         // Expect german locale to be used
         expect(document.body.textContent).toContain('MoDiMiDoFrSaSo');
@@ -44,6 +45,7 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
 
         // Click on input to open datepicker
         await wrapper.find('[data-test-id="dp-input"]').trigger('click');
+        await flushPromises();
 
         // Expect german locale to be used
         expect(document.body.textContent).toContain('MoTuWeThFrSaSu');

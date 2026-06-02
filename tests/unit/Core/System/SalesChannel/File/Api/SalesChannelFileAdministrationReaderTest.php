@@ -12,7 +12,6 @@ use Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationRea
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
-use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
@@ -44,16 +43,10 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             ->with('agentic', $salesChannelId, $context)
             ->willReturn(['llms.txt' => $configuration]);
 
-        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
-        $sourceLoader
-            ->expects($this->never())
-            ->method('load');
-
         $reader = new SalesChannelFileAdministrationReader(
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
-            $sourceLoader,
         );
 
         static::assertSame([
@@ -93,29 +86,10 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             ->with('agentic', 'llms.txt', $salesChannelId, $context)
             ->willReturn($configuration);
 
-        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
-        $sourceLoader
-            ->expects($this->once())
-            ->method('load')
-            ->with(['Ucp', 'Framework'], $context)
-            ->willReturn([
-                'Ucp' => [
-                    'sourceName' => 'UCP',
-                    'sourceType' => 'plugin',
-                    'sourceIcon' => 'base64-plugin-icon',
-                ],
-                'Framework' => [
-                    'sourceName' => 'Shopware',
-                    'sourceType' => 'shopware',
-                    'sourceIcon' => null,
-                ],
-            ]);
-
         $reader = new SalesChannelFileAdministrationReader(
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
-            $sourceLoader,
         );
 
         static::assertSame([
@@ -128,18 +102,12 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
                     'twigNamespace' => 'Ucp',
                     'templateName' => '@Ucp/files/agentic/llms.txt.twig',
                     'templateContent' => '{% block user_provided_content %}{% endblock %}',
-                    'sourceName' => 'UCP',
-                    'sourceType' => 'plugin',
-                    'sourceIcon' => 'base64-plugin-icon',
                     'role' => 'extension',
                 ],
                 [
                     'twigNamespace' => 'Framework',
                     'templateName' => '@Framework/files/agentic/llms.txt.twig',
                     'templateContent' => 'Core template',
-                    'sourceName' => 'Shopware',
-                    'sourceType' => 'shopware',
-                    'sourceIcon' => null,
                     'role' => 'base',
                 ],
             ],
@@ -170,16 +138,10 @@ class SalesChannelFileAdministrationReaderTest extends TestCase
             ->expects($this->never())
             ->method('load');
 
-        $sourceLoader = $this->createMock(SalesChannelFileSourceLoader::class);
-        $sourceLoader
-            ->expects($this->never())
-            ->method('load');
-
         $reader = new SalesChannelFileAdministrationReader(
             $discovery,
             $configurationLoader,
             $this->createTwigEnvironment(),
-            $sourceLoader,
         );
 
         static::assertNull($reader->detail('agentic', 'missing.txt', Uuid::randomHex(), $context));

@@ -38,13 +38,6 @@ async function createWrapper(options = {}) {
           };
     const salesChannelFileApiService = {
         list: jest.fn(async () => serviceResponse ?? { data: cloneDiscoveredFiles() }),
-        saveConfiguration: jest.fn(async (file, salesChannelId, enabled) => {
-            return {
-                id: file.configuration?.id ?? `${file.fileName}-configuration-id`,
-                enabled,
-                templateOverrides: file.configuration?.templateOverrides ?? {},
-            };
-        }),
     };
 
     const wrapper = mount(
@@ -202,9 +195,14 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.descriptions["agentic"]["agents.md"]');
         expect(wrapper.text()).toContain('sw-sales-channel.detail.agenticFiles.description');
 
-        const icons = wrapper.findAll('.mt-icon');
-        expect(icons).toHaveLength(1);
-        expect(icons.at(0).attributes('data-name')).toBe('regular-file-edit-s');
+        const overrideMarkers = wrapper.findAll('.sw-sales-channel-detail-agentic-files__override-marker');
+        expect(overrideMarkers).toHaveLength(1);
+        expect(overrideMarkers.at(0).attributes('aria-hidden')).toBe('true');
+
+        const fileLink = wrapper.find('.sw-sales-channel-detail-agentic-files__file-link');
+        expect(fileLink.find('.sw-sales-channel-detail-agentic-files__file-text').element.nextElementSibling).toBe(
+            overrideMarkers.at(0).element,
+        );
 
         const labels = wrapper.findAll('.sw-label');
         expect(labels.at(0).attributes('data-appearance')).toBe('pill');
@@ -254,21 +252,14 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-files
         expect(salesChannelFileApiService.list).not.toHaveBeenCalled();
     });
 
-    it('toggles the enabled state through the context menu', async () => {
-        const { wrapper, salesChannelFileApiService } = await createWrapper();
+    it('stages enabled state changes for the global save', async () => {
+        const { wrapper } = await createWrapper();
 
         await flushPromises();
 
-        await wrapper.findAll('.sw-context-menu-item').at(1).trigger('click');
+        wrapper.vm.onToggleEnabled(wrapper.vm.files[0]);
         await flushPromises();
 
-        expect(salesChannelFileApiService.saveConfiguration).toHaveBeenCalledWith(
-            expect.objectContaining({
-                fileName: 'llms.txt',
-            }),
-            'sales-channel-id',
-            false,
-        );
         expect(wrapper.vm.files[0].configuration.enabled).toBe(false);
         expect(wrapper.vm.salesChannel.salesChannelFiles.find((item) => item.fileName === 'llms.txt').enabled).toBe(false);
     });

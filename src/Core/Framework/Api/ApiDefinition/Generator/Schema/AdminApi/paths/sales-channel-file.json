@@ -51,13 +51,13 @@
                 }
             }
         },
-        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail/{fileName}": {
+        "/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail": {
             "get": {
                 "tags": [
                     "Sales Channel Files"
                 ],
                 "summary": "Load sales channel file detail",
-                "description": "Loads detail data for a discovered public file, including contributing Twig templates, their source content, source metadata, and the stored sales-channel configuration when one exists.",
+                "description": "Loads detail data for a discovered public file, including contributing Twig templates, their source content, and the stored sales-channel configuration when one exists.",
                 "operationId": "getSalesChannelFileDetail",
                 "parameters": [
                     {
@@ -83,7 +83,7 @@
                     },
                     {
                         "name": "fileName",
-                        "in": "path",
+                        "in": "query",
                         "description": "Public file path without a leading slash. Subfolders are supported, for example `.well-known/ucp.json`.",
                         "required": true,
                         "schema": {
@@ -391,9 +391,6 @@
                     "twigNamespace",
                     "templateName",
                     "templateContent",
-                    "sourceName",
-                    "sourceType",
-                    "sourceIcon",
                     "role"
                 ],
                 "properties": {
@@ -411,31 +408,6 @@
                     "templateContent": {
                         "description": "Original source template content. Administration clients can use this as the default text when editing a template override.",
                         "type": "string"
-                    },
-                    "sourceName": {
-                        "description": "Human-readable source name. Core templates are reported as `Shopware`; plugin and app templates use their translated label when available.",
-                        "type": "string"
-                    },
-                    "sourceType": {
-                        "description": "Kind of source that contributed the template.",
-                        "type": "string",
-                        "enum": [
-                            "shopware",
-                            "plugin",
-                            "app",
-                            "bundle"
-                        ]
-                    },
-                    "sourceIcon": {
-                        "description": "Base64 encoded plugin or app icon, or null when no icon is available.",
-                        "oneOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
                     },
                     "role": {
                         "description": "Whether this source provides the base template or extends another source in the resolved template chain.",

@@ -3,6 +3,8 @@
  */
 
 .sw-sales-channel-detail-agentic-files {
+    overflow: hidden;
+
     .sw-data-grid__table {
         table-layout: fixed;
     }
@@ -45,10 +47,8 @@
     }
 
     &__file-link {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--scale-size-4);
+        display: block;
+        position: relative;
         width: 100%;
         min-width: 0;
         color: inherit;
@@ -77,12 +77,27 @@
         }
     }
 
-    &__file-name-row {
-        display: inline-flex;
-        align-items: center;
-        gap: var(--scale-size-6);
-        max-width: 100%;
+    &__override-marker {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: calc(var(--scale-size-12) * -1);
+        width: var(--scale-size-6);
+        height: var(--scale-size-6);
+        border-radius: 50%;
+        background: var(--color-text-primary-default);
+        opacity: 0.55;
+        transform: translate(-50%, -50%);
+    }
+
+    &__file-text {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--scale-size-2);
+        width: 100%;
         min-width: 0;
+        max-width: 100%;
         position: relative;
         z-index: 1;
     }
@@ -92,15 +107,16 @@
         overflow: hidden;
         color: var(--color-text-primary-default);
         font-weight: var(--font-weight-semi-bold);
+        line-height: 18px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     &__public-path {
         display: block;
-        width: 100%;
         overflow: hidden;
         color: var(--color-text-secondary-default);
+        line-height: 18px;
         position: relative;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -114,6 +130,7 @@
         min-width: 0;
         max-width: 100%;
         overflow: hidden;
+        line-height: var(--font-line-height-xs, 22px);
         text-overflow: ellipsis;
         white-space: nowrap;
     }

@@ -16,6 +16,7 @@ use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderResul
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -71,7 +72,12 @@ class SalesChannelFileControllerTest extends TestCase
             ->with('agentic', '.well-known/ucp.json', $salesChannelId, $context)
             ->willReturn($file);
 
-        $response = $this->createController($administrationReader)->detail('agentic', $salesChannelId, '.well-known/ucp.json', $context);
+        $response = $this->createController($administrationReader)->detail(
+            'agentic',
+            $salesChannelId,
+            new Request(['fileName' => '.well-known/ucp.json']),
+            $context
+        );
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(['data' => $file], $this->decodeResponse($response->getContent()));
@@ -92,7 +98,12 @@ class SalesChannelFileControllerTest extends TestCase
 
         $this->expectExceptionObject($expected);
 
-        $this->createController($administrationReader)->detail('agentic', $salesChannelId, 'missing.txt', $context);
+        $this->createController($administrationReader)->detail(
+            'agentic',
+            $salesChannelId,
+            new Request(['fileName' => 'missing.txt']),
+            $context
+        );
     }
 
     public function testPreviewRendersUnsavedTemplateOverridesForSalesChannel(): void

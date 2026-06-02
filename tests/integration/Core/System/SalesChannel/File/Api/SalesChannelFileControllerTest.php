@@ -70,7 +70,7 @@ class SalesChannelFileControllerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->getBrowser()->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/detail/llms.txt');
+        $this->getBrowser()->request('GET', '/api/_action/sales-channel-file/agentic/' . TestDefaults::SALES_CHANNEL . '/detail?fileName=llms.txt');
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
 
@@ -83,9 +83,7 @@ class SalesChannelFileControllerTest extends TestCase
         static::assertSame('text/plain; charset=utf-8', $file['contentType']);
         static::assertTrue($file['supportsUserProvidedContent']);
         static::assertSame('Framework', $file['templates'][0]['twigNamespace']);
-        static::assertSame('Shopware', $file['templates'][0]['sourceName']);
-        static::assertSame('shopware', $file['templates'][0]['sourceType']);
-        static::assertNull($file['templates'][0]['sourceIcon']);
+        static::assertSame('@Framework/files/agentic/llms.txt.twig', $file['templates'][0]['templateName']);
         static::assertSame('base', $file['templates'][0]['role']);
         static::assertIsString($file['templates'][0]['templateContent']);
         static::assertStringContainsString('agentic_llms_txt', $file['templates'][0]['templateContent']);

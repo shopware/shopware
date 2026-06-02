@@ -40,7 +40,6 @@ export default {
             preview: null,
             isLoading: false,
             isPreviewLoading: false,
-            isSaving: false,
             isContentSourcesExpanded: false,
             customNotes: '',
             selectedTemplate: null,
@@ -75,11 +74,10 @@ export default {
         templateColumns() {
             return [
                 {
-                    property: 'sourceName',
-                    label: this.$t('sw-sales-channel.detail.agenticFiles.detail.columnTwigNamespace'),
+                    property: 'templateName',
+                    label: this.$t('sw-sales-channel.detail.agenticFiles.detail.columnTemplate'),
                     primary: true,
                     allowResize: true,
-                    width: '260px',
                 },
                 {
                     property: 'role',
@@ -87,13 +85,16 @@ export default {
                     allowResize: true,
                     width: '150px',
                 },
-                {
-                    property: 'override',
-                    label: this.$t('sw-sales-channel.detail.agenticFiles.detail.columnOverride'),
-                    allowResize: true,
-                    width: '150px',
-                },
             ];
+        },
+
+        contentSourceTemplates() {
+            return (this.file?.templates ?? []).map((template) => {
+                return {
+                    ...template,
+                    id: template.twigNamespace,
+                };
+            });
         },
 
         templateOverrides() {
@@ -146,23 +147,32 @@ export default {
         },
 
         publicPreviewUrl() {
-            if (!this.file || !this.salesChannel) {
+            if (!this.file || !this.salesChannel || !this.isEnabled(this.file)) {
                 return null;
             }
 
-            const domain = this.getFirstSalesChannelDomain();
-            if (domain?.url) {
-                return this.buildPublicUrl(domain.url, this.file.fileName);
+            const domainUrl = this.getSalesChannelDomainUrl();
+            if (domainUrl) {
+                return this.buildPublicUrl(domainUrl, this.file.fileName);
             }
 
-            if (!this.salesChannel.accessKey) {
+            const appUrl = this.getAppUrl();
+            if (!appUrl || !this.salesChannel.accessKey) {
                 return null;
             }
 
-            const url = new URL(this.buildPublicUrl(this.getInstallationUrl(), this.file.fileName));
+            const url = new URL(this.buildPublicUrl(appUrl, this.file.fileName));
             url.searchParams.set('sw-access-key', this.salesChannel.accessKey);
 
             return url.toString();
+        },
+
+        publicPreviewDisabledTooltip() {
+            return {
+                message: this.$t('sw-sales-channel.detail.agenticFiles.detail.actionEnablePublicPathPreview'),
+                disabled: !this.file || this.isEnabled(this.file),
+                width: 240,
+            };
         },
     },
 
@@ -254,28 +264,15 @@ export default {
             }
         },
 
-        async onToggleEnabled() {
-            if (!this.file || !this.salesChannel?.id || this.isSaving) {
+        onToggleEnabled() {
+            if (!this.file || !this.salesChannel?.id) {
                 return;
             }
 
-            const enabled = !this.isEnabled(this.file);
-            this.isSaving = true;
-
-            try {
-                this.file.configuration = await this.salesChannelFileApiService.saveConfiguration(
-                    this.file,
-                    this.salesChannel.id,
-                    enabled,
-                );
-                this.writeConfigurationToSalesChannel(this.file.configuration);
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('sw-sales-channel.detail.agenticFiles.messageSaveError'),
-                });
-            } finally {
-                this.isSaving = false;
-            }
+            const configuration = this.ensureSalesChannelFileConfiguration();
+            configuration.enabled = !this.isEnabled(this.file);
+            configuration.templateOverrides = { ...(configuration.templateOverrides ?? {}) };
+            this.file.configuration = configuration;
         },
 
         isEnabled(file) {
@@ -301,6 +298,18 @@ export default {
                 return;
             }
 
+            if (this.templateOverrideDraft === this.selectedTemplateDefaultContent) {
+                const hasChanged = this.removeTemplateOverride(this.selectedTemplate);
+
+                this.closeTemplateOverrideModal();
+
+                if (hasChanged) {
+                    void this.loadPreview();
+                }
+
+                return;
+            }
+
             const configuration = this.ensureSalesChannelFileConfiguration();
             const templateOverrides = { ...(configuration.templateOverrides ?? {}) };
 
@@ -319,18 +328,29 @@ export default {
 
             this.templateOverrideDraft = this.selectedTemplateDefaultContent;
 
-            if (!this.findSalesChannelFileConfiguration() && !this.hasTemplateOverride(this.selectedTemplate)) {
-                return;
+            if (this.removeTemplateOverride(this.selectedTemplate)) {
+                void this.loadPreview();
+            }
+        },
+
+        removeTemplateOverride(template) {
+            if (!this.findSalesChannelFileConfiguration() && !this.hasTemplateOverride(template)) {
+                return false;
             }
 
             const configuration = this.ensureSalesChannelFileConfiguration();
             const templateOverrides = { ...(configuration.templateOverrides ?? {}) };
 
-            delete templateOverrides[this.selectedTemplate.twigNamespace];
+            if (!Object.hasOwn(templateOverrides, template.twigNamespace)) {
+                return false;
+            }
+
+            delete templateOverrides[template.twigNamespace];
             configuration.templateOverrides = templateOverrides;
 
             this.writeConfigurationToSalesChannel(configuration);
-            void this.loadPreview();
+
+            return true;
         },
 
         getTemplateOverrideContent(template) {
@@ -469,34 +489,12 @@ export default {
                 : this.$t('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
         },
 
-        getOverrideVariant(template) {
-            return this.hasTemplateOverride(template) ? 'info' : 'neutral';
-        },
-
-        getOverrideLabel(template) {
-            return this.hasTemplateOverride(template)
-                ? this.$t('sw-sales-channel.detail.agenticFiles.detail.overrideConfigured')
-                : this.$t('sw-sales-channel.detail.agenticFiles.detail.overrideDefault');
-        },
-
-        getSourceIconSrc(template) {
-            if (template.sourceIcon) {
-                return `data:image/png;base64, ${template.sourceIcon}`;
-            }
-
-            return null;
-        },
-
-        isShopwareSource(template) {
-            return template.sourceType === 'shopware';
-        },
-
-        getSourceFallbackIcon(template) {
-            if (template.sourceType === 'app' || template.sourceType === 'plugin') {
-                return 'regular-plug';
-            }
-
-            return 'regular-code';
+        getTemplateOverrideTooltip(template) {
+            return {
+                message: this.$t('sw-sales-channel.detail.agenticFiles.overrideTooltip'),
+                disabled: !this.hasTemplateOverride(template),
+                width: 240,
+            };
         },
 
         getTemplateRoleVariant(template) {
@@ -509,36 +507,41 @@ export default {
                 : this.$t('sw-sales-channel.detail.agenticFiles.detail.roleExtension');
         },
 
-        getFirstSalesChannelDomain() {
+        getSalesChannelDomainUrl() {
             const domains = this.salesChannel?.domains;
 
             if (!domains || domains.length === 0) {
                 return null;
             }
 
-            if (typeof domains.first === 'function') {
-                return domains.first();
+            const adminLanguageId = Shopware.Store.get('session')?.languageId;
+            const adminLanguageDomain = adminLanguageId
+                ? domains.find((domain) => {
+                      return domain.languageId === adminLanguageId;
+                  })
+                : null;
+
+            if (adminLanguageDomain) {
+                return adminLanguageDomain.url;
             }
 
-            return domains[0] ?? null;
+            const systemLanguageDomain = domains.find((domain) => {
+                return domain.languageId === Shopware.Defaults.systemLanguageId;
+            });
+
+            if (systemLanguageDomain) {
+                return systemLanguageDomain.url;
+            }
+
+            if (typeof domains.first === 'function') {
+                return domains.first()?.url ?? null;
+            }
+
+            return domains[0]?.url ?? null;
         },
 
-        getInstallationUrl() {
-            const installationPath = Shopware.Context.api.installationPath;
-
-            if (!installationPath) {
-                return window.location.origin;
-            }
-
-            if (installationPath.startsWith('http://') || installationPath.startsWith('https://')) {
-                return installationPath;
-            }
-
-            if (installationPath.startsWith('/')) {
-                return `${window.location.origin}${installationPath}`;
-            }
-
-            return window.location.origin;
+        getAppUrl() {
+            return Shopware.Store.get('context')?.app?.config?.appUrl ?? null;
         },
 
         buildPublicUrl(baseUrl, fileName) {

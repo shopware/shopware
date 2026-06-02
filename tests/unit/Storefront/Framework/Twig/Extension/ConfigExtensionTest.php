@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
@@ -25,81 +25,51 @@ class ConfigExtensionTest extends TestCase
         $extension = new ConfigExtension($this->createMock(TemplateConfigAccessor::class));
         $functions = $extension->getFunctions();
 
-        static::assertCount(5, $functions);
+        static::assertCount(4, $functions);
 
         $names = array_map(static fn (TwigFunction $f) => $f->getName(), $functions);
-        static::assertContains('config', $names);
         static::assertContains('theme_config', $names);
         static::assertContains('theme_scripts', $names);
         static::assertContains('import_map', $names);
         static::assertContains('theme_css_vars', $names);
     }
 
-    public function testConfigExtractsSalesChannelIdFromSalesChannelContext(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedConfigExtractsSalesChannelIdFromContext(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $accessor = $this->createMock(TemplateConfigAccessor::class);
-        $accessor->expects($this->once())
-            ->method('config')
-            ->with('my.key', $salesChannelContext->getSalesChannelId())
-            ->willReturn('value');
-
-        $extension = new ConfigExtension($accessor);
-        $result = $extension->config(['context' => $salesChannelContext], 'my.key');
-
-        static::assertSame('value', $result);
-    }
-
-    public function testConfigUsesSalesChannelContextFallback(): void
-    {
-        $salesChannelContext = Generator::generateSalesChannelContext();
-
-        $config = $this->createMock(TemplateConfigAccessor::class);
-        $config
+        $accessor
             ->expects($this->once())
             ->method('config')
-            ->with('core.basicInformation.shopName', TestDefaults::SALES_CHANNEL)
+            ->with('core.basicInformation.shopName', $salesChannelContext->getSalesChannelId())
             ->willReturn('Shopware');
 
-        $extension = new ConfigExtension($config);
+        $extension = new ConfigExtension($accessor);
+        $result = $extension->config(['context' => $salesChannelContext], 'core.basicInformation.shopName');
 
-        static::assertSame('Shopware', $extension->config([
-            'context' => Context::createDefaultContext(),
-            'salesChannelContext' => $salesChannelContext,
-        ], 'core.basicInformation.shopName'));
+        static::assertSame('Shopware', $result);
     }
 
-    public function testConfigExtractsSalesChannelIdFromSalesChannelEntity(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testDeprecatedConfigExtractsSalesChannelIdFromSalesChannelEntity(): void
     {
         $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId('channel-id-abc');
-        $salesChannel->setUniqueIdentifier('channel-id-abc');
+        $salesChannel->setId('sales-channel-id');
+        $salesChannel->setUniqueIdentifier('sales-channel-id');
 
         $accessor = $this->createMock(TemplateConfigAccessor::class);
-        $accessor->expects($this->once())
+        $accessor
+            ->expects($this->once())
             ->method('config')
-            ->with('my.key', 'channel-id-abc')
-            ->willReturn('value');
+            ->with('core.basicInformation.shopName', 'sales-channel-id')
+            ->willReturn('Shopware');
 
         $extension = new ConfigExtension($accessor);
-        $result = $extension->config(['salesChannel' => $salesChannel], 'my.key');
+        $result = $extension->config(['salesChannel' => $salesChannel], 'core.basicInformation.shopName');
 
-        static::assertSame('value', $result);
-    }
-
-    public function testConfigPassesNullSalesChannelIdWhenNoContextPresent(): void
-    {
-        $accessor = $this->createMock(TemplateConfigAccessor::class);
-        $accessor->expects($this->once())
-            ->method('config')
-            ->with('my.key', null)
-            ->willReturn(42);
-
-        $extension = new ConfigExtension($accessor);
-        $result = $extension->config([], 'my.key');
-
-        static::assertSame(42, $result);
+        static::assertSame('Shopware', $result);
     }
 
     public function testThemeExtractsContextAndThemeId(): void

@@ -51,7 +51,6 @@
                 class="sw-sales-channel-detail-agentic-file__state-action"
                 size="small"
                 variant="secondary"
-                :disabled="isSaving"
                 @click="onToggleEnabled"
             >
                 {{ getToggleLabel(file) }}
@@ -114,13 +113,11 @@
                 <div class="sw-sales-channel-detail-agentic-file__public-path">
                     <a
                         v-if="publicPreviewUrl"
-                        v-tooltip="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
                         class="sw-sales-channel-detail-agentic-file__public-path-link"
                         :href="publicPreviewUrl"
                         target="_blank"
                         rel="noopener noreferrer"
                         :aria-label="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
-                        :title="$t('sw-sales-channel.detail.agenticFiles.detail.actionPreviewPublicPath')"
                     >
                         <span class="sw-sales-channel-detail-agentic-file__metadata-value">
                             {{ getPublicPath(file) }}
@@ -129,7 +126,8 @@
 
                     <span
                         v-else
-                        class="sw-sales-channel-detail-agentic-file__metadata-value"
+                        v-tooltip="publicPreviewDisabledTooltip"
+                        class="sw-sales-channel-detail-agentic-file__metadata-value sw-sales-channel-detail-agentic-file__public-path-disabled"
                     >
                         {{ getPublicPath(file) }}
                     </span>
@@ -186,43 +184,28 @@
             <sw-data-grid
                 v-if="isContentSourcesExpanded"
                 identifier="sw-sales-channel-detail-agentic-file-template-list"
-                :data-source="file.templates"
+                :data-source="contentSourceTemplates"
                 :columns="templateColumns"
                 :show-selection="false"
                 :show-actions="true"
                 :plain-appearance="true"
             >
-                <template #column-sourceName="{ item }">
+                <template #column-templateName="{ item }">
                     <button
+                        v-tooltip="getTemplateOverrideTooltip(item)"
                         type="button"
                         class="sw-sales-channel-detail-agentic-file__source sw-sales-channel-detail-agentic-file__source-button"
                         @click="openTemplateOverrideModal(item)"
                     >
-                        <span
-                            class="sw-sales-channel-detail-agentic-file__source-icon"
-                            :class="{ 'sw-sales-channel-detail-agentic-file__source-icon--shopware': isShopwareSource(item) }"
-                        >
-                            <img
-                                v-if="getSourceIconSrc(item)"
-                                :src="getSourceIconSrc(item)"
-                                :alt="item.sourceName"
-                            >
-
-                            <span
-                                v-else-if="isShopwareSource(item)"
-                                class="sw-sales-channel-detail-agentic-file__shopware-source-logo"
-                            ></span>
-
-                            <mt-icon
-                                v-else
-                                :name="getSourceFallbackIcon(item)"
-                                size="16px"
-                            />
-                        </span>
-
                         <span class="sw-sales-channel-detail-agentic-file__source-name">
-                            {{ item.sourceName }}
+                            {{ item.templateName }}
                         </span>
+
+                        <span
+                            v-if="hasTemplateOverride(item)"
+                            class="sw-sales-channel-detail-agentic-file__override-marker"
+                            aria-hidden="true"
+                        />
                     </button>
                 </template>
 
@@ -233,16 +216,6 @@
                         :variant="getTemplateRoleVariant(item)"
                     >
                         {{ getTemplateRoleLabel(item) }}
-                    </sw-label>
-                </template>
-
-                <template #column-override="{ item }">
-                    <sw-label
-                        appearance="pill"
-                        size="small"
-                        :variant="getOverrideVariant(item)"
-                    >
-                        {{ getOverrideLabel(item) }}
                     </sw-label>
                 </template>
 
@@ -259,7 +232,7 @@
         v-if="selectedTemplate"
         class="sw-sales-channel-detail-agentic-file__override-modal"
         variant="large"
-        :title="$t('sw-sales-channel.detail.agenticFiles.detail.overrideModalTitle', { source: selectedTemplate.sourceName }, 0)"
+        :title="$t('sw-sales-channel.detail.agenticFiles.detail.overrideModalTitle', { source: selectedTemplate.templateName }, 0)"
         @modal-close="closeTemplateOverrideModal"
     >
         <div class="sw-sales-channel-detail-agentic-file__override-modal-content">

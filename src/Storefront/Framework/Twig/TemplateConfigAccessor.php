@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -23,10 +24,17 @@ class TemplateConfigAccessor
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use SystemConfigService in PHP code instead. Twig code can continue using config().
+     *
      * @return string|bool|array<mixed>|float|int|null
      */
     public function config(string $key, ?string $salesChannelId)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'SystemConfigService')
+        );
+
         $static = $this->getStatic();
 
         if (\array_key_exists($key, $static)) {
@@ -98,7 +106,7 @@ class TemplateConfigAccessor
     }
 
     /**
-     * @return array<string, int|string|bool> $items
+     * @return array<string, int|string|bool>
      */
     private function getStatic(): array
     {

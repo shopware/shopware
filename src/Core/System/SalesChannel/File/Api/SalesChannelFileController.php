@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -39,9 +40,16 @@ class SalesChannelFileController extends AbstractController
         return new JsonResponse(['data' => $this->administrationReader->list($fileFamily, $salesChannelId, $context)]);
     }
 
-    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail/{fileName}', name: 'api.action.sales_channel_file.detail', requirements: ['fileName' => '.+'], methods: ['GET'])]
-    public function detail(string $fileFamily, string $salesChannelId, string $fileName, Context $context): JsonResponse
+    // The public file name supports subfolders like `.well-known/ucp.json`; keeping it
+    // as a query parameter avoids a greedy wildcard path segment for an arbitrary file path.
+    #[Route(path: '/api/_action/sales-channel-file/{fileFamily}/{salesChannelId}/detail', name: 'api.action.sales_channel_file.detail', methods: ['GET'])]
+    public function detail(string $fileFamily, string $salesChannelId, Request $request, Context $context): JsonResponse
     {
+        $fileName = $request->query->get('fileName');
+        if (!\is_string($fileName)) {
+            throw SalesChannelException::missingSalesChannelFileName();
+        }
+
         $this->requestPathResolver->buildTemplatePath($fileFamily, $fileName);
 
         $file = $this->administrationReader->detail($fileFamily, $fileName, $salesChannelId, $context);

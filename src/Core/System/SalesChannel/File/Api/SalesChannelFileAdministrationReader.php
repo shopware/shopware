@@ -8,7 +8,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFil
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery;
 use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader;
-use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 
@@ -24,7 +23,6 @@ class SalesChannelFileAdministrationReader
         private readonly SalesChannelFileDiscovery $discovery,
         private readonly SalesChannelFileConfigurationLoader $configurationLoader,
         private readonly Environment $twig,
-        private readonly SalesChannelFileSourceLoader $sourceLoader,
     ) {
     }
 
@@ -51,7 +49,7 @@ class SalesChannelFileAdministrationReader
     }
 
     /**
-     * @return array{fileFamily: string, fileName: string, templatePath: string, contentType: string, templates: list<array{twigNamespace: string, templateName: string, templateContent: string, sourceName: string, sourceType: string, sourceIcon: string|null, role: string}>, supportsUserProvidedContent: bool, configuration: array{id: string, enabled: bool, templateOverrides: array<string, string>}|null}|null
+     * @return array{fileFamily: string, fileName: string, templatePath: string, contentType: string, templates: list<array{twigNamespace: string, templateName: string, templateContent: string, role: string}>, supportsUserProvidedContent: bool, configuration: array{id: string, enabled: bool, templateOverrides: array<string, string>}|null}|null
      */
     public function detail(string $fileFamily, string $fileName, string $salesChannelId, Context $context): ?array
     {
@@ -67,7 +65,7 @@ class SalesChannelFileAdministrationReader
             'fileName' => $file->fileName,
             'templatePath' => $file->templatePath,
             'contentType' => $file->contentType,
-            'templates' => $this->serializeTemplates($file->templates, $context),
+            'templates' => $this->serializeTemplates($file->templates),
             'supportsUserProvidedContent' => $this->supportsUserProvidedContent($file->templates),
             'configuration' => $configuration === null ? null : $this->serializeConfiguration($configuration),
         ];
@@ -88,28 +86,18 @@ class SalesChannelFileAdministrationReader
     /**
      * @param array<string, string> $templates Twig namespace mapped to resolved template name
      *
-     * @return list<array{twigNamespace: string, templateName: string, templateContent: string, sourceName: string, sourceType: string, sourceIcon: string|null, role: string}>
+     * @return list<array{twigNamespace: string, templateName: string, templateContent: string, role: string}>
      */
-    private function serializeTemplates(array $templates, Context $context): array
+    private function serializeTemplates(array $templates): array
     {
         $serialized = [];
         $baseTwigNamespace = array_key_last($templates);
-        $sources = $this->sourceLoader->load(array_keys($templates), $context);
 
         foreach ($templates as $twigNamespace => $templateName) {
-            $source = $sources[$twigNamespace] ?? [
-                'sourceName' => $twigNamespace,
-                'sourceType' => 'bundle',
-                'sourceIcon' => null,
-            ];
-
             $serialized[] = [
                 'twigNamespace' => $twigNamespace,
                 'templateName' => $templateName,
                 'templateContent' => $this->loadTemplateContent($templateName),
-                'sourceName' => $source['sourceName'],
-                'sourceType' => $source['sourceType'],
-                'sourceIcon' => $source['sourceIcon'],
                 'role' => $twigNamespace === $baseTwigNamespace ? 'base' : 'extension',
             ];
         }

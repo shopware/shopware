@@ -70,16 +70,10 @@
             <argument type="service" id="sales_channel_file.repository"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader">
-            <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="app.repository"/>
-        </service>
-
         <service id="Shopware\Core\System\SalesChannel\File\Api\SalesChannelFileAdministrationReader">
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFileDiscovery"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileConfigurationLoader"/>
             <argument type="service" id="twig"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileSourceLoader"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
@@ -88,6 +82,8 @@
             <argument type="service" id="twig"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="sales_channel.repository"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader" public="true">
@@ -105,6 +101,7 @@
         <service id="Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber">
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -123,6 +120,10 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="string">%shopware.api.store.context_lifetime%</argument>
+        </service>
+
+        <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRequestRestorer">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory" public="true">

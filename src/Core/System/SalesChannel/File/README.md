@@ -83,7 +83,7 @@ classDiagram
 
     class SalesChannelFileController {
         +list(fileFamily, salesChannelId, context) JsonResponse
-        +detail(fileFamily, salesChannelId, fileName, context) JsonResponse
+        +detail(fileFamily, salesChannelId, request, context) JsonResponse
         +preview(fileFamily, salesChannelId, dataBag) JsonResponse
     }
 
@@ -110,10 +110,6 @@ classDiagram
     class SalesChannelFileConfigurationLoader {
         +load(fileFamily, fileName, salesChannelId, context) ?SalesChannelFileEntity
         +loadForFileFamily(fileFamily, salesChannelId, context) array
-    }
-
-    class SalesChannelFileSourceLoader {
-        +load(twigNamespaces, context) array
     }
 
     class SalesChannelFileRenderer {
@@ -143,7 +139,6 @@ classDiagram
     SalesChannelFileController --> SalesChannelFileLoader : preview
     SalesChannelFileAdministrationReader --> SalesChannelFileDiscovery : lists discovered files
     SalesChannelFileAdministrationReader --> SalesChannelFileConfigurationLoader : loads stored rows
-    SalesChannelFileAdministrationReader --> SalesChannelFileSourceLoader : resolves source metadata
     SalesChannelFileAdministrationReader --> Environment : reads template source
     SalesChannelFileLoader --> SalesChannelFileDiscovery : resolves descriptor
     SalesChannelFileLoader --> SalesChannelFileConfigurationLoader : loads enabled row

@@ -2,10 +2,16 @@
 
 namespace Shopware\Core\System\SalesChannel\File\Rendering;
 
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\File\Discovery\SalesChannelFile;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Twig\Environment;
 
 /**
@@ -18,10 +24,15 @@ class SalesChannelFileRenderer
 
     private const USER_PROVIDED_CONTENT_TEMPLATE = '@SalesChannelFileUserProvidedContent/%s';
 
+    /**
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     */
     public function __construct(
         private readonly Environment $twig,
         private readonly TemplateFinder $templateFinder,
         private readonly SalesChannelFileTemplateOverrideLoader $templateOverrideLoader,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly EntityRepository $salesChannelRepository,
     ) {
     }
 
@@ -40,10 +51,12 @@ class SalesChannelFileRenderer
             $overrideTemplates[$templateName] = $this->buildUserProvidedContentTemplate($file, $userProvidedContent);
         }
 
-        return $this->templateOverrideLoader->withTemplateOverrides(
+        $content = $this->templateOverrideLoader->withTemplateOverrides(
             $overrideTemplates,
             fn (): string => $this->twig->render($templateName, $parameters)
         );
+
+        return $this->seoUrlPlaceholderHandler->replace($content, '', $context);
     }
 
     /**
@@ -101,8 +114,26 @@ class SalesChannelFileRenderer
     {
         return [
             'context' => $context,
-            'salesChannel' => $context->getSalesChannel(),
+            'salesChannel' => $this->loadSalesChannel($context),
             'salesChannelFile' => $file,
         ];
+    }
+
+    private function loadSalesChannel(SalesChannelContext $context): SalesChannelEntity
+    {
+        $criteria = new Criteria([$context->getSalesChannelId()]);
+        $criteria->setTitle('sales-channel-file-renderer::sales-channel');
+        $criteria->addAssociation('languages.translationCode');
+        $criteria->addAssociation('currencies');
+        $criteria->getAssociation('languages')->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $criteria->getAssociation('currencies')->addSorting(new FieldSorting('isoCode', FieldSorting::ASCENDING));
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context->getContext())->first();
+
+        if (!$salesChannel instanceof SalesChannelEntity) {
+            return $context->getSalesChannel();
+        }
+
+        return $salesChannel;
     }
 }

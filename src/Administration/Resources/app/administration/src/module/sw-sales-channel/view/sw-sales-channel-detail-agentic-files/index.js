@@ -37,7 +37,6 @@ export default {
         return {
             files: [],
             isLoading: false,
-            savingFileNames: [],
             page: 1,
             limit: 10,
             paginationSteps: [
@@ -108,7 +107,12 @@ export default {
 
             try {
                 const response = await this.salesChannelFileApiService.list(FILE_FAMILY_AGENTIC, this.salesChannel.id);
-                this.files = response?.data ?? [];
+                this.files = (response?.data ?? []).map((file) => {
+                    return {
+                        ...file,
+                        configuration: this.findSalesChannelFileConfiguration(file) ?? file.configuration,
+                    };
+                });
                 this.page = 1;
             } catch {
                 this.files = [];
@@ -121,46 +125,19 @@ export default {
             }
         },
 
-        async onToggleEnabled(file) {
-            if (!this.salesChannel?.id || this.isSaving(file)) {
+        onToggleEnabled(file) {
+            if (!this.salesChannel?.id) {
                 return;
             }
 
-            const enabled = !this.isEnabled(file);
-            this.savingFileNames = [
-                ...this.savingFileNames,
-                file.fileName,
-            ];
-
-            try {
-                file.configuration = await this.salesChannelFileApiService.saveConfiguration(
-                    file,
-                    this.salesChannel.id,
-                    enabled,
-                );
-                this.writeConfigurationToSalesChannel(file, file.configuration);
-            } catch {
-                this.createNotificationError({
-                    message: this.$t('sw-sales-channel.detail.agenticFiles.messageSaveError'),
-                });
-            } finally {
-                this.savingFileNames = this.savingFileNames.filter((fileName) => fileName !== file.fileName);
-            }
+            const configuration = this.ensureSalesChannelFileConfiguration(file);
+            configuration.enabled = !this.isEnabled(file);
+            configuration.templateOverrides = { ...(configuration.templateOverrides ?? {}) };
+            file.configuration = configuration;
         },
 
         isEnabled(file) {
             return file.configuration?.enabled === true;
-        },
-
-        writeConfigurationToSalesChannel(file, configuration) {
-            const salesChannelConfiguration = this.ensureSalesChannelFileConfiguration(file);
-
-            salesChannelConfiguration.id = configuration.id;
-            salesChannelConfiguration.salesChannelId = this.salesChannel.id;
-            salesChannelConfiguration.fileFamily = file.fileFamily;
-            salesChannelConfiguration.fileName = file.fileName;
-            salesChannelConfiguration.enabled = configuration.enabled;
-            salesChannelConfiguration.templateOverrides = configuration.templateOverrides ?? {};
         },
 
         ensureSalesChannelFileConfiguration(file) {
@@ -208,10 +185,6 @@ export default {
             }
 
             return this.salesChannel.salesChannelFiles;
-        },
-
-        isSaving(file) {
-            return this.savingFileNames.includes(file.fileName);
         },
 
         hasTemplateOverrides(file) {
@@ -279,9 +252,10 @@ export default {
                 : this.$t('sw-sales-channel.detail.agenticFiles.enabledState.disabled');
         },
 
-        getOverrideTooltip() {
+        getOverrideTooltip(file) {
             return {
                 message: this.$t('sw-sales-channel.detail.agenticFiles.overrideTooltip'),
+                disabled: !this.hasTemplateOverrides(file),
                 width: 240,
             };
         },

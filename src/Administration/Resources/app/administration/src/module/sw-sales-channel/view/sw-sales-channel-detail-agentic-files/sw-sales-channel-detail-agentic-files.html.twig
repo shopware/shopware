@@ -29,26 +29,25 @@
         >
             <template #column-fileName="{ item }">
                 <router-link
+                    v-tooltip="getOverrideTooltip(item)"
                     class="sw-sales-channel-detail-agentic-files__file-link"
                     :to="getDetailRoute(item)"
                 >
-                    <span class="sw-sales-channel-detail-agentic-files__file-name-row">
+                    <span class="sw-sales-channel-detail-agentic-files__file-text">
                         <span class="sw-sales-channel-detail-agentic-files__file-name">
                             {{ getDisplayFileName(item) }}
                         </span>
 
-                        <mt-icon
-                            v-if="hasTemplateOverrides(item)"
-                            v-tooltip="getOverrideTooltip()"
-                            name="regular-file-edit-s"
-                            size="14px"
-                            color="#189eff"
-                        />
+                        <span class="sw-sales-channel-detail-agentic-files__public-path">
+                            {{ getPublicPath(item) }}
+                        </span>
                     </span>
 
-                    <span class="sw-sales-channel-detail-agentic-files__public-path">
-                        {{ getPublicPath(item) }}
-                    </span>
+                    <span
+                        v-if="hasTemplateOverrides(item)"
+                        class="sw-sales-channel-detail-agentic-files__override-marker"
+                        aria-hidden="true"
+                    />
                 </router-link>
             </template>
 
@@ -76,10 +75,7 @@
                     {{ $t('sw-sales-channel.detail.agenticFiles.actionEdit') }}
                 </sw-context-menu-item>
 
-                <sw-context-menu-item
-                    :disabled="isSaving(item)"
-                    @click="onToggleEnabled(item)"
-                >
+                <sw-context-menu-item @click="onToggleEnabled(item)">
                     {{ getToggleLabel(item) }}
                 </sw-context-menu-item>
             </template>

@@ -25,12 +25,12 @@ class SalesChannelFileApiService extends ApiService {
 
     detail(fileFamily, salesChannelId, fileName) {
         return this.httpClient
-            .get(
-                `/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/detail/${this.encodeFileName(fileName)}`,
-                {
-                    headers: this.getBasicHeaders(),
+            .get(`/_action/${this.getApiBasePath()}/${fileFamily}/${salesChannelId}/detail`, {
+                headers: this.getBasicHeaders(),
+                params: {
+                    fileName,
                 },
-            )
+            })
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -51,51 +51,6 @@ class SalesChannelFileApiService extends ApiService {
             .then((response) => {
                 return ApiService.handleResponse(response);
             });
-    }
-
-    saveConfiguration(file, salesChannelId, enabled, templateOverrides = file.configuration?.templateOverrides ?? {}) {
-        if (file.configuration?.id) {
-            return this.httpClient
-                .patch(
-                    `/sales-channel-file/${file.configuration.id}`,
-                    {
-                        enabled,
-                        templateOverrides,
-                    },
-                    {
-                        headers: this.getBasicHeaders(),
-                    },
-                )
-                .then(() => {
-                    return {
-                        ...file.configuration,
-                        enabled,
-                        templateOverrides,
-                    };
-                });
-        }
-
-        const configuration = {
-            id: Shopware.Utils.createId(),
-            salesChannelId,
-            fileFamily: file.fileFamily,
-            fileName: file.fileName,
-            enabled,
-            templateOverrides,
-        };
-
-        return this.httpClient
-            .post('/sales-channel-file', configuration, {
-                headers: this.getBasicHeaders(),
-            })
-            .then(() => configuration);
-    }
-
-    encodeFileName(fileName) {
-        return fileName
-            .split('/')
-            .map((segment) => encodeURIComponent(segment))
-            .join('/');
     }
 }
 

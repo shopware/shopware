@@ -45,7 +45,7 @@ class SalesChannelFileRendererTest extends TestCase
             $templateOverrideLoader,
             new ArrayLoader([
                 '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% endblock %}',
-                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'@Framework/files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
             ]),
         ]);
         $twig = new Environment($loader);
@@ -74,15 +74,15 @@ class SalesChannelFileRendererTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Framework' => '@Framework/files/agentic/llms.txt.twig',
                 'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
             ],
         );
 
         $context = $this->createSalesChannelContext();
 
         $content = $renderer->render($file, $context, [
-            'Ucp' => '{% sw_extends \'@Framework/files/agentic/llms.txt.twig\' %}{% block content %}merchant plugin + {{ parent() }}{% endblock %}',
+            'Ucp' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}merchant plugin + {{ parent() }}{% endblock %}',
             'Framework' => '{% block content %}merchant core{% endblock %}',
         ]);
 
@@ -97,7 +97,7 @@ class SalesChannelFileRendererTest extends TestCase
             $templateOverrideLoader,
             new ArrayLoader([
                 '@Framework/files/agentic/llms.txt.twig' => '{% block content %}core{% block user_provided_content %}{% endblock %}{% endblock %}',
-                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'@Framework/files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
+                '@Ucp/files/agentic/llms.txt.twig' => '{% sw_extends \'files/agentic/llms.txt.twig\' %}{% block content %}plugin + {{ parent() }}{% endblock %}',
             ]),
         ]);
         $twig = new Environment($loader);
@@ -126,8 +126,8 @@ class SalesChannelFileRendererTest extends TestCase
             'text/plain; charset=utf-8',
             'files/agentic/llms.txt.twig',
             [
-                'Framework' => '@Framework/files/agentic/llms.txt.twig',
                 'Ucp' => '@Ucp/files/agentic/llms.txt.twig',
+                'Framework' => '@Framework/files/agentic/llms.txt.twig',
             ],
         );
 

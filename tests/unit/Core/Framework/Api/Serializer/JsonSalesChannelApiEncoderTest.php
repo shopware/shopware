@@ -1,9 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Framework\Api\Serializer;
+namespace Shopware\Tests\Unit\Core\Framework\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeDefinition;
+use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\ApiException;
@@ -11,28 +15,51 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicStruct;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithExtension;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithToManyExtension;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
+#[CoversClass(JsonApiEncoder::class)]
 class JsonSalesChannelApiEncoderTest extends TestCase
 {
     use AssertValuesTrait;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use KernelTestBehaviour;
+
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    protected function setUp(): void
+    {
+        $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
+            [
+                ProductDefinition::class => ProductDefinition::class,
+                MediaDefinition::class => MediaDefinition::class,
+                MediaThumbnailDefinition::class => MediaThumbnailDefinition::class,
+                MediaThumbnailSizeDefinition::class => MediaThumbnailSizeDefinition::class,
+                MediaTranslationDefinition::class => MediaTranslationDefinition::class,
+                UserDefinition::class => UserDefinition::class,
+                ExtendableDefinition::class => ExtendableDefinition::class,
+                ExtendedDefinition::class => ExtendedDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+    }
 
     /**
      * @return iterable<string, array<int, bool|\DateTime|float|int|string|null>>
@@ -55,10 +82,10 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     {
         $this->expectExceptionObject(ApiException::unsupportedEncoderInput());
 
-        $encoder = static::getContainer()->get(JsonApiEncoder::class);
+        $encoder = new JsonApiEncoder();
         $encoder->encode(
             new Criteria(),
-            static::getContainer()->get(ProductDefinition::class),
+            $this->createDefinition(ProductDefinition::class),
             /** @phpstan-ignore argument.type (for test purpose) */
             $input,
             SerializationFixture::SALES_CHANNEL_API_BASE_URL
@@ -81,12 +108,11 @@ class JsonSalesChannelApiEncoderTest extends TestCase
     #[DataProvider('complexStructsProvider')]
     public function testEncodeComplexStructs(string $definitionClass, SerializationFixture $fixture): void
     {
-        $definition = static::getContainer()->get($definitionClass);
-        static::assertInstanceOf(EntityDefinition::class, $definition);
-        $encoder = static::getContainer()->get(JsonApiEncoder::class);
+        $definition = $this->createDefinition($definitionClass);
+        $encoder = new JsonApiEncoder();
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
 
-        $actual = json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR);
+        $actual = json_decode($actual, true, 512, \JSON_THROW_ON_ERROR);
 
         // remove extensions from test
         $actual = $this->arrayRemove($actual, 'extensions');
@@ -95,20 +121,12 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), $actual);
     }
 
-    /**
-     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
-     */
     public function testEncodeStructWithExtension(): void
     {
-        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
-        $extendableDefinition = new ExtendableDefinition();
-        $extendableDefinition->addExtension(new AssociationExtension());
-        $extendableDefinition->addExtension(new ScalarRuntimeExtension());
-
-        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions();
         $fixture = new TestBasicWithExtension();
 
-        $encoder = static::getContainer()->get(JsonApiEncoder::class);
+        $encoder = new JsonApiEncoder();
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
@@ -117,22 +135,15 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         // TODO: WTF? Why does it now have a self link
         // static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    /**
-     * Not possible with data provider as we have to manipulate the container, but the data provider run before all tests
-     */
     public function testEncodeStructWithToManyExtension(): void
     {
-        $this->registerDefinition(ExtendableDefinition::class, ExtendedDefinition::class);
-        $extendableDefinition = new ExtendableDefinition();
-        $extendableDefinition->addExtension(new AssociationExtension());
-
-        $extendableDefinition->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $extendableDefinition = $this->createExtendableDefinitionWithExtensions(includeScalarRuntimeExtension: false);
         $fixture = new TestBasicWithToManyExtension();
 
-        $encoder = static::getContainer()->get(JsonApiEncoder::class);
+        $encoder = new JsonApiEncoder();
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL);
 
         // check that empty "links" object is an object and not array: https://jsonapi.org/format/#document-links
@@ -143,7 +154,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode((string) $actual, true, 512, \JSON_THROW_ON_ERROR));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**
@@ -181,5 +192,27 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         }
 
         return $filtered;
+    }
+
+    private function createExtendableDefinitionWithExtensions(bool $includeScalarRuntimeExtension = true): ExtendableDefinition
+    {
+        $extendableDefinition = new ExtendableDefinition();
+        $extendableDefinition->addExtension(new AssociationExtension());
+
+        if ($includeScalarRuntimeExtension) {
+            $extendableDefinition->addExtension(new ScalarRuntimeExtension());
+        }
+
+        $extendableDefinition->compile($this->definitionRegistry);
+
+        return $extendableDefinition;
+    }
+
+    /**
+     * @param class-string<EntityDefinition> $definitionClass
+     */
+    private function createDefinition(string $definitionClass): EntityDefinition
+    {
+        return $this->definitionRegistry->get($definitionClass);
     }
 }

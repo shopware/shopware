@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\MacroOverrideNode;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest;
 use Twig\Error\SyntaxError;
 use Twig\Node\BodyNode;
 use Twig\Node\EmptyNode;
@@ -23,7 +24,9 @@ use Twig\TokenParser\MacroTokenParser;
  * @see MacroTokenParser -> basically copied, we use our own Macro node,
  * that returns the actual instance of returned value instead of the markup
  *
- * @codeCoverageIgnore - Covered by @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\ReturnNodeTest
+ * @codeCoverageIgnore
+ *
+ * @see ReturnNodeTest
  */
 #[Package('framework')]
 class SwMacroFunctionTokenParser extends AbstractTokenParser

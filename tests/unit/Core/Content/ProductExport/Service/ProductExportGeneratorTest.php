@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -132,8 +133,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->parserFactory
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::productExportNotFound($productExport->getId())->getMessage());
+        $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -171,8 +171,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->parserFactory
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::renderProductException($errorMessage)->getMessage());
+        $this->expectExceptionObject(ProductExportException::renderProductException($errorMessage));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -366,8 +365,9 @@ class ProductExportGeneratorTest extends TestCase
 
         $generator = $this->createGenerator();
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('The JSONL row for product export "productExportId" could not be normalized');
+        $this->expectExceptionObject(ProductExportException::renderProductException(
+            'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: Syntax error'
+        ));
 
         $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
     }
@@ -383,8 +383,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $generator = $this->createGenerator();
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::salesChannelDomainNotFound('productExportId')->getMessage());
+        $this->expectExceptionObject(ProductExportException::salesChannelDomainNotFound('productExportId'));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -434,34 +433,35 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setIncludeVariants(false);
 
         $context = $this->createSalesChannelContext();
-        $variant = $this->createProduct('variant-id', 'parent-id');
-        $simple = $this->createProduct('simple-id');
+        $product = $this->createProduct('product-id');
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
         $this->productRepository->expects($this->exactly(2))
             ->method('searchIds')
-            ->willReturnOnConsecutiveCalls(
-                IdSearchResult::fromIds(['variant-id', 'simple-id'], new Criteria(), $context->getContext()),
-                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
-            );
+            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
+                $filters = $criteria->getFilters();
+                $parentIdFilters = array_filter($filters, static fn ($f) => $f instanceof EqualsFilter && $f->getField() === 'parentId' && $f->getValue() === null);
+                static::assertNotEmpty($parentIdFilters, 'Criteria must contain a parentId = null filter when variants are excluded');
+
+                return IdSearchResult::fromIds(['product-id'], $criteria, $context->getContext());
+            });
+
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                $this->createProductSearchResultCollection([$variant, $simple], $context),
+                $this->createProductSearchResult($product, $context),
                 $this->createEmptyProductSearchResult($context)
             );
-        $this->productExportRender->expects($this->once())
-            ->method('renderBody')
-            ->with($productExport, $context, static::callback(static fn (array $data): bool => $data['product'] === $simple))
-            ->willReturn('simple');
-        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->with('simple', '', $context)->willReturnArgument(0);
-        $this->productExportValidator->expects($this->once())->method('validate')->with($productExport, 'simple')->willReturn([]);
+
+        $this->productExportRender->method('renderBody')->willReturn('product');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
         $this->connection->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
         static::assertNotNull($result);
-        static::assertSame('simple', $result->getContent());
     }
 
     public function testGenerateSkipsParentProductsWhenVariantsAreIncluded(): void
@@ -473,34 +473,35 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setIncludeVariants(true);
 
         $context = $this->createSalesChannelContext();
-        $parent = $this->createProduct('parent-id', null, 1);
         $variant = $this->createProduct('variant-id', 'parent-id');
 
         $this->prepareGeneratorDependencies($context, '{{ product.id }}');
+
         $this->productRepository->expects($this->exactly(2))
             ->method('searchIds')
-            ->willReturnOnConsecutiveCalls(
-                IdSearchResult::fromIds(['parent-id', 'variant-id'], new Criteria(), $context->getContext()),
-                IdSearchResult::fromIds([], new Criteria(), $context->getContext())
-            );
+            ->willReturnCallback(static function (Criteria $criteria, SalesChannelContext $salesChannelContext) use ($context): IdSearchResult {
+                $filters = $criteria->getFilters();
+                $orFilters = array_filter($filters, static fn ($f) => $f instanceof OrFilter);
+                static::assertNotEmpty($orFilters, 'Criteria must contain an OrFilter to exclude parent products when variants are included');
+
+                return IdSearchResult::fromIds(['variant-id'], $criteria, $context->getContext());
+            });
+
         $this->productRepository->expects($this->exactly(2))
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                $this->createProductSearchResultCollection([$parent, $variant], $context),
+                $this->createProductSearchResult($variant, $context),
                 $this->createEmptyProductSearchResult($context)
             );
-        $this->productExportRender->expects($this->once())
-            ->method('renderBody')
-            ->with($productExport, $context, static::callback(static fn (array $data): bool => $data['product'] === $variant))
-            ->willReturn('variant');
-        $this->seoUrlPlaceholderHandler->expects($this->once())->method('replace')->with('variant', '', $context)->willReturnArgument(0);
-        $this->productExportValidator->expects($this->once())->method('validate')->with($productExport, 'variant')->willReturn([]);
+
+        $this->productExportRender->method('renderBody')->willReturn('variant');
+        $this->seoUrlPlaceholderHandler->method('replace')->willReturnArgument(0);
+        $this->productExportValidator->method('validate')->willReturn([]);
         $this->connection->expects($this->once())->method('delete');
 
         $result = $this->createGenerator()->generate($productExport, new ExportBehavior(false, false, false, false, false));
 
         static::assertNotNull($result);
-        static::assertSame('variant', $result->getContent());
     }
 
     public function testGenerateJsonlSkipsParentProductsAndAddsLineSeparators(): void
@@ -630,6 +631,7 @@ class ProductExportGeneratorTest extends TestCase
         $productExport->setSalesChannelId('salesChannelId');
         $productExport->setStorefrontSalesChannelId('storefrontSalesChannelId');
         $productExport->setProductStreamId('productStreamId');
+        $productExport->setIncludeVariants(false);
 
         $salesChannelDomain = new SalesChannelDomainEntity();
         $salesChannelDomain->setLanguageId('languageId');

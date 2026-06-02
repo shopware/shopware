@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\Rule;
 
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -21,10 +20,12 @@ class CustomerBirthdayRule extends Rule
 
     /**
      * @internal
+     *
+     * @param string|array{from: string, to: string}|null $birthday
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $birthday = null
+        protected string|array|null $birthday = null
     ) {
         parent::__construct();
     }
@@ -41,6 +42,10 @@ class CustomerBirthdayRule extends Rule
 
         $constraints['birthday'] = RuleConstraints::date();
 
+        if ($this->operator === self::OPERATOR_BETWEEN) {
+            $constraints['birthday'] = RuleConstraints::dateBetween();
+        }
+
         return $constraints;
     }
 
@@ -50,13 +55,10 @@ class CustomerBirthdayRule extends Rule
             return false;
         }
 
-        if ($this->birthday === null && $this->operator !== self::OPERATOR_EMPTY) {
-            throw CustomerException::unsupportedValue(\gettype($this->birthday), self::class);
-        }
-
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
+
         $customerBirthday = $customer->getBirthday();
 
         if ($customerBirthday instanceof \DateTimeImmutable) {
@@ -67,23 +69,21 @@ class CustomerBirthdayRule extends Rule
             return $customerBirthday === null;
         }
 
-        if (
-            !$customerBirthday instanceof \DateTime
-            || !$this->birthday
-            || \strtotime($this->birthday) === false
-        ) {
+        if (!$customerBirthday instanceof \DateTime || $this->birthday === null) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
-        $birthdayValue = new \DateTime($this->birthday);
-
-        return RuleComparison::date($customerBirthday, $birthdayValue, $this->operator);
+        return RuleComparison::dateValue(
+            $customerBirthday,
+            $this->birthday,
+            $this->operator
+        );
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true)
             ->dateField('birthday');
     }
 }

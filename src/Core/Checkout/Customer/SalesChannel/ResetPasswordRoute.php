@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -49,6 +50,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         private readonly RequestStack $requestStack,
         private readonly RateLimiter $rateLimiter,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -187,7 +189,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $recovery = $this->customerRecoveryRepository->search($criteria, $context)->getEntities()->first();
 
-        $validDateTime = (new \DateTime())->sub(new \DateInterval('PT2H'));
+        $validDateTime = $this->clock->now()->sub(new \DateInterval('PT2H'));
 
         return $recovery && $validDateTime < $recovery->getCreatedAt();
     }

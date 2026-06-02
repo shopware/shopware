@@ -107,6 +107,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <tag name="shopware.app_lifecycle.persister" priority="-300"/>
         </service>
@@ -184,11 +185,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\AppStateService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
@@ -284,6 +282,10 @@
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
+            <argument>%kernel.environment%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -291,17 +293,13 @@
             <argument>%kernel.shopware_version%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppManager">
             <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
@@ -315,16 +313,13 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\McpAppSyncer"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\McpAppSyncer">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Source\SourceResolver"/>
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -717,6 +712,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Privileges\Privileges">

@@ -154,16 +154,27 @@ export default {
             return this.isProductComparison || this.isAgenticCommerce;
         },
 
+        isGoogleProductSearchTemplate() {
+            return this.templateName === 'google-product-search-de';
+        },
+
         resolvedAgenticCommerceExportConfig() {
+            let entries = [];
+
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
-                return this.agenticCommerceExportConfig;
+                entries = this.agenticCommerceExportConfig;
+            } else if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
+                entries = this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
             }
 
-            if (typeof this.swSalesChannelDetailGetAgenticCommerceExportConfig === 'function') {
-                return this.swSalesChannelDetailGetAgenticCommerceExportConfig() ?? [];
+            if (entries.length === 0) {
+                return [];
             }
 
-            return [];
+            const activeProvider = this.productExport?.provider || entries[0]?.provider;
+            const filtered = entries.filter((entry) => entry.provider === activeProvider);
+
+            return filtered.length > 0 ? filtered : [entries[0]];
         },
 
         isHeadlessSalesChannel() {
@@ -459,6 +470,7 @@ export default {
             'encoding',
             'fileName',
             'fileFormat',
+            'feedLabel',
             'storefrontSalesChannelId',
             'salesChannelDomainId',
             'currencyId',
@@ -594,6 +606,16 @@ export default {
     },
 
     methods: {
+        onFeedLabelInput(value) {
+            if (value === '') {
+                this.productExport.feedLabel = null;
+
+                return;
+            }
+
+            this.productExport.feedLabel = value.toUpperCase();
+        },
+
         onGenerateKeys() {
             this.salesChannelService
                 .generateKey()
@@ -923,8 +945,7 @@ export default {
             if (configEntry?.positionIdentifier) {
                 return configEntry.positionIdentifier;
             }
-
-            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai';
+            return 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider';
         },
 
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {

@@ -3,14 +3,12 @@
 namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
  * @internal
@@ -26,14 +24,12 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
 
     /**
      * @param EntityRepository<AppCollection> $appRepository
+     * @param iterable<AppsUninstalledHandler> $subscribers
      */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly ShopIdProvider $shopIdProvider,
-        /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
-         */
-        private readonly ?ThemeAppLifecycleHandler $themeLifecycleHandler
+        private readonly iterable $subscribers,
     ) {
     }
 
@@ -56,12 +52,21 @@ class UninstallAppsStrategy extends AbstractShopIdChangeStrategy
     {
         $this->shopIdProvider->deleteShopId();
 
-        foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
+        $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
+
+        if ($apps->count() === 0) {
+            return;
+        }
+
+        // Notify subscribers before the deletes, so they can act on the live app entities
+        // (e.g. Storefront theme cleanup) without Core knowing who reacts.
+        foreach ($this->subscribers as $subscriber) {
+            $subscriber->uninstalled($apps, $context);
+        }
+
+        foreach ($apps as $app) {
             // Delete app manually, to not inform the app backend about the deactivation
-            // as the app is still running in the old shop with the same shopId
-            if ($this->themeLifecycleHandler) {
-                $this->themeLifecycleHandler->handleUninstall(new AppDeactivatedEvent($app, $context));
-            }
+            // as the app is still running in the old shop with the same shopId.
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
     }

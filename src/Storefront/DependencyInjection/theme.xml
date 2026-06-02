@@ -120,6 +120,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Storefront\Theme\ThemeAppsUninstalledHandler">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+
+            <tag name="shopware.apps_uninstalled_handler"/>
+        </service>
+
         <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

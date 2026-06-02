@@ -196,7 +196,8 @@ class MediaUploadControllerTest extends TestCase
             'Provided file is invalid: SVG files with active content are not allowed.'
             . \PHP_EOL . 'Event handler attributes not allowed: onload'
             . \PHP_EOL . 'Attributes not allowed: onload.',
-            $responseData['errors'][0]['detail']);
+            $responseData['errors'][0]['detail']
+        );
         static::assertEmpty($media->getPath());
         static::assertNull($this->thrownMediaEvent);
     }

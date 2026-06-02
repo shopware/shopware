@@ -325,6 +325,30 @@ Custom fields on category, landing page, sales channel, customer address, and or
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
 
+### Reworked timeframe options in `sw-date-filter`
+
+The order date filter dropdown now offers a 15-entry list, in display order:
+
+1. Today
+2. Yesterday
+3. Current week
+4. Last 7 days
+5. Previous week
+6. Current month
+7. Last 30 days
+8. Previous month
+9. Current quarter
+10. Previous quarter
+11. Last 3 months
+12. Last 6 months
+13. Last 12 months
+14. Current year
+15. Previous year
+
+"Current ..." entries span the start of the period through today (e.g., current quarter = first day of the quarter through today). "Previous ..." entries cover the full prior period (e.g., previous quarter = the three months before this one). "Last N days/months" remain rolling windows ending today, with calendar-month math (and last-day-of-month clamping) for the months variants so May 31 - 3 months lands on Feb 29 (leap) or Feb 28 (non-leap) rather than rolling forward to March 3.
+
+The previous rolling `lastDay` (-1) and `lastYear` (-365) entries are no longer in the dropdown, but saved filter states keep working: the component now aliases `-1` to `yesterday` and `-365` to `last12Months` on both hydration and programmatic selection. The persisted `from`/`to` are preserved so existing filters continue to resolve the same data, while the dropdown label catches up to the new vocabulary. All boundaries continue to be normalized to the user's timezone.
+
 ### Admin menu flyout no longer overflows the viewport
 
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.

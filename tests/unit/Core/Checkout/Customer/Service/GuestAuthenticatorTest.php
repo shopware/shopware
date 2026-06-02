@@ -64,6 +64,27 @@ class GuestAuthenticatorTest extends TestCase
     }
 
     /**
+     * @param class-string<\Throwable>|null $expectedException
+     */
+    #[DataProvider('provideZipcodeWhitespaceData')]
+    public function testGuestAuthenticationKeepsZipcodeWhitespaceSignificant(string $storedZipcode, string $requestZipcode, ?string $expectedException): void
+    {
+        $order = $this->createGuestOrder($storedZipcode);
+        $request = new Request([
+            'email' => 'test@example.com',
+            'zipcode' => $requestZipcode,
+        ]);
+
+        if ($expectedException !== null) {
+            $this->expectException($expectedException);
+        }
+
+        (new GuestAuthenticator())->validate($order, $request);
+
+        static::assertNull($expectedException);
+    }
+
+    /**
      * @return array<string, array{0: Request, 1: string|null}>
      */
     public static function provideRequestData(): array
@@ -107,5 +128,34 @@ class GuestAuthenticatorTest extends TestCase
             ]), GuestNotAuthenticatedException::class],
             'no data' => [new Request(), GuestNotAuthenticatedException::class],
         ];
+    }
+
+    /**
+     * @return array<string, array{0: string, 1: string, 2: string|null}>
+     */
+    public static function provideZipcodeWhitespaceData(): array
+    {
+        return [
+            'matching surrounding spaces' => [' 12345 ', ' 12345 ', null],
+            'matching tab and newline' => ["\t12345\n", "\t12345\n", null],
+            'trimmed input does not match stored whitespace' => ["\t12345\n", '12345', WrongGuestCredentialsException::class],
+            'different surrounding whitespace does not match' => [' 12345 ', "\t12345\n", WrongGuestCredentialsException::class],
+        ];
+    }
+
+    private function createGuestOrder(string $zipcode): OrderEntity
+    {
+        $order = new OrderEntity();
+        $orderCustomer = new OrderCustomerEntity();
+        $customer = new CustomerEntity();
+        $customer->setGuest(true);
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setEmail('test@example.com');
+        $order->setOrderCustomer($orderCustomer);
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setZipcode($zipcode);
+        $order->setBillingAddress($billingAddress);
+
+        return $order;
     }
 }

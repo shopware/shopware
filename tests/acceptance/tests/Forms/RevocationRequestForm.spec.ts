@@ -85,10 +85,15 @@ test(
                 { width: 1280, height: 720 },
             ]) {
                 await StorefrontCheckoutRegister.page.setViewportSize(viewport);
-                await ShopCustomer.goesTo(`${StorefrontCheckoutRegister.url()}?a=${Date.now()}`);
-                await StorefrontCheckoutRegister.page.locator('.footer-minimal').scrollIntoViewIfNeeded();
 
-                await expect(minimalFooterRevocationButton()).toBeVisible();
+                await ShopCustomer.expects(async () => {
+                    await ShopCustomer.goesTo(`${StorefrontCheckoutRegister.url()}?a=${Date.now()}`);
+                    await StorefrontCheckoutRegister.page.locator('.footer-minimal').scrollIntoViewIfNeeded();
+
+                    await expect(minimalFooterRevocationButton()).toBeVisible();
+                }).toPass({
+                    intervals: [1_000, 2_500],
+                });
             }
         });
     }

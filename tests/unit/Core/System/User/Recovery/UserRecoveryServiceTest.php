@@ -93,8 +93,7 @@ class UserRecoveryServiceTest extends TestCase
 
     public function testGenerateUserRecoveryWithNoSalesChannel(): void
     {
-        static::expectException(UserException::class);
-        static::expectExceptionMessage('No sales channel found.');
+        $this->expectExceptionObject(UserException::salesChannelNotFound());
 
         $userEmail = 'existing@example.com';
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);

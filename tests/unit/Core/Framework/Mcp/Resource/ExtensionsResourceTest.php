@@ -55,45 +55,63 @@ class ExtensionsResourceTest extends TestCase
 
     public function testAppNotInstalled(): void
     {
-        $data = $this->invoke($this->makeResource(appRows: []));
+        $data = $this->invokeWithExtensions(
+            [['name' => 'MyMcpApp', 'type' => 'app', 'tool_prefix' => 'my-', 'description' => 'Test app', 'install_command' => 'composer require my/app', 'documentation_url' => null]],
+            appRows: [],
+        );
 
-        // No app entries in the hardcoded list yet — verify the query path is exercised
-        // once an app entry is added to getKnownExtensions().
-        static::assertNotEmpty($data);
+        $app = $this->findExtension($data, 'MyMcpApp');
+        static::assertSame('not_installed', $app['status']);
+        static::assertSame('composer require my/app', $app['install_command']);
     }
 
     public function testAppInstalledButInactive(): void
     {
-        $data = $this->invoke($this->makeResource(appRows: ['MyMcpApp' => '0']));
+        $data = $this->invokeWithExtensions(
+            [['name' => 'MyMcpApp', 'type' => 'app', 'tool_prefix' => 'my-', 'description' => 'Test app', 'install_command' => 'composer require my/app', 'documentation_url' => null]],
+            appRows: ['MyMcpApp' => '0'],
+        );
 
-        static::assertNotEmpty($data);
+        $app = $this->findExtension($data, 'MyMcpApp');
+        static::assertSame('installed', $app['status']);
+        static::assertNull($app['install_command']);
     }
 
     public function testAppActive(): void
     {
-        $data = $this->invoke($this->makeResource(appRows: ['MyMcpApp' => '1']));
+        $data = $this->invokeWithExtensions(
+            [['name' => 'MyMcpApp', 'type' => 'app', 'tool_prefix' => 'my-', 'description' => 'Test app', 'install_command' => 'composer require my/app', 'documentation_url' => null]],
+            appRows: ['MyMcpApp' => '1'],
+        );
 
-        static::assertNotEmpty($data);
+        $app = $this->findExtension($data, 'MyMcpApp');
+        static::assertSame('active', $app['status']);
+        static::assertNull($app['install_command']);
     }
 
     public function testBundleNotRegistered(): void
     {
-        $data = $this->invoke($this->makeResource(registeredBundles: []));
+        $data = $this->invokeWithExtensions(
+            [['name' => 'SwagMcpExampleBundle', 'type' => 'bundle', 'tool_prefix' => 'example-', 'description' => 'Test bundle', 'install_command' => 'composer require swag/example', 'documentation_url' => null]],
+            registeredBundles: [],
+        );
 
-        // No bundle entries in the hardcoded list yet — this verifies the kernel is not called
-        // for plugin-type entries and that the bundle path returns not_installed when absent.
-        // Add a dedicated assertion once a bundle entry is added to getKnownExtensions().
-        static::assertNotEmpty($data);
+        $bundle = $this->findExtension($data, 'SwagMcpExampleBundle');
+        static::assertSame('not_installed', $bundle['status']);
+        static::assertSame('composer require swag/example', $bundle['install_command']);
     }
 
     public function testBundleRegisteredIsActive(): void
     {
-        $bundle = $this->createMock(BundleInterface::class);
-        $data = $this->invoke($this->makeResource(registeredBundles: ['SwagMcpExampleBundle' => $bundle]));
+        $bundleMock = $this->createMock(BundleInterface::class);
+        $data = $this->invokeWithExtensions(
+            [['name' => 'SwagMcpExampleBundle', 'type' => 'bundle', 'tool_prefix' => 'example-', 'description' => 'Test bundle', 'install_command' => 'composer require swag/example', 'documentation_url' => null]],
+            registeredBundles: ['SwagMcpExampleBundle' => $bundleMock],
+        );
 
-        // No bundle in the hardcoded list yet — once one is added this assertion becomes relevant.
-        // The logic is covered: if the bundle name is in kernel->getBundles() the status is 'active'.
-        static::assertNotEmpty($data);
+        $bundle = $this->findExtension($data, 'SwagMcpExampleBundle');
+        static::assertSame('active', $bundle['status']);
+        static::assertNull($bundle['install_command']);
     }
 
     public function testKnownExtensionsIncludeMerchantAssistant(): void
@@ -112,6 +130,65 @@ class ExtensionsResourceTest extends TestCase
         static::assertSame('merchant-', $merchant['tool_prefix']);
         static::assertArrayHasKey('description', $merchant);
         static::assertArrayHasKey('documentation_url', $merchant);
+    }
+
+    /**
+     * @param list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}> $extensions
+     * @param array<string, string> $pluginRows
+     * @param array<string, string> $appRows
+     * @param array<string, BundleInterface> $registeredBundles
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function invokeWithExtensions(array $extensions, array $pluginRows = [], array $appRows = [], array $registeredBundles = []): array
+    {
+        $resource = $this->makeResourceWithExtensions($extensions, $pluginRows, $appRows, $registeredBundles);
+
+        return $this->invoke($resource);
+    }
+
+    /**
+     * @param list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}> $extensions
+     * @param array<string, string> $pluginRows
+     * @param array<string, string> $appRows
+     * @param array<string, BundleInterface> $registeredBundles
+     */
+    private function makeResourceWithExtensions(array $extensions, array $pluginRows = [], array $appRows = [], array $registeredBundles = []): ExtensionsResource
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturnCallback(
+            static function (string $sql) use ($pluginRows, $appRows): array {
+                if (str_contains($sql, '`plugin`')) {
+                    return $pluginRows;
+                }
+                if (str_contains($sql, '`app`')) {
+                    return $appRows;
+                }
+
+                return [];
+            }
+        );
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->method('getBundles')->willReturn($registeredBundles);
+
+        return new class($connection, $kernel, $extensions) extends ExtensionsResource {
+            /**
+             * @param list<array{name: string, type: 'plugin'|'bundle'|'app', tool_prefix: string, description: string, install_command: string, documentation_url: string|null}> $testExtensions
+             */
+            public function __construct(
+                Connection $connection,
+                KernelInterface $kernel,
+                private readonly array $testExtensions,
+            ) {
+                parent::__construct($connection, $kernel);
+            }
+
+            protected function getKnownExtensions(): array
+            {
+                return $this->testExtensions;
+            }
+        };
     }
 
     /**

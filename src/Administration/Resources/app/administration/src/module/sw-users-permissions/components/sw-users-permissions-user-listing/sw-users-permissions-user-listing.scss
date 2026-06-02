@@ -1,8 +1,10 @@
-@import "~scss/variables";
-
 .sw-users-permissions-user-listing {
-    &.sw-card .sw-card__content {
+    .mt-card__content {
         padding: 0;
+    }
+
+    .sw-data-grid {
+        border-radius: var(--border-radius-card);
     }
 
     &__add-user-button {
@@ -10,8 +12,20 @@
     }
 
     &__toolbar {
-        padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        display: flex;
+        gap: var(--scale-size-20);
+        padding: var(--scale-size-20) var(--scale-size-24);
+        background-color: var(--color-background-secondary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
+
+        .sw-simple-search-field {
+            width: 100%;
+        }
+    }
+}
+
+.sw-settings-user-list__delete-modal {
+    .sw-settings-user-list__confirm-delete-text {
+        margin-bottom: var(--scale-size-24);
     }
 }

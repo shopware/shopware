@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\V6_7\Migration1775460999AddParentNameToProductSearchConfig;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -188,6 +190,64 @@ class SearchKeywordUpdaterTest extends TestCase
             'test',
             'test product',
         ]);
+    }
+
+    public function testItUpdatesVariantKeywordsWithParentNameWhenConfigured(): void
+    {
+        $ids = new IdsCollection();
+        $languageRepository = static::getContainer()->get('language.repository');
+        static::assertInstanceOf(EntityRepository::class, $languageRepository);
+
+        $analyzer = static::getContainer()->get(ProductSearchKeywordAnalyzer::class);
+        static::assertInstanceOf(ProductSearchKeywordAnalyzer::class, $analyzer);
+
+        $searchKeywordUpdater = new SearchKeywordUpdater(
+            $this->connection,
+            $languageRepository,
+            $this->productRepository,
+            $analyzer
+        );
+
+        $originalParentNameSearchState = $this->enableParentNameSearch();
+
+        try {
+            $this->productRepository->create([
+                (new ProductBuilder($ids, 'parent-name-keyword'))
+                    ->name('Parent Searchable')
+                    ->price(10)
+                    ->variant(
+                        (new ProductBuilder($ids, 'child-name-keyword'))
+                            ->name('Child Variant')
+                            ->number('childnumber')
+                            ->price(11)
+                            ->build()
+                    )
+                    ->build(),
+            ], Context::createDefaultContext());
+
+            $searchKeywordUpdater->reset();
+            $searchKeywordUpdater->update([
+                $ids->get('child-name-keyword'),
+            ], Context::createDefaultContext());
+
+            $keywords = $this->connection->fetchFirstColumn(
+                'SELECT `keyword`
+                FROM `product_search_keyword`
+                WHERE `product_id` = :productId AND language_id = :languageId
+                ORDER BY `keyword` ASC',
+                [
+                    'productId' => Uuid::fromHexToBytes($ids->get('child-name-keyword')),
+                    'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                ]
+            );
+
+            static::assertContains('parent', $keywords);
+            static::assertContains('parent searchable', $keywords);
+            static::assertContains('searchable', $keywords);
+        } finally {
+            $this->restoreParentNameSearch($originalParentNameSearchState);
+            $searchKeywordUpdater->reset();
+        }
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void
@@ -505,6 +565,60 @@ class SearchKeywordUpdaterTest extends TestCase
         );
 
         return $customFieldId;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function enableParentNameSearch(): array
+    {
+        /** @var array<string, string> $originalState */
+        $originalState = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), searchable FROM product_search_config_field WHERE field = :field',
+            ['field' => 'parent.name']
+        );
+
+        (new Migration1775460999AddParentNameToProductSearchConfig())->update($this->connection);
+
+        $this->connection->executeStatement(
+            'UPDATE product_search_config_field SET searchable = 1 WHERE field = :field',
+            ['field' => 'parent.name']
+        );
+
+        return $originalState;
+    }
+
+    /**
+     * @param array<string, string> $originalState
+     */
+    private function restoreParentNameSearch(array $originalState): void
+    {
+        $parentNameConfigIds = array_map(
+            'strval',
+            $this->connection->fetchFirstColumn(
+                'SELECT LOWER(HEX(id)) FROM product_search_config_field WHERE field = :field',
+                ['field' => 'parent.name']
+            )
+        );
+
+        $addedConfigIds = array_values(array_diff($parentNameConfigIds, array_keys($originalState)));
+        if ($addedConfigIds !== []) {
+            $this->connection->executeStatement(
+                'DELETE FROM product_search_config_field WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList($addedConfigIds)],
+                ['ids' => ArrayParameterType::BINARY]
+            );
+        }
+
+        foreach ($originalState as $id => $searchable) {
+            $this->connection->executeStatement(
+                'UPDATE product_search_config_field SET searchable = :searchable WHERE id = :id',
+                [
+                    'id' => Uuid::fromHexToBytes($id),
+                    'searchable' => (int) $searchable,
+                ]
+            );
+        }
     }
 
     /**

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\PromotionException;
-use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Lock\LockFactory;
@@ -25,9 +24,9 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            ExtensionDispatcher::pre(CheckoutPlaceOrderExtension::NAME) => 'acquireLocks',
-            ExtensionDispatcher::error(CheckoutPlaceOrderExtension::NAME) => 'releaseLocks',
-            ExtensionDispatcher::post(CheckoutPlaceOrderExtension::NAME) => 'releaseLocks',
+            CheckoutPlaceOrderExtension::onPre() => 'acquireLocks',
+            CheckoutPlaceOrderExtension::onError() => 'releaseLocks',
+            CheckoutPlaceOrderExtension::onPost() => 'releaseLocks',
         ];
     }
 

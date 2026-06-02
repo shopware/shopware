@@ -126,6 +126,8 @@ class SearchKeywordUpdater implements ResetInterface
             }
         }
 
+        $this->assignParentProducts($existingProducts, $configFields, $context);
+
         foreach ($existingProducts as $product) {
             $analyzed = $this->analyzer->analyze($product, $context, $configFields);
 
@@ -250,6 +252,11 @@ class SearchKeywordUpdater implements ResetInterface
             $path = array_map(static fn (Field $field) => $field->getPropertyName(), $fields);
 
             $association = implode('.', $path);
+            if ($association === 'parent') {
+                // Product parent associations cannot be loaded inline and must be fetched separately.
+                continue;
+            }
+
             if ($criteria->hasAssociation($association)) {
                 continue;
             }
@@ -286,6 +293,61 @@ class SearchKeywordUpdater implements ResetInterface
         }
 
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+    }
+
+    /**
+     * @param array<string, ProductEntity> $existingProducts
+     * @param array<int, ConfigField> $configFields
+     */
+    private function assignParentProducts(array $existingProducts, array $configFields, Context $context): void
+    {
+        if (!\in_array('parent.name', array_column($configFields, 'field'), true)) {
+            return;
+        }
+
+        /** @var array<string, list<ProductEntity>> $productsByParentId */
+        $productsByParentId = [];
+        foreach ($existingProducts as $product) {
+            $parentId = $product->getParentId();
+            if ($parentId === null) {
+                continue;
+            }
+
+            $productsByParentId[$parentId][] = $product;
+        }
+
+        $this->hydrateParentProducts($productsByParentId, $context);
+    }
+
+    /**
+     * @param array<string, list<ProductEntity>> $productsByParentId
+     */
+    private function hydrateParentProducts(array $productsByParentId, Context $context): void
+    {
+        if ($productsByParentId === []) {
+            return;
+        }
+
+        $criteria = new Criteria(array_keys($productsByParentId));
+        $criteria->setLimit(50);
+        $criteria->addFields(['name']);
+
+        $iterator = new RepositoryIterator($this->productRepository, $context, $criteria);
+
+        while ($parentProducts = $iterator->fetch()) {
+            foreach ($parentProducts->getEntities() as $parent) {
+                $parentProduct = new ProductEntity();
+                $parentProduct->setId($parent->getId());
+                $parentProduct->setTranslated($parent->getTranslated());
+
+                $name = $parent->get('name');
+                $parentProduct->setName(\is_string($name) ? $name : null);
+
+                foreach ($productsByParentId[$parentProduct->getId()] ?? [] as $product) {
+                    $product->setParent($parentProduct);
+                }
+            }
+        }
     }
 
     /**

@@ -133,8 +133,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->parserFactory
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::productExportNotFound($productExport->getId())->getMessage());
+        $this->expectExceptionObject(ProductExportException::productExportNotFound($productExport->getId()));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -172,8 +171,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->parserFactory
         );
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::renderProductException($errorMessage)->getMessage());
+        $this->expectExceptionObject(ProductExportException::renderProductException($errorMessage));
 
         $generator->generate($productExport, new ExportBehavior());
     }
@@ -367,8 +365,9 @@ class ProductExportGeneratorTest extends TestCase
 
         $generator = $this->createGenerator();
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage('The JSONL row for product export "productExportId" could not be normalized');
+        $this->expectExceptionObject(ProductExportException::renderProductException(
+            'The JSONL row for product export "' . $productExport->getId() . '" could not be normalized: Syntax error'
+        ));
 
         $generator->generate($productExport, new ExportBehavior(false, false, false, false, false));
     }
@@ -384,8 +383,7 @@ class ProductExportGeneratorTest extends TestCase
 
         $generator = $this->createGenerator();
 
-        static::expectException(ProductExportException::class);
-        static::expectExceptionMessage(ProductExportException::salesChannelDomainNotFound('productExportId')->getMessage());
+        $this->expectExceptionObject(ProductExportException::salesChannelDomainNotFound('productExportId'));
 
         $generator->generate($productExport, new ExportBehavior());
     }

@@ -85,6 +85,7 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
@@ -318,6 +319,7 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {

@@ -79,6 +79,9 @@ class TemplateIteratorTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 final class TemplateIteratorShopwareFixtureBundle extends Bundle
 {
     public function __construct(private readonly string $fixturePath)

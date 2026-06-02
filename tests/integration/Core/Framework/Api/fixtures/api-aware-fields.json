@@ -277,6 +277,8 @@
     "sales_channel_type_translation.languageId",
     "sales_channel_analytics.createdAt",
     "sales_channel_analytics.updatedAt",
+    "sales_channel_file.createdAt",
+    "sales_channel_file.updatedAt",
     "sales_channel_tracking_order.createdAt",
     "sales_channel_tracking_order.updatedAt",
     "sales_channel_tracking_customer.createdAt",

@@ -112,6 +112,10 @@ export default {
         allowDelete() {
             return this.acl.can('language.deleter');
         },
+
+        cardTitle() {
+            return `${this.$t('sw-settings-language.list.cardTitle')} (${this.total})`;
+        },
     },
 
     methods: {

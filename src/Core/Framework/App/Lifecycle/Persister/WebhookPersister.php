@@ -15,9 +15,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
+use Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest;
 
 /**
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest
+ * @codeCoverageIgnore
+ *
+ * @see WebhookPersisterTest
  *
  * @internal only for use by the app-system
  *

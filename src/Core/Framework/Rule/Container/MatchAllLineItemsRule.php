@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
@@ -37,12 +38,18 @@ class MatchAllLineItemsRule extends Container
         }
 
         $lineItems = $scope instanceof LineItemScope ? new LineItemCollection([$scope->getLineItem()]) : $scope->getCart()->getLineItems();
+        $originalCount = $lineItems->filter(static fn (LineItem $lineItem): bool => $lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE)->count();
 
         if ($this->type !== null) {
             $lineItems = $lineItems->filterFlatByType($this->type);
         }
 
-        if (\is_array($lineItems) && \count($lineItems) === 0) {
+        $filteredCount = \is_array($lineItems) ? \count($lineItems) : $lineItems->count();
+        if ($filteredCount === 0) {
+            if ($this->type !== null && $originalCount > 0) {
+                return false;
+            }
+
             return $this->minimumShouldMatch === null;
         }
 

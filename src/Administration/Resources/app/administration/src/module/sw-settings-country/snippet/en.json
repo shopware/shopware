@@ -47,6 +47,7 @@
       "labelCheckVatIdFormat": "Validate VAT Reg.No. format",
       "helpTextCheckVatIdFormat": "Validates the European VAT Reg.No. format.",
       "labelForceStateInRegistration": "State/region required",
+      "labelDisplayStateInRegistration": "Show state/region",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",
       "placeholderStateSearch": "Search states/regions...",

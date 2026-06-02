@@ -17,8 +17,7 @@ class LanguageTest extends TestCase
 {
     public function testLanguageThrowsExceptionIfIndexedWithInvalidLocales(): void
     {
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage('The configured locale "invalid_locale" does not exist.');
+        $this->expectExceptionObject(SnippetException::localeDoesNotExist('invalid_locale'));
 
         new Language('invalid-locale', 'Invalid Language');
     }

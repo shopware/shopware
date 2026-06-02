@@ -63,6 +63,7 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('term_max_length')->end()
                         ->scalarNode('search_type')->end()
                         ->integerNode('precision_threshold')->defaultNull()->end()
+                        ->floatNode('dismax_tie_breaker')->defaultValue(0.2)->min(0.0)->max(1.0)->end()
                     ->end()
                 ->end()
                 ->arrayNode('administration')

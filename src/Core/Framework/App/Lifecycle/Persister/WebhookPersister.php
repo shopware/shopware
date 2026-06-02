@@ -5,17 +5,22 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
+use Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest;
 
 /**
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\App\Lifecycle\WebhookPersisterTest
+ * @codeCoverageIgnore
+ *
+ * @see WebhookPersisterTest
  *
  * @internal only for use by the app-system
  *
@@ -64,6 +69,14 @@ class WebhookPersister implements PersisterInterface
 
         $this->deleteOldWebhooks($existingWebhooks);
         $this->cacheClearer->clearWebhookCache();
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     /**

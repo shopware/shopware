@@ -136,6 +136,9 @@ export default {
                 }
 
                 if (!this.isInherited && newValue !== this.inheritedValue) {
+                    if (newValue === null || newValue === undefined || (Array.isArray(newValue) && newValue.length <= 0)) {
+                        this.forceInheritanceRemove = true;
+                    }
                     this.updateValue(newValue, 'restore');
                     return;
                 }

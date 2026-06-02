@@ -74,6 +74,7 @@ class ProductExportHydratorTest extends TestCase
             'test.encoding' => ProductExportEntity::ENCODING_UTF8,
             'test.fileFormat' => ProductExportEntity::FILE_FORMAT_JSONL,
             'test.provider' => 'open-ai',
+            'test.feedLabel' => 'US_ELECTRONICS',
             'test.includeVariants' => 1,
             'test.generateByCronjob' => 0,
             'test.isRunning' => 1,
@@ -105,6 +106,7 @@ class ProductExportHydratorTest extends TestCase
         static::assertSame(Uuid::fromBytesToHex($salesChannelDomainId), $entity->getSalesChannelDomainId());
         static::assertSame(Uuid::fromBytesToHex($currencyId), $entity->getCurrencyId());
         static::assertSame('open-ai', $entity->getProvider());
+        static::assertSame('US_ELECTRONICS', $entity->getFeedLabel());
         static::assertSame('2026-03-23 10:15:00', $entity->getGeneratedAt()?->format('Y-m-d H:i:s'));
     }
 
@@ -148,5 +150,47 @@ class ProductExportHydratorTest extends TestCase
 
         static::assertInstanceOf(ProductExportEntity::class, $entity);
         static::assertNull($entity->getProvider());
+    }
+
+    public function testHydrationAssignsNullFeedLabelWhenColumnIsPresentButEmpty(): void
+    {
+        $definition = $this->definitionInstanceRegistry->get(ProductExportDefinition::class);
+
+        $rows = [[
+            'test.id' => Uuid::randomBytes(),
+            'test.productStreamId' => Uuid::randomBytes(),
+            'test.storefrontSalesChannelId' => Uuid::randomBytes(),
+            'test.salesChannelId' => Uuid::randomBytes(),
+            'test.salesChannelDomainId' => Uuid::randomBytes(),
+            'test.currencyId' => Uuid::randomBytes(),
+            'test.fileName' => 'feed.xml',
+            'test.accessKey' => 'access-key',
+            'test.encoding' => ProductExportEntity::ENCODING_UTF8,
+            'test.fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
+            'test.feedLabel' => null,
+            'test.includeVariants' => 0,
+            'test.generateByCronjob' => 0,
+            'test.isRunning' => 0,
+            'test.interval' => 60,
+            'test.headerTemplate' => '',
+            'test.bodyTemplate' => '<item></item>',
+            'test.footerTemplate' => '',
+            'test.pausedSchedule' => 0,
+            'test.createdAt' => '2026-05-19 10:00:00.000',
+        ]];
+
+        $structs = $this->hydrator->hydrate(
+            new ProductExportCollection(),
+            $definition->getEntityClass(),
+            $definition,
+            $rows,
+            'test',
+            Context::createDefaultContext()
+        );
+
+        $entity = $structs->first();
+
+        static::assertInstanceOf(ProductExportEntity::class, $entity);
+        static::assertNull($entity->getFeedLabel());
     }
 }

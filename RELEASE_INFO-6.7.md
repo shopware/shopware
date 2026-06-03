@@ -163,31 +163,18 @@ A `debug:mcp` CLI command is available to list all registered MCP tools, prompts
 
 ### [Experimental] Store API MCP server
 
-A dedicated MCP endpoint is now available at `/store-api/_mcp` for building AI agents that
-operate in a sales-channel and customer context. It uses standard Store API authentication
-(`sw-access-key` + `sw-context-token` headers) and runs a separate capability registry from
-the Admin API MCP server.
+A new MCP endpoint at `/store-api/_mcp` accepts standard Store API credentials
+(`sw-access-key` + `sw-context-token`) and runs a separate capability registry from
+the Admin API endpoint.
 
-Plugin developers can register Store API-specific capabilities using service tags:
+Plugins register Store API capabilities via service tags:
+`shopware.store_api_mcp.tool`, `shopware.store_api_mcp.prompt`, `shopware.store_api_mcp.resource`.
 
-- `shopware.store_api_mcp.tool` — registers a tool (extend `McpToolResponse`, add `#[McpTool(...)]`)
-- `shopware.store_api_mcp.prompt` — registers a prompt
-- `shopware.store_api_mcp.resource` — registers a resource
+Both `McpContextProvider` and `StoreApiMcpContextProvider` implement `McpContextProviderInterface`.
+Type-hint against the interface in tools that need to work across both API scopes.
 
-Protocol-level handlers for the Store API server use separate tags (`mcp.store_api.request_handler`,
-`mcp.store_api.notification_handler`) so they do not affect the Admin API server.
-
-`McpContextProvider` and `StoreApiMcpContextProvider` both implement the new
-`McpContextProviderInterface`. Tools that only need a `Context` object and want to work in
-both API scopes should type-hint against the interface.
-
-The built-in `shopware-store-api-context` tool exposes the current session metadata
-(sales channel, language, currency, customer authentication state) to MCP clients.
-
-**Current scope:** This endpoint is the server-side foundation for Store API AI agents.
-Full autonomous storefront agent support — including endpoint discovery and session
-authentication bridge — is provided by the UCP SDK. Without UCP, the endpoint is most
-useful for headless commerce setups and developer tooling with pre-configured credentials.
+Note: endpoint discovery and storefront session authentication are not included. Those
+are provided by the UCP SDK.
 
 ## API
 

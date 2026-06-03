@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Collection;
 
 #[Package('framework')]
 class CompiledFieldCollection extends FieldCollection
@@ -129,9 +130,9 @@ class CompiledFieldCollection extends FieldCollection
     }
 
     /**
-     * @return CompiledFieldCollection<StorageAware>
+     * @return Collection<StorageAware>
      */
-    public function getExistenceAwareFields(): self
+    public function getExistenceAwareFields(): Collection
     {
         return $this->filter(
             static fn (Field $field) => $field instanceof StorageAware

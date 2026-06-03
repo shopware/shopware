@@ -65,6 +65,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class RegisterRoute extends AbstractRegisterRoute
 {
+    use CustomerAddressDataNormalizerTrait;
+
     /**
      * @internal
      *
@@ -498,6 +500,8 @@ class RegisterRoute extends AbstractRegisterRoute
         if (isset($mappedData['countryStateId']) && $mappedData['countryStateId'] === '') {
             $mappedData['countryStateId'] = null;
         }
+
+        $mappedData = $this->trimAddressFields($mappedData);
 
         if ($addressData->get('customFields') instanceof RequestDataBag) {
             $mappedData['customFields'] = $this->customFieldMapper->map(CustomerAddressDefinition::ENTITY_NAME, $addressData->get('customFields'));

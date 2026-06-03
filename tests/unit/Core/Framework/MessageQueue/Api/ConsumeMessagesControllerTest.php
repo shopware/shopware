@@ -13,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
 use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
@@ -172,7 +173,7 @@ class ConsumeMessagesControllerTest extends TestCase
 
         return new MessageQueueStatsSubscriber(
             new IncrementGatewayRegistry([$incrementer]),
-            new StatsService($this->createMock(AbstractStatsRepository::class), false)
+            new StatsService($this->createMock(AbstractStatsRepository::class), false, new NativeClock())
         );
     }
 }

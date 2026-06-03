@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\Checkout\Promotion\Event\PromotionCodeRedeemedEvent;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,9 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -34,7 +35,8 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
      */
     public function __construct(
         private readonly EntityRepository $codesRepository,
-        private readonly EntityRepository $orderCustomerRepository
+        private readonly EntityRepository $orderCustomerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -57,14 +59,20 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             return;
         }
 
-        $orderCustomer = $this->getOrderCustomer($orderLineItems, $event);
+        // one write can carry promotion line items for several orders (sync/import), so
+        // resolve the customer per order rather than reusing the first order's customer
+        $orderCustomers = $this->getOrderCustomers($orderLineItems, $event);
 
-        $this->redeemCode($orderLineItems, $orderCustomer, $event->getContext());
+        $this->redeemCode($orderLineItems, $orderCustomers, $event->getContext());
     }
 
-    private function redeemCode(OrderLineItemCollection $lineItems, OrderCustomerEntity $customer, Context $context): void
+    /**
+     * @param array<string, OrderCustomerEntity> $orderCustomers
+     */
+    private function redeemCode(OrderLineItemCollection $lineItems, array $orderCustomers, Context $context): void
     {
         $update = [];
+        $redeemedEvents = [];
         $codes = \array_values(\array_filter(\array_map(
             static fn ($item) => $item->getPayload()['code'] ?? '',
             \iterator_to_array($lineItems)
@@ -77,6 +85,11 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         $promotions = $this->getIndividualCodePromotions($codes, $context);
 
         foreach ($lineItems as $item) {
+            $customer = $orderCustomers[$item->getOrderId()] ?? null;
+            if ($customer === null) {
+                continue;
+            }
+
             foreach ($promotions as $promotion) {
                 /** @var string $code */
                 $code = $item->getPayload()['code'] ?? '';
@@ -84,6 +97,13 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 if (strtolower($code) !== strtolower($promotion->getCode())) {
                     continue;
                 }
+
+                // a code already carrying an orderId is redeemed; re-writing the same
+                // order's line items (order edits, sync, recalculation) must not re-fire
+                // the redemption event (isRedeemed() is not a state signal — it always
+                // returns true — so the payload is the source of truth)
+                $payload = $promotion->getPayload();
+                $alreadyRedeemed = $payload !== null && \array_key_exists('orderId', $payload);
 
                 $promotion->setRedeemed(
                     $item->getOrderId(),
@@ -96,11 +116,31 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                     'id' => $promotion->getId(),
                     'payload' => $promotion->getPayload(),
                 ];
+
+                if ($alreadyRedeemed) {
+                    continue;
+                }
+
+                // one code can attach to several promotion line items (one per
+                // discount), so key by code id to emit exactly one redemption event —
+                // matching the upsert-by-id idempotency the $update path relies on
+                $redeemedEvents[$promotion->getId()] = new PromotionCodeRedeemedEvent(
+                    $context,
+                    $promotion->getPromotionId(),
+                    $promotion->getId(),
+                    $promotion->getCode(),
+                    $item->getOrderId(),
+                    $customer->getCustomerId()
+                );
             }
         }
 
         if ($update !== []) {
             $this->codesRepository->update($update, $context);
+        }
+
+        foreach ($redeemedEvents as $redeemedEvent) {
+            $this->eventDispatcher->dispatch($redeemedEvent);
         }
     }
 
@@ -134,18 +174,29 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
         return $orderLineItems;
     }
 
-    private function getOrderCustomer(OrderLineItemCollection $orderLineItems, EntityWrittenEvent $event): OrderCustomerEntity
+    /**
+     * @return array<string, OrderCustomerEntity> keyed by order id
+     */
+    private function getOrderCustomers(OrderLineItemCollection $orderLineItems, EntityWrittenEvent $event): array
     {
-        $lineItem = $orderLineItems->first();
-        \assert($lineItem !== null);
+        $orderIds = array_values(array_unique(array_filter(array_map(
+            static fn (OrderLineItemEntity $item): string => $item->getOrderId(),
+            $orderLineItems->getElements()
+        ))));
+
+        if ($orderIds === []) {
+            return [];
+        }
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('orderId', $lineItem->getOrderId()));
+            ->addFilter(new EqualsAnyFilter('orderId', $orderIds));
 
-        $orderCustomer = $this->orderCustomerRepository->search($criteria, $event->getContext())->getEntities()->first();
-        \assert($orderCustomer !== null);
+        $orderCustomers = [];
+        foreach ($this->orderCustomerRepository->search($criteria, $event->getContext())->getEntities() as $orderCustomer) {
+            $orderCustomers[$orderCustomer->getOrderId()] = $orderCustomer;
+        }
 
-        return $orderCustomer;
+        return $orderCustomers;
     }
 
     /**

@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Checkout\Payment\Event\OrderRefundRequestedEvent;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
 class PaymentRefundProcessor
@@ -26,13 +28,14 @@ class PaymentRefundProcessor
         private readonly OrderTransactionCaptureRefundStateHandler $stateHandler,
         private readonly PaymentHandlerRegistry $paymentHandlerRegistry,
         private readonly AbstractPaymentTransactionStructFactory $transactionStructFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     public function processRefund(string $refundId, Context $context): void
     {
         $result = $this->connection->createQueryBuilder()
-            ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id', 'transaction.id as transaction_id')
+            ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id', 'transaction.id as transaction_id', 'transaction.order_id')
             ->from('order_transaction_capture_refund', self::TABLE_ALIAS)
             ->innerJoin(self::TABLE_ALIAS, 'state_machine_state', 'state', 'refund.state_id = state.id')
             ->innerJoin(self::TABLE_ALIAS, 'order_transaction_capture', 'capture', 'capture.id = refund.capture_id')
@@ -57,6 +60,16 @@ class PaymentRefundProcessor
         if (!$refundHandler instanceof AbstractPaymentHandler || !$refundHandler->supports(PaymentHandlerType::REFUND, $paymentMethodId, $context)) {
             throw PaymentException::unknownRefundHandler($refundId);
         }
+
+        // dispatch at the request moment — after the refund is validated and handed to
+        // the handler, before it completes — so workflows can react before the refund
+        // settles; the eventual outcome is tracked by the refund state machine
+        $this->eventDispatcher->dispatch(new OrderRefundRequestedEvent(
+            $context,
+            $refundId,
+            $orderTransactionId,
+            Uuid::fromBytesToHex($result['order_id'])
+        ));
 
         try {
             $struct = $this->transactionStructFactory->refund($refundId, $orderTransactionId);

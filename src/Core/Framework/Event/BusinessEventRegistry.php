@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerCreatedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -13,9 +14,17 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerPasswordChangedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerUpdatedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductRemovedEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\Event\OrderCreatedEvent;
+use Shopware\Core\Checkout\Order\Event\OrderDeletedEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Event\OrderUpdatedEvent;
+use Shopware\Core\Checkout\Payment\Event\OrderRefundRequestedEvent;
+use Shopware\Core\Checkout\Promotion\Event\PromotionCodeRedeemedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -61,6 +70,15 @@ class BusinessEventRegistry
         ProductExportLoggingEvent::class,
         CustomerPasswordChangedEvent::class,
         RevocationRequestEvent::class,
+        OrderCreatedEvent::class,
+        OrderUpdatedEvent::class,
+        OrderDeletedEvent::class,
+        CustomerCreatedEvent::class,
+        CustomerUpdatedEvent::class,
+        CustomerWishlistProductAddedEvent::class,
+        CustomerWishlistProductRemovedEvent::class,
+        PromotionCodeRedeemedEvent::class,
+        OrderRefundRequestedEvent::class,
     ];
 
     /**

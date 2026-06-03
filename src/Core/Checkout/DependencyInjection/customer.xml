@@ -449,6 +449,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerBusinessEventSubscriber">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber">
             <argument type="service" id="sales_channel.repository"/>
 

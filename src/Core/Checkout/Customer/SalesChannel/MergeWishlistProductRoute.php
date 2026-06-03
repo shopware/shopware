@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -77,6 +78,20 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         ]], $context->getContext());
 
         $this->eventDispatcher->dispatch(new WishlistMergedEvent($upsertData, $context));
+
+        foreach ($upsertData as $upsertEntry) {
+            // entries carrying a productId are the items the merge actually inserted
+            if (!isset($upsertEntry['productId'])) {
+                continue;
+            }
+
+            $this->eventDispatcher->dispatch(new CustomerWishlistProductAddedEvent(
+                $context,
+                $wishlistId,
+                $upsertEntry['productId'],
+                $customer->getId()
+            ));
+        }
 
         return new SuccessResponse();
     }

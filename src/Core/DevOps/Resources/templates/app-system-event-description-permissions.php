@@ -253,4 +253,31 @@ EOD,
     'customer_address' => <<<'EOD'
 __EMPTY__
 EOD,
+    'checkout.customer.created' => <<<'EOD'
+Triggers when a customer account is created
+EOD,
+    'checkout.customer.updated' => <<<'EOD'
+Triggers when a customer account is updated
+EOD,
+    'checkout.order.created' => <<<'EOD'
+Triggers when an order is created
+EOD,
+    'checkout.order.deleted' => <<<'EOD'
+Triggers when an order is deleted
+EOD,
+    'checkout.order.refund.requested' => <<<'EOD'
+Triggers when a refund is requested for an order transaction
+EOD,
+    'checkout.order.updated' => <<<'EOD'
+Triggers when an order is updated
+EOD,
+    'customer.wishlist.product.added' => <<<'EOD'
+Triggers when a product is added to the customer wishlist
+EOD,
+    'customer.wishlist.product.removed' => <<<'EOD'
+Triggers when a product is removed from the customer wishlist
+EOD,
+    'promotion.code.redeemed' => <<<'EOD'
+Triggers when an individual promotion code is redeemed
+EOD,
 ];

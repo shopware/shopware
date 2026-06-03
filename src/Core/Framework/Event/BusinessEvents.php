@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerCreatedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
@@ -12,9 +13,17 @@ use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerUpdatedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductRemovedEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\Event\OrderCreatedEvent;
+use Shopware\Core\Checkout\Order\Event\OrderDeletedEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Event\OrderUpdatedEvent;
+use Shopware\Core\Checkout\Payment\Event\OrderRefundRequestedEvent;
+use Shopware\Core\Checkout\Promotion\Event\PromotionCodeRedeemedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -75,6 +84,24 @@ final class BusinessEvents
     public const NEWSLETTER_UNSUBSCRIBE = NewsletterUnsubscribeEvent::EVENT_NAME;
 
     public const PRODUCT_EXPORT_LOGGING = ProductExportLoggingEvent::NAME;
+
+    public const CHECKOUT_ORDER_CREATED = OrderCreatedEvent::EVENT_NAME;
+
+    public const CHECKOUT_ORDER_UPDATED = OrderUpdatedEvent::EVENT_NAME;
+
+    public const CHECKOUT_ORDER_DELETED = OrderDeletedEvent::EVENT_NAME;
+
+    public const CHECKOUT_CUSTOMER_CREATED = CustomerCreatedEvent::EVENT_NAME;
+
+    public const CHECKOUT_CUSTOMER_UPDATED = CustomerUpdatedEvent::EVENT_NAME;
+
+    public const CUSTOMER_WISHLIST_PRODUCT_ADDED = CustomerWishlistProductAddedEvent::EVENT_NAME;
+
+    public const CUSTOMER_WISHLIST_PRODUCT_REMOVED = CustomerWishlistProductRemovedEvent::EVENT_NAME;
+
+    public const PROMOTION_CODE_REDEEMED = PromotionCodeRedeemedEvent::EVENT_NAME;
+
+    public const CHECKOUT_ORDER_REFUND_REQUESTED = OrderRefundRequestedEvent::EVENT_NAME;
 
     private function __construct()
     {

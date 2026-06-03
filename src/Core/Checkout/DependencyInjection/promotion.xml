@@ -181,6 +181,7 @@
         <service id="Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer">
             <argument type="service" id="promotion_individual_code.repository"/>
             <argument type="service" id="order_customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

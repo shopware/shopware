@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductRemovedEvent;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -88,6 +89,15 @@ class RemoveWishlistProductRouteTest extends TestCase
         };
         $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
 
+        $businessEventWasThrown = false;
+        $customerId = $this->customerId;
+        $businessListener = static function (CustomerWishlistProductRemovedEvent $event) use ($productId, $customerId, &$businessEventWasThrown): void {
+            static::assertSame($productId, $event->getProductId());
+            static::assertSame($customerId, $event->getCustomerId());
+            $businessEventWasThrown = true;
+        };
+        $dispatcher->addListener(CustomerWishlistProductRemovedEvent::class, $businessListener);
+
         $this->browser
             ->request(
                 'DELETE',
@@ -99,8 +109,10 @@ class RemoveWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
         static::assertTrue($eventWasThrown);
+        static::assertTrue($businessEventWasThrown);
 
         $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
+        $dispatcher->removeListener(CustomerWishlistProductRemovedEvent::class, $businessListener);
     }
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void

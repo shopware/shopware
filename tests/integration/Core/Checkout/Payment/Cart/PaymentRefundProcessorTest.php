@@ -170,6 +170,7 @@ class PaymentRefundProcessorTest extends TestCase
             static::getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
             $handlerRegistryMock,
             static::getContainer()->get(PaymentTransactionStructFactory::class),
+            static::getContainer()->get('event_dispatcher'),
         );
 
         $refund = (new OrderTransactionCaptureRefundBuilder(

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -87,6 +88,16 @@ class MergeWishlistProductRouteTest extends TestCase
     {
         $productData = $this->createProduct($this->context);
 
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        /** @var list<string> $addedProductIds */
+        $addedProductIds = [];
+        $customerId = $this->customerId;
+        $listener = static function (CustomerWishlistProductAddedEvent $event) use (&$addedProductIds, $customerId): void {
+            static::assertSame($customerId, $event->getCustomerId());
+            $addedProductIds[] = $event->getProductId();
+        };
+        $dispatcher->addListener(CustomerWishlistProductAddedEvent::class, $listener);
+
         $this->browser
             ->request(
                 'POST',
@@ -103,6 +114,11 @@ class MergeWishlistProductRouteTest extends TestCase
 
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertSame($productData, $wishlistProduct->first()?->getProductId());
+
+        // the merge dispatches the business event only for genuinely-inserted products
+        static::assertSame([$productData], $addedProductIds);
+
+        $dispatcher->removeListener(CustomerWishlistProductAddedEvent::class, $listener);
     }
 
     public function testMergeTwoProductShouldReturnSuccessNoWishlistExisted(): void

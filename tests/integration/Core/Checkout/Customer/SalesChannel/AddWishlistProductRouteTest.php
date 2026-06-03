@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -81,6 +82,15 @@ class AddWishlistProductRouteTest extends TestCase
         };
         $dispatcher->addListener(WishlistProductAddedEvent::class, $listener);
 
+        $businessEventWasThrown = false;
+        $customerId = $this->customerId;
+        $businessListener = static function (CustomerWishlistProductAddedEvent $event) use ($productData, $customerId, &$businessEventWasThrown): void {
+            static::assertSame($productData[0], $event->getProductId());
+            static::assertSame($customerId, $event->getCustomerId());
+            $businessEventWasThrown = true;
+        };
+        $dispatcher->addListener(CustomerWishlistProductAddedEvent::class, $businessListener);
+
         $this->browser
             ->request(
                 'POST',
@@ -90,8 +100,10 @@ class AddWishlistProductRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
         static::assertTrue($eventWasThrown);
+        static::assertTrue($businessEventWasThrown);
 
         $dispatcher->removeListener(WishlistProductAddedEvent::class, $listener);
+        $dispatcher->removeListener(CustomerWishlistProductAddedEvent::class, $businessListener);
     }
 
     public function testAddProductShouldThrowCustomerWishlistNotActivatedException(): void

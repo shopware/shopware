@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductAddedEvent;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductAddedEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
@@ -78,6 +79,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         ], $context->getContext());
 
         $this->eventDispatcher->dispatch(new WishlistProductAddedEvent($wishlistId, $productId, $context));
+        $this->eventDispatcher->dispatch(new CustomerWishlistProductAddedEvent($context, $wishlistId, $productId, $customer->getId()));
 
         return new SuccessResponse();
     }

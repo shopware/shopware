@@ -3,6 +3,7 @@
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
+|`checkout.customer.created` | Triggers when a customer account is created | `customer:read` | {"entity":"customer","customerId":"string"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | - | {"customer":"object"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}
 |`checkout.customer.double_opt_in_registration` | Triggers when a customer commits to his registration via double opt in | `customer:read` | {"entity":"customer","confirmUrl":"string"}
@@ -10,13 +11,20 @@
 |`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"entity":"customer","contextToken":"string"}
 |`checkout.customer.logout` | Triggers when a customer logs out | `customer:read` | {"entity":"customer"}
 |`checkout.customer.register` | Triggers when a new customer was registered | `customer:read` | {"entity":"customer"}
+|`checkout.customer.updated` | Triggers when a customer account is updated | `customer:read` | {"entity":"customer","customerId":"string","changedFields":"array"}
+|`checkout.order.created` | Triggers when an order is created | `order:read` | {"entity":"order","orderId":"string"}
+|`checkout.order.deleted` | Triggers when an order is deleted | - | {"orderId":"string","orderNumber":"string","deletedAt":"string"}
 |`checkout.order.payment_method.changed` | __EMPTY__ | `order:read` `order_transaction:read` | {"entity":"order_transaction"}
 |`checkout.order.placed` | Triggers when an order is placed | `order:read` | {"entity":"order"}
+|`checkout.order.refund.requested` | Triggers when a refund is requested for an order transaction | - | {"refundId":"string","orderTransactionId":"string","orderId":"string"}
+|`checkout.order.updated` | Triggers when an order is updated | `order:read` | {"entity":"order","orderId":"string","changedFields":"array"}
 |`contact_form.send` | Triggers when a contact form is send | - | {"contactFormData":"object"}
 |`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
 |`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
+|`customer.wishlist.product.added` | Triggers when a product is added to the customer wishlist | - | {"wishlistId":"string","productId":"string","customerId":"string"}
+|`customer.wishlist.product.removed` | Triggers when a product is removed from the customer wishlist | - | {"wishlistId":"string","productId":"string","customerId":"string"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
@@ -24,6 +32,7 @@
 |`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient","url":"string"}
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
+|`promotion.code.redeemed` | Triggers when an individual promotion code is redeemed | - | {"promotionId":"string","codeId":"string","code":"string","orderId":"string","customerId":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
 |`revocation_request.sent` | __EMPTY__ | - | {"revocationRequestFormData":"object"}
 |`state_enter.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}

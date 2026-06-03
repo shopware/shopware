@@ -57,7 +57,7 @@ test ('As a customer, I can reset my password using the password recovery proces
     Login,
     DefaultSalesChannel,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'Skipping test because it requires a local mailpit instance.');
+    test.skip(InstanceMeta.isSaaS || InstanceMeta.isPaaS, 'Skipping test because it requires a local mailpit instance.');
 
     let passwordResetLink = '';
     const newPassword = 'new-password';

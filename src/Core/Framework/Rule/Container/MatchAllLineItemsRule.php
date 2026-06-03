@@ -40,21 +40,18 @@ class MatchAllLineItemsRule extends Container
         $lineItems = $scope instanceof LineItemScope ? new LineItemCollection([$scope->getLineItem()]) : $scope->getCart()->getLineItems();
         $originalCount = $lineItems->filter(static fn (LineItem $lineItem): bool => $lineItem->getType() !== LineItem::PROMOTION_LINE_ITEM_TYPE)->count();
 
+        if ($originalCount === 0) {
+            return $this->minimumShouldMatch === null;
+        }
+
         if ($this->type !== null) {
             $lineItems = $lineItems->filterFlatByType($this->type);
         }
 
         $filteredCount = \is_array($lineItems) ? \count($lineItems) : $lineItems->count();
+
         if ($filteredCount === 0) {
-            if ($this->type !== null && $originalCount > 0) {
-                return false;
-            }
-
-            return $this->minimumShouldMatch === null;
-        }
-
-        if (!\is_array($lineItems) && $lineItems->count() === 0) {
-            return $this->minimumShouldMatch === null;
+            return false;
         }
 
         $context = $scope->getSalesChannelContext();

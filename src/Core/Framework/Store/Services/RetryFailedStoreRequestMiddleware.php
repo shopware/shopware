@@ -9,11 +9,11 @@ use Psr\Http\Message\ResponseInterface;
 /**
  * @internal
  */
-class RetryFailedStoreRequestMiddleware
+class RetryFailedStoreRequestMiddleware implements MiddlewareInterface
 {
     private const NUMBER_OF_RETRIES_ON_503 = 3;
 
-    public function __invoke(): callable
+    public function __invoke(callable $handler): callable
     {
         $decider = function (int $retries, RequestInterface $request, ?ResponseInterface $response = null): bool {
             return $retries < self::NUMBER_OF_RETRIES_ON_503 && $response !== null && 503 === $response->getStatusCode();
@@ -23,8 +23,6 @@ class RetryFailedStoreRequestMiddleware
             return 2 ** ($retries - 1) * 5000;
         };
 
-        return static function (callable $handler) use ($decider, $delay): RetryMiddleware {
-            return new RetryMiddleware($decider, $handler, $delay);
-        };
+        return new RetryMiddleware($decider, $handler, $delay);
     }
 }

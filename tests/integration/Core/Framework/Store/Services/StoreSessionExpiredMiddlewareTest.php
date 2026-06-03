@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -70,7 +72,8 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/');
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        ($middleware($handler))($request, [])->wait();
 
         $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
         static::assertNotNull($adminUser);
@@ -100,7 +103,8 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/', [StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => 'some-invalid-token']);
 
         $this->expectException(StoreSessionExpiredException::class);
-        $middleware($response, $request);
+        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        ($middleware($handler))($request, [])->wait();
 
         $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();
         $expiredSessionUser = $adminUsers->get($expiredSessionUserId);

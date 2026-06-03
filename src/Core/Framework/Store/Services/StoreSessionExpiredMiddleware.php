@@ -32,28 +32,32 @@ class StoreSessionExpiredMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
+    public function __invoke(callable $handler): callable
     {
-        if ($response->getStatusCode() !== 401) {
-            return $response;
-        }
+        return function (RequestInterface $request, array $options) use ($handler) {
+            return $handler($request, $options)->then(function (ResponseInterface $response) use ($request) {
+                if ($response->getStatusCode() !== 401) {
+                    return $response;
+                }
 
-        $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $code = $body['code'] ?? null;
+                $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                $code = $body['code'] ?? null;
 
-        if ($code !== self::STORE_TOKEN_EXPIRED) {
-            $response->getBody()->rewind();
+                if ($code !== self::STORE_TOKEN_EXPIRED) {
+                    $response->getBody()->rewind();
 
-            return $response;
-        }
+                    return $response;
+                }
 
-        if ($token = $request->getHeaderLine(StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER)) {
-            $this->logoutUserByToken($token);
-        } else {
-            $this->logoutUserByContext();
-        }
+                if ($token = $request->getHeaderLine(StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER)) {
+                    $this->logoutUserByToken($token);
+                } else {
+                    $this->logoutUserByContext();
+                }
 
-        throw new StoreSessionExpiredException();
+                throw new StoreSessionExpiredException();
+            });
+        };
     }
 
     private function logoutUserByToken(string $token): void

@@ -27,25 +27,29 @@ class ShopSecretInvalidMiddleware implements MiddlewareInterface
     ) {
     }
 
-    public function __invoke(ResponseInterface $response, RequestInterface $request): ResponseInterface
+    public function __invoke(callable $handler): callable
     {
-        if ($response->getStatusCode() !== 401) {
-            return $response;
-        }
+        return function (RequestInterface $request, array $options) use ($handler) {
+            return $handler($request, $options)->then(function (ResponseInterface $response) {
+                if ($response->getStatusCode() !== 401) {
+                    return $response;
+                }
 
-        $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $code = $body['code'] ?? null;
+                $body = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+                $code = $body['code'] ?? null;
 
-        if ($code !== self::INVALID_SHOP_SECRET) {
-            $response->getBody()->rewind();
+                if ($code !== self::INVALID_SHOP_SECRET) {
+                    $response->getBody()->rewind();
 
-            return $response;
-        }
+                    return $response;
+                }
 
-        $this->connection->executeStatement('UPDATE user SET store_token = NULL');
+                $this->connection->executeStatement('UPDATE user SET store_token = NULL');
 
-        $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
+                $this->systemConfigService->delete(StoreRequestOptionsProvider::CONFIG_KEY_STORE_SHOP_SECRET, null, true);
 
-        throw StoreException::shopSecretInvalid();
+                throw StoreException::shopSecretInvalid();
+            });
+        };
     }
 }

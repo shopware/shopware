@@ -71,7 +71,7 @@ class RetryFailedStoreRequestMiddlewareTest extends TestCase
 
         $handler = HandlerStack::create($mockHandler);
         if ($withMiddleware) {
-            $handler->push((new RetryFailedStoreRequestMiddleware())());
+            $handler->push(new RetryFailedStoreRequestMiddleware());
         }
 
         $config = [

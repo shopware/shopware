@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -60,7 +59,7 @@ class StoreClientFactoryTest extends TestCase
     {
         $handler = HandlerStack::create();
         foreach ($middlewares as $middleware) {
-            $handler->push(Middleware::mapResponse($middleware));
+            $handler->push($middleware);
         }
 
         return [

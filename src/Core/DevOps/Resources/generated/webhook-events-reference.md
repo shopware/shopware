@@ -2,6 +2,8 @@
 
 | Event | Description | Permissions needed | Payload
 | :--- | :--- | :--- | :--- |
+|`after_sales.document.deleted` | Triggers when a document is deleted | - | {"documentId":"string","orderId":"string","documentNumber":"string","deletedAt":"string"}
+|`after_sales.document.generated` | Triggers when a document for an order is generated | - | {"documentId":"string","orderId":"string","documentTypeId":"string","documentNumber":"string"}
 |`checkout.customer.before.login` | Triggers as soon as a customer logs in | - | {"email":"string"}
 |`checkout.customer.deleted` | Triggers if a customer gets deleted | - | {"customer":"object"}
 |`checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | `customer:read` | {"entity":"customer","confirmUrl":"string"}

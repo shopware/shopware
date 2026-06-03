@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
+use Shopware\Core\Checkout\Document\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -107,7 +109,8 @@ class DocumentGeneratorTest extends TestCase
             $mediaService,
             $documentRepository,
             $this->createMock(Connection::class),
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         try {
@@ -163,7 +166,8 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         $renderedDocument = $generator->readDocument($document->getId(), $context, '', null);
@@ -221,7 +225,8 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
@@ -265,7 +270,8 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $connection,
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, ['custom' => ['invoiceNumber' => 'INV-100']]);
@@ -311,7 +317,8 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(MediaService::class),
             $documentRepository,
             $this->createMock(Connection::class),
-            new NativeClock()
+            new NativeClock(),
+            new EventDispatcher()
         );
 
         $this->expectExceptionObject(DocumentException::generationError('Some Error Message.'));
@@ -358,24 +365,49 @@ class DocumentGeneratorTest extends TestCase
         $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
         $fileRendererRegistry->method('render')->willReturn('content');
 
+        $dispatcher = new EventDispatcher();
+        /** @var list<DocumentGeneratedEvent> $generatedEvents */
+        $generatedEvents = [];
+        $dispatcher->addListener(DocumentGeneratedEvent::class, static function (DocumentGeneratedEvent $event) use (&$generatedEvents): void {
+            $generatedEvents[] = $event;
+        });
+
         $generator = new DocumentGenerator(
             $registry,
             $fileRendererRegistry,
             $mediaService,
             $documentRepository,
             $connection,
-            new NativeClock()
+            new NativeClock(),
+            $dispatcher
         );
 
         try {
             $document = $generator->generate('invoice', $operations, $context);
         } catch (\Exception $e) {
             $expectsClosure($e);
+            // generation failed before persistence — no business event
+            static::assertSame([], $generatedEvents);
 
             return;
         }
 
         $expectsClosure($document);
+
+        // one DocumentGeneratedEvent per successfully generated document, dispatched
+        // from the domain action with the rendered number as a typed value
+        $successIds = [];
+        foreach ($document->getSuccess() as $struct) {
+            $successIds[] = $struct->getId();
+        }
+        $eventIds = array_map(static fn (DocumentGeneratedEvent $event): string => $event->getDocumentId(), $generatedEvents);
+        sort($successIds);
+        sort($eventIds);
+        static::assertSame($successIds, $eventIds);
+
+        foreach ($generatedEvents as $event) {
+            static::assertSame($resultRenderer->getNumber(), $event->getDocumentNumber());
+        }
     }
 
     /**

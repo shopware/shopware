@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Document\Event\DocumentDeletedEvent;
+use Shopware\Core\Checkout\Document\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
@@ -75,6 +77,10 @@ final class BusinessEvents
     public const NEWSLETTER_UNSUBSCRIBE = NewsletterUnsubscribeEvent::EVENT_NAME;
 
     public const PRODUCT_EXPORT_LOGGING = ProductExportLoggingEvent::NAME;
+
+    public const AFTER_SALES_DOCUMENT_GENERATED = DocumentGeneratedEvent::EVENT_NAME;
+
+    public const AFTER_SALES_DOCUMENT_DELETED = DocumentDeletedEvent::EVENT_NAME;
 
     private function __construct()
     {

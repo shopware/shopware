@@ -132,6 +132,7 @@
             <argument type="service" id="document.repository" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentMerger">
@@ -243,6 +244,13 @@
         <service id="Shopware\Core\Checkout\Document\Subscriber\DocumentDeleteSubscriber">
             <argument type="service" id="document.repository"/>
             <argument type="service" id="media.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Document\Subscriber\DocumentBusinessEventSubscriber">
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

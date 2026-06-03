@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
+use Shopware\Core\Checkout\Document\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
@@ -48,6 +50,7 @@ class DocumentGenerator
         private readonly EntityRepository $documentRepository,
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -134,6 +137,9 @@ class DocumentGenerator
 
         $records = [];
 
+        /** @var list<DocumentGeneratedEvent> $generatedEvents */
+        $generatedEvents = [];
+
         $success = $rendered->getSuccess();
 
         foreach ($operations as $orderId => $operation) {
@@ -166,6 +172,16 @@ class DocumentGenerator
                     'documentA11yMediaFileId' => $mediaIdForHtmlA11y,
                 ];
 
+                // collect the business event at the domain moment; the rendered
+                // document carries the number as a typed value here
+                $generatedEvents[] = new DocumentGeneratedEvent(
+                    $context,
+                    $id,
+                    $operation->getOrderId(),
+                    $documentTypeId,
+                    $document->getNumber()
+                );
+
                 $result->addSuccess(new DocumentIdStruct($id, $deepLinkCode, $mediaId, $mediaIdForHtmlA11y));
             } catch (\Throwable $exception) {
                 $result->addError($orderId, $exception);
@@ -173,6 +189,15 @@ class DocumentGenerator
         }
 
         $this->writeRecords($records, $context);
+
+        // dispatch only after the documents are persisted
+        // @todo The DocumentV2 generation path (Checkout\DocumentV2\Generation) writes
+        //       documents through its own persister and does not yet dispatch this
+        //       event; it must emit DocumentGeneratedEvent too once it becomes an
+        //       active generation path, so coverage stays complete across both pipelines.
+        foreach ($generatedEvents as $generatedEvent) {
+            $this->eventDispatcher->dispatch($generatedEvent);
+        }
 
         return $result;
     }

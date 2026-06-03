@@ -253,4 +253,10 @@ EOD,
     'customer_address' => <<<'EOD'
 __EMPTY__
 EOD,
+    'after_sales.document.generated' => <<<'EOD'
+Triggers when a document for an order is generated
+EOD,
+    'after_sales.document.deleted' => <<<'EOD'
+Triggers when a document is deleted
+EOD,
 ];

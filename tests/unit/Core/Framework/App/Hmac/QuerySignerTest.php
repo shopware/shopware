@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -52,7 +53,7 @@ class QuerySignerTest extends TestCase
         $app->setId(Uuid::randomHex());
         $app->setVersion('1.0.0');
 
-        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase);
+        $querySigner = new QuerySigner('http://shop.url', '1.0.0', $localeProvider, $shopIdProvider, $inAppPurchase, new NativeClock());
         $signedQuery = $querySigner->signUri('http://app.url/?foo=bar', $app, $context);
 
         \parse_str($signedQuery->getQuery(), $url);
@@ -107,6 +108,7 @@ class QuerySignerTest extends TestCase
             $localeProvider,
             $shopIdProvider,
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $signedQuery = $querySigner->signUri(
@@ -133,6 +135,7 @@ class QuerySignerTest extends TestCase
             $this->createMock(LocaleProvider::class),
             $this->createMock(ShopIdProvider::class),
             StaticInAppPurchaseFactory::createWithFeatures(),
+            new NativeClock()
         );
 
         $this->expectExceptionObject(AppException::appSecretMissing('Foo'));

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -21,6 +23,7 @@ class ToolResultCacheStorage
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -36,7 +39,7 @@ class ToolResultCacheStorage
             'session_id' => $sessionId,
             'mime_type' => $mimeType,
             'content' => $content,
-            'created_at' => (new \DateTime())->format('Y-m-d H:i:s.v'),
+            'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         return Uuid::fromBytesToHex($id);

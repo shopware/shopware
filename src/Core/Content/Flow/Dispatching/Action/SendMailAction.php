@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -159,12 +160,14 @@ class SendMailAction extends FlowAction implements DelayableAction
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 
-        if ($data->has('templateId')) {
-            $this->updateMailTemplateType(
-                $flow->getContext(),
-                $flow->data(),
-                $mailTemplate
-            );
+        if (!Feature::isActive('v6.8.0.0')) {
+            if ($data->has('templateId')) {
+                $this->updateMailTemplateType(
+                    $flow->getContext(),
+                    $flow->data(),
+                    $mailTemplate
+                );
+            }
         }
 
         $templateData = [
@@ -209,6 +212,10 @@ class SendMailAction extends FlowAction implements DelayableAction
         array $templateData,
         MailTemplateEntity $mailTemplate
     ): void {
+        if (Feature::isActive('v6.8.0.0')) {
+            return;
+        }
+
         if (!$mailTemplate->getMailTemplateTypeId()) {
             return;
         }

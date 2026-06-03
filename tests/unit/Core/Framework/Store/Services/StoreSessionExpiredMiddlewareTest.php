@@ -126,13 +126,6 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $this->invoke($middleware, $response, $request);
     }
 
-    private function invoke(StoreSessionExpiredMiddleware $middleware, Response $response, Psr7Request $request): mixed
-    {
-        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
-
-        return ($middleware($handler))($request, [])->wait();
-    }
-
     public static function provideRequestStacks(): \Generator
     {
         yield 'request stack without request' => [new RequestStack()];
@@ -151,5 +144,12 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $requestStackWithMissingUserId->push(new Request([], [], ['sw-context' => new Context(new AdminApiSource(null))]));
 
         yield 'request stack with missing user id' => [$requestStackWithMissingUserId];
+    }
+
+    private function invoke(StoreSessionExpiredMiddleware $middleware, Response $response, Psr7Request $request): mixed
+    {
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
+
+        return ($middleware($handler))($request, [])->wait();
     }
 }

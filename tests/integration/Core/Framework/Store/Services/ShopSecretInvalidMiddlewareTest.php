@@ -42,7 +42,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $middleware = new ShopSecretInvalidMiddleware($this->connection, $this->systemConfigService);
 
         $this->expectExceptionObject(StoreException::shopSecretInvalid());
-        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         ($middleware($handler))($request, [])->wait();
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {

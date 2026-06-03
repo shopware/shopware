@@ -16,7 +16,7 @@ class RetryFailedStoreRequestMiddleware implements MiddlewareInterface
     public function __invoke(callable $handler): callable
     {
         $decider = function (int $retries, RequestInterface $request, ?ResponseInterface $response = null): bool {
-            return $retries < self::NUMBER_OF_RETRIES_ON_503 && $response !== null && 503 === $response->getStatusCode();
+            return $retries < self::NUMBER_OF_RETRIES_ON_503 && $response !== null && $response->getStatusCode() === 503;
         };
 
         $delay = function (int $retries, ?ResponseInterface $response = null, ?RequestInterface $request = null): int {

@@ -80,7 +80,7 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
 
     private function invoke(ShopSecretInvalidMiddleware $middleware, Response $response, Request $request): mixed
     {
-        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
 
         return ($middleware($handler))($request, [])->wait();
     }

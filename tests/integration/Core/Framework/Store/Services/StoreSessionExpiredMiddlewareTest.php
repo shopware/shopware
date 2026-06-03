@@ -72,7 +72,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/');
 
         $this->expectException(StoreSessionExpiredException::class);
-        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         ($middleware($handler))($request, [])->wait();
 
         $adminUser = $this->userRepository->search(new Criteria([$adminUser->getId()]), Context::createDefaultContext())->getEntities()->first();
@@ -103,7 +103,7 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $request = new Psr7Request('GET', '/', [StoreRequestOptionsProvider::SHOPWARE_PLATFORM_TOKEN_HEADER => 'some-invalid-token']);
 
         $this->expectException(StoreSessionExpiredException::class);
-        $handler = fn(RequestInterface $req, array $options) => new FulfilledPromise($response);
+        $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
         ($middleware($handler))($request, [])->wait();
 
         $adminUsers = $this->userRepository->search(new Criteria([$expiredSessionUserId, $loginSessionUserId]), Context::createDefaultContext())->getEntities();

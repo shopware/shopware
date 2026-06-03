@@ -716,6 +716,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
         }
 
+        foreach ($definition->getFields()->getExistenceAwareFields() as $existenceAwareField) {
+            $query->addSelect($existenceAwareField->getStorageName());
+        }
+
         $exists = $query->executeQuery()->fetchAssociative();
         if (!$exists) {
             $exists = [];

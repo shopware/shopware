@@ -16,6 +16,9 @@ let $routerMock = {
 
 async function createWrapper({
     propsData = {},
+    signIframeSrc = (url) => Promise.resolve({
+        uri: `https://${url}.com/?shop-id=__SHOP_ID&shop-signature=__SIGNED__`,
+    }),
 } = {}) {
     return shallowMount(await Shopware.Component.build('sw-iframe-renderer'), {
         stubs: {
@@ -25,11 +28,7 @@ async function createWrapper({
         },
         provide: {
             extensionSdkService: {
-                signIframeSrc(url) {
-                    return Promise.resolve({
-                        uri: `https://${url}.com/?shop-id=__SHOP_ID&shop-signature=__SIGNED__`,
-                    });
-                },
+                signIframeSrc,
             },
         },
         propsData: {
@@ -270,6 +269,49 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         await flushPromises();
 
         expect($routerMock.replace).not.toHaveBeenCalled();
+    });
+
+    it('should re-sign the iFrame when the locationId changes for the same app baseUrl', async () => {
+        // Two app modules (e.g. an app's "Overview" and "Settings" menu items) share the same
+        // baseUrl and only differ by their location-id. Switching between them must re-sign the
+        // iFrame src for the new location-id, otherwise the iFrame keeps showing the old location.
+        Shopware.State.commit('extensions/addExtension', {
+            name: 'my-great-extension',
+            baseUrl: 'https://example.com',
+            permissions: [],
+            version: '1.0.0',
+            type: 'app',
+            active: true,
+        });
+
+        const signIframeSrc = jest.fn((name) => Promise.resolve({
+            uri: `https://${name}.com/?shop-id=__SHOP_ID&shop-signature=__SIGNED__`,
+        }));
+
+        const wrapper = await createWrapper({
+            propsData: {
+                locationId: 'my-great-extension-overview',
+            },
+            signIframeSrc,
+        });
+        await flushPromises();
+
+        // initial sign uses the overview location-id
+        expect(signIframeSrc).toHaveBeenCalledWith(
+            'my-great-extension',
+            expect.stringContaining('location-id=my-great-extension-overview'),
+        );
+
+        signIframeSrc.mockClear();
+
+        // navigate to the settings module of the same app (same baseUrl, different location-id)
+        await wrapper.setProps({ locationId: 'my-great-extension-settings' });
+        await flushPromises();
+
+        expect(signIframeSrc).toHaveBeenCalledWith(
+            'my-great-extension',
+            expect.stringContaining('location-id=my-great-extension-settings'),
+        );
     });
 
     it('should add full screen class to iframe', async () => {

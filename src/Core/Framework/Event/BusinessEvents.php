@@ -22,6 +22,14 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
+use Shopware\Core\Content\Product\Events\ProductBackInStockEvent;
+use Shopware\Core\Content\Product\Events\ProductCreatedEvent;
+use Shopware\Core\Content\Product\Events\ProductDeletedEvent;
+use Shopware\Core\Content\Product\Events\ProductOutOfStockEvent;
+use Shopware\Core\Content\Product\Events\ProductPublishedEvent;
+use Shopware\Core\Content\Product\Events\ProductStockChangedEvent;
+use Shopware\Core\Content\Product\Events\ProductUnpublishedEvent;
+use Shopware\Core\Content\Product\Events\ProductUpdatedEvent;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -75,6 +83,22 @@ final class BusinessEvents
     public const NEWSLETTER_UNSUBSCRIBE = NewsletterUnsubscribeEvent::EVENT_NAME;
 
     public const PRODUCT_EXPORT_LOGGING = ProductExportLoggingEvent::NAME;
+
+    public const PRODUCT_STOCK_CHANGED = ProductStockChangedEvent::EVENT_NAME;
+
+    public const PRODUCT_OUT_OF_STOCK = ProductOutOfStockEvent::EVENT_NAME;
+
+    public const PRODUCT_BACK_IN_STOCK = ProductBackInStockEvent::EVENT_NAME;
+
+    public const PRODUCT_PUBLISHED = ProductPublishedEvent::EVENT_NAME;
+
+    public const PRODUCT_UNPUBLISHED = ProductUnpublishedEvent::EVENT_NAME;
+
+    public const INVENTORY_PRODUCT_CREATED = ProductCreatedEvent::EVENT_NAME;
+
+    public const INVENTORY_PRODUCT_UPDATED = ProductUpdatedEvent::EVENT_NAME;
+
+    public const INVENTORY_PRODUCT_DELETED = ProductDeletedEvent::EVENT_NAME;
 
     private function __construct()
     {

@@ -253,4 +253,28 @@ EOD,
     'customer_address' => <<<'EOD'
 __EMPTY__
 EOD,
+    'inventory.product.created' => <<<'EOD'
+Triggers when a product is created
+EOD,
+    'inventory.product.deleted' => <<<'EOD'
+Triggers when a product is deleted
+EOD,
+    'inventory.product.updated' => <<<'EOD'
+Triggers when a product is updated
+EOD,
+    'product.back_in_stock' => <<<'EOD'
+Triggers when a product is back in stock
+EOD,
+    'product.out_of_stock' => <<<'EOD'
+Triggers when a product is out of stock
+EOD,
+    'product.published' => <<<'EOD'
+Triggers when a product is published
+EOD,
+    'product.stock.changed' => <<<'EOD'
+Triggers when the stock of a product changes
+EOD,
+    'product.unpublished' => <<<'EOD'
+Triggers when a product is unpublished
+EOD,
 ];

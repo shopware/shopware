@@ -187,6 +187,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductBusinessEventSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
@@ -494,6 +501,7 @@
         <service id="Shopware\Core\Content\Product\Stock\StockStorage">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="product.repository"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader">

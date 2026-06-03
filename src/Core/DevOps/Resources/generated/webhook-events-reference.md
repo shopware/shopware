@@ -17,12 +17,20 @@
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.password.changed` | __EMPTY__ | `customer:read` | {"entity":"customer","shopName":"string"}
 |`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
+|`inventory.product.created` | Triggers when a product is created | `product:read` | {"entity":"product","productId":"string"}
+|`inventory.product.deleted` | Triggers when a product is deleted | - | {"productId":"string","productNumber":"string","deletedAt":"string"}
+|`inventory.product.updated` | Triggers when a product is updated | `product:read` | {"entity":"product","productId":"string","changedFields":"array"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}
 |`newsletter.confirm` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
 |`newsletter.register` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient","url":"string"}
 |`newsletter.unsubscribe` | __EMPTY__ | `newsletter_recipient:read` | {"entity":"newsletter_recipient"}
+|`product.back_in_stock` | Triggers when a product is back in stock | `product:read` | {"entity":"product","productId":"string","available":"bool"}
+|`product.out_of_stock` | Triggers when a product is out of stock | `product:read` | {"entity":"product","productId":"string","available":"bool"}
+|`product.published` | Triggers when a product is published | `product:read` | {"entity":"product","productId":"string","active":"bool"}
+|`product.stock.changed` | Triggers when the stock of a product changes | `product:read` | {"entity":"product","productId":"string","stockChange":"object"}
+|`product.unpublished` | Triggers when a product is unpublished | `product:read` | {"entity":"product","productId":"string","active":"bool"}
 |`product_export.log` | __EMPTY__ | - | {"name":"string"}
 |`review_form.send` | Triggers when a product review form is send | `product:read` | {"reviewFormData":"object","entity":"product"}
 |`revocation_request.sent` | __EMPTY__ | - | {"revocationRequestFormData":"object"}

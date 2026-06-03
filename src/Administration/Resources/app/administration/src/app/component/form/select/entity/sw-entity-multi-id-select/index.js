@@ -6,6 +6,7 @@ import template from './sw-entity-multi-id-select.html.twig';
 
 const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
+const { get } = Shopware.Utils;
 
 /**
  * @private
@@ -142,7 +143,7 @@ export default {
             this.$emit('update:value', collection.getIds());
         },
 
-        displayLabelProperty(item, labelProperty, getKey) {
+        displayLabelProperty(item, labelProperty, getKey = get) {
             const labelProperties = Array.isArray(labelProperty) ? labelProperty : [labelProperty];
 
             return labelProperties

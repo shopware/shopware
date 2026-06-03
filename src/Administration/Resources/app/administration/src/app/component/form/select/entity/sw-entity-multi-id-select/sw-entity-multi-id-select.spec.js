@@ -211,7 +211,6 @@ describe('components/sw-entity-multi-id-select', () => {
                         name="selection-label-property"
                         :item="item"
                         label-property="name"
-                        :get-key="getKey"
                     ></slot>
                     <slot
                         name="result-label-property"

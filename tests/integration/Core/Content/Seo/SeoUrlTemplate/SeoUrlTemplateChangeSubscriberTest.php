@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -37,6 +38,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 class SeoUrlTemplateChangeSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use QueueTestBehaviour;
 
     private Connection $connection;
 
@@ -78,6 +80,10 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
+        // The sales channel navigation entry point is detected and the baseline
+        // SEO URLs are generated asynchronously, so drain the queue first.
+        $this->runWorker();
+
         $urls = $this->getSeoUrls($ids->getList(['a', 'b']), $ids->get('sales-channel'));
         static::assertNotEmpty($urls, 'baseline SEO URLs must exist before the template change');
         $beforePaths = array_keys($urls);
@@ -95,6 +101,10 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
                 'template' => $customTemplate,
             ],
         ], $context);
+
+        // The subscriber dispatches the regeneration to the message bus; process
+        // it so the new URLs are persisted before asserting.
+        $this->runWorker();
 
         // Assert: new SEO URLs exist reflecting the new template, without the
         // SEO indexer being triggered manually.
@@ -124,6 +134,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
+        $this->runWorker();
+
         $urls = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
         static::assertNotEmpty($urls, 'baseline SEO URLs must exist before updating the template');
 
@@ -136,6 +148,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
                 'template' => 'v2/{{ category.name }}',
             ],
         ], $context);
+
+        $this->runWorker();
 
         $urls = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
         $regenerated = array_values(array_filter(
@@ -160,6 +174,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
 
         $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
 
+        $this->runWorker();
+
         $urlsBefore = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
         static::assertNotEmpty($urlsBefore, 'baseline SEO URLs must exist');
 
@@ -174,6 +190,10 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
                 'customFields' => ['unrelated' => 'value'],
             ],
         ], $context);
+
+        // No template field changed, so the subscriber must not dispatch a
+        // regeneration message; draining the queue must leave the URLs untouched.
+        $this->runWorker();
 
         $urlsAfter = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
         static::assertSame($urlsBefore, $urlsAfter);

@@ -337,10 +337,19 @@ SQL;
                 $id,
             ]));
 
+            $completion = $this->buildCompletion([
+                \is_string($row['order_number'] ?? null) ? $row['order_number'] : null,
+                \is_string($row['email'] ?? null) ? $row['email'] : null,
+                \is_string($row['first_name'] ?? null) ? $row['first_name'] : null,
+                \is_string($row['last_name'] ?? null) ? $row['last_name'] : null,
+                \is_string($row['company'] ?? null) ? $row['company'] : null,
+            ]);
+
             if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
                 $mapped[$id] = [
                     'id' => $id,
                     'text' => \strtolower($text),
+                    'completion' => $completion,
                 ];
 
                 continue;
@@ -349,6 +358,7 @@ SQL;
             $mapped[$id] = [
                 'id' => $id,
                 'text' => \strtolower($text),
+                'completion' => $completion,
                 'orderNumber' => $row['order_number'] ?? null,
                 'amountTotal' => isset($row['amount_total']) ? (float) $row['amount_total'] : null,
                 'orderDate' => $this->formatDateTime($row, 'order_date_time'),

@@ -8,10 +8,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\ClockAwareTrait;
 
 #[Package('framework')]
 abstract class ScheduledTaskHandler
 {
+    use ClockAwareTrait;
+
     /**
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
@@ -91,7 +94,7 @@ abstract class ScheduledTaskHandler
 
     protected function rescheduleTask(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $newNextExecutionTime = (new \DateTimeImmutable($nextExecutionTimeString))->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval()));

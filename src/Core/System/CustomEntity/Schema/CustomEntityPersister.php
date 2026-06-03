@@ -4,6 +4,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\CachedEntitySchemaGenerator;
 use Shopware\Core\Framework\App\AppEntity;
@@ -21,7 +22,8 @@ class CustomEntityPersister
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly AdapterInterface $cache
+        private readonly AdapterInterface $cache,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -75,8 +77,8 @@ class CustomEntityPersister
             $id = isset($existings[$name]) ? $existings[$name]['id'] : Uuid::randomHex();
             $customEntity['id'] = Uuid::fromHexToBytes($id);
 
-            $customEntity['created_at'] = isset($existings[$name]) ? $existings[$name]['created_at'] : (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $customEntity['updated_at'] = isset($existings[$name]) ? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
+            $customEntity['created_at'] = isset($existings[$name]) ? $existings[$name]['created_at'] : $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $customEntity['updated_at'] = isset($existings[$name]) ? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null;
 
             $inserts->addInsert('custom_entity', $customEntity);
         }

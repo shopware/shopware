@@ -81,8 +81,7 @@ class OpenNewTabResponseFactoryTest extends TestCase
     #[DataProvider('provideInvalidPayloads')]
     public function testThrowsExceptionWhenValidationFails(array $payload, string $message): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage($message);
+        $this->expectExceptionObject(AppException::actionButtonProcessException($this->action->getActionId(), $message));
 
         $this->factory->create(
             $this->action,

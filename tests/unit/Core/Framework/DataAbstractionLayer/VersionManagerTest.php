@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
@@ -550,6 +551,7 @@ class VersionManagerTest extends TestCase
             'versionCommitDataDefinition' => $this->createMock(VersionCommitDataDefinition::class),
             'versionDefinition' => $this->createMock(VersionDefinition::class),
             'lockFactory' => $this->createMock(LockFactory::class),
+            'clock' => new NativeClock(),
         ];
 
         $params = array_merge($defaults, $overrides);
@@ -565,7 +567,8 @@ class VersionManagerTest extends TestCase
             $params['versionCommitDefinition'],
             $params['versionCommitDataDefinition'],
             $params['versionDefinition'],
-            $params['lockFactory']
+            $params['lockFactory'],
+            $params['clock']
         );
     }
 }

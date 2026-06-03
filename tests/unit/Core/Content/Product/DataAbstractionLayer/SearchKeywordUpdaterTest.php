@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -36,6 +37,7 @@ class SearchKeywordUpdaterTest extends TestCase
             $languageRepository,
             $productRepository,
             $analyzer,
+            new MockClock(),
             false
         );
 
@@ -105,6 +107,7 @@ class SearchKeywordUpdaterTest extends TestCase
             $this->createMock(EntityRepository::class),
             $productRepository,
             $this->createMock(ProductSearchKeywordAnalyzerInterface::class),
+            new MockClock()
         );
     }
 

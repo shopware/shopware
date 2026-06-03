@@ -119,6 +119,10 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 | `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
 | `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
 
+### `sw-data-grid` column labels fall back to the default locale
+
+Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework
@@ -388,9 +392,6 @@ ESLint now warns for Administration test files with 500 lines or more and errors
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
-### `sw-data-grid` column labels fall back to the default locale
-
-Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
 ### App action button icons are aligned in Administration context menus
 
 App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.

@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -18,7 +19,7 @@ class ShopConfigurationServiceTest extends TestCase
 
     public function testUpdateShop(): void
     {
-        $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'));
+        $service = new ShopConfigurationService($this->getContainer()->get('event_dispatcher'), new NativeClock());
 
         $connection = static::getContainer()->get(Connection::class);
 

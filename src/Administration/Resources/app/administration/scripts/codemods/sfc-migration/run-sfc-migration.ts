@@ -159,24 +159,20 @@ export function parseCliOptions(argv: string[]): CliOptions {
 }
 
 function selectTwigFile(dir: string, componentName: string): { path: string | null; candidates: string[] } {
-    try {
-        const candidates = readdirSync(dir)
-            .filter((entry) => entry.endsWith('.html.twig'))
-            .sort();
-        const exactMatch = `${componentName}.html.twig`;
+    const candidates = readdirSync(dir)
+        .filter((entry) => entry.endsWith('.html.twig'))
+        .sort();
+    const exactMatch = `${componentName}.html.twig`;
 
-        if (candidates.includes(exactMatch)) {
-            return { path: join(dir, exactMatch), candidates };
-        }
-
-        if (candidates.length === 1) {
-            return { path: join(dir, candidates[0]), candidates };
-        }
-
-        return { path: null, candidates };
-    } catch {
-        return { path: null, candidates: [] };
+    if (candidates.includes(exactMatch)) {
+        return { path: join(dir, exactMatch), candidates };
     }
+
+    if (candidates.length === 1) {
+        return { path: join(dir, candidates[0]), candidates };
+    }
+
+    return { path: null, candidates };
 }
 
 export function findTwigFile(dir: string, componentName: string): string | null {

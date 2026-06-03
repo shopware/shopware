@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import fs, { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path, { join } from 'node:path';
 import { findTwigFile, getCliUsage, normaliseJsContent, parseCliOptions, runMigration } from './run-sfc-migration';
@@ -407,6 +407,45 @@ describe('runMigration — skip (no twig file)', () => {
     });
 });
 
+describe('runMigration — filesystem errors', () => {
+    let tmpDir: string;
+    let componentDir: string;
+
+    beforeEach(() => {
+        tmpDir = createTempDir();
+        componentDir = makeComponent(tmpDir, 'sw-unreadable-twig-dir', readFixture('simple-component.index.js'));
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+        rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('reports readdir errors as errors instead of no-twig skips', () => {
+        const originalReaddirSync = fs.readdirSync.bind(fs) as (...args: unknown[]) => unknown;
+
+        jest.spyOn(fs, 'readdirSync').mockImplementation(((...args: unknown[]) => {
+            const [dir] = args;
+            const isComponentDir = typeof dir === 'string' && dir === componentDir;
+            const isSelectTwigFileCall = new Error().stack?.includes('selectTwigFile') ?? false;
+
+            if (isComponentDir && isSelectTwigFileCall) {
+                throw new Error('EACCES: permission denied, scandir');
+            }
+
+            return originalReaddirSync(...args);
+        }) as typeof fs.readdirSync);
+
+        const { stats, report } = runMigration(tmpDir, { dryRun: true });
+
+        expect(stats.errors).toBe(1);
+        expect(stats.skipped).toBe(0);
+        expect(report[0]).toContain('ERROR');
+        expect(report[0]).toContain('index.js');
+        expect(report[0]).toContain('EACCES: permission denied, scandir');
+    });
+});
+
 describe('runMigration — skip (ambiguous twig files)', () => {
     let tmpDir: string;
     let componentDir: string;
@@ -790,7 +829,7 @@ describe('runMigration — delete-originals (fully-migrated)', () => {
         const { stats, report } = runMigration(tmpDir, { dryRun: false, deleteOriginals: true });
 
         expect(existsSync(join(mismatchedDir, 'index.js'))).toBe(true);
-        expect(readFileSync(join(mismatchedDir, 'index.js'), 'utf-8')).toContain("sw-registered-card");
+        expect(readFileSync(join(mismatchedDir, 'index.js'), 'utf-8')).toContain('sw-registered-card');
         expect(existsSync(join(mismatchedDir, 'sw-directory-card.html.twig'))).toBe(true);
         expect(stats.deletedOriginals).toBe(1);
         expect(report.join('\n')).toContain('component name');

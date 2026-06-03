@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 $php = ['8.2'];
 $db = ['mysql:8.0'];
@@ -10,36 +10,18 @@ if ($nightly) {
     $db = ['mysql:8.0', 'mariadb:11', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];
 }
 
+// Reproducer branch: run only the flaky {Administration,Elasticsearch} path with a pinned random seed
+// (see integration.yml) so the ElasticsearchProductTest term-search failures reproduce deterministically.
 $matrix = [
     'fail-fast' => false,
     'matrix' => [
         'test' => [
-            ['path' => 'Core/Checkout'],
-            ['path' => 'Core/Content'],
-            ['testsuite' => 'core-framework-batch1'],
-            ['testsuite' => 'core-framework-batch2'],
-            ['testsuite' => 'core-framework-batch3'],
-            ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
-            ['testsuite' => 'migration'],
         ],
         'php' => $php,
         'db' => $db,
         'opensearch' => ['opensearchproject/opensearch:3'],
-        'include' => [
-            [
-                'test' => ['testsuite' => 'migration'],
-                'php' => '8.2',
-                'db' => 'mariadb:11'
-            ],
-            [
-                'test' => ['testsuite' => 'devops'],
-                'php' => '8.5',
-                'db' => 'mariadb:11'
-            ]
-        ]
-    ]
+    ],
 ];
 
 if ($nightly) {

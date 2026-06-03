@@ -184,11 +184,11 @@ jobs:
 
       - name: Run PHPUnit testsuite
         if: ${{ matrix.test.testsuite != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "${{ matrix.test.testsuite }}"
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --order-by random --random-order-seed 1780463427 --testsuite "${{ matrix.test.testsuite }}"
 
       - name: Run PHPUnit path
         if: ${{ matrix.test.path != '' }}
-        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml -- tests/integration/${{ matrix.test.path }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --order-by random --random-order-seed 1780463427 -- tests/integration/${{ matrix.test.path }}
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}

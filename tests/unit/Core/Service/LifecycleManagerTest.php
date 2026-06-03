@@ -13,7 +13,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
+use Shopware\Core\Service\Requirement\ServiceRequirement;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
@@ -42,7 +44,7 @@ class LifecycleManagerTest extends TestCase
 
     private Client&MockObject $client;
 
-    private RequirementsValidator&MockObject $requirementsValidator;
+    private ServiceRequirement&MockObject $serviceConsentRequirement;
 
     private Context $context;
 
@@ -54,7 +56,8 @@ class LifecycleManagerTest extends TestCase
         $this->serviceInstaller = $this->createMock(AllServiceInstaller::class);
         $this->permissionsService = $this->createMock(PermissionsService::class);
         $this->client = $this->createMock(Client::class);
-        $this->requirementsValidator = $this->createMock(RequirementsValidator::class);
+        $this->serviceConsentRequirement = $this->createMock(ServiceRequirement::class);
+        $this->serviceConsentRequirement->method('getGate')->willReturn(Gate::PRIVILEGES);
         $this->context = Context::createDefaultContext();
     }
 
@@ -102,30 +105,9 @@ class LifecycleManagerTest extends TestCase
 
     public function testDisable(): void
     {
-        $services = new AppCollection([
-            $this->createServiceEntity('service1', 'SwagService1', ['services_enabled', 'service_consent']),
-            $this->createServiceEntity('service2', 'SwagService2', ['shopware_account']),
-            $this->createServiceEntity('service3', 'SwagService3', ['services_enabled', 'service_consent']),
-        ]);
-
-        /** @var array<string, true> $deletedServices */
-        $deletedServices = [
-            'SwagService1' => true,
-            'SwagService3' => true,
-        ];
-
-        $this->requirementsValidator->expects($this->exactly(3))
-            ->method('isSatisfied')
-            ->willReturnCallback(static fn (array $requirements): bool => $requirements === ['shopware_account']);
-
-        $this->serviceLifecycle->expects($this->exactly(2))
-            ->method('uninstall')
-            ->willReturnCallback(function (string $serviceName, Context $context) use (&$deletedServices): void {
-                static::assertArrayHasKey($serviceName, $deletedServices);
-                static::assertSame($this->context, $context);
-
-                unset($deletedServices[$serviceName]);
-            });
+        $this->serviceLifecycle->expects($this->once())
+            ->method('reevaluateInstalled')
+            ->with($this->context);
 
         $this->permissionsService->expects($this->once())
             ->method('revoke')
@@ -135,34 +117,7 @@ class LifecycleManagerTest extends TestCase
             ->method('set')
             ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED, true);
 
-        $manager = $this->createManager($this->createAppRepository($services));
-
-        $manager->disable($this->context);
-
-        static::assertSame([], $deletedServices);
-    }
-
-    public function testDisableWithNoServices(): void
-    {
-        $services = new AppCollection([]);
-
-        $this->serviceLifecycle->expects($this->never())
-            ->method('uninstall');
-
-        $this->requirementsValidator->expects($this->never())
-            ->method('isSatisfied');
-
-        $this->permissionsService->expects($this->once())
-            ->method('revoke')
-            ->with($this->context);
-
-        $this->systemConfigService->expects($this->once())
-            ->method('set')
-            ->with(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED, true);
-
-        $manager = $this->createManager($this->createAppRepository($services));
-
-        $manager->disable($this->context);
+        $this->createManager($this->createAppRepository())->disable($this->context);
     }
 
     public function testSyncStateServiceNotFound(): void
@@ -183,9 +138,8 @@ class LifecycleManagerTest extends TestCase
 
         $services = new AppCollection([$service]);
 
-        $this->requirementsValidator->expects($this->once())
+        $this->serviceConsentRequirement->expects($this->once())
             ->method('isSatisfied')
-            ->with(['service_consent'])
             ->willReturn(true);
 
         $this->privileges->expects($this->once())
@@ -209,9 +163,8 @@ class LifecycleManagerTest extends TestCase
 
         $services = new AppCollection([$service]);
 
-        $this->requirementsValidator->expects($this->once())
+        $this->serviceConsentRequirement->expects($this->once())
             ->method('isSatisfied')
-            ->with(['service_consent'])
             ->willReturn(false);
 
         $this->privileges->expects($this->never())
@@ -226,15 +179,14 @@ class LifecycleManagerTest extends TestCase
         $manager->syncState($serviceName, $this->context);
     }
 
-    public function testSyncRequirementReEvaluatesAffectedServices(): void
+    public function testReevaluateRequirementProcessesServicesThatDeclareIt(): void
     {
         $app1 = $this->createServiceEntity('id-1', 'Service1', ['service_consent']);
         $app2 = $this->createServiceEntity('id-2', 'Service2', ['service_consent']);
         $services = new AppCollection([$app1, $app2]);
 
-        $this->requirementsValidator->expects($this->exactly(2))
+        $this->serviceConsentRequirement->expects($this->exactly(2))
             ->method('isSatisfied')
-            ->with(['service_consent'])
             ->willReturnOnConsecutiveCalls(true, false);
 
         $this->privileges->expects($this->once())
@@ -247,16 +199,16 @@ class LifecycleManagerTest extends TestCase
 
         $manager = $this->createManager($this->createAppRepository($services));
 
-        $manager->syncRequirement('service_consent', $this->context);
+        $manager->reevaluateRequirement('service_consent', $this->context);
     }
 
-    public function testSyncRequirementDoesNothingWhenNoServicesAffected(): void
+    public function testReevaluateRequirementIgnoresServicesThatDoNotDeclareIt(): void
     {
         $services = new AppCollection([
             $this->createServiceEntity('id-1', 'Service1', ['service_consent']),
         ]);
 
-        $this->requirementsValidator->expects($this->never())
+        $this->serviceConsentRequirement->expects($this->never())
             ->method('isSatisfied');
 
         $this->privileges->expects($this->never())
@@ -267,7 +219,7 @@ class LifecycleManagerTest extends TestCase
 
         $manager = $this->createManager($this->createAppRepository($services));
 
-        $manager->syncRequirement('shopware_account', $this->context);
+        $manager->reevaluateRequirement('shopware_account', $this->context);
     }
 
     public function testSync(): void
@@ -376,6 +328,8 @@ class LifecycleManagerTest extends TestCase
         StaticEntityRepository $repository,
         string $enabled = 'true',
     ): LifecycleManager {
+        $requirements = new RequirementsValidator(['service_consent' => $this->serviceConsentRequirement]);
+
         return new LifecycleManager(
             $enabled,
             'prod',
@@ -386,7 +340,7 @@ class LifecycleManagerTest extends TestCase
             $this->serviceInstaller,
             $this->permissionsService,
             $this->client,
-            $this->requirementsValidator,
+            $requirements,
         );
     }
 

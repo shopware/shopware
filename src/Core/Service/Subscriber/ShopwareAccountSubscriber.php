@@ -30,7 +30,7 @@ readonly class ShopwareAccountSubscriber implements EventSubscriberInterface
 
     public function syncAccountRequirement(ShopwareAccountLoginEvent|ShopwareAccountLogoutEvent $event): void
     {
-        $this->lifecycleManager->syncRequirement(
+        $this->lifecycleManager->reevaluateRequirement(
             ShopwareAccountRequirement::NAME,
             $event->getContext()
         );

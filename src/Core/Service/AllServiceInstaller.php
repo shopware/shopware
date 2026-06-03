@@ -20,16 +20,18 @@ class AllServiceInstaller
 {
     public function __construct(
         private readonly Client $serviceRegistryClient,
-        private readonly ServiceLifecycle $serviceLifecycle,
         private readonly ServiceStorage $serviceStorage,
+        private readonly ServiceLifecycle $serviceLifecycle,
         private readonly MessageBusInterface $messageBus,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ServiceSkipList $skipList,
     ) {
     }
 
     /**
-     * This is a low-level class that is responsible for installing all services.
-     * It should only be called from a higher-level with 'state' awareness class, Specifically: Shopware\Core\Service\LifecycleManager
+     * Discovers services in the registry that are not yet installed and hands each one to
+     * ServiceLifecycle, which resolves the strategy and performs the resulting operation.
+     * It should only be called from a higher-level, 'state'-aware class: Shopware\Core\Service\LifecycleManager.
      *
      * @return array<string> The newly installed services
      */
@@ -38,12 +40,14 @@ class AllServiceInstaller
         $existingServices = $this->serviceStorage->findAll($context);
 
         $installedServices = [];
-        $newServices = $this->getNewServices($existingServices);
-        foreach ($newServices as $service) {
-            $result = $this->serviceLifecycle->install($service, $context);
+        foreach ($this->getNewServices($existingServices) as $entry) {
+            // already classified as not-installable; don't hit the registry for it again
+            if ($this->skipList->shouldSkip($entry->name)) {
+                continue;
+            }
 
-            if ($result) {
-                $installedServices[] = $service->name;
+            if ($this->serviceLifecycle->install($entry, $context)) {
+                $installedServices[] = $entry->name;
             }
         }
 
@@ -56,6 +60,9 @@ class AllServiceInstaller
 
     public function scheduleInstall(): void
     {
+        // forget what we skipped so the scheduled discovery re-evaluates every service from scratch
+        $this->skipList->clear();
+
         $this->messageBus->dispatch(new InstallServicesMessage());
     }
 

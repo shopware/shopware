@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Service\Requirement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\LifecycleManager;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\ServicesEnabledRequirement;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
@@ -17,6 +18,11 @@ class ServicesEnabledRequirementTest extends TestCase
     public function testGetName(): void
     {
         static::assertSame('services_enabled', ServicesEnabledRequirement::getName());
+    }
+
+    public function testGatesInstallation(): void
+    {
+        static::assertSame(Gate::INSTALLATION, (new ServicesEnabledRequirement(new StaticSystemConfigService()))->getGate());
     }
 
     public function testIsSatisfiedWhenSystemConfigDoesNotDisableServices(): void

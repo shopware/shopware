@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Requirement\Gate;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -73,20 +74,11 @@ class LifecycleManager
         $this->syncPrivileges($service, $context);
     }
 
-    public function syncPrivileges(Service $service, Context $context): void
-    {
-        if ($this->requirementsValidator->isSatisfied($service->requirements)) {
-            $this->privileges->acceptAllForApps([$service->id], $context);
-        } else {
-            $this->privileges->revokeAllForApps([$service->id], $context);
-        }
-    }
-
     /**
      * Re-evaluate all services that list the given requirement.
      * Called when a requirement's state changes.
      */
-    public function syncRequirement(string $requirementName, Context $context): void
+    public function reevaluateRequirement(string $requirementName, Context $context): void
     {
         foreach ($this->serviceStorage->findAll($context) as $service) {
             if (\in_array($requirementName, $service->requirements, true)) {
@@ -106,26 +98,29 @@ class LifecycleManager
     }
 
     /**
-     * This method marks services as disabled and uninstalls services whose requirements are no longer satisfied.
+     * Disables services as a unit: persists the disabled flag, syncs the installed services, and revokes
+     * their permissions.
      */
     public function disable(Context $context): void
     {
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
 
-        foreach ($this->serviceStorage->findAll($context) as $service) {
-            if ($this->requirementsValidator->isSatisfied($service->requirements)) {
-                continue;
-            }
-
-            $this->serviceLifecycle->uninstall($service->name, $context);
-        }
-
+        $this->serviceLifecycle->reevaluateInstalled($context);
         $this->permissionsService->revoke($context);
     }
 
     public function enabled(): bool
     {
         return !$this->areDisabledFromEnv();
+    }
+
+    private function syncPrivileges(Service $service, Context $context): void
+    {
+        if ($this->requirementsValidator->isSatisfied($service->requirements, Gate::PRIVILEGES)) {
+            $this->privileges->acceptAllForApps([$service->id], $context);
+        } else {
+            $this->privileges->revokeAllForApps([$service->id], $context);
+        }
     }
 
     /**

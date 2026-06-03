@@ -7,6 +7,8 @@ use Shopware\Core\Service\Permission\PermissionsService;
 
 /**
  * @internal
+ *
+ * This requirement gates the privilege granting step. When the general service consent is not accepted, privileges are not granted.
  */
 #[Package('framework')]
 class ServiceConsentRequirement implements ServiceRequirement
@@ -21,6 +23,11 @@ class ServiceConsentRequirement implements ServiceRequirement
     public static function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getGate(): Gate
+    {
+        return Gate::PRIVILEGES;
     }
 
     public function isSatisfied(): bool

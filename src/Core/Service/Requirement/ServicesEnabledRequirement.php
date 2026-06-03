@@ -8,6 +8,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
+ *
+ * This requirement gates the installation step. When services are disabled, the installation is skipped.
  */
 #[Package('framework')]
 class ServicesEnabledRequirement implements ServiceRequirement
@@ -22,6 +24,11 @@ class ServicesEnabledRequirement implements ServiceRequirement
     public static function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getGate(): Gate
+    {
+        return Gate::INSTALLATION;
     }
 
     public function isSatisfied(): bool

@@ -176,26 +176,26 @@ class SeoUrlPersister
      */
     private function skipUpdate(array $existing, array $seoUrl, bool $overwrite = false): bool
     {
-        // When the caller (e.g. admin/API action) explicitly requests an overwrite,
-        // skip the "write protection" guard that normally preserves manually modified
-        // (isModified=1) SEO URLs against automatic template regeneration. The path
-        // equality guard below is still honoured to avoid creating superfluous
-        // duplicate rows when nothing actually changes.
-        //
-        // Edge case: clearing the write-protection flag with the *same* path
-        // (existing.isModified=true, payload.isModified=false, identical
-        // seoPathInfo) still short-circuits via the equality guard, so the
-        // `is_modified` flag will not actually be reset until the path also
-        // changes. Admin flows handle this naturally (clearing the SEO URL
-        // field resubmits the template-generated path, which differs from the
-        // manual value); a bare "drop protection" without a path change needs
-        // to be done via DAL write.
+        // Write-protection guard: automatic template regeneration (overwrite=false)
+        // must never replace a manually modified (isModified=1) SEO URL that still
+        // has a non-empty path.
         if (!$overwrite && $existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
             return true;
         }
 
-        return $seoUrl['seoPathInfo'] === $existing['seoPathInfo']
-            && $seoUrl['salesChannelId'] === $existing['salesChannelId'];
+        // A different path or sales channel is always a real change, so never skip.
+        if ($seoUrl['seoPathInfo'] !== $existing['seoPathInfo']
+            || $seoUrl['salesChannelId'] !== $existing['salesChannelId']) {
+            return false;
+        }
+
+        // Path and sales channel are identical. Normally we skip to avoid creating a
+        // duplicate row. For an explicit overwrite, however, we must still proceed when
+        // only the isModified flag differs, so that an admin "reset to template" can drop
+        // the write-protection flag even when the manual value already equals the template
+        // output (shopware/shopware#4413). When the flag matches too, nothing changed -> skip.
+        return !$overwrite
+            || ($seoUrl['isModified'] ?? false) === $existing['isModified'];
     }
 
     /**

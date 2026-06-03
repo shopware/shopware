@@ -369,6 +369,53 @@ class SeoActionControllerTest extends TestCase
         );
     }
 
+    /**
+     * Regression for shopware/shopware#4413 (same-path reset): a write-protected canonical whose
+     * path already equals the template output must still be resettable. Clearing the flag without
+     * changing the path must actually drop isModified, not silently keep the URL write-protected.
+     */
+    public function testResetWriteProtectedCanonicalWithUnchangedPath(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $id = $this->createTestProduct($salesChannelId);
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        $templatePath = $seoUrls[0]['attributes']['seoPathInfo'];
+
+        // Write-protect the URL while keeping the template path (mimics a migrated/manual URL
+        // whose value happens to equal the current template output).
+        $protectPayload = $seoUrls[0]['attributes'];
+        $protectPayload['seoPathInfo'] = $templatePath;
+        $protectPayload['isModified'] = true;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $protectPayload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertTrue($seoUrls[0]['attributes']['isModified']);
+        static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
+
+        // Reset: clear the write-protection flag without changing the path.
+        $resetPayload = $seoUrls[0]['attributes'];
+        $resetPayload['seoPathInfo'] = $templatePath;
+        $resetPayload['isModified'] = false;
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $resetPayload);
+        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
+        static::assertCount(1, $seoUrls);
+        static::assertFalse(
+            $seoUrls[0]['attributes']['isModified'],
+            'Write-protection flag must be cleared even when the path did not change'
+        );
+        static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
+    }
+
     public function testUpdateCanonicalWithCustomSalesChannel(): void
     {
         $salesChannelId = Uuid::randomHex();

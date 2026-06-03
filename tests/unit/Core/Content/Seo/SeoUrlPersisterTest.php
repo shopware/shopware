@@ -178,6 +178,90 @@ class SeoUrlPersisterTest extends TestCase
         static::assertTrue($this->invokeSkipUpdate($existing, $payload, true));
     }
 
+    /**
+     * Regression for shopware/shopware#4413 (same-path reset): when a write-protected URL
+     * already equals the template output, an explicit overwrite that only flips isModified
+     * to false must NOT be skipped, so the write-protection flag is actually dropped.
+     */
+    public function testSkipUpdateClearsProtectionOnIdenticalPathWithOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'red-shoe',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'red-shoe',
+            'isModified' => false,
+        ];
+
+        static::assertFalse($this->invokeSkipUpdate($existing, $payload, true));
+    }
+
+    /**
+     * Without overwrite the same-path automatic regeneration must keep skipping, regardless of
+     * the requested isModified state, so it never creates duplicate rows.
+     */
+    public function testSkipUpdateKeepsSkippingIdenticalPathWithoutOverwrite(): void
+    {
+        $existing = [
+            'id' => 'id-1',
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'isModified' => true,
+            'seoPathInfo' => 'red-shoe',
+        ];
+        $payload = [
+            'foreignKey' => 'fk-1',
+            'salesChannelId' => 'sc-1',
+            'seoPathInfo' => 'red-shoe',
+            'isModified' => false,
+        ];
+
+        static::assertTrue($this->invokeSkipUpdate($existing, $payload, false));
+    }
+
+    public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
+    {
+        $seoUrls = [
+            [
+                'languageId' => Uuid::randomHex(),
+                'foreignKey' => Uuid::randomHex(),
+                'salesChannelId' => Uuid::randomHex(),
+                'routeName' => 'test-route',
+                'pathInfo' => 'path1',
+                'seoPathInfo' => 'path1',
+            ],
+        ];
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllAssociative')
+            ->willReturn([]);
+
+        $this->connection->expects($this->never())
+            ->method('fetchOne');
+
+        $this->connection->expects($this->never())
+            ->method('executeStatement');
+
+        $seoChannel = new SalesChannelEntity();
+        $seoChannel->setId(Uuid::randomHex());
+
+        $this->seoUrlPersister->forceUpdateSeoUrls(
+            Context::createDefaultContext(),
+            'test-route',
+            [
+                'foreignKey' => Uuid::randomHex(),
+            ],
+            $seoUrls,
+            $seoChannel
+        );
+    }
+
     public function testUpdateSeoUrlsWithInuseSeoPaths(): void
     {
         $seoUrls = [

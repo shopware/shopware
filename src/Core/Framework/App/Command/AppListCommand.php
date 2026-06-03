@@ -125,13 +125,6 @@ class AppListCommand extends Command
 
     private function resolveFormat(InputInterface $input, ShopwareStyle $io): ?string
     {
-        $format = $input->getOption('format');
-        if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
-            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', self::ALLOWED_FORMATS)));
-
-            return null;
-        }
-
         if ($input->getOption('json')) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
@@ -139,6 +132,13 @@ class AppListCommand extends Command
             );
 
             return self::FORMAT_JSON;
+        }
+
+        $format = $input->getOption('format');
+        if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
+            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', self::ALLOWED_FORMATS)));
+
+            return null;
         }
 
         return $format;

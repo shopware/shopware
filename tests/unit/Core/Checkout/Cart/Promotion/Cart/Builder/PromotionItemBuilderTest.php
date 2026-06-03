@@ -434,15 +434,13 @@ class PromotionItemBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string}>
+     * @return iterable<string, array{0: string}>
      */
-    public static function getDefaultCurrencyDataProvider(): array
+    public static function getDefaultCurrencyDataProvider(): iterable
     {
-        return [
-            'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE],
-            'fixed' => [PromotionDiscountEntity::TYPE_FIXED],
-            'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT],
-        ];
+        yield 'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE];
+        yield 'fixed' => [PromotionDiscountEntity::TYPE_FIXED];
+        yield 'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT];
     }
 
     /**

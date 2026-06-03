@@ -205,11 +205,11 @@ export default {
         },
 
         loadProductAssociations() {
-            this.products = this.item.productMedia;
+            this.products = [...this.item.productMedia];
         },
 
         loadCategoryAssociations() {
-            this.categories = this.item.categories;
+            this.categories = [...this.item.categories];
         },
 
         loadManufacturerAssociations() {

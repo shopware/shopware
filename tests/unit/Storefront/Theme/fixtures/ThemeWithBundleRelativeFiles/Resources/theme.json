@@ -1,0 +1,12 @@
+{
+  "name": "Theme with bundle relative files",
+  "author": "Shopware AG",
+  "style": [
+    "@MockStorefront/app/storefront/src/scss/overrides.scss",
+    "@MockStorefront",
+    "app/storefront/src/scss/custom.scss"
+  ],
+  "script": [
+    "@MockStorefront"
+  ]
+}

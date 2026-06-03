@@ -21,6 +21,7 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
 use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -39,7 +40,7 @@ class JWTFactoryV2Test extends TestCase
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new NoopConstraint());
         $this->connection = $this->createMock(Connection::class);
-        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection);
+        $this->tokenFactory = new JWTFactoryV2($configuration, $this->connection, new NativeClock());
     }
 
     #[DataProvider('dataProviderExpiration')]
@@ -73,8 +74,7 @@ class JWTFactoryV2Test extends TestCase
     {
         $token = Uuid::randomHex();
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($token));
 
         static::assertNotEmpty($token);
 
@@ -88,8 +88,7 @@ class JWTFactoryV2Test extends TestCase
         $token = $this->tokenFactory->generateToken($tokenStruct);
         $invalidToken = substr($token, 0, -5);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $invalidToken . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($invalidToken));
 
         static::assertNotEmpty($invalidToken);
 
@@ -108,14 +107,13 @@ class JWTFactoryV2Test extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new TestSigner(), new TestKey());
         $configuration = $configuration->withValidationConstraints(new StrictValidAt(new MockClock(new \DateTimeImmutable('now - 1 day'))));
-        $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class));
+        $tokenFactory = new JWTFactoryV2($configuration, $this->createMock(Connection::class), new NativeClock());
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The provided token ' . $token . ' is invalid and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::invalidToken($token));
 
         static::assertNotEmpty($token);
 
@@ -130,14 +128,13 @@ class JWTFactoryV2Test extends TestCase
             ->method('fetchOne')
             ->willReturn(false);
 
-        $tokenFactory = new JWTFactoryV2($configuration, $this->connection);
+        $tokenFactory = new JWTFactoryV2($configuration, $this->connection, new NativeClock());
 
         $transaction = self::createTransaction();
         $tokenStruct = new TokenStruct(null, null, $transaction->getPaymentMethodId(), $transaction->getId(), null, -50);
         $token = $tokenFactory->generateToken($tokenStruct);
 
-        static::expectException(PaymentException::class);
-        static::expectExceptionMessage('The provided token ' . $token . ' is invalidated and the payment could not be processed.');
+        $this->expectExceptionObject(PaymentException::tokenInvalidated($token));
 
         static::assertNotEmpty($token);
 

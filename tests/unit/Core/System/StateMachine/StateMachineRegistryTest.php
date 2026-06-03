@@ -124,8 +124,7 @@ class StateMachineRegistryTest extends TestCase
         $fixture->entityRepository->expects($this->never())
             ->method('upsert');
 
-        $this->expectException(IllegalTransitionException::class);
-        $this->expectExceptionMessage('Possible transitions are: paid');
+        $this->expectExceptionObject(new IllegalTransitionException($fromPlace->getId(), '', ['paid']));
 
         $fixture->registry->transition($transition, $context);
     }

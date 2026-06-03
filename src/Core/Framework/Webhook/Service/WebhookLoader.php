@@ -8,11 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
+ * @codeCoverageIgnore
+ *
+ * @see WebhookLoaderTest
  */
 #[Package('framework')]
 class WebhookLoader

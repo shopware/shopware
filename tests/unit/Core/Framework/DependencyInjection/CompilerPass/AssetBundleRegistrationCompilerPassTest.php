@@ -46,8 +46,7 @@ class AssetBundleRegistrationCompilerPassTest extends TestCase
 
         $assetService->getPackage('@Framework');
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('There is no "@FrameworkBundle" asset package.');
+        $this->expectExceptionObject(new InvalidArgumentException('There is no "@FrameworkBundle" asset package.'));
         $assetService->getPackage('@FrameworkBundle');
     }
 }

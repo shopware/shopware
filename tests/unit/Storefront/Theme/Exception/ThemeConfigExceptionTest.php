@@ -70,8 +70,7 @@ class ThemeConfigExceptionTest extends TestCase
         $innerException = new \RuntimeException('Test error');
         $exception->add($innerException);
 
-        $this->expectException(ThemeConfigException::class);
-        $this->expectExceptionMessage('There are 1 error(s) while validating the theme config.');
+        $this->expectExceptionObject($exception);
 
         $exception->tryToThrow();
     }

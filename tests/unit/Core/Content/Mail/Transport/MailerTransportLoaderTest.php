@@ -161,8 +161,7 @@ class MailerTransportLoaderTest extends TestCase
             $this->createMock(EntityRepository::class)
         );
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Given sendmail option "bla" is invalid');
+        $this->expectExceptionObject(MailException::givenSendMailOptionIsInvalid('bla', ['-bs', '-i', '-t']));
 
         $loader->fromString('null://null');
     }
@@ -196,8 +195,7 @@ class MailerTransportLoaderTest extends TestCase
             $this->createMock(EntityRepository::class)
         );
 
-        static::expectException(MailException::class);
-        static::expectExceptionMessage('Invalid mail agent given "test"');
+        $this->expectExceptionObject(MailException::givenMailAgentIsInvalid('test'));
 
         $loader->fromString('null://null');
     }

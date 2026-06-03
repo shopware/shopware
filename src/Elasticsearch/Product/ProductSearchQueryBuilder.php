@@ -64,7 +64,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 (bool) $item['use_exact_subfield'],
             );
         }, $searchConfig);
-
         if (!$configs[0]->isAndLogic()) {
             $tokens = [$originalTerm];
         }

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -27,7 +29,8 @@ class ScheduledTaskRunner extends Command
      */
     public function __construct(
         private readonly TaskScheduler $scheduler,
-        private readonly CacheItemPoolInterface $restartSignalCachePool
+        private readonly CacheItemPoolInterface $restartSignalCachePool,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -50,7 +53,7 @@ class ScheduledTaskRunner extends Command
             return Command::SUCCESS;
         }
 
-        $startTime = microtime(true);
+        $startTime = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
         $endTime = null;
         $timeLimit = (int) $input->getOption('time-limit');
         if ($timeLimit) {
@@ -67,7 +70,7 @@ class ScheduledTaskRunner extends Command
 
             $idleTime = $this->scheduler->getMinRunInterval() ?? 30;
             if ($endTime) {
-                $remainingSeconds = $endTime - microtime(true);
+                $remainingSeconds = $endTime - (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
                 if ($remainingSeconds < $idleTime) {
                     $idleTime = $remainingSeconds;
                 }
@@ -82,7 +85,7 @@ class ScheduledTaskRunner extends Command
                 $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }
 
-            if ($endTime && $endTime < microtime(true)) {
+            if ($endTime && $endTime < (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT)) {
                 $this->shouldStop = true;
                 $output->writeln(\sprintf('Scheduled task runner stopped due to time limit of %ds reached', $timeLimit));
             }

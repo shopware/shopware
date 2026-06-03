@@ -1,5 +1,6 @@
 import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
+import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
 
 const { Component, Filter, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -14,6 +15,7 @@ export default {
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME),
     ],
 
     computed: {

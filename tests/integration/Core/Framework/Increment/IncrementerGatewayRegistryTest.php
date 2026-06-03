@@ -37,8 +37,7 @@ class IncrementerGatewayRegistryTest extends TestCase
 
     public function testGetWithInvalidPool(): void
     {
-        static::expectException(IncrementGatewayNotFoundException::class);
-        static::expectExceptionMessage('Increment gateway for pool "custom_pool" was not found.');
+        $this->expectExceptionObject(new IncrementGatewayNotFoundException('custom_pool'));
 
         $registry = static::getContainer()->get('shopware.increment.gateway.registry');
         static::assertNull($registry->get('custom_pool'));

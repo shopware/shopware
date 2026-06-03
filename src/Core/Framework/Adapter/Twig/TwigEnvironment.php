@@ -8,6 +8,7 @@ use Twig\Environment;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
 use Twig\Runtime\EscaperRuntime;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
 /**
  * @internal
@@ -24,11 +25,14 @@ class TwigEnvironment extends Environment
         $options['use_yield'] = true;
 
         parent::__construct($loader, $options);
+
+        $this->addRuntimeLoader(new FactoryRuntimeLoader([
+            EscaperRuntime::class => fn () => new CachedEscaperRuntime($this->getCharset()),
+        ]));
     }
 
     /**
      * Overrides Twig {@see CoreExtension} with SW custom wrapper {@see SwTwigFunction}.
-     * Overrides Twig {@see EscaperRuntime} with SW custom wrapper {@see CachedEscaperRuntime}
      */
     public function compile(Node $node): string
     {
@@ -36,7 +40,6 @@ class TwigEnvironment extends Environment
 
         return strtr($source, [
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-            '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ]);
     }
 }

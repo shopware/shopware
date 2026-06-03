@@ -7,11 +7,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Elasticsearch\Product\CustomFieldSetGatewayTest
+ * @codeCoverageIgnore
+ *
+ * @see CustomFieldSetGatewayTest
  */
 #[Package('framework')]
 class CustomFieldSetGateway

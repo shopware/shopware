@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -69,6 +70,7 @@ class InAppPurchaseProviderTest extends TestCase
                     new Logger('test', [$this->logger])
                 ),
                 new Logger('test', [$this->logger]),
+                new NativeClock()
             )
         );
     }

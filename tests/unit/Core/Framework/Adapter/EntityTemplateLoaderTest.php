@@ -47,8 +47,7 @@ class EntityTemplateLoaderTest extends TestCase
 
         static::assertFalse($result);
 
-        static::expectException(LoaderError::class);
-        static::expectExceptionMessage(\sprintf('Template "%s" is not defined.', 'test'));
+        $this->expectExceptionObject(new LoaderError(\sprintf('Template "%s" is not defined.', 'test')));
 
         $entityTemplateLoader->getSourceContext('test');
     }
@@ -67,8 +66,7 @@ class EntityTemplateLoaderTest extends TestCase
 
         static::assertFalse($result);
 
-        static::expectException(LoaderError::class);
-        static::expectExceptionMessage(\sprintf('Template "%s" is not defined.', '@test/test'));
+        $this->expectExceptionObject(new LoaderError(\sprintf('Template "%s" is not defined.', '@test/test')));
 
         $entityTemplateLoader->getSourceContext('@test/test');
     }
@@ -92,8 +90,7 @@ class EntityTemplateLoaderTest extends TestCase
         static::assertFalse($entityTemplateLoader->exists('test'));
         static::assertFalse($entityTemplateLoader->isFresh('test', \time()));
 
-        static::expectException(LoaderError::class);
-        static::expectExceptionMessage(\sprintf('Template "%s" is not defined.', 'test'));
+        $this->expectExceptionObject(new LoaderError(\sprintf('Template "%s" is not defined.', 'test')));
 
         $entityTemplateLoader->getSourceContext('test');
     }

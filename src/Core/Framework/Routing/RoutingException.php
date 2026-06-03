@@ -7,6 +7,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException;
 use Shopware\Core\Framework\Routing\Exception\InvalidRouteScopeException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
@@ -29,6 +30,7 @@ class RoutingException extends HttpException
     public const INVALID_ROUTE_SCOPE = 'FRAMEWORK__ROUTING_INVALID_ROUTE_SCOPE';
     public const MISSING_MAIN_REQUEST = 'FRAMEWORK__MAIN_REQUEST_MISSING';
     public const MISSING_ROUTE_ATTRIBUTE = 'FRAMEWORK__ROUTING_ROUTE_ATTRIBUTE_MISSING';
+    public const SALES_CHANNEL_DOMAIN_NOT_FOUND = 'FRAMEWORK__ROUTING_SALES_CHANNEL_DOMAIN_NOT_FOUND';
 
     public static function invalidRequestParameter(string $name): self
     {
@@ -37,6 +39,16 @@ class RoutingException extends HttpException
             self::INVALID_REQUEST_PARAMETER_CODE,
             'The parameter "{{ parameter }}" is invalid.',
             ['parameter' => $name]
+        );
+    }
+
+    public static function salesChannelDomainNotFound(string $domainUrl): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_NOT_FOUND,
+            'The domain "{{ domainUrl }}" provided via the "' . PlatformRequest::HEADER_DOMAIN . '" header is not a configured domain of this sales channel.',
+            ['domainUrl' => $domainUrl]
         );
     }
 

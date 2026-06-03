@@ -108,7 +108,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
 
         $this->resolveParameterGroups($finalSpecs);
-        $this->injectLanguageIdHeader($finalSpecs);
+        $this->injectContextHeaders($finalSpecs);
         $this->enrichPathsWithAssociations($finalSpecs, $definitions);
 
         return $finalSpecs;
@@ -202,6 +202,20 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'pattern' => '^[0-9a-f]{32}$',
                 ],
                 'description' => 'Instructs Shopware to return the response in the given language.',
+            ]),
+            new Parameter([
+                'parameter' => 'swDomain',
+                'name' => 'sw-domain',
+                'in' => 'header',
+                'required' => false,
+                'schema' => [
+                    'type' => 'string',
+                    'format' => 'uri',
+                    'example' => 'https://shop.example.com/de',
+                ],
+                'description' => 'URL of a configured sales channel domain. Headless frontends can use this header to have '
+                    . 'the request served with the language configured for that domain, without knowing the language id. '
+                    . 'Must match one of the sales channel\'s configured domains. An explicit `sw-language-id` header takes precedence.',
             ]),
         ];
 
@@ -343,20 +357,23 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * Injects the sw-language-id header into Store API operations whose
-     * responses can surface translated content. DELETE operations are skipped
-     * because they only confirm removal and do not return localised payloads,
-     * and tooling endpoints under /_info/* are skipped because they serve
-     * schema and routing metadata. The HTTP-method filter is portable across
-     * third-party plugins and apps that contribute their own Store API
-     * endpoints. Operations that already declare the header (by name or $ref)
-     * are left untouched so bundle-provided schemas with an explicit
-     * declaration are never duplicated.
+     * Injects the language-related context headers (sw-language-id and sw-domain) into Store API operations whose
+     * responses can surface translated content. Both headers select the response language; sw-domain derives it from
+     * a configured sales channel domain for headless clients. DELETE operations are skipped because they only confirm
+     * removal and do not return localised payloads, and tooling endpoints under /_info/* are skipped because they serve
+     * schema and routing metadata. The HTTP-method filter is portable across third-party plugins and apps that
+     * contribute their own Store API endpoints. Operations that already declare a header (by name or $ref) are left
+     * untouched so bundle-provided schemas with an explicit declaration are never duplicated.
      *
      * @param OpenApiSpec $specs
      */
-    private function injectLanguageIdHeader(array &$specs): void
+    private function injectContextHeaders(array &$specs): void
     {
+        $headers = [
+            ['name' => 'sw-language-id', 'ref' => '#/components/parameters/swLanguageId'],
+            ['name' => 'sw-domain', 'ref' => '#/components/parameters/swDomain'],
+        ];
+
         foreach ($specs['paths'] as $path => &$pathDefinition) {
             if (str_starts_with((string) $path, '/_info/')) {
                 continue;
@@ -375,16 +392,23 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     $pathDefinition[$method]['parameters'] = [];
                 }
 
-                foreach ($pathDefinition[$method]['parameters'] as $param) {
-                    if (
-                        (isset($param['name']) && strtolower((string) $param['name']) === 'sw-language-id')
-                        || (isset($param['$ref']) && $param['$ref'] === '#/components/parameters/swLanguageId')
-                    ) {
-                        continue 2;
+                foreach ($headers as $header) {
+                    $alreadyDeclared = false;
+                    foreach ($pathDefinition[$method]['parameters'] as $param) {
+                        if (
+                            (isset($param['name']) && strtolower((string) $param['name']) === $header['name'])
+                            || (isset($param['$ref']) && $param['$ref'] === $header['ref'])
+                        ) {
+                            $alreadyDeclared = true;
+
+                            break;
+                        }
+                    }
+
+                    if (!$alreadyDeclared) {
+                        $pathDefinition[$method]['parameters'][] = ['$ref' => $header['ref']];
                     }
                 }
-
-                $pathDefinition[$method]['parameters'][] = ['$ref' => '#/components/parameters/swLanguageId'];
             }
         }
     }

@@ -167,11 +167,12 @@ class StoreApiGeneratorTest extends TestCase
         $parameterNames = array_column($operation['parameters'], 'name');
         static::assertContains('page', $parameterNames);
         static::assertContains('limit', $parameterNames);
-        // sw-language-id is injected as a $ref by the generator, not as an inline parameter
+        // sw-language-id and sw-domain are injected as $refs by the generator, not as inline parameters
         $parameterRefs = array_column($operation['parameters'], '$ref');
         static::assertContains('#/components/parameters/swLanguageId', $parameterRefs);
+        static::assertContains('#/components/parameters/swDomain', $parameterRefs);
         // but not left-overs of replaced parameter groups
-        static::assertCount(3, $operation['parameters']);
+        static::assertCount(4, $operation['parameters']);
     }
 
     public function testSwLanguageIdIsInjectedIntoEveryNonDeleteOperationOutsideInfo(): void
@@ -232,6 +233,74 @@ class StoreApiGeneratorTest extends TestCase
                     static::assertFalse(
                         $hasHeader,
                         \sprintf('%s %s (%s) must not advertise sw-language-id', strtoupper($method), $path, $operationId)
+                    );
+                }
+            }
+        }
+
+        static::assertTrue($assertedInjectedOperation, 'Schema should contain at least one non-DELETE operation outside /_info/ to test');
+        static::assertTrue($assertedSkippedOperation, 'Schema should contain at least one DELETE or /_info/ operation to test');
+    }
+
+    public function testSwDomainIsInjectedIntoEveryNonDeleteOperationOutsideInfo(): void
+    {
+        $bundle = new BundleWithPredeclaredSwLanguageId();
+        $generator = new StoreApiGenerator(
+            new OpenApiSchemaBuilder('0.1.0'),
+            new OpenApiDefinitionSchemaBuilder(),
+            [
+                'Framework' => ['path' => __DIR__ . '/_fixtures'],
+            ],
+            new BundleSchemaPathCollection([$bundle]),
+        );
+
+        $schema = $generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $bundle->getName(),
+        );
+
+        static::assertArrayHasKey('swDomain', $schema['components']['parameters']);
+        static::assertSame('sw-domain', $schema['components']['parameters']['swDomain']['name']);
+
+        $assertedInjectedOperation = false;
+        $assertedSkippedOperation = false;
+
+        foreach ($schema['paths'] as $path => $pathDefinition) {
+            foreach (['get', 'post', 'put', 'patch', 'delete'] as $method) {
+                if (!isset($pathDefinition[$method])) {
+                    continue;
+                }
+
+                $operationId = $pathDefinition[$method]['operationId'] ?? 'no-operation-id';
+                $parameters = $pathDefinition[$method]['parameters'] ?? [];
+                $hasHeader = false;
+                foreach ($parameters as $parameter) {
+                    if (
+                        (isset($parameter['name']) && strtolower((string) $parameter['name']) === 'sw-domain')
+                        || (isset($parameter['$ref']) && $parameter['$ref'] === '#/components/parameters/swDomain')
+                    ) {
+                        $hasHeader = true;
+
+                        break;
+                    }
+                }
+
+                $shouldBeInjected = $method !== 'delete'
+                    && !str_starts_with((string) $path, '/_info/');
+
+                if ($shouldBeInjected) {
+                    $assertedInjectedOperation = true;
+                    static::assertTrue(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) should advertise sw-domain', strtoupper($method), $path, $operationId)
+                    );
+                } else {
+                    $assertedSkippedOperation = true;
+                    static::assertFalse(
+                        $hasHeader,
+                        \sprintf('%s %s (%s) must not advertise sw-domain', strtoupper($method), $path, $operationId)
                     );
                 }
             }

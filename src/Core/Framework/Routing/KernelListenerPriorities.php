@@ -13,6 +13,12 @@ final class KernelListenerPriorities
 
     public const KERNEL_CONTROLLER_EVENT_PRIORITY_AUTH_VALIDATE_POST = -3;
 
+    /**
+     * Runs after the sales channel has been authenticated, but before the sales channel context is resolved, so that
+     * domain-derived request data (e.g. the language for store-api requests) is available to the context resolver.
+     */
+    public const KERNEL_CONTROLLER_EVENT_STORE_API_DOMAIN_RESOLVE = -5;
+
     public const KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE_PRE = -9;
 
     public const KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE = -10;

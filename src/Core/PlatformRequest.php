@@ -19,6 +19,12 @@ final class PlatformRequest
     public const HEADER_ACCESS_KEY = 'sw-access-key';
     public const HEADER_LANGUAGE_ID = 'sw-language-id';
     public const HEADER_CURRENCY_ID = 'sw-currency-id';
+
+    /**
+     * Store-API only: the URL of a configured sales channel domain. When provided, the store-api request is
+     * served with the language configured for that domain (unless HEADER_LANGUAGE_ID is set explicitly).
+     */
+    public const HEADER_DOMAIN = 'sw-domain';
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';

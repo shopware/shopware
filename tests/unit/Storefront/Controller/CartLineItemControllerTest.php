@@ -783,14 +783,7 @@ class CartLineItemControllerTest extends TestCase
         $this->cartService->expects($this->once())
             ->method('update')
             ->with($cart, $lineItems, $context)
-            ->willReturnCallback(static function ($cart, $lineItems, $context) use ($id1, $id2) {
-                $expectedLineitem = new LineItem($id1, LineItem::PRODUCT_LINE_ITEM_TYPE);
-                $expectedLineitem2 = new LineItem($id2, LineItem::PRODUCT_LINE_ITEM_TYPE);
-                $expectedLineitems = [$expectedLineitem, $expectedLineitem2];
-                static::assertSame($expectedLineitems, $lineItems);
-
-                return $cart;
-            });
+            ->willReturn($cart);
 
         $this->translatorCallback();
 

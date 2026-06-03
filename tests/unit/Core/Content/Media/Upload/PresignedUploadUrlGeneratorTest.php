@@ -372,6 +372,10 @@ class PresignedUploadUrlGeneratorTest extends TestCase
                 'config' => [
                     'bucket' => 'test-bucket',
                     'region' => 'eu-west-1',
+                    // Provide static credentials so the async-aws client does not fall back to the
+                    // EC2 instance-metadata credential provider, whose IMDSv2 token request is a PUT
+                    // and would be the first call hitting the mocked HTTP client instead of the HEAD.
+                    'credentials' => ['key' => 'test-key', 'secret' => 'test-secret'],
                 ],
             ],
             new NullLogger(),

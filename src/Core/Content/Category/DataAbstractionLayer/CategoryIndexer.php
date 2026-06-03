@@ -119,7 +119,8 @@ class CategoryIndexer extends EntityIndexer
             if (
                 \array_key_exists('active', $payload)
                 && \array_key_exists('active', $state)
-                && (string) (int) $payload['active'] !== $state['active']
+                && $payload['active'] === true
+                && $state['active'] === '0'
             ) {
                 $activeStateChanged = true;
             }

@@ -10,6 +10,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Type\NeverType;
 use PHPStan\Type\ObjectType;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +23,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NoAssertEqualsOnClosureRule implements Rule
 {
+    public const ERROR_MESSAGE = 'assertEquals() on Closure instances no longer does structural comparison since PHPUnit 12 — it falls back to identity (object hash), so two separately-constructed closures with identical behavior are unequal. Assert on the result of calling the closure instead.';
+
     public function getNodeType(): string
     {
         return MethodCall::class;
@@ -59,11 +62,19 @@ class NoAssertEqualsOnClosureRule implements Rule
         $closureType = new ObjectType(\Closure::class);
 
         foreach (\array_slice($args, 0, 2) as $arg) {
-            if ($closureType->isSuperTypeOf($scope->getType($arg->value))->yes()) {
+            $argType = $scope->getType($arg->value);
+
+            // `never` is the bottom type and therefore a subtype of every type,
+            // so isSuperTypeOf() below would report it as a Closure. It is never
+            // an actual closure — it signals unreachable/contradictory narrowing
+            // (e.g. assertNull() then assertNotNull() on the same accessor) — so skip it.
+            if ($argType instanceof NeverType) {
+                continue;
+            }
+
+            if ($closureType->isSuperTypeOf($argType)->yes()) {
                 return [
-                    RuleErrorBuilder::message(
-                        'assertEquals() on Closure instances no longer does structural comparison since PHPUnit 12 — it falls back to identity (object hash), so two separately-constructed closures with identical behavior are unequal. Assert on the result of calling the closure instead.'
-                    )
+                    RuleErrorBuilder::message(self::ERROR_MESSAGE)
                         ->identifier('shopware.assertEqualsOnClosure')
                         ->build(),
                 ];

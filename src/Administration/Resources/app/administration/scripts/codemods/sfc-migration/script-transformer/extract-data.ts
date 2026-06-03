@@ -1,4 +1,4 @@
-import type { ObjectLiteralExpression } from 'ts-morph';
+import type { Block, ObjectLiteralExpression } from 'ts-morph';
 import { SyntaxKind } from 'ts-morph';
 import type { DataProp, ExtractDataPropsResult } from './types';
 
@@ -10,36 +10,32 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
 
     if (dataProp.isKind(SyntaxKind.MethodDeclaration)) {
         const body = dataProp.asKindOrThrow(SyntaxKind.MethodDeclaration).getBody();
-        // TODO: Silent ignore: getDescendantsOfKind can pick nested returns,
-        // so helper function return objects may be migrated as component data.
-        const returnStmt = body?.getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-        returnExpr = returnStmt?.getExpression()?.isKind(SyntaxKind.ObjectLiteralExpression)
-            ? returnStmt.getExpression()!.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
-            : undefined;
+        returnExpr = getReturnedObjectLiteral(body);
     } else if (dataProp.isKind(SyntaxKind.PropertyAssignment)) {
         const init = dataProp.asKindOrThrow(SyntaxKind.PropertyAssignment).getInitializer();
         if (init?.isKind(SyntaxKind.ArrowFunction) || init?.isKind(SyntaxKind.FunctionExpression)) {
             const body = init.isKind(SyntaxKind.ArrowFunction)
                 ? init.asKindOrThrow(SyntaxKind.ArrowFunction).getBody()
                 : init.asKindOrThrow(SyntaxKind.FunctionExpression).getBody();
-            if (body?.isKind(SyntaxKind.ParenthesizedExpression)) {
+            if (body?.isKind(SyntaxKind.ObjectLiteralExpression)) {
+                returnExpr = body.asKindOrThrow(SyntaxKind.ObjectLiteralExpression);
+            } else if (body?.isKind(SyntaxKind.ParenthesizedExpression)) {
                 const inner = body.asKindOrThrow(SyntaxKind.ParenthesizedExpression).getExpression();
                 returnExpr = inner.isKind(SyntaxKind.ObjectLiteralExpression)
                     ? inner.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
                     : undefined;
             } else if (body?.isKind(SyntaxKind.Block)) {
-                const returnStmt = body.asKindOrThrow(SyntaxKind.Block).getDescendantsOfKind(SyntaxKind.ReturnStatement)[0];
-                returnExpr = returnStmt?.getExpression()?.isKind(SyntaxKind.ObjectLiteralExpression)
-                    ? returnStmt.getExpression()!.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
-                    : undefined;
+                returnExpr = getReturnedObjectLiteral(body.asKindOrThrow(SyntaxKind.Block));
             }
         }
     }
 
-    // TODO: Silent ignore: unsupported data declarations or non-object return
-    // expressions are treated as no data instead of marking the component
-    // partially migratable.
-    if (!returnExpr) return { dataProps: [], unsupportedEntries: [] };
+    if (!returnExpr) {
+        return {
+            dataProps: [],
+            unsupportedEntries: ['data must be a function returning an object literal'],
+        };
+    }
 
     const dataProps: DataProp[] = [];
     const unsupportedEntries: string[] = [];
@@ -48,9 +44,6 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
         if (p.isKind(SyntaxKind.PropertyAssignment)) {
             const prop = p.asKindOrThrow(SyntaxKind.PropertyAssignment);
 
-            // TODO: Silent ignore: data initializers can call component methods
-            // through `this`; after migration those methods are declared later
-            // in setup, which can create non-equivalent execution order.
             dataProps.push({
                 name: prop.getName(),
                 valueText: prop.getInitializer()?.getText() ?? 'undefined',
@@ -75,4 +68,16 @@ export function extractDataProps(optionsObj: ObjectLiteralExpression): ExtractDa
         dataProps,
         unsupportedEntries,
     };
+}
+
+function getReturnedObjectLiteral(body: Block | undefined): ObjectLiteralExpression | undefined {
+    const returnStmt = body
+        ?.getStatements()
+        .find((statement) => statement.isKind(SyntaxKind.ReturnStatement))
+        ?.asKindOrThrow(SyntaxKind.ReturnStatement);
+    const returnExpr = returnStmt?.getExpression();
+
+    return returnExpr?.isKind(SyntaxKind.ObjectLiteralExpression)
+        ? returnExpr.asKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+        : undefined;
 }

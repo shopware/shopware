@@ -1734,9 +1734,12 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
             expect(result.script).not.toContain('this.title');
         });
 
-        it('marks non-function data declarations as unsupported instead of treating them as absent', () => {
+        it.each([
+            'buildInitialState',
+            'externalData',
+        ])('marks non-function data declaration %s as unsupported instead of treating it as absent', (dataInitializer) => {
             const js = `Shopware.Component.register('sw-test', {
-                data: buildInitialState,
+                data: ${dataInitializer},
                 methods: {
                     getTitle() {
                         return this.title;

@@ -1,6 +1,12 @@
 import type { BindingName, ObjectLiteralExpression, SourceFile } from 'ts-morph';
 import { Node, SyntaxKind } from 'ts-morph';
-import { extractModuleLevelCode } from './ast';
+import {
+    extractModuleLevelCode,
+    getDirectThisPropertyName,
+    getSnippetCallExpressions,
+    getSnippetPropertyAccesses,
+    getThisRefName,
+} from './ast';
 import { extractComputedProps } from './extract-computed';
 import {
     extractEmitsDefinition,
@@ -79,6 +85,7 @@ export function collectCompositionScriptState(
     const moduleLevelCode = extractModuleLevelCode(sourceFile, registration);
     const manualMigrationReasons: string[] = [];
     const todoComments: string[] = [];
+    const extractedMethodNames = new Set(methodProps.map(({ name }) => name));
 
     const supportedInjectProps = injectProps.filter(({ localName }) => {
         if (isSafeIdentifier(localName)) {
@@ -97,8 +104,16 @@ export function collectCompositionScriptState(
         todoComments.push(`// TODO: migrate inject entry manually: ${sanitizeTodoCommentText(reason)}`);
     });
 
-    const supportedDataProps = dataProps.filter(({ name }) => {
+    const supportedDataProps = dataProps.filter(({ name, valueText }) => {
         if (isSafeIdentifier(name)) {
+            const calledMethodName = findDataInitializerMethodCall(valueText, extractedMethodNames);
+            if (calledMethodName) {
+                const reason = `data: ${name} initializer calls component method '${calledMethodName}'`;
+                manualMigrationReasons.push(reason);
+                todoComments.push(`// TODO: migrate data entry manually: ${sanitizeTodoCommentText(reason)}`);
+                return false;
+            }
+
             return true;
         }
 
@@ -131,8 +146,36 @@ export function collectCompositionScriptState(
         todoComments.push(`// TODO: migrate computed entry manually: ${sanitizeTodoCommentText(reason)}`);
     });
 
-    const supportedMethodProps = methodProps.filter(({ name }) => {
+    const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
+    const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
+    const dataNames = new Set(supportedDataProps.map((p) => p.name));
+    const computedNames = new Set(supportedComputedProps.map((p) => p.name));
+    const extractableMethodNames = new Set(methodProps.filter(({ name }) => isSafeIdentifier(name)).map(({ name }) => name));
+    const methodValidationCtx: RewriteContext = {
+        propNames,
+        dataNames,
+        computedNames,
+        methodNames: extractableMethodNames,
+        injectNames,
+    };
+
+    const supportedMethodProps = methodProps.filter(({ name, bodyText, rawText }) => {
         if (isSafeIdentifier(name)) {
+            const unsupportedThisName = findUnsupportedThisPropertyUsage(
+                {
+                    text: rawText ?? bodyText,
+                    kind: rawText === undefined ? 'body' : 'expression',
+                },
+                methodValidationCtx,
+            );
+
+            if (unsupportedThisName) {
+                const reason = `methods: ${name} uses unknown this property '${unsupportedThisName}'`;
+                manualMigrationReasons.push(reason);
+                todoComments.push(`// TODO: migrate method manually: ${sanitizeTodoCommentText(reason)}`);
+                return false;
+            }
+
             return true;
         }
 
@@ -142,10 +185,6 @@ export function collectCompositionScriptState(
         return false;
     });
 
-    const injectNames = new Set(supportedInjectProps.map((p) => p.localName));
-    const propNames = new Set(propsText ? extractPropNamesFromText(optionsObj) : []);
-    const dataNames = new Set(supportedDataProps.map((p) => p.name));
-    const computedNames = new Set(supportedComputedProps.map((p) => p.name));
     const methodNames = new Set(supportedMethodProps.map((p) => p.name));
 
     const ctx: RewriteContext = { propNames, dataNames, computedNames, methodNames, injectNames };
@@ -354,6 +393,67 @@ function collectExistingBindingNames(sourceFile: SourceFile): Set<string> {
     });
 
     return names;
+}
+
+function findDataInitializerMethodCall(valueText: string, methodNames: Set<string>): string | null {
+    for (const callExpression of getSnippetCallExpressions({ text: valueText, kind: 'expression' })) {
+        const expression = callExpression.getExpression();
+
+        if (!Node.isPropertyAccessExpression(expression)) {
+            continue;
+        }
+
+        const thisPropertyName = getDirectThisPropertyName(expression);
+        if (thisPropertyName && methodNames.has(thisPropertyName)) {
+            return thisPropertyName;
+        }
+    }
+
+    return null;
+}
+
+function findUnsupportedThisPropertyUsage(snippet: CodeSnippet, ctx: RewriteContext): string | null {
+    for (const propertyAccess of getSnippetPropertyAccesses(snippet)) {
+        if (getThisRefName(propertyAccess)) {
+            continue;
+        }
+
+        const thisPropertyName = getDirectThisPropertyName(propertyAccess);
+
+        if (!thisPropertyName || isSupportedThisPropertyName(thisPropertyName, ctx)) {
+            continue;
+        }
+
+        return thisPropertyName;
+    }
+
+    return null;
+}
+
+function isSupportedThisPropertyName(name: string, ctx: RewriteContext): boolean {
+    return (
+        name === '$emit' ||
+        name === '$router' ||
+        name === '$route' ||
+        name === '$nextTick' ||
+        name === '$slots' ||
+        name === '$props' ||
+        name === '$attrs' ||
+        name === '$tc' ||
+        name === '$t' ||
+        name === '$refs' ||
+        name === '$el' ||
+        name === '$store' ||
+        name === '$parent' ||
+        name === '$root' ||
+        name === '$options' ||
+        name === '$forceUpdate' ||
+        ctx.propNames.has(name) ||
+        ctx.dataNames.has(name) ||
+        ctx.computedNames.has(name) ||
+        ctx.methodNames.has(name) ||
+        ctx.injectNames.has(name)
+    );
 }
 
 function collectBindingName(nameNode: BindingName, names: Set<string>): void {

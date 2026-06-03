@@ -161,18 +161,15 @@ export default {
             const target = event.target;
             const clickIsInsideSelect = target instanceof Node && this.$el.contains(target);
 
-            if (clickIsInsideSelect) {
-                return;
-            }
-
-            // Non-layout environments like jsdom do not implement elementsFromPoint.
+            // Borderline clicks can target the body even while the pointer is still over the select.
+            // Non-layout environments like jsdom do not implement the hit-test fallback.
             const clickedElementStackContainsSelect =
                 typeof document.elementsFromPoint === 'function' &&
                 document
                     .elementsFromPoint(event.clientX, event.clientY)
                     .some((element) => element === this.$el || this.$el.contains(element));
 
-            if (!clickedElementStackContainsSelect) {
+            if (!clickIsInsideSelect && !clickedElementStackContainsSelect) {
                 this.collapse();
             }
         },

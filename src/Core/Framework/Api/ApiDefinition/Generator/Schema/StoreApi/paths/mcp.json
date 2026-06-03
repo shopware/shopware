@@ -1,0 +1,208 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": {
+        "\/_mcp": {
+            "post": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP JSON-RPC endpoint (Store API)",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages for methods such as `initialize`, `tools\/list`, `tools\/call`, `prompts\/list`, `prompts\/get`, `resources\/list`, and `resources\/read`. Requires a valid Store API access key (`sw-access-key` header) and a sales-channel context token (`sw-context-token` header). The MCP server exposes tools scoped to the current sales-channel context, including customer authentication state. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpPost",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": false,
+                        "description": "Session ID returned by the server after `initialize`. Required for all requests except `initialize`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sw-context-token",
+                        "in": "header",
+                        "required": false,
+                        "description": "Sales-channel context token identifying the current customer session. When provided, MCP tools have access to customer-authenticated context.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "A JSON-RPC 2.0 request or batch.",
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["jsonrpc", "method"],
+                                "properties": {
+                                    "jsonrpc": {
+                                        "type": "string",
+                                        "enum": ["2.0"]
+                                    },
+                                    "id": {
+                                        "oneOf": [
+                                            {"type": "string"},
+                                            {"type": "integer"},
+                                            {"type": "null"}
+                                        ]
+                                    },
+                                    "method": {
+                                        "type": "string",
+                                        "example": "tools\/call"
+                                    },
+                                    "params": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON-RPC response or Server-Sent Events stream for long-running operations.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "jsonrpc": {
+                                            "type": "string",
+                                            "enum": ["2.0"]
+                                        },
+                                        "id": {
+                                            "oneOf": [
+                                                {"type": "string"},
+                                                {"type": "integer"},
+                                                {"type": "null"}
+                                            ]
+                                        },
+                                        "result": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        "error": {
+                                            "type": "object",
+                                            "properties": {
+                                                "code": {"type": "integer"},
+                                                "message": {"type": "string"}
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "text\/event-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "description": "Server-Sent Events stream for streaming responses."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized — missing or invalid Store API access key."
+                    },
+                    "429": {
+                        "description": "Too many requests — rate limit exceeded."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP SSE stream (Store API)",
+                "description": "Opens a Server-Sent Events stream for receiving server-initiated MCP messages. Used by MCP clients that support the SSE transport variant. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpGet",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Server-Sent Events stream.",
+                        "content": {
+                            "text\/event-stream": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "Close MCP session (Store API)",
+                "description": "Terminates an active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpDelete",
+                "parameters": [
+                    {
+                        "name": "mcp-session-id",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Session closed successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "options": {
+                "tags": [
+                    "MCP",
+                    "Experimental"
+                ],
+                "summary": "MCP CORS preflight (Store API)",
+                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "storeApiMcpOptions",
+                "responses": {
+                    "204": {
+                        "description": "CORS preflight accepted."
+                    }
+                }
+            }
+        }
+    }
+}

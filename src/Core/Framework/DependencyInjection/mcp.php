@@ -1,6 +1,9 @@
 <?php declare(strict_types=1);
 
 use Doctrine\DBAL\Connection;
+use Mcp\Capability\Registry;
+use Mcp\Server as McpServer;
+use Mcp\Server\Builder as McpServerBuilder;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
@@ -25,9 +28,11 @@ use Shopware\Core\Framework\Mcp\Authentication\McpAuthenticationListener;
 use Shopware\Core\Framework\Mcp\Authentication\McpExceptionListener;
 use Shopware\Core\Framework\Mcp\Command\DebugMcpCommand;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
 use Shopware\Core\Framework\Mcp\Controller\IntegrationMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Controller\McpToolListController;
+use Shopware\Core\Framework\Mcp\Controller\StoreApiMcpServerController;
 use Shopware\Core\Framework\Mcp\Controller\UserMcpAllowlistController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
@@ -59,6 +64,7 @@ use Shopware\Core\Framework\Mcp\Tool\SystemConfigReadTool;
 use Shopware\Core\Framework\Mcp\Tool\SystemConfigWriteTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Cache\Psr16Cache;
@@ -67,6 +73,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -75,6 +82,9 @@ return static function (ContainerConfigurator $container): void {
         ->args([service('cache.system')]);
 
     $services->set(McpContextProvider::class)
+        ->args([service('request_stack')]);
+
+    $services->set(StoreApiMcpContextProvider::class)
         ->args([service('request_stack')]);
 
     $services->set(McpAllowlistFilter::class);
@@ -108,6 +118,44 @@ return static function (ContainerConfigurator $container): void {
             service(McpAllowlistProvider::class),
             service('logger'),
             service(McpAllowlistFilter::class),
+        ])
+        ->tag('controller.service_arguments')
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.registry', Registry::class)
+        ->args([service('event_dispatcher'), service('logger')])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.server.builder', McpServerBuilder::class)
+        ->factory([McpServer::class, 'builder'])
+        ->call('setServerInfo', [
+            'Shopware Store API',
+            '1.0.0',
+            'Shopware Store API MCP server for sales-channel and customer-context operations.',
+        ])
+        ->call('setPaginationLimit', [param('mcp.pagination_limit')])
+        ->call('setInstructions', ['This MCP server exposes Store API capabilities. All operations run in the current sales-channel context and use Store API authentication headers.'])
+        ->call('setEventDispatcher', [service('event_dispatcher')])
+        ->call('setRegistry', [service('mcp.store_api.registry')])
+        ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])
+        ->call('addRequestHandlers', [tagged_iterator('mcp.request_handler')])
+        ->call('addNotificationHandlers', [tagged_iterator('mcp.notification_handler')])
+        ->call('setLogger', [service('logger')])
+        ->tag('monolog.logger', ['channel' => 'mcp']);
+
+    $services->set('mcp.store_api.server', McpServer::class)
+        ->factory([service('mcp.store_api.server.builder'), 'build']);
+
+    $services->set(StoreApiMcpServerController::class)
+        ->public()
+        ->args([
+            service('mcp.store_api.server')->nullOnInvalid(),
+            service('mcp.psr_http_factory')->nullOnInvalid(),
+            service('mcp.http_foundation_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service('mcp.psr17_factory')->nullOnInvalid(),
+            service(RateLimiter::class),
+            service('logger'),
         ])
         ->tag('controller.service_arguments')
         ->tag('monolog.logger', ['channel' => 'mcp']);
@@ -239,6 +287,10 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
         ])
         ->tag('mcp.tool');
+
+    $services->set(StoreApiContextTool::class)
+        ->args([service(StoreApiMcpContextProvider::class)])
+        ->tag('shopware.store_api_mcp.tool');
 
     // Prompt
     $services->set(ShopwareContextPrompt::class)

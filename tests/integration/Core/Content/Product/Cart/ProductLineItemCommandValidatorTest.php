@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
+use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -154,8 +156,11 @@ class ProductLineItemCommandValidatorTest extends TestCase
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referencedId`, `payload.productNumber`.');
+        $this->expectExceptionObject(
+            (new WriteException())
+                ->add(new ProductLineItemDifferentIdException($first->getId()))
+                ->add(new ProductLineItemInconsistentException($first->getId()))
+        );
 
         $this->lineItemRepository->update([
             ['id' => $first->getId(), 'productId' => $secondId],

@@ -25,6 +25,14 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
         'pre_order',
     ];
 
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly JsonlRowParser $jsonlRowParser,
+    ) {
+    }
+
     protected function getProviderTechnicalName(): string
     {
         return 'open-ai';
@@ -269,5 +277,15 @@ class OpenAiProductExportValidator extends AbstractProviderValidator
                 ));
             }
         }
+    }
+
+    /**
+     * @throws ProductExportException
+     *
+     * @return list<array{line:int, row:array<string, mixed>}>
+     */
+    private function parseJsonlRows(string $productExportContent): array
+    {
+        return $this->jsonlRowParser->parse($productExportContent);
     }
 }

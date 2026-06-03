@@ -67,11 +67,12 @@ class EntityExtensionReadTest extends TestCase
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NULL,
                 `product_id` BINARY(16) NULL,
+                `product_version_id` BINARY(16) NULL DEFAULT 0x0fa91ce3e96a4bc2be4bd9ce752c3425,
                 `language_id` BINARY(16) NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
                 PRIMARY KEY (`id`),
-                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+                CONSTRAINT `fk.extended_product.id` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`),
                 CONSTRAINT `fk.extended_product.language_id` FOREIGN KEY (`language_id`) REFERENCES `language` (`id`)
             )
         ');

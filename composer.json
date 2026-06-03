@@ -95,9 +95,9 @@
         "scssphp/scssphp": "^v1.11.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": ">=0.1.23",
+        "shopware/conflicts": ">=0.1.30",
         "shyim/opensearch-php-dsl": "^1.0.1",
-        "squirrelphp/twig-php-syntax": "^1.10.0",
+        "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~6.4.0",
         "symfony/cache": "~6.4.4",
         "symfony/cache-contracts": "~3.1.0",
@@ -121,7 +121,6 @@
         "symfony/mailer": "~6.4.0",
         "symfony/messenger": "~6.4.0",
         "symfony/mime": "~6.4.0",
-        "symfony/string": "~6.4.0",
         "symfony/monolog-bridge": "~6.4.0",
         "symfony/monolog-bundle": "~3.8.0",
         "symfony/options-resolver": "~6.4.0",
@@ -139,6 +138,7 @@
         "symfony/serializer": "~6.4.0",
         "symfony/service-contracts": "~3.1.0",
         "symfony/stopwatch": "~6.4.0",
+        "symfony/string": "~6.4.0",
         "symfony/translation": "~6.4.0",
         "symfony/translation-contracts": "~3.1.0",
         "symfony/twig-bridge": "~6.4.0",
@@ -147,9 +147,9 @@
         "symfony/var-exporter": "~6.4.1",
         "symfony/yaml": "~6.4.0",
         "tecnickcom/tcpdf": "^6.6.1",
-        "twig/intl-extra": "^3.20",
-        "twig/string-extra": "^3.20",
-        "twig/twig": "^3.20",
+        "twig/intl-extra": "^3.26.0",
+        "twig/string-extra": "^3.24.0",
+        "twig/twig": "^3.26.0",
         "zircote/swagger-php": "^4.5.1"
     },
     "require-dev": {
@@ -476,7 +476,7 @@
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
-            "phpstan analyze --memory-limit=2G"
+            "phpstan analyze --memory-limit=4G -vv"
         ],
         "phpstan-errors-by-area": [
             "php src/Core/DevOps/StaticAnalyze/print-ignored-errors-by-area.php phpstan-baseline.neon"
@@ -552,7 +552,11 @@
         },
         "exclude-from-classmap": [
             "src/**/Test/",
-            "tests/"
+            "src/**/Tests/",
+            "tests/",
+            "src/Storefront/Resources/app/storefront/node_modules/",
+            "src/Administration/Resources/app/administration/node_modules/",
+            "src/Core/Framework/Adapter/Doctrine/Patch/"
         ]
     },
     "autoload-dev": {

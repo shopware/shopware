@@ -15,7 +15,7 @@ jobs:
       if: github.repository == 'shopware/shopware'
       steps:
         - name: Checkout repository
-          uses: actions/checkout@v4
+          uses: actions/checkout@v6
 
         - uses: denoland/setup-deno@v1
           with:
@@ -118,7 +118,7 @@ jobs:
             -H "Content-Type: application/json" \
             https://api.github.com/repos/shopwareLabs/testenv-platform/actions/workflows/shopware.yml/dispatches \
             -d '{"ref": "trunk"}'
-  
+
   publish-sbp-release:
     if: github.repository == 'shopware/shopware'
     strategy:
@@ -133,7 +133,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Publish sbp release
         run: |
           echo DRY_RUN: "${DRY_RUN}"
@@ -147,4 +147,4 @@ jobs:
       - name: Post slack message
         run: |
             SLACK_PAYLOAD=$(jq --null-input --arg version "${{ github.ref_name }}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
-            echo curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"
+            curl --silent --request POST --url "${{ secrets.SLACK_RELEASE_WORKFLOW_URL }}" --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

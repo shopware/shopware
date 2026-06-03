@@ -26,10 +26,11 @@ jobs:
           shopware-version: ${{ github.ref }}
           shopware-repository: ${{ github.repository }}
           install: ${{ matrix.project != 'Install' }} # When testing the installation routine of Shopware, don't execute the installation automatically
-          install-admin: ${{ matrix.project != 'Install' }}
-          install-storefront: ${{ matrix.project != 'Install' }}
+          install-admin: true
+          install-storefront: true
+          skip-js-build: ${{ matrix.project == 'Install' }}
           env: prod
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Build js
@@ -50,7 +51,7 @@ jobs:
       - name: Run your tests
         working-directory: tests/acceptance
         run: npx playwright test --project=${{ matrix.project }} ${{ matrix.project == 'Install' && '--trace=on' || '' }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-${{ matrix.project }}
@@ -125,7 +126,7 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
   php-security:
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -134,7 +135,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 6.5.9999999-dev
     steps:
       - name: Clone platform
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -163,7 +164,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -290,7 +291,7 @@ jobs:
           composer -d src/Elasticsearch config version ${SW_RECOVERY_NEXT_VERSION}
 
       - name: Checkout template
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: shopware/production
           path: old-shopware
@@ -316,7 +317,7 @@ jobs:
         working-directory: old-shopware
         run: symfony server:start -d
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
       - name: Install dependencies
@@ -334,7 +335,7 @@ jobs:
         working-directory: new-shopware/tests/acceptance
         run: npx playwright test --project=Update --trace=on
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-update-${{ matrix.update.version }}

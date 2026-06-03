@@ -1,6 +1,16 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.19
+*  [#8333 - fix: add caching to lower amount of calls to update extensions](https://github.com/shopware/shopware/issues/8333)
+*  [#15839 - fix: remove dependency on maltyxx/images-generator](https://github.com/shopware/shopware/issues/15839)
+*  [#17100 - Update Twig in SW 6.5](https://github.com/shopware/shopware/issues/17100)
+*  [#17172 - fix: Use correct shopware/conflicts version](https://github.com/shopware/shopware/pull/17172)
+
+## 6.5.8.18
+*  [GHSA-q5qc-g5xc-2p8f](https://github.com/shopware/shopware/security/advisories/GHSA-q5qc-g5xc-2p8f) ([@AndreasA](https://github.com/AndreasA))
+*  [GHSA-hh7j-6x3q-f52h](https://github.com/shopware/shopware/security/advisories/GHSA-hh7j-6x3q-f52h) ([@niklaswolf](https://github.com/niklaswolf))
+
 ## 6.5.8.17
 *  [#3476 - NEXT-33504 - fix: Allow `association_fields` of `media_default_folder` to be nullable](https://github.com/shopware/shopware/issues/3476) ([@aragon999](https://github.com/aragon999))
 *  [#3486 - NEXT-32844 - fix(elasticsearch): Add separator to admin ES search indexer queries](https://github.com/shopware/shopware/issues/3486) ([@M-arcus](https://github.com/M-arcus))

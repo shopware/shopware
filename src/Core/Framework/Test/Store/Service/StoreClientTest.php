@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -21,9 +20,10 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Store\Services\StoreClient
  */
 #[Package('checkout')]
-#[CoversClass(StoreClient::class)]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;

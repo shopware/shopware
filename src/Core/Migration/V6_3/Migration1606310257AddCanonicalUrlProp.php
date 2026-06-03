@@ -24,10 +24,11 @@ class Migration1606310257AddCanonicalUrlProp extends MigrationStep
         $connection->executeStatement('
             ALTER TABLE `product`
             ADD `canonical_product_id` BINARY(16) NULL,
+            ADD `canonical_product_version_id` BINARY(16) NULL,
             ADD `canonicalProduct` BINARY(16) NULL,
             ADD CONSTRAINT `fk.product.canonical_product_id`
-                FOREIGN KEY (`canonical_product_id`)
-                REFERENCES `product` (`id`)
+                FOREIGN KEY (`canonical_product_id`, `canonical_product_version_id`)
+                REFERENCES `product` (`id`, `version_id`)
                 ON DELETE SET NULL
 
         ');

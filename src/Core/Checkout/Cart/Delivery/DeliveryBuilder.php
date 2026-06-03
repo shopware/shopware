@@ -18,8 +18,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\DatePoint;
 
 #[Package('checkout')]
 class DeliveryBuilder
@@ -143,7 +146,7 @@ class DeliveryBuilder
 
             // if the line item has a restock time, add this days to the restock date
             if ($restockTime) {
-                $restockDateCandidate = (new \DateTimeImmutable())->add(new \DateInterval('P' . $restockTime . 'D'));
+                $restockDateCandidate = Clock::get()->now()->add(new \DateInterval('P' . $restockTime . 'D'));
 
                 if ($restockDateCandidate > $restockAvailableFrom) {
                     $restockAvailableFrom = $restockDateCandidate;
@@ -172,14 +175,15 @@ class DeliveryBuilder
     private function resolveAvailableFromDate(LineItem $item): \DateTimeImmutable
     {
         $releaseDate = $item->getPayloadValue('releaseDate');
-        $now = new \DateTimeImmutable();
+        $now = Clock::get()->now();
 
         if (!\is_string($releaseDate) || trim($releaseDate) === '') {
             return $now;
         }
 
+        // the release date is stored in the payload using the storage date time format
         try {
-            $releaseDateTime = new \DateTimeImmutable($releaseDate);
+            $releaseDateTime = DatePoint::createFromFormat(Defaults::STORAGE_DATE_TIME_FORMAT, $releaseDate);
         } catch (\Exception) {
             return $now;
         }

@@ -255,7 +255,7 @@ class MatchAllLineItemsRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, mixed[]>
      */
     public static function getEmptyFilteredLineItemsTestData(): array
     {

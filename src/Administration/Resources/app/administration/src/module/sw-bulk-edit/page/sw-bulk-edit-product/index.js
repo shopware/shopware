@@ -125,7 +125,9 @@ export default {
 
             criteria.getAssociation('properties').addSorting(Criteria.sort('name', 'ASC', true));
 
-            criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
+            criteria.getAssociation('prices')
+                .addSorting(Criteria.sort('quantityStart', 'ASC', true))
+                .addAssociation('rule');
 
             criteria.getAssociation('tags').addSorting(Criteria.sort('name', 'ASC'));
 
@@ -826,7 +828,7 @@ export default {
                 }
                 seen.add(price.ruleId);
 
-                const rule = this.rules?.find?.((r) => r.id === price.ruleId);
+                const rule = this.rules?.find?.((r) => r.id === price.ruleId) ?? price.rule;
                 if (rule) {
                     collection.push(rule);
                     return;

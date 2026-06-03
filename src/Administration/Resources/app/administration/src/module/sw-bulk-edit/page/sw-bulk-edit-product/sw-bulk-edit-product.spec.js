@@ -1093,6 +1093,42 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.selectedPriceRules).toHaveLength(0);
     });
 
+    it('should resolve selectedPriceRules label from the loaded rule association when the rule is outside the loaded rules', async () => {
+        const { EntityCollection } = Shopware.Data;
+
+        const productEntity = {
+            id: 'productId',
+            price: [
+                {
+                    currencyId: 'currencyId1',
+                    gross: 10,
+                    linked: true,
+                    net: 8.4,
+                },
+            ],
+            prices: new EntityCollection('/product-price', 'product_price', Shopware.Context.api),
+        };
+
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        // A server-loaded price whose rule is outside the loaded `rules` window (capped at 500).
+        // It carries no `ruleName`, only the loaded `rule` association.
+        wrapper.vm.product.prices.add({
+            id: 'price-999',
+            ruleId: '999',
+            rule: { id: '999', name: 'Rule beyond 500' },
+        });
+
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('999');
+        expect(wrapper.vm.selectedPriceRules[0].name).toBe('Rule beyond 500');
+    });
+
     it('should restrict fields on including digital products', async () => {
         const wrapper = await createWrapper();
 

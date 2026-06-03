@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
+use Shopware\Core\Framework\Adapter\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,9 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('discovery')]
 class SalesChannelListCommand extends Command
 {
-    private const FORMAT_TABLE = 'table';
-    private const FORMAT_JSON = 'json';
-    private const ALLOWED_FORMATS = [self::FORMAT_TABLE, self::FORMAT_JSON];
+    use OutputFormatTrait;
 
     /**
      * @var list<string>
@@ -61,14 +60,7 @@ class SalesChannelListCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption(
-            'format',
-            null,
-            InputOption::VALUE_REQUIRED,
-            'Output format. Available options: "table", "json"',
-            self::FORMAT_TABLE,
-            self::ALLOWED_FORMATS
-        );
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
         /** @deprecated tag:v6.8.0 - Use `--format` instead */
         $this->addOption(
             'output',
@@ -82,7 +74,16 @@ class SalesChannelListCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $format = $this->resolveFormat($input, $io);
+        $deprecatedOutput = $input->getOption('output');
+        if ($deprecatedOutput !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--output" option of the "sales-channel:list" command is deprecated and will be removed in v6.8.0. Use "--format" instead.'
+            );
+            $input->setOption('format', $deprecatedOutput);
+        }
+
+        $format = $this->resolveFormat($input, $io, [self::FORMAT_TABLE, self::FORMAT_JSON]);
         if ($format === null) {
             return self::INVALID;
         }
@@ -117,34 +118,6 @@ class SalesChannelListCommand extends Command
         }
 
         return $this->renderTable($output, $data);
-    }
-
-    private function resolveFormat(InputInterface $input, ShopwareStyle $io): ?string
-    {
-        $output = $input->getOption('output');
-        if ($output !== null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                'The "--output" option of the "sales-channel:list" command is deprecated and will be removed in v6.8.0. Use "--format" instead.'
-            );
-
-            if (!\in_array($output, self::ALLOWED_FORMATS, true)) {
-                $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $output, implode(', ', self::ALLOWED_FORMATS)));
-
-                return null;
-            }
-
-            return $output;
-        }
-
-        $format = $input->getOption('format');
-        if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
-            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', self::ALLOWED_FORMATS)));
-
-            return null;
-        }
-
-        return $format;
     }
 
     /**

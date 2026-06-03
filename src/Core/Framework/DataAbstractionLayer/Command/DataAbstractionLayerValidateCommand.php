@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
+use Shopware\Core\Framework\Adapter\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
@@ -22,9 +23,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class DataAbstractionLayerValidateCommand extends Command
 {
-    private const FORMAT_TABLE = 'table';
-    private const FORMAT_JSON = 'json';
-    private const ALLOWED_FORMATS = [self::FORMAT_TABLE, self::FORMAT_JSON];
+    use OutputFormatTrait;
 
     /**
      * @internal
@@ -37,14 +36,7 @@ class DataAbstractionLayerValidateCommand extends Command
     protected function configure(): void
     {
         parent::configure();
-        $this->addOption(
-            'format',
-            null,
-            InputOption::VALUE_REQUIRED,
-            'Output format. Available options: "table", "json"',
-            self::FORMAT_TABLE,
-            self::ALLOWED_FORMATS
-        );
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
         /** @deprecated tag:v6.8.0 - Use `--format json` instead */
         $this->addOption(
             'json',
@@ -64,7 +56,15 @@ class DataAbstractionLayerValidateCommand extends Command
     {
         $io = new ShopwareStyle($input, $output);
 
-        $format = $this->resolveFormat($input, $io);
+        if ($input->getOption('json')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--json" option of the "dal:validate" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
+            );
+            $input->setOption('format', self::FORMAT_JSON);
+        }
+
+        $format = $this->resolveFormat($input, $io, [self::FORMAT_TABLE, self::FORMAT_JSON]);
         if ($format === null) {
             return self::INVALID;
         }
@@ -105,27 +105,6 @@ class DataAbstractionLayerValidateCommand extends Command
         }
 
         return $hasErrors ? Command::FAILURE : Command::SUCCESS;
-    }
-
-    private function resolveFormat(InputInterface $input, ShopwareStyle $io): ?string
-    {
-        if ($input->getOption('json')) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.8.0.0',
-                'The "--json" option of the "dal:validate" command is deprecated and will be removed in v6.8.0. Use "--format json" instead.'
-            );
-
-            return self::FORMAT_JSON;
-        }
-
-        $format = $input->getOption('format');
-        if (!\in_array($format, self::ALLOWED_FORMATS, true)) {
-            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', self::ALLOWED_FORMATS)));
-
-            return null;
-        }
-
-        return $format;
     }
 
     /**

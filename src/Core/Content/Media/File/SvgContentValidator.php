@@ -227,38 +227,17 @@ class SvgContentValidator extends AbstractFileContentValidator
 
     private function getViolationsMessage(): string
     {
-        $groupedInvalidValues = array_reduce(
-            iterator_to_array($this->violations->getIterator()),
-            static function (array $acc, ConstraintViolationInterface $violation): array {
-                $acc[(string) $violation->getMessage()] = array_unique(
-                    array_merge(
-                        $acc[(string) $violation->getMessage()] ?? [],
-                        [$violation->getInvalidValue()]
-                    )
-                );
+        $valuesByMessage = [];
+        foreach ($this->violations as $violation) {
+            $valuesByMessage[(string) $violation->getMessage()][] = $violation->getInvalidValue();
+        }
 
-                return $acc;
-            },
-            []
-        );
+        $lines = [self::ACTIVE_CONTENT_MESSAGE];
+        foreach ($valuesByMessage as $message => $values) {
+            $lines[] = \sprintf('%s: %s', $message, implode(', ', array_unique($values)));
+        }
 
-        return \sprintf(
-            '%s%s%s',
-            self::ACTIVE_CONTENT_MESSAGE,
-            \PHP_EOL,
-            implode(
-                \PHP_EOL,
-                array_map(
-                    static fn (string $message, array $values): string => \sprintf(
-                        '%s: %s',
-                        $message,
-                        implode(', ', $values)
-                    ),
-                    array_keys($groupedInvalidValues),
-                    $groupedInvalidValues,
-                )
-            )
-        );
+        return implode(\PHP_EOL, $lines);
     }
 
     /**

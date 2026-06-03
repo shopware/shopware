@@ -963,8 +963,8 @@ export default {
                  * if the SwagAgenticCommerce plugin is installed.
                  */
                 if (
-                    saleChannelType.id === Defaults.agenticCommerceTypeId
-                    && !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
+                    saleChannelType.id === Defaults.agenticCommerceTypeId &&
+                    !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
                 ) {
                     return salesChannelTypes;
                 }

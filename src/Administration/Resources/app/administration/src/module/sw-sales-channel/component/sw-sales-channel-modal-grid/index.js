@@ -79,12 +79,7 @@ export default {
              */
             this.showAgenticCommerceType().then((showAgenticCommerceType) => {
                 if (!showAgenticCommerceType) {
-                    criteria.addFilter(
-                        Criteria.not(
-                            'AND',
-                            [Criteria.equals('id', Defaults.agenticCommerceTypeId)]
-                        )
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('id', Defaults.agenticCommerceTypeId)]));
                 }
 
                 this.salesChannelTypeRepository.search(criteria, context).then((response) => {
@@ -123,8 +118,7 @@ export default {
             criteria.addAssociation('type');
             criteria.addFilter(Criteria.equals('type.id', Defaults.agenticCommerceTypeId));
 
-            return this.salesChannelRepository.searchIds(criteria)
-                .then((response) => Promise.resolve(response.total > 0));
-        }
+            return this.salesChannelRepository.searchIds(criteria).then((response) => Promise.resolve(response.total > 0));
+        },
     },
 };

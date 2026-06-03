@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class ClientRepositoryTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->createMock(Connection::class);
-        $this->clientRepository = new ClientRepository($this->connection);
+        $this->clientRepository = new ClientRepository($this->connection, new NativeClock());
     }
 
     public function testValidateClientWithInvalidGrantTypeThrowException(): void

@@ -1,7 +1,7 @@
 # Review skill tests
 
 > [!WARNING]
-> Running the tests is costs intensive.
+> Running the tests is cost-intensive.
 
 End-to-end evals for the `.claude/skills/review` PR-review skill. Built on
 [skillgrade](https://github.com/mgechev/skillgrade).
@@ -10,9 +10,8 @@ End-to-end evals for the `.claude/skills/review` PR-review skill. Built on
 
 ```
 tests/
-├── eval.yaml   # 16 task definitions
+├── eval.yaml   # 10 task definitions
 ├── _lib.sh     # shared check/emit helpers (mounted into every workspace)
-├── golden/<name>/{input.json, diff.patch, grader.sh}
 └── persona/<persona>/{catch,ignore}/{input.json, diff.patch, grader.sh}
 ```
 
@@ -32,7 +31,7 @@ From this directory:
 skillgrade --provider=local --agent=claude --trials=1
 
 # A single task (cheapest sanity check).
-skillgrade --provider=local --agent=claude --eval=golden-docs-only --trials=1
+skillgrade --provider=local --agent=claude --eval=persona-open-source-catch --trials=1
 
 # Variance — same task five times, reports pass@k and pass^k.
 skillgrade --provider=local --agent=claude --smoke

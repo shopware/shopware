@@ -19,6 +19,7 @@ Shopware.Service('cmsService').registerCmsBlock({
     category: 'commerce',
     component: 'sw-cms-block-product-heading',
     previewComponent: 'sw-cms-preview-product-heading',
+    allowedPageTypes: [Shopware.Constants.CMS.PAGE_TYPES.PRODUCT_DETAIL],
     defaultConfig: {
         marginTop: '20px',
         marginLeft: null,

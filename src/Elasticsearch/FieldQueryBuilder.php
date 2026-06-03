@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 
@@ -120,7 +121,21 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     private function buildExactMatchQuery(SearchFieldConfig $config, array $tokens, string $token, int $tokenCount): BuilderInterface
     {
         if ($tokenCount === 1) {
-            return new TermQuery($config->getField(), $token, ['boost' => 1]);
+            if ($config->useExactSubfield()) {
+                return new TermQuery($config->getField() . '.exact', $token, ['boost' => 2]);
+            }
+
+            $matchQueryParams = [
+                'boost' => 2,
+                'fuzziness' => 0,
+                'operator' => 'and',
+            ];
+
+            if (!$this->useLanguageAnalyzer) {
+                $matchQueryParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
+            }
+
+            return new MatchQuery($config->getField() . '.search', $token, $matchQueryParams);
         }
 
         if ($config->isAndLogic()) {
@@ -130,27 +145,27 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
                 $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::MUST);
             }
 
-            $exactMatchQuery->addParameter('boost', 1);
+            $exactMatchQuery->addParameter('boost', 2);
 
             return $exactMatchQuery;
         }
 
-        return new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
+        return new TermsQuery($config->getField(), $tokens, ['boost' => 2]);
     }
 
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
-            'boost' => 0.8,
+            'boost' => 0.4,
             'fuzziness' => $config->getFuzziness($token),
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
-            'prefix_length' => 1,
+            'prefix_length' => $config->getPrefixLength($token),
         ];
 
         if (!$this->useLanguageAnalyzer) {
-            $matchQueryParams['analyzer'] = 'sw_whitespace_analyzer';
+            $matchQueryParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
         }
 
         return new MatchQuery($searchField, $token, $matchQueryParams);
@@ -175,7 +190,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
             ];
 
             if (!$this->useLanguageAnalyzer) {
-                $matchPhrasePrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+                $matchPhrasePrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
             }
 
             return new MatchPhrasePrefixQuery($searchField, $token, $matchPhrasePrefixParams);
@@ -184,7 +199,7 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
         $matchBoolPrefixParams = ['boost' => 0.4];
 
         if (!$this->useLanguageAnalyzer) {
-            $matchBoolPrefixParams['analyzer'] = 'sw_whitespace_analyzer';
+            $matchBoolPrefixParams['analyzer'] = ElasticsearchFieldBuilder::ANALYZER_WHITESPACE;
         }
 
         return new MatchBoolPrefixQuery($searchField, $token, $matchBoolPrefixParams);

@@ -6,6 +6,7 @@ use Composer\InstalledVersions;
 use Composer\IO\NullIO;
 use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -98,6 +99,7 @@ class PluginLifecycleService
         private readonly VersionSanitizer $versionSanitizer,
         private readonly DefinitionInstanceRegistry $definitionRegistry,
         private readonly RequestStack $requestStack,
+        private readonly ClockInterface $clock,
     ) {
         $this->originalEventDispatcher = $eventDispatcher;
     }
@@ -141,7 +143,7 @@ class PluginLifecycleService
                 $plugin->setVersion($updateVersion);
                 $pluginData['upgradeVersion'] = null;
                 $plugin->setUpgradeVersion(null);
-                $upgradeDate = new \DateTime();
+                $upgradeDate = $this->clock->now();
                 $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                 $plugin->setUpgradedAt($upgradeDate);
             }
@@ -154,7 +156,7 @@ class PluginLifecycleService
 
             $this->runMigrations($installContext);
 
-            $installDate = new \DateTime();
+            $installDate = $this->clock->now();
             $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $plugin->setInstalledAt($installDate);
 
@@ -314,7 +316,7 @@ class PluginLifecycleService
         $this->runMigrations($updateContext);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
-        $updateDate = new \DateTime();
+        $updateDate = $this->clock->now();
         $this->updatePluginData(
             [
                 'id' => $plugin->getId(),
@@ -688,7 +690,7 @@ class PluginLifecycleService
     private function signalWorkerStopInOldCacheDir(): void
     {
         $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-        $cacheItem->set(microtime(true));
+        $cacheItem->set((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT));
         $this->restartSignalCachePool->save($cacheItem);
     }
 

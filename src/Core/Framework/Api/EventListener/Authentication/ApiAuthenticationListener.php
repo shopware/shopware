@@ -6,6 +6,7 @@ use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
@@ -42,6 +43,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         private readonly RouteScopeRegistry $routeScopeRegistry,
         private readonly UserService $userService,
         private readonly ExternalTokenService $tokenService,
+        private readonly ClockInterface $clock,
         private readonly string $accessTokenTtl = 'PT10M',
         private readonly string $refreshTokenTtl = 'P1W'
     ) {
@@ -75,7 +77,7 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         // At this point session is not set $event->getRequest()->getSession()
-        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService);
+        $shopwareGrant = new ShopwareGrantType($this->refreshTokenRepository, $this->userService, $this->tokenService, $this->clock);
         $shopwareGrant->setRefreshTokenTTL($refreshTokenInterval);
 
         $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);

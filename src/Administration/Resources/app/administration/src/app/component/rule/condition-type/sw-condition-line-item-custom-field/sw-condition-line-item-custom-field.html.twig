@@ -54,8 +54,15 @@
     {% endblock %}
 
     {% block sw_condition_line_item_custom_field_value %}
+    <sw-condition-value-between-date
+        v-if="renderedField && isBetween"
+        v-model:value="betweenValue"
+        :date-type="renderedField.type"
+        :disabled="disabled || undefined"
+    />
+
     <sw-form-field-renderer
-        v-if="renderedField"
+        v-else-if="renderedField"
         name="sw-field--renderedFieldValue"
         size="medium"
         :value="renderedFieldValue"

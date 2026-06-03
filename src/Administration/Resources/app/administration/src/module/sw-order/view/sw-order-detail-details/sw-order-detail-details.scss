@@ -5,7 +5,8 @@
     &__internal-comment,
     &__shipping-address,
     &__billing-address,
-    &__promotion {
+    &__promotion,
+    &__divider {
         grid-column: 1 / span 2;
     }
 

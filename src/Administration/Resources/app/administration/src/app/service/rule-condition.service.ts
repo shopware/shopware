@@ -33,6 +33,7 @@ type OperatorSetIdentifier =
     | 'bool'
     | 'number'
     | 'date'
+    | 'datetime'
     | 'isNet'
     | 'empty'
     | 'zipCode';
@@ -128,6 +129,10 @@ export default class RuleConditionService {
             identifier: 'empty',
             label: 'global.sw-condition.operator.empty',
         },
+        between: {
+            identifier: 'between',
+            label: 'global.sw-condition.operator.between',
+        },
     };
 
     operatorSets = {
@@ -167,6 +172,16 @@ export default class RuleConditionService {
             this.operators.lowerThan,
             this.operators.lowerThanEquals,
             this.operators.notEquals,
+            this.operators.between,
+        ],
+        datetime: [
+            this.operators.equals,
+            this.operators.greaterThan,
+            this.operators.greaterThanEquals,
+            this.operators.lowerThan,
+            this.operators.lowerThanEquals,
+            this.operators.notEquals,
+            this.operators.between,
         ],
         isNet: [
             this.operators.gross,
@@ -191,6 +206,8 @@ export default class RuleConditionService {
         text: 'string',
         int: 'number',
         bool: 'bool',
+        date: 'date',
+        datetime: 'datetime',
     };
 
     moduleTypes: { [key: string]: ModuleType } = {

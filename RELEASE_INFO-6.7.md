@@ -1,6 +1,26 @@
 # 6.7.12.0 (upcoming)
 
+## Storefront
+
+### Checkout gateway blocked method fallback
+
+Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
+The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
+
+### Customer address fields are trimmed on new writes
+
+Customer address fields submitted through storefront registration and address updates are now trimmed before they are written.
+This prevents leading or trailing whitespace from being stored in standard address fields such as first name, last name, street, city, and zipcode.
+
+Existing customer address records are not changed.
+
 ## API
+
+### Plain JSON API includes preserve extension wrappers
+
+The Admin API plain JSON encoder now keeps extension association fields inside the `extensions` object when they are selected through `includes`.
+For example, including an extension association such as `toOne` on an entity returns `extensions.toOne` instead of promoting `toOne` to the top-level response.
+Nested extension entities also respect their own include definitions, so API clients can filter extension payload fields consistently.
 
 ### Number range previews can target a concrete number range
 
@@ -11,7 +31,23 @@ The previous type-based preview route `/api/_action/number-range/preview-pattern
 It can only resolve global number ranges and therefore does not support non-global number range state.
 The allocation route `/api/_action/number-range/reserve/{type}` is unchanged.
 
+### Empty `sw-*` id headers are treated as unset
+
+Admin API and Store API requests now treat empty ID headers such as `sw-language-id`, `sw-currency-id`, `sw-app-integration-id`, and `sw-app-user-id` the same as missing headers.
+Empty values fall back to the default request context instead of being forwarded as invalid UUIDs.
+Whitespace-only values are still rejected as malformed IDs.
+
+For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
+
 ## Core
+
+### Stored mail template type data deprecated
+
+The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.
+It was only used as stored preview data and is no longer needed after the mail template preview refactoring.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` remain supported and are not part of this deprecation.
 
 ### Number range value generator interface deprecated
 
@@ -28,6 +64,45 @@ Admin-search autocomplete now flows through a new `completion` field (ngram-inde
 
 Run `bin/console es:admin:index` after deploying. Identifier search works immediately on the old index; substring autocomplete is degraded to prefix-only until the reindex completes.
 
+### Type-safe subscription helpers on `Extension`
+
+`Shopware\Core\Framework\Extensions\Extension` now exposes three static helpers — `onPre()`, `onPost()`, and `onError()` — that return the dispatched event name for the corresponding phase. Extensions need `::NAME` constant for the methods to work.
+
+Use them in `getSubscribedEvents()` instead of string concatenation or `ExtensionDispatcher::pre/post/error()`:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [
+        ResolveListingExtension::onPre()  => 'method1',
+        ResolveListingExtension::onPost() => 'method2',
+        ResolveListingExtension::onError() => 'method3',
+    ];
+}
+```
+
+Dispatchers and subscribers no longer have to concatenate event-name strings - it gives type safety, IDE autocomplete, and rename-refactor support. Also subscribers don't have to depend on `ExtensionDispatcher`.
+
+The previous styles — `MyExtension::NAME . '.post'` and `ExtensionDispatcher::post(MyExtension::NAME)` — continue to work and are not deprecated. No migration is required.
+
+### Telemetry metrics evolution
+
+The telemetry metrics abstraction behind the `TELEMETRY_METRICS` feature flag received several improvements ahead of stabilization in 6.8.
+See [ADR 2026-04-23](./adr/2026-04-23-telemetry-v2-metrics-evolution.md) for the full reasoning.
+
+- **Breaking**: `MetricTransportInterface` now requires a `flush()` method. Implement it as a no-op if the transport does not need lifecycle management. A new `TelemetryFlushListener` calls `flush()` on `kernel.terminate`, `console.terminate`, and (throttled) on `WorkerRunningEvent` so emissions from long-running workers reach the backend.
+- Global kill-switch `shopware.telemetry.metrics.enabled` disables emission and removes services tagged `shopware.telemetry.subscriber` / `shopware.telemetry.periodic_metric_collector` via a compiler pass — zero overhead when off.
+- Per-label validation policies: each label in a metric definition must declare either `allowed_values` or `policy: open`. Unknown values are handled per `policy` (`replace` / `discard` / `open`), with type-aware defaults (additive types replace, gauges discard). Unknown label names throw in dev/test and log at error level in production; replacements log at notice level in dev/test so typos like `GETT` vs `GET` surface during development.
+- `PeriodicMetricCollectorInterface`: tag a service with `shopware.telemetry.periodic_metric_collector` to have its metrics collected by the `telemetry.collect_periodic_metrics` scheduled task (default 5 minutes, tunable via the standard scheduled-task administration). Useful for expensive aggregations and info metrics.
+- New `Telemetry` facade: inject `Telemetry` to call `emit(ConfiguredMetric)` and `instrument(callback, DurationMetric?, Span?)` for combined duration metrics and profiler spans through a single entry point.
+- Config cleanup: `allow_unknown_labels`, `allow_unknown_label_values`, and `enable_internal_metrics` are deprecated (superseded by per-label policies and per-metric `enabled`).
+
+### Auto-resend double opt-in confirmation email on failed login
+
+When a customer with an unconfirmed double opt-in account tries to log in, Shopware now automatically resends the confirmation email if the original was sent more than a configurable interval ago.
+
+The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `24` hours). Setting it to `0` disables the auto-resend entirely.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted
@@ -43,6 +118,10 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 | `cartLineItemTotalPrice` | Item subtotal -> Item total (qty × price) | Positionszwischensumme -> Positionssumme (Menge × Preis) | One item's total, quantity multiplied by unit price |
 | `cartLineItemGoodsTotal` | Total quantity of all products -> Total product quantity (units) | Gesamtanzahl aller Produkte -> Gesamtmenge der Produkte (Stück) | Total unit count of goods in the cart |
 | `cartGoodsCount` | Total quantity of distinct products -> Number of distinct products | Gesamtanzahl unterschiedlicher Produkte -> Anzahl unterschiedlicher Produkte | Number of distinct products in the cart |
+
+### `sw-data-grid` column labels fall back to the default locale
+
+Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
 
 ## App System
 
@@ -119,32 +198,6 @@ Arbitrary unknown top-level keys are still forwarded for backwards compatibility
 
 ## Core
 
-### Pluggable thumbnail image processor
-
-The thumbnail generation pipeline now uses a `ThumbnailProcessorInterface` instead of a hardwired GD implementation.
-Two processors ship out of the box:
-
-- `GdImageThumbnailProcessor` — uses the PHP GD extension and is the default.
-- `ImagickThumbnailProcessor` — uses the PHP Imagick extension, if installed.
-
-Switch between them in `config/packages/shopware.yaml`:
-
-    shopware:
-      media:
-        thumbnail_processor: imagick   # or "gd" (default)
-
-Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
-`ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
-
-### Number range value generator interface deprecated
-
-`NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.
-Custom number range value generator implementations and decorators should extend the abstract class instead.
-Implement `previewPatternByNumberRangeId()` for persisted number-range previews and continue using `getValue()` for actual number allocation.
-
-The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
-Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
-
 ### Backward compatible invalid locales
 
 Added and deprecated `BackwardCompatibleNumberFormatter` to temporarily allow invalid locale strings without throwing exceptions in PHP >=8.4. It will be removed in Shopware 6.8.
@@ -211,17 +264,7 @@ A new `translation:list` console command prints every locale configured for `tra
 The new `SnippetPatterns::ALLOWED_PSEUDO_LOCALES` and `SnippetPatterns::PSEUDO_LOCALE_TERRITORY` constants register Crowdin pseudo-languages (e.g. `ach-UG`) as valid translation targets for in-context proofreading and translatability audits.
 Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and `TranslationLoader::getLocalePath`, and a missing `locale` entity is auto-created on install with a display name from the constant map and a fixed `Pseudo Language` territory.
 
-### New `sha256` Twig filter
-
-A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
-
 ## Administration
-
-### Analytics settings split into Configuration and Tracking cards
-
-The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).
-
-New extensible Twig blocks `sw_sales_channel_detail_analytics_configuration`, `sw_sales_channel_detail_analytics_tracking`, `sw_sales_channel_detail_analytics_tracking_description`, and `sw_sales_channel_detail_analytics_fields_enhanced_conversions` have been added.
 
 ### Block renaming
 
@@ -293,9 +336,16 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Support test file splitting
+
+Administration Jest tests can now be split into multiple files using `*.spec/` directories.
+ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
+### Outside clicks in dropdowns are identified correctly
+
+Administration dropdowns now identify outside clicks correctly when the browser reports a click target outside the dropdown even though the pointer is still over the dropdown.
 ### `sw-data-grid` column labels fall back to the default locale
 
 Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
@@ -305,33 +355,6 @@ App action buttons that use an app manifest icon now render the icon at the norm
 Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
 
 ## Storefront
-
-### Mail templates can access storefront theme configuration
-
-Mail templates rendered for a sales channel now receive a temporary `salesChannelContext` and the assigned `themeId`.
-This allows Twig helpers such as `theme_config()` to resolve storefront theme configuration in mails without replacing the existing core `context` variable.
-The shared `MailTemplateRenderContextEvent` is dispatched for both sent mails and preview/simulation rendering so extensions can enrich mail template data through one hook.
-
-### Google Ads Enhanced Conversions
-
-A new Enhanced Conversions option was added to the Google Analytics integration. When enabled in the sales channel analytics settings, the checkout finish page sends the SHA256-hashed customer email address via `gtag('set', 'user_data', ...)` to support Google Ads Enhanced Conversions. Email addresses are normalized according to Google's requirements before hashing.
-
-A new `enhanced_conversions` boolean field was added to `SalesChannelAnalyticsDefinition` and `SalesChannelAnalyticsEntity`.
-
-New extensible Twig block `page_checkout_finish_enhanced_conversions` has been added to `finish-details.html.twig`.
-
-### Google Analytics now starts when only the Google Ads cookie is accepted
-
-Previously, the Google Analytics integration was only included on page load when the `google-analytics-enabled` cookie was present.
-If a customer had accepted only the Google Ads cookie (`google-ads-enabled`), the integration would not start.
-
-### Storefront XHR login failures now keep HTTP 403
-
-Storefront requests that require a logged-in customer no longer redirect to the login page for XMLHttpRequests when the customer session is no longer valid.
-The original `403 Forbidden` response is preserved.
-Regular page requests still redirect to the login page.
-This prevents expired sessions from creating redirect chains from XHR endpoints to page controllers and fixes the follow-up failure where the redirected XHR request reaches the login page, which does not allow XHR access.
-JavaScript clients can now handle the failed unauthenticated XHR response explicitly.
 
 ### New Component System
 
@@ -417,17 +440,7 @@ The set of fields that trigger the redirect is configurable via the `shopware.st
 Any string-valued property declared on `ProductEntity` may be configured — unknown or non-string properties are skipped.
 Set the parameter to a narrower list (for example `['productNumber']`) to restore the previous behaviour.
 
-### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
-
-The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
-
 ## Hosting & Configuration
-
-### Google Storage supports application default credentials
-
-Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
-When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
-See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
 
 ### Local filesystem permission enforcement can be disabled
 
@@ -519,7 +532,6 @@ If your integration or plugin assumes a 32-character `display_group`, compares a
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
-
 ### Deprecation of `permisionsLocked` property of `SalesChannelContext`
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.

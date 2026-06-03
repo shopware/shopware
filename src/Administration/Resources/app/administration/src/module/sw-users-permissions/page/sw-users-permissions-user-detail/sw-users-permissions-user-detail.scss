@@ -1,10 +1,3 @@
-@import "~scss/variables";
-
-$sw-settings-user-detail-change-password: $color-shopware-brand-500;
-$sw-field-help-font-size: $font-size-xs;
-$sw-field-help-line-height: 22px;
-$sw-field-help-color: $color-darkgray-200;
-
 .sw-settings-user-detail {
     .sw-settings-user-detail__grid {
         width: 100%;
@@ -19,7 +12,7 @@ $sw-field-help-color: $color-darkgray-200;
             "ChangePassword none"
             "Language Timezone"
             "JobTitle AclRoles";
-        grid-column-gap: 32px;
+        grid-column-gap: var(--scale-size-32);
     }
 
     .sw-settings-user-detail__grid-firstName {
@@ -40,11 +33,6 @@ $sw-field-help-color: $color-darkgray-200;
 
     .sw-settings-user-detail__grid-password {
         grid-area: Password;
-
-        .sw-settings-user-detail__new-password {
-            margin-top: 22px;
-            margin-bottom: 0;
-        }
     }
 
     .sw-settings-user-detail__grid-language {
@@ -53,13 +41,6 @@ $sw-field-help-color: $color-darkgray-200;
 
     .sw-settings-user-detail__grid-profile-picture {
         grid-area: ProfilePicture;
-    }
-
-    .sw-settings-user-detail__grid-change-password {
-        grid-area: ChangePassword;
-        color: $sw-settings-user-detail-change-password;
-        margin-left: auto;
-        cursor: pointer;
     }
 
     .sw-settings-user-detail__grid-jobTitle {
@@ -77,19 +58,5 @@ $sw-field-help-color: $color-darkgray-200;
     &__grid-timezone {
         grid-area: Timezone;
         margin-top: 0;
-    }
-
-    .sw-settings-user-detail__detail {
-        .sw-field.sw-field__checkbox {
-            align-self: center;
-            margin: 0;
-        }
-
-        .sw-field__help {
-            font-size: $sw-field-help-font-size;
-            color: lighten($sw-field-help-color, 20);
-            line-height: $sw-field-help-line-height;
-            padding-top: 7px;
-        }
     }
 }

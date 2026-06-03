@@ -215,7 +215,7 @@
         <mt-card
             v-for="configEntry in resolvedAgenticCommerceExportConfig"
             :key="configEntry.provider"
-            position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"
+            position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"
             :title="getAgenticCommerceExportCardTitle(configEntry)"
         >
             <sw-skeleton v-if="configEntry.isLoading" />

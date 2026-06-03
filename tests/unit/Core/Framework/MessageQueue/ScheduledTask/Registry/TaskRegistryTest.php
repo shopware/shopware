@@ -18,6 +18,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TestScheduledTask;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
@@ -59,7 +60,7 @@ class TaskRegistryTest extends TestCase
             new ScheduledTaskCollection([$registeredTask]),
         ]);
 
-        (new TaskRegistry($tasks, $staticRepository, $parameterBag))->registerTasks();
+        (new TaskRegistry($tasks, $staticRepository, $parameterBag, new NativeClock()))->registerTasks();
 
         static::assertSame(
             [
@@ -90,7 +91,7 @@ class TaskRegistryTest extends TestCase
     {
         $parameterBag = new ParameterBag([]);
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, $parameterBag);
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, $parameterBag, new NativeClock());
 
         $registeredTask = new ScheduledTaskEntity();
 
@@ -126,7 +127,7 @@ class TaskRegistryTest extends TestCase
             'shopware.sitemap.scheduled_task.enabled' => false,
         ]);
 
-        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag);
+        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag, new NativeClock());
 
         $queuedTask = new ScheduledTaskEntity();
         $scheduledTask = new ScheduledTaskEntity();
@@ -188,7 +189,7 @@ class TaskRegistryTest extends TestCase
             'shopware.sitemap.scheduled_task.enabled' => true,
         ]);
 
-        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag);
+        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, $parameterBag, new NativeClock());
 
         $queuedTask = new ScheduledTaskEntity();
         $skippedTask = new ScheduledTaskEntity();
@@ -244,7 +245,7 @@ class TaskRegistryTest extends TestCase
     {
         $tasks = [new CleanupCartTask()];
 
-        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
         $taskEntity = new ScheduledTaskEntity();
         $taskEntity->setId('cleanupTask');
@@ -282,7 +283,7 @@ class TaskRegistryTest extends TestCase
     {
         $tasks = [new CleanupCartTask()];
 
-        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry($tasks, $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
         $taskEntity = new ScheduledTaskEntity();
         $taskEntity->setId('cleanupTask');
@@ -325,7 +326,7 @@ class TaskRegistryTest extends TestCase
         /** @var StaticEntityRepository<ScheduledTaskCollection> $repository */
         $repository = new StaticEntityRepository([new ScheduledTaskCollection([$taskEntity])]);
 
-        $tasks = (new TaskRegistry([], $repository, new ParameterBag([])))->getAllTasks(Context::createDefaultContext());
+        $tasks = (new TaskRegistry([], $repository, new ParameterBag([]), new NativeClock()))->getAllTasks(Context::createDefaultContext());
 
         static::assertCount(1, $tasks);
         static::assertSame($taskEntity, $tasks->first());
@@ -359,7 +360,7 @@ class TaskRegistryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->scheduleTask('test.task', false, false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $status);
@@ -397,7 +398,7 @@ class TaskRegistryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->scheduleTask('test.task', true, false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_SCHEDULED, $status);
@@ -421,7 +422,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->never())
             ->method('update');
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->scheduleTask('test.task', false, false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $status);
@@ -445,7 +446,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->never())
             ->method('update');
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->scheduleTask('test.task', false, false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $status);
@@ -479,7 +480,7 @@ class TaskRegistryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->scheduleTask('test.task', false, true, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $status);
@@ -495,7 +496,7 @@ class TaskRegistryTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
         $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 
@@ -530,7 +531,7 @@ class TaskRegistryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->deactivateTask('test.task', false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_INACTIVE, $status);
@@ -554,7 +555,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->never())
             ->method('update');
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->deactivateTask('test.task', false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $status);
@@ -578,7 +579,7 @@ class TaskRegistryTest extends TestCase
         $this->scheduleTaskRepository->expects($this->never())
             ->method('update');
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->deactivateTask('test.task', false, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $status);
@@ -612,7 +613,7 @@ class TaskRegistryTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
         $status = $registry->deactivateTask('test.task', true, Context::createDefaultContext());
 
         static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $status);
@@ -628,7 +629,7 @@ class TaskRegistryTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]));
+        $registry = new TaskRegistry([], $this->scheduleTaskRepository, new ParameterBag([]), new NativeClock());
 
         $this->expectExceptionObject(new \RuntimeException('Tried to fetch "non.existing.task" scheduled task, but scheduled task does not exist'));
 

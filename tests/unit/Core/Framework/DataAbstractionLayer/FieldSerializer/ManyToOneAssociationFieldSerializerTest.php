@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -41,8 +40,7 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
     #[DataProvider('invalidArrayProvider')]
     public function testExceptionIsThrownIfDataIsNotAssociativeArray(array $payload): void
     {
-        $this->expectException(DataAbstractionLayerException::class);
-        static::expectExceptionMessage('Expected data at /customer to be an associative array.');
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedAssociativeArray('/customer'));
 
         new StaticDefinitionInstanceRegistry(
             [
@@ -78,8 +76,7 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
 
     public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
     {
-        $this->expectException(ExpectedArrayException::class);
-        static::expectExceptionMessage('Expected data at /0/customer to be an array.');
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArray('/0/customer'));
 
         new StaticDefinitionInstanceRegistry(
             [

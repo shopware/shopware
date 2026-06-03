@@ -6,6 +6,8 @@ import type { CategorizedPermissions, ServiceDescription } from '../../service/s
 import template from './sw-settings-services-service-card.html.twig';
 import './sw-settings-services-service-card.scss';
 import extractErrorMessage from '../../composables/extract-error';
+import { GMV_REPORTING_SERVICE_NAME, serviceHasShopwareAccountRequirement } from '../../requirements/index';
+import SwSettingsServicesGmvInfo from '../sw-settings-services-gmv-info';
 
 /**
  * @private
@@ -14,6 +16,10 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-service-card',
 
     template,
+
+    components: {
+        SwSettingsServicesGmvInfo,
+    },
 
     props: {
         service: {
@@ -80,6 +86,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         readableVersion() {
             return this.service.version.split('-')[0];
+        },
+
+        serviceHasShopwareAccountRequirement() {
+            return serviceHasShopwareAccountRequirement(this.service.requirements);
+        },
+
+        serviceIsGmvReportingService() {
+            return this.service.name === GMV_REPORTING_SERVICE_NAME;
         },
 
         dateFilter() {

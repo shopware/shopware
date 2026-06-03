@@ -34,6 +34,23 @@
     .sw-settings-services-service-card__description {
         flex-grow: 1;
         font-size: var(--font-size-xs);
+
+        & > *:not(:last-child) {
+            margin-block-end: var(--scale-size-10);
+        }
+    }
+
+    .sw-settings-services-service-card__account-requirement {
+        p {
+            margin: 0;
+        }
+    }
+
+    .sw-settings-services-service-card__gmv-requirement-nowrap {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--scale-size-4);
+        white-space: nowrap;
     }
 
     .sw-settings-services-service-card__footer {

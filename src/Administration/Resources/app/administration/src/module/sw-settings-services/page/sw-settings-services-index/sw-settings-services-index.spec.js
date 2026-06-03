@@ -60,11 +60,15 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
                     id: 'service-id',
                     active: true,
                     name: 'first-service-name',
+                    label: 'First Service',
+                    requirements: ['service_consent'],
                 },
                 {
                     id: 'service-id-2',
                     active: true,
                     name: 'second-service-name',
+                    label: 'Second Service',
+                    requirements: ['shopware_account'],
                 },
             ]),
             getServicesContext: jest.fn(async () => ({
@@ -141,6 +145,24 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
 
         expect(page.findComponent(SwSettingsServicesRevokePermissionsModal).exists()).toBe(true);
         expect(page.findComponent(SwSettingsServicesDeactivateModal).exists()).toBe(true);
+    });
+
+    it('passes Shopware Account services to the global action modals', async () => {
+        const page = await mountPage();
+        await flushPromises();
+
+        expect(page.getComponent(SwSettingsServicesRevokePermissionsModal).props('servicesWithAccountRequirement')).toEqual([
+            {
+                name: 'second-service-name',
+                label: 'Second Service',
+            },
+        ]);
+        expect(page.getComponent(SwSettingsServicesDeactivateModal).props('servicesWithAccountRequirement')).toEqual([
+            {
+                name: 'second-service-name',
+                label: 'Second Service',
+            },
+        ]);
     });
 
     it('shows correct links in the footer', async () => {

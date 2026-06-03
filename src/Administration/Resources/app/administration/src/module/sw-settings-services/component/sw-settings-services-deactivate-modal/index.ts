@@ -1,6 +1,8 @@
 import template from './sw-settings-services-deactivate-modal.html.twig';
 import './sw-settings-services-deactivate-modal.scss';
 import extractError from '../../composables/extract-error';
+import SwSettingsServicesGmvInfo from '../sw-settings-services-gmv-info';
+import { GMV_REPORTING_SERVICE_NAME } from '../../requirements/index';
 
 /**
  * @sw-package framework
@@ -10,9 +12,17 @@ export default Shopware.Component.wrapComponentConfig({
     name: 'sw-settings-services-deactivate-modal',
     template,
 
+    components: {
+        SwSettingsServicesGmvInfo,
+    },
+
     props: {
         feedbackLink: {
             type: String,
+        },
+        servicesWithAccountRequirement: {
+            type: Array,
+            default: () => [],
         },
     },
 
@@ -20,6 +30,12 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             isLoading: false,
         };
+    },
+
+    computed: {
+        gmvReportingServiceName() {
+            return GMV_REPORTING_SERVICE_NAME;
+        },
     },
 
     methods: {

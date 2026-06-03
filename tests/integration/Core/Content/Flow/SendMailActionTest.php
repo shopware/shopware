@@ -51,6 +51,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -603,6 +604,8 @@ class SendMailActionTest extends TestCase
     #[DataProvider('updateTemplateDataProvider')]
     public function testUpdateAndSanitizeTemplateData(bool $shouldUpdate): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $mailTemplate = static::getContainer()

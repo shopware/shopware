@@ -43,6 +43,6 @@ class McpResourcePersister extends AbstractMcpCapabilityPersister
      */
     protected function fetchExisting(string $appId, Context $context): EntityCollection
     {
-        return $this->searchByAppId($this->mcpResourceRepository, $appId, $context);
+        return $this->searchByAppId($appId, $context);
     }
 }

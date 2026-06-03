@@ -105,8 +105,7 @@ class AppPrivilegeControllerTest extends TestCase
         // To trigger AppException::invalidPrivileges(), 'accept' or 'revoke' must be non-array
         $request = new Request(content: (string) json_encode(['accept' => 123])); // Changed from null to 123
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('For each accept, or revoke, expected a list of privileges in the format "category:read"'); // Changed to full message
+        $this->expectExceptionObject(AppException::invalidPrivileges());
 
         $this->controller->updatePrivileges($request, $context, 'app-id-1');
     }
@@ -120,8 +119,7 @@ class AppPrivilegeControllerTest extends TestCase
         // To trigger AppException::invalidPrivileges(), 'accept' or 'revoke' must be non-array
         $request = new Request(content: (string) json_encode(['accept' => false]));
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('For each accept, or revoke, expected a list of privileges in the format "category:read"'); // Changed to full message
+        $this->expectExceptionObject(AppException::invalidPrivileges());
 
         $this->controller->updatePrivileges($request, $context, 'app-id-1');
     }
@@ -137,8 +135,7 @@ class AppPrivilegeControllerTest extends TestCase
 
         $this->privileges->expects($this->never())->method('updatePrivileges');
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Could not find app with name "appName"');
+        $this->expectExceptionObject(AppException::notFoundByField('appName', 'name'));
 
         $request = new Request(content: (string) json_encode(['accept' => ['customer:read', 'customer:update']]));
         $this->controller->updatePrivileges($request, $context, 'appName');

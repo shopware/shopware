@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\SystemConfigLimiter;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
@@ -37,7 +38,8 @@ class RateLimiterFactory
         private array $config,
         private readonly StorageInterface $storage,
         private readonly SystemConfigService $systemConfigService,
-        private readonly ?LockFactory $lockFactory = null
+        private readonly ClockInterface $clock,
+        private readonly ?LockFactory $lockFactory = null,
     ) {
     }
 
@@ -51,7 +53,7 @@ class RateLimiterFactory
         $lock = $this->lockFactory ? $this->lockFactory->createLock($id) : new NoLock();
 
         if (isset($this->config['reset']) && !($this->config['reset'] instanceof \DateInterval)) {
-            $this->config['reset'] = (new \DateTimeImmutable())->diff(new \DateTimeImmutable('+' . $this->config['reset']));
+            $this->config['reset'] = $this->clock->now()->diff($this->clock->now()->modify('+' . $this->config['reset']));
         }
 
         if ($this->config['policy'] === 'time_backoff' && isset($this->config['limits']) && isset($this->config['reset'])) {
@@ -60,13 +62,13 @@ class RateLimiterFactory
 
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new TimeBackoffLimiter($id, $limits, $this->config['reset'], $this->storage, $lock);
+            return new TimeBackoffLimiter($id, $limits, $this->config['reset'], $this->storage, $this->clock, $lock);
         }
 
         if ($this->config['policy'] === 'system_config' && isset($this->config['limits']) && isset($this->config['reset'])) {
             \assert($this->config['reset'] instanceof \DateInterval);
 
-            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock);
+            return new SystemConfigLimiter($this->systemConfigService, $id, $this->config['limits'], $this->config['reset'], $this->storage, $lock, $this->clock);
         }
 
         // prevent symfony errors due to customized values

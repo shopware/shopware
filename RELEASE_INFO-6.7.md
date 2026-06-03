@@ -7,6 +7,13 @@
 Storefront checkout cart and confirm page loading now resolves payment and shipping methods blocked by the checkout gateway before rendering the page.
 The fallback method is selected from the checkout gateway response, preferring the sales-channel default method when available and otherwise using the first available method declared by the gateway.
 
+### Customer address fields are trimmed on new writes
+
+Customer address fields submitted through storefront registration and address updates are now trimmed before they are written.
+This prevents leading or trailing whitespace from being stored in standard address fields such as first name, last name, street, city, and zipcode.
+
+Existing customer address records are not changed.
+
 ## API
 
 ### Plain JSON API includes preserve extension wrappers
@@ -33,6 +40,14 @@ Whitespace-only values are still rejected as malformed IDs.
 For cache efficiency, clients should consistently either omit `sw-language-id` and `sw-currency-id` or send them empty when they intentionally want default context resolution, because these headers can participate in reverse-proxy cache keys.
 
 ## Core
+
+### Stored mail template type data deprecated
+
+The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.
+It was only used as stored preview data and is no longer needed after the mail template preview refactoring.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` remain supported and are not part of this deprecation.
 
 ### Number range value generator interface deprecated
 
@@ -204,6 +219,11 @@ Implement `previewPatternByNumberRangeId()` for persisted number-range previews 
 
 The type-based `previewPattern()` method remains available for backwards compatibility in 6.7, but is deprecated and will be removed in 6.8.
 Use `previewPatternByNumberRangeId()` when previewing or editing an existing number range.
+### Variants can now be searched by parent product name
+
+The new `parent.name` search field allows variants to be found through their parent product name and ranked independently from the variant's own `name`.
+
+The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
 
 ### Backward compatible invalid locales
 
@@ -317,6 +337,30 @@ Custom fields on category, landing page, sales channel, customer address, and or
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
 The end boundary is now derived from the quarter's start year rather than the current year.
 
+### Reworked timeframe options in `sw-date-filter`
+
+The order date filter dropdown now offers a 15-entry list, in display order:
+
+1. Today
+2. Yesterday
+3. Current week
+4. Last 7 days
+5. Previous week
+6. Current month
+7. Last 30 days
+8. Previous month
+9. Current quarter
+10. Previous quarter
+11. Last 3 months
+12. Last 6 months
+13. Last 12 months
+14. Current year
+15. Previous year
+
+"Current ..." entries span the start of the period through today (e.g., current quarter = first day of the quarter through today). "Previous ..." entries cover the full prior period (e.g., previous quarter = the three months before this one). "Last N days/months" remain rolling windows ending today, with calendar-month math (and last-day-of-month clamping) for the months variants so May 31 - 3 months lands on Feb 29 (leap) or Feb 28 (non-leap) rather than rolling forward to March 3.
+
+The previous rolling `lastDay` (-1) and `lastYear` (-365) entries are no longer in the dropdown, but saved filter states keep working: the component now aliases `-1` to `yesterday` and `-365` to `last12Months` on both hydration and programmatic selection. The persisted `from`/`to` are preserved so existing filters continue to resolve the same data, while the dropdown label catches up to the new vocabulary. All boundaries continue to be normalized to the user's timezone.
+
 ### Admin menu flyout no longer overflows the viewport
 
 When the sidebar is collapsed, hovering a menu entry near the bottom of the sidebar could cause the flyout submenu to extend beyond the viewport, making lower entries inaccessible.
@@ -337,6 +381,10 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
 
+### Support test file splitting
+
+Administration Jest tests can now be split into multiple files using `*.spec/` directories.
+ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
 ### Resolving download errors by renaming media
 When merchants rename a media file, its URL automatically updates so they can download it without issues.
 
@@ -563,7 +611,6 @@ If your integration or plugin assumes a 32-character `display_group`, compares a
 ### "Find best variant setting" is now applied for storefront filtering
 
 Users can now control which representative of variant products is shown in filtered listings via the Product settings "Preview best matching variant in search results and filtered listings".
-
 ### Deprecation of `permisionsLocked` property of `SalesChannelContext`
 
 The `permisionsLocked` property of the `SalesChannelContext` is deprecated.

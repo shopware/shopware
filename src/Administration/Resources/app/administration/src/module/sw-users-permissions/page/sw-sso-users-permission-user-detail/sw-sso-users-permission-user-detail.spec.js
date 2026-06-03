@@ -1,5 +1,4 @@
 /**
- * @internal
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
@@ -147,7 +146,7 @@ async function createWrapper(user) {
                     'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
-                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-data-grid': true,
                     'sw-data-grid-column-boolean': await wrapTestComponent('sw-data-grid-column-boolean'),
                     'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-user-sso-access-key-create-modal': await wrapTestComponent('sw-user-sso-access-key-create-modal'),

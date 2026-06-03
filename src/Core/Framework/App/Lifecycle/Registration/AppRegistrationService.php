@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -35,6 +36,7 @@ class AppRegistrationService
         private readonly string $shopUrl,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly string $shopwareVersion,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -196,7 +198,7 @@ class AppRegistrationService
         return [
             'apiKey' => $integration->getAccessKey(),
             'secretKey' => $secretAccessKey,
-            'timestamp' => (string) (new \DateTime())->getTimestamp(),
+            'timestamp' => (string) $this->clock->now()->getTimestamp(),
             'shopUrl' => $this->shopUrl,
             'shopId' => $shopId->id,
         ];

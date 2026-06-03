@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @internal
  */
 #[Package('framework')]
-class StoreApiMcpContextProvider
+class StoreApiMcpContextProvider implements McpContextProviderInterface
 {
     public function __construct(
         private readonly RequestStack $requestStack,

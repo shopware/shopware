@@ -27,6 +27,12 @@ use Symfony\Component\Routing\Attribute\Route;
  * Store API entry point for the MCP protocol over HTTP.
  * This endpoint uses the normal Store API sales-channel access key and
  * sales-channel context token instead of Admin API OAuth/integration keys.
+ *
+ * No per-integration allowlist is applied here. The Admin API MCP endpoint
+ * restricts capabilities per integration/user via McpAllowlistProvider, but
+ * the Store API is intentionally open: any authenticated sales-channel client
+ * can access all registered Store API MCP capabilities. Fine-grained access
+ * control at the sales-channel level is a deliberate future extension point.
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]

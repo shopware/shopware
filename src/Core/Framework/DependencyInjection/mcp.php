@@ -138,8 +138,8 @@ return static function (ContainerConfigurator $container): void {
         ->call('setEventDispatcher', [service('event_dispatcher')])
         ->call('setRegistry', [service('mcp.store_api.registry')])
         ->call('setSession', [service('mcp.session.store')->nullOnInvalid()])
-        ->call('addRequestHandlers', [tagged_iterator('mcp.request_handler')])
-        ->call('addNotificationHandlers', [tagged_iterator('mcp.notification_handler')])
+        ->call('addRequestHandlers', [tagged_iterator('mcp.store_api.request_handler')])
+        ->call('addNotificationHandlers', [tagged_iterator('mcp.store_api.notification_handler')])
         ->call('setLogger', [service('logger')])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 

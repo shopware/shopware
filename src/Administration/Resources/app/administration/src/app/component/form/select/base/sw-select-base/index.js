@@ -160,11 +160,19 @@ export default {
         listenToClickOutside(event) {
             const target = event.target;
             const clickIsInsideSelect = target instanceof Node && this.$el.contains(target);
-            const clickedElementStackContainsSelect = document
-                .elementsFromPoint(event.clientX, event.clientY)
-                .some((element) => element === this.$el || this.$el.contains(element));
 
-            if (!clickIsInsideSelect && !clickedElementStackContainsSelect) {
+            if (clickIsInsideSelect) {
+                return;
+            }
+
+            // Non-layout environments like jsdom do not implement elementsFromPoint.
+            const clickedElementStackContainsSelect =
+                typeof document.elementsFromPoint === 'function' &&
+                document
+                    .elementsFromPoint(event.clientX, event.clientY)
+                    .some((element) => element === this.$el || this.$el.contains(element));
+
+            if (!clickedElementStackContainsSelect) {
                 this.collapse();
             }
         },

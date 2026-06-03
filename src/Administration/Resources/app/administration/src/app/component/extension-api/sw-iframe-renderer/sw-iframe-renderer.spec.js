@@ -272,9 +272,6 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
     });
 
     it('should re-sign the iFrame when the locationId changes for the same app baseUrl', async () => {
-        // Two app modules (e.g. an app's "Overview" and "Settings" menu items) share the same
-        // baseUrl and only differ by their location-id. Switching between them must re-sign the
-        // iFrame src for the new location-id, otherwise the iFrame keeps showing the old location.
         Shopware.State.commit('extensions/addExtension', {
             name: 'my-great-extension',
             baseUrl: 'https://example.com',

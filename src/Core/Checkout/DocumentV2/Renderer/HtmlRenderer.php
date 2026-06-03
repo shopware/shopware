@@ -11,14 +11,16 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
+use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * Renders the HTML representation of a document via {@see DocumentTemplateRenderer}.
  *
- * The provider's {@see InvoiceRenderData} is cloned before applying format-specific overrides
- * (`fileType`, `itemsPerPage`) so renderers running after this one see the original configuration.
+ * Wraps the provider's {@see InvoiceRenderData} in a {@see TemplateContext} together with
+ * format-specific overrides (`fileType`, `itemsPerPage`) so the underlying render data stays
+ * untouched for any renderer running after this one.
  *
  * @internal
  */
@@ -51,11 +53,11 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             InvoiceRenderData::class
         );
 
-        $configuration = clone $renderData->configuration;
-        $configuration->merge([
-            'fileType' => self::FORMAT->fileExtension(),
-            'itemsPerPage' => 1000,
-        ]);
+        $configuration = new TemplateContext(
+            $renderData,
+            fileType: self::FORMAT->fileExtension(),
+            itemsPerPage: 1000,
+        );
 
         $template = DocumentType::from($input->documentType)->templatePath();
 
@@ -69,10 +71,12 @@ final readonly class HtmlRenderer extends AbstractDocumentRenderer
             ],
         );
 
+        $fileStem = $renderData->config->buildFileStem($renderData->documentNumber);
+
         return new RenderResult(
             self::FORMAT->value,
             $content,
-            $configuration->buildName(),
+            $fileStem,
             self::FORMAT->fileExtension(),
             self::FORMAT->mimeType(),
         );

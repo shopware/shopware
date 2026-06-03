@@ -7,7 +7,7 @@
         display: inline-block;
         font-size: $font-size-xs;
         margin-bottom: 10px;
-        border-bottom: 1px solid #d1d9e0;
+        border-bottom: 1px solid var(--color-border-primary-default);
         padding-bottom: 5px;
     }
 
@@ -26,7 +26,7 @@
         align-items: center;
         align-content: stretch;
         padding: 0;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         border-radius: 2px;
     }
 
@@ -43,7 +43,7 @@
     }
 
     &__product-skeleton {
-        background: $color-gray-100;
+        background: var(--color-background-tertiary-default);
         border-radius: 5px;
         height: 7px;
 
@@ -64,7 +64,7 @@
     }
 
     &__product-action {
-        background: $color-gray-900;
+        background: var(--color-elevation-floating-default);
         border-radius: 2px;
         width: 100%;
         height: 14px;

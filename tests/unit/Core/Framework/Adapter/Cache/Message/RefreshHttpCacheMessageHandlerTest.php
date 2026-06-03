@@ -134,8 +134,7 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         $this->store->expects($this->never())->method('write');
         $this->cache->expects($this->never())->method('delete');
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Kernel error');
+        $this->expectExceptionObject(new \Exception('Kernel error'));
 
         try {
             ($this->handler)($message);

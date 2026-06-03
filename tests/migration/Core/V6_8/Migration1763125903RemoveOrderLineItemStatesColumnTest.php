@@ -24,6 +24,11 @@ class Migration1763125903RemoveOrderLineItemStatesColumnTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763125903, (new Migration1763125903RemoveOrderLineItemStatesColumn())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesStatesColumn(): void
     {
         $this->ensureStatesColumnExists();

@@ -97,6 +97,14 @@ class TranslationLoader extends AbstractTranslationLoader
         return false;
     }
 
+    public function pluginTranslationExistsForLocale(Plugin $plugin, string $locale): bool
+    {
+        $name = $this->config->getMappedPluginName($plugin);
+        $pluginPath = Path::join($this->getLocalePath($locale), 'Plugins', $name);
+
+        return $this->translationWriter->directoryExists($pluginPath);
+    }
+
     public function getLocalesBasePath(): string
     {
         return Path::join(static::TRANSLATION_DIR, static::TRANSLATION_LOCALE_SUB_DIR);

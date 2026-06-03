@@ -68,210 +68,169 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, mixed>>
+     * @return iterable<string, array<string, mixed>>
      */
-    public static function getConfigErrorsTestDataProvider(): array
+    public static function getConfigErrorsTestDataProvider(): iterable
     {
-        return [
-            'use_default is not set' => [
-                'rawConfig' => self::createConfig([], ['use_default']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
-            ],
-
-            'use_default is null' => [
-                'rawConfig' => self::createConfig(['use_default' => null]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is null',
-            ],
-
-            'use_default is not a bool' => [
-                'rawConfig' => self::createConfig(['use_default' => 'asd']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is not a boolean',
-            ],
-
-            'client_id is not set' => [
-                'rawConfig' => self::createConfig([], ['client_id']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is missing',
-            ],
-
-            'client_id is null' => [
-                'rawConfig' => self::createConfig(['client_id' => null]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is null, [client_id] is blank',
-            ],
-
-            'client_id is blank' => [
-                'rawConfig' => self::createConfig(['client_id' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is blank',
-            ],
-
-            'client_id is no a string' => [
-                'rawConfig' => self::createConfig(['client_id' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is invalid string',
-            ],
-
-            'client_secret is not set' => [
-                'rawConfig' => self::createConfig([], ['client_secret']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is missing',
-            ],
-
-            'client_secret is null' => [
-                'rawConfig' => self::createConfig(['client_secret' => null]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is null, [client_secret] is blank',
-            ],
-
-            'client_secret is blank' => [
-                'rawConfig' => self::createConfig(['client_secret' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is blank',
-            ],
-
-            'client_secret is no a string' => [
-                'rawConfig' => self::createConfig(['client_secret' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is invalid string',
-            ],
-
-            'redirect_uri is not set' => [
-                'rawConfig' => self::createConfig([], ['redirect_uri']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is missing',
-            ],
-
-            'redirect_uri is null' => [
-                'rawConfig' => self::createConfig(['redirect_uri' => null]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is null, [redirect_uri] is blank',
-            ],
-
-            'redirect_uri is blank' => [
-                'rawConfig' => self::createConfig(['redirect_uri' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is blank',
-            ],
-
-            'redirect_uri is no a string' => [
-                'rawConfig' => self::createConfig(['redirect_uri' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid string, [redirect_uri] is invalid URL',
-            ],
-
-            'redirect_uri is no a url' => [
-                'rawConfig' => self::createConfig(['redirect_uri' => 'redirectUri']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid URL',
-            ],
-
-            'base_url is not set' => [
-                'rawConfig' => self::createConfig([], ['base_url']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is missing',
-            ],
-
-            'base_url is null' => [
-                'rawConfig' => self::createConfig(['base_url' => null]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is null, [base_url] is blank',
-            ],
-
-            'base_url is blank' => [
-                'rawConfig' => self::createConfig(['base_url' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is blank',
-            ],
-
-            'base_url is not a string' => [
-                'rawConfig' => self::createConfig(['base_url' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid string, [base_url] is invalid URL',
-            ],
-
-            'base_url is no a url' => [
-                'rawConfig' => self::createConfig(['base_url' => 'baseUrl']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
-            ],
-
-            'base_url ends with slash' => [
-                'rawConfig' => self::createConfig(['base_url' => 'https://base.url/']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
-            ],
-
-            'authorize_path is null' => [
-                'rawConfig' => self::createConfig([], ['authorize_path']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is missing',
-            ],
-
-            'authorize_path is blank' => [
-                'rawConfig' => self::createConfig(['authorize_path' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is blank',
-            ],
-
-            'authorize_path is not a string' => [
-                'rawConfig' => self::createConfig(['authorize_path' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid string, [authorize_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'authorize_path not start with slash' => [
-                'rawConfig' => self::createConfig(['authorize_path' => 'https://authorize']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'token_path is null' => [
-                'rawConfig' => self::createConfig([], ['token_path']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
-            ],
-
-            'token_path is blank' => [
-                'rawConfig' => self::createConfig(['token_path' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is blank',
-            ],
-
-            'token_path is not a string' => [
-                'rawConfig' => self::createConfig(['token_path' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid string, [token_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'token_path not start with slash' => [
-                'rawConfig' => self::createConfig(['token_path' => 'any/token']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'jwks_path is null' => [
-                'rawConfig' => self::createConfig([], ['jwks_path']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is missing',
-            ],
-
-            'jwks_path is blank' => [
-                'rawConfig' => self::createConfig(['jwks_path' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is blank',
-            ],
-
-            'jwks_path is not a string' => [
-                'rawConfig' => self::createConfig(['jwks_path' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid string, [jwks_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'jwks_path not start with slash' => [
-                'rawConfig' => self::createConfig(['jwks_path' => 'jwks/json']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
-            ],
-
-            'scope is null' => [
-                'rawConfig' => self::createConfig([], ['scope']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is missing',
-            ],
-
-            'scope is blank' => [
-                'rawConfig' => self::createConfig(['scope' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is blank',
-            ],
-
-            'scope is not a string' => [
-                'rawConfig' => self::createConfig(['scope' => 12]),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is invalid string',
-            ],
-
-            'register_url is null' => [
-                'rawConfig' => self::createConfig([], ['register_url']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is missing',
-            ],
-
-            'register_url is empty' => [
-                'rawConfig' => self::createConfig(['register_url' => '']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is blank',
-            ],
-
-            'register_url is not valid url' => [
-                'rawConfig' => self::createConfig(['register_url' => 'registerUrl']),
-                'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is invalid URL',
-            ],
+        yield 'use_default is not set' => [
+            'rawConfig' => self::createConfig([], ['use_default']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is missing',
+        ];
+        yield 'use_default is null' => [
+            'rawConfig' => self::createConfig(['use_default' => null]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is null',
+        ];
+        yield 'use_default is not a bool' => [
+            'rawConfig' => self::createConfig(['use_default' => 'asd']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [use_default] is not a boolean',
+        ];
+        yield 'client_id is not set' => [
+            'rawConfig' => self::createConfig([], ['client_id']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is missing',
+        ];
+        yield 'client_id is null' => [
+            'rawConfig' => self::createConfig(['client_id' => null]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is null, [client_id] is blank',
+        ];
+        yield 'client_id is blank' => [
+            'rawConfig' => self::createConfig(['client_id' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is blank',
+        ];
+        yield 'client_id is no a string' => [
+            'rawConfig' => self::createConfig(['client_id' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_id] is invalid string',
+        ];
+        yield 'client_secret is not set' => [
+            'rawConfig' => self::createConfig([], ['client_secret']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is missing',
+        ];
+        yield 'client_secret is null' => [
+            'rawConfig' => self::createConfig(['client_secret' => null]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is null, [client_secret] is blank',
+        ];
+        yield 'client_secret is blank' => [
+            'rawConfig' => self::createConfig(['client_secret' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is blank',
+        ];
+        yield 'client_secret is no a string' => [
+            'rawConfig' => self::createConfig(['client_secret' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [client_secret] is invalid string',
+        ];
+        yield 'redirect_uri is not set' => [
+            'rawConfig' => self::createConfig([], ['redirect_uri']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is missing',
+        ];
+        yield 'redirect_uri is null' => [
+            'rawConfig' => self::createConfig(['redirect_uri' => null]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is null, [redirect_uri] is blank',
+        ];
+        yield 'redirect_uri is blank' => [
+            'rawConfig' => self::createConfig(['redirect_uri' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is blank',
+        ];
+        yield 'redirect_uri is no a string' => [
+            'rawConfig' => self::createConfig(['redirect_uri' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid string, [redirect_uri] is invalid URL',
+        ];
+        yield 'redirect_uri is no a url' => [
+            'rawConfig' => self::createConfig(['redirect_uri' => 'redirectUri']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [redirect_uri] is invalid URL',
+        ];
+        yield 'base_url is not set' => [
+            'rawConfig' => self::createConfig([], ['base_url']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is missing',
+        ];
+        yield 'base_url is null' => [
+            'rawConfig' => self::createConfig(['base_url' => null]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is null, [base_url] is blank',
+        ];
+        yield 'base_url is blank' => [
+            'rawConfig' => self::createConfig(['base_url' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is blank',
+        ];
+        yield 'base_url is not a string' => [
+            'rawConfig' => self::createConfig(['base_url' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid string, [base_url] is invalid URL',
+        ];
+        yield 'base_url is no a url' => [
+            'rawConfig' => self::createConfig(['base_url' => 'baseUrl']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] is invalid URL',
+        ];
+        yield 'base_url ends with slash' => [
+            'rawConfig' => self::createConfig(['base_url' => 'https://base.url/']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [base_url] should not end with "/"',
+        ];
+        yield 'authorize_path is null' => [
+            'rawConfig' => self::createConfig([], ['authorize_path']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is missing',
+        ];
+        yield 'authorize_path is blank' => [
+            'rawConfig' => self::createConfig(['authorize_path' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is blank',
+        ];
+        yield 'authorize_path is not a string' => [
+            'rawConfig' => self::createConfig(['authorize_path' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid string, [authorize_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'authorize_path not start with slash' => [
+            'rawConfig' => self::createConfig(['authorize_path' => 'https://authorize']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [authorize_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'token_path is null' => [
+            'rawConfig' => self::createConfig([], ['token_path']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is missing',
+        ];
+        yield 'token_path is blank' => [
+            'rawConfig' => self::createConfig(['token_path' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is blank',
+        ];
+        yield 'token_path is not a string' => [
+            'rawConfig' => self::createConfig(['token_path' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid string, [token_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'token_path not start with slash' => [
+            'rawConfig' => self::createConfig(['token_path' => 'any/token']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [token_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'jwks_path is null' => [
+            'rawConfig' => self::createConfig([], ['jwks_path']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is missing',
+        ];
+        yield 'jwks_path is blank' => [
+            'rawConfig' => self::createConfig(['jwks_path' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is blank',
+        ];
+        yield 'jwks_path is not a string' => [
+            'rawConfig' => self::createConfig(['jwks_path' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid string, [jwks_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'jwks_path not start with slash' => [
+            'rawConfig' => self::createConfig(['jwks_path' => 'jwks/json']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [jwks_path] is invalid path. Requires to start with "/"',
+        ];
+        yield 'scope is null' => [
+            'rawConfig' => self::createConfig([], ['scope']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is missing',
+        ];
+        yield 'scope is blank' => [
+            'rawConfig' => self::createConfig(['scope' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is blank',
+        ];
+        yield 'scope is not a string' => [
+            'rawConfig' => self::createConfig(['scope' => 12]),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [scope] is invalid string',
+        ];
+        yield 'register_url is null' => [
+            'rawConfig' => self::createConfig([], ['register_url']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is missing',
+        ];
+        yield 'register_url is empty' => [
+            'rawConfig' => self::createConfig(['register_url' => '']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is blank',
+        ];
+        yield 'register_url is not valid url' => [
+            'rawConfig' => self::createConfig(['register_url' => 'registerUrl']),
+            'exceptionMessage' => 'Login config is incomplete or misconfigured. Field errors: [register_url] is invalid URL',
         ];
     }
 
@@ -341,45 +300,42 @@ class LoginConfigServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
+     * @return iterable<string, array{random: string, rawConfig: array<string, string|bool>, expectedUrl: string}>
      */
-    public static function createRedirectUrlTestDataProvider(): array
+    public static function createRedirectUrlTestDataProvider(): iterable
     {
-        return [
-            'default test case' => [
-                'random' => 'justARandomString',
-                'rawConfig' => [
-                    'use_default' => true,
-                    'client_id' => 'justAClientID',
-                    'client_secret' => 'justAClientSecret',
-                    'redirect_uri' => 'https://justARedirectUri.org',
-                    'base_url' => 'https://justABaseUrl.net',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'https://register.url',
-                ],
-                'expectedUrl' => 'https://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=https%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+        yield 'default test case' => [
+            'random' => 'justARandomString',
+            'rawConfig' => [
+                'use_default' => true,
+                'client_id' => 'justAClientID',
+                'client_secret' => 'justAClientSecret',
+                'redirect_uri' => 'https://justARedirectUri.org',
+                'base_url' => 'https://justABaseUrl.net',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
+                'jwks_path' => '/jwks.json',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
             ],
-
-            'with login prompt' => [
-                'random' => 'justARandomString',
-                'rawConfig' => [
-                    'use_default' => true,
-                    'client_id' => 'anotherClientID',
-                    'client_secret' => 'anotherClientSecret',
-                    'redirect_uri' => 'https://another-redirect-url.org',
-                    'base_url' => 'https://another-base-url.net',
-                    'authorize_path' => '/authorize',
-                    'token_path' => '/token',
-                    'jwks_path' => '/jwks.json',
-                    'scope' => 'scope',
-                    'register_url' => 'https://register.url',
-                ],
-                'expectedUrl' => 'https://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=https%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
-                'addLoginPrompt' => true,
+            'expectedUrl' => 'https://justABaseUrl.net/authorize?client_id=justAClientID&redirect_uri=https%3A%2F%2FjustARedirectUri.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString',
+        ];
+        yield 'with login prompt' => [
+            'random' => 'justARandomString',
+            'rawConfig' => [
+                'use_default' => true,
+                'client_id' => 'anotherClientID',
+                'client_secret' => 'anotherClientSecret',
+                'redirect_uri' => 'https://another-redirect-url.org',
+                'base_url' => 'https://another-base-url.net',
+                'authorize_path' => '/authorize',
+                'token_path' => '/token',
+                'jwks_path' => '/jwks.json',
+                'scope' => 'scope',
+                'register_url' => 'https://register.url',
             ],
+            'expectedUrl' => 'https://another-base-url.net/authorize?client_id=anotherClientID&redirect_uri=https%3A%2F%2Fanother-redirect-url.org&response_type=code&scope=scope&state=api.oauth.sso.code%3Frdm%3DjustARandomString&prompt=login',
+            'addLoginPrompt' => true,
         ];
     }
 

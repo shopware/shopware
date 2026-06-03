@@ -85,131 +85,113 @@ class MaintenanceModeResolverTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenanceModeInactiveProvider(): array
+    public static function maintenanceModeInactiveProvider(): iterable
     {
-        return [
-            'maintenance mode is inactive, no sales channel request' => [
-                self::getRequest(false, false, false, false, false, false),
-                false,
-            ],
-            'maintenance mode is inactive, sales channel requested' => [
-                self::getRequest(false, false, false, false, true, false),
-                false,
-            ],
-            'maintenance mode is inactive, no sales channel request, proxy' => [
-                self::getRequest(true, false, false, false, false, false),
-                false,
-            ],
-            'maintenance mode is inactive, sales channel requested, proxy' => [
-                self::getRequest(true, false, false, false, true, false),
-                false,
-            ],
+        yield 'maintenance mode is inactive, no sales channel request' => [
+            self::getRequest(false, false, false, false, false, false),
+            false,
+        ];
+        yield 'maintenance mode is inactive, sales channel requested' => [
+            self::getRequest(false, false, false, false, true, false),
+            false,
+        ];
+        yield 'maintenance mode is inactive, no sales channel request, proxy' => [
+            self::getRequest(true, false, false, false, false, false),
+            false,
+        ];
+        yield 'maintenance mode is inactive, sales channel requested, proxy' => [
+            self::getRequest(true, false, false, false, true, false),
+            false,
         ];
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenanceModeActiveProvider(): array
+    public static function maintenanceModeActiveProvider(): iterable
     {
-        return [
-            'maintenance mode is active, sales channel requested' => [
-                self::getRequest(false, false, false, false, true, true),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, client-ip' => [
-                self::getRequest(false, false, false, false, true, true),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, whitelisted client ip' => [
-                self::getRequest(false, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
-                false,
-            ],
-            'maintenance mode is active, sales channel requested, whitelisted loopback ip' => [
-                self::getRequest(false, false, false, false, true, true, ['127.0.0.1', '::1']),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, proxy' => [
-                self::getRequest(true, false, false, false, true, true),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, proxy, client-ip' => [
-                self::getRequest(true, false, false, false, true, true),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, proxy, whitelisted client ip' => [
-                self::getRequest(true, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
-                false,
-            ],
-            'maintenance mode is active, sales channel requested, proxy, whitelisted loopback ip' => [
-                self::getRequest(true, false, false, false, true, true, ['127.0.0.1', '::1']),
-                true,
-            ],
-            'maintenance mode is active, sales channel requested, proxy, whitelisted client ip - mixed case' => [
-                self::getRequest(true, false, false, false, true, true, ['2003:F0:3f08:Db00:6D4:c4Ff:Fe48:74F4'], '2003:f0:3F08:dB00:6d4:C4fF:fE48:74f4'),
-                false,
-            ],
+        yield 'maintenance mode is active, sales channel requested' => [
+            self::getRequest(false, false, false, false, true, true),
+            true,
+        ];
+        yield 'maintenance mode is active, sales channel requested, whitelisted client ip' => [
+            self::getRequest(false, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
+            false,
+        ];
+        yield 'maintenance mode is active, sales channel requested, whitelisted loopback ip' => [
+            self::getRequest(false, false, false, false, true, true, ['127.0.0.1', '::1']),
+            true,
+        ];
+        yield 'maintenance mode is active, sales channel requested, proxy' => [
+            self::getRequest(true, false, false, false, true, true),
+            true,
+        ];
+        yield 'maintenance mode is active, sales channel requested, proxy, whitelisted client ip' => [
+            self::getRequest(true, false, false, false, true, true, ['192.168.2.16', '192.168.1.16']),
+            false,
+        ];
+        yield 'maintenance mode is active, sales channel requested, proxy, whitelisted loopback ip' => [
+            self::getRequest(true, false, false, false, true, true, ['127.0.0.1', '::1']),
+            true,
+        ];
+        yield 'maintenance mode is active, sales channel requested, proxy, whitelisted client ip - mixed case' => [
+            self::getRequest(true, false, false, false, true, true, ['2003:F0:3f08:Db00:6D4:c4Ff:Fe48:74F4'], '2003:f0:3F08:dB00:6d4:C4fF:fE48:74f4'),
+            false,
         ];
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function xmlHttpRequestProvider(): array
+    public static function xmlHttpRequestProvider(): iterable
     {
-        return [
-            'maintenance mode is active, sales channel requested, ajax' => [
-                self::getRequest(false, true, false, false, true, true),
-                false,
-            ],
-            'maintenance mode is active, maintenance page requested, ajax' => [
-                self::getRequest(false, true, false, true, false, true),
-                false,
-            ],
-            'maintenance mode is active, sales channel requested, ajax, proxy' => [
-                self::getRequest(true, true, false, false, true, true),
-                false,
-            ],
-            'maintenance mode is active, maintenance page requested, ajax, proxy' => [
-                self::getRequest(true, true, false, true, false, true),
-                false,
-            ],
+        yield 'maintenance mode is active, sales channel requested, ajax' => [
+            self::getRequest(false, true, false, false, true, true),
+            false,
+        ];
+        yield 'maintenance mode is active, maintenance page requested, ajax' => [
+            self::getRequest(false, true, false, true, false, true),
+            false,
+        ];
+        yield 'maintenance mode is active, sales channel requested, ajax, proxy' => [
+            self::getRequest(true, true, false, false, true, true),
+            false,
+        ];
+        yield 'maintenance mode is active, maintenance page requested, ajax, proxy' => [
+            self::getRequest(true, true, false, true, false, true),
+            false,
         ];
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function maintenancePageRequestProvider(): array
+    public static function maintenancePageRequestProvider(): iterable
     {
-        return [
-            'maintenance mode is active, maintenance page requested' => [
-                self::getRequest(false, false, false, true, false, true),
-                false,
-            ],
-            'maintenance mode is active, maintenance page requested, proxy' => [
-                self::getRequest(true, false, false, true, false, true),
-                false,
-            ],
+        yield 'maintenance mode is active, maintenance page requested' => [
+            self::getRequest(false, false, false, true, false, true),
+            false,
+        ];
+        yield 'maintenance mode is active, maintenance page requested, proxy' => [
+            self::getRequest(true, false, false, true, false, true),
+            false,
         ];
     }
 
     /**
-     * @return array<string, array{0: Request, 1: bool}>
+     * @return iterable<string, array{0: Request, 1: bool}>
      */
-    public static function errorControllerRequestProvider(): array
+    public static function errorControllerRequestProvider(): iterable
     {
-        return [
-            'maintenance mode is active, error controller requested' => [
-                self::getRequest(false, false, true, false, false, true),
-                false,
-            ],
-            'maintenance mode is active, error controller requested, proxy' => [
-                self::getRequest(true, false, true, false, false, true),
-                false,
-            ],
+        yield 'maintenance mode is active, error controller requested' => [
+            self::getRequest(false, false, true, false, false, true),
+            false,
+        ];
+        yield 'maintenance mode is active, error controller requested, proxy' => [
+            self::getRequest(true, false, true, false, false, true),
+            false,
         ];
     }
 

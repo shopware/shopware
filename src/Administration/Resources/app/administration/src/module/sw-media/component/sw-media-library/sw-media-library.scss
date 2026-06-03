@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-media-library-color-background: $color-white;
+$sw-media-library-color-background: var(--color-elevation-surface-default);
 
 .sw-media-library {
     display: grid;
@@ -63,9 +63,12 @@ $sw-media-library-color-background: $color-white;
         padding: 10px;
     }
 
-    .sw-media-library__load-more-button {
-        margin: 16px auto;
+    .sw-media-library__load-buttons {
         grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin: 16px auto;
     }
 
     &__empty-state {

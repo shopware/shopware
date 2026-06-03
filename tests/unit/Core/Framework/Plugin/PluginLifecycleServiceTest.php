@@ -48,6 +48,8 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -126,6 +128,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
+            new NativeClock()
         );
     }
 
@@ -171,8 +174,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects($this->once())->method('executeComposerCommands')->willReturn(true);
         $this->pluginMock->expects($this->once())->method('install')->willThrowException(new \Exception('not working'));
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('not working');
+        $this->expectExceptionObject(new \Exception('not working'));
 
         $this->pluginLifecycleService->installPlugin($pluginEntityMock, $context);
     }
@@ -423,6 +425,7 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->createMock(VersionSanitizer::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
                 $this->requestStackMock,
+                new MockClock(),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();
@@ -595,8 +598,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->container->set('kernel', $kernelMock);
 
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage('Container parameter "kernel.plugin_dir" needs to be of type "string"');
+        $this->expectExceptionObject(PluginException::invalidContainerParameter('kernel.plugin_dir', 'string'));
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
@@ -632,8 +634,7 @@ class PluginLifecycleServiceTest extends TestCase
             ]
         ));
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Failed to reboot the kernel');
+        $this->expectExceptionObject(new \RuntimeException('Failed to reboot the kernel'));
 
         $this->pluginLifecycleService->activatePlugin($pluginEntityMock, $context);
     }
@@ -740,8 +741,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->pluginRepoMock->method('update')->willThrowException(new \Exception('failed update'));
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('failed update');
+        $this->expectExceptionObject(new \Exception('failed update'));
 
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }
@@ -814,8 +814,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $this->cacheItemPoolInterfaceMock->method('getItem')->willReturn(new CacheItem());
 
-        $this->expectException(PluginException::class);
-        $this->expectExceptionMessage('"Shopware\Core\Framework\Plugin" in the container should be an instance of Shopware\Core\Framework\Plugin');
+        $this->expectExceptionObject(PluginException::wrongBaseClass(Plugin::class));
 
         $this->pluginLifecycleService->deactivatePlugin($pluginEntityMock, $context);
     }

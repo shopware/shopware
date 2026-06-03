@@ -65,8 +65,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create');
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create'));
 
         $consentService = $this->createMock(ConsentService::class);
 
@@ -137,8 +136,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -192,8 +190,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -505,8 +502,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider,
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             $definition->getEntityName(),
             Operation::CREATE,

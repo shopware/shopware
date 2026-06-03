@@ -669,6 +669,37 @@ describe('scripts/codemods/sfc-migration/transform-script', () => {
     });
 
     // -------------------------------------------------------------------------
+    it('surfaces unsupported shorthand and spread method entries with TODO comments', () => {
+        const js = `const sharedMethods = {};
+        const shorthandMethod = () => 'external';
+
+        Shopware.Component.register('sw-test', {
+            template,
+            methods: {
+                ...sharedMethods,
+                shorthandMethod,
+                kept() {
+                    return 'kept';
+                },
+            },
+        });`;
+        const result = transformScript(js);
+
+        expect(result.status).toBe('partially-migratable');
+        expect(result.blockers).toContain('methods: ...sharedMethods: spread method entries must be migrated manually');
+        expect(result.blockers).toContain(
+            'methods: shorthandMethod: shorthand method entries must be migrated manually',
+        );
+        expect(result.script).toContain(
+            'TODO: migrate method manually: methods: ...sharedMethods: spread method entries must be migrated manually',
+        );
+        expect(result.script).toContain(
+            'TODO: migrate method manually: methods: shorthandMethod: shorthand method entries must be migrated manually',
+        );
+        expect(result.script).toContain('const kept = () => {');
+    });
+
+    // -------------------------------------------------------------------------
     it('surfaces unsupported watch entries with a TODO comment instead of silently dropping them', () => {
         const js = `Shopware.Component.register('sw-test', {
             template,

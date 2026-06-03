@@ -83,6 +83,11 @@ export interface MethodProp {
     rawText?: string;
 }
 
+export interface ExtractMethodPropsResult {
+    methodProps: MethodProp[];
+    unsupportedEntries: string[];
+}
+
 export interface LifecycleHook {
     hookName: string;
     /** null means "run directly in setup" (i.e. created) */

@@ -77,7 +77,7 @@ export function collectCompositionScriptState(
     const { dataProps, unsupportedEntries: unsupportedDataEntries } = extractDataProps(optionsObj);
     const { computedProps, unsupportedEntries: unsupportedComputedEntries } = extractComputedProps(optionsObj);
     const { watchProps, unsupportedEntries: unsupportedWatchEntries } = extractWatchProps(optionsObj);
-    const methodProps = extractMethodProps(optionsObj);
+    const { methodProps, unsupportedEntries: unsupportedMethodEntries } = extractMethodProps(optionsObj);
     const lifecycleHooks = extractLifecycleHooks(optionsObj);
     const propsText = extractPropsText(optionsObj);
     const emitsDefinition = extractEmitsDefinition(optionsObj);
@@ -183,6 +183,12 @@ export function collectCompositionScriptState(
         manualMigrationReasons.push(reason);
         todoComments.push(`// TODO: migrate method manually: ${sanitizeTodoCommentText(reason)}`);
         return false;
+    });
+
+    unsupportedMethodEntries.forEach((entry) => {
+        const reason = `methods: ${sanitizeTodoCommentText(entry)}`;
+        manualMigrationReasons.push(reason);
+        todoComments.push(`// TODO: migrate method manually: ${sanitizeTodoCommentText(reason)}`);
     });
 
     const methodNames = new Set(supportedMethodProps.map((p) => p.name));

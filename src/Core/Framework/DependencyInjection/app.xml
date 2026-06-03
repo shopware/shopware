@@ -84,6 +84,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Privileges\Privileges"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <!-- App Lifecycle Persisters - do not change priority without careful consideration -->
@@ -96,6 +97,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.app_lifecycle.persister" priority="-100"/>
         </service>
 
@@ -107,6 +109,7 @@
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
             <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
             <tag name="shopware.app_lifecycle.persister" priority="-300"/>
         </service>
@@ -184,11 +187,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\AppStateService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
-            <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
@@ -272,6 +272,7 @@
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService">
@@ -282,6 +283,11 @@
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\App\Manifest\ManifestFactory"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
+            <argument>%kernel.environment%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
@@ -289,19 +295,16 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator">
-            <argument>%kernel.environment%</argument>
-        </service>
-
-        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppManager">
             <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
@@ -317,6 +320,12 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\Util\ConfigReader"/>
             <argument type="service" id="Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\AppRequirementsValidator"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
+            <argument type="service" id="app.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
@@ -351,6 +360,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="acl_role.repository"/>
             <argument type="service" id="integration.repository"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 
@@ -418,6 +428,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\Executor">
@@ -428,6 +439,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="request_stack"/>
             <argument type="service" id="kernel"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">
@@ -457,6 +469,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\InAppPurchase"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Api\AppSecretRotationController" public="true">
@@ -709,6 +722,7 @@
             <argument type="service" id="Shopware\Core\Framework\Telemetry\Metrics\Meter" />
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.telemetry.subscriber"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Privileges\Privileges">
@@ -779,6 +793,7 @@
             <argument type="service" id="Symfony\Contracts\HttpClient\HttpClientInterface"/>
             <argument type="service" id="lock.factory"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Url\AppUrlVerificationPrinter">

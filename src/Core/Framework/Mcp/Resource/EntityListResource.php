@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Resource;
 use Mcp\Capability\Attribute\McpResource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -36,7 +37,7 @@ class EntityListResource
         return [
             'uri' => 'shopware://entities',
             'mimeType' => 'application/json',
-            'text' => json_encode($entities, \JSON_THROW_ON_ERROR),
+            'text' => Json::encode($entities),
         ];
     }
 }

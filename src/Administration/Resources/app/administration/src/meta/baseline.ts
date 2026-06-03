@@ -449,6 +449,7 @@ const missingTests = [
     'src/module/sw-sales-channel/index.js',
     'src/module/sw-sales-channel/agentic-product-export-templates/index.js',
     'src/module/sw-sales-channel/agentic-product-export-templates/open-ai/index.js',
+    'src/module/sw-sales-channel/agentic-product-export-templates/google/index.js',
     'src/module/sw-sales-channel/page/sw-sales-channel-list/index.js',
     'src/module/sw-sales-channel/product-export-templates/billiger-de/index.js',
     'src/module/sw-sales-channel/product-export-templates/google-product-search-de/index.js',

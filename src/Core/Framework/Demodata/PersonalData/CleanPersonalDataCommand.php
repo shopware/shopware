@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Demodata\PersonalData;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -43,7 +44,8 @@ class CleanPersonalDataCommand extends Command
      */
     public function __construct(
         private readonly Connection $connection,
-        private readonly EntityRepository $customerRepository
+        private readonly EntityRepository $customerRepository,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -82,7 +84,7 @@ class CleanPersonalDataCommand extends Command
                 ->addFilter(new EqualsFilter('guest', true))
                 ->addFilter(new EqualsFilter('orderCustomers.id', null))
                 ->addFilter(new RangeFilter('createdAt', [
-                    RangeFilter::LTE => (new \DateTime())->modify(-abs($days) . ' Day')
+                    RangeFilter::LTE => $this->clock->now()->modify(-abs($days) . ' Day')
                         ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]));
 

@@ -16,17 +16,14 @@ class FrameworkExceptionTest extends TestCase
 {
     public function testProjectDirNotExists(): void
     {
-        static::expectException(FrameworkException::class);
-        static::expectExceptionMessage('Project directory "test" does not exist.');
+        $this->expectExceptionObject(FrameworkException::projectDirNotExists('test'));
 
         throw FrameworkException::projectDirNotExists('test');
     }
 
     public function testCollectionElementInvalidType(): void
     {
-        static::expectException(FrameworkException::class);
-
-        static::expectExceptionMessage('Expected collection element of type foo got bar');
+        $this->expectExceptionObject(FrameworkException::collectionElementInvalidType('foo', 'bar'));
 
         throw FrameworkException::collectionElementInvalidType('foo', 'bar');
     }

@@ -18,7 +18,7 @@ class AppMcpPrivilegeProvider
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly ?LoggerInterface $logger = null,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -35,7 +35,7 @@ class AppMcpPrivilegeProvider
                  WHERE t.required_privileges IS NOT NULL',
             );
         } catch (\Throwable $e) {
-            $this->logger?->error('Failed to load app MCP tool privileges', [
+            $this->logger->error('Failed to load app MCP tool privileges', [
                 'exception' => $e->getMessage(),
             ]);
 

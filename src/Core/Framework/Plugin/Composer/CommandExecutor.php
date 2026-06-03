@@ -6,13 +6,15 @@ use Composer\Console\Application;
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginException;
+use Shopware\Tests\Integration\Core\Framework\Plugin\PluginLifecycleServiceTest;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * @codeCoverageIgnore
- * Covered by PluginLifecycleService integration test. Due to the usage of composer, it is hard to properly unit test this class.
+ *
+ * @see PluginLifecycleServiceTest
  */
 #[Package('framework')]
 class CommandExecutor

@@ -145,6 +145,14 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
+## Removed stored `mail_template_type.template_data`
+
+The deprecated `template_data` column on `mail_template_type` was removed.
+Do not read or write stored template data on mail template types anymore.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` are still supported and are not part of this removal.
+
 ## Number range value generator interface removed
 
 `Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.
@@ -1082,7 +1090,13 @@ Use the parent blocks instead
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
 
 ## File accessibility changed from public to private
-`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js`
+
+## Removal of component sw-settings-storefront-configuration
+`sw-settings-storefront-configuration` is removed without replacement.
+The Storefront settings Administration page owns its settings fields directly.
 
 ## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`

@@ -84,6 +84,18 @@ class StoreApiMcpServerBuilderCompilerPassTest extends TestCase
         static::assertSame([], $container->getDefinition('mcp.server.builder')->getMethodCalls());
     }
 
+    public function testNoServiceLocatorWiredWhenNoTaggedServices(): void
+    {
+        $container = $this->createContainer();
+
+        $pass = new StoreApiMcpServerBuilderCompilerPass();
+        $pass->process($container);
+
+        $calls = $container->getDefinition('mcp.store_api.server.builder')->getMethodCalls();
+        $setContainerCalls = array_filter($calls, fn ($call) => $call[0] === 'setContainer');
+        static::assertEmpty($setContainerCalls);
+    }
+
     public function testSkipsWhenNoStoreApiBuilder(): void
     {
         $container = new ContainerBuilder();

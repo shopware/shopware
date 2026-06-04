@@ -207,10 +207,7 @@ class StoreControllerTest extends TestCase
      */
     private function getStoreClientMock(): StoreClient
     {
-        $storeClient = $this->getMockBuilder(StoreClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getDownloadDataForPlugin', 'userInfo'])
-            ->getMock();
+        $storeClient = static::createStub(StoreClient::class);
 
         $storeClient->method('getDownloadDataForPlugin')
             ->willReturn($this->getPluginDownloadDataStub());

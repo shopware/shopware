@@ -143,7 +143,7 @@ class DocumentMergerTest extends TestCase
 
     public function testMergeWithoutStaticMedia(): void
     {
-        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $mockGenerator = $this->createMock(DocumentGenerator::class);
         $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(

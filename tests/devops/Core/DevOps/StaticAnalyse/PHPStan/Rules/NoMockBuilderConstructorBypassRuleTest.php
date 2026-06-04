@@ -18,11 +18,13 @@ class NoMockBuilderConstructorBypassRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/NoMockBuilderConstructorBypassRule/Cases.php'], [
-            // disableOriginalConstructor()->getMock() with no method restriction → redundant
+            // plain $this->getMockBuilder()->getMock() → redundant
             [NoMockBuilderConstructorBypassRule::ERROR_REDUNDANT, 24],
-            // disableOriginalConstructor()->onlyMethods()->getMock() → partial-mock advisory
-            [NoMockBuilderConstructorBypassRule::ERROR_PARTIAL, 30],
-            // lines 36 (setConstructorArgs, no disable), 42 (onlyMethods, no disable), 48 (createMock) are NOT flagged
+            // static::getMockBuilder()->disableOriginalConstructor()->getMock() → redundant (StaticCall root)
+            [NoMockBuilderConstructorBypassRule::ERROR_REDUNDANT, 30],
+            // $this->getMockBuilder()->disableOriginalConstructor()->getMock() → redundant
+            [NoMockBuilderConstructorBypassRule::ERROR_REDUNDANT, 36],
+            // NOT flagged: 42 (partial), 48 (static partial), 54 (setConstructorArgs), 60 (partial), 66 (createMock)
         ]);
     }
 

@@ -19,15 +19,33 @@ interface SomeService
  */
 class Cases extends TestCase
 {
-    public function testRedundant(): void
+    public function testPlainGetMockIsRedundant(): void
+    {
+        $mock = $this->getMockBuilder(SomeService::class)->getMock();
+        static::assertNotNull($mock);
+    }
+
+    public function testStaticGetMockIsRedundant(): void
+    {
+        $mock = static::getMockBuilder(SomeService::class)->disableOriginalConstructor()->getMock();
+        static::assertNotNull($mock);
+    }
+
+    public function testDisableConstructorIsRedundant(): void
     {
         $mock = $this->getMockBuilder(SomeService::class)->disableOriginalConstructor()->getMock();
         static::assertNotNull($mock);
     }
 
-    public function testPartial(): void
+    public function testPartialIsNotFlagged(): void
     {
         $mock = $this->getMockBuilder(SomeService::class)->disableOriginalConstructor()->onlyMethods(['doIt'])->getMock();
+        static::assertNotNull($mock);
+    }
+
+    public function testStaticPartialIsNotFlagged(): void
+    {
+        $mock = static::getMockBuilder(SomeService::class)->onlyMethods(['doIt'])->getMock();
         static::assertNotNull($mock);
     }
 

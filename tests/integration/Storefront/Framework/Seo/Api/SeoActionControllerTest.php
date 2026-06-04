@@ -9,17 +9,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoException;
-use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -374,26 +371,32 @@ class SeoActionControllerTest extends TestCase
 
     /**
      * Regression for shopware/shopware#4413 (same-path reset): a write-protected canonical whose
-     * path already equals the template output must still be resettable. Clearing the flag without
-     * changing the path must actually drop isModified instead of silently keeping it write-protected.
+     * path already equals the template output must still be resettable through the admin endpoint.
+     * Clearing the flag without changing the path must actually drop isModified instead of silently
+     * keeping it write-protected.
      *
-     * This drives SeoUrlPersister::forceUpdateSeoUrls() directly - the exact code path the admin
-     * `seo-url/canonical` endpoint uses - against a real database. That exercises the obsolete +
-     * useReplace + updateCanonicalSeoUrls interaction (which the unit tests mock away) and proves
-     * the canonical is not re-protected afterwards, without depending on storefront product SEO
-     * indexing.
+     * The write-protected canonical is seeded directly so the test does not depend on storefront
+     * product SEO indexing, but the reset itself goes through the real `/api/_action/seo-url/canonical`
+     * endpoint (validation + SeoUrlPersister + DB).
      */
-    public function testForceUpdateClearsWriteProtectionOnUnchangedPath(): void
+    public function testResetWriteProtectedCanonicalWithUnchangedPath(): void
     {
         $connection = static::getContainer()->get(Connection::class);
-        $persister = static::getContainer()->get(SeoUrlPersister::class);
 
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+        $productId = $this->createTestProduct($salesChannelId);
 
-        $foreignKey = Uuid::randomHex();
         $route = ProductPageSeoUrlRoute::ROUTE_NAME;
         $path = 'red-shoe';
+
+        // Normalise: drop any auto-generated SEO URLs for the product so the seeded
+        // write-protected canonical is the only row, regardless of whether the environment
+        // generated one on product creation.
+        $connection->executeStatement(
+            'DELETE FROM seo_url WHERE foreign_key = :fk',
+            ['fk' => Uuid::fromHexToBytes($productId)]
+        );
 
         // Seed a write-protected canonical whose path already equals the template output
         // (mimics a migrated/manually created SEO URL).
@@ -401,9 +404,9 @@ class SeoActionControllerTest extends TestCase
             'id' => Uuid::randomBytes(),
             'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
-            'foreign_key' => Uuid::fromHexToBytes($foreignKey),
+            'foreign_key' => Uuid::fromHexToBytes($productId),
             'route_name' => $route,
-            'path_info' => '/detail/' . $foreignKey,
+            'path_info' => '/detail/' . $productId,
             'seo_path_info' => $path,
             'is_canonical' => 1,
             'is_modified' => 1,
@@ -411,31 +414,22 @@ class SeoActionControllerTest extends TestCase
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $salesChannel = new SalesChannelEntity();
-        $salesChannel->setId($salesChannelId);
-        $salesChannel->setUniqueIdentifier($salesChannelId);
+        // Reset through the admin endpoint: same path, isModified=false.
+        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', [
+            'foreignKey' => $productId,
+            'routeName' => $route,
+            'pathInfo' => '/detail/' . $productId,
+            'seoPathInfo' => $path,
+            'salesChannelId' => $salesChannelId,
+            'isModified' => false,
+        ]);
 
-        // Reset using the overwrite path the admin endpoint uses: same path, isModified=false.
-        $persister->forceUpdateSeoUrls(
-            Context::createDefaultContext(),
-            $route,
-            [$foreignKey],
-            [[
-                'foreignKey' => $foreignKey,
-                'salesChannelId' => $salesChannelId,
-                'routeName' => $route,
-                'pathInfo' => '/detail/' . $foreignKey,
-                'seoPathInfo' => $path,
-                'isCanonical' => true,
-                'isModified' => false,
-                'isDeleted' => false,
-            ]],
-            $salesChannel
-        );
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(204, $response->getStatusCode(), (string) $response->getContent());
 
         $canonicals = $connection->fetchAllAssociative(
             'SELECT seo_path_info, is_modified FROM seo_url WHERE foreign_key = :fk AND is_canonical = 1',
-            ['fk' => Uuid::fromHexToBytes($foreignKey)]
+            ['fk' => Uuid::fromHexToBytes($productId)]
         );
 
         static::assertCount(1, $canonicals, 'Exactly one canonical SEO URL must remain');

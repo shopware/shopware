@@ -35,7 +35,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
+use Shopware\Core\Test\Stub\Doctrine\FailingDeleteConnection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -417,24 +417,19 @@ class EntityWriteGatewayTest extends TestCase
     {
         $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
-        $connection = static::getContainer()->get(Connection::class);
+        $realConnection = static::getContainer()->get(Connection::class);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->setConstructorArgs([
-                array_merge(
-                    $connection->getParams(),
-                    [
-                        'url' => $_SERVER['DATABASE_URL'],
-                        'dbname' => $connection->getDatabase(),
-                    ]
-                ),
-                $connection->getDriver(),
-                $connection->getConfiguration(),
-            ])
-            ->onlyMethods(['delete'])
-            ->getMock();
-
-        $connection->method('delete')->willThrowException(TestExceptionFactory::createException('test'));
+        $connection = new FailingDeleteConnection(
+            array_merge(
+                $realConnection->getParams(),
+                [
+                    'url' => $_SERVER['DATABASE_URL'],
+                    'dbname' => $realConnection->getDatabase() ?? '',
+                ]
+            ),
+            $realConnection->getDriver(),
+            $realConnection->getConfiguration(),
+        );
 
         $successSpy = $this->callbackSpy();
         $errorSpy = $this->callbackSpy();

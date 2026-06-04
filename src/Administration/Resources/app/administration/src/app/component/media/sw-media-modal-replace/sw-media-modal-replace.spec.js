@@ -42,7 +42,7 @@ describe('components/media/sw-media-modal-replace', () => {
         };
     });
 
-    it('overwrites the filename with a random id to avoid conflicts with existing files', async () => {
+    it('uploads via mediaService and renames back to the original filename', async () => {
         jest.spyOn(Shopware.Utils, 'createId').mockReturnValue('random-conflict-free-id');
         const wrapper = await createWrapper();
 
@@ -50,12 +50,7 @@ describe('components/media/sw-media-modal-replace', () => {
         wrapper.vm.onNewUpload({ data: uploadData });
 
         expect(uploadData[0].fileName).toBe('random-conflict-free-id');
-    });
 
-    it('uploads via mediaService and renames back to the original filename', async () => {
-        const wrapper = await createWrapper();
-
-        wrapper.vm.onNewUpload({ data: [{ fileName: 'shopware', extension: 'png', src: 'blob:...' }] });
         await wrapper.vm.replaceMediaItem();
 
         expect(mediaService.runUploads).toHaveBeenCalledWith('media-id-123');

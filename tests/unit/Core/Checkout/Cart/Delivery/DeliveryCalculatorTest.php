@@ -70,59 +70,31 @@ class DeliveryCalculatorTest extends TestCase
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
-        $delivery
-            ->expects($this->atLeastOnce())
-            ->method('getShippingCosts')->willReturn($costs);
-        $newCosts = null;
-        $delivery
-            ->expects($this->once())
-            ->method('setShippingCosts')
-            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
-                $newCosts = $costsParameter;
-            });
-
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
-        $lineItem->setDeliveryInformation(
-            new DeliveryInformation(
-                10,
-                12.0,
-                false,
-                null,
-                $this->deliveryTime
-            )
-        );
+        $lineItem->setDeliveryInformation(new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime));
         $lineItem->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $price = $lineItem->getPrice();
         static::assertNotNull($price);
 
-        $delivery
-            ->expects($this->once())
-            ->method('getPositions')
-            ->willReturn(
-                new DeliveryPositionCollection(
-                    [
-                        new DeliveryPosition(
-                            Uuid::randomHex(),
-                            $lineItem,
-                            1,
-                            $price,
-                            new DeliveryDate(new \DateTime(), new \DateTime())
-                        ),
-                    ]
-                )
-            );
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
 
-        $data = new CartDataCollection();
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem, 1, $price, new DeliveryDate(new \DateTime(), new \DateTime())),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
+
+        $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
         $cart = new Cart('test');
-        $cartBehavior = new CartBehavior([
+        $cart->setBehavior(new CartBehavior([
             CheckoutPermissions::SKIP_DELIVERY_PRICE_RECALCULATION => true,
-        ]);
-        $cart->setBehavior($cartBehavior);
+        ]));
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculatorMock
@@ -136,11 +108,10 @@ class DeliveryCalculatorTest extends TestCase
             $this->createMock(CashRounding::class),
         );
 
-        $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
+        $deliveryCalculator->calculate(new CartDataCollection(), $cart, new DeliveryCollection([$delivery]), $context);
 
-        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
-        static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
-        static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
+        // the calculator stored the recalculated (zero) costs on the real delivery
+        static::assertSame($costs, $delivery->getShippingCosts());
     }
 
     public function testCalculateShippingFreeShippingCost(): void
@@ -269,32 +240,19 @@ class DeliveryCalculatorTest extends TestCase
             ->method('buildTaxRules')
             ->willReturn(new TaxRuleCollection());
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $costs = new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setTaxType('fixed');
         $shippingMethod->setTaxId(Uuid::randomHex());
 
-        $delivery
-            ->expects($this->atLeastOnce())
-            ->method('getShippingCosts')
-            ->willReturn($costs);
-        $delivery
-            ->expects($this->atLeastOnce())
-            ->method('getShippingMethod')
-            ->willReturn($shippingMethod);
-
-        $newCosts = null;
-        $delivery
-            ->expects($this->once())
-            ->method('setShippingCosts')
-            ->willReturnCallback(static function ($costsParameter) use (&$newCosts): void {
-                $newCosts = $costsParameter;
-            });
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            $costs,
+        );
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
         $quantityPriceCalculatorMock
@@ -310,9 +268,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
 
-        static::assertInstanceOf(CalculatedPrice::class, $newCosts);
-        static::assertSame($costs->getUnitPrice(), $newCosts->getUnitPrice());
-        static::assertSame($costs->getTotalPrice(), $newCosts->getTotalPrice());
+        static::assertSame($costs, $delivery->getShippingCosts());
     }
 
     public function testShippingCostTaxPercentagesUseRoundedLineItemTotal(): void
@@ -324,15 +280,6 @@ class DeliveryCalculatorTest extends TestCase
 
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
-
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $delivery->method('getShippingCosts')->willReturn(
-            new CalculatedPrice(5.00, 5.00, new CalculatedTaxCollection(), new TaxRuleCollection())
-        );
-        $delivery->method('getShippingMethod')->willReturn($shippingMethod);
 
         $lineItem1 = new LineItem(Uuid::randomHex(), 'product');
         $lineItem1->setDeliveryInformation(new DeliveryInformation(1, 1.0, false, null, $this->deliveryTime));
@@ -357,23 +304,16 @@ class DeliveryCalculatorTest extends TestCase
         $price2 = $lineItem2->getPrice();
         static::assertNotNull($price2);
 
-        $delivery->method('getPositions')->willReturn(new DeliveryPositionCollection([
-            new DeliveryPosition(
-                Uuid::randomHex(),
-                $lineItem1,
-                1,
-                $price1,
-                new DeliveryDate(new \DateTime(), new \DateTime())
-            ),
-
-            new DeliveryPosition(
-                Uuid::randomHex(),
-                $lineItem2,
-                1,
-                $price2,
-                new DeliveryDate(new \DateTime(), new \DateTime())
-            ),
-        ]));
+        $delivery = new Delivery(
+            new DeliveryPositionCollection([
+                new DeliveryPosition(Uuid::randomHex(), $lineItem1, 1, $price1, new DeliveryDate(new \DateTime(), new \DateTime())),
+                new DeliveryPosition(Uuid::randomHex(), $lineItem2, 1, $price2, new DeliveryDate(new \DateTime(), new \DateTime())),
+            ]),
+            new DeliveryDate(new \DateTime(), new \DateTime()),
+            $shippingMethod,
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(5.00, 5.00, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        );
 
         $capturedDefinition = null;
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);

@@ -102,7 +102,7 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('Output')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,

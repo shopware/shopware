@@ -5,12 +5,14 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use Twig\Node\Expression\ArrowFunctionExpression;
 use Twig\Node\Expression\AssignNameExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\ForNode;
 use Twig\Node\Node;
+use Twig\Node\SetNode;
 
 /**
  * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
@@ -51,7 +53,7 @@ class TwigVariableParser
     {
         $variables = [];
         foreach ($nodes as $node) {
-            if ($node instanceof AssignNameExpression) {
+            if ($node instanceof AssignNameExpression || $node instanceof ArrowFunctionExpression) {
                 continue;
             }
 
@@ -89,7 +91,26 @@ class TwigVariableParser
                 $target = implode('.', $this->getVariables($node->getNode('seq'), $aliases));
                 $source = $node->getNode('value_target')->getAttribute('name');
 
+                if ($target === '' && $node->getNode('seq')->hasAttribute('name')) {
+                    $in = $node->getNode('seq')->getAttribute('name');
+                    if (\is_string($in) && isset($aliases[$in])) {
+                        $target = $aliases[$in];
+                    }
+                }
+
                 $aliases[$source] = $target;
+            }
+
+            if ($node instanceof SetNode) {
+                $names = $node->getNode('names');
+                $values = $node->getNode('values');
+
+                $resolvedValue = implode('.', $this->getVariables($values, $aliases));
+
+                foreach ($names as $nameNode) {
+                    $varName = $nameNode->getAttribute('name');
+                    $aliases[$varName] = $resolvedValue;
+                }
             }
 
             if ($node instanceof Node) {

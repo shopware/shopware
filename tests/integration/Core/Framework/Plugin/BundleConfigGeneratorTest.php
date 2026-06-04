@@ -24,7 +24,7 @@ class BundleConfigGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         $this->configGenerator = static::getContainer()->get(BundleConfigGenerator::class);
     }
 
@@ -63,10 +63,11 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertSame('Resources/app/storefront/src', $storefrontConfig['path']);
         static::assertSame('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
+        static::assertFalse($storefrontConfig['hasComponentAssets']);
 
         // Style files can and need only be imported if storefront is installed
         if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
-            $appPath = 'src/Core/Framework/Test/Plugin/_fixture/apps/theme/';
+            $appPath = 'tests/integration/Core/Framework/Plugin/_fixtures/apps/theme/';
             $expectedStyles = [
                 $appPath . 'Resources/app/storefront/src/scss/base.scss',
                 $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
@@ -100,6 +101,7 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertSame('Resources/app/storefront/src', $storefrontConfig['path']);
         static::assertSame('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
+        static::assertFalse($storefrontConfig['hasComponentAssets']);
 
         // Style files can and need only be imported if storefront is installed
         if (static::getContainer()->has(StorefrontPluginRegistry::class)) {
@@ -152,5 +154,32 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertNull($storefrontConfig['entryFilePath']);
         static::assertSame('Resources/app/storefront/build/webpack.config.js', $storefrontConfig['webpack']);
         static::assertSame([], $storefrontConfig['styleFiles']);
+        static::assertFalse($storefrontConfig['hasComponentAssets']);
+    }
+
+    public function testGenerateAppConfigDetectsStorefrontComponentAssets(): void
+    {
+        $this->loadAppsFromDir($this->fixturePath . 'apps/component-assets/');
+
+        $configs = $this->configGenerator->getConfig();
+
+        static::assertArrayHasKey('SwagComponentAssets', $configs);
+
+        $appConfig = $configs['SwagComponentAssets'];
+        static::assertArrayHasKey('storefront', $appConfig);
+        static::assertTrue($appConfig['storefront']['hasComponentAssets']);
+    }
+
+    public function testGenerateAppConfigIgnoresNonBuildableStorefrontComponentAssets(): void
+    {
+        $this->loadAppsFromDir($this->fixturePath . 'apps/component-assets-ignored/');
+
+        $configs = $this->configGenerator->getConfig();
+
+        static::assertArrayHasKey('SwagComponentAssetsIgnored', $configs);
+
+        $appConfig = $configs['SwagComponentAssetsIgnored'];
+        static::assertArrayHasKey('storefront', $appConfig);
+        static::assertFalse($appConfig['storefront']['hasComponentAssets']);
     }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
@@ -705,5 +707,117 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-data-grid__row--0 .router-link').attributes('detail-route')).toBe(
             testConfig.product.detailRoute,
         );
+    });
+
+    describe('getRouterLink and hasRoute', () => {
+        it.each([
+            {
+                name: 'with manufacturerId',
+                item: { id: 'p-1', name: 'Product', manufacturerId: 'mfr-1' },
+                expectedLinks: [
+                    'sw.manufacturer.detail',
+                    'sw.product.detail.prices',
+                ],
+            },
+            {
+                name: 'without manufacturerId',
+                item: { id: 'p-1', name: 'Product' },
+                expectedLinks: [
+                    'sw.product.detail.prices',
+                ],
+            },
+        ])('should render router-link for manufacturer column $name', async ({ item, expectedLinks }) => {
+            const configWithManufacturerColumn = {
+                ...testConfig.product,
+                gridColumns: [
+                    {
+                        property: 'name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
+                        rawData: true,
+                        sortable: true,
+                        routerLink: 'sw.product.detail.prices',
+                        allowEdit: false,
+                    },
+                    {
+                        property: 'manufacturer.translated.name',
+                        label: 'sw-settings-rule.detail.associations.columns.manufacturer',
+                        rawData: true,
+                        sortable: false,
+                        allowEdit: false,
+                        routerLink: 'sw.manufacturer.detail',
+                        routerParameters: [{ key: 'id', path: 'manufacturerId' }],
+                    },
+                ],
+            };
+
+            ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => ({
+                product: configWithManufacturerColumn,
+            }));
+
+            const wrapper = await createWrapper(defaultProps, ['product'], {
+                search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [item]))),
+            });
+            await flushPromises();
+
+            const links = wrapper.findAll('.sw-data-grid__row--0 .router-link');
+            expect(links).toHaveLength(expectedLinks.length);
+
+            const routes = links.map((link) => link.attributes('detail-route')).sort();
+            expect(routes).toEqual(expectedLinks);
+        });
+
+        it('should use entity detailRoute for column with routerLink but no routerParameters array', async () => {
+            ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => ({
+                product: {
+                    ...testConfig.product,
+                    gridColumns: [
+                        {
+                            property: 'name',
+                            label: 'sw-settings-rule.detail.associations.columns.name',
+                            rawData: true,
+                            sortable: true,
+                            routerLink: 'sw.product.detail.prices',
+                            allowEdit: false,
+                        },
+                    ],
+                },
+            }));
+
+            const wrapper = await createWrapper(defaultProps, ['product'], {
+                search: jest.fn(() =>
+                    Promise.resolve(createEntityCollectionMock('product', [{ id: 'p-1', name: 'Product' }])),
+                ),
+            });
+            await flushPromises();
+
+            const link = wrapper.find('.sw-data-grid__row--0 .router-link');
+            expect(link.attributes('detail-route')).toBe(testConfig.product.detailRoute);
+        });
+
+        it('should not render router-link for column without routerLink', async () => {
+            ruleAssignmentServiceMock.getConfiguration.mockImplementationOnce(() => ({
+                product: {
+                    ...testConfig.product,
+                    gridColumns: [
+                        {
+                            property: 'name',
+                            label: 'sw-settings-rule.detail.associations.columns.name',
+                            rawData: true,
+                            sortable: true,
+                            allowEdit: false,
+                        },
+                    ],
+                },
+            }));
+
+            const wrapper = await createWrapper(defaultProps, ['product'], {
+                search: jest.fn(() =>
+                    Promise.resolve(createEntityCollectionMock('product', [{ id: 'p-1', name: 'Product' }])),
+                ),
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-data-grid__row--0 .router-link').exists()).toBe(false);
+        });
     });
 });

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,7 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @final
  */
 #[Package('framework')]
-class TaskScheduler
+readonly class TaskScheduler
 {
     /**
      * @internal
@@ -37,10 +39,12 @@ class TaskScheduler
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
-        private readonly EntityRepository $scheduledTaskRepository,
-        private readonly MessageBusInterface $bus,
-        private readonly ParameterBagInterface $parameterBag,
-        private readonly int $requeueTimeout,
+        private EntityRepository $scheduledTaskRepository,
+        private MessageBusInterface $bus,
+        private ParameterBagInterface $parameterBag,
+        private LoggerInterface $logger,
+        private int $requeueTimeout,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -116,7 +120,7 @@ class TaskScheduler
                             new RangeFilter(
                                 'nextExecutionTime',
                                 [
-                                    RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                    RangeFilter::LT => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
                             ),
                             new EqualsAnyFilter('status', [
@@ -132,7 +136,7 @@ class TaskScheduler
                             new RangeFilter(
                                 'updatedAt',
                                 [
-                                    RangeFilter::LT => (new \DateTime())
+                                    RangeFilter::LT => $this->clock->now()
                                         ->modify(\sprintf('-%d hours', $this->requeueTimeout))
                                         ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
@@ -153,6 +157,15 @@ class TaskScheduler
     private function queueTask(ScheduledTaskEntity $taskEntity, Context $context): void
     {
         $taskClass = $taskEntity->getScheduledTaskClass();
+
+        if (!class_exists($taskClass)) {
+            $this->logger->warning(\sprintf(
+                'Scheduled task class "%s" does not exist, this might be due to version mismatch during deployments when a new scheduled task is already registered, but the worker still running on an older version where that task does not exist yet.',
+                $taskClass
+            ));
+
+            return;
+        }
 
         if (!\is_a($taskClass, ScheduledTask::class, true)) {
             throw MessageQueueException::scheduledTaskDoesNotImplementInterface($taskClass);
@@ -216,7 +229,7 @@ class TaskScheduler
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);

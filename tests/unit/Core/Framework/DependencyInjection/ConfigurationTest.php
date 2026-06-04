@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -217,6 +218,114 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('allowed_types', $nodes);
         static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['allowed_types']);
+
+        static::assertArrayHasKey('search_keyword', $nodes);
+        static::assertInstanceOf(ArrayNodeDefinition::class, $nodes['search_keyword']);
+
+        $nodes = $nodes['search_keyword']->getChildNodeDefinitions();
+
+        static::assertArrayHasKey('relevant_keyword_count', $nodes);
+        static::assertInstanceOf(IntegerNodeDefinition::class, $nodes['relevant_keyword_count']);
+    }
+
+    public function testFilesystemVisibilityOverrideKeepsConfiguredAdapter(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'visibility' => 'public',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'visibility' => 'private',
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame('local', $config['filesystem']['public']['type']);
+        static::assertSame('private', $config['filesystem']['public']['visibility']);
+        static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
+    }
+
+    public function testFilesystemAdapterConfigOverrideReplacesPreviousAdapterConfig(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'visibility' => 'public',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'amazon-s3',
+                        'config' => [
+                            'bucket' => 'test',
+                            'region' => 'eu-central-1',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame('amazon-s3', $config['filesystem']['public']['type']);
+        static::assertSame('public', $config['filesystem']['public']['visibility']);
+        static::assertSame(['bucket' => 'test', 'region' => 'eu-central-1'], $config['filesystem']['public']['config']);
+    }
+
+    public function testInheritingFilesystemNullOverrideRemovesPreviousConfig(): void
+    {
+        $configuration = new Configuration();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            [
+                'filesystem' => [
+                    'public' => $this->createS3FilesystemConfig('public'),
+                    'theme' => $this->createS3FilesystemConfig('theme'),
+                    'asset' => $this->createS3FilesystemConfig('asset'),
+                    'sitemap' => $this->createS3FilesystemConfig('sitemap'),
+                ],
+            ],
+            [
+                'filesystem' => [
+                    'public' => [
+                        'type' => 'local',
+                        'config' => [
+                            'root' => '%kernel.project_dir%/public',
+                        ],
+                    ],
+                    'theme' => null,
+                    'asset' => null,
+                    'sitemap' => null,
+                ],
+            ],
+        ]);
+
+        static::assertSame('local', $config['filesystem']['public']['type']);
+        static::assertSame(['root' => '%kernel.project_dir%/public'], $config['filesystem']['public']['config']);
+
+        static::assertArrayNotHasKey('theme', $config['filesystem']);
+        static::assertArrayNotHasKey('asset', $config['filesystem']);
+        static::assertArrayNotHasKey('sitemap', $config['filesystem']);
     }
 
     public function testValidSystemConfigKeys(): void
@@ -243,8 +352,7 @@ class ConfigurationTest extends TestCase
 
     public function testInvalidSystemConfigKeys(): void
     {
-        static::expectException(InvalidConfigurationException::class);
-        static::expectExceptionMessage('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID');
+        $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));
 
         $configuration = new Configuration();
 
@@ -260,5 +368,24 @@ class ConfigurationTest extends TestCase
                 ],
             ],
         ]);
+    }
+
+    /**
+     * @return array{type: string, url: string, visibility: string, config: array{bucket: string, region: string, root: string, endpoint: string, use_path_style_endpoint: bool}}
+     */
+    private function createS3FilesystemConfig(string $bucket): array
+    {
+        return [
+            'type' => 'amazon-s3',
+            'url' => 'https://cdn.example.test/' . $bucket,
+            'visibility' => 'private',
+            'config' => [
+                'bucket' => $bucket,
+                'region' => 'eu-central-1',
+                'root' => 'asdf',
+                'endpoint' => 'localhost/public',
+                'use_path_style_endpoint' => true,
+            ],
+        ];
     }
 }

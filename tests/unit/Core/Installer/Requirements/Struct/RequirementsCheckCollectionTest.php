@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -23,7 +24,7 @@ class RequirementsCheckCollectionTest extends TestCase
 
         $collection->add(new PathCheck('name', RequirementCheck::STATUS_SUCCESS));
 
-        static::expectExceptionMessage('Expected collection element of type Shopware\Core\Installer\Requirements\Struct\RequirementCheck got Shopware\Core\Content\Product\ProductEntity');
+        $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(RequirementCheck::class, ProductEntity::class));
         $collection->add(new ProductEntity()); /** @phpstan-ignore argument.type (for test purpose) */
     }
 

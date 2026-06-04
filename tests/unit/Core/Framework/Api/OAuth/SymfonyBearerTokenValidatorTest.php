@@ -38,8 +38,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -60,8 +59,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -94,8 +92,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }
@@ -113,8 +110,7 @@ class SymfonyBearerTokenValidatorTest extends TestCase
             $this->getJwtConfiguration()
         );
 
-        static::expectException(OAuthServerException::class);
-        static::expectExceptionMessage('The resource owner or authorization server denied the request.');
+        $this->expectExceptionObject(OAuthServerException::accessDenied());
 
         $validator->validateAuthorization($request);
     }

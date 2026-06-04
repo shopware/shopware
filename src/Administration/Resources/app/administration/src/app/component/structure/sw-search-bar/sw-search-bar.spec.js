@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package framework
  */
@@ -463,6 +465,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
 
         expect(wrapper.vm.searchTerm).toBe('shirt');
+    });
+
+    it('should update off-canvas state when admin menu toggles it', async () => {
+        wrapper = await createWrapper();
+
+        wrapper.vm.isOffCanvasShown = true;
+
+        Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', false);
+
+        expect(wrapper.vm.isOffCanvasShown).toBe(false);
     });
 
     it('should search with repository when no service is set in searchTypeService', async () => {

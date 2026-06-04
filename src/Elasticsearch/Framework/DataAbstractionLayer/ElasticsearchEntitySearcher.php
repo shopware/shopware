@@ -6,7 +6,9 @@ use OpenSearch\Client;
 use OpenSearchDSL\Aggregation\AbstractAggregation;
 use OpenSearchDSL\Aggregation\Bucketing\FilterAggregation;
 use OpenSearchDSL\Aggregation\Metric\CardinalityAggregation;
+use OpenSearchDSL\Collapse\Collapse;
 use OpenSearchDSL\Search;
+use OpenSearchDSL\SearchEndpoint\CollapseEndpoint;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -72,7 +74,6 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $params = [
                 'index' => $this->helper->getIndexName($definition),
                 'search_type' => $this->searchType,
-                'track_total_hits' => $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT,
                 'body' => $this->convertSearch($criteria, $definition, $context, $search),
             ];
 
@@ -125,6 +126,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $search->setSize($limit);
         }
         $search->setFrom((int) $criteria->getOffset());
+        $search->setTrackTotalHits($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT);
 
         return $search;
     }
@@ -151,8 +153,11 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             $search->addAggregation($aggregation);
         }
 
+        $search->getEndpoint(CollapseEndpoint::NAME)->add(
+            $this->parseGrouping($criteria->getGroupFields(), $definition, $context)
+        );
+
         $array = $search->toArray();
-        $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
         $array['timeout'] = $this->timeout;
 
         return $array;
@@ -160,26 +165,27 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
     /**
      * @param FieldGrouping[] $groupings
-     *
-     * @return array{field: string, inner_hits?: array{name: string}}
      */
-    private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
+    private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): Collapse
     {
         /** @var FieldGrouping $grouping */
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
+        $collapse = new Collapse($accessor);
+
         if ($groupings === []) {
-            return ['field' => $accessor];
+            return $collapse;
         }
 
-        return [
-            'field' => $accessor,
-            'inner_hits' => [
+        $collapse->addParameter('inner_hits', [
+            [
                 'name' => 'inner',
-                'collapse' => $this->parseGrouping($groupings, $definition, $context),
+                'collapse' => $this->parseGrouping($groupings, $definition, $context)->toArray(),
             ],
-        ];
+        ]);
+
+        return $collapse;
     }
 
     private function buildTotalCountAggregation(Criteria $criteria, EntityDefinition $definition, Context $context): AbstractAggregation

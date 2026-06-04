@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\OAuth;
 
 use Doctrine\DBAL\Connection;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -11,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -26,12 +28,12 @@ class ClientRepositoryTest extends TestCase
     {
         parent::setUp();
         $this->connection = $this->createMock(Connection::class);
-        $this->clientRepository = new ClientRepository($this->connection);
+        $this->clientRepository = new ClientRepository($this->connection, new NativeClock());
     }
 
     public function testValidateClientWithInvalidGrantTypeThrowException(): void
     {
-        static::expectExceptionMessage('The authorization grant type is not supported by the authorization server.');
+        $this->expectExceptionObject(OAuthServerException::unsupportedGrantType());
         $this->clientRepository->validateClient('clientIdentifier', 'clientSecret', 'unsupportGrantType');
     }
 

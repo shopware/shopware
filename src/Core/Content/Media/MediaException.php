@@ -195,6 +195,15 @@ class MediaException extends HttpException
         );
     }
 
+    public static function emptyFile(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_EMPTY_FILE,
+            'Provided file is empty.'
+        );
+    }
+
     public static function invalidFile(string $cause): self
     {
         return new self(

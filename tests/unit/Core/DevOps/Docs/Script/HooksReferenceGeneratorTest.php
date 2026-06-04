@@ -6,7 +6,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\Docs\Script;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\DocsException;
 use Shopware\Core\DevOps\Docs\Script\HooksReferenceGenerator;
@@ -23,11 +23,11 @@ use Twig\Loader\LoaderInterface;
 #[CoversClass(HooksReferenceGenerator::class)]
 class HooksReferenceGeneratorTest extends TestCase
 {
-    private Environment&MockObject $twig;
+    private Environment&Stub $twig;
 
-    private ContainerInterface&MockObject $container;
+    private ContainerInterface&Stub $container;
 
-    private ServiceReferenceGenerator&MockObject $serviceReferenceGenerator;
+    private ServiceReferenceGenerator&Stub $serviceReferenceGenerator;
 
     private HooksReferenceGenerator $generator;
 
@@ -62,12 +62,12 @@ class HooksReferenceGeneratorTest extends TestCase
     {
         parent::setUp();
 
-        $this->twig = $this->createMock(Environment::class);
+        $this->twig = static::createStub(Environment::class);
         $this->twig->method('render')->willReturn('');
         $this->twig->method('getLoader')->willReturn(static::createStub(LoaderInterface::class));
 
-        $this->container = $this->createMock(ContainerInterface::class);
-        $this->serviceReferenceGenerator = $this->createMock(ServiceReferenceGenerator::class);
+        $this->container = static::createStub(ContainerInterface::class);
+        $this->serviceReferenceGenerator = static::createStub(ServiceReferenceGenerator::class);
 
         $this->generator = new HooksReferenceGenerator(
             $this->container,

@@ -38,7 +38,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
     {
         $ruleId = Uuid::randomHex();
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource(), [$ruleId]);
         $salesChannelContext->method('getContext')->willReturn($context);
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());
@@ -50,6 +50,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
         $ruleRepository = $this->createMock(EntityRepository::class);
         $ruleRepository
+            ->expects($this->once())
             ->method('search')
             ->willReturn(new EntitySearchResult(
                 'rule',
@@ -81,7 +82,7 @@ class ActiveRulesDataCollectorSubscriberTest extends TestCase
 
     public function testEmptyRuleIds(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $context = new Context(new SystemSource(), []);
         $salesChannelContext->method('getContext')->willReturn($context);
         $event = new SalesChannelContextResolvedEvent($salesChannelContext, Uuid::randomHex());

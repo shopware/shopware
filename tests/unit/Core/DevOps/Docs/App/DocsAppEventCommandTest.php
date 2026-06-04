@@ -67,13 +67,18 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testRender(): void
     {
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
+            ->method('getEntityWrittenEventNamesWithPrivileges')
+            ->willReturn([]);
+
         $this->twig->expects($this->once())
             ->method('getLoader')
             ->willReturn(new ArrayLoader());
-
         $this->twig->expects($this->exactly(2))
             ->method('setLoader');
-
         $this->twig->expects($this->once())
             ->method('render')
             ->willReturn('rendered content');
@@ -84,6 +89,10 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testGetListEventPath(): void
     {
+        $this->twig->expects($this->never())->method('getLoader');
+        $this->businessEventCollector->expects($this->never())->method('collect');
+        $this->hookableEventCollector->expects($this->never())->method('getEntityWrittenEventNamesWithPrivileges');
+
         $command = new DocsAppEventCommand(
             $this->businessEventCollector,
             $this->hookableEventCollector,
@@ -98,21 +107,35 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testExecuteReturnsSuccess(): void
     {
-        $mockOutput = $this->getMockBuilder(OutputInterface::class)->getMock();
-        $mockInput = $this->getMockBuilder(InputInterface::class)->getMock();
+        $output = static::createStub(OutputInterface::class);
+        $input = static::createStub(InputInterface::class);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->method('render')->willReturn('rendered content');
-        $this->twig->method('setLoader');
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
+            ->method('getEntityWrittenEventNamesWithPrivileges')
+            ->willReturn([]);
 
-        $result = $this->command->run($mockInput, $mockOutput);
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->exactly(2))->method('setLoader');
+        $this->twig->expects($this->once())->method('render')->willReturn('rendered content');
+
+        $result = $this->command->run($input, $output);
         static::assertSame(Command::SUCCESS, $result);
     }
 
     public function testRenderThrowsIfTemplateMissing(): void
     {
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
+            ->method('getEntityWrittenEventNamesWithPrivileges')
+            ->willReturn([]);
+
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->exactly(2))->method('setLoader');
 
         $result = $this->command->render();
         static::assertIsString($result);
@@ -122,9 +145,16 @@ class DocsAppEventCommandTest extends TestCase
     {
         $exception = new \RuntimeException('Twig error');
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->expects($this->any())->method('setLoader');
-        $this->twig->method('render')->willThrowException($exception);
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
+            ->method('getEntityWrittenEventNamesWithPrivileges')
+            ->willReturn([]);
+
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->exactly(2))->method('setLoader');
+        $this->twig->expects($this->once())->method('render')->willThrowException($exception);
 
         $this->expectExceptionObject($exception);
         $this->command->render();
@@ -132,8 +162,12 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testRenderWithEmptyCollectors(): void
     {
-        $this->businessEventCollector->method('collect')->willReturn(new BusinessEventCollectorResponse());
-        $this->hookableEventCollector->method('getEntityWrittenEventNamesWithPrivileges')->willReturn([]);
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
+            ->method('getEntityWrittenEventNamesWithPrivileges')
+            ->willReturn([]);
         $this->twig->expects($this->once())
             ->method('getLoader')
             ->willReturn(new ArrayLoader());
@@ -165,17 +199,16 @@ class DocsAppEventCommandTest extends TestCase
         $response = new BusinessEventCollectorResponse();
         $response->set($eventDef->getName(), $eventDef);
 
-        $this->businessEventCollector
+        $this->businessEventCollector->expects($this->once())
             ->method('collect')
             ->willReturn($response);
-
-        $this->hookableEventCollector
+        $this->hookableEventCollector->expects($this->once())
             ->method('getPrivilegesFromBusinessEventDefinition')
             ->willReturn(['priv1', 'priv2']);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->method('setLoader');
-        $this->twig->method('render')->willReturn('rendered content');
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->exactly(2))->method('setLoader');
+        $this->twig->expects($this->once())->method('render')->willReturn('rendered content');
 
         $result = $this->command->render();
         static::assertSame('rendered content', $result);
@@ -187,13 +220,16 @@ class DocsAppEventCommandTest extends TestCase
             'entity.written' => ['privileges' => ['priv1', 'priv2']],
         ];
 
-        $this->hookableEventCollector
+        $this->businessEventCollector->expects($this->once())
+            ->method('collect')
+            ->willReturn(new BusinessEventCollectorResponse());
+        $this->hookableEventCollector->expects($this->once())
             ->method('getEntityWrittenEventNamesWithPrivileges')
             ->willReturn($entityWrittenEvents);
 
-        $this->twig->method('getLoader')->willReturn(new ArrayLoader());
-        $this->twig->method('setLoader');
-        $this->twig->method('render')->willReturn('rendered content');
+        $this->twig->expects($this->once())->method('getLoader')->willReturn(new ArrayLoader());
+        $this->twig->expects($this->exactly(2))->method('setLoader');
+        $this->twig->expects($this->once())->method('render')->willReturn('rendered content');
 
         $result = $this->command->render();
         static::assertSame('rendered content', $result);

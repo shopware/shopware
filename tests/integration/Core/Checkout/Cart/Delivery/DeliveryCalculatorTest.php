@@ -142,7 +142,9 @@ class DeliveryCalculatorTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        $delivery = $this->createMock(Delivery::class);
+        $delivery = $this->getMockBuilder(Delivery::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $delivery->expects($this->never())->method('setShippingCosts');
@@ -198,7 +200,9 @@ class DeliveryCalculatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->createMock(Delivery::class);
+        $delivery = $this->getMockBuilder(Delivery::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $costs = new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery->expects($this->atLeastOnce())->method('getShippingCosts')->willReturn($costs);
         $newCosts = null;

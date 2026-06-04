@@ -71,7 +71,9 @@ class DeliveryProcessorTest extends TestCase
             ->expects($this->once())
             ->method('calculate');
 
-        $delivery = $this->createMock(Delivery::class);
+        $delivery = $this->getMockBuilder(Delivery::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $newCosts = null;
         $delivery

@@ -9,14 +9,17 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoException;
+use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
@@ -372,48 +375,76 @@ class SeoActionControllerTest extends TestCase
     /**
      * Regression for shopware/shopware#4413 (same-path reset): a write-protected canonical whose
      * path already equals the template output must still be resettable. Clearing the flag without
-     * changing the path must actually drop isModified, not silently keep the URL write-protected.
+     * changing the path must actually drop isModified instead of silently keeping it write-protected.
+     *
+     * This drives SeoUrlPersister::forceUpdateSeoUrls() directly - the exact code path the admin
+     * `seo-url/canonical` endpoint uses - against a real database. That exercises the obsolete +
+     * useReplace + updateCanonicalSeoUrls interaction (which the unit tests mock away) and proves
+     * the canonical is not re-protected afterwards, without depending on storefront product SEO
+     * indexing.
      */
-    public function testResetWriteProtectedCanonicalWithUnchangedPath(): void
+    public function testForceUpdateClearsWriteProtectionOnUnchangedPath(): void
     {
+        $connection = static::getContainer()->get(Connection::class);
+        $persister = static::getContainer()->get(SeoUrlPersister::class);
+
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $id = $this->createTestProduct($salesChannelId);
+        $foreignKey = Uuid::randomHex();
+        $route = ProductPageSeoUrlRoute::ROUTE_NAME;
+        $path = 'red-shoe';
 
-        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
-        static::assertCount(1, $seoUrls);
-        $templatePath = $seoUrls[0]['attributes']['seoPathInfo'];
+        // Seed a write-protected canonical whose path already equals the template output
+        // (mimics a migrated/manually created SEO URL).
+        $connection->insert('seo_url', [
+            'id' => Uuid::randomBytes(),
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
+            'foreign_key' => Uuid::fromHexToBytes($foreignKey),
+            'route_name' => $route,
+            'path_info' => '/detail/' . $foreignKey,
+            'seo_path_info' => $path,
+            'is_canonical' => 1,
+            'is_modified' => 1,
+            'is_deleted' => 0,
+            'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
 
-        // Write-protect the URL while keeping the template path (mimics a migrated/manual URL
-        // whose value happens to equal the current template output).
-        $protectPayload = $seoUrls[0]['attributes'];
-        $protectPayload['seoPathInfo'] = $templatePath;
-        $protectPayload['isModified'] = true;
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId($salesChannelId);
+        $salesChannel->setUniqueIdentifier($salesChannelId);
 
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $protectPayload);
-        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
+        // Reset using the overwrite path the admin endpoint uses: same path, isModified=false.
+        $persister->forceUpdateSeoUrls(
+            Context::createDefaultContext(),
+            $route,
+            [$foreignKey],
+            [[
+                'foreignKey' => $foreignKey,
+                'salesChannelId' => $salesChannelId,
+                'routeName' => $route,
+                'pathInfo' => '/detail/' . $foreignKey,
+                'seoPathInfo' => $path,
+                'isCanonical' => true,
+                'isModified' => false,
+                'isDeleted' => false,
+            ]],
+            $salesChannel
+        );
 
-        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
-        static::assertCount(1, $seoUrls);
-        static::assertTrue($seoUrls[0]['attributes']['isModified']);
-        static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
+        $canonicals = $connection->fetchAllAssociative(
+            'SELECT seo_path_info, is_modified FROM seo_url WHERE foreign_key = :fk AND is_canonical = 1',
+            ['fk' => Uuid::fromHexToBytes($foreignKey)]
+        );
 
-        // Reset: clear the write-protection flag without changing the path.
-        $resetPayload = $seoUrls[0]['attributes'];
-        $resetPayload['seoPathInfo'] = $templatePath;
-        $resetPayload['isModified'] = false;
-
-        $this->getBrowser()->jsonRequest('PATCH', '/api/_action/seo-url/canonical', $resetPayload);
-        static::assertSame(204, $this->getBrowser()->getResponse()->getStatusCode());
-
-        $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
-        static::assertCount(1, $seoUrls);
-        static::assertFalse(
-            $seoUrls[0]['attributes']['isModified'],
+        static::assertCount(1, $canonicals, 'Exactly one canonical SEO URL must remain');
+        static::assertSame($path, $canonicals[0]['seo_path_info']);
+        static::assertSame(
+            0,
+            (int) $canonicals[0]['is_modified'],
             'Write-protection flag must be cleared even when the path did not change'
         );
-        static::assertSame($templatePath, $seoUrls[0]['attributes']['seoPathInfo']);
     }
 
     public function testUpdateCanonicalWithCustomSalesChannel(): void

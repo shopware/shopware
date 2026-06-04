@@ -65,7 +65,7 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateAdminShippingCostZero(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -104,8 +104,8 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,
-            $this->createMock(PercentageTaxRuleBuilder::class),
-            $this->createMock(CashRounding::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), $cart, new DeliveryCollection([$delivery]), $context);
@@ -116,7 +116,7 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateShippingFreeShippingCost(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
@@ -149,8 +149,8 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,
-            $this->createMock(PercentageTaxRuleBuilder::class),
-            $this->createMock(CashRounding::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -216,8 +216,8 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,
-            $this->createMock(PercentageTaxRuleBuilder::class),
-            $this->createMock(CashRounding::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
         );
 
         $deliveryCalculator->calculate($data, $cart, new DeliveryCollection([$delivery]), $context);
@@ -262,8 +262,8 @@ class DeliveryCalculatorTest extends TestCase
 
         $deliveryCalculator = new DeliveryCalculator(
             $quantityPriceCalculatorMock,
-            $this->createMock(PercentageTaxRuleBuilder::class),
-            $this->createMock(CashRounding::class),
+            static::createStub(PercentageTaxRuleBuilder::class),
+            static::createStub(CashRounding::class),
         );
 
         $deliveryCalculator->calculate(new CartDataCollection(), new Cart('test'), new DeliveryCollection([$delivery]), $context);
@@ -273,7 +273,7 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testShippingCostTaxPercentagesUseRoundedLineItemTotal(): void
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $totalRoundingConfig = new CashRoundingConfig(2, 0.01, true);
 
         $context->method('getTotalRounding')->willReturn($totalRoundingConfig);

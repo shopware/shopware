@@ -298,7 +298,7 @@ class InfoController extends AbstractController
             $scripts = $viteEntryPoints['entryPoints'][$technicalBundleName]['js'] ?? [];
             $baseUrl = $this->getBaseUrl($bundle);
 
-            if (empty($styles) && empty($scripts) && $baseUrl === null) {
+            if (!$styles && !$scripts && $baseUrl === null) {
                 continue;
             }
 

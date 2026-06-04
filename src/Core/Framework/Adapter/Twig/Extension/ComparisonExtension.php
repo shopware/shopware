@@ -26,7 +26,7 @@ class ComparisonExtension extends AbstractExtension
     {
         switch ($operator) {
             case Rule::OPERATOR_EMPTY:
-                return empty($value);
+                return !$value;
 
             case Rule::OPERATOR_EQ:
             case Rule::OPERATOR_NEQ:

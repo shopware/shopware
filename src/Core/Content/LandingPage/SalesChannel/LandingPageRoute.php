@@ -117,7 +117,7 @@ class LandingPageRoute extends AbstractLandingPageRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if ($slots && \is_array($slots)) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

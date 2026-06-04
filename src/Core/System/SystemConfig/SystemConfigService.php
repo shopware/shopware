@@ -182,7 +182,7 @@ class SystemConfigService implements ResetInterface
             }
 
             $inheritedValuePresent = \array_key_exists($key, $merged);
-            $valueConsideredEmpty = !\is_bool($value) && empty($value);
+            $valueConsideredEmpty = !\is_bool($value) && !$value;
 
             if ($inheritedValuePresent && $valueConsideredEmpty) {
                 continue;

@@ -20,7 +20,7 @@ class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (empty($requestFilterValue) || !\is_array($requestFilterValue)) {
+        if (!$requestFilterValue || !\is_array($requestFilterValue)) {
             return $snippets;
         }
 

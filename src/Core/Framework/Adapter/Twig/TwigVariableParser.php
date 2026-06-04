@@ -71,7 +71,7 @@ class TwigVariableParser
 
             if ($node instanceof ConstantExpression && $nodes instanceof GetAttrExpression) {
                 $value = $node->getAttribute('value');
-                if (!empty($value) && \is_string($value)) {
+                if ($value && \is_string($value)) {
                     $variables[$value] = $value;
                 }
 

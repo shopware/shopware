@@ -131,7 +131,7 @@ class PaymentMethodPersister implements PersisterInterface
             return $acc;
         }, []);
 
-        if (empty($updates)) {
+        if (!$updates) {
             return;
         }
 

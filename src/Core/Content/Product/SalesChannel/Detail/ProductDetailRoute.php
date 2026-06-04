@@ -251,7 +251,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ]
         );
 
-        if (empty($productData)) {
+        if (!$productData) {
             return [null, null];
         }
 
@@ -379,7 +379,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             $slots = explode('|', $slots);
         }
 
-        if (!empty($slots) && \is_array($slots)) {
+        if ($slots && \is_array($slots)) {
             $criteria
                 ->getAssociation('sections.blocks')
                 ->addFilter(new EqualsAnyFilter('slots.id', $slots));

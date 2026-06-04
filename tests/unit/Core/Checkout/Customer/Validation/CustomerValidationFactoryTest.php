@@ -27,11 +27,7 @@ class CustomerValidationFactoryTest extends TestCase
         DataValidationDefinition $profileDefinition,
         DataValidationDefinition $expected
     ): void {
-        $customerProfileValidationFactory = $this
-            ->getMockBuilder(CustomerProfileValidationFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock();
+        $customerProfileValidationFactory = static::createStub(CustomerProfileValidationFactory::class);
         $customerProfileValidationFactory
             ->method('create')
             ->willReturn($profileDefinition);

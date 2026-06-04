@@ -70,9 +70,7 @@ class DeliveryCalculatorTest extends TestCase
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $delivery = $this->createMock(Delivery::class);
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery
             ->expects($this->atLeastOnce())
@@ -150,9 +148,7 @@ class DeliveryCalculatorTest extends TestCase
             ->method('getItemRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $delivery = $this->createMock(Delivery::class);
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
         $delivery
             ->expects($this->atLeastOnce())
@@ -299,9 +295,7 @@ class DeliveryCalculatorTest extends TestCase
             ->method('buildTaxRules')
             ->willReturn(new TaxRuleCollection());
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $delivery = $this->createMock(Delivery::class);
 
         $costs = new CalculatedPrice(10.00, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection());
 
@@ -355,9 +349,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
 
-        $delivery = $this->getMockBuilder(Delivery::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $delivery = $this->createMock(Delivery::class);
 
         $delivery->method('getShippingCosts')->willReturn(
             new CalculatedPrice(5.00, 5.00, new CalculatedTaxCollection(), new TaxRuleCollection())

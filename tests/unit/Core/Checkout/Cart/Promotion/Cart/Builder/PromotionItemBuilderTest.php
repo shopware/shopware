@@ -50,8 +50,8 @@ class PromotionItemBuilderTest extends TestCase
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
 
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
+        $context = static::createStub(Context::class);
 
         $this->salesChannelContext->method('getContext')->willReturn($context);
     }

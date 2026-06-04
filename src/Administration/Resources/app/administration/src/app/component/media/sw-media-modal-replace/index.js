@@ -1,6 +1,5 @@
 import template from './sw-media-modal-replace.html.twig';
 import './sw-media-modal-replace.scss';
-import { UploadEvents } from '../../../../core/service/api/media.api.service';
 
 const { Mixin } = Shopware;
 

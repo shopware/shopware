@@ -5,14 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ExistenceAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Collection;
 
 #[Package('framework')]
 class CompiledFieldCollection extends FieldCollection
@@ -126,17 +124,6 @@ class CompiledFieldCollection extends FieldCollection
 
                 return true;
             }
-        );
-    }
-
-    /**
-     * @return Collection<StorageAware>
-     */
-    public function getExistenceAwareFields(): Collection
-    {
-        return $this->filter(
-            static fn (Field $field) => $field instanceof StorageAware
-                && $field->getFlag(ExistenceAware::class) !== null
         );
     }
 

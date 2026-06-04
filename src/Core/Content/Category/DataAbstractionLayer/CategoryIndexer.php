@@ -116,12 +116,7 @@ class CategoryIndexer extends EntityIndexer
                 $idsWithChangedParentIds[] = $payload['id'];
             }
 
-            if (
-                \array_key_exists('active', $payload)
-                && \array_key_exists('active', $state)
-                && $payload['active'] === true
-                && $state['active'] === '0'
-            ) {
+            if (\array_key_exists('active', $payload) && $payload['active'] === true) {
                 $activeStateChanged = true;
             }
         }

@@ -299,7 +299,7 @@ class CategoryIndexerTest extends TestCase
             $operation !== EntityWriteResult::OPERATION_INSERT,
             false,
             false,
-            ['active' => '0']
+            []
         );
 
         $result = new EntityWriteResult(

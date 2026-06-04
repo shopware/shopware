@@ -196,9 +196,7 @@ class ThemeDumpCommandTest extends TestCase
             'any' => 'unexpectedConfig',
         ]);
 
-        $mock = $this->getMockBuilder(StorefrontPluginRegistry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $mock = static::createStub(StorefrontPluginRegistry::class);
 
         $mock->method('getConfigurations')
             ->willReturn(

@@ -37,10 +37,7 @@ class CustomerValidationFactoryTest extends TestCase
             ->willReturn($profileDefinition);
 
         $customerValidationFactory = new CustomerValidationFactory($customerProfileValidationFactory);
-        $context = $this
-            ->getMockBuilder(SalesChannelContext::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $context = static::createStub(SalesChannelContext::class);
 
         $actual = $customerValidationFactory->create($context);
 

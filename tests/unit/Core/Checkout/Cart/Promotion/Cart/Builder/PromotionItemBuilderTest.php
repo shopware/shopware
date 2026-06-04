@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -37,7 +37,7 @@ class PromotionItemBuilderTest extends TestCase
     private PromotionEntity $promotion;
 
     /**
-     * @var MockObject&SalesChannelContext
+     * @var Stub&SalesChannelContext
      */
     private SalesChannelContext $salesChannelContext;
 

@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const { handleMtButton } = require('./no-deprecated-component-usage-checks/mt-button.check');
 const { handleMtIcon } = require('./no-deprecated-component-usage-checks/mt-icon.check')
 const { handleMtCard } = require("./no-deprecated-component-usage-checks/mt-card.check");
@@ -21,8 +18,7 @@ const { handleMtUrlField } = require("./no-deprecated-component-usage-checks/mt-
 const { handleMtProgressBar } = require("./no-deprecated-component-usage-checks/mt-progress-bar.check");
 const { handleMtFloatingUi } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
 const { handleSwEntityListing } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
-
-/* eslint-disable max-len */
+const { handleSwTabs } = require("./no-deprecated-component-usage-checks/sw-tabs.check");
 
 /**
  * @sw-package framework
@@ -41,8 +37,11 @@ module.exports = {
         },
         schema: [
             {
-                enum: ['disableFix', 'enableFix'],
-            }
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs'],
+            },
+            {
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs'],
+            },
         ]
     },
     /** @param {RuleContext} context */
@@ -91,6 +90,10 @@ module.exports = {
                     handleMtFloatingUi(context, node);
                     // Handle sw-entity-listing
                     handleSwEntityListing(context, node);
+                    if (context.options.includes('migrateSwTabs')) {
+                        // Handle sw-tabs
+                        handleSwTabs(context, node);
+                    }
                 },
             }
         )

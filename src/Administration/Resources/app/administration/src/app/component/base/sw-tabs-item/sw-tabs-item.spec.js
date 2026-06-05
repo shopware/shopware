@@ -32,6 +32,21 @@ async function createWrapper(props = {}) {
 }
 
 describe('component/base/sw-tabs-item', () => {
+    it('should warn once about the deprecated usage', async () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
+
+        await createWrapper();
+        await createWrapper();
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith(
+            'sw-tabs-item',
+            '"sw-tabs-item" is deprecated and will be removed in v6.8.0.0. Please define tab entries through the "items" property on "mt-tabs" instead.',
+        );
+
+        warnSpy.mockRestore();
+    });
+
     it('should not have an error or warning state', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

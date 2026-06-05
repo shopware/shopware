@@ -4,11 +4,12 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('mt-tabs', { sync: true }), {
         props: {
             items: [],
             positionIdentifier: 'jest-test-component',
+            ...props,
         },
     });
 }
@@ -33,6 +34,20 @@ describe('src/app/component/meteor-wrapper/mt-tabs', () => {
         expect(mtTabsOriginal.props('items')).toEqual([
             { label: 'Tab 1', name: 'tab1' },
             { label: 'Tab 2', name: 'tab2' },
+        ]);
+    });
+
+    it('should not require a position identifier for plain items', async () => {
+        const wrapper = await createWrapper({
+            positionIdentifier: undefined,
+            items: [
+                { label: 'Tab 1', name: 'tab1' },
+            ],
+        });
+
+        const mtTabsOriginal = wrapper.findComponent({ ref: 'mtTabsOriginal' });
+        expect(mtTabsOriginal.props('items')).toEqual([
+            { label: 'Tab 1', name: 'tab1' },
         ]);
     });
 

@@ -7,11 +7,13 @@ import './sw-tabs-deprecated.scss';
 
 const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
+let hasWarnedDeprecatedUsage = false;
 
 /**
  * @private
  * @description Renders tabs. Each item references a route or emits a custom event.
  * @status ready
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-tabs with items instead.
  * @example-type static
  * @component-example
  * <sw-tabs>
@@ -194,6 +196,14 @@ export default {
     },
 
     created() {
+        if (!hasWarnedDeprecatedUsage) {
+            Shopware.Utils.debug.warn(
+                'sw-tabs-deprecated',
+                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" with the "items" property instead.',
+            );
+            hasWarnedDeprecatedUsage = true;
+        }
+
         this.createdComponent();
     },
 

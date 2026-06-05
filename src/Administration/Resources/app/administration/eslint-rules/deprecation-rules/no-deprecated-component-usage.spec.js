@@ -19,6 +19,7 @@ const { mtPasswordFieldValidTests, mtPasswordFieldInvalidTests } = require('./no
 const { mtProgressBarValidTests, mtProgressBarInvalidTests } = require('./no-deprecated-component-usage-checks/mt-progress-bar.check');
 const { mtFloatingUiValidTests, mtFloatingUiInvalidTests } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
 const { swEntityListingValidChecks, swEntityListingInvalidChecks } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
+const { swTabsValidTests, swTabsInvalidTests } = require("./no-deprecated-component-usage-checks/sw-tabs.check");
 
 const tester = new RuleTester({
     languageOptions: {
@@ -53,6 +54,7 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtProgressBarValidTests,
         ...mtFloatingUiValidTests,
         ...swEntityListingValidChecks,
+        ...swTabsValidTests,
     ],
     invalid: [
         ...mtButtonInvalidChecks,
@@ -74,5 +76,6 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtProgressBarInvalidTests,
         ...mtFloatingUiInvalidTests,
         ...swEntityListingInvalidChecks,
+        ...swTabsInvalidTests,
     ]
 })

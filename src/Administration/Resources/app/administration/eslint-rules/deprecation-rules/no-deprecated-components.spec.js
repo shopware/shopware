@@ -1,5 +1,3 @@
-import { MtFloatingUi } from "@shopware-ag/meteor-component-library";
-
 const RuleTester = require('eslint').RuleTester
 const rule = require('./no-deprecated-components');
 
@@ -63,6 +61,14 @@ tester.run('no-deprecated-components', rule, {
             code: `
             <template>
                 <mt-tabs />
+            </template>`
+        },
+        {
+            name: '"sw-tabs" usage is handled by no-deprecated-component-usage',
+            filename: 'test.html.twig',
+            code: `
+            <template>
+                <sw-tabs />
             </template>`
         },
         {
@@ -488,36 +494,6 @@ tester.run('no-deprecated-components', rule, {
 </template>`,
             errors: [{
                 message: '"sw-checkbox-field" is deprecated. Please use "mt-checkbox" instead.',
-            }]
-        },
-        {
-            name: '"sw-tabs" usage is not allowed',
-            filename: 'test.html.twig',
-            code: `
-<template>
-    <sw-tabs />
-</template>`,
-            output: `
-<template>
-    <!-- TODO Codemod: Converted from sw-tabs - please check if everything works correctly -->
-    <mt-tabs />
-</template>`,
-            errors: [{
-                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
-            }]
-        },
-        {
-            name: '"sw-tabs" usage is not allowed [disableFix]',
-            filename: 'test.html.twig',
-            options: [{
-                fix: false,
-            }],
-            code: `
-<template>
-    <sw-tabs />
-</template>`,
-            errors: [{
-                message: '"sw-tabs" is deprecated. Please use "mt-tabs" instead.',
             }]
         },
         {

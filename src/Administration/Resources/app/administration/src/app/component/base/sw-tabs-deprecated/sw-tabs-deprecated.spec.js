@@ -30,6 +30,23 @@ const router = createRouter({
     history: createWebHashHistory(),
 });
 
+async function mountDeprecatedSwTabs() {
+    return mount(await wrapTestComponent('sw-tabs-deprecated', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            stubs: {
+                'sw-tabs-item': true,
+                'sw-extension-component-section': true,
+                'mt-icon': true,
+            },
+            plugins: [router],
+        },
+        props: {
+            positionIdentifier: 'test',
+        },
+    });
+}
+
 async function mountSwTabs(routes) {
     // delete global $router and $routes mocks
     delete config.global.mocks.$router;
@@ -61,6 +78,21 @@ async function mountSwTabs(routes) {
 describe('sw-tabs-deprecated', () => {
     beforeEach(() => {
         jest.spyOn(global, 'requestAnimationFrame').mockImplementation((cb) => cb());
+    });
+
+    it('should warn once about the deprecated usage', async () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
+
+        await mountDeprecatedSwTabs();
+        await mountDeprecatedSwTabs();
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith(
+            'sw-tabs-deprecated',
+            'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" with the "items" property instead.',
+        );
+
+        warnSpy.mockRestore();
     });
 
     it('renders active tab correctly with sub routes', async () => {

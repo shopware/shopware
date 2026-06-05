@@ -5,11 +5,13 @@ import template from './sw-tabs-item.html.twig';
 import './sw-tabs-item.scss';
 
 const types = Shopware.Utils.types;
+let hasWarnedDeprecatedUsage = false;
 
 /**
  * @private
  * @description Renders a tab item.
  * @status ready
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-tabs with items instead.
  * @example-type static
  * @component-example
  * <sw-tabs>
@@ -145,6 +147,14 @@ export default {
     },
 
     created() {
+        if (!hasWarnedDeprecatedUsage) {
+            Shopware.Utils.debug.warn(
+                'sw-tabs-item',
+                '"sw-tabs-item" is deprecated and will be removed in v6.8.0.0. Please define tab entries through the "items" property on "mt-tabs" instead.',
+            );
+            hasWarnedDeprecatedUsage = true;
+        }
+
         this.createdComponent();
     },
 

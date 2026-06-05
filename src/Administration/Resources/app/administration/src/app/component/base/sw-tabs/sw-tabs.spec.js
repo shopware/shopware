@@ -18,6 +18,22 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-tabs', () => {
+    it('should warn once about the deprecated usage', async () => {
+        global.activeFeatureFlags = ['V6_8_0_0'];
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation(() => {});
+
+        await createWrapper();
+        await createWrapper();
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy).toHaveBeenCalledWith(
+            'sw-tabs',
+            'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" with the "items" property instead.',
+        );
+
+        warnSpy.mockRestore();
+    });
+
     it('should render the deprecated tabs when major feature flag is disabled', async () => {
         global.activeFeatureFlags = [''];
 

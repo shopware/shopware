@@ -275,7 +275,7 @@ async function lintFiles(filePaths, fix, shopwareVersion) {
                                     'sw-password-field',
                                 ],
                             }],
-                            'sw-deprecation-rules/no-deprecated-component-usage': ['error'],
+                            'sw-deprecation-rules/no-deprecated-component-usage': ['error', 'migrateSwTabs'],
                         };
                     }
 

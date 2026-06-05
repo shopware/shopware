@@ -21,7 +21,7 @@ export default Shopware.Component.wrapComponentConfig({
     props: {
         positionIdentifier: {
             type: String,
-            required: true,
+            required: false,
             default: null,
         },
 
@@ -33,6 +33,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         tabExtensions(): TabItemEntry[] {
+            if (!this.positionIdentifier) {
+                return [];
+            }
+
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
 

@@ -1,8 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
-/* eslint-disable max-len */
-
 /**
  * @sw-package framework
  *
@@ -53,11 +48,9 @@ module.exports = {
                         'sw-external-link',
                         'sw-url-field',
                         'sw-loader',
-                        'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
                         'sw-email-field',
-                        'sw-tabs',
                         'sw-password-field',
                         'sw-progress-bar',
                         'sw-switch-field',
@@ -154,11 +147,9 @@ module.exports = {
                         'sw-external-link',
                         'sw-url-field',
                         'sw-loader',
-                        'sw-tabs',
                         'sw-datepicker',
                         'sw-skeleton-bar',
                         'sw-email-field',
-                        'sw-tabs',
                         'sw-password-field',
                         'sw-progress-bar'
                     ].filter(component => activatedComponents.includes(component));
@@ -226,8 +217,6 @@ module.exports = {
                             message: `"${swDatagridName}" is deprecated. Please use "mt-data-table" instead.`,
                             *fix(fixer) {
                                 if (!enableFix) return;
-
-                                const isSelfClosing = node.startTag.selfClosing;
 
                                 // Get the range of the start tag
                                 const startTagRange = [node.startTag.range[0], swDatagridName.length + node.startTag.range[0] + 1];

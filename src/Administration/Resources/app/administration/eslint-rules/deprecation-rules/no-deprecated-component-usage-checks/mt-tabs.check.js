@@ -1,3 +1,7 @@
+/**
+ * @sw-package framework
+ */
+
 /** @param {RuleContext} context
  *  @param {VElement} node
  */
@@ -252,8 +256,6 @@ const handleMtTabs = (context, node) => {
                 });
 
                 const itemPropValue = JSON.stringify(items, null, 4).replace(/[\/\(\)\']/g, "\\'").replace(/"/g, "'");
-                const indentation = ' '.repeat(node.startTag.loc.start.column);
-
                 // Add items array to mt-tabs component as a property
                 const rangeAfterStartTag = node.startTag?.range[0] + '<mt-tabs'.length;
                 yield fixer.insertTextAfterRange([rangeAfterStartTag, rangeAfterStartTag], ` :items="${itemPropValue}"`);
@@ -314,14 +316,6 @@ const handleMtTabs = (context, node) => {
 }
 
 const mtTabsValidTests = [
-    {
-        name: '"sw-tabs" usage is allowed',
-        filename: 'test.html.twig',
-        code: `
-            <template>
-                <sw-tabs />
-            </template>`
-    },
     {
         name: '"mt-tabs" should not be converted if the "content" slot is already commented',
         filename: 'test.html.twig',

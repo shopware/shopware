@@ -1,12 +1,15 @@
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import template from './sw-tabs.html.twig';
 
+let hasWarnedDeprecatedUsage = false;
+
 /**
  * @sw-package framework
  *
  * @private
  * @status ready
  * @description Wrapper component for sw-tabs and mt-tabs. Autoswitches between the two components.
+ * @deprecated tag:v6.8.0 - Will be removed, use mt-tabs with items instead.
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -27,12 +30,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (Shopware.Feature.isActive('V6_8_0_0')) {
                 return true;
             }
-
-            // Throw warning when deprecated component is used
-            Shopware.Utils.debug.warn(
-                'sw-tabs',
-                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" instead.',
-            );
 
             return false;
         },
@@ -144,6 +141,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     mounted() {
+        if (!hasWarnedDeprecatedUsage) {
+            Shopware.Utils.debug.warn(
+                'sw-tabs',
+                'The old usage of "sw-tabs" is deprecated and will be removed in v6.8.0.0. Please use "mt-tabs" with the "items" property instead.',
+            );
+            hasWarnedDeprecatedUsage = true;
+        }
+
         // Set first item as active
         if (this.itemsBackwardCompatible.length > 0) {
             this.activeItem = this.itemsBackwardCompatible[0].name;

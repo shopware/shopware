@@ -287,11 +287,6 @@ This keeps the preview close to the actual mail output while reducing the risk o
 
 Custom fields on category, landing page, sales channel, customer address, and order address detail views are now disabled when the current user only has read permissions.
 
-### Product variants are easier to distinguish in `sw-entity-multi-id-select`
-
-`sw-entity-multi-id-select` now displays product variant option details for product repositories in the selected labels and dropdown results.
-This helps extensions and plugin configuration UIs that let merchants select multiple products, because variants with inherited product names no longer appear as identical entries.
-
 ### Fixed "Last Quarter" timeframe returning the wrong year in `sw-date-filter`
 
 Selecting the "Last Quarter" timeframe in any listing's date filter (orders, documents, customers, etc.) between January and March now produces a three-month range in the previous year instead of a ~15-month range that spanned both years.
@@ -334,6 +329,11 @@ Column headers and the column visibility settings in `sw-data-grid` now resolve 
 
 App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
 Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
+
+### Product variants are easier to distinguish in `sw-entity-multi-id-select`
+
+`sw-entity-multi-id-select` now displays product variant option details for product repositories in the selected labels and dropdown results.
+This helps extensions and plugin configuration UIs that let merchants select multiple products, because variants with inherited product names no longer appear as identical entries.
 
 ## Storefront
 

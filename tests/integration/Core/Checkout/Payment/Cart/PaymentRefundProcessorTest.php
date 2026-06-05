@@ -90,7 +90,7 @@ class PaymentRefundProcessorTest extends TestCase
             ->addRefund('refund', $refund)
             ->build();
 
-        $transaction = (new OrderTransactionBuilder($this->ids, '10000'))
+        $transaction = (new OrderTransactionBuilder($this->ids, 'transaction'))
             ->addCapture('capture', $capture)
             ->add('paymentMethod', [
                 'id' => $this->ids->get('payment_method'),
@@ -204,7 +204,7 @@ class PaymentRefundProcessorTest extends TestCase
             ->addRefund('refund', $refund)
             ->build();
 
-        $transaction = (new OrderTransactionBuilder($this->ids, '10000'))
+        $transaction = (new OrderTransactionBuilder($this->ids, 'transaction'))
             ->addCapture('capture', $capture)
             ->add('paymentMethod', [
                 'id' => $this->ids->get('payment_method'),

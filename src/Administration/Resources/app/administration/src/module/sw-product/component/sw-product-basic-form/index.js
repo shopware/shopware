@@ -127,6 +127,20 @@ export default {
             );
         },
 
+        descriptionTeaserPreview() {
+            const description =
+                this.product?.description ??
+                this.product?.translated?.description ??
+                this.getInheritValue('translated', 'description') ??
+                '';
+
+            /**
+             * Approximates the SQL expression of the generated `description_teaser` column:
+             * LEFT(REGEXP_REPLACE(LEFT(description, 2000), '<[^>]*>', ''), 255)
+             */
+            return Shopware.Filter.getByName('truncate')(description.substring(0, 2000), 255, true, '');
+        },
+
         numberRangeCriteria() {
             const criteria = new Criteria(1, 25);
 

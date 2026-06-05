@@ -35,6 +35,8 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Beschreibung",
+      "labelDescriptionTeaserPreview": "Kurzbeschreibung",
+      "helpTextDescriptionTeaserPreview": "Automatisch erzeugter Auszug aus den ersten 255 Zeichen der Beschreibung, HTML wird dabei entfernt. Er wird z. B. in Produkt-Listings verwendet und lässt sich nicht direkt bearbeiten. Ob Listings nur diese gekürzten Produktdaten laden, kannst Du unter \"Einstellungen > Produkte\" festlegen.",
       "labelProductNumber": "Produktnummer",
       "labelManufacturer": "Hersteller",
       "labelManufacturerCreation": "Hersteller",

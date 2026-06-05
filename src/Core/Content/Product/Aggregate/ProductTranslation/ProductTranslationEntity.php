@@ -24,6 +24,8 @@ class ProductTranslationEntity extends TranslationEntity
 
     protected ?string $description = null;
 
+    protected ?string $descriptionTeaser = null;
+
     protected ?string $metaTitle = null;
 
     protected ?string $packUnit = null;
@@ -84,6 +86,16 @@ class ProductTranslationEntity extends TranslationEntity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getDescriptionTeaser(): ?string
+    {
+        return $this->descriptionTeaser;
+    }
+
+    public function setDescriptionTeaser(?string $descriptionTeaser): void
+    {
+        $this->descriptionTeaser = $descriptionTeaser;
     }
 
     public function getMetaTitle(): ?string

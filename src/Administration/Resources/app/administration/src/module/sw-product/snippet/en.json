@@ -35,6 +35,8 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
+      "labelDescriptionTeaserPreview": "Short description",
+      "helpTextDescriptionTeaserPreview": "Automatically generated excerpt of the first 255 characters of the description, with HTML removed. It is used in product listings and cannot be edited directly. You can configure whether listings only load this shortened product data under \"Settings > Products\".",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
       "labelManufacturerCreation": "manufacturer",

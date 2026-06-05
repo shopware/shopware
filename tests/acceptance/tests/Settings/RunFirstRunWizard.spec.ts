@@ -1,5 +1,4 @@
 import { test } from '@fixtures/AcceptanceTest';
-import { isSaaSInstance } from '@fixtures/AcceptanceTest';
 
 /**
  * @sw-package fundamentals@after-sales
@@ -9,9 +8,12 @@ test('Merchant is able to be guided through the First Run Wizard.', { tag: '@Fir
     ShopAdmin,
     DefaultSalesChannel,
     AdminFirstRunWizard,
-    AdminApiContext,
+    InstanceMeta,
 }) => {
-    test.skip(await isSaaSInstance(AdminApiContext),'Skipping test for the first run wizard, because it is disabled on SaaS instances.');
+    test.skip(
+        InstanceMeta.isSaaS || InstanceMeta.isPaaS,
+        'Skipping test for the first run wizard, because it is disabled on SaaS and PaaS instances.',
+    );
 
     await ShopAdmin.goesTo(AdminFirstRunWizard.url());
 

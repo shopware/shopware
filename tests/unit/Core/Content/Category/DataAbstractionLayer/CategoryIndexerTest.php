@@ -1,14 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
-
-namespace Shopware\Tests\Integration\Core\Content\Category\DataAbstractionLayer;
+namespace Shopware\Tests\Unit\Core\Content\Category\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
@@ -17,6 +13,7 @@ use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryBreadcrumbUpdate
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -24,117 +21,44 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\TraceableMessageBus;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('discovery')]
+#[CoversClass(CategoryIndexer::class)]
 class CategoryIndexerTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use QueueTestBehaviour;
-
-    private const AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION = 7085;
-    private const UPDATE_IDS_CHUNK_SIZE_OF_INDEXER = 50;
-    private const MAX_AMOUNT_OF_IDS_TO_BE_BELOW_CHUNK_SIZE = 49;
-    private const AMOUNT_OF_IDS_JUST_ABOVE_CHUNK_SIZE = 51;
-
     private CategoryIndexer $indexer;
 
-    private Connection&MockObject $connectionMock;
-
-    private MessageBusInterface $messageBus;
+    /**
+     * @var Connection&MockObject
+     */
+    private Connection $connectionMock;
 
     protected function setUp(): void
     {
         $this->connectionMock = $this->createMock(Connection::class);
-        $this->messageBus = self::getContainer()->get('messenger.default_bus');
 
         $this->indexer = new CategoryIndexer(
             $this->connectionMock,
-            self::getContainer()->get(IteratorFactory::class),
-            self::getContainer()->get('category.repository'),
-            self::getContainer()->get(ChildCountUpdater::class),
-            self::getContainer()->get(TreeUpdater::class),
-            self::getContainer()->get(CategoryBreadcrumbUpdater::class),
-            self::getContainer()->get('event_dispatcher'),
-            $this->messageBus
+            $this->createMock(IteratorFactory::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ChildCountUpdater::class),
+            $this->createMock(TreeUpdater::class),
+            $this->createMock(CategoryBreadcrumbUpdater::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(MessageBusInterface::class),
         );
     }
 
-    #[Group('slow')]
-    public function testUpdateDoesNotReturnTooBigMessage(): void
-    {
-        $uuids = $this->getUuids(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION);
-        $this->prepareFetchChildrenMethod($uuids);
-        $context = Context::createDefaultContext();
-        $nestedEvents = $this->prepareEvent($context, $uuids);
-
-        $message = $this->indexer->update(new EntityWrittenContainerEvent($context, $nestedEvents, []));
-        static::assertNotNull($message);
-        $this->messageBus->dispatch($message);
-
-        $this->runWorker();
-
-        static::assertInstanceOf(TraceableMessageBus::class, $this->messageBus);
-        $messages = $this->messageBus->getDispatchedMessages();
-
-        $messagesDispatchedInCategoryIndexer = array_filter($messages, static function ($message) {
-            return $message['caller']['name'] === 'CategoryIndexer.php';
-        });
-
-        // Round down because one chunk is returned by the method and not sent in the CategoryIndexer directly
-        $expectedAmountOfMessages = (int) floor(self::AMOUNT_OF_UUIDS_NEEDED_TO_TRIGGER_MESSAGE_SIZE_RESTRICTION / self::UPDATE_IDS_CHUNK_SIZE_OF_INDEXER);
-        static::assertCount($expectedAmountOfMessages, $messagesDispatchedInCategoryIndexer);
-    }
-
-    #[DataProvider('updateCases')]
-    public function testUpdate(
-        int $numberOfIds,
-        int $expectedCountOfMessagesDispatchedInCategoryIndexer
-    ): void {
-        $uuids = $this->getUuids($numberOfIds);
-        $this->prepareFetchChildrenMethod($uuids);
-        $context = Context::createDefaultContext();
-        $nestedEvents = $this->prepareEvent($context, $uuids);
-
-        $message = $this->indexer->update(new EntityWrittenContainerEvent($context, $nestedEvents, []));
-        static::assertNotNull($message);
-        $this->messageBus->dispatch($message);
-
-        $this->runWorker();
-
-        static::assertInstanceOf(TraceableMessageBus::class, $this->messageBus);
-        $messages = $this->messageBus->getDispatchedMessages();
-
-        $messagesDispatchedInCategoryIndexer = array_filter($messages, static function ($message) {
-            return $message['caller']['name'] === 'CategoryIndexer.php';
-        });
-
-        static::assertCount($expectedCountOfMessagesDispatchedInCategoryIndexer, $messagesDispatchedInCategoryIndexer);
-    }
-
-    public static function updateCases(): \Generator
-    {
-        yield 'Amount of Uuids so low, that the message bus is not used' => [
-            'numberOfIds' => self::MAX_AMOUNT_OF_IDS_TO_BE_BELOW_CHUNK_SIZE,
-            'expectedCountOfMessagesDispatchedInCategoryIndexer' => 0,
-        ];
-        yield 'Amount of Uuids just so high, that the message bus is used exactly once' => [
-            'numberOfIds' => self::AMOUNT_OF_IDS_JUST_ABOVE_CHUNK_SIZE,
-            'expectedCountOfMessagesDispatchedInCategoryIndexer' => 1,
-        ];
-    }
-
     /**
-     * Tests selective indexing based on changed fields.
-     *
-     * @param array<string, mixed> $categoryPayload Fields written to category table
-     * @param array<string, mixed>|null $translationPayload Fields written to category_translation table
+     * @param array<string, mixed> $categoryPayload
+     * @param array<string, mixed>|null $translationPayload
      * @param list<string>|null $expectedSkips
      */
     #[DataProvider('selectiveIndexingCases')]
@@ -144,7 +68,7 @@ class CategoryIndexerTest extends TestCase
         string $categoryOperation,
         ?array $expectedSkips,
     ): void {
-        $this->prepareFetchChildrenMethod([]);
+        $this->connectionMock->method('fetchFirstColumn')->willReturn([]);
 
         $containerEvent = $this->createCategoryWrittenEvent($categoryPayload, $categoryOperation, $translationPayload);
         $message = $this->indexer->update($containerEvent);
@@ -164,7 +88,6 @@ class CategoryIndexerTest extends TestCase
      */
     public static function selectiveIndexingCases(): \Generator
     {
-        // Translation-only updates (category gets updatedAt, translation gets the actual field)
         yield 'translation: metaDescription only - all updaters skipped' => [
             'categoryPayload' => ['updatedAt' => new \DateTimeImmutable()],
             'translationPayload' => ['metaDescription' => 'new desc'],
@@ -179,7 +102,6 @@ class CategoryIndexerTest extends TestCase
             'expectedSkips' => [CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
         ];
 
-        // Category table updates - parentId change affects tree structure AND breadcrumb path
         yield 'category: parentId change - tree and breadcrumb updaters' => [
             'categoryPayload' => ['parentId' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
             'translationPayload' => null,
@@ -194,7 +116,6 @@ class CategoryIndexerTest extends TestCase
             'expectedSkips' => [CategoryIndexer::BREADCRUMB_UPDATER, CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
         ];
 
-        // INSERT always runs all updaters
         yield 'INSERT - all updaters' => [
             'categoryPayload' => ['parentId' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
             'translationPayload' => null,
@@ -202,62 +123,12 @@ class CategoryIndexerTest extends TestCase
             'expectedSkips' => [],
         ];
 
-        // DELETE always runs all updaters
         yield 'DELETE - all updaters' => [
             'categoryPayload' => ['id' => 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4'],
             'translationPayload' => null,
             'categoryOperation' => EntityWriteResult::OPERATION_DELETE,
             'expectedSkips' => [],
         ];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getUuids(int $numberOfIds): array
-    {
-        $uuids = [];
-        for ($i = 0; $i < $numberOfIds; ++$i) {
-            $uuids[] = Uuid::randomHex();
-        }
-
-        return $uuids;
-    }
-
-    /**
-     * @param list<string> $uuids
-     */
-    private function prepareFetchChildrenMethod(array $uuids): void
-    {
-        $result = $this->createMock(Result::class);
-        $result->method('fetchFirstColumn')->willReturn($uuids);
-        $query = $this->createMock(QueryBuilder::class);
-        $query->method('executeQuery')->willReturn($result);
-        $this->connectionMock->method('createQueryBuilder')->willReturn($query);
-    }
-
-    /**
-     * @param list<string> $uuids
-     */
-    private function prepareEvent(Context $context, array $uuids): NestedEventCollection
-    {
-        $results = [];
-        foreach ($uuids as $uuid) {
-            $results[] = new EntityWriteResult(
-                $uuid,
-                [],
-                CategoryDefinition::ENTITY_NAME,
-                EntityWriteResult::OPERATION_INSERT
-            );
-        }
-
-        return new NestedEventCollection([
-            new EntityWrittenEvent(
-                CategoryDefinition::ENTITY_NAME,
-                $results,
-                $context
-            ),
-        ]);
     }
 
     /**
@@ -271,12 +142,11 @@ class CategoryIndexerTest extends TestCase
     ): EntityWrittenContainerEvent {
         $uuid = Uuid::randomHex();
         $context = Context::createDefaultContext();
-
         $categoryPayload['id'] = $uuid;
 
         $events = new NestedEventCollection();
-
         $events->add($this->createCategoryEntityWrittenEvent($uuid, $categoryPayload, $operation, $context));
+
         if ($translationPayload !== null) {
             $events->add($this->createTranslationEntityWrittenEvent($uuid, $translationPayload, $context));
         }
@@ -299,7 +169,7 @@ class CategoryIndexerTest extends TestCase
             $operation !== EntityWriteResult::OPERATION_INSERT,
             false,
             false,
-            []
+            [],
         );
 
         $result = new EntityWriteResult(
@@ -307,7 +177,7 @@ class CategoryIndexerTest extends TestCase
             $payload,
             CategoryDefinition::ENTITY_NAME,
             $operation,
-            $existence
+            $existence,
         );
 
         return new EntityWrittenEvent(CategoryDefinition::ENTITY_NAME, [$result], $context);

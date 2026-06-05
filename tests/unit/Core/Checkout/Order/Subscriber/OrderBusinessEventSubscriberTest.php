@@ -91,6 +91,7 @@ class OrderBusinessEventSubscriberTest extends TestCase
         static::assertCount(1, $caught['created']);
         static::assertSame($orderId, $caught['created'][0]->getOrderId());
         static::assertSame($salesChannelId, $caught['created'][0]->getSalesChannelId());
+        static::assertSame(['orderId' => $orderId], $caught['created'][0]->getValues());
         static::assertSame([], $caught['updated'], 'child inserts of a created order are part of the creation, not an update');
     }
 
@@ -119,6 +120,7 @@ class OrderBusinessEventSubscriberTest extends TestCase
         static::assertCount(1, $caught);
         static::assertSame($orderId, $caught[0]->getOrderId());
         static::assertSame(['amountTotal'], $caught[0]->getChangedFields());
+        static::assertSame(['orderId' => $orderId, 'changedFields' => ['amountTotal']], $caught[0]->getValues());
     }
 
     public function testChildInsertOnExistingOrderDispatchesUpdated(): void
@@ -242,7 +244,7 @@ class OrderBusinessEventSubscriberTest extends TestCase
 
         static::assertCount(1, $caught);
         static::assertSame($orderId, $caught[0]->getOrderId());
-        static::assertSame(['amountTotal', 'lineItems.quantity'], $caught[0]->getChangedFields());
+        static::assertEqualsCanonicalizing(['amountTotal', 'lineItems.quantity'], $caught[0]->getChangedFields());
     }
 
     public function testChildUpdateResolvesItsOrderThroughOneLookup(): void
@@ -373,6 +375,34 @@ class OrderBusinessEventSubscriberTest extends TestCase
         static::assertSame(0, $caught);
     }
 
+    public function testNonLiveVersionDeletesAreIgnored(): void
+    {
+        $versionContext = Context::createDefaultContext()->createWithVersionId(Uuid::randomHex());
+
+        [$subscriber, $dispatcher] = $this->createSubscriber();
+
+        $caught = 0;
+        $listener = static function () use (&$caught): void {
+            ++$caught;
+        };
+        $dispatcher->addListener(OrderDeletedEvent::class, $listener);
+        $dispatcher->addListener(OrderUpdatedEvent::class, $listener);
+
+        $deleteEvent = EntityDeleteEvent::create(WriteContext::createFromContext($versionContext), [
+            $this->createDeleteCommand(
+                $this->orderDefinition,
+                OrderDefinition::ENTITY_NAME,
+                Uuid::randomHex(),
+                $versionContext->getVersionId()
+            ),
+        ]);
+
+        $subscriber->beforeDelete($deleteEvent);
+        $deleteEvent->success();
+
+        static::assertSame(0, $caught);
+    }
+
     public function testOrderDeleteDispatchesDeletedSnapshotOnlyAfterDeleteSucceeds(): void
     {
         $orderId = Uuid::randomHex();
@@ -422,6 +452,11 @@ class OrderBusinessEventSubscriberTest extends TestCase
         static::assertSame($orderId, $caught[0]->getOrderId());
         static::assertSame('10001', $caught[0]->getOrderNumber());
         static::assertNotSame('', $caught[0]->getDeletedAt());
+        static::assertSame([
+            'orderId' => $orderId,
+            'orderNumber' => '10001',
+            'deletedAt' => $caught[0]->getDeletedAt(),
+        ], $caught[0]->getValues());
     }
 
     public function testChildDeleteDispatchesOrderUpdatedAfterDeleteSucceeds(): void
@@ -581,11 +616,11 @@ class OrderBusinessEventSubscriberTest extends TestCase
         return new EntityWrittenContainerEvent($context, new NestedEventCollection([$writtenEvent]), []);
     }
 
-    private function createDeleteCommand(EntityDefinition $definition, string $entityName, string $id): WriteCommand
+    private function createDeleteCommand(EntityDefinition $definition, string $entityName, string $id, string $versionId = Defaults::LIVE_VERSION): WriteCommand
     {
         return new DeleteCommand(
             $definition,
-            ['id' => Uuid::fromHexToBytes($id), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['id' => Uuid::fromHexToBytes($id), 'version_id' => Uuid::fromHexToBytes($versionId)],
             new EntityExistence(
                 $entityName,
                 ['id' => $id],

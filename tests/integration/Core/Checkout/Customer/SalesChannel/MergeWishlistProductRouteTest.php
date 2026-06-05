@@ -293,16 +293,28 @@ class MergeWishlistProductRouteTest extends TestCase
         $alreadyProductData = $this->createProduct($this->context);
         $this->createCustomerWishlist($alreadyProductData);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/customer/wishlist/merge',
-                [
-                    'productIds' => [
-                        'id' => $alreadyProductData,
-                    ],
-                ]
-            );
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $addedEvents = 0;
+        $listener = static function () use (&$addedEvents): void {
+            ++$addedEvents;
+        };
+        $dispatcher->addListener(CustomerWishlistProductAddedEvent::class, $listener);
+
+        try {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/customer/wishlist/merge',
+                    [
+                        'productIds' => [
+                            'id' => $alreadyProductData,
+                        ],
+                    ]
+                );
+        } finally {
+            $dispatcher->removeListener(CustomerWishlistProductAddedEvent::class, $listener);
+        }
+
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
@@ -310,6 +322,7 @@ class MergeWishlistProductRouteTest extends TestCase
         $wishlistProduct = $this->wishlistProductRepository->search(new Criteria(), $this->context);
         static::assertCount(1, $wishlistProduct->getEntities());
         static::assertSame($alreadyProductData, $wishlistProduct->getEntities()->first()?->getProductId());
+        static::assertSame(0, $addedEvents);
     }
 
     public function testMergeProductsWithEmptyWishlistAndEmptyMergeRequest(): void

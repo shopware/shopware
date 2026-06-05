@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
+use Shopware\Core\Checkout\Payment\Event\OrderRefundRequestedEvent;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureBuilder;
 use Shopware\Core\Test\Integration\Builder\Order\OrderTransactionCaptureRefundBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -149,15 +151,29 @@ class PaymentRefundProcessorTest extends TestCase
 
     public function testItCallsRefundHandler(): void
     {
+        $context = Context::createDefaultContext();
+        /** @var EventDispatcherInterface $eventDispatcher */
+        $eventDispatcher = static::getContainer()->get('event_dispatcher');
+
+        /** @var list<OrderRefundRequestedEvent> $requestedRefunds */
+        $requestedRefunds = [];
+        $listener = static function (OrderRefundRequestedEvent $event) use (&$requestedRefunds): void {
+            $requestedRefunds[] = $event;
+        };
+        $eventDispatcher->addListener(OrderRefundRequestedEvent::class, $listener);
+
         $handlerMock = $this->createMock(AbstractPaymentHandler::class);
         $handlerMock
             ->expects($this->once())
-            ->method('refund');
+            ->method('refund')
+            ->willReturnCallback(static function () use (&$requestedRefunds): void {
+                static::assertCount(1, $requestedRefunds);
+            });
 
         $handlerMock
             ->expects($this->once())
             ->method('supports')
-            ->with(PaymentHandlerType::REFUND, $this->ids->get('payment_method'), Context::createDefaultContext())
+            ->with(PaymentHandlerType::REFUND, $this->ids->get('payment_method'), $context)
             ->willReturn(true);
 
         $handlerRegistryMock = $this->createMock(PaymentHandlerRegistry::class);
@@ -170,7 +186,7 @@ class PaymentRefundProcessorTest extends TestCase
             static::getContainer()->get(OrderTransactionCaptureRefundStateHandler::class),
             $handlerRegistryMock,
             static::getContainer()->get(PaymentTransactionStructFactory::class),
-            static::getContainer()->get('event_dispatcher'),
+            $eventDispatcher,
         );
 
         $refund = (new OrderTransactionCaptureRefundBuilder(
@@ -209,10 +225,22 @@ class PaymentRefundProcessorTest extends TestCase
 
         $this->orderRepository->upsert([$order], Context::createDefaultContext());
 
-        $processor->processRefund(
-            $this->ids->get('refund'),
-            Context::createDefaultContext()
-        );
+        try {
+            $processor->processRefund($this->ids->get('refund'), $context);
+        } finally {
+            $eventDispatcher->removeListener(OrderRefundRequestedEvent::class, $listener);
+        }
+
+        static::assertCount(1, $requestedRefunds);
+        static::assertSame($this->ids->get('refund'), $requestedRefunds[0]->getRefundId());
+        static::assertSame($this->ids->get('transaction'), $requestedRefunds[0]->getOrderTransactionId());
+        static::assertSame($this->ids->get('10000'), $requestedRefunds[0]->getOrderId());
+        static::assertSame([
+            'refundId' => $this->ids->get('refund'),
+            'orderTransactionId' => $this->ids->get('transaction'),
+            'orderId' => $this->ids->get('10000'),
+        ], $requestedRefunds[0]->getValues());
+        static::assertSame($context, $requestedRefunds[0]->getContext());
     }
 
     /**

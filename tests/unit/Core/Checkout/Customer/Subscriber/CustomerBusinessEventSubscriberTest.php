@@ -99,6 +99,7 @@ class CustomerBusinessEventSubscriberTest extends TestCase
         static::assertCount(1, $caught);
         static::assertSame($customerId, $caught[0]->getCustomerId());
         static::assertSame(['email'], $caught[0]->getChangedFields());
+        static::assertSame(['customerId' => $customerId, 'changedFields' => ['email']], $caught[0]->getValues());
     }
 
     public function testUpdatesTouchingOnlySystemFieldsStaySilent(): void

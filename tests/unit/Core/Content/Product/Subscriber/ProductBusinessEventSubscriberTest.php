@@ -119,7 +119,8 @@ class ProductBusinessEventSubscriberTest extends TestCase
 
         static::assertCount(1, $caught);
         static::assertSame($productId, $caught[0]->getProductId());
-        static::assertSame(['price', 'translation.name'], $caught[0]->getChangedFields());
+        static::assertEqualsCanonicalizing(['price', 'translation.name'], $caught[0]->getChangedFields());
+        static::assertSame(['productId' => $productId, 'changedFields' => $caught[0]->getChangedFields()], $caught[0]->getValues());
     }
 
     public function testTranslationInsertForExistingProductDispatchesUpdatedEvent(): void
@@ -249,6 +250,7 @@ class ProductBusinessEventSubscriberTest extends TestCase
         static::assertCount(1, $stockEvents);
         static::assertSame($productId, $stockEvents[0]->getProductId());
         static::assertSame(['stock' => 7], $stockEvents[0]->getStockChange());
+        static::assertSame(['productId' => $productId, 'stockChange' => ['stock' => 7]], $stockEvents[0]->getValues());
         static::assertCount(1, $updatedEvents);
         static::assertSame(['stock'], $updatedEvents[0]->getChangedFields());
     }
@@ -266,6 +268,7 @@ class ProductBusinessEventSubscriberTest extends TestCase
         };
         $dispatcher->addListener(ProductCreatedEvent::class, $listener);
         $dispatcher->addListener(ProductUpdatedEvent::class, $listener);
+        $dispatcher->addListener(ProductStockChangedEvent::class, $listener);
 
         $subscriber->onEntityWritten($this->createProductWrittenContainer($context, new EntityWriteResult(
             ['id' => Uuid::randomHex(), 'versionId' => $versionId],
@@ -313,6 +316,74 @@ class ProductBusinessEventSubscriberTest extends TestCase
 
         static::assertSame([$productId], $caught['published']);
         static::assertSame([], $caught['unpublished']);
+    }
+
+    public function testActiveFlipDispatchesUnpublishedEventOnlyAfterWriteSucceeds(): void
+    {
+        $productId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn([$productId => '1']);
+
+        [$subscriber, $dispatcher] = $this->createSubscriber($connection);
+
+        $caught = ['published' => [], 'unpublished' => []];
+        $dispatcher->addListener(ProductPublishedEvent::class, static function () use (&$caught): void {
+            $caught['published'][] = true;
+        });
+        $dispatcher->addListener(ProductUnpublishedEvent::class, static function (ProductUnpublishedEvent $event) use (&$caught): void {
+            $caught['unpublished'][] = $event->getProductId();
+        });
+
+        $writeEvent = EntityWriteEvent::create(WriteContext::createFromContext($context), [
+            new UpdateCommand(
+                $this->productDefinition,
+                ['active' => 0],
+                ['id' => Uuid::fromHexToBytes($productId), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+                $this->createExistence($productId),
+                '/0'
+            ),
+        ]);
+
+        $subscriber->beforeWrite($writeEvent);
+
+        static::assertSame([], $caught['unpublished'], 'unpublished must not fire before the write succeeded');
+
+        $writeEvent->success();
+
+        static::assertSame([], $caught['published']);
+        static::assertSame([$productId], $caught['unpublished']);
+    }
+
+    public function testNonLiveVersionActiveFlipsAreIgnored(): void
+    {
+        $productId = Uuid::randomHex();
+        $versionContext = Context::createDefaultContext()->createWithVersionId(Uuid::randomHex());
+
+        [$subscriber, $dispatcher] = $this->createSubscriber();
+
+        $caught = 0;
+        $listener = static function () use (&$caught): void {
+            ++$caught;
+        };
+        $dispatcher->addListener(ProductPublishedEvent::class, $listener);
+        $dispatcher->addListener(ProductUnpublishedEvent::class, $listener);
+
+        $writeEvent = EntityWriteEvent::create(WriteContext::createFromContext($versionContext), [
+            new UpdateCommand(
+                $this->productDefinition,
+                ['active' => 1],
+                ['id' => Uuid::fromHexToBytes($productId), 'version_id' => Uuid::fromHexToBytes($versionContext->getVersionId())],
+                $this->createExistence($productId),
+                '/0'
+            ),
+        ]);
+
+        $subscriber->beforeWrite($writeEvent);
+        $writeEvent->success();
+
+        static::assertSame(0, $caught);
     }
 
     public function testActiveFlipSuppressedWhenProductDeletedInSameWrite(): void
@@ -444,6 +515,11 @@ class ProductBusinessEventSubscriberTest extends TestCase
         static::assertSame($productId, $caught[0]->getProductId());
         static::assertSame('SW-1000', $caught[0]->getProductNumber());
         static::assertNotSame('', $caught[0]->getDeletedAt());
+        static::assertSame([
+            'productId' => $productId,
+            'productNumber' => 'SW-1000',
+            'deletedAt' => $caught[0]->getDeletedAt(),
+        ], $caught[0]->getValues());
     }
 
     public function testNonLiveVersionContextDeletesAreIgnored(): void

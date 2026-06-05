@@ -88,7 +88,8 @@ class StockStorageTest extends TestCase
         // index() keeps the legacy availability event (unchanged trunk behaviour) but
         // never emits the directional business events — those belong to alter(), so a
         // freshly created product (0 -> computed) is not announced as back_in_stock
-        static::assertSame([[$outOfStockId, $backInStockId]], $caught['legacy']);
+        static::assertCount(1, $caught['legacy']);
+        static::assertEqualsCanonicalizing([$outOfStockId, $backInStockId], $caught['legacy'][0]);
         static::assertSame(0, $caught['directional']);
     }
 

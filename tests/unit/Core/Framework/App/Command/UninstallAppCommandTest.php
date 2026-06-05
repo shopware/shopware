@@ -52,7 +52,7 @@ class UninstallAppCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $status);
         static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
-        static::assertTrue($captured()['context']->hasState('skip-theme-compilation'));
+        static::assertTrue($captured()['context']->hasState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION));
     }
 
     #[TestDox('Without --skip-theme-compile, the lifecycle context does not carry the skip-theme-compilation state')]
@@ -66,7 +66,7 @@ class UninstallAppCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $status);
         static::assertNotNull($captured(), 'AbstractAppLifecycle::delete was not invoked');
-        static::assertFalse($captured()['context']->hasState('skip-theme-compilation'));
+        static::assertFalse($captured()['context']->hasState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION));
     }
 
     #[TestDox('--keep-user-data forwards true as the keepUserData arg to the lifecycle')]

@@ -50,8 +50,8 @@ class UninstallAppCommand extends Command
 
         $context = Context::createCLIContext();
         if ($input->getOption('skip-theme-compile')) {
-            // Storefront's ThemeLifecycleHandler reads this context state to skip theme compilation; a no-op when Storefront is not installed
-            $context->addState('skip-theme-compilation');
+            // Storefront's ThemeLifecycleHandler reads this context state to skip theme compilation
+            $context->addState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION);
         }
 
         $app = $this->getAppByName($name, $context);

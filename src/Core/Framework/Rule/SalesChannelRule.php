@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule;
 
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -27,7 +28,14 @@ class SalesChannelRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        return RuleComparison::uuids([$scope->getSalesChannelContext()->getSalesChannelId()], $this->salesChannelIds, $this->operator);
+        $currentSalesChannelIds = [$scope->getSalesChannelContext()->getSalesChannelId()];
+
+        $productExport = $scope->getSalesChannelContext()->getExtension(ProductExportEntity::class);
+        if ($productExport instanceof ProductExportEntity) {
+            $currentSalesChannelIds[] = $productExport->getSalesChannelId();
+        }
+
+        return RuleComparison::uuids($currentSalesChannelIds, $this->salesChannelIds, $this->operator);
     }
 
     public function getConstraints(): array

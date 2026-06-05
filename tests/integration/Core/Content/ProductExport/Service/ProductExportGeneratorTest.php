@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Rule\SalesChannelRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -386,8 +387,10 @@ class ProductExportGeneratorTest extends TestCase
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
-                'headerTemplate' => 'name,stock,category',
-                'bodyTemplate' => '{{ product.name }},{{ product.stock }},{%- if product.categories.count > 0 -%}{{ product.categories.first.name }}{%- endif -%}',
+                'headerTemplate' => 'name,stock,category,price',
+                'bodyTemplate' => '{{ product.name }},{{ product.stock }},{%- if product.categories.count > 0 -%}{{ product.categories.first.name }}{%- endif -%},'
+                    . '{% set price = product.calculatedPrice %}{%- if product.calculatedPrices.count > 0 -%}{% set price = product.calculatedPrices.last %}{%- endif -%}'
+                    . '{{ price.unitPrice|number_format(context.currency.itemRounding.decimals, \'.\', \'\') }} {{ context.currency.isoCode }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
@@ -440,7 +443,28 @@ class ProductExportGeneratorTest extends TestCase
                 'productNumber' => Uuid::randomHex(),
                 'stock' => 1,
                 'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 90, 'linked' => false],
+                ],
+                'prices' => [
+                    [
+                        'quantityStart' => 1,
+                        'rule' => [
+                            'name' => 'Test rule',
+                            'priority' => 1,
+                            'conditions' => [
+                                [
+                                    'type' => (new SalesChannelRule())->getName(),
+                                    'value' => [
+                                        'salesChannelIds' => [$this->getSalesChannelId()],
+                                        'operator' => SalesChannelRule::OPERATOR_EQ,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                    ],
+                ],
                 'manufacturer' => ['id' => $manufacturerId, 'name' => 'test'],
                 'tax' => ['id' => $taxId, 'taxRate' => 17, 'name' => 'with id'],
                 'visibilities' => [

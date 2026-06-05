@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
@@ -85,6 +86,13 @@ class SalesChannelRuleTest extends TestCase
             null,
             false,
         ];
+
+        yield 'matches with product export sales channel' => [
+            Rule::OPERATOR_EQ,
+            Uuid::fromStringToHex('test'),
+            [Uuid::fromStringToHex('test1'), Uuid::fromStringToHex('product-export-sales-channel-id')],
+            true,
+        ];
     }
 
     public function testProvidesConstraints(): void
@@ -101,12 +109,16 @@ class SalesChannelRuleTest extends TestCase
 
     private function createRuleScope(string $salesChannelId): RuleScope
     {
+        $productExport = new ProductExportEntity();
+        $productExport->setSalesChannelId(Uuid::fromStringToHex('product-export-sales-channel-id'));
+
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
         $salesChannelContext = Generator::generateSalesChannelContext(
             salesChannel: $salesChannel
         );
+        $salesChannelContext->addExtension(ProductExportEntity::class, $productExport);
 
         return new CheckoutRuleScope(
             $salesChannelContext

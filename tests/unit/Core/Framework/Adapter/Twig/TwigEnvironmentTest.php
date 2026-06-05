@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Twig\Loader\ArrayLoader;
+use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 
 /**
@@ -16,11 +18,13 @@ class TwigEnvironmentTest extends TestCase
 {
     public function testUsesShopwareGetAttributeFunctionAndCachedEscaperRuntime(): void
     {
-        $code = (new TwigEnvironment(new ArrayLoader(['bla' => '{{ test.bla }}'])))
-            ->compileSource(new Source('{{ test.bla }}', 'bla'));
+        $environment = new TwigEnvironment(new ArrayLoader(['bla' => '{{ test.bla }}']));
+        $code = $environment->compileSource(new Source('{{ test.bla }}', 'bla'));
 
         static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute', $code);
-        static::assertStringContainsString('\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'),', $code);
+        static::assertStringContainsString('$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(', $code);
+        static::assertStringNotContainsString('\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape(', $code);
+        static::assertInstanceOf(CachedEscaperRuntime::class, $environment->getRuntime(EscaperRuntime::class));
     }
 
     public function testMarkupEscapeIsWorkingCorrectly(): void

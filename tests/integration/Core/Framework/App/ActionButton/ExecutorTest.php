@@ -334,8 +334,7 @@ class ExecutorTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
         $this->signResponse($this->app->getAppSecret());
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Changes in your system were detected that suggest a change of the shop ID.');
+        $this->expectExceptionObject(AppException::actionButtonProcessException($action->getActionId(), 'Changes in your system were detected that suggest a change of the shop ID.'));
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

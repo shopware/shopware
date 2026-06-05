@@ -1210,6 +1210,24 @@ The following legacy blocks are removed in Shopware 6.8:
 - deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 - deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 
+## Removed `sw-select-base.computePath()`
+
+The deprecated `computePath()` method on the Administration component `sw-select-base` has been removed.
+Use `Element.contains()` to check whether an event target belongs to the select root.
+
+Before:
+
+```javascript
+const path = this.computePath(event);
+const isInside = path.includes(this.$el);
+```
+
+After:
+
+```javascript
+const isInside = event.target instanceof Node && this.$el.contains(event.target);
+```
+
 # Storefront
 
 <details>

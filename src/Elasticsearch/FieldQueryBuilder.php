@@ -122,11 +122,11 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
     {
         if ($tokenCount === 1) {
             if ($config->useExactSubfield()) {
-                return new TermQuery($config->getField() . '.exact', $token, ['boost' => 1]);
+                return new TermQuery($config->getField() . '.exact', $token, ['boost' => 2]);
             }
 
             $matchQueryParams = [
-                'boost' => 1,
+                'boost' => 2,
                 'fuzziness' => 0,
                 'operator' => 'and',
             ];
@@ -145,23 +145,23 @@ class FieldQueryBuilder extends AbstractFieldQueryBuilder
                 $exactMatchQuery->add(new TermQuery($config->getField(), $tokenPart), BoolQuery::MUST);
             }
 
-            $exactMatchQuery->addParameter('boost', 1);
+            $exactMatchQuery->addParameter('boost', 2);
 
             return $exactMatchQuery;
         }
 
-        return new TermsQuery($config->getField(), $tokens, ['boost' => 1]);
+        return new TermsQuery($config->getField(), $tokens, ['boost' => 2]);
     }
 
     private function buildFuzzyMatchQuery(string $searchField, string $token, SearchFieldConfig $config, int $maxExpansions): MatchQuery
     {
         $matchQueryParams = [
-            'boost' => 0.8,
+            'boost' => 0.4,
             'fuzziness' => $config->getFuzziness($token),
             'operator' => $config->isAndLogic() ? 'and' : 'or',
             'fuzzy_transpositions' => true,
             'max_expansions' => $maxExpansions,
-            'prefix_length' => 1,
+            'prefix_length' => $config->getPrefixLength($token),
         ];
 
         if (!$this->useLanguageAnalyzer) {

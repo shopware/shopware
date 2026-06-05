@@ -29,6 +29,8 @@
     </parameters>
 
     <services>
+        <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer"/>
+
         <service id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
@@ -45,6 +47,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser"/>
             <argument type="service" id="shopware.elasticsearch.logger" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils">
@@ -85,6 +88,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexMappingProvider"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument>%elasticsearch.dimension_normalize%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexManager">
@@ -261,9 +265,9 @@
         <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader"/>
             <argument type="service" id="Shopware\Elasticsearch\AbstractTokenQueryBuilder"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer"/>
             <argument>%elasticsearch.search.dismax_tie_breaker%</argument>
         </service>
 
@@ -382,6 +386,7 @@
             <argument type="service" id="shopware.elasticsearch.logger" />
             <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="messenger.message_handler"/>
         </service>

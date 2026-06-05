@@ -81,4 +81,27 @@ describe('src/app/component/meteor-wrapper/mt-datepicker', () => {
         // Expect german locale to be used
         expect(wrapper.find('[data-test-id="dp-input"]').element.value).toBe('01/10/2023, 00:00');
     });
+
+    it('should escape literal text in generated date-fns format', async () => {
+        const wrapper = mount(await wrapTestComponent('mt-datepicker', { sync: true }), {
+            props: {
+                format: jest.fn(),
+            },
+        });
+
+        const dateTimeFormatMock = jest.spyOn(Intl, 'DateTimeFormat').mockImplementation(() => ({
+            resolvedOptions: () => ({ hour12: false }),
+            formatToParts: () => [
+                { type: 'hour', value: '14' },
+                { type: 'literal', value: ' h ' },
+                { type: 'minute', value: '30' },
+                { type: 'literal', value: " o'clock " },
+                { type: 'dayPeriod', value: 'PM' },
+            ],
+        }));
+
+        expect(wrapper.vm.datePickerFormat).toBe("HH' h 'mm' o''clock 'aa");
+
+        dateTimeFormatMock.mockRestore();
+    });
 });

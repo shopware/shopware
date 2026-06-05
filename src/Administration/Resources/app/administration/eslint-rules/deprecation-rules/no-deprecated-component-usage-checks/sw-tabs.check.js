@@ -105,6 +105,63 @@ function getEventName(attr) {
     return normalizeName(attr.key?.argument?.name ?? '');
 }
 
+function previousNonWhitespaceSibling(node) {
+    const siblings = node.parent?.children;
+
+    if (!siblings) {
+        return null;
+    }
+
+    const index = siblings.indexOf(node);
+
+    for (let siblingIndex = index - 1; siblingIndex >= 0; siblingIndex -= 1) {
+        const sibling = siblings[siblingIndex];
+
+        if (!isWhitespaceText(sibling)) {
+            return sibling;
+        }
+    }
+
+    return null;
+}
+
+function isFeatureFlagTemplate(context, node, featureFlag) {
+    if (node?.type !== 'VElement' || node.name !== 'template') {
+        return false;
+    }
+
+    const ifAttribute = node.startTag.attributes.find((attr) => isDirective(attr, 'if'));
+    const expression = getExpressionSource(context, ifAttribute)?.trim();
+
+    return expression === `feature.isActive('${featureFlag}')` || expression === `feature.isActive("${featureFlag}")`;
+}
+
+function isFeatureFlagFallbackTemplate(context, node, featureFlag) {
+    if (node?.type !== 'VElement' || node.name !== 'template') {
+        return false;
+    }
+
+    if (!node.startTag.attributes.some((attr) => isDirective(attr, 'else'))) {
+        return false;
+    }
+
+    return isFeatureFlagTemplate(context, previousNonWhitespaceSibling(node), featureFlag);
+}
+
+function hasFeatureFlagFallbackAncestor(context, node, featureFlag) {
+    let current = node.parent;
+
+    while (current) {
+        if (isFeatureFlagFallbackTemplate(context, current, featureFlag)) {
+            return true;
+        }
+
+        current = current.parent;
+    }
+
+    return false;
+}
+
 function escapeRegExp(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -622,6 +679,7 @@ function buildReplacement(context, node, itemEntries, options = {}) {
     const hasItemsAttribute = Boolean(getAttribute(attributes, ['items']));
     const todoComments = [];
     const wrapperAttributes = [];
+    const eventAttributes = [];
 
     attributes.forEach((attr) => {
         if (hasName(attr, ['alignright'])) {
@@ -633,12 +691,19 @@ function buildReplacement(context, node, itemEntries, options = {}) {
             todoComments.push(smallTodo);
         }
 
-        wrapperAttributes.push(buildWrapperAttribute(context, attr, options));
+        const wrapperAttribute = buildWrapperAttribute(context, attr, options);
+
+        if (isEventAttribute(attr)) {
+            eventAttributes.push(wrapperAttribute);
+            return;
+        }
+
+        wrapperAttributes.push(wrapperAttribute);
     });
 
     if (options.localStateTabs) {
         wrapperAttributes.push(`:default-item="${escapeAttributeValue(options.localStateTabs.stateExpression)}"`);
-        wrapperAttributes.push(`@new-item-active="${escapeAttributeValue(`${options.localStateTabs.stateExpression} = $event`)}"`);
+        eventAttributes.push(`@new-item-active="${escapeAttributeValue(`${options.localStateTabs.stateExpression} = $event`)}"`);
     }
 
     const lines = [];
@@ -658,6 +723,10 @@ function buildReplacement(context, node, itemEntries, options = {}) {
     if (!hasItemsAttribute) {
         lines.push(`${indent}    :items="${escapeAttributeValue(buildItems(itemEntries, indent))}"`);
     }
+
+    eventAttributes.forEach((attrSource) => {
+        lines.push(`${indent}    ${attrSource}`);
+    });
 
     lines.push(`${indent}/>`);
 
@@ -711,6 +780,13 @@ const handleSwTabs = (context, node, options = {}) => {
     }
 
     if (node.name !== componentName) {
+        return;
+    }
+
+    if (
+        mode === 'feature-flag' &&
+        hasFeatureFlagFallbackAncestor(context, node, options.featureFlag ?? 'v6.8.0.0')
+    ) {
         return;
     }
 
@@ -820,6 +896,29 @@ const swTabsValidTests = [
             <template>
                 <sw-tabs />
             </template>`,
+    },
+    {
+        name: '"sw-tabs" feature-flag fallback branch is ignored after migration',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        <mt-tabs
+            :items="[
+                {
+                    label: 'General',
+                    name: 'general',
+                },
+            ]"
+        />
+    </template>
+    <template v-else>
+        <sw-tabs>
+            <sw-tabs-item name="general">General</sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
     },
 ];
 
@@ -1461,13 +1560,13 @@ const swTabsInvalidTests = [
     <template v-if="feature.isActive('v6.8.0.0')">
         <mt-tabs
             position-identifier="example-tabs"
-            @new-item-active="activeTab = $event"
             :items="[
                 {
                     label: 'General',
                     name: 'general',
                 },
             ]"
+            @new-item-active="activeTab = $event"
         />
     </template>
     <template v-else>
@@ -1501,13 +1600,13 @@ const swTabsInvalidTests = [
     <template v-if="feature.isActive('v6.8.0.0')">
         <mt-tabs
             position-identifier="example-tabs"
-            @new-item-active="setActiveTab($event)"
             :items="[
                 {
                     label: 'General',
                     name: 'general',
                 },
             ]"
+            @new-item-active="setActiveTab($event)"
         />
     </template>
     <template v-else>
@@ -1586,7 +1685,6 @@ const swTabsInvalidTests = [
         <mt-tabs
             position-identifier="example-tabs"
             :default-item="activeTab"
-            @new-item-active="activeTab = $event"
             :items="[
                 {
                     label: 'Order',
@@ -1597,6 +1695,7 @@ const swTabsInvalidTests = [
                     name: 'delivery',
                 },
             ]"
+            @new-item-active="activeTab = $event"
         />
     </template>
     <template v-else>

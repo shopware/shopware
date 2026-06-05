@@ -12,6 +12,11 @@ trait VariablesAccessTrait
      */
     public function getVars(): array
     {
+        // lazy ghost entities of partial loads: only expose the loaded properties
+        if (LazyObjectVars::isUninitialized($this)) {
+            return LazyObjectVars::extract($this);
+        }
+
         return get_object_vars($this);
     }
 }

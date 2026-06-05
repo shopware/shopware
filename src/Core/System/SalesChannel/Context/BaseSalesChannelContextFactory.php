@@ -11,9 +11,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -52,7 +50,7 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
      * @param EntityRepository<ShippingMethodCollection> $shippingMethodRepository
      * @param EntityRepository<CountryStateCollection> $countryStateRepository
      * @param EntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository
-     * @param EntityRepository<EntityCollection<PartialEntity>> $languageRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $salesChannelRepository,
@@ -307,17 +305,19 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
             'locale.code',
         ]);
 
+        // partial loading produces lazy ghost objects of the real entity classes,
+        // so no PartialEntity handling with `get()`/`has()` is needed here
         $currentLanguage = $this->languageRepository->search($criteria, $context)->getEntities()->get($currentLanguageId);
-        if (!$currentLanguage instanceof PartialEntity) {
+        if ($currentLanguage === null) {
             throw SalesChannelException::languageNotFound($currentLanguageId);
         }
 
-        $locale = $currentLanguage->get('translationCode') ?? $currentLanguage->get('locale');
-        \assert($locale instanceof PartialEntity, 'At least the localeId is required, so the fallback should never be null');
+        $locale = $currentLanguage->getTranslationCode() ?? $currentLanguage->getLocale();
+        \assert($locale !== null, 'At least the localeId is required, so the fallback should never be null');
 
         return new LanguageInfo(
-            $currentLanguage->get('name'),
-            $locale->get('code'),
+            $currentLanguage->getName(),
+            $locale->getCode(),
         );
     }
 

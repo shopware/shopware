@@ -148,6 +148,7 @@ class DataAbstractionLayerException extends HttpException
     public const ASSOCIATION_NOT_INHERITED = 'FRAMEWORK__DAL_ASSOCIATION_NOT_INHERITED';
     public const ENTITY_HYDRATOR_ERROR = 'FRAMEWORK__DAL_ENTITY_HYDRATOR_ERROR';
     public const UNABLE_TO_LOAD_PATH = 'FRAMEWORK__DAL_UNABLE_TO_LOAD_PATH';
+    public const PARTIAL_FIELD_NOT_LOADED = 'FRAMEWORK__PARTIAL_FIELD_NOT_LOADED';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -670,6 +671,19 @@ class DataAbstractionLayerException extends HttpException
     public static function propertyNotFound(string $property, string $entityClassName): self
     {
         return new PropertyNotFoundException($property, $entityClassName);
+    }
+
+    /**
+     * @param list<string> $loadedFields
+     */
+    public static function partialFieldNotLoaded(string $field, string $entityName, array $loadedFields): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PARTIAL_FIELD_NOT_LOADED,
+            'Field "{{ field }}" of partially loaded entity "{{ entityName }}" was not loaded. Loaded fields: {{ loadedFields }}. Add "{{ field }}" to the requested fields (Criteria::addFields()) to access it.',
+            ['field' => $field, 'entityName' => $entityName, 'loadedFields' => implode(', ', $loadedFields)]
+        );
     }
 
     public static function unsupportedCommandType(WriteCommand $command): HttpException

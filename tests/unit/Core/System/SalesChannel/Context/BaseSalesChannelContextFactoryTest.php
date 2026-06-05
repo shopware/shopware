@@ -19,8 +19,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,7 +33,10 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageDefinition;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
@@ -93,8 +94,8 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryStateRepository = new StaticEntityRepository([new CountryStateCollection($entitySearchResult[CountryStateDefinition::ENTITY_NAME] ?? [])]);
         /** @var StaticEntityRepository<CurrencyCountryRoundingCollection> $currencyCountryRepository */
         $currencyCountryRepository = new StaticEntityRepository([new CurrencyCountryRoundingCollection($entitySearchResult[CurrencyCountryRoundingDefinition::ENTITY_NAME] ?? [])]);
-        /** @var StaticEntityRepository<EntityCollection<PartialEntity>> $languageRepository */
-        $languageRepository = new StaticEntityRepository([new EntityCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepository */
+        $languageRepository = new StaticEntityRepository([new LanguageCollection($entitySearchResult[LanguageDefinition::ENTITY_NAME] ?? [])]);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchAssociative')->willReturn($fetchDataResult);
@@ -148,12 +149,14 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $countryId = Uuid::randomHex();
         $anotherLanguageId = Uuid::randomHex();
 
-        $locale = new PartialEntity();
+        $locale = new LocaleEntity();
+        $locale->setUniqueIdentifier(Uuid::randomHex());
         $locale->assign([
             'code' => 'en-GB',
         ]);
 
-        $language = new PartialEntity();
+        $language = new LanguageEntity();
+        $language->setUniqueIdentifier(Defaults::LANGUAGE_SYSTEM);
         $language->assign([
             'id' => Defaults::LANGUAGE_SYSTEM,
             'name' => 'English',

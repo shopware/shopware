@@ -12,7 +12,8 @@ trait JsonSerializableTrait
      */
     public function jsonSerialize(): array
     {
-        $vars = get_object_vars($this);
+        // lazy ghost entities of partial loads: only serialize the loaded properties
+        $vars = LazyObjectVars::isUninitialized($this) ? LazyObjectVars::extract($this) : get_object_vars($this);
         $this->convertDateTimePropertiesToJsonStringRepresentation($vars);
 
         return $vars;

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\LazyEntityFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -36,6 +37,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('framework')]
 class EntityHydrator
 {
+    /**
+     * Prototype toggle: when enabled, partial loads (Criteria::addFields()) produce PHP 8.4 lazy ghost
+     * objects of the real entity classes instead of generic PartialEntity instances.
+     * Accessing a field that was not loaded throws DataAbstractionLayerException::partialFieldNotLoaded().
+     */
+    public static bool $createLazyEntities = false;
+
     /**
      * @var array<mixed>
      */
@@ -86,14 +94,24 @@ class EntityHydrator
         self::$partialFullPaths = [];
 
         if (self::$partial !== []) {
-            /** @var TEntityCollection $collection */
-            $collection = new EntityCollection();
+            if (!self::$createLazyEntities) {
+                // lazy entities are instances of the real entity class, so the typed collection can be kept
+                /** @var TEntityCollection $collection */
+                $collection = new EntityCollection();
+            }
 
             $this->mapPartialFieldsToHydrate(self::$partial, $root);
         }
 
         foreach ($rows as $row) {
-            $collection->add($this->hydrateEntity($definition, $entityClass, $row, $root, $context));
+            $entity = $this->hydrateEntity($definition, $entityClass, $row, $root, $context);
+
+            if (self::$createLazyEntities && $entity instanceof PartialEntity) {
+                \assert(is_subclass_of($entityClass, Entity::class));
+                $entity = LazyEntityFactory::fromPartial($entityClass, $entity);
+            }
+
+            $collection->add($entity);
         }
 
         return $collection;

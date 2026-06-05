@@ -43,6 +43,10 @@
         <sw-card-view class="sw-integration-list__content">
             {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_integration_list_introduction %}
+            <sw-extension-component-section
+                position-identifier="sw-integration-list-introduction"
+                :deprecated="true"
+            />
             {% endblock %}
 
             {% block sw_integration_list_overview %}

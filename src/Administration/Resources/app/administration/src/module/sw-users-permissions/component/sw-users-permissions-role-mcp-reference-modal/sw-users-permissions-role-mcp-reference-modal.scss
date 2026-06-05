@@ -14,12 +14,12 @@
         justify-content: space-between;
         gap: var(--scale-size-8);
         flex-wrap: wrap;
-        margin-bottom: var(--scale-size-18);
-    }
+        margin-bottom: var(--scale-size-28);
 
-    &__toggle {
-        display: flex;
-        gap: var(--scale-size-8);
+        &-viewmode-select {
+            width: fit-content;
+            margin-bottom: 0;
+        }
     }
 
     &__legend {

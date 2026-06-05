@@ -18,25 +18,12 @@
 
     {% block sw_users_permissions_role_mcp_reference_modal_toolbar %}
         <div class="sw-users-permissions-role-mcp-reference-modal__toolbar">
-            <div class="sw-users-permissions-role-mcp-reference-modal__toggle">
-                <mt-button
-                    size="small"
-                    variant="primary"
-                    :ghost="viewMode !== 'permission'"
-                    @click="viewMode = 'permission'"
-                >
-                    {{ $t('sw-users-permissions.roles.mcpModal.viewByPermission') }}
-                </mt-button>
-
-                <mt-button
-                    size="small"
-                    variant="primary"
-                    :ghost="viewMode !== 'tool'"
-                    @click="viewMode = 'tool'"
-                >
-                    {{ $t('sw-users-permissions.roles.mcpModal.viewByTool') }}
-                </mt-button>
-            </div>
+            <mt-select
+                v-model="viewMode"
+                class="sw-users-permissions-role-mcp-reference-modal__toolbar-viewmode-select"
+                :options="filterOptions"
+                :small="true"
+            />
 
             <mt-button
                 v-if="allMissingStatic.length > 0"

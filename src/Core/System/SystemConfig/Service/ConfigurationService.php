@@ -120,13 +120,9 @@ class ConfigurationService
         $config = [];
 
         if ($this->checkSystemConfiguration($domain, $context)) {
-            $config = array_merge(
-                $config,
-                $this->enrichSystemConfigValues(
-                    $this->getSystemConfiguration($domain, $context),
-                    $salesChannelId
-                )
-            );
+            $config = $this->getSystemConfiguration($domain, $context);
+
+            $this->enrichSystemConfigurationValues($config, $salesChannelId);
         }
 
         return $config;
@@ -329,10 +325,8 @@ class ConfigurationService
 
     /**
      * @param list<SystemConfigTab> $config
-     *
-     * @return list<SystemConfigTab>
      */
-    private function enrichSystemConfigValues(array $config, ?string $salesChannelId): array
+    private function enrichSystemConfigurationValues(array $config, ?string $salesChannelId): void
     {
         foreach ($config as $tab) {
             foreach ($tab->cards as $card) {
@@ -344,8 +338,6 @@ class ConfigurationService
                 }
             }
         }
-
-        return $config;
     }
 
     /**

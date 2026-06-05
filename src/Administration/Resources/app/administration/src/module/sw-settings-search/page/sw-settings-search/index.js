@@ -73,6 +73,26 @@ export default {
             return this.acl.can('product_search_config.editor') || this.acl.can('product_search_config.creator');
         },
 
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-search.page.generalTab'),
+                    name: 'sw.settings.search.index.general',
+                    onClick: () => {
+                        this.onTabChange();
+                        void this.$router.push({ name: 'sw.settings.search.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-search.page.liveSearchTab'),
+                    name: 'sw.settings.search.index.liveSearch',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.settings.search.index.liveSearch' });
+                    },
+                },
+            ];
+        },
+
         tooltipSave() {
             if (!this.allowSave) {
                 return {

@@ -123,6 +123,75 @@ export default {
             return this.isProductComparison || this.isAgenticCommerce;
         },
 
+        tabs() {
+            const routeParams = { id: this.$route.params.id };
+            const createRoute = (name) => ({
+                name,
+                params: routeParams,
+            });
+            const tabs = [
+                {
+                    label: this.$t('sw-sales-channel.detail.tabBase'),
+                    name: 'sw.sales.channel.detail.base',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.base'));
+                    },
+                },
+            ];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push({
+                    label: this.$t('sw-sales-channel.detail.productExport.tabInsights'),
+                    name: 'sw.sales.channel.detail.productExportInsights',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.productExportInsights'));
+                    },
+                });
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push({
+                    label: this.$t('sw-sales-channel.detail.tabProducts'),
+                    name: 'sw.sales.channel.detail.products',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.products'));
+                    },
+                });
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push({
+                    label: this.$t('sw-sales-channel.detail.agenticCommerce.tabIntegration'),
+                    name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.agenticCommerceIntegration'));
+                    },
+                });
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                tabs.push({
+                    label: this.$t('sw-sales-channel.detail.tabProductComparison'),
+                    name: 'sw.sales.channel.detail.productComparison',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.productComparison'));
+                    },
+                });
+            }
+
+            if (this.isStorefront) {
+                tabs.push({
+                    label: this.$t('sw-sales-channel.detail.tabAnalytics'),
+                    name: 'sw.sales.channel.detail.analytics',
+                    onClick: () => {
+                        void this.$router.push(createRoute('sw.sales.channel.detail.analytics'));
+                    },
+                });
+            }
+
+            return tabs;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },

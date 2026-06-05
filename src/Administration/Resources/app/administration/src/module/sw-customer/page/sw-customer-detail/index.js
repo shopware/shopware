@@ -134,6 +134,33 @@ export default {
             };
         },
 
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-customer.detail.tabGeneral'),
+                    name: this.generalRoute.name,
+                    hasError: this.swCustomerDetailBaseError,
+                    onClick: () => {
+                        void this.$router.push(this.generalRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detail.tabAddresses'),
+                    name: this.addressesRoute.name,
+                    onClick: () => {
+                        void this.$router.push(this.addressesRoute);
+                    },
+                },
+                {
+                    label: this.$t('sw-customer.detailBase.labelOrderCard'),
+                    name: this.ordersRoute.name,
+                    onClick: () => {
+                        void this.$router.push(this.ordersRoute);
+                    },
+                },
+            ];
+        },
+
         emailHasChanged() {
             const origin = this.customer.getOrigin();
             if (this.customer.isNew() || !origin.email) {

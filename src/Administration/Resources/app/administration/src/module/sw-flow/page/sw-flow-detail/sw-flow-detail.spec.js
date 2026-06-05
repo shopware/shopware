@@ -4,6 +4,7 @@ import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 import { createPinia } from 'pinia';
+import swFlowDetail from './index';
 
 /**
  * @sw-package after-sales
@@ -121,6 +122,30 @@ const businessEventServiceMock = {
     getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
 };
 
+function createTabs({ flowId = null, isTemplate = false, routeParams = {} } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const context = {
+        flowId,
+        isNewFlow: !flowId,
+        isTemplate,
+        $route: {
+            params: routeParams,
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+        routeDetailTab: swFlowDetail.methods.routeDetailTab,
+    };
+
+    const tabs = swFlowDetail.computed.tabs.call(context);
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
+
 async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess = true, param = {}, customProvides = {}) {
     const wrapper = mount(
         await wrapTestComponent('sw-flow-detail', {
@@ -187,6 +212,9 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                         },
                     },
                     flowBuilderService: Shopware.Service('flowBuilderService'),
+                    feature: {
+                        isActive: jest.fn(() => false),
+                    },
                     ruleConditionDataProviderService: {
                         getRestrictedRules: () => Promise.resolve([]),
                     },
@@ -194,6 +222,9 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                 },
                 mocks: {
                     $route: { params: param, query: query },
+                    feature: {
+                        isActive: jest.fn(() => false),
+                    },
                 },
                 stubs: {
                     'sw-page': {
@@ -234,6 +265,7 @@ async function createWrapper(query = {}, config = {}, flowId = null, saveSuccess
                     },
                     'router-link': true,
                     'sw-loader': true,
+                    'mt-tabs': true,
                 },
             },
         },
@@ -262,6 +294,50 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
 
         const saveButton = wrapper.find('.sw-flow-detail__save');
         expect(saveButton.attributes().disabled).toBe('');
+    });
+
+    it('builds mt-tabs route items for an existing flow', () => {
+        const { tabs } = createTabs({ flowId: ID_FLOW });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-flow.page.tabGeneral',
+                name: 'sw.flow.detail.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-flow.page.tabFlow',
+                name: 'sw.flow.detail.flow',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('builds mt-tabs route items for flow template creation', () => {
+        const { tabs } = createTabs({
+            routeParams: {
+                flowTemplateId: ID_FLOW_TEMPLATE,
+            },
+        });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.flow.create.general',
+            }),
+            expect.objectContaining({
+                name: 'sw.flow.create.flow',
+            }),
+        ]);
+    });
+
+    it('pushes the matching flow route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs({ flowId: ID_FLOW });
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.flow.detail.general' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.flow.detail.flow' });
     });
 
     it('should be able to save a flow', async () => {

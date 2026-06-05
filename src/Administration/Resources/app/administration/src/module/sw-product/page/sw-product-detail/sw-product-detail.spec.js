@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import swProductDetail from './index';
 
 const advancedModeSettings = {
     value: {
@@ -58,6 +59,30 @@ const defaultSalesChannelData = {
     },
 };
 
+function createTabs({ isChild = false, showModeSetting = true, hasBaseError = false, hasCrossSellingError = false } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swProductDetail.computed.tabs.call({
+        isChild,
+        showModeSetting,
+        swProductDetailBaseError: hasBaseError,
+        swProductDetailCrossSellingError: hasCrossSellingError,
+        $route: {
+            params: {
+                id: 'productId',
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
+
 describe('module/sw-product/page/sw-product-detail', () => {
     async function createWrapper(
         searchFunction = () => Promise.resolve([]),
@@ -74,6 +99,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         params: {
                             id: productId,
                         },
+                    },
+                    feature: {
+                        isActive: jest.fn(() => false),
                     },
                 },
                 provide: {
@@ -161,6 +189,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             'title',
                         ],
                     },
+                    'mt-tabs': true,
                     'sw-inheritance-warning': true,
                     'router-link': true,
                     'sw-product-detail': await wrapTestComponent('sw-product-detail'),
@@ -197,6 +226,134 @@ describe('module/sw-product/page/sw-product-detail', () => {
         if (wrapper) {
             wrapper.unmount();
         }
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs({
+            hasBaseError: true,
+            hasCrossSellingError: true,
+        });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-product.detail.tabGeneral',
+                name: 'sw.product.detail.base',
+                hasError: true,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabSpecifications',
+                name: 'sw.product.detail.specifications',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabAdvancedPrices',
+                name: 'sw.product.detail.prices',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabVariation',
+                name: 'sw.product.detail.variants',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabLayout',
+                name: 'sw.product.detail.layout',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabSeo',
+                name: 'sw.product.detail.seo',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabCrossSelling',
+                name: 'sw.product.detail.crossSelling',
+                hasError: true,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-product.detail.tabReviews',
+                name: 'sw.product.detail.reviews',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('builds mt-tabs route items for child products', () => {
+        const { tabs } = createTabs({ isChild: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.product.detail.base',
+            }),
+            expect.objectContaining({
+                name: 'sw.product.detail.specifications',
+            }),
+            expect.objectContaining({
+                name: 'sw.product.detail.prices',
+            }),
+            expect.objectContaining({
+                name: 'sw.product.detail.seo',
+            }),
+            expect.objectContaining({
+                name: 'sw.product.detail.crossSelling',
+            }),
+            expect.objectContaining({
+                name: 'sw.product.detail.reviews',
+            }),
+        ]);
+        expect(tabs).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    name: 'sw.product.detail.variants',
+                }),
+                expect.objectContaining({
+                    name: 'sw.product.detail.layout',
+                }),
+            ]),
+        );
+    });
+
+    it('pushes the matching product route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs.forEach((tab) => {
+            tab.onClick();
+        });
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.product.detail.base',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.product.detail.specifications',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.product.detail.prices',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(4, {
+            name: 'sw.product.detail.variants',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(5, {
+            name: 'sw.product.detail.layout',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(6, {
+            name: 'sw.product.detail.seo',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(7, {
+            name: 'sw.product.detail.crossSelling',
+            params: { id: 'productId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(8, {
+            name: 'sw.product.detail.reviews',
+            params: { id: 'productId' },
+        });
     });
 
     it('should show item tabs', async () => {

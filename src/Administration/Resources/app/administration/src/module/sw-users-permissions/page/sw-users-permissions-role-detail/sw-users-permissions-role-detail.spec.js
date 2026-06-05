@@ -6,6 +6,7 @@
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AppAclService from 'src/app/service/app-acl.service';
+import swUsersPermissionsRoleDetail from './index';
 
 let privilegesService = new PrivilegesService();
 const appAclService = new AppAclService({
@@ -23,6 +24,26 @@ const appAclService = new AppAclService({
 
 function isNew() {
     return false;
+}
+
+function createTabs(roleId = '12345789') {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swUsersPermissionsRoleDetail.computed.tabs.call({
+        $route: {
+            params: {
+                id: roleId,
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
 }
 
 async function createWrapper(
@@ -61,6 +82,7 @@ async function createWrapper(
                     'sw-users-permissions-permissions-grid': true,
                     'sw-users-permissions-additional-permissions': true,
                     'sw-verify-user-modal': true,
+                    'mt-tabs': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'router-view': true,
@@ -69,6 +91,9 @@ async function createWrapper(
                 },
                 mocks: {
                     $route: $route,
+                    feature: {
+                        isActive: () => false,
+                    },
                 },
                 provide: {
                     acl: {
@@ -115,6 +140,39 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     beforeEach(async () => {
         privilegesService = new PrivilegesService();
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-users-permissions.roles.tabs.general',
+                name: 'sw.users.permissions.role.detail.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-users-permissions.roles.tabs.detailed',
+                name: 'sw.users.permissions.role.detail.detailed-privileges',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching role detail route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.users.permissions.role.detail.general',
+            params: { id: '12345789' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.users.permissions.role.detail.detailed-privileges',
+            params: { id: '12345789' },
+        });
     });
 
     it('should not contain any privileges', async () => {

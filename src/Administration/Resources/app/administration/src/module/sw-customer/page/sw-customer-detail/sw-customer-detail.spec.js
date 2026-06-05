@@ -1,8 +1,41 @@
 import { mount } from '@vue/test-utils';
+import swCustomerDetail from './index';
 
 /**
  * @sw-package checkout
  */
+
+function createTabs({ editMode = false, hasBaseError = false } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const routeQuery = { edit: editMode };
+    const tabs = swCustomerDetail.computed.tabs.call({
+        generalRoute: {
+            name: 'sw.customer.detail.base',
+            params: { id: 'customerId' },
+            query: routeQuery,
+        },
+        addressesRoute: {
+            name: 'sw.customer.detail.addresses',
+            params: { id: 'customerId' },
+            query: routeQuery,
+        },
+        ordersRoute: {
+            name: 'sw.customer.detail.order',
+            params: { id: 'customerId' },
+            query: routeQuery,
+        },
+        swCustomerDetailBaseError: hasBaseError,
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(privileges = [], editMode = false) {
     return mount(
@@ -35,6 +68,7 @@ async function createWrapper(privileges = [], editMode = false) {
                         template: '<div><slot name="content"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': true,
                     'router-view': true,
                     'sw-customer-card': {
                         template: '<div></div>',
@@ -53,6 +87,9 @@ async function createWrapper(privileges = [], editMode = false) {
                             page: 1,
                             limit: 25,
                         },
+                    },
+                    feature: {
+                        isActive: jest.fn(() => false),
                     },
                 },
                 provide: {
@@ -119,6 +156,53 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(wrapper.vm.$data.customer.accountType).toBe('private');
         expect(wrapper.vm.$data.customer.company).toBe('Shopware AG');
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs({ hasBaseError: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabGeneral',
+                name: 'sw.customer.detail.base',
+                hasError: true,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabAddresses',
+                name: 'sw.customer.detail.addresses',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detailBase.labelOrderCard',
+                name: 'sw.customer.detail.order',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching customer route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs({ editMode: true });
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.customer.detail.base',
+            params: { id: 'customerId' },
+            query: { edit: true },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.customer.detail.addresses',
+            params: { id: 'customerId' },
+            query: { edit: true },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.customer.detail.order',
+            params: { id: 'customerId' },
+            query: { edit: true },
+        });
     });
 
     it('should not be able to edit the customer', async () => {

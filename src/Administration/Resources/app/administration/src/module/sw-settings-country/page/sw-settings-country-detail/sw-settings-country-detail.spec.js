@@ -3,6 +3,7 @@
  */
 import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
+import swSettingsCountryDetail from './index';
 
 const routes = [
     {
@@ -29,6 +30,27 @@ const routes = [
         ],
     },
 ];
+
+function createTabs({ isNewCountry = false, routeId = 'the-id' } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swSettingsCountryDetail.computed.tabs.call({
+        isNewCountry,
+        $route: {
+            params: {
+                id: routeId,
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(privileges = []) {
     delete config.global.mocks.$router;
@@ -59,6 +81,9 @@ async function createWrapper(privileges = []) {
                         removeResizeListener: () => {},
                         getSystemKey: () => {},
                         onResize: () => {},
+                    },
+                    feature: {
+                        isActive: jest.fn(() => false),
                     },
                 },
 
@@ -205,5 +230,64 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const saveButton = wrapper.find('.sw-settings-country-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('builds mt-tabs route items for country detail routes', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-country.page.generalTab',
+                name: 'sw.settings.country.detail.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-country.page.stateTab',
+                name: 'sw.settings.country.detail.state',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-country.page.addressHandlingTab',
+                name: 'sw.settings.country.detail.address-handling',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('builds mt-tabs route items for country create routes', () => {
+        const { tabs } = createTabs({ isNewCountry: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.settings.country.create.general',
+            }),
+            expect.objectContaining({
+                name: 'sw.settings.country.create.state',
+            }),
+            expect.objectContaining({
+                name: 'sw.settings.country.create.address-handling',
+            }),
+        ]);
+    });
+
+    it('pushes the matching country route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs({ routeId: 'country-id' });
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.settings.country.detail.general',
+            params: { id: 'country-id' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.settings.country.detail.state',
+            params: { id: 'country-id' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.settings.country.detail.address-handling',
+            params: { id: 'country-id' },
+        });
     });
 });

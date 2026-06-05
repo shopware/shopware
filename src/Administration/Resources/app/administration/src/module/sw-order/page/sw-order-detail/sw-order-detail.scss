@@ -78,8 +78,17 @@
 
     .sw-order-detail__tabs {
         &.has-warning {
-            .sw-tabs__slider {
+            .sw-tabs__slider,
+            .mt-tabs__slider {
                 background-color: var(--color-border-attention-default);
+            }
+        }
+
+        .mt-tabs__item--error {
+            color: var(--color-text-attention-default);
+
+            &.mt-tabs__item--active {
+                color: var(--color-text-attention-default);
             }
         }
     }

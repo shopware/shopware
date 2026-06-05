@@ -9,7 +9,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -24,6 +27,32 @@ export default {
     },
 
     computed: {
+        tabs() {
+            const isCmsTabDisabled = !this.acl.can('landing_page.editor');
+
+            return [
+                {
+                    label: this.$t('sw-landing-page.view.general'),
+                    name: 'sw.category.landingPageDetail.base',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.landingPageDetail.base' });
+                    },
+                },
+                {
+                    label: this.$t('sw-landing-page.view.cms'),
+                    name: 'sw.category.landingPageDetail.cms',
+                    disabled: isCmsTabDisabled,
+                    onClick: () => {
+                        if (isCmsTabDisabled) {
+                            return;
+                        }
+
+                        void this.$router.push({ name: 'sw.category.landingPageDetail.cms' });
+                    },
+                },
+            ];
+        },
+
         landingPage() {
             return Shopware.Store.get('swCategoryDetail').landingPage;
         },

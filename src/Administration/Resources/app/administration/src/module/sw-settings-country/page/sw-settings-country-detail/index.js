@@ -89,6 +89,35 @@ export default {
             return typeof this.country.isNew === 'function' ? this.country.isNew() : false;
         },
 
+        tabs() {
+            const routePrefix = this.isNewCountry ? 'sw.settings.country.create' : 'sw.settings.country.detail';
+            const routeParams = { id: this.$route.params.id };
+
+            return [
+                {
+                    label: this.$t('sw-settings-country.page.generalTab'),
+                    name: `${routePrefix}.general`,
+                    onClick: () => {
+                        void this.$router.push({ name: `${routePrefix}.general`, params: routeParams });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.stateTab'),
+                    name: `${routePrefix}.state`,
+                    onClick: () => {
+                        void this.$router.push({ name: `${routePrefix}.state`, params: routeParams });
+                    },
+                },
+                {
+                    label: this.$t('sw-settings-country.page.addressHandlingTab'),
+                    name: `${routePrefix}.address-handling`,
+                    onClick: () => {
+                        void this.$router.push({ name: `${routePrefix}.address-handling`, params: routeParams });
+                    },
+                },
+            ];
+        },
+
         allowSave() {
             return this.isNewCountry ? this.acl.can('country.creator') : this.acl.can('country.editor');
         },

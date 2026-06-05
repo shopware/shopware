@@ -3,8 +3,28 @@
  */
 
 import { mount } from '@vue/test-utils';
+import swCategoryView from './index';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
+
+function createTabs({ isPage = true, isCustomEntity = false, cmsPage = false, hasCategoryError = false } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swCategoryView.computed.tabs.call({
+        isPage,
+        isCustomEntity,
+        cmsPage,
+        swCategoryViewError: hasCategoryError,
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(categoryType) {
     Shopware.Store.get('swCategoryDetail').$reset();
@@ -34,6 +54,7 @@ async function createWrapper(categoryType) {
                 'sw-tabs': {
                     template: '<div class="sw-tabs"><slot /></div>',
                 },
+                'mt-tabs': true,
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
                     props: [
@@ -47,6 +68,9 @@ async function createWrapper(categoryType) {
                 },
             },
             mocks: {
+                feature: {
+                    isActive: () => false,
+                },
                 placeholder: (entity, field, fallbackSnippet) => {
                     return {
                         entity,
@@ -65,6 +89,78 @@ async function createWrapper(categoryType) {
 }
 
 describe('src/module/sw-category/component/sw-category-view', () => {
+    it('builds mt-tabs route items for page categories', () => {
+        const { tabs } = createTabs({ hasCategoryError: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-category.view.general',
+                name: 'sw.category.detail.base',
+                hasError: true,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-category.view.products',
+                name: 'sw.category.detail.products',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-category.view.cms',
+                name: 'sw.category.detail.cms',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-category.view.seo',
+                name: 'sw.category.detail.seo',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('builds mt-tabs route items for custom entity categories', () => {
+        const { tabs } = createTabs({
+            isPage: true,
+            isCustomEntity: true,
+            cmsPage: true,
+        });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.category.detail.base',
+            }),
+            expect.objectContaining({
+                name: 'sw.category.detail.customEntity',
+            }),
+            expect.objectContaining({
+                name: 'sw.category.detail.cms',
+            }),
+            expect.objectContaining({
+                name: 'sw.category.detail.seo',
+            }),
+        ]);
+        expect(tabs).not.toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    name: 'sw.category.detail.products',
+                }),
+            ]),
+        );
+    });
+
+    it('pushes the matching category route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+        tabs[3].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.category.detail.base' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.category.detail.products' });
+        expect(routerPush).toHaveBeenNthCalledWith(3, { name: 'sw.category.detail.cms' });
+        expect(routerPush).toHaveBeenNthCalledWith(4, { name: 'sw.category.detail.seo' });
+    });
+
     it('should display static snippets and position-identifiers', async () => {
         const wrapper = await createWrapper();
 

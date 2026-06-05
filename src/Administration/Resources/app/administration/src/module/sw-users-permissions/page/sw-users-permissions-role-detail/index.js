@@ -46,6 +46,31 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.general'),
+                    name: 'sw.users.permissions.role.detail.general',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.users.permissions.role.detail.general',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-users-permissions.roles.tabs.detailed'),
+                    name: 'sw.users.permissions.role.detail.detailed-privileges',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.users.permissions.role.detail.detailed-privileges',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+            ];
+        },
+
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 

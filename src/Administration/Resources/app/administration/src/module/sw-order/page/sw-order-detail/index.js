@@ -129,6 +129,44 @@ export default {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
         },
 
+        tabs() {
+            const routeParams = { id: this.$route.params.id };
+
+            return [
+                {
+                    label: this.$t('sw-order.detail.tabGeneral'),
+                    name: 'sw.order.detail.general',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.order.detail.general',
+                            params: routeParams,
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDetails'),
+                    name: 'sw.order.detail.details',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.order.detail.details',
+                            params: routeParams,
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDocuments'),
+                    name: 'sw.order.detail.documents',
+                    hasError: this.isOrderEditing,
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.order.detail.documents',
+                            params: routeParams,
+                        });
+                    },
+                },
+            ];
+        },
+
         isOrderEditing() {
             return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },

@@ -1,8 +1,24 @@
 import { mount } from '@vue/test-utils';
+import swFlowIndex from './index';
 
 /**
  * @sw-package after-sales
  */
+function createTabs() {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swFlowIndex.computed.tabs.call({
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
+
 async function createWrapper(privileges = []) {
     return mount(
         await wrapTestComponent('sw-flow-index', {
@@ -16,6 +32,7 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        name: 'sw.flow.index.flows',
                     },
                 },
                 stubs: {
@@ -38,6 +55,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
+                    'mt-tabs': true,
                     'sw-skeleton': true,
                     'router-view': true,
                     'sw-extension-teaser-popover': true,
@@ -76,6 +94,10 @@ async function createWrapper(privileges = []) {
                             return term && term.trim().length >= 1;
                         },
                     },
+
+                    feature: {
+                        isActive: jest.fn(() => false),
+                    },
                 },
             },
         },
@@ -105,5 +127,32 @@ describe('module/sw-flow/page/sw-flow-index', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-page__smart-bar-amount').text()).toBe('(20)');
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-flow.general.tabMyFlows',
+                name: 'sw.flow.index.flows',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-flow.general.tabFlowTemplates',
+                name: 'sw.flow.index.templates',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching flow list route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.flow.index.flows' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.flow.index.templates' });
     });
 });

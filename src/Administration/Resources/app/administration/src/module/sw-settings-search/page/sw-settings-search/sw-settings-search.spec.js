@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import swSettingsSearch from './index';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -21,6 +22,24 @@ const mockData = [
         languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20c',
     },
 ];
+
+function createTabs() {
+    const onTabChange = jest.fn();
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swSettingsSearch.computed.tabs.call({
+        onTabChange,
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        onTabChange,
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper() {
     const router = createRouter({
@@ -47,6 +66,12 @@ async function createWrapper() {
         {
             global: {
                 router,
+
+                mocks: {
+                    feature: {
+                        isActive: jest.fn(() => false),
+                    },
+                },
 
                 provide: {
                     repositoryFactory: {
@@ -186,5 +211,33 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         expect(wrapper.vm.productSearchConfigs.minSearchLength).toBe(mockData[0].minSearchLength);
         expect(wrapper.vm.productSearchConfigs.excludedTerms).toHaveLength(0);
         expect(wrapper.vm.productSearchConfigs.languageId).toBe('2fbb5fe2e29a4d70aa5854ce7ce3e20b');
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-search.page.generalTab',
+                name: 'sw.settings.search.index.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-settings-search.page.liveSearchTab',
+                name: 'sw.settings.search.index.liveSearch',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching settings search route when a tab is clicked', () => {
+        const { onTabChange, routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(onTabChange).toHaveBeenCalledTimes(1);
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.settings.search.index.general' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.settings.search.index.liveSearch' });
     });
 });

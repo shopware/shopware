@@ -12,6 +12,38 @@ Component.override('sw-sales-channel-detail', {
         'themeService',
     ],
 
+    computed: {
+        tabs() {
+            const tabs = this.$super('tabs');
+
+            if (this.isProductExportChannel) {
+                return tabs;
+            }
+
+            const route = {
+                name: 'sw.sales.channel.detail.theme',
+                params: { id: this.$route.params.id },
+            };
+            const themeTab = {
+                label: this.$t('sw-sales-channel.detail.tabTheme'),
+                name: route.name,
+                disabled: this.isLoading,
+                onClick: () => {
+                    if (this.isLoading) {
+                        return;
+                    }
+
+                    void this.$router.push(route);
+                },
+            };
+            const productsIndex = tabs.findIndex((tab) => tab.name === 'sw.sales.channel.detail.products');
+
+            tabs.splice(productsIndex >= 0 ? productsIndex + 1 : 1, 0, themeTab);
+
+            return tabs;
+        },
+    },
+
     methods: {
         getLoadSalesChannelCriteria() {
             const criteria = this.$super('getLoadSalesChannelCriteria');

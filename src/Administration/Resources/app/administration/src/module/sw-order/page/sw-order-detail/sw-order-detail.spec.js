@@ -2,10 +2,32 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import swOrderDetail from './index';
 
 /**
  * @sw-package checkout
  */
+
+function createTabs({ isOrderEditing = false } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swOrderDetail.computed.tabs.call({
+        isOrderEditing,
+        $route: {
+            params: {
+                id: 'order123',
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(order = {}) {
     const repositoryFactoryMock = {
@@ -21,6 +43,7 @@ async function createWrapper(order = {}) {
         global: {
             mocks: {
                 $route: {
+                    name: 'sw.order.detail.general',
                     params: {
                         id: 'order123',
                     },
@@ -68,6 +91,7 @@ async function createWrapper(order = {}) {
                 'router-view': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
+                'mt-tabs': true,
                 'sw-language-switch': true,
                 'sw-order-leave-page-modal': true,
                 'sw-order-save-changes-beforehand-modal': true,
@@ -79,6 +103,9 @@ async function createWrapper(order = {}) {
                     create: () => repositoryFactoryMock,
                 },
                 orderService: {},
+                feature: {
+                    isActive: jest.fn(() => false),
+                },
             },
         },
         props: {
@@ -213,6 +240,50 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(criteria.hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs({ isOrderEditing: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.detail.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.detail.details',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-order.detail.tabDocuments',
+                name: 'sw.order.detail.documents',
+                hasError: true,
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching order detail route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.order.detail.general',
+            params: { id: 'order123' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.order.detail.details',
+            params: { id: 'order123' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.order.detail.documents',
+            params: { id: 'order123' },
+        });
     });
 
     it('should convert product line items that are missing', async () => {

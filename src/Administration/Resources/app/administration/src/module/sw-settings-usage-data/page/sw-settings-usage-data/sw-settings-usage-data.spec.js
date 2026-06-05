@@ -1,8 +1,24 @@
 import { mount } from '@vue/test-utils';
+import swSettingsUsageData from './index';
 
 /**
  * @sw-package framework
  */
+function createTabs() {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swSettingsUsageData.computed.tabs.call({
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
+
 async function createWrapper() {
     return mount(
         await wrapTestComponent('sw-settings-usage-data', {
@@ -10,6 +26,12 @@ async function createWrapper() {
         }),
         {
             global: {
+                mocks: {
+                    feature: {
+                        isActive: jest.fn(() => false),
+                    },
+                },
+
                 stubs: {
                     'sw-page': {
                         template: `
@@ -27,6 +49,7 @@ async function createWrapper() {
                     'sw-tabs-item': true,
                     'sw-error-summary': true,
                     'sw-extension-component-section': true,
+                    'mt-tabs': true,
                 },
             },
         },
@@ -45,5 +68,25 @@ describe('src/module/sw-settings-usage-data/page/sw-settings-usage-data', () => 
         });
         expect(tabs.isVisible()).toBe(true);
         expect(tabs.vm.positionIdentifier).toBe('sw-settings-usage-data');
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-settings-usage-data-general.tabHeadline',
+                name: 'sw.settings.usage.data.index.general',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching usage data route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({ name: 'sw.settings.usage.data.index.general' });
     });
 });

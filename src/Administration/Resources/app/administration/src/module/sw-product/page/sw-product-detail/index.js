@@ -151,6 +151,109 @@ export default {
 
         ...mapPageErrors(errorConfiguration),
 
+        tabs() {
+            const routeParams = { id: this.$route.params.id };
+            const tabs = [
+                {
+                    label: this.$t('sw-product.detail.tabGeneral'),
+                    name: 'sw.product.detail.base',
+                    hasError: this.swProductDetailBaseError,
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.product.detail.base',
+                            params: routeParams,
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-product.detail.tabSpecifications'),
+                    name: 'sw.product.detail.specifications',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.product.detail.specifications',
+                            params: routeParams,
+                        });
+                    },
+                },
+            ];
+
+            if (this.showModeSetting) {
+                tabs.push({
+                    label: this.$t('sw-product.detail.tabAdvancedPrices'),
+                    name: 'sw.product.detail.prices',
+                    onClick: () => {
+                        void this.$router.push({
+                            name: 'sw.product.detail.prices',
+                            params: routeParams,
+                        });
+                    },
+                });
+            }
+
+            if (!this.isChild && this.showModeSetting) {
+                tabs.push(
+                    {
+                        label: this.$t('sw-product.detail.tabVariation'),
+                        name: 'sw.product.detail.variants',
+                        onClick: () => {
+                            void this.$router.push({
+                                name: 'sw.product.detail.variants',
+                                params: routeParams,
+                            });
+                        },
+                    },
+                    {
+                        label: this.$t('sw-product.detail.tabLayout'),
+                        name: 'sw.product.detail.layout',
+                        onClick: () => {
+                            void this.$router.push({
+                                name: 'sw.product.detail.layout',
+                                params: routeParams,
+                            });
+                        },
+                    },
+                );
+            }
+
+            if (this.showModeSetting) {
+                tabs.push(
+                    {
+                        label: this.$t('sw-product.detail.tabSeo'),
+                        name: 'sw.product.detail.seo',
+                        onClick: () => {
+                            void this.$router.push({
+                                name: 'sw.product.detail.seo',
+                                params: routeParams,
+                            });
+                        },
+                    },
+                    {
+                        label: this.$t('sw-product.detail.tabCrossSelling'),
+                        name: 'sw.product.detail.crossSelling',
+                        hasError: this.swProductDetailCrossSellingError,
+                        onClick: () => {
+                            void this.$router.push({
+                                name: 'sw.product.detail.crossSelling',
+                                params: routeParams,
+                            });
+                        },
+                    },
+                    {
+                        label: this.$t('sw-product.detail.tabReviews'),
+                        name: 'sw.product.detail.reviews',
+                        onClick: () => {
+                            void this.$router.push({
+                                name: 'sw.product.detail.reviews',
+                                params: routeParams,
+                            });
+                        },
+                    },
+                );
+            }
+
+            return tabs;
+        },
+
         identifier() {
             return this.productTitle;
         },

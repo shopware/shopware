@@ -5,6 +5,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import swSalesChannelDetail from './index';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
@@ -23,6 +24,37 @@ const defaultSalesChannelResponse = {
         first: () => ({}),
     },
 };
+
+function createTabs({
+    isAgenticCommerce = false,
+    isHeadless = false,
+    isLoading = false,
+    isProductExportChannel = false,
+    isStorefront = true,
+} = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swSalesChannelDetail.computed.tabs.call({
+        isAgenticCommerce,
+        isHeadless,
+        isLoading,
+        isProductExportChannel,
+        isStorefront,
+        $route: {
+            params: {
+                id: 'sales-channel-id',
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
@@ -66,6 +98,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 'sw-tabs': {
                     template: '<div class="sw-tabs"><slot /></div>',
                 },
+                'mt-tabs': true,
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
                     props: [
@@ -94,6 +127,9 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getConfig: mockGetSystemConfig,
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
+                },
+                feature: {
+                    isActive: jest.fn(() => false),
                 },
             },
             mocks: {
@@ -212,6 +248,87 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(typeof provide.swSalesChannelDetailGetAgenticCommerceExportConfig).toBe('function');
         expect(provide.swSalesChannelDetailGetAgenticCommerceExportConfig()).toEqual(wrapper.vm.agenticCommerceExportConfig);
+    });
+
+    it('builds mt-tabs route items for storefront channels', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.tabBase',
+                name: 'sw.sales.channel.detail.base',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.tabProducts',
+                name: 'sw.sales.channel.detail.products',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-sales-channel.detail.tabAnalytics',
+                name: 'sw.sales.channel.detail.analytics',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('builds mt-tabs route items for agentic commerce channels', () => {
+        const { tabs } = createTabs({
+            isAgenticCommerce: true,
+            isProductExportChannel: true,
+            isStorefront: false,
+        });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.base',
+            }),
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.productExportInsights',
+            }),
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+            }),
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.productComparison',
+            }),
+        ]);
+    });
+
+    it('pushes the matching sales channel routes when tabs are clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.sales.channel.detail.base',
+            params: { id: 'sales-channel-id' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.sales.channel.detail.products',
+            params: { id: 'sales-channel-id' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.sales.channel.detail.analytics',
+            params: { id: 'sales-channel-id' },
+        });
+    });
+
+    it('hides loading-only mt-tabs route items while loading', () => {
+        const { tabs } = createTabs({
+            isAgenticCommerce: true,
+            isLoading: true,
+            isProductExportChannel: true,
+            isStorefront: false,
+        });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                name: 'sw.sales.channel.detail.base',
+            }),
+        ]);
     });
 
     it('should load agentic commerce export config in create flow when route has typeId but no id', async () => {

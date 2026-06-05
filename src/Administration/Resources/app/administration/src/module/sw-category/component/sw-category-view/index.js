@@ -31,6 +31,61 @@ export default {
     },
 
     computed: {
+        tabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-category.view.general'),
+                    name: 'sw.category.detail.base',
+                    hasError: this.swCategoryViewError,
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.detail.base' });
+                    },
+                },
+            ];
+
+            if (this.isPage && !this.isCustomEntity) {
+                tabs.push({
+                    label: this.$t('sw-category.view.products'),
+                    name: 'sw.category.detail.products',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.detail.products' });
+                    },
+                });
+            }
+
+            if (this.isCustomEntity) {
+                tabs.push({
+                    label: this.$t('sw-category.view.customEntity'),
+                    name: 'sw.category.detail.customEntity',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.detail.customEntity' });
+                    },
+                });
+            }
+
+            if (this.cmsPage || this.isPage) {
+                tabs.push({
+                    label: this.$t('sw-category.view.cms'),
+                    name: 'sw.category.detail.cms',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.detail.cms' });
+                    },
+                });
+            }
+
+            if (this.isPage) {
+                tabs.push({
+                    label: this.$t('sw-category.view.seo'),
+                    name: 'sw.category.detail.seo',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.category.detail.seo' });
+                    },
+                });
+            }
+
+            return tabs;
+        },
+
         category() {
             return Shopware.Store.get('swCategoryDetail').category;
         },

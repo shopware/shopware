@@ -16,6 +16,7 @@ export default Shopware.Component.wrapComponentConfig({
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     data(): {
@@ -39,6 +40,25 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        tabs(): Array<{ label: string; name: string; onClick: () => void }> {
+            return [
+                {
+                    label: this.$t('sw-flow.general.tabMyFlows'),
+                    name: 'sw.flow.index.flows',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.flow.index.flows' });
+                    },
+                },
+                {
+                    label: this.$t('sw-flow.general.tabFlowTemplates'),
+                    name: 'sw.flow.index.templates',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.flow.index.templates' });
+                    },
+                },
+            ];
+        },
+
         flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },

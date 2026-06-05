@@ -6,12 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SalesChannelRule;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
@@ -109,16 +109,16 @@ class SalesChannelRuleTest extends TestCase
 
     private function createRuleScope(string $salesChannelId): RuleScope
     {
-        $productExport = new ProductExportEntity();
-        $productExport->setSalesChannelId(Uuid::fromStringToHex('product-export-sales-channel-id'));
-
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId($salesChannelId);
 
         $salesChannelContext = Generator::generateSalesChannelContext(
             salesChannel: $salesChannel
         );
-        $salesChannelContext->addExtension(ProductExportEntity::class, $productExport);
+        $salesChannelContext->addExtension(
+            SalesChannelRule::PRODUCT_EXPORT_SALES_CHANNEL,
+            new ArrayStruct(['id' => Uuid::fromStringToHex('product-export-sales-channel-id')])
+        );
 
         return new CheckoutRuleScope(
             $salesChannelContext

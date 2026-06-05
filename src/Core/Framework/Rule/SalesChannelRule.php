@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 class SalesChannelRule extends Rule
 {
     final public const RULE_NAME = 'salesChannel';
+
+    final public const PRODUCT_EXPORT_SALES_CHANNEL = 'product-export-sales-channel';
 
     /**
      * @param list<string>|null $salesChannelIds
@@ -30,9 +32,9 @@ class SalesChannelRule extends Rule
     {
         $currentSalesChannelIds = [$scope->getSalesChannelContext()->getSalesChannelId()];
 
-        $productExport = $scope->getSalesChannelContext()->getExtension(ProductExportEntity::class);
-        if ($productExport instanceof ProductExportEntity) {
-            $currentSalesChannelIds[] = $productExport->getSalesChannelId();
+        $extension = $scope->getSalesChannelContext()->getExtension(self::PRODUCT_EXPORT_SALES_CHANNEL);
+        if ($extension instanceof ArrayStruct && $extension->has('id')) {
+            $currentSalesChannelIds[] = $extension->get('id');
         }
 
         return RuleComparison::uuids($currentSalesChannelIds, $this->salesChannelIds, $this->operator);

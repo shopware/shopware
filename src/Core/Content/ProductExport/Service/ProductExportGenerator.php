@@ -27,6 +27,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\SalesChannelRule;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -93,7 +95,10 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $languageId,
             $productExport->getCurrencyId()
         );
-        $contextServiceParameters->addExtension(ProductExportEntity::class, $productExport);
+        $contextServiceParameters->addExtension(
+            SalesChannelRule::PRODUCT_EXPORT_SALES_CHANNEL,
+            new ArrayStruct(['id' => $productExport->getSalesChannelId()])
+        );
         $context = $this->salesChannelContextService->get($contextServiceParameters);
 
         $this->translator->injectSettings(

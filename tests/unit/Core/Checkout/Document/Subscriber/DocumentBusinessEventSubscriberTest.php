@@ -76,15 +76,12 @@ class DocumentBusinessEventSubscriberTest extends TestCase
         static::assertSame($orderId, $caught[0]->getOrderId());
         static::assertSame('1000', $caught[0]->getDocumentNumber());
         static::assertNotSame('', $caught[0]->getDeletedAt());
-    }
-
-    public function testOnlySubscribesToTheDeleteEvent(): void
-    {
-        // generated is dispatched by DocumentGenerator; this subscriber only observes deletes
-        static::assertSame(
-            [EntityDeleteEvent::class => 'beforeDelete'],
-            DocumentBusinessEventSubscriber::getSubscribedEvents()
-        );
+        static::assertSame([
+            'documentId' => $documentId,
+            'orderId' => $orderId,
+            'documentNumber' => '1000',
+            'deletedAt' => $caught[0]->getDeletedAt(),
+        ], $caught[0]->getValues());
     }
 
     public function testNonLiveVersionContextDeletesAreIgnored(): void

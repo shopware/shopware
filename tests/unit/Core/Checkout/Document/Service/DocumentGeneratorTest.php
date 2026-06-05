@@ -368,7 +368,8 @@ class DocumentGeneratorTest extends TestCase
         $dispatcher = new EventDispatcher();
         /** @var list<DocumentGeneratedEvent> $generatedEvents */
         $generatedEvents = [];
-        $dispatcher->addListener(DocumentGeneratedEvent::class, static function (DocumentGeneratedEvent $event) use (&$generatedEvents): void {
+        $dispatcher->addListener(DocumentGeneratedEvent::class, static function (DocumentGeneratedEvent $event) use (&$generatedEvents, $documentRepository): void {
+            static::assertNotSame([], $documentRepository->upserts, 'generated event must fire after document persistence');
             $generatedEvents[] = $event;
         });
 
@@ -406,7 +407,15 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($successIds, $eventIds);
 
         foreach ($generatedEvents as $event) {
+            static::assertSame($orderId, $event->getOrderId());
+            static::assertSame($documentTypeId, $event->getDocumentTypeId());
             static::assertSame($resultRenderer->getNumber(), $event->getDocumentNumber());
+            static::assertSame([
+                'documentId' => $event->getDocumentId(),
+                'orderId' => $orderId,
+                'documentTypeId' => $documentTypeId,
+                'documentNumber' => $resultRenderer->getNumber(),
+            ], $event->getValues());
         }
     }
 

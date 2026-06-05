@@ -37,10 +37,10 @@ module.exports = {
         },
         schema: [
             {
-                enum: ['disableFix', 'enableFix', 'migrateSwTabs'],
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag'],
             },
             {
-                enum: ['disableFix', 'enableFix', 'migrateSwTabs'],
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag'],
             },
         ]
     },
@@ -90,9 +90,15 @@ module.exports = {
                     handleMtFloatingUi(context, node);
                     // Handle sw-entity-listing
                     handleSwEntityListing(context, node);
-                    if (context.options.includes('migrateSwTabs')) {
+                    const migrateSwTabsDirect = context.options.includes('migrateSwTabs');
+                    const migrateSwTabsFeatureFlag = context.options.includes('migrateSwTabsFeatureFlag');
+
+                    if (migrateSwTabsDirect || migrateSwTabsFeatureFlag) {
                         // Handle sw-tabs
-                        handleSwTabs(context, node);
+                        handleSwTabs(context, node, {
+                            mode: migrateSwTabsFeatureFlag ? 'feature-flag' : 'direct',
+                            featureFlag: 'v6.8.0.0',
+                        });
                     }
                 },
             }

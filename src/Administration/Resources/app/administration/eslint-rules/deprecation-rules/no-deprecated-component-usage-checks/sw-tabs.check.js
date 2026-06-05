@@ -148,10 +148,17 @@ function findWrapperManualReasons(node) {
         }
 
         if (isDirective(attr, 'for')) {
-            return true;
+            return false;
         }
 
         if (isDirective(attr, 'if') || isDirective(attr, 'show') || isDirective(attr, 'else') || isDirective(attr, 'else-if')) {
+            return false;
+        }
+
+        if (hasName(attr, [
+            'active',
+            'activetab',
+        ])) {
             return false;
         }
 
@@ -181,6 +188,21 @@ function findWrapperManualReasons(node) {
     }
 
     return [...new Set(reasons)];
+}
+
+function findFeatureFlagWrapperManualReasons(node) {
+    const attributes = node.startTag.attributes;
+    const reasons = [];
+
+    if (attributes.some((attr) => isDirective(attr, 'if') || isDirective(attr, 'else') || isDirective(attr, 'else-if') || isDirective(attr, 'show'))) {
+        reasons.push('existing conditional branches need manual feature-flag migration');
+    }
+
+    if (getAttribute(attributes, ['items'])) {
+        reasons.push('existing "items" props need manual feature-flag migration');
+    }
+
+    return reasons;
 }
 
 function findItemManualReason(item) {
@@ -356,8 +378,9 @@ function buildWrapperAttribute(context, attr) {
     return sourceOf(context, attr);
 }
 
-function buildReplacement(context, node, itemEntries) {
-    const indent = ' '.repeat(node.loc.start.column);
+function buildReplacement(context, node, itemEntries, options = {}) {
+    const indent = options.indent ?? ' '.repeat(node.loc.start.column);
+    const includeFirstLineIndent = options.includeFirstLineIndent ?? false;
     const attributes = node.startTag.attributes;
     const hasItemsAttribute = Boolean(getAttribute(attributes, ['items']));
     const todoComments = [];
@@ -376,11 +399,16 @@ function buildReplacement(context, node, itemEntries) {
         wrapperAttributes.push(buildWrapperAttribute(context, attr));
     });
 
-    const lines = [...new Set(todoComments)].map((comment, index) => {
-        return `${index === 0 ? '' : indent}<!-- ${comment} -->`;
+    const lines = [];
+    const pushRootLine = (line) => {
+        lines.push(`${includeFirstLineIndent || lines.length > 0 ? indent : ''}${line}`);
+    };
+
+    [...new Set(todoComments)].forEach((comment) => {
+        pushRootLine(`<!-- ${comment} -->`);
     });
 
-    lines.push(`${lines.length === 0 ? '' : indent}<mt-tabs`);
+    pushRootLine('<mt-tabs');
     wrapperAttributes.forEach((attrSource) => {
         lines.push(`${indent}    ${attrSource}`);
     });
@@ -394,11 +422,39 @@ function buildReplacement(context, node, itemEntries) {
     return lines.join('\n');
 }
 
+function indentOriginalBranch(context, node, indent) {
+    const firstLineIndent = `${indent}    `;
+
+    return sourceOf(context, node)
+        .split('\n')
+        .map((line, index) => `${index === 0 ? firstLineIndent : '    '}${line}`)
+        .join('\n');
+}
+
+function buildFeatureFlagReplacement(context, node, itemEntries, featureFlag) {
+    const indent = ' '.repeat(node.loc.start.column);
+    const branchIndent = `${indent}    `;
+    const mtTabsBranch = buildReplacement(context, node, itemEntries, {
+        indent: branchIndent,
+        includeFirstLineIndent: true,
+    });
+
+    return [
+        `<template v-if="feature.isActive('${featureFlag}')">`,
+        mtTabsBranch,
+        `${indent}</template>`,
+        `${indent}<template v-else>`,
+        indentOriginalBranch(context, node, indent),
+        `${indent}</template>`,
+    ].join('\n');
+}
+
 /** @param {RuleContext} context
  *  @param {VElement} node
  */
-const handleSwTabs = (context, node) => {
+const handleSwTabs = (context, node, options = {}) => {
     const componentName = 'sw-tabs';
+    const mode = options.mode ?? 'direct';
 
     if (node.name === 'sw-tabs-item' && !hasAncestor(node, [
         componentName,
@@ -420,6 +476,10 @@ const handleSwTabs = (context, node) => {
         return child.type === 'VElement' && child.name === 'sw-tabs-item';
     });
     const wrapperManualReasons = findWrapperManualReasons(node);
+
+    if (mode === 'feature-flag') {
+        wrapperManualReasons.push(...findFeatureFlagWrapperManualReasons(node));
+    }
 
     const unsupportedChildren = meaningfulChildren.filter((child) => {
         return child.type !== 'VElement' || ![
@@ -456,6 +516,15 @@ const handleSwTabs = (context, node) => {
         message: `"${componentName}" is deprecated. Please use "mt-tabs" with the "items" property instead.`,
         *fix(fixer) {
             if (context.options.includes('disableFix')) return;
+
+            if (mode === 'feature-flag') {
+                yield fixer.replaceText(
+                    node,
+                    buildFeatureFlagReplacement(context, node, itemEntries, options.featureFlag ?? 'v6.8.0.0'),
+                );
+
+                return;
+            }
 
             yield fixer.replaceText(node, buildReplacement(context, node, itemEntries));
         },
@@ -524,6 +593,93 @@ const swTabsInvalidTests = [
         }],
     },
     {
+        name: '"sw-tabs" static item usage is migrated to feature-flagged "mt-tabs" items',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs
+        position-identifier="example-tabs"
+        default-item="general"
+        is-vertical
+    >
+        <sw-tabs-item
+            name="general"
+            :title="$t('example.general')"
+            :has-error="hasGeneralError"
+            :disabled="isDisabled"
+        >
+            {{ $t('example.general') }}
+        </sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        output: `
+<template>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        <mt-tabs
+            position-identifier="example-tabs"
+            default-item="general"
+            vertical
+            :items="[
+                {
+                    label: $t('example.general'),
+                    name: 'general',
+                    hasError: hasGeneralError,
+                    disabled: isDisabled,
+                },
+            ]"
+        />
+    </template>
+    <template v-else>
+        <sw-tabs
+            position-identifier="example-tabs"
+            default-item="general"
+            is-vertical
+        >
+            <sw-tabs-item
+                name="general"
+                :title="$t('example.general')"
+                :has-error="hasGeneralError"
+                :disabled="isDisabled"
+            >
+                {{ $t('example.general') }}
+            </sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+        errors: [{
+            message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
+        }],
+    },
+    {
+        name: '"sw-tabs" direct migration reports without fixing when disableFix is set',
+        filename: 'test.html.twig',
+        options: ['disableFix', 'migrateSwTabs'],
+        code: `
+<template>
+    <sw-tabs>
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
+        }],
+    },
+    {
+        name: '"sw-tabs" feature-flag migration reports without fixing when disableFix is set',
+        filename: 'test.html.twig',
+        options: ['disableFix', 'migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs>
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
+        }],
+    },
+    {
         name: '"sw-tabs" text labels are migrated to "mt-tabs" items',
         filename: 'test.html.twig',
         options: ['migrateSwTabs'],
@@ -582,6 +738,41 @@ const swTabsInvalidTests = [
         }],
     },
     {
+        name: '"sw-tabs" feature-flag migration keeps small and align-right TODOs in the "mt-tabs" branch',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs small align-right>
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        output: `
+<template>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        <!-- TODO Codemod: The "small" prop is deprecated on mt-tabs. Check the surrounding layout after this migration. -->
+        <!-- TODO Codemod: The "align-right" prop has no mt-tabs equivalent and was removed. Check the tab alignment manually. -->
+        <mt-tabs
+            small
+            :items="[
+                {
+                    label: 'General',
+                    name: 'general',
+                },
+            ]"
+        />
+    </template>
+    <template v-else>
+        <sw-tabs small align-right>
+            <sw-tabs-item name="general">General</sw-tabs-item>
+        </sw-tabs>
+    </template>
+</template>`,
+        errors: [{
+            message: '"sw-tabs" is deprecated. Please use "mt-tabs" with the "items" property instead.',
+        }],
+    },
+    {
         name: '"sw-tabs" existing items prop is migrated without generating items',
         filename: 'test.html.twig',
         options: ['migrateSwTabs'],
@@ -604,9 +795,71 @@ const swTabsInvalidTests = [
         }],
     },
     {
+        name: '"sw-tabs" existing items props are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs
+        position-identifier="example-tabs"
+        :items="tabs"
+    />
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": existing "items" props need manual feature-flag migration.',
+        }],
+    },
+    {
+        name: '"sw-tabs" existing conditionals are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs v-if="showTabs">
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": existing conditional branches need manual feature-flag migration.',
+        }],
+    },
+    {
+        name: '"sw-tabs" wrapper v-for is manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs v-for="tabGroup in tabGroups" :key="tabGroup.name">
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": dynamic tab lists need manual item builders.',
+        }],
+    },
+    {
         name: '"sw-tabs" route tabs are reported for manual migration',
         filename: 'test.html.twig',
         options: ['migrateSwTabs'],
+        code: `
+<template>
+    <sw-tabs position-identifier="example-tabs">
+        <sw-tabs-item
+            name="general"
+            route="sw.product.detail.base"
+        >
+            General
+        </sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": route tabs need manual onClick migration.',
+        }],
+    },
+    {
+        name: '"sw-tabs" route tabs are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
         code: `
 <template>
     <sw-tabs position-identifier="example-tabs">
@@ -641,9 +894,46 @@ const swTabsInvalidTests = [
         }],
     },
     {
+        name: '"sw-tabs" content slots are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs position-identifier="example-tabs">
+        <sw-tabs-item name="general">General</sw-tabs-item>
+
+        <template #content="{ active }">
+            {{ active }}
+        </template>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": content slots need manual active-tab state migration.',
+        }],
+    },
+    {
         name: '"sw-tabs" dynamic item lists are reported for manual migration',
         filename: 'test.html.twig',
         options: ['migrateSwTabs'],
+        code: `
+<template>
+    <sw-tabs position-identifier="example-tabs">
+        <sw-tabs-item
+            v-for="item in items"
+            :key="item.name"
+            :name="item.name"
+            :title="item.label"
+        />
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": dynamic "v-for" tab items need manual item builders.',
+        }],
+    },
+    {
+        name: '"sw-tabs" dynamic item lists are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
         code: `
 <template>
     <sw-tabs position-identifier="example-tabs">
@@ -677,9 +967,81 @@ const swTabsInvalidTests = [
         }],
     },
     {
+        name: '"sw-tabs" new-item-active listeners are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs
+        position-identifier="example-tabs"
+        @new-item-active="setActiveItem"
+    >
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": old "new-item-active" handlers need manual payload migration.',
+        }],
+    },
+    {
+        name: '"sw-tabs" custom item listeners are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs position-identifier="example-tabs">
+        <sw-tabs-item
+            name="general"
+            @click="onClick"
+        >
+            General
+        </sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": custom tab item listeners need manual migration.',
+        }],
+    },
+    {
+        name: '"sw-tabs" active props are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
+        code: `
+<template>
+    <sw-tabs
+        position-identifier="example-tabs"
+        active-tab="general"
+    >
+        <sw-tabs-item name="general">General</sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": old active tab props need manual state migration.',
+        }],
+    },
+    {
         name: '"sw-tabs" has-warning items are reported for manual migration',
         filename: 'test.html.twig',
         options: ['migrateSwTabs'],
+        code: `
+<template>
+    <sw-tabs position-identifier="example-tabs">
+        <sw-tabs-item
+            name="general"
+            has-warning
+        >
+            General
+        </sw-tabs-item>
+    </sw-tabs>
+</template>`,
+        errors: [{
+            message: '[sw-tabs] Cannot automatically migrate to "mt-tabs": "has-warning" needs manual badge mapping.',
+        }],
+    },
+    {
+        name: '"sw-tabs" has-warning items are manual-only in feature-flag mode',
+        filename: 'test.html.twig',
+        options: ['migrateSwTabsFeatureFlag'],
         code: `
 <template>
     <sw-tabs position-identifier="example-tabs">

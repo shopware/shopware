@@ -31,7 +31,7 @@ export default {
                 updateIndexes: false,
             },
             /**
-             * @deprecated tag:v6.8.0.0 - will be removed.
+             * @deprecated tag:v6.8.0 - will be removed.
              */
             processSuccess: {
                 normalClearCache: false,
@@ -156,7 +156,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0.0 - will be removed.
+         * @deprecated tag:v6.8.0 - will be removed.
          */
         resetButtons() {
             this.processSuccess = {

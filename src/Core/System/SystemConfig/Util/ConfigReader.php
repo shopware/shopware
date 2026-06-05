@@ -55,11 +55,9 @@ class ConfigReader extends XmlReader
     {
         \assert($xml->firstChild instanceof \DOMElement);
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            return $this->getTabDefinitions($xml->firstChild);
-        } else {
-            return $this->getCardDefinitions($xml->firstChild);
-        }
+        return (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+            ? $this->getTabDefinitions($xml->firstChild)
+            : $this->getCardDefinitions($xml->firstChild);
     }
 
     /**

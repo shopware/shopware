@@ -96,8 +96,6 @@ class SystemConfigValidator
                     }
                 }
             }
-
-            return $constraints;
         } else {
             foreach ($formConfig as $card) {
                 $elements = $card['elements'] ?? [];
@@ -112,9 +110,9 @@ class SystemConfigValidator
                     $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
                 }
             }
-
-            return $constraints;
         }
+
+        return $constraints;
     }
 
     /**
@@ -157,11 +155,9 @@ class SystemConfigValidator
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-                return $this->configurationService->getSystemConfiguration($domain, $context);
-            } else {
-                return $this->configurationService->getConfiguration($domain, $context);
-            }
+            return (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+                ? $this->configurationService->getSystemConfiguration($domain, $context)
+                : $this->configurationService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

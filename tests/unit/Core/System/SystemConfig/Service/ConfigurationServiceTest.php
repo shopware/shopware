@@ -866,9 +866,9 @@ class ConfigurationServiceTest extends TestCase
                             'en-GB' => 'Basic configuration',
                             'de-DE' => 'Grundeinstellungen',
                         ]
-                    )
+                    ),
                 ]
-            )
+            ),
         ];
     }
 

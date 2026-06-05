@@ -45,11 +45,11 @@ class SystemConfigController extends AbstractController
             return new JsonResponse(false);
         }
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            return new JsonResponse($this->configurationService->checkSystemConfiguration($domain, $context));
-        } else {
-            return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
-        }
+        return new JsonResponse(
+            (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+                ? $this->configurationService->checkSystemConfiguration($domain, $context)
+                : $this->configurationService->checkConfiguration($domain, $context)
+        );
     }
 
     #[Route(
@@ -65,11 +65,11 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
-            return new JsonResponse($this->configurationService->getSystemConfiguration($domain, $context));
-        } else {
-            return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
-        }
+        return new JsonResponse(
+            (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS'))
+                ? $this->configurationService->getSystemConfiguration($domain, $context)
+                : $this->configurationService->getConfiguration($domain, $context)
+        );
     }
 
     #[Route(

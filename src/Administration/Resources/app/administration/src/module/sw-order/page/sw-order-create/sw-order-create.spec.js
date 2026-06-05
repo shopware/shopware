@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import findByText from '../../../../../test/_helper_/find-by-text';
+import swOrderCreate from './index';
 
 /**
  * @sw-package checkout
@@ -21,6 +22,21 @@ const contextState = {
         resetLanguageToDefault: jest.fn(),
     },
 };
+
+function createTabs() {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swOrderCreate.computed.tabs.call({
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 describe('src/module/sw-order/page/sw-order-create', () => {
     let wrapper;
@@ -77,6 +93,7 @@ describe('src/module/sw-order/page/sw-order-create', () => {
             'sw-language-switch': true,
             'sw-context-menu-item': true,
             'sw-context-button': true,
+            'mt-tabs': true,
             'sw-card-view': await wrapTestComponent('sw-card-view', {
                 sync: true,
             }),
@@ -156,6 +173,33 @@ describe('src/module/sw-order/page/sw-order-create', () => {
         }
 
         Shopware.Store.register(contextState);
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-order.detail.tabGeneral',
+                name: 'sw.order.create.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-order.detail.tabDetails',
+                name: 'sw.order.create.details',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching order create route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.order.create.general' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.order.create.details' });
     });
 
     it('should open remind payment modal on save order', async () => {

@@ -6,6 +6,22 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import TimezoneService from 'src/core/service/timezone.service';
+import swProfileIndex from './index';
+
+function createTabs() {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swProfileIndex.computed.tabs.call({
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 async function createWrapper(
     privileges = [],
@@ -36,6 +52,7 @@ async function createWrapper(
                 'sw-language-switch': true,
                 'sw-button-process': true,
                 'sw-language-info': true,
+                'mt-tabs': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-skeleton': true,
@@ -131,6 +148,40 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
                 setLocaleWithId: jest.fn(),
             };
         });
+    });
+
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-profile.tabGeneral.title',
+                name: 'sw.profile.index.general',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabSearchPreferences.title',
+                name: 'sw.profile.index.searchPreferences',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-profile.tabPrivacyPreferences.title',
+                name: 'sw.profile.index.privacyPreferences',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching profile route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.profile.index.general' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.profile.index.searchPreferences' });
+        expect(routerPush).toHaveBeenNthCalledWith(3, { name: 'sw.profile.index.privacyPreferences' });
     });
 
     it('should not be able to save own user', async () => {

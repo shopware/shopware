@@ -3,6 +3,22 @@
  */
 
 import { mount } from '@vue/test-utils';
+import swMailTemplateIndex from './index';
+
+function createTabs() {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swMailTemplateIndex.computed.tabs.call({
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
 
 const createWrapper = async () => {
     return mount(
@@ -45,6 +61,7 @@ const createWrapper = async () => {
                     'sw-language-switch': true,
                     'sw-mail-template-list': true,
                     'sw-mail-header-footer-list': true,
+                    'mt-tabs': true,
                     'sw-tabs': true,
                     'sw-tabs-item': true,
                     'router-view': true,
@@ -60,6 +77,33 @@ const createWrapper = async () => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-mail-template.list.tabMailTemplates',
+                name: 'sw.mail.template.index.templates',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-mail-template.list.tabHeaderFooter',
+                name: 'sw.mail.template.index.header_footer',
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching mail template route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, { name: 'sw.mail.template.index.templates' });
+        expect(routerPush).toHaveBeenNthCalledWith(2, { name: 'sw.mail.template.index.header_footer' });
+    });
+
     it('should not allow to create', async () => {
         const wrapper = await createWrapper();
 
@@ -120,7 +164,8 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
         it('should render tabs with router-view instead of lists', async () => {
             const wrapper = await createWrapper();
 
-            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(true);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'router-view' }).exists()).toBe(true);
             expect(wrapper.findComponent({ name: 'sw-mail-template-list' }).exists()).toBe(false);
             expect(wrapper.findComponent({ name: 'sw-mail-header-footer-list' }).exists()).toBe(false);

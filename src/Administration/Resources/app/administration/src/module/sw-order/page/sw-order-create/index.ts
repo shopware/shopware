@@ -46,6 +46,25 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        tabs(): Array<{ label: string; name: string; onClick: () => void }> {
+            return [
+                {
+                    label: this.$t('sw-order.detail.tabGeneral'),
+                    name: 'sw.order.create.general',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.order.create.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-order.detail.tabDetails'),
+                    name: 'sw.order.create.details',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.order.create.details' });
+                    },
+                },
+            ];
+        },
+
         customer(): Entity<'customer'> | null {
             return Store.get('swOrder').customer;
         },

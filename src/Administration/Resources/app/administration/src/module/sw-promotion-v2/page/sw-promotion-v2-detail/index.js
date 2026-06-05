@@ -62,6 +62,57 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabGeneral'),
+                    name: 'sw.promotion.v2.detail.base',
+                    hasError: this.swPromotionV2DetailBaseError,
+                    disabled: !this.promotionId,
+                    onClick: () => {
+                        if (!this.promotionId) {
+                            return;
+                        }
+
+                        void this.$router.push({
+                            name: 'sw.promotion.v2.detail.base',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabConditions'),
+                    name: 'sw.promotion.v2.detail.conditions',
+                    disabled: !this.promotionId,
+                    onClick: () => {
+                        if (!this.promotionId) {
+                            return;
+                        }
+
+                        void this.$router.push({
+                            name: 'sw.promotion.v2.detail.conditions',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+                {
+                    label: this.$t('sw-promotion-v2.detail.tabs.tabDiscounts'),
+                    name: 'sw.promotion.v2.detail.discounts',
+                    disabled: !this.promotionId,
+                    onClick: () => {
+                        if (!this.promotionId) {
+                            return;
+                        }
+
+                        void this.$router.push({
+                            name: 'sw.promotion.v2.detail.discounts',
+                            params: { id: this.$route.params.id },
+                        });
+                    },
+                },
+            ];
+        },
+
         identifier() {
             return this.placeholder(this.promotion, 'name');
         },

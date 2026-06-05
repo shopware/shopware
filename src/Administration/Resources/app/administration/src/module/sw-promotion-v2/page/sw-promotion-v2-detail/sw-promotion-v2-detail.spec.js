@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import swPromotionV2Detail from './index';
 
 const promotionData = {
     name: 'Test Promotion',
@@ -45,6 +46,28 @@ const promotionData = {
     hasOrders: false,
 };
 
+function createTabs({ promotionId = 'promotionId', hasBaseError = false } = {}) {
+    const routerPush = jest.fn(() => Promise.resolve());
+    const tabs = swPromotionV2Detail.computed.tabs.call({
+        promotionId,
+        swPromotionV2DetailBaseError: hasBaseError,
+        $route: {
+            params: {
+                id: promotionId,
+            },
+        },
+        $router: {
+            push: routerPush,
+        },
+        $t: (snippet) => snippet,
+    });
+
+    return {
+        routerPush,
+        tabs,
+    };
+}
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-promotion-v2-detail', { sync: true }), {
         global: {
@@ -58,6 +81,7 @@ async function createWrapper() {
                 'sw-button-process': true,
                 'sw-card-view': true,
                 'sw-language-info': true,
+                'mt-tabs': true,
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'router-view': true,
@@ -85,6 +109,68 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/page/sw-promotion-v2-detail', () => {
+    it('builds mt-tabs route items', () => {
+        const { tabs } = createTabs({ hasBaseError: true });
+
+        expect(tabs).toEqual([
+            expect.objectContaining({
+                label: 'sw-promotion-v2.detail.tabs.tabGeneral',
+                name: 'sw.promotion.v2.detail.base',
+                hasError: true,
+                disabled: false,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-promotion-v2.detail.tabs.tabConditions',
+                name: 'sw.promotion.v2.detail.conditions',
+                disabled: false,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-promotion-v2.detail.tabs.tabDiscounts',
+                name: 'sw.promotion.v2.detail.discounts',
+                disabled: false,
+                onClick: expect.any(Function),
+            }),
+        ]);
+    });
+
+    it('pushes the matching promotion route when a tab is clicked', () => {
+        const { routerPush, tabs } = createTabs();
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(routerPush).toHaveBeenNthCalledWith(1, {
+            name: 'sw.promotion.v2.detail.base',
+            params: { id: 'promotionId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(2, {
+            name: 'sw.promotion.v2.detail.conditions',
+            params: { id: 'promotionId' },
+        });
+        expect(routerPush).toHaveBeenNthCalledWith(3, {
+            name: 'sw.promotion.v2.detail.discounts',
+            params: { id: 'promotionId' },
+        });
+    });
+
+    it('does not push a route for disabled promotion tabs', () => {
+        const { routerPush, tabs } = createTabs({ promotionId: null });
+
+        tabs[0].onClick();
+        tabs[1].onClick();
+        tabs[2].onClick();
+
+        expect(tabs).toEqual([
+            expect.objectContaining({ disabled: true }),
+            expect.objectContaining({ disabled: true }),
+            expect.objectContaining({ disabled: true }),
+        ]);
+        expect(routerPush).not.toHaveBeenCalled();
+    });
+
     it('should disable the save button when privilege does not exist', async () => {
         global.activeAclRoles = [];
 

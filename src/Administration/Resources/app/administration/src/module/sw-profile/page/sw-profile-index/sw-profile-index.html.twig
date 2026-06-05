@@ -31,34 +31,43 @@
     <template #content>
         <sw-card-view>
             {% block sw_profile_index_tabs %}
-            <sw-tabs
-                position-identifier="sw-profile-index"
-            >
-                {% block sw_profile_index_tabs_item_general %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.general' }"
-                    :title="$t('sw-profile.tabGeneral.title')"
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    position-identifier="sw-profile-index"
+                    :default-item="$route.name"
+                    :items="tabs"
+                />
+            </template>
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-profile-index"
                 >
-                    {{ $t('sw-profile.tabGeneral.title') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_profile_index_tabs_item_general %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.general' }"
+                        :title="$t('sw-profile.tabGeneral.title')"
+                    >
+                        {{ $t('sw-profile.tabGeneral.title') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                {% block sw_profile_index_tabs_item_search_preferences %}
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.searchPreferences' }"
-                    :title="$t('sw-profile.tabSearchPreferences.title')"
-                >
-                    {{ $t('sw-profile.tabSearchPreferences.title') }}
-                </sw-tabs-item>
-                {% endblock %}
+                    {% block sw_profile_index_tabs_item_search_preferences %}
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.searchPreferences' }"
+                        :title="$t('sw-profile.tabSearchPreferences.title')"
+                    >
+                        {{ $t('sw-profile.tabSearchPreferences.title') }}
+                    </sw-tabs-item>
+                    {% endblock %}
 
-                <sw-tabs-item
-                    :route="{ name: 'sw.profile.index.privacyPreferences' }"
-                    :title="$t('sw-profile.tabPrivacyPreferences.title')"
-                >
-                    {{ $t('sw-profile.tabPrivacyPreferences.title') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    <sw-tabs-item
+                        :route="{ name: 'sw.profile.index.privacyPreferences' }"
+                        :title="$t('sw-profile.tabPrivacyPreferences.title')"
+                    >
+                        {{ $t('sw-profile.tabPrivacyPreferences.title') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
             {% endblock %}
 
             {% block sw_profile_index_router_view %}

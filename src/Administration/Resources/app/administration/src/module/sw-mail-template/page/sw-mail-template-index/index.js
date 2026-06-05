@@ -29,6 +29,25 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-mail-template.list.tabMailTemplates'),
+                    name: 'sw.mail.template.index.templates',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.mail.template.index.templates' });
+                    },
+                },
+                {
+                    label: this.$t('sw-mail-template.list.tabHeaderFooter'),
+                    name: 'sw.mail.template.index.header_footer',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.mail.template.index.header_footer' });
+                    },
+                },
+            ];
+        },
+
         /**
          * Returns the search type based on active tab/route.
          */

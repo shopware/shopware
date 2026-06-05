@@ -58,6 +58,32 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-profile.tabGeneral.title'),
+                    name: 'sw.profile.index.general',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.general' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabSearchPreferences.title'),
+                    name: 'sw.profile.index.searchPreferences',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.searchPreferences' });
+                    },
+                },
+                {
+                    label: this.$t('sw-profile.tabPrivacyPreferences.title'),
+                    name: 'sw.profile.index.privacyPreferences',
+                    onClick: () => {
+                        void this.$router.push({ name: 'sw.profile.index.privacyPreferences' });
+                    },
+                },
+            ];
+        },
+
         minSearchTermLength() {
             return Store.get('swProfile').minSearchTermLength;
         },

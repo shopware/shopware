@@ -26,6 +26,7 @@ export default {
         repositoryFactory: 'repositoryFactory',
         knownIpsService: 'knownIpsService',
         acl: 'acl',
+        /** @deprecated tag:v6.8.0 - Will be removed */
         swSalesChannelDetailGetAgenticCommerceExportConfig: {
             from: 'swSalesChannelDetailGetAgenticCommerceExportConfig',
             default: () => [],
@@ -146,6 +147,7 @@ export default {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
@@ -158,6 +160,7 @@ export default {
             return this.templateName === 'google-product-search-de';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         resolvedAgenticCommerceExportConfig() {
             let entries = [];
 
@@ -913,6 +916,7 @@ export default {
             return utils.string.isValidIp(term) || utils.string.isValidCidr(term);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportElementBind(element) {
             const bind = objectHelper.deepCopyObject(element);
 
@@ -933,6 +937,7 @@ export default {
             return bind;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportCardTitle(configEntry) {
             if (configEntry?.titleSnippet) {
                 return this.$t(configEntry.titleSnippet);
@@ -941,6 +946,7 @@ export default {
             return configEntry?.provider ?? '';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         getAgenticCommerceExportCardPositionIdentifier(configEntry) {
             if (configEntry?.positionIdentifier) {
                 return configEntry.positionIdentifier;
@@ -948,6 +954,7 @@ export default {
             return 'sw-sales-channel-detail-base-agentic-commerce-export-config-provider';
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
 

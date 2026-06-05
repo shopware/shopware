@@ -37,10 +37,13 @@ module.exports = {
         },
         schema: [
             {
-                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag'],
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag', 'onlySwTabs'],
             },
             {
-                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag'],
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag', 'onlySwTabs'],
+            },
+            {
+                enum: ['disableFix', 'enableFix', 'migrateSwTabs', 'migrateSwTabsFeatureFlag', 'onlySwTabs'],
             },
         ]
     },
@@ -50,46 +53,51 @@ module.exports = {
             // Event handlers for <template> tags
             {
                 VElement(node) {
-                    // Handle mt-button component
-                    handleMtButton(context, node);
-                    // Handle mt-icon component
-                    handleMtIcon(context, node);
-                    // Handle mt-card component
-                    handleMtCard(context, node);
-                    // Handle mt-text-field component
-                    handleMtTextField(context, node);
-                    // Handle mt-switch-field component
-                    handleMtSwitch(context, node);
-                    // Handle mt-number-field component
-                    handleMtNumberField(context, node);
-                    // Handle mt-checkbox
-                    handleMtCheckbox(context, node);
-                    // Handle mt-tabs
-                    handleMtTabs(context, node);
-                    // Handle mt-select
-                    handleMtSelect(context, node);
-                    // Handle mt-textarea
-                    handleMtTextarea(context, node);
-                    // Handle mt-banner
-                    handleMtBanner(context, node);
-                    // Handle mt-external-link
-                    handleMtExternalLink(context, node);
-                    // Handle mt-datepicker
-                    handleMtDatepicker(context, node);
-                    // Handle mt-colorpicker
-                    handleMtColorpicker(context, node);
-                    // Handle mt-email-field component
-                    handleMtEmailField(context, node);
-                    // Handle mt-password-field
-                    handleMtPasswordField(context, node);
-                    // Handle mt-url-field
-                    handleMtUrlField(context, node);
-                    // Handle mt-progress-bar
-                    handleMtProgressBar(context, node);
-                    // Handle mt-floating-ui
-                    handleMtFloatingUi(context, node);
-                    // Handle sw-entity-listing
-                    handleSwEntityListing(context, node);
+                    const onlySwTabs = context.options.includes('onlySwTabs');
+
+                    if (!onlySwTabs) {
+                        // Handle mt-button component
+                        handleMtButton(context, node);
+                        // Handle mt-icon component
+                        handleMtIcon(context, node);
+                        // Handle mt-card component
+                        handleMtCard(context, node);
+                        // Handle mt-text-field component
+                        handleMtTextField(context, node);
+                        // Handle mt-switch-field component
+                        handleMtSwitch(context, node);
+                        // Handle mt-number-field component
+                        handleMtNumberField(context, node);
+                        // Handle mt-checkbox
+                        handleMtCheckbox(context, node);
+                        // Handle mt-tabs
+                        handleMtTabs(context, node);
+                        // Handle mt-select
+                        handleMtSelect(context, node);
+                        // Handle mt-textarea
+                        handleMtTextarea(context, node);
+                        // Handle mt-banner
+                        handleMtBanner(context, node);
+                        // Handle mt-external-link
+                        handleMtExternalLink(context, node);
+                        // Handle mt-datepicker
+                        handleMtDatepicker(context, node);
+                        // Handle mt-colorpicker
+                        handleMtColorpicker(context, node);
+                        // Handle mt-email-field component
+                        handleMtEmailField(context, node);
+                        // Handle mt-password-field
+                        handleMtPasswordField(context, node);
+                        // Handle mt-url-field
+                        handleMtUrlField(context, node);
+                        // Handle mt-progress-bar
+                        handleMtProgressBar(context, node);
+                        // Handle mt-floating-ui
+                        handleMtFloatingUi(context, node);
+                        // Handle sw-entity-listing
+                        handleSwEntityListing(context, node);
+                    }
+
                     const migrateSwTabsDirect = context.options.includes('migrateSwTabs');
                     const migrateSwTabsFeatureFlag = context.options.includes('migrateSwTabsFeatureFlag');
 

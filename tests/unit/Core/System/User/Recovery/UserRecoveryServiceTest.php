@@ -27,6 +27,7 @@ use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -83,7 +84,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -137,7 +139,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -202,7 +205,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);
@@ -273,7 +277,8 @@ class UserRecoveryServiceTest extends TestCase
             $this->router,
             $this->dispatcher,
             $this->salesChannelContextService,
-            $salesChannelRepository
+            $salesChannelRepository,
+            new NativeClock()
         );
 
         $service->generateUserRecovery($userEmail, $context);

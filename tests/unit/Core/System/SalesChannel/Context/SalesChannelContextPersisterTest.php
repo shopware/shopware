@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -42,7 +43,8 @@ class SalesChannelContextPersisterTest extends TestCase
             $connection,
             $this->createMock(EventDispatcherInterface::class),
             $this->createMock(CartPersister::class),
-            'P1D' // 1 day expiration is the default value
+            new NativeClock(),
+            'P1D', // 1 day expiration is the default value
         );
     }
 

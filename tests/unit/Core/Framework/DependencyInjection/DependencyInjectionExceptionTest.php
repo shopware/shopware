@@ -16,16 +16,14 @@ class DependencyInjectionExceptionTest extends TestCase
 {
     public function testProjectDirNotInContainer(): void
     {
-        static::expectException(DependencyInjectionException::class);
-        static::expectExceptionMessage('Container parameter "kernel.project_dir" needs to be a string');
+        $this->expectExceptionObject(DependencyInjectionException::projectDirNotInContainer());
 
         throw DependencyInjectionException::projectDirNotInContainer();
     }
 
     public function testBundlesMetadataIsNotAnArray(): void
     {
-        static::expectException(DependencyInjectionException::class);
-        static::expectExceptionMessage('Container parameter "kernel.bundles_metadata" needs to be an array');
+        $this->expectExceptionObject(DependencyInjectionException::bundlesMetadataIsNotAnArray());
 
         throw DependencyInjectionException::bundlesMetadataIsNotAnArray();
     }

@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Log\Package;
  * mock (`onlyMethods()`/`addMethods()`) or when you must pass real constructor arguments
  * (`setConstructorArgs()`); those chains are intentionally NOT flagged. (Partials in particular are
  * a legitimate pattern, and our PHPStan CI has no warning level, so an advisory error would only get
- * baselined or `@phpstan-ignore`d rather than acted on.)
+ * baselined or suppressed rather than acted on.)
  *
  * @implements Rule<MethodCall>
  *

@@ -57,9 +57,9 @@ class ConfigReader extends XmlReader
 
         if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
             return $this->getTabDefinitions($xml->firstChild);
+        } else {
+            return $this->getCardDefinitions($xml->firstChild);
         }
-
-        return $this->getCardDefinitions($xml->firstChild);
     }
 
     /**

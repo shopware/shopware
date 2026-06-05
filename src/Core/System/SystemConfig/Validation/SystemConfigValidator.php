@@ -98,23 +98,23 @@ class SystemConfigValidator
             }
 
             return $constraints;
-        }
+        } else {
+            foreach ($formConfig as $card) {
+                $elements = $card['elements'] ?? [];
 
-        foreach ($formConfig as $card) {
-            $elements = $card['elements'] ?? [];
+                foreach ($elements as $element) {
+                    if (!\in_array($element['name'], $inputConfigKeys, true)) {
+                        continue;
+                    }
 
-            foreach ($elements as $element) {
-                if (!\in_array($element['name'], $inputConfigKeys, true)) {
-                    continue;
+                    $elementConfig = $element['config'];
+
+                    $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
                 }
-
-                $elementConfig = $element['config'];
-
-                $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
             }
-        }
 
-        return $constraints;
+            return $constraints;
+        }
     }
 
     /**
@@ -159,9 +159,9 @@ class SystemConfigValidator
         try {
             if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
                 return $this->configurationService->getSystemConfiguration($domain, $context);
+            } else {
+                return $this->configurationService->getConfiguration($domain, $context);
             }
-
-            return $this->configurationService->getConfiguration($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

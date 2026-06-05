@@ -11,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware;
 
+/**
+ * @internal
+ */
 #[CoversClass(RetryFailedStoreRequestMiddleware::class)]
 class RetryFailedStoreRequestMiddlewareTest extends TestCase
 {

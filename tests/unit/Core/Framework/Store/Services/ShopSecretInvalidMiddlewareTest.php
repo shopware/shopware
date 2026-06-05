@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -82,6 +83,9 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
     {
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
 
-        return ($middleware($handler))($request, [])->wait();
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+
+        return $promise->wait();
     }
 }

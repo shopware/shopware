@@ -5,10 +5,12 @@ namespace Shopware\Core\Framework\Store\Services;
 use GuzzleHttp\RetryMiddleware;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class RetryFailedStoreRequestMiddleware implements MiddlewareInterface
 {
     private const NUMBER_OF_RETRIES_ON_503 = 3;

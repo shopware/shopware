@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -43,7 +44,9 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
 
         $this->expectExceptionObject(StoreException::shopSecretInvalid());
         $handler = fn (RequestInterface $req, array $options) => new FulfilledPromise($response);
-        ($middleware($handler))($request, [])->wait();
+        /** @var PromiseInterface $promise */
+        $promise = ($middleware($handler))($request, []);
+        $promise->wait();
 
         foreach ($this->fetchAllUserStoreTokens() as $token) {
             static::assertNull($token['store_token']);

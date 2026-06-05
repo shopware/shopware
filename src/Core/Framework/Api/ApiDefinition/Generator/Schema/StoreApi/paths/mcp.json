@@ -9,7 +9,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP JSON-RPC endpoint (Store API)",
-                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Experimental API, not part of our backwards compatibility promise.",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpPost",
                 "parameters": [
                     {
@@ -151,7 +151,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP SSE stream (Store API)",
-                "description": "Opens a Server-Sent Events stream for receiving server-initiated MCP messages. The first request (without `mcp-session-id`) establishes a new session; subsequent requests resume an existing session. Experimental API, not part of our backwards compatibility promise.",
+                "description": "Opens a Server-Sent Events stream for receiving server-initiated MCP messages. The first request (without `mcp-session-id`) establishes a new session; subsequent requests resume an existing session. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpGet",
                 "parameters": [
                     {
@@ -191,7 +191,7 @@
                     "Experimental"
                 ],
                 "summary": "Close MCP session (Store API)",
-                "description": "Terminates the active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise.",
+                "description": "Terminates the active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpDelete",
                 "parameters": [
                     {
@@ -224,7 +224,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP CORS preflight (Store API)",
-                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Experimental API, not part of our backwards compatibility promise.",
+                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "storeApiMcpOptions",
                 "responses": {
                     "204": {

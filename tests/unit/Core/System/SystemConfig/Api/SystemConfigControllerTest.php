@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\Api\SystemConfigController;
@@ -44,9 +45,16 @@ class SystemConfigControllerTest extends TestCase
     public function testCheckConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService
-            ->method('checkConfiguration')
-            ->willReturn(true);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $configurationService
+                ->method('checkSystemConfiguration')
+                ->willReturn(true);
+        } else {
+            $configurationService
+                ->method('checkConfiguration')
+                ->willReturn(true);
+        }
 
         $controller = new SystemConfigController(
             $configurationService,
@@ -67,9 +75,16 @@ class SystemConfigControllerTest extends TestCase
     public function testGetConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService
-            ->method('getConfiguration')
-            ->willReturn(['foo' => 'bar']);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $configurationService
+                ->method('getSystemConfiguration')
+                ->willReturn(['foo' => 'bar']);
+        } else {
+            $configurationService
+                ->method('getConfiguration')
+                ->willReturn(['foo' => 'bar']);
+        }
 
         $controller = new SystemConfigController(
             $configurationService,

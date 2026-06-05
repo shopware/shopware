@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
@@ -36,16 +37,30 @@ class ExtensionLoaderTest extends TestCase
     public function testLoadFromPluginCollectionContinuesOnError(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService
-            ->method('checkConfiguration')
-            ->willReturnCallback(static function (string $domain): bool {
-                // Throw exception for the broken plugin
-                if ($domain === 'BrokenPlugin.config') {
-                    throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
-                }
 
-                return true;
-            });
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $configurationService
+                ->method('checkSystemConfiguration')
+                ->willReturnCallback(static function (string $domain): bool {
+                    // Throw exception for the broken plugin
+                    if ($domain === 'BrokenPlugin.config') {
+                        throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
+                    }
+
+                    return true;
+                });
+        } else {
+            $configurationService
+                ->method('checkConfiguration')
+                ->willReturnCallback(static function (string $domain): bool {
+                    // Throw exception for the broken plugin
+                    if ($domain === 'BrokenPlugin.config') {
+                        throw new UtilXmlParsingException('/path/to/config.xml', 'Invalid XML');
+                    }
+
+                    return true;
+                });
+        }
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
@@ -81,7 +96,12 @@ class ExtensionLoaderTest extends TestCase
     public function testLoadFromPluginCollectionLoadsAllPluginsWhenNoErrors(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
-        $configurationService->method('checkConfiguration')->willReturn(true);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $configurationService->method('checkSystemConfiguration')->willReturn(true);
+        } else {
+            $configurationService->method('checkConfiguration')->willReturn(true);
+        }
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->never())->method('error');

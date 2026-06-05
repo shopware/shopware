@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\Test\Stub\Doctrine\TestExceptionFactory;
@@ -53,12 +54,18 @@ class ThemeCompilerEnrichScssVarSubscriberTest extends TestCase
     public function testOnlyDBExceptionIsSilenced(): void
     {
         $exception = new \InvalidArgumentException();
-        $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
+
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('SYSTEM_CONFIG_TABS')) {
+            $this->configService->method('getResolvedSystemConfiguration')->willThrowException($exception);
+        } else {
+            $this->configService->method('getResolvedConfiguration')->willThrowException($exception);
+        }
         $this->storefrontPluginRegistry->method('getConfigurations')->willReturn(
             new StorefrontPluginConfigurationCollection([
                 new StorefrontPluginConfiguration('test'),
             ])
         );
+
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($this->configService, $this->storefrontPluginRegistry);
         $this->expectExceptionObject($exception);
 

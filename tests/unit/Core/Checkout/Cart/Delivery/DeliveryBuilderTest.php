@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -206,6 +207,47 @@ class DeliveryBuilderTest extends TestCase
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(4, 5)),
         ];
 
+        $releaseDate = new \DateTimeImmutable('2030-01-15 10:00:00');
+
+        yield 'It uses future release date as availability start if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => $releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTimeAt(self::createDeliveryTime(2, 3), $releaseDate),
+        ];
+
+        yield 'It ignores invalid release date if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => '$invalid'],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3)),
+        ];
+
+        yield 'It ignores past release date if line item is in stock' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 0),
+                        'payload' => ['releaseDate' => '2020-01-15 10:00:00.000'],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(2, 3)),
+        ];
+
         yield 'It adds restock time to Delivery Time if item is out of stock' => [
             new LineItemCollection([
                 (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
@@ -216,6 +258,19 @@ class DeliveryBuilderTest extends TestCase
                     ]),
             ]),
             DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(6, 7)),
+        ];
+
+        yield 'It uses later restock availability if release date is before restock date' => [
+            new LineItemCollection([
+                (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 20))
+                    ->assign([
+                        'deliveryInformation' => self::createDeliveryInformation(self::createDeliveryTime(2, 3), 10),
+                        'payload' => ['releaseDate' => (new \DateTimeImmutable('+1 day'))->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                        'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'shippingCostAware' => true,
+                    ]),
+            ]),
+            DeliveryDate::createFromDeliveryTime(self::createDeliveryTime(12, 13)),
         ];
 
         yield 'It takes delivery time of nested line item if parent has none' => [

@@ -2,21 +2,21 @@
     "openapi": "3.1.0",
     "info": [],
     "paths": {
-        "\/_mcp": {
+        "/_mcp": {
             "post": {
                 "tags": [
                     "MCP",
                     "Experimental"
                 ],
                 "summary": "MCP JSON-RPC endpoint (Store API)",
-                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages for methods such as `initialize`, `tools\/list`, `tools\/call`, `prompts\/list`, `prompts\/get`, `resources\/list`, and `resources\/read`. Requires a valid Store API access key (`sw-access-key` header) and a sales-channel context token (`sw-context-token` header). The MCP server exposes tools scoped to the current sales-channel context, including customer authentication state. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Handles Model Context Protocol (MCP) requests using the Streamable HTTP transport for the Store API. Accepts JSON-RPC 2.0 messages. Requires a valid Store API access key. Experimental API, not part of our backwards compatibility promise.",
                 "operationId": "storeApiMcpPost",
                 "parameters": [
                     {
                         "name": "mcp-session-id",
                         "in": "header",
                         "required": false,
-                        "description": "Session ID returned by the server after `initialize`. Required for all requests except `initialize`.",
+                        "description": "Session ID returned by the server in the `mcp-session-id` response header after a successful `initialize` request. Required for all subsequent requests within the same session.",
                         "schema": {
                             "type": "string"
                         }
@@ -25,7 +25,7 @@
                         "name": "sw-context-token",
                         "in": "header",
                         "required": false,
-                        "description": "Sales-channel context token identifying the current customer session. When provided, MCP tools have access to customer-authenticated context.",
+                        "description": "Standard Store API context token identifying the customer session. When provided, MCP tools operate in the context of that customer. Same semantics as all other Store API endpoints.",
                         "schema": {
                             "type": "string"
                         }
@@ -33,7 +33,7 @@
                 ],
                 "requestBody": {
                     "required": true,
-                    "description": "A JSON-RPC 2.0 request or batch.",
+                    "description": "A JSON-RPC 2.0 request object. Omit `id` for notifications (no response expected).",
                     "content": {
                         "application\/json": {
                             "schema": {
@@ -45,6 +45,7 @@
                                         "enum": ["2.0"]
                                     },
                                     "id": {
+                                        "description": "Request identifier. Omit or set to null for notifications (fire-and-forget). Present for requests that expect a response.",
                                         "oneOf": [
                                             {"type": "string"},
                                             {"type": "integer"},
@@ -53,10 +54,21 @@
                                     },
                                     "method": {
                                         "type": "string",
-                                        "example": "tools\/call"
+                                        "description": "MCP method name. Common values: initialize, tools/list, tools/call, resources/list, resources/read, prompts/list, prompts/get, ping.",
+                                        "examples": [
+                                            "initialize",
+                                            "tools/list",
+                                            "tools/call",
+                                            "resources/list",
+                                            "resources/read",
+                                            "prompts/list",
+                                            "prompts/get",
+                                            "ping"
+                                        ]
                                     },
                                     "params": {
                                         "type": "object",
+                                        "description": "Method-specific parameters. Shape depends on the method: tools/call expects {name, arguments}, resources/read expects {uri}, initialize expects {protocolVersion, capabilities, clientInfo}, etc.",
                                         "additionalProperties": true
                                     }
                                 }
@@ -66,11 +78,12 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "JSON-RPC response or Server-Sent Events stream for long-running operations.",
+                        "description": "JSON-RPC response or Server-Sent Events stream for streaming responses. Contains either a `result` (success) or an `error` (failure), never both.",
                         "content": {
                             "application\/json": {
                                 "schema": {
                                     "type": "object",
+                                    "required": ["jsonrpc", "id"],
                                     "properties": {
                                         "jsonrpc": {
                                             "type": "string",
@@ -82,19 +95,33 @@
                                                 {"type": "integer"},
                                                 {"type": "null"}
                                             ]
-                                        },
-                                        "result": {
-                                            "type": "object",
-                                            "additionalProperties": true
-                                        },
-                                        "error": {
-                                            "type": "object",
+                                        }
+                                    },
+                                    "oneOf": [
+                                        {
+                                            "required": ["result"],
                                             "properties": {
-                                                "code": {"type": "integer"},
-                                                "message": {"type": "string"}
+                                                "result": {
+                                                    "type": "object",
+                                                    "description": "Method-specific result payload. Shape depends on the requested method.",
+                                                    "additionalProperties": true
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "required": ["error"],
+                                            "properties": {
+                                                "error": {
+                                                    "type": "object",
+                                                    "required": ["code", "message"],
+                                                    "properties": {
+                                                        "code": {"type": "integer"},
+                                                        "message": {"type": "string"}
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
+                                    ]
                                 }
                             },
                             "text\/event-stream": {
@@ -124,13 +151,14 @@
                     "Experimental"
                 ],
                 "summary": "MCP SSE stream (Store API)",
-                "description": "Opens a Server-Sent Events stream for receiving server-initiated MCP messages. Used by MCP clients that support the SSE transport variant. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Opens a Server-Sent Events stream for receiving server-initiated MCP messages. The first request (without `mcp-session-id`) establishes a new session; subsequent requests resume an existing session. Experimental API, not part of our backwards compatibility promise.",
                 "operationId": "storeApiMcpGet",
                 "parameters": [
                     {
                         "name": "mcp-session-id",
                         "in": "header",
                         "required": false,
+                        "description": "Session ID from a previous `initialize` response. Omit on first connection to create a new session; include to resume an existing session.",
                         "schema": {
                             "type": "string"
                         }
@@ -163,13 +191,14 @@
                     "Experimental"
                 ],
                 "summary": "Close MCP session (Store API)",
-                "description": "Terminates an active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Terminates the active MCP session identified by the `mcp-session-id` header. Experimental API, not part of our backwards compatibility promise.",
                 "operationId": "storeApiMcpDelete",
                 "parameters": [
                     {
                         "name": "mcp-session-id",
                         "in": "header",
                         "required": true,
+                        "description": "Session ID of the session to close. Obtained from the `mcp-session-id` response header of the `initialize` request.",
                         "schema": {
                             "type": "string"
                         }
@@ -195,7 +224,7 @@
                     "Experimental"
                 ],
                 "summary": "MCP CORS preflight (Store API)",
-                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Handles CORS preflight requests for the Store API MCP endpoint. Experimental API, not part of our backwards compatibility promise.",
                 "operationId": "storeApiMcpOptions",
                 "responses": {
                     "204": {

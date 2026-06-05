@@ -28,10 +28,13 @@ class StoreApiMcpServerControllerTest extends TestCase
 {
     private RateLimiter&MockObject $rateLimiter;
 
+    private Psr17Factory $psr17;
+
     protected function setUp(): void
     {
         $_SERVER['MCP_SERVER'] = '1';
         $this->rateLimiter = $this->createMock(RateLimiter::class);
+        $this->psr17 = new Psr17Factory();
     }
 
     protected function tearDown(): void
@@ -60,7 +63,7 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $response = $controller->handle($sfRequest);
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testHandleReturnsNotFoundWhenFeatureFlagIsInactive(): void
@@ -96,7 +99,7 @@ class StoreApiMcpServerControllerTest extends TestCase
     {
         $this->rateLimiter
             ->method('ensureAccepted')
-            ->willThrowException(new RateLimitExceededException(time() + 10));
+            ->willThrowException(new RateLimitExceededException(time() + 60));
 
         $controller = $this->buildController(new ServerRequest('GET', '/store-api/_mcp'));
 
@@ -110,7 +113,6 @@ class StoreApiMcpServerControllerTest extends TestCase
         ?HttpFoundationFactoryInterface $httpFoundationFactory = null,
         ?Server $server = null,
     ): StoreApiMcpServerController {
-        $psr17 = new Psr17Factory();
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
@@ -118,8 +120,8 @@ class StoreApiMcpServerControllerTest extends TestCase
             $server ?? Server::builder()->build(),
             $httpMessageFactory,
             $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            $psr17,
-            $psr17,
+            $this->psr17,
+            $this->psr17,
             $this->rateLimiter,
         );
     }

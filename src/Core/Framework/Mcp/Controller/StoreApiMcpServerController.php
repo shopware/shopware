@@ -33,6 +33,9 @@ use Symfony\Component\Routing\Attribute\Route;
  * the Store API is intentionally open: any authenticated sales-channel client
  * can access all registered Store API MCP capabilities. Fine-grained access
  * control at the sales-channel level is a deliberate future extension point.
+ *
+ * @todo Browser-based MCP clients need the `mcp-session-id` response header
+ *       exposed via CORS. The default CorsListener does not include it yet.
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]

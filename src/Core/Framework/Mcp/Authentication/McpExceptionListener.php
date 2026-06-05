@@ -24,15 +24,14 @@ use Symfony\Component\HttpKernel\KernelEvents;
 #[Package('framework')]
 class McpExceptionListener implements EventSubscriberInterface
 {
+    // Not covered by the MCP SDK's Error constants — defined here for clarity.
+    public const CODE_UNAUTHORIZED = -32001;
+    public const CODE_RATE_LIMITED = -32029;
     private const MCP_ROUTE_NAME = 'api.mcp.endpoint';
     private const STORE_API_MCP_ROUTE_NAME = 'store-api.mcp.endpoint';
 
     // Must run before Symfony's default exception listener (priority 0) so we intercept before an HTML error page is rendered.
     private const PRIORITY = 10;
-
-    // Not covered by the MCP SDK's Error constants — defined here for clarity.
-    private const CODE_UNAUTHORIZED = -32001;
-    private const CODE_RATE_LIMITED = -32029;
 
     /**
      * Some MCP clients (e.g. Cursor) fall back to POST {origin}/register when the primary

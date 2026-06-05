@@ -123,29 +123,7 @@ class McpAllowlistProvider
             ['key' => $accessKey],
         );
 
-        if (!\is_string($json) || $json === '') {
-            return $this->unrestricted();
-        }
-
-        try {
-            $allowlist = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->unrestricted();
-        }
-
-        if (!\is_array($allowlist)) {
-            return $this->unrestricted();
-        }
-
-        $tools = $this->extractStringList($allowlist, self::TOOLS);
-        $resources = $this->extractStringList($allowlist, self::RESOURCES);
-        $prompts = $this->extractStringList($allowlist, self::PROMPTS);
-
-        return [
-            self::TOOLS => $tools !== null ? $this->expandWithDependencies($tools) : null,
-            self::RESOURCES => $resources,
-            self::PROMPTS => $prompts,
-        ];
+        return $this->fromAllowlist(McpAllowlist::fromJson(\is_string($json) ? $json : null));
     }
 
     /**
@@ -163,31 +141,7 @@ class McpAllowlistProvider
             return $this->unrestricted();
         }
 
-        $json = $row['mcp_allowlist'];
-
-        if (!\is_string($json) || $json === '') {
-            return $this->unrestricted();
-        }
-
-        try {
-            $allowlist = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return $this->unrestricted();
-        }
-
-        if (!\is_array($allowlist)) {
-            return $this->unrestricted();
-        }
-
-        $tools = $this->extractStringList($allowlist, self::TOOLS);
-        $resources = $this->extractStringList($allowlist, self::RESOURCES);
-        $prompts = $this->extractStringList($allowlist, self::PROMPTS);
-
-        return [
-            self::TOOLS => $tools !== null ? $this->expandWithDependencies($tools) : null,
-            self::RESOURCES => $resources,
-            self::PROMPTS => $prompts,
-        ];
+        return $this->fromAllowlist(McpAllowlist::fromJson(\is_string($row['mcp_allowlist']) ? $row['mcp_allowlist'] : null));
     }
 
     /**
@@ -216,21 +170,15 @@ class McpAllowlistProvider
     }
 
     /**
-     * @param array<string, mixed> $data
-     *
-     * @return list<string>|null null when key is absent or null (unrestricted); list when key is an array
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
      */
-    private function extractStringList(array $data, string $key): ?array
+    private function fromAllowlist(McpAllowlist $allowlist): array
     {
-        if (!\array_key_exists($key, $data) || $data[$key] === null) {
-            return null;
-        }
-
-        if (!\is_array($data[$key])) {
-            return null;
-        }
-
-        return array_values(array_filter($data[$key], 'is_string'));
+        return [
+            self::TOOLS => $allowlist->tools !== null ? $this->expandWithDependencies($allowlist->tools) : null,
+            self::RESOURCES => $allowlist->resources,
+            self::PROMPTS => $allowlist->prompts,
+        ];
     }
 
     /**

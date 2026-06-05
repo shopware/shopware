@@ -357,10 +357,10 @@ shopware:
                 policy: 'time_backoff'
                 reset: '1 hours'
                 limits:
-                    - limit: 60
+                    - limit: 300
                       interval: '60 seconds'
-                    - limit: 120
-                      interval: '120 seconds'
+                    - limit: 1000
+                      interval: '10 minutes'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'

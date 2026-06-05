@@ -2,18 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
 #[Package('framework')]
-#[Group('store-api')]
 class StoreApiMcpCapabilityDiscoveryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -23,18 +22,6 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
     {
         Feature::skipTestIfInActive('MCP_SERVER', $this);
 
-        $tools = $this->listTools();
-
-        static::assertContains('shopware-store-api-context', $tools);
-        static::assertNotContains('shopware-entity-search', $tools);
-        static::assertNotContains('shopware-theme-config', $tools);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function listTools(): array
-    {
         $browser = $this->createSalesChannelBrowser();
 
         $browser->request(
@@ -55,7 +42,9 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $sessionId = $this->extractSessionId($browser->getResponse()->headers->all());
+        $sessionHeaders = $browser->getResponse()->headers->all();
+        $sessionHeader = $sessionHeaders['mcp-session-id'] ?? $sessionHeaders['Mcp-Session-Id'] ?? null;
+        $sessionId = \is_string($sessionHeader[0] ?? null) ? $sessionHeader[0] : null;
 
         $browser->request(
             'POST',
@@ -74,7 +63,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        static::assertSame(200, $browser->getResponse()->getStatusCode(), 'Store API MCP endpoint returned non-200 status');
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), 'Store API MCP endpoint returned non-200 status');
 
         $content = $browser->getResponse()->getContent();
         static::assertNotFalse($content, 'Store API MCP response was empty');
@@ -83,17 +72,10 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         static::assertIsArray($response);
         static::assertArrayHasKey('result', $response, 'Store API MCP response missing result: ' . $content);
 
-        return array_column($response['result']['tools'] ?? [], 'name');
-    }
+        $tools = array_column($response['result']['tools'] ?? [], 'name');
 
-    /**
-     * @param array<string, list<string|null>> $headers
-     */
-    private function extractSessionId(array $headers): ?string
-    {
-        $sessionHeader = $headers['mcp-session-id'] ?? $headers['Mcp-Session-Id'] ?? null;
-        $value = $sessionHeader[0] ?? null;
-
-        return \is_string($value) ? $value : null;
+        static::assertContains('shopware-store-api-context', $tools);
+        static::assertNotContains('shopware-entity-search', $tools);
+        static::assertNotContains('shopware-theme-config', $tools);
     }
 }

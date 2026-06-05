@@ -13,12 +13,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Util\Json;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -45,17 +45,20 @@ class DebugMcpCommand extends Command
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addArgument('name', InputArgument::OPTIONAL, 'Show full details for a specific capability by name or URI');
-        $this->addOption('integration', null, InputOption::VALUE_REQUIRED, 'Filter to tools allowed for this integration access key (SWIA...)');
-        $this->addOption('tools', null, InputOption::VALUE_NONE, 'Limit output to tools only');
-        $this->addOption('prompts', null, InputOption::VALUE_NONE, 'Limit output to prompts only');
-        $this->addOption('resources', null, InputOption::VALUE_NONE, 'Limit output to resources only');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    protected function execute(
+        InputInterface $input,
+        OutputInterface $output,
+        #[Argument(description: 'Show full details for a specific capability by name or URI')]
+        ?string $name = null,
+        #[Option(description: 'Filter to tools allowed for this integration access key (SWIA...)')]
+        ?string $integration = null,
+        #[Option(description: 'Limit output to tools only')]
+        bool $tools = false,
+        #[Option(description: 'Limit output to prompts only')]
+        bool $prompts = false,
+        #[Option(description: 'Limit output to resources only')]
+        bool $resources = false,
+    ): int {
         $io = new SymfonyStyle($input, $output);
 
         if (!Feature::isActive('MCP_SERVER') || $this->builder === null || $this->registry === null) {
@@ -66,35 +69,30 @@ class DebugMcpCommand extends Command
 
         $this->builder->build();
 
-        $accessKey = $input->getOption('integration');
         $toolsAllowlist = null;
-        if (\is_string($accessKey) && $accessKey !== '') {
-            $allowlist = $this->allowlistProvider->forAccessKey($accessKey);
+        if ($integration !== null && $integration !== '') {
+            $allowlist = $this->allowlistProvider->forAccessKey($integration);
             $toolsAllowlist = $allowlist['tools'];
             if ($toolsAllowlist === null) {
-                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $accessKey));
+                $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
             } else {
-                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $accessKey, \count($toolsAllowlist)));
+                $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $integration, \count($toolsAllowlist)));
             }
         }
 
-        $name = $input->getArgument('name');
         if ($name !== null) {
             return $this->renderDetail($io, $name);
         }
 
-        $filterTools = (bool) $input->getOption('tools');
-        $filterPrompts = (bool) $input->getOption('prompts');
-        $filterResources = (bool) $input->getOption('resources');
-        $noFilter = !$filterTools && !$filterPrompts && !$filterResources;
+        $noFilter = !$tools && !$prompts && !$resources;
 
-        if ($filterTools || $noFilter) {
+        if ($tools || $noFilter) {
             $this->renderTools($io, $toolsAllowlist);
         }
-        if ($filterPrompts || $noFilter) {
+        if ($prompts || $noFilter) {
             $this->renderPrompts($io);
         }
-        if ($filterResources || $noFilter) {
+        if ($resources || $noFilter) {
             $this->renderResources($io);
             $this->renderResourceTemplates($io);
         }

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -33,31 +34,41 @@ class StoreApiMcpServerBuilderCompilerPass implements CompilerPassInterface
     {
         $builderDef = $container->getDefinition('mcp.store_api.server.builder');
 
-        foreach (array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.tool')) as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            $class = $definition->getClass() ?? $serviceId;
-            $toolInfo = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'title', 'description']);
+        $this->registerTools($container, $builderDef);
+        $this->registerPrompts($container, $builderDef);
+        $this->registerResources($container, $builderDef);
+    }
 
-            if ($toolInfo !== null) {
-                $builderDef->addMethodCall('addTool', [$class, $toolInfo['name'], $toolInfo['title'], $toolInfo['description']]);
+    private function registerTools(ContainerBuilder $container, Definition $builderDef): void
+    {
+        foreach (array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.tool')) as $serviceId) {
+            $class = $container->getDefinition($serviceId)->getClass() ?? $serviceId;
+            $info = McpToolAttributeReader::resolveInfo($class, McpTool::class, ['name', 'title', 'description']);
+
+            if ($info !== null) {
+                $builderDef->addMethodCall('addTool', [$class, $info['name'], $info['title'], $info['description']]);
             }
         }
+    }
 
+    private function registerPrompts(ContainerBuilder $container, Definition $builderDef): void
+    {
         foreach (array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.prompt')) as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            $class = $definition->getClass() ?? $serviceId;
-            $promptInfo = McpToolAttributeReader::resolveInfo($class, McpPrompt::class, ['name', 'title', 'description']);
+            $class = $container->getDefinition($serviceId)->getClass() ?? $serviceId;
+            $info = McpToolAttributeReader::resolveInfo($class, McpPrompt::class, ['name', 'title', 'description']);
 
-            $builderDef->addMethodCall('addPrompt', [$class, $promptInfo ? $promptInfo['name'] : null, $promptInfo ? $promptInfo['title'] : null, $promptInfo ? $promptInfo['description'] : null]);
+            $builderDef->addMethodCall('addPrompt', [$class, $info ? $info['name'] : null, $info ? $info['title'] : null, $info ? $info['description'] : null]);
         }
+    }
 
+    private function registerResources(ContainerBuilder $container, Definition $builderDef): void
+    {
         foreach (array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.resource')) as $serviceId) {
-            $definition = $container->getDefinition($serviceId);
-            $class = $definition->getClass() ?? $serviceId;
-            $resourceInfo = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
+            $class = $container->getDefinition($serviceId)->getClass() ?? $serviceId;
+            $info = McpToolAttributeReader::resolveInfo($class, McpResource::class, ['uri', 'name', 'description', 'mimeType']);
 
-            if ($resourceInfo !== null) {
-                $builderDef->addMethodCall('addResource', [$class, $resourceInfo['uri'], $resourceInfo['name'], $resourceInfo['description'], $resourceInfo['mimeType']]);
+            if ($info !== null) {
+                $builderDef->addMethodCall('addResource', [$class, $info['uri'], $info['name'], $info['description'], $info['mimeType']]);
             }
         }
     }

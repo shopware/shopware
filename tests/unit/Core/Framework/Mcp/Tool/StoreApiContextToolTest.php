@@ -22,14 +22,14 @@ class StoreApiContextToolTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setId('customer-id');
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getSalesChannelId')->willReturn('sales-channel-id');
         $salesChannelContext->method('getToken')->willReturn('context-token');
         $salesChannelContext->method('getLanguageId')->willReturn('language-id');
         $salesChannelContext->method('getCurrencyId')->willReturn('currency-id');
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
-        $contextProvider = $this->createMock(StoreApiMcpContextProvider::class);
+        $contextProvider = static::createStub(StoreApiMcpContextProvider::class);
         $contextProvider->method('getSalesChannelContext')->willReturn($salesChannelContext);
 
         $tool = new StoreApiContextTool($contextProvider);
@@ -46,7 +46,7 @@ class StoreApiContextToolTest extends TestCase
 
     public function testReturnsErrorWithoutStoreApiContext(): void
     {
-        $contextProvider = $this->createMock(StoreApiMcpContextProvider::class);
+        $contextProvider = static::createStub(StoreApiMcpContextProvider::class);
         $contextProvider->method('getSalesChannelContext')->willReturn(null);
 
         $tool = new StoreApiContextTool($contextProvider);

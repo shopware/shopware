@@ -20,7 +20,7 @@ class TranslationKeyFilter extends AbstractFilter implements SnippetFilterInterf
      */
     public function filter(array $snippets, $requestFilterValue): array
     {
-        if (!$requestFilterValue || !\is_array($requestFilterValue)) {
+        if (!\is_array($requestFilterValue) || $requestFilterValue === []) {
             return $snippets;
         }
 

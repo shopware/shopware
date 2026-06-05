@@ -110,7 +110,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (!$ruleIds) {
+        if ($ruleIds === []) {
             return;
         }
 

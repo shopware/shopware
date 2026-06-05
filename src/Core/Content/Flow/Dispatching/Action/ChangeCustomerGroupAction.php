@@ -57,7 +57,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
         }
 
         $customerGroupId = $config['customerGroupId'];
-        if (!$customerGroupId) {
+        if ($customerGroupId === null || $customerGroupId === '') {
             return;
         }
 

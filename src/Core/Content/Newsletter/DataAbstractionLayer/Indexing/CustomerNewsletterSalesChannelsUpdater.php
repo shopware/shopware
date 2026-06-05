@@ -124,7 +124,7 @@ SQL;
 
         $customerIds = RetryableQuery::retryable($this->connection, fn (): array => $this->connection->fetchFirstColumn($sql));
 
-        if (!$customerIds) {
+        if ($customerIds === []) {
             return;
         }
 

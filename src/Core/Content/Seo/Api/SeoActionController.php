@@ -123,7 +123,7 @@ class SeoActionController extends AbstractController
         $repository = $this->getRepository($config);
 
         $criteria = new Criteria();
-        if ($fk) {
+        if ($fk !== null && $fk !== '') {
             $criteria = new Criteria([$fk]);
         }
         $criteria->setLimit(1);

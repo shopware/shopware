@@ -121,7 +121,7 @@ class MediaFolderIndexer extends EntityIndexer
                 ['id' => Uuid::fromHexToBytes($id)]
             );
 
-            if (!$folder) {
+            if ($folder === false) {
                 continue;
             }
 

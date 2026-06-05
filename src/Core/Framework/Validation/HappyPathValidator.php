@@ -110,7 +110,7 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        if (!$constraint->normalizer) {
+        if ($constraint->normalizer === null) {
             return $value;
         }
 

@@ -200,7 +200,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         /** @var TermsResult $assignedChildren */
         $assignedChildren = $aggregates->get('assigned_children');
 
-        if (($directlyAssigned->getKeys()) || ($assignedChildren->getKeys())) {
+        if ($directlyAssigned->getKeys() !== [] || $assignedChildren->getKeys() !== []) {
             throw StoreException::extensionThemeStillInUse($id);
         }
     }

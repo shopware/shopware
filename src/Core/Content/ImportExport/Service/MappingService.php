@@ -53,7 +53,7 @@ class MappingService extends AbstractMappingService
             throw ImportExportException::profileNotFound($profileId);
         }
         $mappings = $profile->getMapping();
-        if (!$mappings) {
+        if ($mappings === null || $mappings === []) {
             throw ImportExportException::profileWithoutMappings($profileId);
         }
 

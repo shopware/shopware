@@ -61,7 +61,7 @@ class EntityGenerator implements ScaffoldingGenerator
         StubCollection $stubCollection
     ): void {
         if (!$configuration->hasOption(self::OPTION_NAME)
-            || !$configuration->getOption(self::OPTION_NAME)
+            || $configuration->getOption(self::OPTION_NAME) === []
             || !\is_array($configuration->getOption(self::OPTION_NAME))
         ) {
             return;

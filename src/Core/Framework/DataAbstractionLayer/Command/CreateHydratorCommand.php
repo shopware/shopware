@@ -84,7 +84,7 @@ class CreateHydratorCommand extends Command
         $services = [];
 
         $whitelist = $input->getArgument('whitelist');
-        if (!$whitelist) {
+        if ($whitelist === []) {
             $whitelist = [];
 
             $startsWith = ['product', 'category', 'property'];

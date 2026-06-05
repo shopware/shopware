@@ -177,7 +177,7 @@ class ImportEntityCommand extends Command
     {
         $technicalName = $input->getOption('profile-technical-name');
 
-        if ($technicalName) {
+        if ($technicalName !== null && $technicalName !== '') {
             return $this->profileByTechnicalName($technicalName, $context);
         }
 

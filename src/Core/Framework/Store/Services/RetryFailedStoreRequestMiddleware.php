@@ -13,12 +13,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class RetryFailedStoreRequestMiddleware implements MiddlewareInterface
 {
-    private const NUMBER_OF_RETRIES_ON_503 = 3;
+    private const NUMBER_OF_RETRIES_ON_SERVER_ERROR = 3;
 
     public function __invoke(callable $handler): callable
     {
         $decider = function (int $retries, RequestInterface $request, ?ResponseInterface $response = null): bool {
-            return $retries < self::NUMBER_OF_RETRIES_ON_503 && $response !== null && $response->getStatusCode() === 503;
+            $statusCode = $response?->getStatusCode();
+
+            if ($statusCode === null) {
+                return false;
+            }
+
+            return $retries < self::NUMBER_OF_RETRIES_ON_SERVER_ERROR && $statusCode >= 500 && $statusCode < 600;
         };
 
         $delay = function (int $retries, ?ResponseInterface $response = null, ?RequestInterface $request = null): int {

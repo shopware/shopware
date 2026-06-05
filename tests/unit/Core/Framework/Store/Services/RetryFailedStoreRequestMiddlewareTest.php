@@ -17,11 +17,11 @@ use Shopware\Core\Framework\Store\Services\RetryFailedStoreRequestMiddleware;
 #[CoversClass(RetryFailedStoreRequestMiddleware::class)]
 class RetryFailedStoreRequestMiddlewareTest extends TestCase
 {
-    public function testRetryFor503(): void
+    public function testRetryForServerError(): void
     {
         $requestCount = 0;
         $client = $this->createClient([
-            new Response(503),
+            new Response(500),
             new Response(200),
         ], true, $requestCount);
 
@@ -29,6 +29,20 @@ class RetryFailedStoreRequestMiddlewareTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame(2, $requestCount);
+    }
+
+    public function testDoesNotRetryForClientError(): void
+    {
+        $requestCount = 0;
+        $client = $this->createClient([
+            new Response(400),
+            new Response(200),
+        ], true, $requestCount);
+
+        $response = $client->request('GET', '/', ['http_errors' => false]);
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame(1, $requestCount);
     }
 
     public function testDoesNotRetryWithoutMiddleware(): void
@@ -45,19 +59,19 @@ class RetryFailedStoreRequestMiddlewareTest extends TestCase
         static::assertSame(1, $requestCount);
     }
 
-    public function testReturns503AfterRetryLimitIsReached(): void
+    public function testReturnsServerErrorAfterRetryLimitIsReached(): void
     {
         $requestCount = 0;
         $client = $this->createClient([
-            new Response(503),
-            new Response(503),
-            new Response(503),
-            new Response(503),
+            new Response(502),
+            new Response(502),
+            new Response(502),
+            new Response(502),
         ], true, $requestCount);
 
         $response = $client->request('GET', '/', ['http_errors' => false]);
 
-        static::assertSame(503, $response->getStatusCode());
+        static::assertSame(502, $response->getStatusCode());
         static::assertSame(4, $requestCount);
     }
 

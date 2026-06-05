@@ -4,6 +4,9 @@ namespace Shopware\Core\System\SystemConfig\DTO;
 
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SystemConfigElement
 {

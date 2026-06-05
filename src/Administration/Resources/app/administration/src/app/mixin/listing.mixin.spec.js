@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -364,6 +366,20 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         });
 
         expect(wrapper.vm.freshSearchTerm).toBe(true);
+    });
+
+    it('should set freshSearchTerm to false when "term" is cleared', async () => {
+        await wrapper.setData({
+            term: 'test',
+        });
+
+        expect(wrapper.vm.freshSearchTerm).toBe(true);
+
+        await wrapper.setData({
+            term: '',
+        });
+
+        expect(wrapper.vm.freshSearchTerm).toBe(false);
     });
 
     it('should set freshSearchTerm to false when "sortBy" changes', async () => {

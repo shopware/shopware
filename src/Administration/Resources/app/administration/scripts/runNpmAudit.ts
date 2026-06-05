@@ -19,5 +19,7 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
 runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-848j-6mx2-7j84', // elliptic ECDSA flaw, low severity, devDep only (vite-plugin-node-polyfills/crypto-browserify), fix requires semver major
+        'https://github.com/advisories/GHSA-pjwm-pj3p-43mv', // axios v0 proxy bypass, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
+        'https://github.com/advisories/GHSA-898c-q2cr-xwhg', // axios v0 prototype pollution gadgets, legacy admin HTTP client kept for extension compatibility until v6.8 axios v1 migration
     ],
 });

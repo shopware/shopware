@@ -54,6 +54,22 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-searchable-content', () => {
+    it('should keep parent name disabled in default configs', async () => {
+        const wrapper = await createWrapper();
+
+        const parentNameConfig = wrapper.vm.fieldConfigs.find(({ value }) => value === 'parent.name');
+
+        expect(parentNameConfig).toEqual(
+            expect.objectContaining({
+                defaultConfigs: {
+                    searchable: false,
+                    ranking: 560,
+                    tokenize: true,
+                },
+            }),
+        );
+    });
+
     it('Should be show example modal when the link was clicked', async () => {
         const wrapper = await createWrapper([
             'product_search_config.viewer',

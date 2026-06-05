@@ -54,6 +54,7 @@ $sw-tooltip-border-color-light: $color-gray-300;
     }
 
     &.sw-tooltip--light {
+        pointer-events: none;
         color: var(--color-text-inverse-default);
         font-size: var(--font-size-2xs);
         font-weight: var(--font-weight-regular);

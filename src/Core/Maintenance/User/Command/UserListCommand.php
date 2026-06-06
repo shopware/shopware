@@ -3,9 +3,9 @@
 namespace Shopware\Core\Maintenance\User\Command;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -61,7 +61,7 @@ class UserListCommand extends Command
             $input->setOption('format', self::FORMAT_JSON);
         }
 
-        $format = $this->resolveFormat($input, $io, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
         if ($format === null) {
             return self::INVALID;
         }

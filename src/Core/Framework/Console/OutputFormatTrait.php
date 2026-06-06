@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Adapter\Console;
+namespace Shopware\Core\Framework\Console;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Shared handling for the standardized `--format` output option used by list-style commands.
@@ -39,11 +41,11 @@ trait OutputFormatTrait
      *
      * @param list<string> $formats the output formats this command supports
      */
-    protected function resolveFormat(InputInterface $input, ShopwareStyle $io, array $formats): ?string
+    protected function resolveFormat(InputInterface $input, OutputInterface $output, array $formats): ?string
     {
         $format = $input->getOption('format');
         if (!\in_array($format, $formats, true)) {
-            $io->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', $formats)));
+            (new SymfonyStyle($input, $output))->error(\sprintf('Invalid format "%s". Allowed formats: %s', (string) $format, implode(', ', $formats)));
 
             return null;
         }

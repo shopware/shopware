@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
-use Shopware\Core\Framework\Adapter\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -83,7 +83,7 @@ class SalesChannelListCommand extends Command
             $input->setOption('format', $deprecatedOutput);
         }
 
-        $format = $this->resolveFormat($input, $io, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
         if ($format === null) {
             return self::INVALID;
         }

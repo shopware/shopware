@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\Adapter\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -64,7 +64,7 @@ class DataAbstractionLayerValidateCommand extends Command
             $input->setOption('format', self::FORMAT_JSON);
         }
 
-        $format = $this->resolveFormat($input, $io, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
         if ($format === null) {
             return self::INVALID;
         }

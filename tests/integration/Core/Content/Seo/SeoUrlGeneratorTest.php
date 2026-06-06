@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
@@ -37,7 +36,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(SeoUrlGenerator::class)]
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -139,26 +137,24 @@ class SeoUrlGeneratorTest extends TestCase
     }
 
     /**
-     * @return list<array{template: string, count: int, pathInfo: string}>
+     * @return iterable<string, array{template: string, count: int, pathInfo: string}>
      */
-    public static function templateDataProvider(): array
+    public static function templateDataProvider(): iterable
     {
-        return [
-            [
-                'template' => '{{ id }}',
-                'count' => 1,
-                'pathInfo' => 'id',
-            ],
-            [
-                'template' => 'STATIC',
-                'count' => 1,
-                'pathInfo' => 'STATIC',
-            ],
-            [
-                'template' => '',
-                'count' => 0,
-                'pathInfo' => '',
-            ],
+        yield 'dynamic template renders one SEO URL' => [
+            'template' => '{{ id }}',
+            'count' => 1,
+            'pathInfo' => 'id',
+        ];
+        yield 'static template renders one SEO URL' => [
+            'template' => 'STATIC',
+            'count' => 1,
+            'pathInfo' => 'STATIC',
+        ];
+        yield 'empty template renders no SEO URLs' => [
+            'template' => '',
+            'count' => 0,
+            'pathInfo' => '',
         ];
     }
 

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
@@ -21,8 +20,6 @@ use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
-use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
-use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
@@ -71,8 +68,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('The document with id "documentId" is invalid or could not be found.');
+        $this->expectExceptionObject(DocumentException::documentNotFound('documentId'));
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -101,8 +97,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('The order with id "test" is invalid or could not be found.');
+        $this->expectExceptionObject(DocumentException::orderNotFound('test'));
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -130,8 +125,7 @@ class DocumentRouteTest extends TestCase
             $fileRenderersMock,
         );
 
-        $this->expectException(CustomerNotLoggedInException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, new Request(), $this->createMock(SalesChannelContext::class));
     }
@@ -171,8 +165,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        $this->expectException(CustomerNotLoggedInException::class);
-        $this->expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -223,8 +216,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        $this->expectException(WrongGuestCredentialsException::class);
-        $this->expectExceptionMessage('Wrong credentials for guest authentication');
+        $this->expectExceptionObject(CustomerException::wrongGuestCredentials());
 
         $route->download($document->getId(), $request, $context);
     }
@@ -267,8 +259,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn(null);
 
-        $this->expectException(GuestNotAuthenticatedException::class);
-        $this->expectExceptionMessage('Guest not authenticated.');
+        $this->expectExceptionObject(CustomerException::guestNotAuthenticated());
 
         $route->download($document->getId(), $request, $context);
     }
@@ -316,8 +307,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerNotLoggedInException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
@@ -333,6 +323,7 @@ class DocumentRouteTest extends TestCase
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setId(Uuid::randomHex());
         $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customer->getId());
         $orderCustomer->setEmail('email');
 
         $order = new OrderEntity();
@@ -409,8 +400,7 @@ class DocumentRouteTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
 
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }

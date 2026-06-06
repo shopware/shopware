@@ -7,7 +7,6 @@ use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Errors\ValidationError;
 use Opis\JsonSchema\ValidationResult;
 use Opis\JsonSchema\Validator;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
@@ -30,7 +29,6 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 /**
  * @internal
  */
-#[CoversClass(Executor::class)]
 #[Package('framework')]
 class ExecutorTest extends TestCase
 {
@@ -336,8 +334,7 @@ class ExecutorTest extends TestCase
         static::assertNotNull($this->app->getAppSecret());
         $this->signResponse($this->app->getAppSecret());
 
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Changes in your system were detected that suggest a change of the shop ID.');
+        $this->expectExceptionObject(AppException::actionButtonProcessException($action->getActionId(), 'Changes in your system were detected that suggest a change of the shop ID.'));
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

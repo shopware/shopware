@@ -20,6 +20,11 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1743064966, (new Migration1743064966CartConfigSubtotalTaxColumn())->getCreationTimestamp());
+    }
+
     #[DataProvider('migrationData')]
     public function testMigration(string $key): void
     {
@@ -33,6 +38,7 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
 
         $newConfiguration = $this->getConditionValues($key);
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => true], $newConfiguration[$id]);
@@ -47,6 +53,7 @@ class Migration1743064966CartConfigSubtotalTaxColumnTest extends TestCase
 
         $newConfiguration = $this->getConditionValues($key);
         $id = array_key_first($newConfiguration);
+        static::assertNotNull($id);
 
         static::assertCount(1, $newConfiguration);
         static::assertSame(['_value' => false], $newConfiguration[$id]);

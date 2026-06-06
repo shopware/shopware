@@ -17,6 +17,8 @@ use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSea
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -118,11 +120,11 @@ class ProductListingLoader
 
         $fields = array_map(static fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
-        if (\in_array('options.id', $fields, true)) {
+        if (\in_array('options.id', $fields, true) || \in_array('properties.id', $fields, true)) {
             return true;
         }
 
-        return \in_array('optionIds', $fields, true);
+        return \in_array('optionIds', $fields, true) || \in_array('propertyIds', $fields, true);
     }
 
     private function addGrouping(Criteria $criteria): void
@@ -264,6 +266,19 @@ class ProductListingLoader
     {
         $this->addGrouping($criteria);
 
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($isSearchRoute && $this->systemConfigService->getBool(
+            'core.listing.findBestVariant',
+            $context->getSalesChannelId()
+        )) {
+            $criteria->addState(Criteria::STATE_SCORE_RANKED_GROUPING);
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('childCount', 0),
+                new EqualsFilter('childCount', null),
+            ]));
+        }
+
         if ($this->systemConfigService->getBool(
             'core.listing.hideCloseoutProductsWhenOutOfStock',
             $context->getSalesChannelId()
@@ -305,18 +320,18 @@ class ProductListingLoader
 
     private function shouldLoadPreviews(bool $hasOptionFilter, Criteria $criteria, SalesChannelContext $context): bool
     {
-        if ($hasOptionFilter === true) {
-            return false;
-        }
-
-        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
-
-        $shouldLoadPreviewsOnSearch = !$this->systemConfigService->getBool(
+        $loadPreview = !$this->systemConfigService->getBool(
             'core.listing.findBestVariant',
             $context->getSalesChannelId()
         );
 
-        if ($shouldLoadPreviewsOnSearch && $isSearchRoute) {
+        if ($hasOptionFilter === true) {
+            return $loadPreview;
+        }
+
+        $isSearchRoute = $criteria->hasState(ResolvedCriteriaProductSearchRoute::STATE, ProductSuggestRoute::STATE);
+
+        if ($loadPreview && $isSearchRoute) {
             return true;
         }
 

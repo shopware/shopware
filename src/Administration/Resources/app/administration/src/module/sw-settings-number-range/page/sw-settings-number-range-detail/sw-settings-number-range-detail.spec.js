@@ -21,6 +21,7 @@ async function createWrapper() {
                 provide: {
                     numberRangeService: {
                         previewPattern: () => Promise.resolve({ number: 1337 }),
+                        previewPatternByNumberRangeId: () => Promise.resolve({ number: 1337 }),
                     },
                     repositoryFactory: {
                         create: () => ({
@@ -39,6 +40,7 @@ async function createWrapper() {
                                     translations: [],
                                     type: {
                                         typeName: 'Delivery notes',
+                                        technicalName: 'document_delivery_note',
                                     },
                                     typeId: '72ea130130404f67a426332f7a8c7277',
                                 }),
@@ -76,7 +78,7 @@ async function createWrapper() {
                     'sw-container': true,
                     'sw-language-info': true,
                     'sw-help-text': true,
-                    'sw-multi-select': true,
+                    'sw-entity-multi-select': true,
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
                         props: ['disabled'],
@@ -96,61 +98,75 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         global.activeAclRoles = [];
     });
 
-    it('should call to numberRangeService.previewPattern when has numberRange.technicalName when get preview', async () => {
+    it('should call numberRangeService.previewPatternByNumberRangeId when number range state fields are visible', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
-        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+        wrapper.vm.numberRangeService.previewPatternByNumberRangeId = previewPatternMock;
 
         await wrapper.setData({
             numberRange: {
-                type: {
-                    technicalName: 'test',
-                },
+                id: 'number-range-id',
+                pattern: 'A{n}',
+                start: 10,
             },
         });
 
         await wrapper.vm.getPreview();
 
-        expect(previewPatternMock).toHaveBeenCalled();
+        expect(previewPatternMock).toHaveBeenCalledWith('number-range-id', 'A{n}', 10);
     });
 
-    it('should not call to numberRangeService.previewPattern when has numberRange.technicalName when get preview', async () => {
+    it('should not call numberRangeService.previewPatternByNumberRangeId when number range state fields are hidden', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
-        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+        wrapper.vm.numberRangeService.previewPatternByNumberRangeId = previewPatternMock;
 
+        await wrapper.setData({
+            numberRange: {
+                isLoading: true,
+            },
+        });
         await wrapper.vm.getPreview();
 
         expect(previewPatternMock).not.toHaveBeenCalled();
     });
 
-    it('should call to numberRangeService.previewPattern when has numberRange.technicalName when get state', async () => {
+    it('should call numberRangeService.previewPatternByNumberRangeId when getting current state', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
-        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+        wrapper.vm.numberRangeService.previewPatternByNumberRangeId = previewPatternMock;
 
         await wrapper.setData({
             numberRange: {
-                type: {
-                    technicalName: 'test',
-                },
+                id: 'number-range-id',
+                start: 1,
             },
         });
 
         await wrapper.vm.getState();
 
-        expect(previewPatternMock).toHaveBeenCalled();
+        expect(previewPatternMock).toHaveBeenCalledWith('number-range-id', '{n}', 0);
+        expect(wrapper.vm.state).toBe(41);
     });
 
-    it('should not call to numberRangeService.previewPattern when has numberRange.technicalName when get state', async () => {
+    it('should not call numberRangeService.previewPatternByNumberRangeId when getting hidden state', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
-        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+        wrapper.vm.numberRangeService.previewPatternByNumberRangeId = previewPatternMock;
 
+        await wrapper.setData({
+            numberRange: {
+                isLoading: true,
+            },
+        });
         await wrapper.vm.getState();
 
         expect(previewPatternMock).not.toHaveBeenCalled();

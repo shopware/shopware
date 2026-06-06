@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -286,7 +288,7 @@ async function createWrapper() {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, value) => {
+                $t: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }

@@ -3,14 +3,20 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Service;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -19,6 +25,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class DownloadServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public const DEFAULT_STRATEGY = 'php';
 
     public function testUtf8Filename(): void
     {
@@ -37,7 +45,7 @@ class DownloadServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
-        $downloadService = new DownloadService($filesystem, $fileRepository);
+        $downloadService = $this->createDownloadService($filesystem, $fileRepository);
         $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
 
         $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
@@ -65,7 +73,7 @@ class DownloadServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
-        $downloadService = new DownloadService($filesystem, $fileRepository);
+        $downloadService = $this->createDownloadService($filesystem, $fileRepository);
         $accessToken = $downloadService->regenerateToken($context, $fileData['id']);
 
         $response = $downloadService->createFileResponse($context, $fileData['id'], $accessToken);
@@ -92,9 +100,9 @@ class DownloadServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
-        $downloadService = new DownloadService($filesystem, $fileRepository);
+        $downloadService = $this->createDownloadService($filesystem, $fileRepository);
 
-        static::expectException(InvalidFileAccessTokenException::class);
+        $this->expectException(InvalidFileAccessTokenException::class);
 
         $downloadService->createFileResponse($context, $fileData['id'], 'token');
     }
@@ -117,7 +125,7 @@ class DownloadServiceTest extends TestCase
         $context = Context::createDefaultContext();
         $fileRepository->create([$fileData], $context);
 
-        $downloadService = new DownloadService($filesystem, $fileRepository);
+        $downloadService = $this->createDownloadService($filesystem, $fileRepository);
 
         $validToken = $downloadService->regenerateToken($context, $fileData['id']);
 
@@ -133,8 +141,23 @@ class DownloadServiceTest extends TestCase
             ]
         );
 
-        static::expectException(InvalidFileAccessTokenException::class);
+        $this->expectException(InvalidFileAccessTokenException::class);
 
         $downloadService->createFileResponse($context, $fileData['id'], $validToken);
+    }
+
+    /**
+     * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
+     */
+    private function createDownloadService(Filesystem $fileSystem, EntityRepository $fileRepository): DownloadService
+    {
+        return new DownloadService(
+            $fileSystem,
+            $fileRepository,
+            $this->createMock(LoggerInterface::class),
+            self::DEFAULT_STRATEGY,
+            '',
+            new NativeClock(),
+        );
     }
 }

@@ -161,7 +161,7 @@ export default {
 
             const calcTaxes = this.sortByTaxRate(this.cartDelivery.shippingCosts.calculatedTaxes);
             const decorateCalcTaxes = calcTaxes.map((item) => {
-                return this.$tc(
+                return this.$t(
                     'sw-order.createBase.shippingCostsTax',
                     {
                         taxRate: item.taxRate,
@@ -171,7 +171,7 @@ export default {
                 );
             });
 
-            return `${this.$tc('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
+            return `${this.$t('sw-order.createBase.tax')}<br>${decorateCalcTaxes.join('<br>')}`;
         },
 
         disabledAutoPromotionVisibility: {
@@ -301,9 +301,21 @@ export default {
                 this.setCurrency(customer);
 
                 await this.updateCustomerContext();
-            } catch {
+            } catch (error) {
+                let message = this.$t('sw-order.create.messageSwitchCustomerError');
+                const errorCode = error.response?.data?.errors?.[0]?.code;
+
+                if (errorCode) {
+                    const messageKey = `global.error-codes.${errorCode}`;
+                    const translatedMessage = this.$t(messageKey);
+
+                    if (translatedMessage !== messageKey) {
+                        message = `${message}: ${translatedMessage}`;
+                    }
+                }
+
                 this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+                    message,
                 });
             } finally {
                 this.isLoadingDetail = false;
@@ -334,8 +346,8 @@ export default {
             const contextDataDefaultId = 'defaultBillingAddressId';
             const data = this.customer[contextDataKey] ? this.customer[contextDataKey] : this.customer.defaultBillingAddress;
 
-            this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddBillingAddress');
-            this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditBillingAddress');
+            this.addAddressModalTitle = this.$t('sw-order.addressSelection.modalTitleAddBillingAddress');
+            this.editAddressModalTitle = this.$t('sw-order.addressSelection.modalTitleEditBillingAddress');
             this.address = {
                 contextId,
                 contextDataKey,
@@ -353,8 +365,8 @@ export default {
                 ? this.customer[contextDataKey]
                 : this.customer.defaultShippingAddress;
 
-            this.addAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleAddShippingAddress');
-            this.editAddressModalTitle = this.$tc('sw-order.addressSelection.modalTitleEditShippingAddress');
+            this.addAddressModalTitle = this.$t('sw-order.addressSelection.modalTitleAddShippingAddress');
+            this.editAddressModalTitle = this.$t('sw-order.addressSelection.modalTitleEditShippingAddress');
             this.address = {
                 contextId,
                 contextDataKey,
@@ -513,7 +525,7 @@ export default {
 
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
                 this.promotionError = {
-                    detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                    detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                 };
             }
         },

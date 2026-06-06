@@ -15,6 +15,7 @@
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Installer\Finish\SystemLocker"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="console.command"/>
         </service>
 
@@ -80,6 +81,7 @@
         <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">
@@ -132,6 +134,7 @@
 
         <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter"/>
@@ -146,6 +149,7 @@
             <argument>%shopware.staging.mailing.disable_delivery%</argument>
             <argument>%shopware.staging.sales_channel.domain_rewrite%</argument>
             <argument>%shopware.staging.extensions.disable%</argument>
+            <argument>%shopware.staging.system_config%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -173,6 +177,12 @@
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService"/>
+
+            <tag name="kernel.event_listener"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\Staging\Handler\StagingSystemConfigHandler">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_listener"/>
         </service>

@@ -7,7 +7,7 @@ import './sw-settings-number-range-detail.scss';
 const {
     Component,
     Mixin,
-    Data: { Criteria },
+    Data: { Criteria, EntityCollection },
 } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
@@ -36,7 +36,7 @@ export default {
         return {
             numberRangeId: undefined,
             numberRange: {},
-            salesChannels: [],
+            selectedSalesChannelsCollection: null,
             advanced: false,
             simplePossible: true,
             prefix: '',
@@ -79,7 +79,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('type');
-            criteria.addAssociation('numberRangeSalesChannels');
+            criteria.addAssociation('numberRangeSalesChannels.salesChannel');
 
             return criteria;
         },
@@ -109,7 +109,7 @@ export default {
         },
 
         salesChannelCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 500);
 
             criteria.addFilter(
                 Criteria.multi('OR', [
@@ -119,8 +119,6 @@ export default {
                     ]),
                 ]),
             );
-
-            criteria.addAssociation('numberRangeSalesChannels');
 
             return criteria;
         },
@@ -133,6 +131,9 @@ export default {
             return this.repositoryFactory.create('number_range_sales_channel');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use selectedSalesChannelsCollection instead
+         */
         selectedNumberRangeSalesChannels() {
             if (!this.numberRange.numberRangeSalesChannels) {
                 return [];
@@ -146,7 +147,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('number_ranges.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('number_ranges.editor'),
                     showOnDisabledElements: true,
                 };
@@ -169,6 +170,10 @@ export default {
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
+        },
+
+        showNumberRangeStateFields() {
+            return !!this.numberRange.id && this.numberRange.isLoading !== true;
         },
 
         ...mapPropertyErrors('numberRange', [
@@ -266,23 +271,23 @@ export default {
         },
 
         getPreview() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
             return this.numberRangeService
-                .previewPattern(this.numberRange.type.technicalName, this.numberRange.pattern, this.numberRange.start)
+                .previewPatternByNumberRangeId(this.numberRange.id, this.numberRange.pattern, this.numberRange.start)
                 .then((response) => {
                     this.preview = response.number;
                 });
         },
 
         getState() {
-            if (!this.numberRange.type.technicalName) {
+            if (!this.showNumberRangeStateFields) {
                 return Promise.resolve();
             }
 
-            return this.numberRangeService.previewPattern(this.numberRange.type.technicalName, '{n}', 0).then((response) => {
+            return this.numberRangeService.previewPatternByNumberRangeId(this.numberRange.id, '{n}', 0).then((response) => {
                 if (response.number > 1) {
                     this.state = response.number - 1;
                     return Promise.resolve();
@@ -293,10 +298,30 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, use buildSelectedSalesChannelsCollection instead
+         */
         loadSalesChannels() {
-            return this.salesChannelRepository.search(this.salesChannelCriteria).then((salesChannel) => {
-                this.salesChannels = salesChannel;
-            });
+            this.buildSelectedSalesChannelsCollection();
+        },
+
+        buildSelectedSalesChannelsCollection() {
+            const collection = new EntityCollection(
+                '/sales-channel',
+                'sales_channel',
+                Shopware.Context.api,
+                new Criteria(1, 25),
+            );
+
+            if (this.numberRange.numberRangeSalesChannels) {
+                this.numberRange.numberRangeSalesChannels.forEach((junction) => {
+                    if (junction.salesChannel) {
+                        collection.add(junction.salesChannel);
+                    }
+                });
+            }
+
+            this.selectedSalesChannelsCollection = collection;
         },
 
         onSave() {
@@ -312,14 +337,14 @@ export default {
 
             if (!this.numberRange.pattern) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage'),
+                    message: this.$t('sw-settings-number-range.detail.errorPatternNeededMessage'),
                 });
                 return false;
             }
 
             if (this.state > 1 && this.state >= this.numberRange.start) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-settings-number-range.detail.infoStartDecrementMessage'),
+                    message: this.$t('sw-settings-number-range.detail.infoStartDecrementMessage'),
                 });
             }
 
@@ -329,11 +354,13 @@ export default {
                 .save(this.numberRange)
                 .then(() => {
                     this.isSaveSuccessful = true;
+
+                    return this.loadEntityData();
                 })
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
+                        message: this.$t('sw-settings-number-range.detail.messageSaveError', { name: numberRangeName }, 0),
                     });
                     throw exception;
                 })
@@ -390,19 +417,10 @@ export default {
             newNumberRangeSalesChannel.numberRangeId = this.numberRange.id;
             newNumberRangeSalesChannel.numberRangeTypeId = this.numberRange.typeId;
             newNumberRangeSalesChannel.salesChannelId = salesChannel.id;
+            newNumberRangeSalesChannel.salesChannel = salesChannel;
 
             this.numberRange.numberRangeSalesChannels.push(newNumberRangeSalesChannel);
-
-            // fix select gets out of view
-            if (this.numberRange.numberRangeSalesChannels.length <= 1) {
-                this.$nextTick().then(() => {
-                    const scrollableArea = document.querySelector('.sw-card-view__content');
-
-                    if (scrollableArea) {
-                        scrollableArea.scrollTop += 78;
-                    }
-                });
-            }
+            this.buildSelectedSalesChannelsCollection();
         },
 
         removeSalesChannel(salesChannel) {
@@ -410,7 +428,11 @@ export default {
                 return nRsalesChannel.salesChannelId === salesChannel.id;
             });
 
-            this.numberRange.numberRangeSalesChannels.remove(numberRangeSalesChannelToRemove.id);
+            if (numberRangeSalesChannelToRemove) {
+                this.numberRange.numberRangeSalesChannels.remove(numberRangeSalesChannelToRemove.id);
+            }
+
+            this.buildSelectedSalesChannelsCollection();
         },
 
         noSalesChannelSelected() {

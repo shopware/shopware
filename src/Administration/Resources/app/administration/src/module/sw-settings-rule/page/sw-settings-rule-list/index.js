@@ -60,7 +60,7 @@ export default {
             const conditions = this.ruleConditionDataProviderService.getConditions().map((condition) => {
                 return {
                     value: condition.type,
-                    label: this.$tc(condition.label),
+                    label: this.$t(condition.label),
                 };
             });
             conditions.sort((a, b) => a.label.localeCompare(b.label));
@@ -80,7 +80,7 @@ export default {
 
                 groupFilter.push({
                     value: conditionFilterString,
-                    label: this.$tc(group.name),
+                    label: this.$t(group.name),
                 });
             });
             groupFilter.sort((a, b) => a.label.localeCompare(b.label));
@@ -93,7 +93,7 @@ export default {
             this.assignmentProperties.forEach((propertyName) => {
                 associations.push({
                     value: propertyName,
-                    label: this.$tc(`sw-settings-rule.filter.assignmentFilter.values.${propertyName}`),
+                    label: this.$t(`sw-settings-rule.filter.assignmentFilter.values.${propertyName}`),
                 });
             });
             associations.sort((a, b) => a.label.localeCompare(b.label));
@@ -105,30 +105,30 @@ export default {
             const filters = {
                 conditionGroups: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.groupFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.groupFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.groupFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.groupFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.groupFilterOptions,
                 },
                 conditions: {
                     property: 'conditions.type',
-                    label: this.$tc('sw-settings-rule.filter.conditionFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.conditionFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.conditionFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.conditionFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.conditionFilterOptions,
                 },
                 assignments: {
                     existingType: true,
                     property: 'conditions',
-                    label: this.$tc('sw-settings-rule.filter.assignmentFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.assignmentFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.assignmentFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.assignmentFilter.placeholder'),
                     type: 'multi-select-filter',
                     options: this.associationFilterOptions,
                 },
                 tags: {
                     property: 'tags',
-                    label: this.$tc('sw-settings-rule.filter.tagFilter.label'),
-                    placeholder: this.$tc('sw-settings-rule.filter.tagFilter.placeholder'),
+                    label: this.$t('sw-settings-rule.filter.tagFilter.label'),
+                    placeholder: this.$t('sw-settings-rule.filter.tagFilter.placeholder'),
                     criteria: new Criteria(1, 25).addSorting(Criteria.sort('name')),
                 },
             };
@@ -211,7 +211,7 @@ export default {
         onDuplicate(referenceRule) {
             const behaviour = {
                 overwrites: {
-                    name: `${referenceRule.name} ${this.$tc('global.default.copy')}`,
+                    name: `${referenceRule.name} ${this.$t('global.default.copy')}`,
                     // setting the createdAt to null, so that api does set a new date
                     createdAt: null,
                 },
@@ -219,7 +219,7 @@ export default {
 
             this.ruleRepository.clone(referenceRule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
                 this.$router.push({
-                    name: 'sw.settings.rule.detail',
+                    name: 'sw.settings.rule.detail.base',
                     params: { id: duplicatedData.id },
                 });
             });
@@ -233,13 +233,13 @@ export default {
                     this.isLoading = false;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', { name: rule.name }, 0),
+                        message: this.$t('sw-settings-rule.detail.messageSaveSuccess', { name: rule.name }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-rule.detail.messageSaveError'),
+                        message: this.$t('sw-settings-rule.detail.messageSaveError'),
                     });
                 });
         },

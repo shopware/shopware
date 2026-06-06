@@ -200,6 +200,7 @@ class ImportExportProfileApiTest extends TestCase
             $data[$idx]['technicalName'] = $technicalName;
 
             $removedProperty = array_pop($properties);
+            static::assertNotNull($removedProperty);
             $expectData[$id] = $data[$idx];
             unset($data[$idx][$removedProperty]);
             unset($data[$idx]['id']);

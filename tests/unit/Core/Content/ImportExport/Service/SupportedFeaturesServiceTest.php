@@ -21,9 +21,9 @@ class SupportedFeaturesServiceTest extends TestCase
     }
 
     /**
-     * @param iterable<string> $entities
-     * @param iterable<string> $fileTypes
-     * @param class-string<\Throwable>|null $expectedException
+     * @param iterable<string|int|float|true|array{}|\stdClass|null> $entities
+     * @param iterable<string|int|float|true|array{}|\stdClass|null> $fileTypes
+     * @param class-string<\Exception>|null $expectedException
      */
     #[DataProvider('constructDataProvider')]
     public function testConstruct(
@@ -33,10 +33,10 @@ class SupportedFeaturesServiceTest extends TestCase
         ?string $expectedExceptionMessage = null
     ): void {
         if ($expectedException && $expectedExceptionMessage) {
-            $this->expectException($expectedException);
-            $this->expectExceptionMessage($expectedExceptionMessage);
+            $this->expectExceptionObject(new $expectedException($expectedExceptionMessage));
         }
 
+        /** @phpstan-ignore argument.type,argument.type (Intentionally pass wrong types) */
         new SupportedFeaturesService($entities, $fileTypes);
 
         $this->expectNotToPerformAssertions();

@@ -858,6 +858,95 @@ class VersioningTest extends TestCase
         static::assertSame('updated', $product->getEan());
     }
 
+    public function testICanMergeIntoNonLiveVersion(): void
+    {
+        $id = Uuid::randomHex();
+        $priceId = Uuid::randomHex();
+        $ruleId = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'create'],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+            'prices' => [
+                [
+                    'id' => $priceId,
+                    'quantityStart' => 1,
+                    'ruleId' => $ruleId,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 40, 'linked' => false]],
+                ],
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'test', 'priority' => 1],
+        ], $context);
+
+        $this->productRepository->create([$data], $context);
+
+        // Target version is the merge destination.
+        $targetVersionId = $this->productRepository->createVersion($id, $context);
+        $targetVersionContext = $context->createWithVersionId($targetVersionId);
+
+        // Source starts from the changed target state.
+        $this->productRepository->update([['id' => $id, 'stock' => 5]], $targetVersionContext);
+
+        $sourceVersionId = $this->productRepository->createVersion($id, $targetVersionContext);
+        $sourceVersionContext = $targetVersionContext->createWithVersionId($sourceVersionId);
+        $this->productRepository->update([[
+            'id' => $id,
+            'ean' => 'source-version',
+            'prices' => [
+                [
+                    'id' => $priceId,
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 80, 'net' => 70, 'linked' => false]],
+                ],
+            ],
+        ]], $sourceVersionContext);
+
+        $this->productRepository->merge($sourceVersionId, $targetVersionContext);
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('prices');
+
+        // Live stays unchanged.
+        $product = $this->productRepository->search($criteria, $context)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('EAN', $product->getEan());
+        static::assertSame(1, $product->getStock());
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
+        static::assertInstanceOf(ProductPriceEntity::class, $product->getPrices()->get($priceId));
+        $price = $product->getPrices()->get($priceId)->getPrice()->get(Defaults::CURRENCY);
+        static::assertInstanceOf(Price::class, $price);
+        static::assertSame(50.0, $price->getGross());
+
+        // Target gets source changes and keeps its own stock.
+        $product = $this->productRepository->search($criteria, $targetVersionContext)->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame('source-version', $product->getEan());
+        static::assertSame(5, $product->getStock());
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
+        static::assertInstanceOf(ProductPriceEntity::class, $product->getPrices()->get($priceId));
+        $price = $product->getPrices()->get($priceId)->getPrice()->get(Defaults::CURRENCY);
+        static::assertInstanceOf(Price::class, $price);
+        static::assertSame(80.0, $price->getGross());
+
+        $changelog = $this->getVersionData('product', $id, $targetVersionId);
+        // Merge changelog belongs to the target version.
+        $mergeChangelog = array_values(array_filter(
+            $changelog,
+            static fn (array $row) => ($row['payload']['ean'] ?? null) === 'source-version'
+        ));
+
+        static::assertCount(1, $mergeChangelog);
+        static::assertSame($targetVersionId, $mergeChangelog[0]['entity_id']['versionId']);
+    }
+
     public function testICanReadOneToManyInASpecifyVersion(): void
     {
         $productId = Uuid::randomHex();

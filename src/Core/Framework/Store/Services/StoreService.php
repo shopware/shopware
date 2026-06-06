@@ -8,11 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
 use Shopware\Core\System\User\UserCollection;
+use Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore Integration tested with \Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest
+ * @codeCoverageIgnore
+ *
+ * @see StoreServiceTest
  */
 #[Package('checkout')]
 class StoreService

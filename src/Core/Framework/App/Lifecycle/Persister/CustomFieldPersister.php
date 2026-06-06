@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
@@ -40,5 +42,13 @@ class CustomFieldPersister implements PersisterInterface
             $context->app->getId(),
             $context->context
         );
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 }

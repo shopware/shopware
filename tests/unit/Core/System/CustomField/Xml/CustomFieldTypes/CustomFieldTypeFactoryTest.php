@@ -16,8 +16,7 @@ class CustomFieldTypeFactoryTest extends TestCase
 {
     public function testCreateFromXmlThrowsExceptionOnInvalidTag(): void
     {
-        $this->expectException(CustomFieldTypeNotFoundException::class);
-        $this->expectExceptionMessage('CustomFieldType for XML-Element "invalid" not found.');
+        $this->expectExceptionObject(new CustomFieldTypeNotFoundException('invalid'));
         CustomFieldTypeFactory::createFromXml(new \DOMElement('invalid'));
     }
 

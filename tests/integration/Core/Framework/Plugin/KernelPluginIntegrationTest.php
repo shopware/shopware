@@ -35,6 +35,7 @@ use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -394,6 +395,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->createMock(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 

@@ -49,10 +49,12 @@ class CaptchaRouteListenerTest extends TestCase
 
         $container = $this->createMock(ContainerInterface::class);
 
-        $this->expectExceptionMessage('The provided value for captcha');
+        $captchas = $this->getCaptchas(true, false);
+
+        $this->expectExceptionObject(CaptchaException::invalid($captchas[0]));
 
         (new CaptchaRouteListener(
-            $this->getCaptchas(true, false),
+            $captchas,
             $systemConfigService,
             $container
         ))->validateCaptcha($event);

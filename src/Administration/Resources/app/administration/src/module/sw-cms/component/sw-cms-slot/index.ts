@@ -128,13 +128,13 @@ export default Shopware.Component.wrapComponentConfig({
         tooltipDisabled() {
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
+                    message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
                 };
             }
 
             return {
-                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
+                message: this.$t('sw-cms.elements.general.config.tab.settings'),
                 disabled: true,
             };
         },

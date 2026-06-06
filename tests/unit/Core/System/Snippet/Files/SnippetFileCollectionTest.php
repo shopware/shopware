@@ -62,8 +62,7 @@ class SnippetFileCollectionTest extends TestCase
     {
         $collection = $this->getCollection();
 
-        $this->expectException(SnippetException::class);
-        $this->expectExceptionMessage('The base snippet file for locale de-AT is not registered.');
+        $this->expectExceptionObject(SnippetException::snippetFileNotRegistered('de-AT'));
 
         $collection->getBaseFileByIso('de-AT');
     }
@@ -93,6 +92,91 @@ class SnippetFileCollectionTest extends TestCase
 
         static::assertCount(2, $resultDe);
         static::assertCount(1, $resultEn);
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackForNonRegionalLocale(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.de', 'de', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('de');
+        static::assertCount(1, $result);
+        static::assertSame('de', $result[0]->getIso());
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackDoesNotIncludeAgnosticLanguage(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('agnostic.de', 'de', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
+
+        static::assertEmpty($result);
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackFallsBackToCanonicalForm(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true, 'SwagPayPal'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
+
+        static::assertCount(1, $result);
+        static::assertSame('de-DE', $result[0]->getIso());
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackUsesStaticMapForEnglish(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.en-GB', 'en-GB', '{}', true, 'SwagPayPal'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('en-AU');
+
+        static::assertCount(1, $result);
+        static::assertSame('en-GB', $result[0]->getIso());
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackNoFallbackForNonCanonicalLanguage(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.da-DK', 'da-DK', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('da-GL');
+
+        static::assertEmpty($result);
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackReturnsEmptyForUnknownLocale(): void
+    {
+        $collection = $this->getCollection();
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('fr-FR');
+
+        static::assertEmpty($result);
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('canonical.de-DE', 'de-DE', '{}', false, 'SwagPlugin'));
+        $collection->add(new MockSnippetFile('country.de-AT', 'de-AT', '{}', false, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
+
+        static::assertCount(2, $result);
+        static::assertSame('de-DE', $result[0]->getIso());
+        static::assertSame('de-AT', $result[1]->getIso());
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackDoesNotDoubleCountCanonicalLocale(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback('de-DE');
+
+        static::assertCount(1, $result);
+        static::assertSame('de-DE', $result[0]->getIso());
     }
 
     private function getCollection(): SnippetFileCollection

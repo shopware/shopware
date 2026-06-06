@@ -138,6 +138,10 @@ export default () => {
         'sw-condition-operator-select',
         () => import('src/app/component/rule/sw-condition-operator-select/index'),
     );
+    Shopware.Component.register(
+        'sw-condition-value-between-date',
+        () => import('src/app/component/rule/sw-condition-value-between-date/index'),
+    );
     Shopware.Component.register('sw-condition-modal', () => import('src/app/component/rule/sw-condition-modal/index'));
     Shopware.Component.register('sw-condition-base', () => import('src/app/component/rule/sw-condition-base/index'));
     Shopware.Component.register(
@@ -515,6 +519,7 @@ export default () => {
         'sw-media-modal-renderer',
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),
     );
+    Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',

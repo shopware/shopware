@@ -19,4 +19,6 @@ enum FieldType: string
     public const DATE = 'date';
     public const DATE_INTERVAL = 'date-interval';
     public const TIME_ZONE = 'time-zone';
+    public const EMAIL = 'email';
+    public const PRICE = 'price';
 }

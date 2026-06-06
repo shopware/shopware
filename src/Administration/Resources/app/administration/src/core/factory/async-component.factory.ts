@@ -6,6 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
+import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -610,6 +611,23 @@ function override(
     overrideIndex: number | null = null,
 ): () => Promise<ComponentConfig> {
     let config: ComponentConfig;
+
+    /**
+     * For sync object configs the block index is populated here, before any
+     * `<sw-block>` mounts. For async function configs it is populated inside
+     * `configResolveMethod` when awaited — this relies on `initComponent()` being
+     * called for all components before Vue mounts anything. If that boot order
+     * changes, async Twig overrides will silently produce no output.
+     */
+    const isSyncWithTemplate =
+        componentConfiguration !== null &&
+        typeof componentConfiguration !== 'function' &&
+        typeof componentConfiguration.template === 'string';
+
+    if (isSyncWithTemplate) {
+        indexTwigBlocksFromTemplate(componentName, componentConfiguration.template as string);
+    }
+
     const configResolveMethod = async (): Promise<ComponentConfig> => {
         if (config) {
             return config;
@@ -634,15 +652,16 @@ function override(
         config.name = componentName;
 
         if (config.template) {
-            /**
-             * Register a template override for the existing component template.
-             */
+            // Async-only path: direct-object configs were already indexed synchronously
+            // above so the block index is ready before any <sw-block> setup() runs.
+            if (!isSyncWithTemplate) {
+                indexTwigBlocksFromTemplate(componentName, config.template as string);
+            }
+
             TemplateFactory.registerTemplateOverride(componentName, config.template as string, overrideIndex);
 
-            /**
-             * Delete the template string from the component config.
-             * The complete rendered template including all overrides will be added later.
-             */
+            // The merged template (default + all overrides) is compiled later by
+            // TemplateFactory, so the raw string on the config object is no longer needed.
             delete config.template;
         }
 
@@ -730,16 +749,23 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         // clone the override configuration to prevent side-effects to the config
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
-        const convertedOverrides = await convertOverrides(
-            overrides!.map((c) => c.config),
-            config,
+        // Resolve all override configs in parallel, then separate by type
+        const resolvedEntries = await Promise.all(overrides!.map((overrideEntry) => overrideEntry.config()));
+
+        const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
+            (resolvedConfig) => () => Promise.resolve(resolvedConfig),
         );
 
-        convertedOverrides.forEach((overrideComp) => {
-            overrideComp.extends = config;
-            overrideComp._isOverride = true;
-            config = { ...overrideComp };
-        });
+        // Continue with standard Options API overrides
+        if (standardOverrideConfigs.length > 0) {
+            const convertedOverrides = await convertOverrides(standardOverrideConfigs, config);
+
+            convertedOverrides.forEach((overrideComp) => {
+                overrideComp.extends = config;
+                overrideComp._isOverride = true;
+                config = { ...overrideComp };
+            });
+        }
     }
 
     const superRegistry = buildSuperRegistry(config);

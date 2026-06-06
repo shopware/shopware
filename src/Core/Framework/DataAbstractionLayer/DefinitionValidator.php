@@ -29,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Symfony\Component\String\Inflector\EnglishInflector;
@@ -42,8 +43,6 @@ class DefinitionValidator
     private const IGNORE_FIELDS = [
         'product.cover',
         'order_line_item.cover',
-        'customer.defaultBillingAddress',
-        'customer.defaultShippingAddress',
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
         'product_configurator_setting.selected',
@@ -56,6 +55,16 @@ class DefinitionValidator
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
+    ];
+
+    /**
+     * @deprecated tag:v6.8.0 - should be cleared in preparation for 6.9
+     */
+    private const FEATURE_GATED_IGNORE_FIELDS = [
+        'customer.defaultBillingAddress',
+        'customer.defaultShippingAddress',
+        'customer_address.defaultBillingAddressCustomer',
+        'customer_address.defaultShippingAddressCustomer',
     ];
 
     private const PLURAL_EXCEPTIONS = [
@@ -109,6 +118,9 @@ class DefinitionValidator
         'theme_runtime_config',
         'consent_state',
         'consent_log',
+        'mcp_tool_result_cache',
+        'webhook_delivery',
+        'webhook_stream',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [
@@ -291,7 +303,7 @@ class DefinitionValidator
         $notices = [];
         foreach ($reflection->getProperties() as $property) {
             $key = $definition->getEntityName() . '.' . $property->getName();
-            if (\in_array($key, self::IGNORE_FIELDS, true)) {
+            if ($this->isIgnoredField($key)) {
                 continue;
             }
 
@@ -350,7 +362,7 @@ class DefinitionValidator
             }
 
             $key = $definition->getEntityName() . '.' . $field->getPropertyName();
-            if (\in_array($key, self::IGNORE_FIELDS, true)) {
+            if ($this->isIgnoredField($key)) {
                 continue;
             }
 
@@ -365,6 +377,7 @@ class DefinitionValidator
                 $getterMethods[] = 'is' . $propertyName;
                 $getterMethods[] = 'has' . $propertyName;
                 $getterMethods[] = 'has' . preg_replace('/^has/', '', $propertyName);
+                $getterMethods[] = 'was' . preg_replace('/^was/', '', $propertyName);
             }
 
             $hasGetter = false;
@@ -413,7 +426,7 @@ class DefinitionValidator
 
             $key = $definition->getEntityName() . '.' . $association->getPropertyName();
 
-            if (\in_array($key, self::IGNORE_FIELDS, true)) {
+            if ($this->isIgnoredField($key)) {
                 continue;
             }
 
@@ -950,7 +963,7 @@ class DefinitionValidator
 
         foreach ($columns as $column) {
             $columnName = $column->getObjectName()->toString();
-            if (\in_array($definition->getEntityName() . '.' . $columnName, self::IGNORE_FIELDS, true)) {
+            if ($this->isIgnoredField($definition->getEntityName() . '.' . $columnName)) {
                 continue;
             }
 
@@ -1302,5 +1315,14 @@ class DefinitionValidator
                 $parentDefinition->getEntityName(),
             )],
         ];
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
+    private function isIgnoredField(string $key): bool
+    {
+        return \in_array($key, self::IGNORE_FIELDS, true)
+            || (!Feature::isActive('v6.8.0.0') && \in_array($key, self::FEATURE_GATED_IGNORE_FIELDS, true));
     }
 }

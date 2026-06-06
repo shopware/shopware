@@ -112,6 +112,10 @@ export default {
         allowDelete() {
             return this.acl.can('language.deleter');
         },
+
+        cardTitle() {
+            return `${this.$t('sw-settings-language.list.cardTitle')} (${this.total})`;
+        },
     },
 
     methods: {
@@ -155,7 +159,7 @@ export default {
         tooltipDelete(languageId) {
             if (!this.acl.can('language.deleter') && !this.isDefault(languageId)) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('language.deleter'),
                     showOnDisabledElements: true,
                 };

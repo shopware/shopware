@@ -1,7 +1,7 @@
 {% block sw_settings_message_stats %}
 <sw-page class="sw-settings-message-stats">
     <template #smart-bar-header>
-        <h2>{{ $tc('sw-settings-message-stats.general.mainMenuItemGeneral') }}</h2>
+        <h2>{{ $t('sw-settings-message-stats.general.mainMenuItemGeneral') }}</h2>
     </template>
 
     <template #content>
@@ -16,16 +16,16 @@
                     <div class="sw-settings-message-stats__banner-container">
                         <mt-banner
                             variant="attention"
-                            :title="$tc('sw-settings-message-stats.general.statsDisabledTitle')"
+                            :title="$t('sw-settings-message-stats.general.statsDisabledTitle')"
                         >
-                            {{  $tc('sw-settings-message-stats.general.statsDisabledContent') }}
+                            {{  $t('sw-settings-message-stats.general.statsDisabledContent') }}
                         </mt-banner>
                     </div>
                 </template>
 
                 <mt-card
                     position-identifier="sw-settings-message-stats-overview"
-                    :title="$tc('sw-settings-message-stats.general.statsCardTitle')"
+                    :title="$t('sw-settings-message-stats.general.statsCardTitle')"
                     :is-loading="isLoading"
                 >
                     <template #headerRight>
@@ -40,12 +40,12 @@
                                 name="regular-sync"
                                 size="12px"
                             />
-                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                            {{ $t('sw-settings-message-stats.general.refreshButton') }}
                         </mt-button>
                     </template>
 
                     <p class="sw-settings-message-stats__description">
-                        {{ $tc('sw-settings-message-stats.general.description') }}
+                        {{ $t('sw-settings-message-stats.general.description') }}
                     </p>
 
                     <div class="sw-settings-message-stats__stats-grid">
@@ -104,8 +104,8 @@
 
                     <div v-else>
                         <mt-empty-state
-                            :headline="$tc('sw-settings-message-stats.general.emptyStateTitle')"
-                            :description="$tc('sw-settings-message-stats.general.emptyStateSubline')"
+                            :headline="$t('sw-settings-message-stats.general.emptyStateTitle')"
+                            :description="$t('sw-settings-message-stats.general.emptyStateSubline')"
                             icon="regular-bars-square"
                         />
                         {# rendering button separately as mt-empty-state does not support custom button icons #}
@@ -119,7 +119,7 @@
                                 name="regular-sync"
                                 size="12px"
                             />
-                            {{ $tc('sw-settings-message-stats.general.refreshButton') }}
+                            {{ $t('sw-settings-message-stats.general.refreshButton') }}
                         </mt-button>
                     </div>
 

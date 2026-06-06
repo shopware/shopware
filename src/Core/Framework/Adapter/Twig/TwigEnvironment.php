@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Log\Package;
-use Twig\Compiler;
 use Twig\Environment;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
+use Twig\Runtime\EscaperRuntime;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
 /**
  * @internal
@@ -14,10 +16,8 @@ use Twig\Node\Node;
 #[Package('framework')]
 class TwigEnvironment extends Environment
 {
-    private ?Compiler $compiler = null;
-
     /**
-     * @param array<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __construct(LoaderInterface $loader, array $options = [])
     {
@@ -25,21 +25,21 @@ class TwigEnvironment extends Environment
         $options['use_yield'] = true;
 
         parent::__construct($loader, $options);
+
+        $this->addRuntimeLoader(new FactoryRuntimeLoader([
+            EscaperRuntime::class => fn () => new CachedEscaperRuntime($this->getCharset()),
+        ]));
     }
 
+    /**
+     * Overrides Twig {@see CoreExtension} with SW custom wrapper {@see SwTwigFunction}.
+     */
     public function compile(Node $node): string
     {
-        if ($this->compiler === null) {
-            $this->compiler = new Compiler($this);
-        }
+        $source = parent::compile($node);
 
-        $source = $this->compiler->compile($node)->getSource();
-
-        $replaces = [
+        return strtr($source, [
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
-            'twig_escape_filter(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::escapeFilter(',
-        ];
-
-        return str_replace(array_keys($replaces), array_values($replaces), $source);
+        ]);
     }
 }

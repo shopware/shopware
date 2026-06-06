@@ -13,7 +13,13 @@ export default {
     props: {
         role: {
             type: Object,
-            required: true,
+            required: false,
+            default: null,
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
         disabled: {
             type: Boolean,
@@ -34,8 +40,8 @@ export default {
 
                 const children = this.getPermissionsForParent(parent);
 
-                children.forEach((child) => {
-                    permissionsWithParents.push(child);
+                children.forEach((child, index) => {
+                    permissionsWithParents.push({ ...child, groupIndex: index });
                 });
             });
 
@@ -48,8 +54,8 @@ export default {
             return privileges
                 .filter((privilege) => privilege.category === 'permissions')
                 .sort((a, b) => {
-                    const labelA = this.$tc(`sw-privileges.permissions.${a.key}.label`);
-                    const labelB = this.$tc(`sw-privileges.permissions.${b.key}.label`);
+                    const labelA = this.$t(`sw-privileges.permissions.${a.key}.label`);
+                    const labelB = this.$t(`sw-privileges.permissions.${b.key}.label`);
 
                     return labelA.localeCompare(labelB);
                 });
@@ -68,8 +74,8 @@ export default {
                     ];
                 }, [])
                 .sort((a, b) => {
-                    const labelA = this.$tc(`sw-privileges.permissions.parents.${a || 'other'}`);
-                    const labelB = this.$tc(`sw-privileges.permissions.parents.${b || 'other'}`);
+                    const labelA = this.$t(`sw-privileges.permissions.parents.${a || 'other'}`);
+                    const labelB = this.$t(`sw-privileges.permissions.parents.${b || 'other'}`);
 
                     return labelA.localeCompare(labelB);
                 });
@@ -150,6 +156,41 @@ export default {
 
         isPermissionDisabled(permissionKey, permissionRole) {
             return this.usedDependencies.includes(`${permissionKey}.${permissionRole}`);
+        },
+
+        privilegeTooltip(permissionKey, permissionRole) {
+            const operationMap = {
+                viewer: 'read',
+                editor: 'update',
+                creator: 'create',
+                deleter: 'delete',
+            };
+            return `${permissionKey}:${operationMap[permissionRole] ?? permissionRole}`;
+        },
+
+        parentRoleTooltip(parentValue, role) {
+            return this.$t('sw-users-permissions.roles.grid.tooltipParentRole', {
+                role: this.$t(`sw-privileges.roles.${role}`),
+                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+            });
+        },
+
+        allRolesLabel() {
+            return this.roles.map((r) => this.$t(`sw-privileges.roles.${r}`)).join(', ');
+        },
+
+        parentAllTooltip(parentValue) {
+            return this.$t('sw-users-permissions.roles.grid.tooltipParentAll', {
+                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+                roles: this.allRolesLabel(),
+            });
+        },
+
+        entityAllTooltip(permissionKey) {
+            return this.$t('sw-users-permissions.roles.grid.tooltipEntityAll', {
+                entity: this.$t(`sw-privileges.permissions.${permissionKey}.label`),
+                roles: this.allRolesLabel(),
+            });
         },
 
         changeAllPermissionsForKey(permissionKey) {

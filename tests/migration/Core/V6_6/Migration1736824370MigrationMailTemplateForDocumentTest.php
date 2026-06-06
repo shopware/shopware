@@ -28,6 +28,11 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736824370, (new Migration1736824370MigrationMailTemplateForDocument())->getCreationTimestamp());
+    }
+
     public function testDuplicateMigration(): void
     {
         $migration = new Migration1736824370MigrationMailTemplateForDocument();
@@ -87,16 +92,14 @@ class Migration1736824370MigrationMailTemplateForDocumentTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string>>
+     * @return iterable<string, array<string>>
      */
-    public static function mailTypeProvider(): array
+    public static function mailTypeProvider(): iterable
     {
-        return [
-            MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE],
-            MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE],
-        ];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_DELIVERY_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CREDIT_NOTE];
+        yield MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE => [MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE];
     }
 
     private function executeMigration(): void

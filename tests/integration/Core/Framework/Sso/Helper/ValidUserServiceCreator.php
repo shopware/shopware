@@ -5,15 +5,17 @@ namespace Shopware\Tests\Integration\Core\Framework\Sso\Helper;
 use Doctrine\DBAL\Connection;
 use Lcobucci\JWT\Validator as ValidatorInterface;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
 use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\TokenService\IdTokenParser;
 use Shopware\Core\Framework\Sso\TokenService\PublicKeyLoader;
 use Shopware\Core\Framework\Sso\UserService\UserService;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -25,36 +27,30 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[Package('framework')]
 class ValidUserServiceCreator extends TestCase
 {
-    use KernelTestBehaviour;
-
-    public function create(): UserService
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
+    public function create(Connection $connection, EntityRepository $userRepository): UserService
     {
-        $connection = self::getContainer()->get(Connection::class);
-
         $publicKeyLoader = new PublicKeyLoader(
             $this->createClient(),
             $this->createLoginConfigService(),
             new ArrayAdapter()
         );
 
-        $clockInterface = $this->createMock(ClockInterface::class);
-        \assert($clockInterface instanceof ClockInterface);
-
         $idTokenParser = new IdTokenParser(
             $publicKeyLoader,
             $this->createLoginConfigService(),
-            $clockInterface
+            static::createStub(ClockInterface::class)
         );
 
-        $validator = $this->createMock(ValidatorInterface::class);
+        $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(true);
 
         $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
         $validatorProperty->setValue($idTokenParser, $validator);
 
-        $userRepository = self::getContainer()->get('user.repository');
-
-        return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService());
+        return new UserService($connection, $idTokenParser, $userRepository, $this->createExternalTokenService(), new NativeClock());
     }
 
     private function createClient(): HttpClientInterface
@@ -62,13 +58,11 @@ class ValidUserServiceCreator extends TestCase
         $filesystem = new Filesystem();
         $jwks = $filesystem->readFile(__DIR__ . '/../../../../../unit/Core/Framework/Sso/TokenService/_fixtures/jwks.json');
 
-        $response = $this->createMock(ResponseInterface::class);
+        $response = static::createStub(ResponseInterface::class);
         $response->method('getContent')->willReturn($jwks);
 
-        $client = $this->createMock(HttpClientInterface::class);
+        $client = static::createStub(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
-
-        \assert($client instanceof HttpClientInterface);
 
         return $client;
     }
@@ -88,14 +82,14 @@ class ValidUserServiceCreator extends TestCase
             'register_url' => 'https://register.url',
         ];
 
-        return new LoginConfigService($rawConfig, $this->createMock(RouterInterface::class));
+        return new LoginConfigService($rawConfig, static::createStub(RouterInterface::class));
     }
 
     private function createExternalTokenService(): ExternalTokenService
     {
         $token = (new FakeTokenGenerator())->generate();
-        $responseInterface = $this->createMock(ResponseInterface::class);
-        $responseInterface->expects($this->once())->method('getContent')->willReturn(
+        $responseInterface = static::createStub(ResponseInterface::class);
+        $responseInterface->method('getContent')->willReturn(
             \json_encode(
                 [
                     'id_token' => $token,
@@ -108,8 +102,8 @@ class ValidUserServiceCreator extends TestCase
             )
         );
 
-        $client = $this->createMock(HttpClientInterface::class);
-        $client->expects($this->once())->method('request')->willReturn($responseInterface);
+        $client = static::createStub(HttpClientInterface::class);
+        $client->method('request')->willReturn($responseInterface);
 
         $loginConfigService = $this->createLoginConfigService();
 

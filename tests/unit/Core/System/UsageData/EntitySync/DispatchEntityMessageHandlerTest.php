@@ -26,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Consent\ConsentScope;
@@ -66,8 +65,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $entityDispatcher->expects($this->never())
             ->method('dispatch');
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create');
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create'));
 
         $consentService = $this->createMock(ConsentService::class);
 
@@ -138,8 +136,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('The consent was never accepted. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -193,8 +190,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Message dispatched for old shopId. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             SyncEntityDefinition::ENTITY_NAME,
             Operation::CREATE,
@@ -506,8 +502,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $shopIdProvider,
         );
 
-        static::expectException(UnrecoverableMessageHandlingException::class);
-        static::expectExceptionMessage(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName()));
+        $this->expectExceptionObject(new UnrecoverableMessageHandlingException(\sprintf('Entity sync does not support composite primary keys. Skipping dispatching of entity sync message. Entity: %s, Operation: create', $definition->getEntityName())));
         $handler(new DispatchEntityMessage(
             $definition->getEntityName(),
             Operation::CREATE,
@@ -624,21 +619,10 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     public function testFormatsValueUsingFieldSerializer(): void
     {
-        $serializerMock = $this->createMock(FieldSerializerInterface::class);
-        $serializerMock->method('decode')
-            ->willReturn('decoded_value');
-
-        /** @phpstan-ignore shopware.mockingSimpleObjects (for test purpose) */
-        $idFieldMock = $this->createMock(ManyToManyIdField::class);
-        $idFieldMock->method('getSerializer')
-            ->willReturn($serializerMock);
-        $idFieldMock->method('getAssociationName')
-            ->willReturn('association_name');
-        $idFieldMock->method('getStorageName')
-            ->willReturn('storage_name');
+        $idField = new ManyToManyIdField('storage_name', 'storageName', 'association_name');
 
         $definition = new EntityEncoderEntity();
-        $definition->setExtraFields([$idFieldMock]);
+        $definition->setExtraFields([$idField]);
 
         new StaticDefinitionInstanceRegistry(
             [$definition],
@@ -651,7 +635,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             'int' => '1337',
             'created_at' => (new \DateTimeImmutable('2023-07-31'))->format(Defaults::STORAGE_DATE_FORMAT),
             'updated_at' => null,
-            'storage_name' => '1234',
+            'storage_name' => '["id-1","id-2"]',
             'blob' => 'blob',
         ]);
 
@@ -670,7 +654,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::assertNull($serialized['updatedAt']);
 
         static::assertArrayHasKey('association_name', $serialized);
-        static::assertSame('decoded_value', $serialized['association_name']);
+        static::assertSame(['id-1', 'id-2'], $serialized['association_name']);
 
         static::assertArrayHasKey('blob', $serialized);
         static::assertSame('blob', base64_decode($serialized['blob'], true));

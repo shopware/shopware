@@ -1,7 +1,3 @@
-/**
- * @internal
- * @sw-package framework
- */
 import template from './sw-sso-users-permission-user-detail.html.twig';
 import './sw-sso-users-permissions-user-detail.scss';
 
@@ -14,7 +10,10 @@ const MODE = Object.freeze({
     CREATE: 'create',
 });
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ * @sw-package framework
+ */
 export default {
     template,
 
@@ -59,7 +58,7 @@ export default {
 
     computed: {
         fullName() {
-            return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
+            return this.salutation(this.user, this.$t('sw-users-permissions.users.user-detail.labelNewUser'));
         },
 
         tooltipCancel() {
@@ -82,7 +81,7 @@ export default {
             return [
                 {
                     property: 'accessKey',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
+                    label: this.$t('sw-users-permissions.users.user-detail.labelAccessKey'),
                 },
             ];
         },

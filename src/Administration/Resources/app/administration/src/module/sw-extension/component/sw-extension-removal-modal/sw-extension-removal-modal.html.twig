@@ -9,7 +9,7 @@
     <template #default>
         {% block sw_installed_extension_card_removal_content_modal_body %}
         <p>
-            {{ $tc('sw-extension-store.component.sw-extension-removal-modal.description') }}
+            {{ $t('sw-extension-store.component.sw-extension-removal-modal.description') }}
         </p>
 
         <p class="sw-extension-removal-modal__bold-paragraph">
@@ -20,8 +20,8 @@
 
             <mt-switch
                 v-model="removePluginData"
-                :label="$tc('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
-                :help-text="$tc('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
+                :label="$t('sw-extension-store.component.sw-extension-uninstall-modal.labelRemovePluginData')"
+                :help-text="$t('sw-extension-store.component.sw-extension-uninstall-modal.helpTextRemovePluginData')"
             />
         </p>
         {% endblock %}
@@ -36,7 +36,7 @@
             variant="secondary"
             @click="emitClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 

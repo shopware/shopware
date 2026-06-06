@@ -105,6 +105,53 @@ class ProductExportControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
+    public function testValidateReturnsStructuredProviderErrors(): void
+    {
+        $this->createProductStream();
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => <<<'TWIG'
+{"is_eligible_search": true, "is_eligible_checkout": false, "item_id": "{{ product.id }}", "title": "Example", "description": "Example description", "url": "https://example.com/product", "brand": "ACME", "image_url": "https://example.com/image.jpg", "price": "10.99 EUR", "availability": "in_stock", "group_id": "{{ product.id }}", "listing_has_variations": false, "seller_name": "Merchant", "seller_url": "https://example.com", "target_countries": ["DE"], "store_country": "DE"}
+TWIG,
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'jsonl',
+            'fileName' => 'test.jsonl',
+            'accessKey' => 'test',
+            'provider' => 'open-ai',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/validate',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        $responseContent = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($responseContent);
+
+        /** @var array{content: string, errors: list<array{message: string, line: int|null, column: int|null}>} $response */
+        $response = json_decode($responseContent, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertNotSame('', $response['content']);
+        static::assertCount(2, $response['errors']);
+        static::assertSame('The field "return_policy" must be a valid absolute URL.', $response['errors'][0]['message']);
+    }
+
     public function testValidateFalseDomain(): void
     {
         $url = '/api/_action/product-export/validate';
@@ -158,7 +205,7 @@ class ProductExportControllerTest extends TestCase
             'salesChannelDomainId' => $this->getSalesChannelDomainId(),
             'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
             'headerTemplate' => '',
-            'bodyTemplate' => '{{ productExport.salesChannelId }}',
+            'bodyTemplate' => '{{ productExport.salesChannelId }},{{ provider.name }}',
             'footerTemplate' => '',
             'includeVariants' => false,
             'encoding' => 'UTF-8',
@@ -166,6 +213,7 @@ class ProductExportControllerTest extends TestCase
             'fileName' => 'test.csv',
             'accessKey' => 'test',
             'currencyId' => Defaults::CURRENCY,
+            'provider' => 'open-ai',
         ], \JSON_THROW_ON_ERROR);
 
         if (!$content) {
@@ -182,6 +230,89 @@ class ProductExportControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('open-ai', $response);
+    }
+
+    public function testPreviewProvidesConfiguredProviderInTransientExportEntity(): void
+    {
+        $this->createProductStream();
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ provider.name }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'provider' => 'open-ai',
+            'currencyId' => Defaults::CURRENCY,
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/preview',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        $responseContent = $this->getBrowser()->getResponse()->getContent();
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertIsString($responseContent);
+        static::assertStringContainsString('open-ai', $responseContent);
+    }
+
+    public function testPreviewRendersFeedLabelFromRequestPayload(): void
+    {
+        $this->createProductStream();
+
+        $content = json_encode([
+            'salesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
+            'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+            'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
+            'headerTemplate' => '',
+            'bodyTemplate' => '{{ productExport.feedLabel|default("none") }}',
+            'footerTemplate' => '',
+            'includeVariants' => false,
+            'encoding' => 'UTF-8',
+            'fileFormat' => 'CSV',
+            'fileName' => 'test.csv',
+            'accessKey' => 'test',
+            'currencyId' => Defaults::CURRENCY,
+            'feedLabel' => 'SUMMER-2026',
+        ], \JSON_THROW_ON_ERROR);
+
+        if (!$content) {
+            $content = '';
+        }
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/product-export/preview',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            $content
+        );
+
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        $response = $this->getBrowser()->getResponse()->getContent();
+        static::assertIsString($response);
+        static::assertStringContainsString('SUMMER-2026', $response);
+        static::assertStringNotContainsString('none', $response);
     }
 
     public function testPreviewFalseDomain(): void

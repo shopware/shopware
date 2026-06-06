@@ -33,6 +33,7 @@ type OperatorSetIdentifier =
     | 'bool'
     | 'number'
     | 'date'
+    | 'datetime'
     | 'isNet'
     | 'empty'
     | 'zipCode';
@@ -128,6 +129,10 @@ export default class RuleConditionService {
             identifier: 'empty',
             label: 'global.sw-condition.operator.empty',
         },
+        between: {
+            identifier: 'between',
+            label: 'global.sw-condition.operator.between',
+        },
     };
 
     operatorSets = {
@@ -167,6 +172,16 @@ export default class RuleConditionService {
             this.operators.lowerThan,
             this.operators.lowerThanEquals,
             this.operators.notEquals,
+            this.operators.between,
+        ],
+        datetime: [
+            this.operators.equals,
+            this.operators.greaterThan,
+            this.operators.greaterThanEquals,
+            this.operators.lowerThan,
+            this.operators.lowerThanEquals,
+            this.operators.notEquals,
+            this.operators.between,
         ],
         isNet: [
             this.operators.gross,
@@ -191,6 +206,8 @@ export default class RuleConditionService {
         text: 'string',
         int: 'number',
         bool: 'bool',
+        date: 'date',
+        datetime: 'datetime',
     };
 
     moduleTypes: { [key: string]: ModuleType } = {
@@ -351,13 +368,13 @@ export default class RuleConditionService {
         const booleanOptions = [
             {
                 label: {
-                    [locale]: app.$tc('global.default.yes'),
+                    [locale]: app.$t('global.default.yes'),
                 },
                 value: true,
             },
             {
                 label: {
-                    [locale]: app.$tc('global.default.no'),
+                    [locale]: app.$t('global.default.no'),
                 },
                 value: false,
             },
@@ -743,9 +760,9 @@ export default class RuleConditionService {
 
         let text = '';
         violations.forEach((violation, index, allViolations) => {
-            text += `"${app.$tc(violation.label, 1)}"`;
+            text += `"${app.$t(violation.label, 1)}"`;
             if (index + 2 === allViolations.length) {
-                text += ` ${app.$tc(connectionSnippetPath)} `;
+                text += ` ${app.$t(connectionSnippetPath)} `;
             } else if (index + 1 < allViolations.length) {
                 text += ', ';
             }
@@ -781,12 +798,12 @@ export default class RuleConditionService {
             return {
                 showOnDisabledElements: true,
                 disabled: false,
-                message: app.$tc('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip', {
+                message: app.$t('sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip', {
                     conditions: this.getTranslatedConditionViolationList(
                         restrictionConfig.notEqualsViolations,
                         'sw-restricted-rules.and',
                     ),
-                    entityLabel: app.$tc(restrictionConfig.assignmentSnippet as string, 2),
+                    entityLabel: app.$t(restrictionConfig.assignmentSnippet as string, 2),
                 }),
             };
         }
@@ -795,12 +812,12 @@ export default class RuleConditionService {
             showOnDisabledElements: true,
             disabled: false,
             width: 400,
-            message: app.$tc('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', {
+            message: app.$t('sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip', {
                 conditions: this.getTranslatedConditionViolationList(
                     restrictionConfig.equalsAnyNotMatched,
                     'sw-restricted-rules.or',
                 ),
-                entityLabel: app.$tc(restrictionConfig.assignmentSnippet ?? '', 2),
+                entityLabel: app.$t(restrictionConfig.assignmentSnippet ?? '', 2),
             }),
         };
     }

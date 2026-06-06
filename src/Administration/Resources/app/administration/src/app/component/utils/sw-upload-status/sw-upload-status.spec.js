@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -167,7 +169,6 @@ async function createWrapper() {
             ],
             mocks: {
                 $t: translate,
-                $tc: (key) => key,
             },
             stubs: {},
         },

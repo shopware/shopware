@@ -1,15 +1,15 @@
 .sw-product-measurement-form {
     &__description-group p {
-        margin-bottom: 32px;
+        margin-bottom: var(--scale-size-32);
         color: var(--color-text-primary-default);
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--font-line-height-s);
     }
 
     &__description-group a.sw-internal-link {
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-regular);
-        line-height: 20px;
+        line-height: var(--font-line-height-s);
     }
 }

@@ -18,18 +18,22 @@ export default class QuantitySelectorPlugin extends Plugin {
         ariaLiveUpdateMode: 'live',
         ariaLiveTextValueToken: '%quantity%',
         ariaLiveTextProductToken: '%product%',
+        purchaseLimitUrl: null,
     };
 
     init() {
         this._input = this.el.querySelector('input.js-quantity-selector');
         this._btnPlus = this.el.querySelector('.js-btn-plus');
         this._btnMinus = this.el.querySelector('.js-btn-minus');
+        this._unitLabel = this.el.querySelector('.js-quantity-selector-unit');
+        this._purchaseLimitFetched = false;
 
         if (this.options.ariaLiveUpdates) {
             this._initAriaLiveUpdates();
         }
 
         this._registerEvents();
+        this._registerLivePurchaseLimitEvents();
     }
 
     /**
@@ -75,6 +79,8 @@ export default class QuantitySelectorPlugin extends Plugin {
                 return false;
             }
         });
+
+        this._input.addEventListener('change', this._updateUnitLabel.bind(this));
     }
 
     /**
@@ -143,5 +149,157 @@ export default class QuantitySelectorPlugin extends Plugin {
         }
 
         this.ariaLiveContainer.innerHTML = text;
+    }
+
+    /**
+     * Update the visible unit label when singular and plural pack units are configured.
+     *
+     * @private
+     */
+    _updateUnitLabel() {
+        if (!this._unitLabel) {
+            return;
+        }
+
+        const { unitSingular, unitPlural } = this._unitLabel.dataset;
+
+        if (!unitSingular) {
+            return;
+        }
+
+        const quantityValue = parseFloat(this._input.value);
+
+        if (Number.isNaN(quantityValue)) {
+            return;
+        }
+
+        this._unitLabel.textContent = quantityValue > 1 && unitPlural ? unitPlural : unitSingular;
+    }
+
+    /**
+     * Register one-time interaction listeners that trigger the live purchase limit fetch.
+     * The fetch fires once on the first focus or button click, then listeners are removed.
+     *
+     * @private
+     */
+    _registerLivePurchaseLimitEvents() {
+        const url = this.options.purchaseLimitUrl;
+
+        if (!url) {
+            return;
+        }
+
+        this._onFirstInteraction = this._fetchLivePurchaseLimit.bind(this, url);
+
+        this._input.addEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.addEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.addEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Remove the one-time interaction listeners for live purchase limit fetching.
+     *
+     * @private
+     */
+    _removeLivePurchaseLimitEvents() {
+        this._input.removeEventListener('focus', this._onFirstInteraction);
+        this._btnPlus.removeEventListener('click', this._onFirstInteraction, true);
+        this._btnMinus.removeEventListener('click', this._onFirstInteraction, true);
+    }
+
+    /**
+     * Fetch live purchase limits from the server and apply them to the input.
+     * Fires only once – subsequent calls are no-ops. Falls back silently on failure.
+     *
+     * @param {string} url
+     * @private
+     */
+    _fetchLivePurchaseLimit(url) {
+        if (this._purchaseLimitFetched) {
+            return;
+        }
+
+        this._purchaseLimitFetched = true;
+
+        this._removeLivePurchaseLimitEvents();
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return null;
+                }
+
+                return response.json();
+            })
+            .then((data) => {
+                if (data) {
+                    this._applyPurchaseLimit(data);
+                }
+            })
+            .catch((error) => {
+                console.warn('Unable to fetch live quantity limits, keeping rendered values.', error);
+            });
+    }
+
+    /**
+     * Apply fetched purchase limits to the input element.
+     * Clamps the current value to the new constraints and dispatches events for the form to handle.
+     *
+     * @param {{ minPurchase: number, purchaseSteps: number, maxPurchase: number }} limits
+     * @private
+     */
+    _applyPurchaseLimit(limits) {
+        if (!this._input) {
+            return;
+        }
+
+        const max = limits.maxPurchase;
+
+        if (max <= 0) {
+            this._disableControls();
+            this._dispatchFormEvent('QuantitySelector/OutOfStock');
+            return;
+        }
+
+        const min = limits.minPurchase;
+        const step = limits.purchaseSteps;
+
+        this._input.setAttribute('min', min);
+        this._input.setAttribute('max', max);
+        this._input.setAttribute('step', step);
+
+        const currentValue = parseInt(this._input.value, 10) || min;
+        const clampedValue = Math.min(Math.max(currentValue, min), max);
+        const steppedValue = Math.floor((clampedValue - min) / step) * step + min;
+
+        if (steppedValue !== currentValue) {
+            this._input.value = steppedValue;
+            this._triggerChange();
+            this._dispatchFormEvent('QuantitySelector/StockAdjusted', { quantity: steppedValue });
+        }
+    }
+
+    /**
+     * Disable quantity selector controls when the product is no longer purchasable.
+     *
+     * @private
+     */
+    _disableControls() {
+        this._input.disabled = true;
+        this._btnPlus.disabled = true;
+        this._btnMinus.disabled = true;
+    }
+
+    /**
+     * Dispatch a CustomEvent on the parent form so form-level plugins can react.
+     *
+     * @param {string} eventName
+     * @param {Object} detail
+     * @private
+     */
+    _dispatchFormEvent(eventName, detail = {}) {
+        this.el.closest('form')?.dispatchEvent(new CustomEvent(eventName, { detail }));
     }
 }

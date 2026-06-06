@@ -39,4 +39,39 @@ class IntFieldTest extends TestCase
         static::assertSame(['en-GB' => 'Enter an int...'], $intField->getPlaceholder());
         static::assertTrue($intField->getRequired());
     }
+
+    public function testToEntityPayload(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/int-field.xml');
+        static::assertNotNull($manifest->getCustomFields());
+
+        $intField = $manifest->getCustomFields()->getCustomFieldSets()[0]->getFields()[0];
+        static::assertInstanceOf(IntField::class, $intField);
+
+        static::assertEquals([
+            'name' => 'test_int_field',
+            'type' => 'int',
+            'config' => [
+                'label' => [
+                    'en-GB' => 'Test int field',
+                    'de-DE' => 'Test Ganzzahlenfeld',
+                ],
+                'helpText' => [
+                    'en-GB' => 'This is an int field.',
+                ],
+                'customFieldPosition' => 1,
+                'validation' => 'required',
+                'type' => 'number',
+                'placeholder' => [
+                    'en-GB' => 'Enter an int...',
+                ],
+                'componentName' => 'sw-field',
+                'customFieldType' => 'number',
+                'numberType' => 'int',
+                'max' => 1,
+                'min' => 0,
+                'step' => 2,
+            ],
+        ], $intField->toEntityPayload());
+    }
 }

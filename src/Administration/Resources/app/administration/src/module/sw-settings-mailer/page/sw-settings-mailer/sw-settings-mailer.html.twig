@@ -1,17 +1,17 @@
 {% block sw_settings_mailer_index %}
 <sw-page class="sw-settings-mailer">
-
     {% block sw_settings_mailer_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_settings_mailer_smart_bar_header_title %}
         <h2>
             {% block sw_settings_mailer_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            {{ $t('sw-settings.index.title') }}
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-settings-mailer.general.textHeadline') }}
+
+            <span>{{ $t('sw-settings-mailer.general.textHeadline') }}</span>
             {% endblock %}
         </h2>
         {% endblock %}
@@ -28,7 +28,7 @@
             @update:process-success="onSaveFinish"
             @click="saveMailerSettings"
         >
-            {{ $tc('sw-settings-mailer.general.buttonSave') }}
+            {{ $t('sw-settings-mailer.general.buttonSave') }}
         </sw-button-process>
         {% endblock %}
     </template>
@@ -37,15 +37,11 @@
     {% block sw_settings_mailer_content %}
     <template #content>
         <sw-card-view>
-            <sw-skeleton v-if="isLoading" />
-
             <mt-card
-                v-else
                 position-identifier="sw-settings-mailer-configuration"
                 :is-loading="isLoading"
-                :title="$tc('sw-settings-mailer.mailer-configuration.card-title')"
+                :title="$t('sw-settings-mailer.mailer-configuration.card-title')"
             >
-
                 {% block sw_settings_mailer_first_configuration %}
                 <div
                     v-if="isFirstConfiguration"
@@ -53,30 +49,28 @@
                 >
                     {% block sw_settings_mailer_first_configuration_headline %}
                     <h4 class="sw-settings-mailer__headline">
-                        <strong>
-                            {{ $tc('sw-settings-mailer.first-configuration.headline') }}
-                        </strong>
+                        {{ $t('sw-settings-mailer.first-configuration.headline') }}
                     </h4>
                     {% endblock %}
 
                     {% block sw_settings_mailer_first_configuration_description %}
-                    <p>
-                        {{ $tc('sw-settings-mailer.first-configuration.description') }}
+                    <p class="sw-settings-mailer__description">
+                        {{ $t('sw-settings-mailer.first-configuration.description') }}
                     </p>
                     {% endblock %}
                 </div>
                 {% endblock %}
 
+                {# @deprecated tag:v6.8.0 - Will be removed. #}
                 {% block sw_settings_mailer_headline_agent %}
-                <p class="sw-settings-mailer__headline">
-                    {{ $tc('sw-settings-mailer.mailer-configuration.agent') }}
-                </p>
                 {% endblock %}
 
                 <div class="sw-settings-mailer__radio-selection">
                     {% block sw_settings_mailer_agent_options %}
                     <mt-select
                         v-model="mailerSettings['core.mailerSettings.emailAgent']"
+                        class="sw-settings-mailer__select-agent"
+                        :label="$t('sw-settings-mailer.mailer-configuration.agent')"
                         :options="emailAgentOptions"
                     />
 
@@ -88,13 +82,34 @@
                     {% endblock %}
                 </div>
 
-                <p v-html="$tc('sw-settings-mailer.helpText')"></p>
-
                 <mt-switch
                     v-if="!isSmtpMode"
                     v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-                    :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
+                    class="sw-settings-mailer__switch-disable-delivery"
+                    :label="$t('sw-settings-mailer.card-smtp.disable-delivery')"
                 />
+
+                <mt-banner
+                    class="sw-settings-mailer__help-text"
+                    variant="info"
+                >
+                    <i18n-t
+                        keypath="sw-settings-mailer.general.helpText"
+                        tag="span"
+                    >
+                        <template #documentation>
+                            <mt-link
+                                as="a"
+                                :to="$t('sw-settings-mailer.general.docsLink')"
+                                type="external"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ $t('sw-settings-mailer.general.docsLabel') }}
+                            </mt-link>
+                        </template>
+                    </i18n-t>
+                </mt-banner>
             </mt-card>
 
             {% block sw_settings_mailer_smtp %}
@@ -105,7 +120,6 @@
                 title="SMTP server"
                 class="sw-settings-mailer__input-fields"
             >
-
                 {% block sw_settings_mailer_smtp_settings %}
                 <sw-settings-mailer-smtp
                     :mailer-settings="mailerSettings"
@@ -115,7 +129,6 @@
                     @port-changed="resetSmtpPortError"
                 />
                 {% endblock %}
-
             </mt-card>
             {% endblock %}
         </sw-card-view>

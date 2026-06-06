@@ -474,8 +474,8 @@ function messageQueueNotification(
     }
 
     const config: NotificationType = {
-        title: $root.$tc(messages.title),
-        message: $root.$tc(messages.message, entry.size),
+        title: $root.$t(messages.title),
+        message: $root.$t(messages.message, entry.size),
         variant: 'info',
         metadata: {
             size: entry.size,
@@ -502,7 +502,7 @@ function messageQueueNotification(
         config.uuid = notificationId;
 
         if (entry.size === 0) {
-            config.title = $root.$tc(messages.title);
+            config.title = $root.$t(messages.title);
             config.message = $root.$t(messages.success);
             config.isLoading = false;
 

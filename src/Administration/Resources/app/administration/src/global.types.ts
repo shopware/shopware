@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormalizedLoaded, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -66,7 +66,6 @@ import type RuleConditionService from './app/service/rule-condition.service';
 import type SystemConfigApiService from './core/service/api/system-config.api.service';
 import type UpdateApiService from './core/service/api/update.api.service';
 import type UserRecoveryApiService from './core/service/api/user-recovery.api.service';
-import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
 import type ConfigApiService from './core/service/api/config.api.service';
 import type ImportExportService from './module/sw-import-export/service/importExport.service';
 import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
@@ -74,6 +73,7 @@ import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -85,6 +85,7 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
@@ -120,7 +121,6 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
-import type { UsageData } from './app/store/usage-data.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
@@ -222,7 +222,7 @@ declare global {
         _sw_extension_component_collection: DevtoolComponent[];
         _swLoginOverrides?: Array<() => void>;
         startApplication: () => void;
-        _pageLoadTime_: number;
+        removePageLoadingIndicator: () => void;
     }
 
     const _features_: {
@@ -287,7 +287,6 @@ declare global {
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
         updateService: UpdateApiService;
-        usageDataService: UsageDataApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
         userService: UserApiService;
@@ -306,6 +305,7 @@ declare global {
         validation: typeof ValidationMixin;
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        'translate-with-fallback': typeof TranslateWithFallbackMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -319,6 +319,7 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {
@@ -415,7 +416,6 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
-        usageData: UsageData;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
@@ -548,8 +548,16 @@ declare module '@vue/runtime-core' {
             helpText?: string;
         };
 
-        beforeRouteEnter?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
-        beforeRouteLeave?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
+        beforeRouteEnter?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
+        beforeRouteLeave?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
     }
 
     interface PropOptions {

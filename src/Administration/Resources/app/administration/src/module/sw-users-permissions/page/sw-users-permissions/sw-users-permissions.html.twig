@@ -4,12 +4,14 @@
     <template #smart-bar-header>
         <h2>
             {% block sw_users_permissions_smart_bar_header_title_text %}
-            {{ $tc('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $tc('sw-users-permissions.general.label') }}
+
+            <span>{{ $t('sw-users-permissions.general.label') }}</span>
             {% endblock %}
         </h2>
     </template>
@@ -25,7 +27,7 @@
             @click="onSave"
             @update:process-success="onSaveFinish"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </sw-button-process>
     </template>
     {% endblock %}

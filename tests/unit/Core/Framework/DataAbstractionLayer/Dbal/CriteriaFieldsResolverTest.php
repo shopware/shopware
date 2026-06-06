@@ -41,7 +41,7 @@ class CriteriaFieldsResolverTest extends TestCase
     }
 
     /**
-     * @param array<int, mixed> $expected
+     * @param array<string, array{}|array<string, array{}>> $expected
      */
     #[DataProvider('resolveFieldsProvider')]
     public function testResolveFields(Criteria $criteria, array $expected): void

@@ -21,16 +21,6 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "name": "sw-include-seo-urls",
                         "in": "header",
                         "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
@@ -76,21 +66,13 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "name": "sw-include-seo-urls",
                         "in": "header",
                         "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
                         "required": false,
-                        "schema": { "type": "boolean" }
+                        "schema": {
+                            "type": "boolean"
+                        }
                     }
                 ],
                 "responses": {
@@ -129,16 +111,6 @@
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$'"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -234,16 +206,6 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
                         "in": "header",
                         "name": "sw-include-seo-urls",
@@ -304,16 +266,6 @@
                 "operationId": "readProduct",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "name": "sw-include-search-info",
                         "in": "header",
                         "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
@@ -363,16 +315,6 @@
                 "operationId": "readProductGet",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "x-parameter-group": "criteria"
                     }
                 ],
@@ -405,16 +347,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -498,16 +430,6 @@
                         }
                     },
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
                         "x-parameter-group": "criteria"
                     }
                 ],
@@ -559,16 +481,6 @@
                         "in": "path",
                         "description": "Identifier of the product which is reviewed.",
                         "required": true,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
                         "schema": {
                             "type": "string",
                             "pattern": "^[0-9a-f]{32}$"
@@ -625,6 +537,54 @@
                 ]
             }
         },
+        "/product/purchase-limit": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Fetch current purchase quantity limits for products",
+                "description": "Returns the current min/max/step purchase constraints for the given products, reflecting live stock or configured limitations. Intended for use on PDP to show actual values on product pages.",
+                "operationId": "readProductsPurchaseLimit",
+                "parameters": [
+                    {
+                        "name": "ids[]",
+                        "in": "query",
+                        "description": "List of product IDs to fetch quantity limits for.",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Current quantity limits for the requested products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductPurchaseLimit"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400"
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        },
         "/product/{productId}/find-variant": {
             "post": {
                 "tags": [
@@ -641,16 +601,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     }
                 ],
@@ -723,16 +673,6 @@
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\LanguageAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -202,40 +203,7 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($this->entitySearchResult);
 
-        if (!$provider->updateMailTemplateTypeParam) {
-            $connection->expects($this->never())->method('fetchOne');
-            $this->logger->expects($this->never())->method('warning');
-            $action->handleFlow($flow);
-
-            return;
-        }
-
-        if (!$provider->mailTemplateTypeId) {
-            $connection->expects($this->never())->method('fetchOne');
-            $this->logger->expects($this->never())->method('warning');
-            $action->handleFlow($flow);
-
-            return;
-        }
-
-        if (!$provider->mailTemplateTypeTranslationExists) {
-            $connection->expects($this->once())->method('fetchOne')->willReturn(false);
-
-            $this->logger->expects($this->once())->method('warning')->with(
-                "Could not update mail template type, because translation for this language does not exits:\n"
-                . 'Flow id: ' . $flow->getFlowState()->flowId . "\n"
-                . 'Sequence id: ' . $flow->getFlowState()->getSequenceId()
-            );
-            $action->handleFlow($flow);
-
-            return;
-        }
-
-        if ($provider->expectUpdateMailTemplateType) {
-            $connection->expects($this->once())
-                ->method('fetchOne')
-                ->willReturn(true);
-
+        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
             $this->mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
@@ -246,7 +214,6 @@ class SendMailActionTest extends TestCase
                     ],
                 ],
             ], $context);
-            $this->logger->expects($this->never())->method('warning');
         } else {
             $this->mailTemplateTypeRepository->expects($this->never())->method('update');
         }
@@ -370,29 +337,16 @@ class SendMailActionTest extends TestCase
         yield 'mailTemplateTypeUpdate param is false' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: false,
             mailTemplateTypeId: Uuid::randomHex(),
-            mailTemplateTypeTranslationExists: false,
-            expectUpdateMailTemplateType: false
         )];
 
         yield 'no mail template type id' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: true,
             mailTemplateTypeId: null,
-            mailTemplateTypeTranslationExists: true,
-            expectUpdateMailTemplateType: false
         )];
 
-        yield 'no mail template translation exists' => [new MailTemplateTypeUpdateProvider(
+        yield 'mail template type id exists' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: true,
             mailTemplateTypeId: Uuid::randomHex(),
-            mailTemplateTypeTranslationExists: false,
-            expectUpdateMailTemplateType: false
-        )];
-
-        yield 'mail template translation exists' => [new MailTemplateTypeUpdateProvider(
-            updateMailTemplateTypeParam: true,
-            mailTemplateTypeId: Uuid::randomHex(),
-            mailTemplateTypeTranslationExists: true,
-            expectUpdateMailTemplateType: true
         )];
     }
 
@@ -552,8 +506,6 @@ class MailTemplateTypeUpdateProvider
     public function __construct(
         public readonly bool $updateMailTemplateTypeParam,
         public readonly ?string $mailTemplateTypeId,
-        public readonly bool $mailTemplateTypeTranslationExists,
-        public readonly bool $expectUpdateMailTemplateType
     ) {
     }
 }

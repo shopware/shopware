@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\SalesChannel;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -24,6 +27,7 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -143,6 +147,9 @@ class CategoryRouteTest extends TestCase
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
             $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds($languageCodeChain),
+            ),
             new CategoryDefinition(),
             $this->createMock(CacheTagCollector::class),
         );
@@ -180,11 +187,7 @@ class CategoryRouteTest extends TestCase
 
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $this->ids->get('category'),
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
 
         $this->buildContentlessCategoryRepositoryMock(
             $category,
@@ -286,6 +289,9 @@ class CategoryRouteTest extends TestCase
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
             $this->createMock(SalesChannelCmsPageLoaderInterface::class),
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds(['en']),
+            ),
             new CategoryDefinition(),
             $this->createMock(CacheTagCollector::class),
         );
@@ -295,5 +301,37 @@ class CategoryRouteTest extends TestCase
             $request,
             $salesChannelContext,
         );
+    }
+
+    /**
+     * @param non-empty-list<string> $languageCodeChain
+     */
+    private function createConnectionWithParentLanguageIds(array $languageCodeChain): Connection
+    {
+        $connection = $this->createMock(Connection::class);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+
+        $parentLanguageIds = [];
+        for ($i = \count($languageCodeChain) - 1; $i > 0; --$i) {
+            $parentLanguageIds[] = self::LANGUAGE_IDS[$languageCodeChain[$i - 1]];
+        }
+        $parentLanguageIds[] = null;
+
+        $results = array_map(function (?string $parentLanguageId): Result {
+            $result = $this->createMock(Result::class);
+            $result->method('fetchOne')->willReturn($parentLanguageId);
+
+            return $result;
+        }, $parentLanguageIds);
+
+        $queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls(...$results);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        return $connection;
     }
 }

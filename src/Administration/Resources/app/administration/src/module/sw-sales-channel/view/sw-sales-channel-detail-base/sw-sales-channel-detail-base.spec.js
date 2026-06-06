@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -19,7 +21,9 @@ responses.addResponse({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(options = {}) {
+    const { props = {}, provide = {} } = options;
+
     return mount(await wrapTestComponent('sw-sales-channel-detail-base', { sync: true }), {
         global: {
             stubs: {
@@ -42,9 +46,15 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-sales-channel-detail-hreflang': true,
                 'sw-sales-channel-detail-domains': true,
+                'sw-agentic-commerce-tracking-config': true,
                 'sw-category-tree-field': true,
                 'mt-select': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-custom-field-set-renderer': {
+                    name: 'sw-custom-field-set-renderer',
+                    props: ['disabled'],
+                    template: '<div class="sw-custom-field-set-renderer"></div>',
+                },
+                'sw-form-field-renderer': true,
                 'mt-banner': true,
                 'sw-sales-channel-measurement': true,
                 'sw-time-ago': true,
@@ -54,6 +64,11 @@ async function createWrapper() {
                 productExportService: {},
                 knownIpsService: {
                     getKnownIps: () => Promise.resolve(),
+                },
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve([]),
+                    getValues: () => Promise.resolve({}),
+                    saveValues: () => Promise.resolve(),
                 },
                 repositoryFactory: {
                     create: () => ({
@@ -68,6 +83,7 @@ async function createWrapper() {
                         },
                     }),
                 },
+                ...provide,
             },
             mocks: {
                 $t: jest.fn().mockImplementation((snippet) => snippet),
@@ -78,6 +94,7 @@ async function createWrapper() {
             salesChannel: {},
             productExport: {},
             customFieldSets: [],
+            ...props,
         },
     });
 }
@@ -89,6 +106,127 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         });
         global.repositoryFactoryMock.showError = false;
         global.activeAclRoles = [];
+    });
+
+    describe('feed label input', () => {
+        const productComparisonSalesChannel = { typeId: PRODUCT_COMPARISON_TYPE_ID };
+        const FEED_LABEL_SELECTOR = '.sw-sales-channel-detail-base__feed-label';
+
+        beforeEach(() => {
+            global.activeAclRoles = ['sales_channel.editor'];
+        });
+
+        it.each([
+            {
+                case: 'product comparison + google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'google-product-search-de',
+                expected: true,
+            },
+            {
+                case: 'product comparison + non-google template',
+                salesChannel: productComparisonSalesChannel,
+                templateName: 'idealo-de',
+                expected: false,
+            },
+            {
+                case: 'non-product-comparison + google template',
+                salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID },
+                templateName: 'google-product-search-de',
+                expected: false,
+            },
+            {
+                case: 'product comparison + no template selected',
+                salesChannel: productComparisonSalesChannel,
+                templateName: null,
+                expected: false,
+            },
+        ])('visibility on $case → $expected', async ({ salesChannel, templateName, expected }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel,
+                    productExport: { feedLabel: null },
+                    templateName,
+                },
+            });
+
+            expect(wrapper.find(FEED_LABEL_SELECTOR).exists()).toBe(expected);
+        });
+
+        it.each([
+            { case: 'null', feedLabel: null },
+            { case: 'empty string', feedLabel: '' },
+        ])('passes empty string to mt-text-field when feedLabel is $case', async ({ feedLabel }) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const field = wrapper.findComponent(FEED_LABEL_SELECTOR);
+            expect(field.props('modelValue')).toBe('');
+        });
+
+        it('writes the typed value back to productExport.feedLabel', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('SUMMER-2026');
+
+            expect(wrapper.vm.productExport.feedLabel).toBe('SUMMER-2026');
+        });
+
+        it.each([
+            [
+                'summer224',
+                'SUMMER224',
+            ],
+            [
+                'Summer-2026',
+                'SUMMER-2026',
+            ],
+            [
+                'eu_de',
+                'EU_DE',
+            ],
+        ])('upper-cases letters as the merchant types (%s -> %s)', async (typed, stored) => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: null },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue(typed);
+
+            expect(wrapper.vm.productExport.feedLabel).toBe(stored);
+            expect(input.element.value).toBe(stored);
+        });
+
+        it('writes null back when the input is cleared', async () => {
+            const wrapper = await createWrapper({
+                props: {
+                    salesChannel: productComparisonSalesChannel,
+                    productExport: { feedLabel: 'SUMMER-2026' },
+                    templateName: 'google-product-search-de',
+                },
+            });
+
+            const input = wrapper.find(`${FEED_LABEL_SELECTOR} input`);
+            await input.setValue('');
+
+            expect(wrapper.vm.productExport.feedLabel).toBeNull();
+        });
     });
 
     it('should have the select template field disabled', async () => {
@@ -187,6 +325,21 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         const field = wrapper.get('mt-number-field-stub[label="sw-sales-channel.detail.navigationCategoryDepth"]');
 
         expect(field.attributes().disabled).toBeUndefined();
+    });
+
+    it('should disable the custom field renderer without sales channel edit permissions', async () => {
+        global.activeAclRoles = ['sales_channel.viewer'];
+
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+                customFieldSets: [{}],
+            },
+        });
+
+        expect(wrapper.getComponent('.sw-custom-field-set-renderer').props('disabled')).toBe(true);
     });
 
     it('should have the service category id field disabled', async () => {
@@ -1314,6 +1467,78 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.unservedLanguageVariant).toBe('info');
     });
 
+    it('should render agentic commerce export config from injected fallback when prop is not forwarded', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                },
+            },
+            provide: {
+                swSalesChannelDetailGetAgenticCommerceExportConfig: () => [
+                    {
+                        provider: 'open-ai',
+                        elements: [
+                            {
+                                name: 'core.openAiProductExport.returnPolicyUrl',
+                                type: 'text',
+                                config: {
+                                    label: 'Return policy URL',
+                                },
+                            },
+                        ],
+                        values: {},
+                        isLoading: false,
+                    },
+                ],
+            },
+        });
+
+        expect(wrapper.vm.isAgenticCommerce).toBe(true);
+        expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
+
+        const card = wrapper.get(
+            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
+        );
+        expect(card.exists()).toBe(true);
+        expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);
+    });
+
+    it('should not require a theme when activating an agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                active: true,
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+
+        wrapper.vm.salesChannelRepository.get = jest.fn();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.onToggleActive();
+
+        expect(wrapper.vm.salesChannelRepository.get).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).not.toHaveBeenCalled();
+    });
+
+    it('should not report unserved languages for product export channels', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            salesChannel: {
+                typeId: PRODUCT_COMPARISON_TYPE_ID,
+                languageId: 'language-1',
+                languages: [{ id: 'language-1', name: 'English' }],
+                domains: [],
+            },
+        });
+
+        expect(wrapper.vm.unservedLanguages).toEqual([]);
+        expect(wrapper.find('mt-banner-stub').exists()).toBe(false);
+    });
+
     it('should handle error if sales channel cannot be deleted due to foreign key constraint issues', async () => {
         const wrapper = await createWrapper();
 
@@ -1395,5 +1620,83 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.showDeleteModal).toBe(false);
         expect(wrapper.vm.deleteSalesChannel).toHaveBeenCalledWith('test-id');
         expect(mockPush).not.toHaveBeenCalled();
+    });
+
+    it('should render tracking config component for agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(true);
+    });
+
+    it('should not render tracking config component for non-agentic commerce sales channel', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID,
+                },
+            },
+        });
+
+        expect(wrapper.find('sw-agentic-commerce-tracking-config-stub').exists()).toBe(false);
+    });
+
+    it('should pass disabled state to tracking config component when user lacks editor permission', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: Shopware.Defaults.agenticCommerceTypeId,
+                    configuration: {},
+                },
+            },
+            provide: {
+                acl: {
+                    can: (permission) => permission !== 'sales_channel.editor',
+                },
+            },
+        });
+
+        const trackingConfig = wrapper.find('sw-agentic-commerce-tracking-config-stub');
+        expect(trackingConfig.exists()).toBe(true);
+        expect(trackingConfig.attributes('disabled')).toBeDefined();
+    });
+
+    it('should update salesChannel.configuration when onTrackingConfigChange is called', async () => {
+        const salesChannel = {
+            typeId: Shopware.Defaults.agenticCommerceTypeId,
+            configuration: {},
+        };
+        const wrapper = await createWrapper({ props: { salesChannel } });
+
+        const newConfig = { affiliateCode: 'aff-123', campaignCode: 'camp-456' };
+        wrapper.vm.onTrackingConfigChange(newConfig);
+
+        expect(wrapper.vm.salesChannel.configuration).toEqual(newConfig);
+    });
+
+    it('should reset salesChannelDomainId when storefront sales channel changes', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                salesChannel: {
+                    typeId: PRODUCT_COMPARISON_TYPE_ID,
+                },
+                productExport: {
+                    salesChannelDomainId: 'old-domain-id',
+                    salesChannelDomain: { id: 'old-domain-id' },
+                    storefrontSalesChannelId: 'old-sales-channel-id',
+                },
+            },
+        });
+
+        wrapper.vm.onStorefrontSelectionChange('new-sales-channel-id');
+
+        expect(wrapper.vm.productExport.salesChannelDomainId).toBeNull();
+        expect(wrapper.vm.productExport.salesChannelDomain).toBeNull();
     });
 });

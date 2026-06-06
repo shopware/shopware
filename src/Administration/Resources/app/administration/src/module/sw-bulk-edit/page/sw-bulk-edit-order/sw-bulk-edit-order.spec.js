@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -6,6 +8,33 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
 
 const selectedOrderId = Shopware.Utils.createId();
+
+const documentIds = [
+    'document-id-1',
+    'document-id-2',
+];
+
+const deleteDocumentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+        selected: true,
+    },
+];
+
+const documentRepositoryMock = {
+    searchIds: jest.fn(() =>
+        Promise.resolve({
+            data: documentIds,
+            total: documentIds.length,
+        }),
+    ),
+};
+
+const syncServiceMock = {
+    sync: jest.fn(() => Promise.resolve()),
+};
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
@@ -16,7 +45,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let routes;
     const searchIdsSpy = jest.fn();
 
-    async function createWrapper(isResponseError = false) {
+    async function createWrapper(isResponseError = false, selectedDocumentTypesForDeletion = []) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
         delete config.global.mocks.$route;
@@ -27,6 +56,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
         router.push('/');
         await router.isReady();
+
+        Shopware.Store.get('swBulkEdit').selectedIds = [selectedOrderId];
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'delete',
+            value: [...selectedDocumentTypesForDeletion],
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'delete',
+            isChanged: selectedDocumentTypesForDeletion.length > 0,
+        });
 
         return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
             global: {
@@ -85,6 +124,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-order-documents-generate-delivery-note': true,
                     'sw-bulk-edit-order-documents-generate-credit-note': true,
                     'sw-bulk-edit-order-documents-download-documents': true,
+                    'sw-bulk-edit-order-documents-delete-documents': true,
                     'sw-entity-tag-select': true,
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
@@ -135,6 +175,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 return {
                                     searchIds: searchIdsSpy,
                                 };
+                            }
+
+                            if (entity === 'document') {
+                                return documentRepositoryMock;
                             }
 
                             return {
@@ -230,6 +274,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: syncServiceMock,
                 },
             },
             props: {
@@ -656,7 +701,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--color-purple-500)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
@@ -819,5 +864,56 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await flushPromises();
 
         expect(resetSpy).toHaveBeenCalled();
+    });
+
+    describe('delete documents', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should show additional warning banner when deleting documents', async () => {
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            const deleteDocumentsCheckbox = wrapper.find(
+                '.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input',
+            );
+            expect(deleteDocumentsCheckbox.exists()).toBe(true);
+            await deleteDocumentsCheckbox.setValue('checked');
+
+            await flushPromises();
+
+            const additionalWarningBanner = wrapper.find('.sw-bulk-edit-save-modal__warning-document-deletion');
+            expect(additionalWarningBanner.exists()).toBe(true);
+            expect(additionalWarningBanner.text()).toBe('sw-bulk-edit.modal.warningTextDocumentDeletion');
+        });
+
+        it('should show error message in modal when deleting documents that have depending documents', async () => {
+            syncServiceMock.sync.mockRejectedValueOnce({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                status: '422',
+                                code: 'ERROR_CODE',
+                                detail: 'Detailed error message',
+                            },
+                        ],
+                    },
+                },
+            });
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            await wrapper
+                .find('.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input')
+                .setValue('checked');
+            await flushPromises();
+
+            await wrapper.find('.sw-bulk-edit-save-modal .mt-button--primary').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.find('.sw-bulk-edit-save-modal .sw-bulk-edit-save-modal-error').exists()).toBe(true);
+        });
     });
 });

@@ -15,6 +15,7 @@
 /storefront/element/cms-element-image-slider.html.twig
 /storefront/element/cms-element-text.html.twig
 /storefront/element/cms-element-product-name.html.twig
+/storefront/element/cms-element-category-name.html.twig
 /storefront/element/cms-element-image.html.twig
 /storefront/element/cms-element-product-slider.html.twig
 /storefront/element/cms-element-product-description-reviews.html.twig
@@ -49,6 +50,3 @@
 # Ludtwig related parser errors below.
 # These are ignored until this syntax is supported in ludtwig
 # -------------------------------------------
-
-# Twig whitespace support https://github.com/MalteJanz/ludtwig/issues/56
-/storefront/utilities/icon.html.twig

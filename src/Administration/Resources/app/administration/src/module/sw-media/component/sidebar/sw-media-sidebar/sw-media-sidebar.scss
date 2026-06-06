@@ -3,17 +3,17 @@
 
 $sw-media-sidebar-z-index: $z-index-sidebar;
 $sw-media-sidebar-font-size-headline: $font-size-m;
-$sw-media-sidebar-color-headline: $color-darkgray-200;
-$sw-media-sidebar-border-color-headline: $color-gray-300;
-$sw-media-sidebar-color-quick-action: $color-shopware-brand-500;
-$sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
+$sw-media-sidebar-color-headline: var(--color-text-primary-default);
+$sw-media-sidebar-border-color-headline: var(--color-border-primary-default);
+$sw-media-sidebar-color-quick-action: var(--color-text-brand-default);
+$sw-media-sidebar-color-quick-action-danger: var(--color-icon-critical-default);
 
 .sw-media-sidebar {
     display: grid;
     height: 100%;
     width: 400px;
     grid-template-rows: auto 1fr;
-    border-left: 1px solid $color-gray-300;
+    border-left: 1px solid var(--color-border-primary-default);
 
     @media screen and (max-width: 768px) {
         width: 300px;
@@ -61,7 +61,7 @@ $sw-media-sidebar-color-quick-action-danger: $color-crimson-500;
     }
 
     .sw-media-sidebar__empty-state-label {
-        color: $color-gray-300;
+        color: var(--color-text-secondary-default);
         margin: 8px auto 0;
     }
 

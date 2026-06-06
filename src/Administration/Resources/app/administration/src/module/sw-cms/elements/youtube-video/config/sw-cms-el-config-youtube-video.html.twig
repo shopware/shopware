@@ -143,7 +143,7 @@
         <template #default="{ isInherited }">
             <mt-select
                 v-model="element.config.displayMode.value"
-                :placeholder="$tc('sw-cms.elements.general.config.label.displayMode')"
+                :placeholder="$t('sw-cms.elements.general.config.label.displayMode')"
                 :options="displayModeOptions"
                 :disabled="isInherited"
             />

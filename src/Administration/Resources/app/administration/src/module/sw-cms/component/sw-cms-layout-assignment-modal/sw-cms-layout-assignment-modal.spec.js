@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -150,7 +152,7 @@ async function createWrapper(layoutType = 'product_list', systemConfigApiService
                                     :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
                                     alt=""
                                 >
-                                <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
+                                <p>{{ $t('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
                             </slot>
                         </div>
                     `,

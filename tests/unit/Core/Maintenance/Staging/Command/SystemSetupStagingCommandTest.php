@@ -45,12 +45,22 @@ class SystemSetupStagingCommandTest extends TestCase
             ['match' => '/old-path', 'type' => 'prefix', 'replace' => '/new-path'],
         ];
 
+        $systemConfigOverrides = [
+            'default' => [
+                'core.someKey' => 'someValue',
+            ],
+            'a1b2c3d4e5f6' => [
+                'core.someKey' => 'channelValue',
+            ],
+        ];
+
         $command = new SystemSetupStagingCommand(
             $eventDispatcher,
             $configService,
             true,
             $routeMappings,
             ['MyDisabledExtension'],
+            $systemConfigOverrides,
         );
 
         $tester = new CommandTester($command);
@@ -67,6 +77,7 @@ class SystemSetupStagingCommandTest extends TestCase
         static::assertSame($routeMappings, $event->domainMappings);
         static::assertTrue($event->disableMailDelivery);
         static::assertSame(['MyDisabledExtension'], $event->extensionsToDisable);
+        static::assertSame($systemConfigOverrides, $event->systemConfigOverrides);
     }
 
     public function testRunNoInteractionWithForce(): void

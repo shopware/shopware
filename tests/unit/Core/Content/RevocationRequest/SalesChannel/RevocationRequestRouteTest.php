@@ -25,9 +25,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -69,9 +69,7 @@ class RevocationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
-        $revocationRequestRoute = $this->createRevocationRequestRoute([$cmsSlot]);
-
-        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+        $result = $this->createRevocationRequestRoute([$cmsSlot])->request($dataBag, $this->createSalesChannelContext());
 
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
@@ -83,9 +81,7 @@ class RevocationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData();
         $dataBag = new RequestDataBag($formData);
 
-        $revocationRequestRoute = $this->createRevocationRequestRoute();
-
-        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+        $result = $this->createRevocationRequestRoute()->request($dataBag, $this->createSalesChannelContext());
 
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
@@ -99,9 +95,7 @@ class RevocationRequestRouteTest extends TestCase
         $formData = $this->createValidFormData($slotId);
         $dataBag = new RequestDataBag($formData);
 
-        $revocationRequestRoute = $this->createRevocationRequestRoute();
-
-        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+        $result = $this->createRevocationRequestRoute()->request($dataBag, $this->createSalesChannelContext());
 
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
@@ -121,9 +115,7 @@ class RevocationRequestRouteTest extends TestCase
         $cmsSlot->setId($slotId);
         $cmsSlot->setTranslated(['config' => $config[$slotId]]);
 
-        $revocationRequestRoute = $this->createRevocationRequestRoute([$cmsSlot]);
-
-        $result = $revocationRequestRoute->request($dataBag, $this->createSalesChannelContext());
+        $result = $this->createRevocationRequestRoute([$cmsSlot])->request($dataBag, $this->createSalesChannelContext());
 
         static::assertSame($successMessage, $result->getIndividualSuccessMessage());
     }
@@ -132,25 +124,8 @@ class RevocationRequestRouteTest extends TestCase
     {
         $validatorMock = $this->createMock(DataValidator::class);
 
-        $validatorMock->method('getViolations')->willReturnCallback(static function (array $formData): ConstraintViolationList {
-            $violationList = new ConstraintViolationList();
-            if (!\array_key_exists('firstName', $formData) || empty($formData['firstName'])) {
-                $violationList->add(new ConstraintViolation('Invalid firstName', null, [], 'firstName', null, null, null, 'firstName'));
-            }
-            if (!\array_key_exists('lastName', $formData) || empty($formData['lastName'])) {
-                $violationList->add(new ConstraintViolation('Invalid lastName', null, [], 'lastName', null, null, null, 'lastName'));
-            }
-            if (!\array_key_exists('email', $formData) || empty($formData['email'])) {
-                $violationList->add(new ConstraintViolation('Invalid email', null, [], 'email', null, null, null, 'email'));
-            }
-            if (!\array_key_exists('contractNumber', $formData) || empty($formData['contractNumber'])) {
-                $violationList->add(new ConstraintViolation('Invalid contractNumber', null, [], 'contractNumber', null, null, null, 'contractNumber'));
-            }
-            if (!\array_key_exists('comment', $formData) || empty($formData['comment'])) {
-                $violationList->add(new ConstraintViolation('Invalid comment', null, [], 'comment', null, null, null, 'comment'));
-            }
-
-            return $violationList;
+        $validatorMock->method('getViolations')->willReturnCallback(static function (): ConstraintViolationList {
+            return new ConstraintViolationList();
         });
 
         return $validatorMock;
@@ -194,6 +169,7 @@ class RevocationRequestRouteTest extends TestCase
             $systemConfigServiceMock,
             $cmsSlotRepository,
             $categoryRepository,
+            new NativeClock()
         );
     }
 

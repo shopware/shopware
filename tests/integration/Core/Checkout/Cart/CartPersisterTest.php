@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
@@ -31,16 +30,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -54,7 +54,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $e = null;
 
@@ -78,7 +78,7 @@ class CartPersisterTest extends TestCase
                 ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
         $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
         $expected = new Cart('existing');
@@ -98,7 +98,7 @@ class CartPersisterTest extends TestCase
         // Cart should not be inserted or updated.
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $cart = new Cart('existing');
 
@@ -260,10 +260,7 @@ class CartPersisterTest extends TestCase
 
     public function testCartCanBeUnserialized(): void
     {
-        /** @phpstan-ignore shopware.unserializeUsage */
-        $cart = \unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
-
-        static::assertInstanceOf(Cart::class, $cart);
+        $cart = Serialization::assertUnserializedInstanceOf(Cart::class, (string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
     }
 
     public function testCartVerifyPersistEventIsFiredAndNotPersisted(): void
@@ -279,7 +276,7 @@ class CartPersisterTest extends TestCase
             $caughtEvent = $event;
         });
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $cart = new Cart('existing');
 

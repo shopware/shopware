@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -42,7 +41,6 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[CoversClass(EntityWriteGateway::class)]
 class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -510,16 +508,14 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function methodProvider(): array
+    public static function methodProvider(): iterable
     {
-        return [
-            ['create'],
-            ['upsert'],
-            ['update'],
-            ['delete'],
-        ];
+        yield 'method create' => ['create'];
+        yield 'method upsert' => ['upsert'];
+        yield 'method update' => ['update'];
+        yield 'method delete' => ['delete'];
     }
 
     public function testEntityWriteEventSuccessCallbacksCalled(): void

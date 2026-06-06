@@ -4,7 +4,8 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Faker\Factory;
 use Faker\Generator;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -30,7 +31,8 @@ class DemodataService
     public function __construct(
         private readonly \IteratorAggregate $generators,
         private readonly string $projectDir,
-        private readonly DefinitionInstanceRegistry $registry
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -59,13 +61,13 @@ class DemodataService
                 throw DemodataException::noGeneratorFound($definitionClass);
             }
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
 
             foreach ($validGenerators as $generator) {
                 $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
             }
 
-            $end = microtime(true) - $start;
+            $end = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start;
 
             $console->note(\sprintf('Took %f seconds', $end));
 
@@ -79,7 +81,6 @@ class DemodataService
     {
         $faker = Factory::create('de-DE');
         $faker->addProvider(new Commerce($faker));
-        $faker->addProvider(new ImagesGeneratorProvider($faker));
 
         return $faker;
     }

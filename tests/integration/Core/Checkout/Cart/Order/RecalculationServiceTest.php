@@ -385,8 +385,7 @@ class RecalculationServiceTest extends TestCase
         $cart = $this->generateDemoCart();
         $orderId = $this->persistCart($cart)['orderId'];
 
-        static::expectException(OrderException::class);
-        static::expectExceptionMessage("Order with id $orderId can not be recalculated because it is in the live version. Please create a new version");
+        $this->expectExceptionObject(OrderException::canNotRecalculateLiveVersion($orderId));
 
         $service = static::getContainer()->get(RecalculationService::class);
 

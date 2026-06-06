@@ -23,15 +23,6 @@ class SyncComposerVersionCommandTest extends TestCase
     {
         $this->projectDir = sys_get_temp_dir() . '/' . uniqid('shopware-sync-composer-version-test', true);
         $this->fs = new Filesystem();
-
-        $this->fs->mkdir($this->projectDir);
-        $this->fs->dumpFile($this->projectDir . '/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.3.0',
-                'foo/bar' => '1.0.0',
-                'test/package' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
     }
 
     protected function tearDown(): void
@@ -41,19 +32,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testSync(): void
     {
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle2/composer.json', json_encode([
-            'require' => [
-                'foo/bar' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
-
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.2.0',
-                'foo/bar' => '1.0.0',
-                'test/package' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $this->copyProjectFixture('sync');
 
         $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
         $tester->execute([]);
@@ -70,13 +49,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testAlreadySynced(): void
     {
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.3.0',
-                'foo/bar' => '1.0.0',
-                'test/package' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $this->copyProjectFixture('already-synced');
 
         $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
         $tester->execute([]);
@@ -88,13 +61,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testDryRun(): void
     {
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.2.0',
-                'foo/bar' => '1.0.0',
-                'test/package' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $this->copyProjectFixture('dry-run');
         $command = new SyncComposerVersionCommand($this->projectDir, $this->fs);
 
         $tester = new CommandTester($command);
@@ -112,19 +79,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testPackageInRootButNotInBundle(): void
     {
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
-            'require' => [
-                'foo/bar' => '1.0.0',
-                'shopware/core' => '*',
-            ],
-        ], \JSON_THROW_ON_ERROR));
-
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle2/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.3.0',
-                'shopware/core' => '*',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $this->copyProjectFixture('package-in-root-but-not-in-bundle');
 
         $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
         $tester->execute([]);
@@ -139,14 +94,7 @@ class SyncComposerVersionCommandTest extends TestCase
 
     public function testPackageInBundleButNotInRoot(): void
     {
-        $this->fs->dumpFile($this->projectDir . '/src/Bundle1/composer.json', json_encode([
-            'require' => [
-                'symfony/symfony' => '5.3.0',
-                'foo/bar' => '1.0.0',
-                'test/package' => '1.0.0',
-                'not/in-root' => '1.0.0',
-            ],
-        ], \JSON_THROW_ON_ERROR));
+        $this->copyProjectFixture('package-in-bundle-but-not-in-root');
 
         $tester = new CommandTester(new SyncComposerVersionCommand($this->projectDir, $this->fs));
         $tester->execute([]);
@@ -163,5 +111,10 @@ class SyncComposerVersionCommandTest extends TestCase
         static::assertIsString($output);
 
         return $output;
+    }
+
+    private function copyProjectFixture(string $fixture): void
+    {
+        $this->fs->mirror(__DIR__ . '/_fixtures/sync-composer-version/' . $fixture, $this->projectDir);
     }
 }

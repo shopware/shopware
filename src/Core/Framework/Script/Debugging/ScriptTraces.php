@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\FunctionHook;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -19,7 +21,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class ScriptTraces extends AbstractDataCollector implements ResetInterface
 {
     /**
-     * @var array<string, mixed>
+     * @var array<string, list<array{name: string, took: float, output: array<string|int, mixed>, deprecations: array<string, int>}>>
      */
     protected array $traces = [];
 
@@ -27,6 +29,10 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
      * @var list<string>
      */
     protected static array $deprecationNotices = [];
+
+    public function __construct(private readonly ClockInterface $clock)
+    {
+    }
 
     public static function addDeprecationNotice(string $deprecationNotice): void
     {
@@ -52,7 +58,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
     public function trace(Hook $hook, Script $script, \Closure $execute): void
     {
-        $time = microtime(true);
+        $time = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
 
         $debug = new Debug();
 
@@ -61,7 +67,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
         $deprecations = static::$deprecationNotices;
         static::$deprecationNotices = [];
 
-        $took = round(microtime(true) - $time, 3);
+        $took = round((float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $time, 3);
 
         $name = explode('/', $script->getName());
         $name = array_pop($name);
@@ -100,6 +106,11 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
 
     public function getTook(): float
     {
+        /**
+         * `data` is the same as the `traces` property
+         *
+         * @var array<string, list<array{name: string, took: float, output: array<string|int, mixed>, deprecations: array<string, int>}>> $data
+         */
         $data = $this->data instanceof Data ? $this->data->getIterator() : $this->data;
 
         $took = 0.0;
@@ -158,7 +169,7 @@ class ScriptTraces extends AbstractDataCollector implements ResetInterface
     /**
      * @internal
      *
-     * @return array<string, mixed>
+     * @return array<string|int, mixed>
      */
     public function getOutput(string $name, int $index): array
     {

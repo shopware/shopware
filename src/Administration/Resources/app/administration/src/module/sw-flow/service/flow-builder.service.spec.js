@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package after-sales
  */
@@ -125,7 +127,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
     };
 
     const translator = {
-        $tc: (snippet) => {
+        $t: (snippet) => {
             return snippet;
         },
         getInlineSnippet: (snippet) => {

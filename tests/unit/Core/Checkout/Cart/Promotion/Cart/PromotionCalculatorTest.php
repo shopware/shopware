@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
@@ -30,12 +31,14 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\Rule\FalseRule;
 
 /**
  * @internal
@@ -284,6 +287,139 @@ class PromotionCalculatorTest extends TestCase
         );
 
         static::assertNull($cart->getLineItems()->get($discountItem->getId()));
+    }
+
+    public function testNotLoggedInAddsSpecificError(): void
+    {
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('code', 'PROMO10')
+            ->setPayloadValue('hasPersonaRestriction', true)
+            ->setPayloadValue('conditionRuleIds', ['rule-id-1'])
+            ->setRequirement(new FalseRule());
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context,
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-not-logged-in', $error->getMessageKey());
+    }
+
+    public function testRuleIdsPassedToNotEligibleError(): void
+    {
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('code', 'PROMO10')
+            ->setPayloadValue('hasPersonaRestriction', false)
+            ->setPayloadValue('conditionRuleIds', ['rule-id-1', 'rule-id-2'])
+            ->setRequirement(new FalseRule());
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context,
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible', $error->getMessageKey());
+        static::assertSame(['rule-id-1', 'rule-id-2'], $error->getRuleIds());
+    }
+
+    public function testLoggedInCustomerWithPersonaRestrictionUsesRuleIds(): void
+    {
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('code', 'PROMO10')
+            ->setPayloadValue('hasPersonaRestriction', true)
+            ->setPayloadValue('conditionRuleIds', ['rule-id-persona'])
+            ->setRequirement(new FalseRule());
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(new CustomerEntity());
+
+        $cart = new Cart('promotion-test');
+
+        $this->promotionCalculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context,
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible', $error->getMessageKey());
+        static::assertSame(['rule-id-persona'], $error->getRuleIds());
+    }
+
+    public function testSpecificProductsErrorWhenNoPackagesAndProductRestricted(): void
+    {
+        $cartPackager = $this->createMock(DiscountPackager::class);
+        $cartPackager
+            ->method('getMatchingItems')
+            ->willReturn(new DiscountPackageCollection([]));
+
+        $calculator = new PromotionCalculator(
+            $this->createMock(AmountCalculator::class),
+            $this->createMock(AbsolutePriceCalculator::class),
+            $this->createMock(LineItemGroupBuilder::class),
+            $this->createMock(DiscountCompositionBuilder::class),
+            $this->createMock(PackageFilter::class),
+            $this->createMock(AdvancedPackagePicker::class),
+            $this->createMock(SetGroupScopeFilter::class),
+            $this->createMock(LineItemQuantitySplitter::class),
+            $this->createMock(PercentagePriceCalculator::class),
+            $cartPackager,
+            $this->createMock(DiscountPackager::class),
+            $this->createMock(DiscountPackager::class)
+        );
+
+        $discountItem = $this->getDiscountItem('promotion')
+            ->setPayloadValue('code', 'PROMO10')
+            ->setPayloadValue('filter', [
+                'considerAdvancedRules' => true,
+                'sorterKey' => null,
+                'applierKey' => 'ALL',
+                'usageKey' => null,
+                'pickerKey' => null,
+            ]);
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $cart = new Cart('promotion-test');
+        $cart->setPrice(new CartPrice(100, 100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $calculator->calculate(
+            new LineItemCollection([$discountItem]),
+            $cart,
+            $cart,
+            $context,
+            new CartBehavior()
+        );
+
+        static::assertCount(1, $cart->getErrors());
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(PromotionNotEligibleError::class, $error);
+        static::assertSame('promotion-not-eligible-specific-products', $error->getMessageKey());
     }
 
     private function getDiscountItem(string $promotionId): LineItem

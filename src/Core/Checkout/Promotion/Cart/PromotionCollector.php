@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -179,7 +180,7 @@ class PromotionCollector implements CartDataCollectorInterface
             foreach (\array_diff($allCodes, \array_unique($foundCodes)) as $code) {
                 $cartExtension->removeCode((string) $code);
 
-                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
+                $original->addErrors(new PromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true)));
             }
 
             // when being in a recalculation, having notifications about the removal of automatic promotion is desired

@@ -14,6 +14,8 @@
         "promotion-not-found": "Promo code \"%code%\" could not be found.",
         "auto-promotion-not-found": "Promotion \"%name%\" no longer valid!",
         "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
+        "promotion-not-eligible-not-logged-in": "Please log in to redeem this promo code.",
+        "promotion-not-eligible-specific-products": "This promo code is only valid for specific products not currently in your cart.",
         "promotion-excluded": "One or more discounts have been removed from the shopping cart, due to conflicts with other discounts. Once the conditions are met again, the discounts will be applied automatically.",
         "promotions-on-cart-price-zero-error": "Promotions \"%promotions%\" were excluded for cart because the price of the cart is zero",
         "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",

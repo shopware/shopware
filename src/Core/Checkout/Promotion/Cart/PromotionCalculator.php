@@ -112,7 +112,15 @@ class PromotionCalculator
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $calculated);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $calculated->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $calculated->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -268,6 +276,10 @@ class PromotionCalculator
         // check if no result is found,
         // then this would mean -> no discount
         if ($packages->count() <= 0) {
+            if ($discount->isConsiderAdvancedRules() && !$this->isAutomaticDiscount($item)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+            }
+
             return new DiscountCalculatorResult(
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
                 []
@@ -298,6 +310,15 @@ class PromotionCalculator
         // and run it through the advanced rules if existing
         if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_SETGROUP) {
             $packages = $this->advancedRules->filter($discount, $packages, $context);
+
+            if ($packages->count() === 0 && $discount->isConsiderAdvancedRules() && !$this->isAutomaticDiscount($item)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+
+                return new DiscountCalculatorResult(
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+                    []
+                );
+            }
         }
 
         // depending on the selected picker of our

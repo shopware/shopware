@@ -190,6 +190,11 @@ $sw-media-base-item-preview-background: var(--color-elevation-surface-raised);
         }
 
         .sw-media-base-item__name-container {
+            // Allow the grid item to shrink below the intrinsic width of long
+            // file names, so the name truncates instead of overflowing the
+            // item and triggering horizontal scrolling.
+            min-width: 0;
+            overflow: hidden;
             margin: 0;
             text-align: left;
             font-size: $font-size-xs;

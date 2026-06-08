@@ -260,6 +260,7 @@ class HookableEventFactoryTest extends TestCase
                 'id',
                 'name',
                 'description',
+                'descriptionTeaser',
             ],
             'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());
@@ -321,6 +322,7 @@ class HookableEventFactoryTest extends TestCase
                 'id',
                 'name',
                 'description',
+                'descriptionTeaser',
             ],
             'versionId' => Defaults::LIVE_VERSION,
         ]], $event->getWebhookPayload());

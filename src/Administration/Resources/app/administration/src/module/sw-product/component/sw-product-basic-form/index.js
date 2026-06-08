@@ -15,6 +15,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'userConfigService',
         'feature',
     ],
 
@@ -39,6 +40,7 @@ export default {
     data() {
         return {
             productNumberRangeId: null,
+            hideCoverImageDescriptionHint: true,
         };
     },
 
@@ -134,11 +136,8 @@ export default {
                 this.getInheritValue('translated', 'description') ??
                 '';
 
-            /**
-             * Approximates the SQL expression of the generated `description_teaser` column:
-             * LEFT(REGEXP_REPLACE(LEFT(description, 2000), '<[^>]*>', ''), 255)
-             */
-            return Shopware.Filter.getByName('truncate')(description.substring(0, 2000), 255, true, '');
+            // Mirrors the descriptionTeaser write logic: strip HTML, then truncate to 512 characters.
+            return Shopware.Filter.getByName('truncate')(description, 512, true, '');
         },
 
         numberRangeCriteria() {
@@ -158,6 +157,23 @@ export default {
     methods: {
         createdComponent() {
             this.loadProductNumberRangeId();
+            this.loadCoverImageDescriptionHintConfig();
+        },
+
+        async loadCoverImageDescriptionHintConfig() {
+            const response = await this.userConfigService.search(['product.hideCoverImageDescriptionHint']);
+
+            this.hideCoverImageDescriptionHint = !!response?.data?.['product.hideCoverImageDescriptionHint']?.value;
+        },
+
+        async onCloseCoverImageDescriptionHint() {
+            this.hideCoverImageDescriptionHint = true;
+
+            await this.userConfigService.upsert({
+                'product.hideCoverImageDescriptionHint': {
+                    value: true,
+                },
+            });
         },
 
         updateIsTitleRequired() {

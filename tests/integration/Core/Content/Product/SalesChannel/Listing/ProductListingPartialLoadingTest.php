@@ -57,7 +57,7 @@ class ProductListingPartialLoadingTest extends TestCase
         static::assertIsArray($translated);
         static::assertArrayNotHasKey('description', array_filter($translated), 'description must not be loaded');
         static::assertNotEmpty($translated['descriptionTeaser'] ?? null, 'descriptionTeaser must be loaded');
-        static::assertSame(255, mb_strlen($translated['descriptionTeaser']));
+        static::assertSame(512, mb_strlen($translated['descriptionTeaser']));
         static::assertStringNotContainsString('<', $translated['descriptionTeaser'], 'descriptionTeaser must not contain HTML');
         static::assertStringStartsWith('Lorem ipsum', $translated['descriptionTeaser']);
 

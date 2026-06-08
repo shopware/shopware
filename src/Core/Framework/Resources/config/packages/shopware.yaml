@@ -485,6 +485,8 @@ shopware:
         fields:
             - name: product_translation.description
               sets: ["basic", "media", "HTML5"]
+            - name: product_translation.descriptionTeaser
+              sets: []
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value

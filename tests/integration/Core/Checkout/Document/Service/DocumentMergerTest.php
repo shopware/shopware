@@ -102,7 +102,7 @@ class DocumentMergerTest extends TestCase
         $expectedBlob = 'expected blob';
 
         $mockFpdi = $this->getMockBuilder(Fpdi::class)->onlyMethods(['Output'])->getMock();
-        $mockFpdi->expects($this->once())->method('OutPut')->willReturn($expectedBlob);
+        $mockFpdi->expects($this->once())->method('Output')->willReturn($expectedBlob);
 
         $documentMerger = new DocumentMerger(
             $this->documentRepository,
@@ -143,7 +143,7 @@ class DocumentMergerTest extends TestCase
 
     public function testMergeWithoutStaticMedia(): void
     {
-        $mockGenerator = $this->getMockBuilder(DocumentGenerator::class)->disableOriginalConstructor()->onlyMethods(['generate'])->getMock();
+        $mockGenerator = $this->createMock(DocumentGenerator::class);
         $mockGenerator->expects($this->once())->method('generate')->willReturn(new DocumentGenerationResult());
 
         $documentMerger = new DocumentMerger(

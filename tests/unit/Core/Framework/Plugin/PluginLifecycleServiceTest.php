@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\BackupStaticProperties;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -404,6 +405,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }
 
+    #[BackupStaticProperties(true)]
     public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
     {
         $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
@@ -458,10 +460,6 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertEmpty($replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
-
-        // need to reset the static properties to avoid side effects in other test cases
-        $reflection = new \ReflectionClass(PluginLifecycleService::class);
-        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void

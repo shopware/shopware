@@ -211,7 +211,7 @@ export default {
 
             buttonConfig.push({
                 key: 'close',
-                label: this.$t('sw-bulk-edit.modal.success.failedDocuments.ok'),
+                label: this.$t('global.default.close'),
                 position: 'right',
                 variant: 'primary',
                 action: '',

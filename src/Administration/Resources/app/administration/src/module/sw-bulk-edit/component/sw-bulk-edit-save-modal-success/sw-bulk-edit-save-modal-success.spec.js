@@ -349,6 +349,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
             }),
             expect.objectContaining({
                 key: 'close',
+                label: 'global.default.close',
                 variant: 'primary',
             }),
         ]);

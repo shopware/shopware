@@ -272,7 +272,6 @@
           "downloadResult": "Ergebnis herunterladen",
           "downloadHeadline": "Fehlgeschlagene Dokumente",
           "downloadFileName": "bulk-edit-dokumentenerstellung-ergebnis",
-          "ok": "OK",
           "documentTypes": {
             "invoice": "Rechnung",
             "storno": "Stornorechnung",

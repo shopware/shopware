@@ -272,7 +272,6 @@
           "downloadResult": "Download result",
           "downloadHeadline": "Failed documents",
           "downloadFileName": "bulk-edit-document-generation-result",
-          "ok": "OK",
           "documentTypes": {
             "invoice": "Invoice",
             "storno": "Cancellation invoice",

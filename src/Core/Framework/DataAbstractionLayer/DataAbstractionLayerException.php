@@ -1170,7 +1170,7 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @param array<string, list<string>> $restrictions
+     * @param array<string, list<array<string, mixed>>> $restrictions
      */
     public static function restrictDeleteViolations(EntityDefinition $definition, array $restrictions): RestrictDeleteViolationException
     {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
  * (installed vs uninstalled), whether an installed service may run (privileges granted vs revoked),
  * or nothing at all — {@see Gate::NONE} is a recognised marker requirement that gates neither.
  *
- * @codeCoverageIgnore Simple enum with no logic
+ * @codeCoverageIgnore
  *
  * @internal
  */

@@ -103,6 +103,18 @@ When a customer with an unconfirmed double opt-in account tries to log in, Shopw
 
 The interval is controlled by the new system config setting `core.loginRegistration.doubleOptInResendInterval` (default: `24` hours). Setting it to `0` disables the auto-resend entirely.
 
+### Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are deprecated and will be removed in Shopware 6.8.0.0.
+
+Affected commands:
+
+- `bin/console user:list --json` → `bin/console user:list --format json`
+- `bin/console app:list --json` → `bin/console app:list --format json`
+- `bin/console plugin:list --json` → `bin/console plugin:list --format json`
+- `bin/console dal:validate --json` → `bin/console dal:validate --format json`
+- `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted
@@ -354,6 +366,11 @@ Column headers and the column visibility settings in `sw-data-grid` now resolve 
 App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
 Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
 
+### Product variants are easier to distinguish in `sw-entity-multi-id-select`
+
+`sw-entity-multi-id-select` now displays product variant option details for product repositories in the selected labels and dropdown results.
+This helps extensions and plugin configuration UIs that let merchants select multiple products, because variants with inherited product names no longer appear as identical entries.
+
 ## Storefront
 
 ### New Component System
@@ -512,6 +529,14 @@ This improves the generated OpenAPI and Stoplight documentation for integrations
 
 ## Core
 
+### Elasticsearch: Configurable minimum score threshold for search results
+
+A new system configuration key `core.search.minScore` (float, default `0.0`, per sales channel) lets merchants drop low-relevance Elasticsearch hits. When the value is above `0.0`, it is applied as the native `min_score` parameter on the product term-search query.
+
+The setting is most useful for cutting the long tail of fuzzy or ngram-only matches on single-token queries. There is no universally correct value — the effective BM25 score range depends on field weights, analyzer configuration, and catalog size — so start with a low threshold and increase it gradually while watching how noisy queries behave. Leave at `0.0` to disable.
+
+Adjust via the System Config API using the key `core.search.minScore`.
+
 ### Elasticsearch: Disabled BM25 field-length normalization for structured search fields
 
 Elasticsearch product search now uses a custom BM25 similarity with `b=0` (no field-length normalization) as the index default. This prevents short product names like "Sony TV" from ranking unfairly above descriptive ones like "Sony 65-inch 4K Ultra HD Smart OLED TV" when both match the same search terms.
@@ -552,7 +577,7 @@ Plugins that need to customize Elasticsearch field query generation can now deco
 
 Elasticsearch `dis_max` queries now include a `tie_breaker` parameter at the field level, translated field level, and token combination level. Previously, `dis_max` only considered the single best-matching clause. With `tie_breaker`, scores from other matching clauses contribute partially to the overall score, improving ranking for documents that match across multiple fields or language variants.
 
-The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml`.
+The value is configurable via `elasticsearch.search.dismax_tie_breaker` in `elasticsearch.yaml` (default `0.2`).
 
 ### Salutation ordering
 

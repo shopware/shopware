@@ -1,21 +1,11 @@
-@import "~scss/variables";
-
 .sw-settings-tax-detail {
     position: relative;
 
-    .sw-field {
-        margin-bottom: 0;
+    &__default-tax-rate {
+        width: 100%;
     }
 
-    .sw-field--switch {
-        margin-bottom: 0;
-    }
-
-    .sw-settings-tax-detail__switches {
+    &__switches {
         display: flex;
-
-        .sw-field {
-            margin-right: 20px;
-        }
     }
 }

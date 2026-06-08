@@ -680,12 +680,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\FieldSerializer\\AbstractFieldSerializer::requiresValidation() has parameter $value with no type specified.',
-    'identifier' => 'missingType.parameter',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/AbstractFieldSerializer.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 1,
@@ -932,12 +926,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Write/PrimaryKeyBag.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\Validator::addConstraint() has parameter $propertyValue with no type specified.',
-    'identifier' => 'missingType.parameter',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/Write/Validation/Validator.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Property Shopware\\Core\\Framework\\DataAbstractionLayer\\Write\\Validation\\Validator::$data type has no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,
@@ -1086,12 +1074,6 @@ $ignoreErrors[] = [
     'identifier' => 'empty.notAllowed',
     'count' => 1,
     'path' => __DIR__ . '/src/Core/Framework/Plugin/Util/PluginFinder.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Method Shopware\\Core\\Framework\\Plugin\\Util\\VersionSanitizer::sanitizePluginVersion() should return string but returns string|null.',
-    'identifier' => 'return.type',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/Framework/Plugin/Util/VersionSanitizer.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Parameter #1 $interval of static method Symfony\\Component\\RateLimiter\\Util\\TimeUtil::dateIntervalToSeconds() expects DateInterval, DateInterval|false given.',
@@ -1472,12 +1454,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php',
 ];
 $ignoreErrors[] = [
-    'rawMessage' => 'Argument of an invalid type Shopware\\Core\\System\\StateMachine\\Aggregation\\StateMachineState\\StateMachineStateCollection|null supplied for foreach, only iterables are supported.',
-    'identifier' => 'foreach.nonIterable',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Core/System/StateMachine/StateMachineEntity.php',
-];
-$ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
     'count' => 3,
@@ -1602,12 +1578,6 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 1,
     'path' => __DIR__ . '/src/Storefront/Theme/ConfigLoader/StaticFileAvailableThemeProvider.php',
-];
-$ignoreErrors[] = [
-    'rawMessage' => 'Call to function is_string() with string will always evaluate to true.',
-    'identifier' => 'function.alreadyNarrowedType',
-    'count' => 1,
-    'path' => __DIR__ . '/src/Storefront/Theme/ConfigLoader/StaticFileConfigLoader.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Storefront\\Theme\\ConfigLoader\\StaticFileConfigLoader::prepareCollections() has parameter $fileObject with no value type specified in iterable type array.',

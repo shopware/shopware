@@ -83,7 +83,11 @@ class StateMachineEntity extends Entity
 
     public function getInitialState(): ?StateMachineStateEntity
     {
-        foreach ($this->states ?? [] as $state) {
+        if ($this->states === null) {
+            return null;
+        }
+
+        foreach ($this->states as $state) {
             if ($state->getId() === $this->initialStateId) {
                 return $state;
             }

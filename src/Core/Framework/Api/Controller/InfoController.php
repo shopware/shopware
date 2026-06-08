@@ -272,7 +272,7 @@ class InfoController extends AbstractController
         }
 
         /** @var list<string> $transports */
-        $transports = array_values(array_filter($transports, static fn (mixed $transport): bool => \is_string($transport)));
+        $transports = array_values($transports);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
             return $transports;

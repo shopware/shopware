@@ -43,7 +43,7 @@ class AdminSearchRegistryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->indexer = $this->getMockBuilder(AbstractAdminIndexer::class)->getMock();
+        $this->indexer = $this->createMock(AbstractAdminIndexer::class);
     }
 
     public function testGetSubscribedEvents(): void

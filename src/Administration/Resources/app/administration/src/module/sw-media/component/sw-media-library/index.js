@@ -121,7 +121,6 @@ export default {
             itemTotal: 0,
             folderTotal: 0,
             currentFolder: null,
-            parentFolder: null,
             presentation: 'medium-preview',
             sorting: { sortBy: 'fileName', sortDirection: 'asc' },
             folderSorting: { sortBy: 'name', sortDirection: 'asc' },
@@ -154,14 +153,6 @@ export default {
                 ...this.pendingUploads,
                 ...this.items,
             ];
-        },
-
-        rootFolder() {
-            const root = this.mediaFolderRepository.create(Context.api);
-            root.id = '';
-            root.name = this.$t('sw-media.index.rootFolderName');
-
-            return root;
         },
 
         gridPresentation() {
@@ -483,21 +474,10 @@ export default {
         async fetchAssociatedFolders() {
             if (this.folderId === null) {
                 this.currentFolder = null;
-                this.parentFolder = null;
                 return;
             }
 
             this.currentFolder = await this.mediaFolderRepository.get(this.folderId, Context.api);
-
-            if (this.currentFolder && this.currentFolder.parentId) {
-                this.parentFolder = await this.mediaFolderRepository.get(this.currentFolder.parentId, Context.api);
-            } else {
-                this.parentFolder = this.rootFolder;
-            }
-        },
-
-        goToParentFolder() {
-            this.$emit('media-folder-change', this.parentFolder.id || null);
         },
 
         clearSelection() {

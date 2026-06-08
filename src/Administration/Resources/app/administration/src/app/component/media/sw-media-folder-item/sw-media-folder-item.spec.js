@@ -221,26 +221,6 @@ describe('components/media/sw-media-folder-item', () => {
         expect(editMenuItem.attributes().disabled).toBeDefined();
     });
 
-    it('should show the icon when it is not parent', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setProps({
-            isParent: false,
-        });
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.text()).toContain('AllowMultiSelect: "true"');
-    });
-
-    it('should not show the icon on back folder', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setProps({
-            isParent: true,
-        });
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
-    });
-
     it('should return filters from filter registry', async () => {
         const wrapper = await createWrapper();
 

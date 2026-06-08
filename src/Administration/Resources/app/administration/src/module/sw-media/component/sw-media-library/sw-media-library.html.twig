@@ -52,23 +52,6 @@
                 @media-grid-selection-clear="clearSelection"
             >
 
-                {% block sw_media_library_back_to_parent_item %}
-                <sw-media-folder-item
-                    v-if="parentFolder && (!isLoading || selectableItems.length > 0)"
-                    :allow-edit="acl.can('media.editor')"
-                    :allow-delete="acl.can('media.deleter')"
-                    :disabled="disabled"
-                    class="sw-media-library__parent-folder"
-                    :item="parentFolder"
-                    :show-selection-indicator="false"
-                    :show-context-menu-button="false"
-                    :allow-multi-select="allowMultiSelect"
-                    :is-list="showItemsAsList"
-                    is-parent
-                    @media-item-click="goToParentFolder"
-                />
-                {% endblock %}
-
                 {% block sw_media_library_media_item_list %}
                 <sw-media-entity-mapper
                     v-for="(gridItem, index) in selectableItems"

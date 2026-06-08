@@ -3,23 +3,13 @@
     class="sw-media-folder-item"
     v-bind="$attrs"
     :truncate-right="true"
-    :allow-multi-select="!isParent"
 >
 
     {% block sw_media_folder_item_preview %}
     <template #preview="{ item }">
-        {% block sw_media_folder_parent_icon%}
-        <img
-            v-if="isParent"
-            :src="assetFilter('/administration/administration/static/img/media/folder--back.svg')"
-            class="sw-media-folder-item__folder-thumbnails"
-            alt="Folder back"
-        >
-        {% endblock %}
-
         {% block sw_media_folder_default_icon%}
         <span
-            v-else-if="!!item.defaultFolderId"
+            v-if="!!item.defaultFolderId"
         >
             <img
                 :src="assetFilter('/administration/administration/static/img/media/' + iconName + '.svg')"
@@ -50,7 +40,7 @@
         {% block sw_media_base_item_name %}
 
         <mt-text-field
-            v-if="!isParent && (isInlineEdit || item.isNew())"
+            v-if="isInlineEdit || item.isNew()"
             v-autofocus
             class="sw-media-base-item__name-field"
             :model-value="item.name"

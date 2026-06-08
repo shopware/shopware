@@ -33,18 +33,6 @@ $sw-media-library-color-background: var(--color-elevation-surface-default);
         }
     }
 
-    .sw-media-library__parent-folder {
-        .sw-media-base-item__name-container {
-            font-weight: $font-weight-semi-bold;
-        }
-
-        &:hover .sw-media-base-item__selected-indicator {
-            visibility: hidden;
-        }
-
-        z-index: $z-index-overlay;
-    }
-
     .sw-media-library__scroll-container {
         position: relative;
         width: 100%;

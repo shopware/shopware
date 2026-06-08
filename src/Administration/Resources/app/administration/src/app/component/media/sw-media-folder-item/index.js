@@ -27,14 +27,6 @@ export default {
         Mixin.getByName('notification'),
     ],
 
-    props: {
-        isParent: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-    },
-
     data() {
         return {
             showSettings: false,

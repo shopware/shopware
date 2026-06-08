@@ -21,8 +21,7 @@ final class PlatformRequest
     public const HEADER_CURRENCY_ID = 'sw-currency-id';
 
     /**
-     * Store-API only: the URL of a configured sales channel domain. When provided, the store-api request is
-     * served with the language configured for that domain (unless HEADER_LANGUAGE_ID is set explicitly).
+     * Store-API only: URL of a configured sales channel domain, used to resolve the request's language and currency.
      */
     public const HEADER_DOMAIN = 'sw-domain';
     public const HEADER_INHERITANCE = 'sw-inheritance';

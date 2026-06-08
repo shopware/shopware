@@ -6,19 +6,15 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Resolves the language of a store-api request from the {@see PlatformRequest::HEADER_DOMAIN} header.
- *
- * Headless frontends are not served from a configured sales channel domain, so they cannot rely on the
- * domain-based language resolution the Storefront uses. By sending the URL of a configured sales channel domain
- * in the `sw-domain` header, such clients can have the request served with that domain's language without having
- * to know the language id.
- *
- * An explicit {@see PlatformRequest::HEADER_LANGUAGE_ID} header always takes precedence.
+ * Lets headless store-api clients resolve a request's language and currency from a configured sales channel
+ * domain URL sent in the {@see PlatformRequest::HEADER_DOMAIN} header, instead of having to know the ids.
+ * The explicit `sw-language-id` / `sw-currency-id` headers still take precedence.
  *
  * @internal
  */
@@ -61,8 +57,10 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             return;
         }
 
-        // An explicit language header always wins over the domain-derived language.
-        if ($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID)) {
+        $resolveLanguage = !$request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID);
+        $resolveCurrency = !$request->headers->has(PlatformRequest::HEADER_CURRENCY_ID);
+
+        if (!$resolveLanguage && !$resolveCurrency) {
             return;
         }
 
@@ -73,13 +71,20 @@ class StoreApiDomainResolver implements EventSubscriberInterface
 
         $domainUrl = (string) $request->headers->get(PlatformRequest::HEADER_DOMAIN);
 
-        $languageId = $this->fetchDomainLanguageId($salesChannelId, $domainUrl);
+        $domain = $this->fetchDomain($salesChannelId, $domainUrl);
 
-        if ($languageId === null) {
+        if ($domain === null) {
             throw RoutingException::salesChannelDomainNotFound($domainUrl);
         }
 
-        $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $languageId);
+        if ($resolveLanguage) {
+            $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $domain['languageId']);
+        }
+
+        if ($resolveCurrency) {
+            // default slot, not the sw-currency-id override: a currency switched in the context token still wins
+            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $domain['currencyId']);
+        }
     }
 
     protected function getScopeRegistry(): RouteScopeRegistry
@@ -87,10 +92,13 @@ class StoreApiDomainResolver implements EventSubscriberInterface
         return $this->routeScopeRegistry;
     }
 
-    private function fetchDomainLanguageId(string $salesChannelId, string $domainUrl): ?string
+    /**
+     * @return array{languageId: string, currencyId: string}|null
+     */
+    private function fetchDomain(string $salesChannelId, string $domainUrl): ?array
     {
-        $languageId = $this->connection->fetchOne(
-            'SELECT LOWER(HEX(language_id))
+        $domain = $this->connection->fetchAssociative(
+            'SELECT LOWER(HEX(language_id)) AS languageId, LOWER(HEX(currency_id)) AS currencyId
              FROM sales_channel_domain
              WHERE sales_channel_id = :salesChannelId
                AND TRIM(TRAILING \'/\' FROM url) = :url',
@@ -100,6 +108,13 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             ]
         );
 
-        return \is_string($languageId) && $languageId !== '' ? $languageId : null;
+        if ($domain === false) {
+            return null;
+        }
+
+        return [
+            'languageId' => (string) $domain['languageId'],
+            'currencyId' => (string) $domain['currencyId'],
+        ];
     }
 }

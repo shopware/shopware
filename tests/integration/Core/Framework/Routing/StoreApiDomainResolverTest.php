@@ -29,25 +29,36 @@ class StoreApiDomainResolverTest extends TestCase
 
     private string $deDeLanguageId;
 
+    private string $eurCurrencyId;
+
+    private string $usdCurrencyId;
+
     protected function setUp(): void
     {
         $this->deDeLanguageId = $this->getDeDeLanguageId();
+        $this->eurCurrencyId = $this->getCurrencyIdByIso('EUR');
+        $this->usdCurrencyId = $this->getCurrencyIdByIso('USD');
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'languages' => [
                 ['id' => Defaults::LANGUAGE_SYSTEM],
                 ['id' => $this->deDeLanguageId],
             ],
+            'currencyId' => $this->eurCurrencyId,
+            'currencies' => [
+                ['id' => $this->eurCurrencyId],
+                ['id' => $this->usdCurrencyId],
+            ],
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'currencyId' => Defaults::CURRENCY,
+                    'currencyId' => $this->eurCurrencyId,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'url' => self::EN_DOMAIN,
                 ],
                 [
                     'languageId' => $this->deDeLanguageId,
-                    'currencyId' => Defaults::CURRENCY,
+                    'currencyId' => $this->usdCurrencyId,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                     'url' => self::DE_DOMAIN,
                 ],
@@ -55,7 +66,7 @@ class StoreApiDomainResolverTest extends TestCase
         ]);
     }
 
-    public function testResolvesLanguageFromDomainHeader(): void
+    public function testResolvesLanguageAndCurrencyFromDomainHeader(): void
     {
         $this->browser->request('GET', '/store-api/context', [], [], [
             'HTTP_SW_DOMAIN' => self::DE_DOMAIN,
@@ -63,6 +74,7 @@ class StoreApiDomainResolverTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame($this->deDeLanguageId, $this->resolvedLanguageId());
+        static::assertSame($this->usdCurrencyId, $this->resolvedCurrencyId());
     }
 
     public function testResolvesLanguageWithTrailingSlash(): void
@@ -73,6 +85,7 @@ class StoreApiDomainResolverTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame($this->deDeLanguageId, $this->resolvedLanguageId());
+        static::assertSame($this->usdCurrencyId, $this->resolvedCurrencyId());
     }
 
     public function testWithoutDomainHeaderFallsBackToSalesChannelDefault(): void
@@ -81,6 +94,7 @@ class StoreApiDomainResolverTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->resolvedLanguageId());
+        static::assertSame($this->eurCurrencyId, $this->resolvedCurrencyId());
     }
 
     public function testExplicitLanguageHeaderTakesPrecedenceOverDomain(): void
@@ -91,7 +105,22 @@ class StoreApiDomainResolverTest extends TestCase
         ]);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        // explicit language wins, currency still resolved from the domain
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->resolvedLanguageId());
+        static::assertSame($this->usdCurrencyId, $this->resolvedCurrencyId());
+    }
+
+    public function testExplicitCurrencyHeaderTakesPrecedenceOverDomain(): void
+    {
+        $this->browser->request('GET', '/store-api/context', [], [], [
+            'HTTP_SW_DOMAIN' => self::DE_DOMAIN,
+            'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_CURRENCY_ID)) => $this->eurCurrencyId,
+        ]);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        // language still resolved from the domain, explicit currency wins
+        static::assertSame($this->deDeLanguageId, $this->resolvedLanguageId());
+        static::assertSame($this->eurCurrencyId, $this->resolvedCurrencyId());
     }
 
     public function testUnknownDomainIsRejected(): void
@@ -108,12 +137,24 @@ class StoreApiDomainResolverTest extends TestCase
 
     private function resolvedLanguageId(): string
     {
+        return $this->decodeContext()['languageIdChain'][0];
+    }
+
+    private function resolvedCurrencyId(): string
+    {
+        return $this->decodeContext()['currencyId'];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeContext(): array
+    {
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('context', $response);
-        static::assertArrayHasKey('languageIdChain', $response['context']);
 
-        return $response['context']['languageIdChain'][0];
+        return $response['context'];
     }
 }

@@ -51,6 +51,16 @@ class SalesChannelContext extends Struct
     protected ?LockInterface $cartLock = null;
 
     /**
+     * The context session the context was built from — the persisted
+     * `sales_channel_api_context` payload merged with the request-derived
+     * overrides. Declared private so it is not serialized into the store-api
+     * response, just like the domain id.
+     *
+     * @var array<string, mixed>
+     */
+    private array $contextData = [];
+
+    /**
      * @internal
      *
      * @param array<string, array<string>> $areaRuleIds
@@ -242,6 +252,27 @@ class SalesChannelContext extends Struct
         }
 
         return $this->token;
+    }
+
+    /**
+     * The context session the context was built from — the persisted
+     * `sales_channel_api_context` payload merged with the request-derived overrides.
+     *
+     * @return array<string, mixed>
+     */
+    public function getContextData(): array
+    {
+        return $this->contextData;
+    }
+
+    /**
+     * @param array<string, mixed> $contextData
+     *
+     * @internal
+     */
+    public function setContextData(array $contextData): void
+    {
+        $this->contextData = $contextData;
     }
 
     public function getTaxState(): string

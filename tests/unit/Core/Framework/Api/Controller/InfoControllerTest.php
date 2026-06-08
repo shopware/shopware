@@ -163,6 +163,34 @@ class InfoControllerTest extends TestCase
         static::assertSame('current-shop-id', $data['shopId']);
     }
 
+    public function testConfigHidesWebhookTransportWhenWebhookReworkIsInactive(): void
+    {
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function (): void {
+            $content = $this->createController(['webhook', 'async', 'low_priority'])
+                ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+                ->getContent();
+            static::assertIsString($content);
+
+            $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+            static::assertSame(['async', 'low_priority'], $data['adminWorker']['transports']);
+        });
+    }
+
+    public function testConfigKeepsWebhookTransportWhenWebhookReworkIsActive(): void
+    {
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $content = $this->createController(['webhook', 'async', 'low_priority'])
+                ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+                ->getContent();
+            static::assertIsString($content);
+
+            $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+
+            static::assertSame(['webhook', 'async', 'low_priority'], $data['adminWorker']['transports']);
+        });
+    }
+
     public function testConfigExtension(): void
     {
         $this->eventDispatcher->addListener(AdminInfoConfigEvent::class, static function (AdminInfoConfigEvent $event): void {
@@ -243,12 +271,15 @@ class InfoControllerTest extends TestCase
         static::assertSame('2020-01-01T00:00:00.123+00:00', $data['settings']['firstMigrationDate']);
     }
 
-    private function createController(): InfoController
+    /**
+     * @param list<string> $adminWorkerTransports
+     */
+    private function createController(array $adminWorkerTransports = ['slow']): InfoController
     {
         $parameterBag = new ParameterBag([
             'shopware.html_sanitizer.enabled' => true,
             'shopware.filesystem.private_allowed_extensions' => false,
-            'shopware.admin_worker.transports' => ['slow'],
+            'shopware.admin_worker.transports' => $adminWorkerTransports,
             'shopware.admin_worker.enable_notification_worker' => true,
             'shopware.admin_worker.enable_queue_stats_worker' => true,
             'shopware.admin_worker.enable_admin_worker' => true,

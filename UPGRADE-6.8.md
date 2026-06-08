@@ -145,6 +145,23 @@ Previously, these routes could return all customer addresses because the underly
 
 <details>
 
+## Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The execution orchestration of `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) was moved into the new `Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor` service.
+The inline fallback logic in `__invoke()` was removed; the handler now always delegates to a `ScheduledTaskExecutor`.
+
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the `ScheduledTaskExecutorCompilerPass`, so handlers registered through the container — the standard way plugins register them — require no changes.
+
+If you instantiate a `ScheduledTaskHandler` manually (for example in tests), set the executor explicitly:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger));
+$handler($task);
+```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks remain available and overridable; the executor calls back into them, so existing overrides keep working.
+
 ## Removed stored `mail_template_type.template_data`
 
 The deprecated `template_data` column on `mail_template_type` was removed.

@@ -10,8 +10,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Injects the {@see ScheduledTaskExecutor} into every {@see ScheduledTaskHandler} via a `setExecutor()` method call,
- * so the execution orchestration lives in a dedicated service instead of the abstract handler.
+ * Injects the {@see ScheduledTaskExecutor} into every {@see ScheduledTaskHandler} via a `setScheduledTaskExecutor()`
+ * method call, so the execution orchestration lives in a dedicated service instead of the abstract handler.
  *
  * @internal
  */
@@ -35,7 +35,7 @@ class ScheduledTaskExecutorCompilerPass implements CompilerPassInterface
                 continue;
             }
 
-            $definition->addMethodCall('setExecutor', [$executor]);
+            $definition->addMethodCall('setScheduledTaskExecutor', [$executor]);
         }
     }
 }

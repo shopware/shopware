@@ -17,7 +17,7 @@ abstract class ScheduledTaskHandler
 {
     use ClockAwareTrait;
 
-    private ?ScheduledTaskExecutor $executor = null;
+    private ?ScheduledTaskExecutor $scheduledTaskExecutor = null;
 
     /**
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
@@ -30,8 +30,8 @@ abstract class ScheduledTaskHandler
 
     public function __invoke(ScheduledTask $task): void
     {
-        if ($this->executor !== null) {
-            $this->executor->execute($this, $task);
+        if ($this->scheduledTaskExecutor !== null) {
+            $this->scheduledTaskExecutor->execute($this, $task);
 
             return;
         }
@@ -42,12 +42,36 @@ abstract class ScheduledTaskHandler
     /**
      * @internal injected by the {@see ScheduledTaskExecutorCompilerPass}
      */
-    public function setExecutor(ScheduledTaskExecutor $executor): void
+    public function setScheduledTaskExecutor(ScheduledTaskExecutor $scheduledTaskExecutor): void
     {
-        $this->executor = $executor;
+        $this->scheduledTaskExecutor = $scheduledTaskExecutor;
     }
 
     abstract public function run(): void;
+
+    /**
+     * @internal forwards to the overridable {@see markTaskRunning()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     */
+    public function runTask(ScheduledTask $task): void
+    {
+        $this->markTaskRunning($task);
+    }
+
+    /**
+     * @internal forwards to the overridable {@see markTaskFailed()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     */
+    public function failTask(ScheduledTask $task): void
+    {
+        $this->markTaskFailed($task);
+    }
+
+    /**
+     * @internal forwards to the overridable {@see rescheduleTask()} hook so the {@see ScheduledTaskExecutor} respects handler overrides
+     */
+    public function reschedule(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
+    {
+        $this->rescheduleTask($task, $taskEntity);
+    }
 
     protected function markTaskRunning(ScheduledTask $task): void
     {

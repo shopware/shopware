@@ -31,7 +31,7 @@ class ScheduledTaskExecutorCompilerPassTest extends TestCase
         $methodCalls = $container->getDefinition(DummyScheduledTaskHandler::class)->getMethodCalls();
 
         static::assertCount(1, $methodCalls);
-        static::assertSame('setExecutor', $methodCalls[0][0]);
+        static::assertSame('setScheduledTaskExecutor', $methodCalls[0][0]);
         static::assertSame(ScheduledTaskExecutor::class, (string) $methodCalls[0][1][0]);
     }
 

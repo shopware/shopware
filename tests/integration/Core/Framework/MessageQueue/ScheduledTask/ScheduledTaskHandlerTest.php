@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\DummyScheduledTaskHandler;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestRescheduleOnFailureTask;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -275,7 +274,7 @@ class ScheduledTaskHandlerTest extends TestCase
     private function createHandler(string $taskId, bool $shouldThrowException = false): DummyScheduledTaskHandler
     {
         $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, $shouldThrowException);
-        $handler->setExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $this->logger, new NativeClock()));
+        $handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($this->scheduledTaskRepo, $this->logger));
 
         return $handler;
     }

@@ -240,9 +240,11 @@ In that case, set the executor explicitly to opt into the new behaviour, otherwi
 
 ```php
 $handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
-$handler->setExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler->setScheduledTaskExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger));
 $handler($task);
 ```
+
+The protected `markTaskRunning()`, `markTaskFailed()`, and `rescheduleTask()` hooks remain overridable; the executor calls back into them, so existing overrides keep working.
 
 ### Plugin snippet files are no longer silently dropped when any translation is installed
 

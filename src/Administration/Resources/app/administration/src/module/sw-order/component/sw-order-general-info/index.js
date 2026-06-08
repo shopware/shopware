@@ -197,6 +197,10 @@ export default {
         'order.id'() {
             this.createdComponent();
         },
+
+        'order.tags'() {
+            this.syncTagCollection();
+        },
     },
 
     created() {
@@ -205,6 +209,12 @@ export default {
 
     methods: {
         createdComponent() {
+            this.syncTagCollection();
+            this.getLiveOrder();
+            this.getTransitionOptions();
+        },
+
+        syncTagCollection() {
             const tags = cloneDeep(this.order.tags);
 
             this.tagCollection = new EntityCollection(
@@ -215,9 +225,6 @@ export default {
                 tags,
                 tags.length,
             );
-
-            this.getLiveOrder();
-            this.getTransitionOptions();
         },
 
         getLiveOrder() {

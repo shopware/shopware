@@ -34,8 +34,7 @@ class ProductSearchConfigFieldExceptionHandlerTest extends TestCase
             ],
         ];
 
-        static::expectException(DuplicateProductSearchConfigFieldException::class);
-        static::expectExceptionMessage('Product search config with field test already exists.');
+        $this->expectExceptionObject(new DuplicateProductSearchConfigFieldException('test', new \Exception()));
 
         static::getContainer()->get('product_search_config.repository')
             ->create([$config], Context::createDefaultContext());

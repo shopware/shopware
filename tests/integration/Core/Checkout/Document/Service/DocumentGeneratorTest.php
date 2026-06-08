@@ -304,7 +304,9 @@ class DocumentGeneratorTest extends TestCase
             false,
             new Request([
                 'extension' => PdfRenderer::FILE_EXTENSION,
-            ]),
+            ], [], [], [], [], [
+                'HTTP_CONTENT_LENGTH' => \strlen('this is some content'),
+            ], 'this is some content'),
             true,
             DocumentException::generationError('Parameter "fileName" is missing'),
         ];
@@ -404,8 +406,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($documentId, $this->context);
     }
@@ -414,8 +415,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
@@ -578,8 +578,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testGenerateWithInvalidType(): void
     {
-        static::expectException(DocumentException::class);
-        static::expectExceptionMessage('Unable to find a document renderer with type "invalid_type"');
+        $this->expectExceptionObject(DocumentException::invalidDocumentRenderer('invalid_type'));
         $this->documentGenerator->generate('invalid_type', [], $this->context);
     }
 

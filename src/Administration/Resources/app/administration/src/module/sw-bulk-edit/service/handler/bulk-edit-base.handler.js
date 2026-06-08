@@ -239,6 +239,10 @@ class BulkEditBaseHandler {
             editableProperties.push(mappingReferenceField);
         }
 
+        // Subclasses may decorate each newly built record, e.g. to assign a per-entity position.
+        // Returns null when there is nothing to decorate.
+        const decorateRecord = this._getOneToManyRecordDecorator(change, existAssociations);
+
         changeItems.forEach((changeItem) => {
             const original = changeItem;
             // Clean non-editable fields
@@ -266,6 +270,10 @@ class BulkEditBaseHandler {
                     delete this.groupedPayload.delete[referenceEntity][key];
                 }
 
+                if (decorateRecord) {
+                    decorateRecord(record, entityId);
+                }
+
                 const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
 
                 if (actualChange === null || Object.keys(actualChange).length === 0) {
@@ -276,6 +284,16 @@ class BulkEditBaseHandler {
                 this.groupedPayload.upsert[referenceEntity][key].push(actualChange);
             });
         });
+    }
+
+    /**
+     * @private
+     *
+     * Hook for subclasses to decorate each newly built OneToMany record (e.g. assign a per-entity position).
+     * Returns a `(record, entityId) => void` callback, or null when no decoration is needed.
+     */
+    _getOneToManyRecordDecorator() {
+        return null;
     }
 
     /**

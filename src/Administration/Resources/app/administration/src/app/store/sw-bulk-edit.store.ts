@@ -32,9 +32,18 @@ interface OrderDeleteDocument {
     }>;
 }
 
+interface DocumentGenerationFailedItem {
+    orderId: string;
+    documentType: string;
+    errorCode?: string;
+    detail?: string;
+}
+
 interface DocumentGenerationResult {
     requested: number;
     failed: number;
+    skipped: number;
+    failedItems: DocumentGenerationFailedItem[];
 }
 
 interface SwBulkState {
@@ -107,6 +116,8 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
             documentGenerationResult: {
                 requested: 0,
                 failed: 0,
+                skipped: 0,
+                failedItems: [],
             },
         } as SwBulkState;
     },
@@ -138,16 +149,25 @@ const swBulkStore = Shopware.Store.register('swBulkEdit', {
                 });
             });
         },
-        setDocumentGenerationResult(requested: number, failed: number) {
+        setDocumentGenerationResult(
+            requested: number,
+            failed: number,
+            skipped = 0,
+            failedItems: DocumentGenerationFailedItem[] = [],
+        ) {
             this.documentGenerationResult = {
                 requested,
                 failed,
+                skipped,
+                failedItems,
             };
         },
         resetDocumentGenerationResult() {
             this.documentGenerationResult = {
                 requested: 0,
                 failed: 0,
+                skipped: 0,
+                failedItems: [],
             };
         },
     },

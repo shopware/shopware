@@ -1,4 +1,24 @@
 .sw-bulk-edit-save-modal-success {
+    .sw-bulk-edit-save-modal__help-text {
+        text-align: center;
+    }
+
+    &__document-generation-result {
+        width: 100%;
+        margin: 24px 0;
+    }
+
+    &__info-document-generation,
+    &__warning-document-generation {
+        width: 100%;
+    }
+
+    &__document-generation-separator {
+        width: 100%;
+        margin: 24px 0;
+        border-top: 1px solid var(--color-border-primary-default);
+    }
+
     &__download-document-container {
         width: 100%;
         margin: 24px 0;

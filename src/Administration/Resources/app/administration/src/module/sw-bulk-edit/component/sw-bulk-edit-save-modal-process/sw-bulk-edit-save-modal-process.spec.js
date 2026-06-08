@@ -75,7 +75,13 @@ async function createWrapper(selectedDocumentTypes = deleteDocumentTypesFixtures
                         create: () => {
                             return Promise.resolve();
                         },
-                        generate: () => null,
+                        generate: (_documentType, payload) =>
+                            Promise.resolve({
+                                data: {
+                                    data: payload.map(() => ({})),
+                                    errors: {},
+                                },
+                            }),
                     },
                     syncService: syncServiceMock,
                     repositoryFactory: repositoryFactoryMock,
@@ -221,12 +227,13 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
             Promise.resolve({
                 data: {
+                    data: [{}],
                     errors: {},
                 },
             }),
         );
 
-        await wrapper.vm.createDocument('invoice', [
+        const result = await wrapper.vm.createDocument('invoice', [
             {
                 config: {
                     documentDate: 'documentDate',
@@ -238,6 +245,12 @@ describe('sw-bulk-edit-save-modal-process', () => {
             },
         ]);
 
+        expect(result).toEqual({
+            requested: 1,
+            failed: 0,
+            skipped: 0,
+            failedItems: [],
+        });
         expect(wrapper.vm.document.invoice.isReached).toBe(100);
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
     });
@@ -246,9 +259,11 @@ describe('sw-bulk-edit-save-modal-process', () => {
         wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
             Promise.resolve({
                 data: {
+                    data: [{}],
                     errors: {
                         orderId2: [
                             {
+                                code: 'DOCUMENT_GENERATION_FAILED',
                                 detail: 'Document generation failed',
                             },
                         ],
@@ -278,15 +293,85 @@ describe('sw-bulk-edit-save-modal-process', () => {
             },
         ]);
 
-        expect(result).toEqual({ requested: 2, failed: 1 });
+        expect(result).toEqual({
+            requested: 2,
+            failed: 1,
+            skipped: 0,
+            failedItems: [
+                {
+                    orderId: 'orderId2',
+                    documentType: 'invoice',
+                    errorCode: 'DOCUMENT_GENERATION_FAILED',
+                    detail: 'Document generation failed',
+                },
+            ],
+        });
         expect(wrapper.vm.document.invoice.isReached).toBe(100);
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
     });
 
-    it('should break down the request to generate the document', async () => {
+    it('should count skipped documents from response data', async () => {
         wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
             Promise.resolve({
                 data: {
+                    data: [{}],
+                    errors: {},
+                },
+            }),
+        );
+
+        const result = await wrapper.vm.createDocument('invoice', [
+            {
+                config: {},
+                fileType: 'pdf',
+                orderId: 'orderId',
+                type: 'invoice',
+            },
+            {
+                config: {},
+                fileType: 'pdf',
+                orderId: 'orderId2',
+                type: 'invoice',
+            },
+        ]);
+
+        expect(result).toEqual({
+            requested: 2,
+            failed: 0,
+            skipped: 1,
+            failedItems: [],
+        });
+        wrapper.vm.orderDocumentApiService.generate.mockRestore();
+    });
+
+    it('should reject malformed document generation responses', async () => {
+        wrapper.vm.orderDocumentApiService.generate = jest.fn(() =>
+            Promise.resolve({
+                data: {
+                    errors: {},
+                },
+            }),
+        );
+
+        await expect(
+            wrapper.vm.createDocument('invoice', [
+                {
+                    config: {},
+                    fileType: 'pdf',
+                    orderId: 'orderId',
+                    type: 'invoice',
+                },
+            ]),
+        ).rejects.toThrow('Invalid document generation response');
+
+        wrapper.vm.orderDocumentApiService.generate.mockRestore();
+    });
+
+    it('should break down the request to generate the document', async () => {
+        wrapper.vm.orderDocumentApiService.generate = jest.fn((_documentType, payload) =>
+            Promise.resolve({
+                data: {
+                    data: payload.map(() => ({})),
                     errors: {},
                 },
             }),
@@ -323,6 +408,64 @@ describe('sw-bulk-edit-save-modal-process', () => {
         expect(wrapper.vm.document.invoice.isReached).toBe(100);
 
         wrapper.vm.orderDocumentApiService.generate.mockRestore();
+    });
+
+    it('should store aggregated document generation results', async () => {
+        wrapper.vm.createDocument = jest
+            .fn()
+            .mockResolvedValueOnce({
+                requested: 2,
+                failed: 1,
+                skipped: 0,
+                failedItems: [
+                    {
+                        orderId: 'orderId',
+                        documentType: 'invoice',
+                    },
+                ],
+            })
+            .mockResolvedValueOnce({
+                requested: 2,
+                failed: 0,
+                skipped: 1,
+                failedItems: [],
+            });
+
+        Shopware.Store.get('swBulkEdit').selectedIds = [
+            'orderId',
+            'orderId2',
+        ];
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'invoice',
+            isChanged: true,
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'delivery_note',
+            isChanged: true,
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'storno',
+            isChanged: false,
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'credit_note',
+            isChanged: false,
+        });
+
+        await wrapper.vm.createDocuments();
+
+        expect(Shopware.Store.get('swBulkEdit').documentGenerationResult).toEqual({
+            requested: 4,
+            failed: 1,
+            skipped: 1,
+            failedItems: [
+                {
+                    orderId: 'orderId',
+                    documentType: 'invoice',
+                },
+            ],
+        });
+        wrapper.vm.createDocument.mockRestore();
     });
 
     it('should compute selectedDocumentTypes correctly', async () => {

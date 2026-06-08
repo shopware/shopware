@@ -263,7 +263,23 @@
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "No documents found",
         "documentGenerationWarning": "Some documents could not be generated.",
-        "documentGenerationWarningHelpText": "{generated} generated successfully, {failed} failed."
+        "documentGenerationWarningHelpText": "{generated} generated successfully, {failed} failed.",
+        "documentGenerationSkipped": "{count} documents were not generated because they already exist.",
+        "documentGenerationFailed": "{count} documents could not be generated.",
+        "failedDocuments": {
+          "columnOrder": "Order",
+          "columnDocumentType": "Document type",
+          "downloadResult": "Download result",
+          "downloadHeadline": "Failed documents",
+          "downloadFileName": "bulk-edit-document-generation-result",
+          "ok": "OK",
+          "documentTypes": {
+            "invoice": "Invoice",
+            "storno": "Cancellation invoice",
+            "creditNote": "Credit note",
+            "deliveryNote": "Delivery note"
+          }
+        }
       },
       "error": {
         "title": "Bulk edit - Error",

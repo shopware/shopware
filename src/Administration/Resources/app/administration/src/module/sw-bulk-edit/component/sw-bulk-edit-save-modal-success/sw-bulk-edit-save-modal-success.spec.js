@@ -5,9 +5,13 @@ import { mount } from '@vue/test-utils';
 
 async function createWrapper(
     repositoryMocks = {
-        search: () => Promise.resolve([]),
+        documentSearch: () => Promise.resolve([]),
+        orderSearch: () => Promise.resolve([]),
     },
 ) {
+    const documentSearch = repositoryMocks.documentSearch ?? repositoryMocks.search ?? (() => Promise.resolve([]));
+    const orderSearch = repositoryMocks.orderSearch ?? repositoryMocks.search ?? (() => Promise.resolve([]));
+
     return mount(
         await wrapTestComponent('sw-bulk-edit-save-modal-success', {
             sync: true,
@@ -21,13 +25,46 @@ async function createWrapper(
                             'title',
                             'variant',
                         ],
-                        template: '<div class="mt-banner"><slot /></div>',
+                        template: '<div class="mt-banner">{{ title }}<slot /></div>',
                     },
+                    'sw-bulk-edit-document-generation-failed-list': true,
                 },
                 mocks: {
                     $t: (key, values = {}) => {
+                        if (key === 'sw-bulk-edit.modal.success.documentGenerationSkipped') {
+                            return `${values.count} documents were not generated because they already exist.`;
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.documentGenerationFailed') {
+                            return `${values.count} documents could not be generated.`;
+                        }
+
                         if (key === 'sw-bulk-edit.modal.success.documentGenerationWarningHelpText') {
                             return `${values.generated} generated successfully, ${values.failed} failed.`;
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline') {
+                            return 'Failed documents';
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.downloadFileName') {
+                            return 'bulk-edit-document-generation-result';
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice') {
+                            return 'Invoice';
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.storno') {
+                            return 'Cancellation invoice';
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote') {
+                            return 'Credit note';
+                        }
+
+                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote') {
+                            return 'Delivery note';
                         }
 
                         return key;
@@ -35,9 +72,9 @@ async function createWrapper(
                 },
                 provide: {
                     repositoryFactory: {
-                        create: () => {
+                        create: (entity) => {
                             return {
-                                search: repositoryMocks.search,
+                                search: entity === 'order' ? orderSearch : documentSearch,
                             };
                         },
                     },
@@ -99,8 +136,18 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
         expect(wrapper.vm.hasDocumentGenerationErrors).toBe(true);
         expect(warning.exists()).toBe(true);
-        expect(warning.text()).toContain('3');
-        expect(warning.text()).toContain('2');
+        expect(warning.text()).toContain('2 documents could not be generated.');
+    });
+
+    it('should show skipped document generation info', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(5, 0, 2);
+        await wrapper.vm.$nextTick();
+
+        const info = wrapper.find('.sw-bulk-edit-save-modal-success__info-document-generation');
+
+        expect(wrapper.vm.hasSkippedDocuments).toBe(true);
+        expect(info.exists()).toBe(true);
+        expect(info.text()).toContain('2 documents were not generated because they already exist.');
     });
 
     it('should be able to get latest documents', async () => {
@@ -176,6 +223,135 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 credit_note: expect.arrayContaining(['3']),
             }),
         );
+    });
+
+    it('should load order numbers for failed document rows', async () => {
+        wrapper.unmount();
+
+        const orderSearch = jest.fn(() =>
+            Promise.resolve([
+                {
+                    id: 'orderId',
+                    orderNumber: '10089',
+                },
+            ]),
+        );
+
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(1, 1, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+            },
+        ]);
+
+        wrapper = await createWrapper({
+            orderSearch,
+        });
+        await flushPromises();
+
+        expect(orderSearch).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.orderNumbers).toEqual({
+            orderId: '10089',
+        });
+    });
+
+    it('should group failed document rows by order id', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(4, 3, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'delivery_note',
+            },
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+            },
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+            },
+            {
+                orderId: 'orderId2',
+                documentType: 'credit_note',
+            },
+        ]);
+
+        await wrapper.setData({
+            orderNumbers: {
+                orderId: '10089',
+                orderId2: '10090',
+            },
+        });
+
+        expect(wrapper.vm.failedDocumentRows).toEqual([
+            {
+                id: 'orderId',
+                orderId: 'orderId',
+                orderNumber: '10089',
+                documentTypes: [
+                    'invoice',
+                    'delivery_note',
+                ],
+                documentTypesLabel: 'Invoice, Delivery note',
+            },
+            {
+                id: 'orderId2',
+                orderId: 'orderId2',
+                orderNumber: '10090',
+                documentTypes: [
+                    'credit_note',
+                ],
+                documentTypesLabel: 'Credit note',
+            },
+        ]);
+    });
+
+    it('should create document generation result file content and file name', async () => {
+        jest.useFakeTimers().setSystemTime(new Date(2026, 5, 8, 10, 58));
+
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(1, 1, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+            },
+        ]);
+
+        await wrapper.setData({
+            orderNumbers: {
+                orderId: '10089',
+            },
+        });
+
+        expect(wrapper.vm.getDocumentGenerationResultFileContent()).toBe('Failed documents\n\n10089 - Invoice');
+        expect(wrapper.vm.getDocumentGenerationResultFileName()).toBe(
+            'bulk-edit-document-generation-result-2026-06-08-10-58.txt',
+        );
+
+        jest.useRealTimers();
+    });
+
+    it('should add download result button when failed document rows exist', async () => {
+        Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(1, 1, 0, [
+            {
+                orderId: 'orderId',
+                documentType: 'invoice',
+            },
+        ]);
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.updateButtons();
+
+        const emittedButtons = wrapper.emitted('buttons-update').at(-1)[0];
+
+        expect(emittedButtons).toEqual([
+            expect.objectContaining({
+                key: 'download-result',
+                variant: 'secondary',
+            }),
+            expect.objectContaining({
+                key: 'close',
+                variant: 'primary',
+            }),
+        ]);
     });
 
     it('should be able to download documents', async () => {

@@ -70,19 +70,19 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             return;
         }
 
-        $domain = $this->fetchDomain($salesChannelId, $domainUrl);
+        $config = $this->fetchLanguageAndCurrency($salesChannelId, $domainUrl);
 
-        if ($domain === null) {
+        if ($config === null) {
             throw RoutingException::salesChannelDomainNotFound($domainUrl);
         }
 
         if ($resolveLanguage) {
-            $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $domain['languageId']);
+            $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $config['languageId']);
         }
 
         if ($resolveCurrency) {
             // default slot, not the sw-currency-id override: a currency switched in the context token still wins
-            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $domain['currencyId']);
+            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $config['currencyId']);
         }
     }
 
@@ -92,11 +92,11 @@ class StoreApiDomainResolver implements EventSubscriberInterface
     }
 
     /**
-     * @return array{languageId: string, currencyId: string}|null
+     * @return array{languageId: string, currencyId: string}|null the matched domain's configured language and currency
      */
-    private function fetchDomain(string $salesChannelId, string $domainUrl): ?array
+    private function fetchLanguageAndCurrency(string $salesChannelId, string $domainUrl): ?array
     {
-        $domain = $this->connection->fetchAssociative(
+        $config = $this->connection->fetchAssociative(
             'SELECT LOWER(HEX(language_id)) AS languageId, LOWER(HEX(currency_id)) AS currencyId
              FROM sales_channel_domain
              WHERE sales_channel_id = :salesChannelId
@@ -107,13 +107,13 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             ]
         );
 
-        if ($domain === false) {
+        if ($config === false) {
             return null;
         }
 
         return [
-            'languageId' => (string) $domain['languageId'],
-            'currencyId' => (string) $domain['currencyId'],
+            'languageId' => (string) $config['languageId'],
+            'currencyId' => (string) $config['currencyId'],
         ];
     }
 }

@@ -22,6 +22,8 @@
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
 
+        <service id="Shopware\Core\System\Salutation\AbstractSalutationsSorter" class="Shopware\Core\System\Salutation\SalutationSorter"/>
+
         <service id="Shopware\Core\System\Salutation\Api\SalutationKeyFkResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.sync.fk_resolver"/>

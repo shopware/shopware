@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,7 +18,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\ArrayLoader;
@@ -54,7 +54,7 @@ class DocumentTemplateRendererTest extends TestCase
 
         $documentTemplateRenderer = new DocumentTemplateRenderer(
             $templateFinder,
-            $this->createMock(Environment::class),
+            $this->createMock(TwigEnvironment::class),
             $this->createMock(Translator::class),
             $this->createMock(SalesChannelContextFactory::class),
             $eventDispatcher,
@@ -102,7 +102,7 @@ class DocumentTemplateRendererTest extends TestCase
         static::assertSame('UTC', $twig->getExtension(CoreExtension::class)->getTimezone()->getName());
     }
 
-    private function createRenderer(Environment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
+    private function createRenderer(TwigEnvironment $twig, ?string $businessTimeZone): DocumentTemplateRenderer
     {
         $templateFinder = $this->createMock(TemplateFinder::class);
         $templateFinder->method('find')->willReturnArgument(0);
@@ -128,9 +128,9 @@ class DocumentTemplateRendererTest extends TestCase
         );
     }
 
-    private function createTwig(string $template): Environment
+    private function createTwig(string $template): TwigEnvironment
     {
-        $twig = new Environment(new ArrayLoader([
+        $twig = new TwigEnvironment(new ArrayLoader([
             'view' => $template,
         ]));
         $twig->addExtension(new IntlExtension());

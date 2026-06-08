@@ -6,14 +6,13 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Adapter\Twig\TwigTimezoneOverride;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -26,7 +25,7 @@ class DocumentTemplateRenderer
      */
     public function __construct(
         private readonly TemplateFinder $templateFinder,
-        private readonly Environment $twig,
+        private readonly TwigEnvironment $twig,
         private readonly AbstractTranslator $translator,
         private readonly AbstractSalesChannelContextFactory $contextFactory,
         private readonly EventDispatcherInterface $eventDispatcher
@@ -75,10 +74,10 @@ class DocumentTemplateRenderer
 
         $view = $this->resolveView($view);
 
-        $rendered = TwigTimezoneOverride::run(
-            $this->twig,
+        $rendered = $this->twig->renderWithTimezoneOverride(
+            $view,
+            $parameters,
             $salesChannelContext?->getSalesChannel()->getBusinessTimeZone(),
-            fn (): string => $this->twig->render($view, $parameters),
         );
 
         // If injected translator reject it

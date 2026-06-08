@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
 use Twig\Loader\LoaderInterface;
 use Twig\Node\Node;
 use Twig\Runtime\EscaperRuntime;
+use Twig\TemplateWrapper;
 
 /**
  * @internal
@@ -38,5 +40,27 @@ class TwigEnvironment extends Environment
             'CoreExtension::getAttribute(' => '\Shopware\Core\Framework\Adapter\Twig\SwTwigFunction::getAttribute(',
             '$this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\')->escape(' => '\Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime::escape($this->env->getRuntime(\'Twig\\Runtime\\EscaperRuntime\'), ',
         ]);
+    }
+
+    /**
+     * Renders a template within a temporary Twig timezone override.
+     *
+     * @param array<string, mixed> $context
+     */
+    public function renderWithTimezoneOverride(string|TemplateWrapper $name, array $context = [], \DateTimeZone|string|null $timezone = null): string
+    {
+        if ($timezone === null || $timezone === '' || !$this->hasExtension(CoreExtension::class)) {
+            return $this->render($name, $context);
+        }
+
+        $coreExtension = $this->getExtension(CoreExtension::class);
+        $previous = $coreExtension->getTimezone();
+        $coreExtension->setTimezone($timezone);
+
+        try {
+            return $this->render($name, $context);
+        } finally {
+            $coreExtension->setTimezone($previous);
+        }
     }
 }

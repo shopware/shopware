@@ -115,6 +115,12 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### Customer account extension points for login, registration and password recovery
+
+The customer login, registration and password-recovery store-api operations are now wrapped with the `Extension` mechanism, so you can extend them through a plain event subscriber instead of decorating `AccountService` and four separate routes. This makes it much simpler to resolve these flows yourself — for example to authenticate against an SSO / external identity provider, a separate employee or sub-account store, or a migrated legacy credential store.
+
+The new extensions are `LoginByCredentialsExtension`, `RegisterCustomerExtension`, `SendRecoveryMailExtension`, `ResetPasswordExtension` and `RecoveryIsExpiredExtension`. Subscribe to `<Extension>::onPre()` to take over the operation (assign `$extension->result` and call `stopPropagation()`), to `<Extension>::onPost()` to adjust the result, or to `<Extension>::onError()` to recover from a failure. Without a subscriber the unchanged core behaviour runs.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted

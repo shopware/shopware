@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -138,7 +140,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $this->rateLimiter
+            $this->rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->context->getSalesChannel()->setTranslated(['name' => 'FooBar']);
@@ -170,7 +173,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $this->rateLimiter
+            $this->rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $data = new RequestDataBag();

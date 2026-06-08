@@ -115,6 +115,12 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### Product search route extension point
+
+The `/store-api/search` product search (`ProductSearchRoute::load`) is now wrapped with the `Extension` mechanism, so you can resolve or enrich the search result through a plain event subscriber instead of decorating the route. This makes it simple to back the search with an external search service, or to add your own data to the result.
+
+Subscribe to `ProductSearchRouteExtension::onPre()` to take over the search (assign `$extension->result` and call `stopPropagation()`), or to `ProductSearchRouteExtension::onPost()` to adjust the loaded result. Without a subscriber the unchanged core search runs.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted

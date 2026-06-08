@@ -275,7 +275,7 @@ jobs:
         id: versions
         uses: shopware/github-actions/versions@main
         with:
-          token: ${{ github.token }}
+          github-token: ${{ github.token }}
 
   acceptance-update:
     needs: tested-update-versions

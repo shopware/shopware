@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -23,13 +23,13 @@ class CategoryUrlGeneratorTest extends TestCase
 
     private CategoryUrlGenerator $urlGenerator;
 
-    private MockObject&SeoUrlPlaceholderHandlerInterface $replacer;
+    private Stub&SeoUrlPlaceholderHandlerInterface $replacer;
 
     private SalesChannelEntity $salesChannel;
 
     protected function setUp(): void
     {
-        $this->replacer = $this->getMockBuilder(SeoUrlPlaceholderHandlerInterface::class)->getMock();
+        $this->replacer = static::createStub(SeoUrlPlaceholderHandlerInterface::class);
         $this->urlGenerator = new CategoryUrlGenerator($this->replacer);
         $this->replacer->method('generate')->willReturnArgument(0);
         $this->salesChannel = new SalesChannelEntity();

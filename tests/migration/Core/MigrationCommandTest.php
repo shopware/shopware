@@ -211,7 +211,7 @@ class MigrationCommandTest extends TestCase
         static::assertSame(0, $this->getMigrationCount(true));
 
         $connection = $this->getConnection();
-        $loader = $this->getMockBuilder(MigrationCollectionLoader::class)->disableOriginalConstructor()->getMock();
+        $loader = $this->createMock(MigrationCollectionLoader::class);
 
         $nullLogger = new NullLogger();
         $loader->expects($this->once())->method('collect')->willReturn(
@@ -223,7 +223,7 @@ class MigrationCommandTest extends TestCase
             )
         );
 
-        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache = $this->createMock(TagAwareAdapter::class);
         $cache->expects($this->never())->method('clear');
 
         $command = new MigrationCommand($loader, $cache, static::getContainer()->getParameter('kernel.shopware_version'));
@@ -237,7 +237,7 @@ class MigrationCommandTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true));
 
-        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache = $this->createMock(TagAwareAdapter::class);
         $cache->expects($this->once())->method('clear');
 
         $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));
@@ -251,7 +251,7 @@ class MigrationCommandTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount(true));
 
-        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache = $this->createMock(TagAwareAdapter::class);
         $cache->expects($this->once())->method('clear');
 
         $command = new MigrationCommand(static::getContainer()->get(MigrationCollectionLoader::class), $cache, static::getContainer()->getParameter('kernel.shopware_version'));

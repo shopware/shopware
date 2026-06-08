@@ -115,6 +115,10 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### Sales Channel business timezone
+
+Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone. In Shopware 6.8, the setting will be required and existing Sales Channels without a value will be migrated to UTC.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted
@@ -279,10 +283,6 @@ Pseudo-locales bypass Symfony Intl validation in `Language::validateLocale` and 
 ### New `sha256` Twig filter
 
 A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
-
-### Sales Channel business timezone
-
-Sales Channels now have an optional business timezone setting. When configured, document rendering for that Sales Channel uses this timezone instead of Twig's default timezone. In Shopware 6.8, the setting will be required and existing Sales Channels without a value will be migrated to UTC.
 
 ## Administration
 

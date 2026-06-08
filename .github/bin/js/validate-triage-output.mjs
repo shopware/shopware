@@ -75,10 +75,64 @@ const SECRET_PATTERNS = [
   { name: 'GitHub fine-grained PAT', re: /\bgithub_pat_[A-Za-z0-9_]{60,}\b/ },
   { name: 'Anthropic API key', re: /\bsk-ant-[A-Za-z0-9_-]{32,}\b/ },
   { name: 'OpenAI API key', re: /\bsk-(?!ant-)[A-Za-z0-9]{40,}\b/ },
-  // Long base64 block — heuristic for arbitrary binary exfil. Tuned so commit
-  // SHAs (40 hex), JWT segments (~80–110), and short hashes don't trip.
-  { name: 'Long base64 block (potential exfil payload)', re: /[A-Za-z0-9+/]{160,}={0,2}/ },
+  // Long base64 block — heuristic for arbitrary binary exfil. Length-bounded so
+  // commit SHAs (40 hex) and JWT segments (~80–110) stay under it, and entropy-
+  // gated (minEntropy) so long-but-structured content — minified code, repeated-
+  // token strings quoted as evidence — scores below the bar. Only high-entropy
+  // (near-random) blocks match; the redacted preview in the scan output lets a
+  // reviewer judge a hit at a glance.
+  { name: 'Long base64 block (potential exfil payload)', re: /[A-Za-z0-9+/]{160,}={0,2}/, minEntropy: 4.6, entropyWindow: 160 },
 ];
+
+// Shannon entropy in bits/char. Uniformly-random base64 approaches log2(64)=6;
+// structured text (repeated tokens, minified code) sits well below.
+function shannonEntropy(s) {
+  const freq = new Map();
+  for (const ch of s) freq.set(ch, (freq.get(ch) ?? 0) + 1);
+  let h = 0;
+  for (const n of freq.values()) {
+    const p = n / s.length;
+    h -= p * Math.log2(p);
+  }
+  return h;
+}
+
+function entropyMatch(match, minEntropy, windowSize) {
+  if (shannonEntropy(match) >= minEntropy) return match;
+  if (windowSize === undefined || match.length <= windowSize) return null;
+
+  for (let i = 0; i <= match.length - windowSize; i++) {
+    const window = match.slice(i, i + windowSize);
+    if (shannonEntropy(window) >= minEntropy) return window;
+  }
+
+  return null;
+}
+
+// Show enough of a match to recognise it, never enough to leak it.
+function redactedPreview(match) {
+  if (match.length <= 12) return `${'*'.repeat(match.length)} (${match.length} chars)`;
+  return `${match.slice(0, 4)}…${match.slice(-4)} (${match.length} chars)`;
+}
+
+// A secret can appear as an object KEY, not only a value. Mask any path segment
+// that itself matches a secret pattern, so a violation message can never echo a
+// key verbatim. (Patterns are non-global → .test() is stateless and safe here.)
+function safeSegment(key) {
+  return SECRET_PATTERNS.some(({ re }) => re.test(key)) ? '<redacted-key>' : key;
+}
+
+// Yield [jsonPath, value] for every string anywhere in the payload (recurses
+// objects + arrays) so the scan can report which field tripped.
+function* stringFields(value, path = '$') {
+  if (typeof value === 'string') {
+    yield [path, value];
+  } else if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) yield* stringFields(value[i], `${path}[${i}]`);
+  } else if (value && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) yield* stringFields(v, `${path}.${safeSegment(k)}`);
+  }
+}
 
 const violations = [];
 
@@ -96,6 +150,20 @@ if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
 
 for (const f of REQUIRED_FIELDS) {
   if (!(f in payload)) violations.push(`missing required field: ${f}`);
+}
+
+// Strict shape: the contract is a flat object with exactly the known keys.
+// Reject anything else — an unexpected key (possibly a secret used AS the key,
+// hence the redaction) or a nested object, which would smuggle attacker-
+// controlled keys past the value-only secret scan.
+if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+  const allowedKeys = new Set(REQUIRED_FIELDS);
+  for (const [k, v] of Object.entries(payload)) {
+    if (!allowedKeys.has(k)) violations.push(`unexpected field: ${safeSegment(k)}`);
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      violations.push(`field ${safeSegment(k)} must not be a nested object`);
+    }
+  }
 }
 
 if (payload.disposition !== undefined && !DISPOSITIONS.has(payload.disposition)) {
@@ -162,12 +230,22 @@ if (payload.duplicate_of !== null && typeof payload.duplicate_of !== 'number') {
   violations.push(`duplicate_of must be a number or null, got ${typeof payload.duplicate_of}`);
 }
 
-// Secret-pattern scan across the whole serialized payload — defense in depth
-// against the agent stuffing a token into any string field.
-const allText = JSON.stringify(payload);
-for (const { name, re } of SECRET_PATTERNS) {
-  if (re.test(allText)) {
-    violations.push(`POSSIBLE SECRET LEAK — pattern matched: ${name}`);
+// Secret-pattern scan over every string field — defense in depth against the
+// agent stuffing a token into any field. Reports the field path + a redacted
+// preview so a human can resolve a hit (real leak vs. harmless quoted blob) at
+// a glance. The base64 heuristic is entropy-gated; the prefix patterns are not.
+for (const [path, str] of stringFields(payload)) {
+  for (const { name, re, minEntropy, entropyWindow } of SECRET_PATTERNS) {
+    // Build a local global clone of the pattern (matchAll needs the global flag)
+    // so the shared SECRET_PATTERNS stay non-global — that keeps the .test() in
+    // safeSegment stateless. Each match is entropy-checked on its own, so a
+    // low-entropy run in a field cannot mask a high-entropy secret elsewhere in it.
+    const matches = str.matchAll(new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`));
+    for (const m of matches) {
+      const preview = minEntropy === undefined ? m[0] : entropyMatch(m[0], minEntropy, entropyWindow);
+      if (preview === null) continue;
+      violations.push(`POSSIBLE SECRET LEAK — ${name} at ${path}: ${redactedPreview(preview)}`);
+    }
   }
 }
 

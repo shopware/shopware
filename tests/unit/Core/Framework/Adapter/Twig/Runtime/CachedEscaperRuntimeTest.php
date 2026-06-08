@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
 use Twig\Error\RuntimeError;
+use Twig\Runtime\EscaperRuntime;
 
 /**
  * @internal
@@ -14,7 +15,7 @@ use Twig\Error\RuntimeError;
 #[CoversClass(CachedEscaperRuntime::class)]
 class CachedEscaperRuntimeTest extends TestCase
 {
-    private CachedEscaperRuntime $cachedEscaperRuntime;
+    private EscaperRuntime $originalEscaperRuntime;
 
     /**
      * All character encodings supported by htmlspecialchars().
@@ -172,7 +173,7 @@ class CachedEscaperRuntimeTest extends TestCase
     protected function setUp(): void
     {
         CachedEscaperRuntime::resetEscapeCache();
-        $this->cachedEscaperRuntime = new CachedEscaperRuntime();
+        $this->originalEscaperRuntime = new EscaperRuntime();
     }
 
     protected function tearDown(): void
@@ -183,21 +184,21 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testHtmlEscapingConvertsSpecialChars(): void
     {
         foreach (self::$htmlSpecialChars as $key => $value) {
-            static::assertSame($value, $this->cachedEscaperRuntime->escape($key), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key), 'Failed to escape: ' . $key);
         }
     }
 
     public function testHtmlAttributeEscapingConvertsSpecialChars(): void
     {
         foreach (self::$htmlAttrSpecialChars as $key => $value) {
-            static::assertSame($value, $this->cachedEscaperRuntime->escape($key, 'html_attr'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key, 'html_attr'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testJavascriptEscapingConvertsSpecialChars(): void
     {
         foreach (self::$jsSpecialChars as $key => $value) {
-            static::assertSame($value, $this->cachedEscaperRuntime->escape($key, 'js'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key, 'js'), 'Failed to escape: ' . $key);
         }
     }
 
@@ -208,7 +209,7 @@ class CachedEscaperRuntimeTest extends TestCase
         try {
             mb_internal_encoding('ISO-8859-1');
             foreach (self::$jsSpecialChars as $key => $value) {
-                static::assertSame($value, $this->cachedEscaperRuntime->escape($key, 'js'), 'Failed to escape: ' . $key);
+                static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key, 'js'), 'Failed to escape: ' . $key);
             }
         } finally {
             if ($previousInternalEncoding !== false) {
@@ -219,35 +220,35 @@ class CachedEscaperRuntimeTest extends TestCase
 
     public function testJavascriptEscapingReturnsStringIfZeroLength(): void
     {
-        static::assertSame('', $this->cachedEscaperRuntime->escape('', 'js'));
+        static::assertSame('', CachedEscaperRuntime::escape($this->originalEscaperRuntime, '', 'js'));
     }
 
     public function testJavascriptEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        static::assertSame('123', $this->cachedEscaperRuntime->escape('123', 'js'));
+        static::assertSame('123', CachedEscaperRuntime::escape($this->originalEscaperRuntime, '123', 'js'));
     }
 
     public function testCssEscapingConvertsSpecialChars(): void
     {
         foreach (self::$cssSpecialChars as $key => $value) {
-            static::assertSame($value, $this->cachedEscaperRuntime->escape($key, 'css'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key, 'css'), 'Failed to escape: ' . $key);
         }
     }
 
     public function testCssEscapingReturnsStringIfZeroLength(): void
     {
-        static::assertSame('', $this->cachedEscaperRuntime->escape('', 'css'));
+        static::assertSame('', CachedEscaperRuntime::escape($this->originalEscaperRuntime, '', 'css'));
     }
 
     public function testCssEscapingReturnsStringIfContainsOnlyDigits(): void
     {
-        static::assertSame('123', $this->cachedEscaperRuntime->escape('123', 'css'));
+        static::assertSame('123', CachedEscaperRuntime::escape($this->originalEscaperRuntime, '123', 'css'));
     }
 
     public function testUrlEscapingConvertsSpecialChars(): void
     {
         foreach (self::$urlSpecialChars as $key => $value) {
-            static::assertSame($value, $this->cachedEscaperRuntime->escape($key, 'url'), 'Failed to escape: ' . $key);
+            static::assertSame($value, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $key, 'url'), 'Failed to escape: ' . $key);
         }
     }
 
@@ -276,15 +277,15 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->cachedEscaperRuntime->escape($literal, 'js'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'js'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, $this->cachedEscaperRuntime->escape($literal, 'js'));
+                    static::assertSame($literal, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'js'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        $this->cachedEscaperRuntime->escape($literal, 'js'),
+                        CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'js'),
                         "$literal should be escaped!"
                     );
                 }
@@ -300,15 +301,15 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->cachedEscaperRuntime->escape($literal, 'html_attr'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'html_attr'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 if (\in_array($literal, $immune, true)) {
-                    static::assertSame($literal, $this->cachedEscaperRuntime->escape($literal, 'html_attr'));
+                    static::assertSame($literal, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'html_attr'));
                 } else {
                     static::assertNotSame(
                         $literal,
-                        $this->cachedEscaperRuntime->escape($literal, 'html_attr'),
+                        CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'html_attr'),
                         "$literal should be escaped!"
                     );
                 }
@@ -324,12 +325,12 @@ class CachedEscaperRuntimeTest extends TestCase
                 || ($chr >= 0x41 && $chr <= 0x5A)
                 || ($chr >= 0x61 && $chr <= 0x7A)) {
                 $literal = $this->codepointToUtf8($chr);
-                static::assertSame($literal, $this->cachedEscaperRuntime->escape($literal, 'css'));
+                static::assertSame($literal, CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'css'));
             } else {
                 $literal = $this->codepointToUtf8($chr);
                 static::assertNotSame(
                     $literal,
-                    $this->cachedEscaperRuntime->escape($literal, 'css'),
+                    CachedEscaperRuntime::escape($this->originalEscaperRuntime, $literal, 'css'),
                     "$literal should be escaped!"
                 );
             }
@@ -339,10 +340,10 @@ class CachedEscaperRuntimeTest extends TestCase
     #[DataProvider('provideCustomEscaperCases')]
     public function testCustomEscaper(string $expected, string $string, string $strategy): void
     {
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setEscaper('foo', foo_escaper_for_test(...));
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('foo', foo_escaper_for_test(...));
 
-        static::assertSame($expected, $cachedEscaperRuntime->escape($string, $strategy));
+        static::assertSame($expected, CachedEscaperRuntime::escape($originalEscaperRuntime, $string, $strategy));
     }
 
     /**
@@ -358,7 +359,7 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testUnknownCustomEscaper(): void
     {
         $this->expectExceptionObject(new RuntimeError('Invalid escaping strategy "bar" (valid ones: "html", "js", "url", "css", "html_attr", "html_attr_relaxed")'));
-        $this->cachedEscaperRuntime->escape('foo', 'bar');
+        CachedEscaperRuntime::escape($this->originalEscaperRuntime, 'foo', 'bar');
     }
 
     /**
@@ -368,11 +369,11 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testObjectEscaping(string $escapedHtml, string $escapedJs, array $safeClasses): void
     {
         $obj = new Extension_TestClass();
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setSafeClasses($safeClasses);
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setSafeClasses($safeClasses);
 
-        static::assertSame($escapedHtml, $cachedEscaperRuntime->escape($obj, 'html', null, true));
-        static::assertSame($escapedJs, $cachedEscaperRuntime->escape($obj, 'js', null, true));
+        static::assertSame($escapedHtml, CachedEscaperRuntime::escape($originalEscaperRuntime, $obj, 'html', null, true));
+        static::assertSame($escapedJs, CachedEscaperRuntime::escape($originalEscaperRuntime, $obj, 'js', null, true));
     }
 
     /**
@@ -428,7 +429,7 @@ class CachedEscaperRuntimeTest extends TestCase
     #[DataProvider('EscapeDataProvider')]
     public function testEscapeWithVariousInputs(array|int|float|string|null $input, array|int|float|string|null $expected): void
     {
-        $result = $this->cachedEscaperRuntime->escape($input);
+        $result = CachedEscaperRuntime::escape($this->originalEscaperRuntime, $input);
 
         static::assertSame($expected, $result);
     }
@@ -436,16 +437,16 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testEscapeWithCachedString(): void
     {
         $callCount = 0;
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
             ++$callCount;
 
             return strtoupper($string);
         });
 
-        static::assertSame('FOO', $cachedEscaperRuntime->escape('foo', 'test'));
-        static::assertSame('FOO', $cachedEscaperRuntime->escape('foo', 'test'));
-        static::assertSame('FOO', $cachedEscaperRuntime->escape('foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($originalEscaperRuntime, 'foo', 'test'));
 
         static::assertSame(1, $callCount);
     }
@@ -453,22 +454,22 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testDifferentStrategiesAreCachedSeparately(): void
     {
         $callCount = 0;
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setEscaper('upper', static function (string $string) use (&$callCount): string {
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('upper', static function (string $string) use (&$callCount): string {
             ++$callCount;
 
             return strtoupper($string);
         });
-        $cachedEscaperRuntime->setEscaper('lower', static function (string $string) use (&$callCount): string {
+        $originalEscaperRuntime->setEscaper('lower', static function (string $string) use (&$callCount): string {
             ++$callCount;
 
             return strtolower($string);
         });
 
-        static::assertSame('FOO', $cachedEscaperRuntime->escape('Foo', 'upper'));
-        static::assertSame('foo', $cachedEscaperRuntime->escape('Foo', 'lower'));
-        static::assertSame('FOO', $cachedEscaperRuntime->escape('Foo', 'upper'));
-        static::assertSame('foo', $cachedEscaperRuntime->escape('Foo', 'lower'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($originalEscaperRuntime, 'Foo', 'upper'));
+        static::assertSame('foo', CachedEscaperRuntime::escape($originalEscaperRuntime, 'Foo', 'lower'));
+        static::assertSame('FOO', CachedEscaperRuntime::escape($originalEscaperRuntime, 'Foo', 'upper'));
+        static::assertSame('foo', CachedEscaperRuntime::escape($originalEscaperRuntime, 'Foo', 'lower'));
 
         static::assertSame(2, $callCount);
     }
@@ -476,8 +477,8 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testEscapeWithStringableThatIsMutatedBetweenCallsIsNotConsideredForCaching(): void
     {
         $callCount = 0;
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('test', static function (string $string) use (&$callCount): string {
             ++$callCount;
 
             return strtoupper($string);
@@ -485,11 +486,11 @@ class CachedEscaperRuntimeTest extends TestCase
 
         $stringable = new Extension_TestClass('foo1');
 
-        static::assertSame('FOO1', $cachedEscaperRuntime->escape($stringable, 'test'));
+        static::assertSame('FOO1', CachedEscaperRuntime::escape($originalEscaperRuntime, $stringable, 'test'));
 
         $stringable->string = 'foo2';
 
-        static::assertSame('FOO2', $cachedEscaperRuntime->escape($stringable, 'test'));
+        static::assertSame('FOO2', CachedEscaperRuntime::escape($originalEscaperRuntime, $stringable, 'test'));
 
         static::assertSame(2, $callCount);
     }
@@ -497,17 +498,17 @@ class CachedEscaperRuntimeTest extends TestCase
     public function testEscapeDoesNotCacheBooleanInput(): void
     {
         $callCount = 0;
-        $cachedEscaperRuntime = new CachedEscaperRuntime();
-        $cachedEscaperRuntime->setEscaper('test', static function (mixed $string) use (&$callCount): mixed {
+        $originalEscaperRuntime = new EscaperRuntime();
+        $originalEscaperRuntime->setEscaper('test', static function (mixed $string) use (&$callCount): mixed {
             ++$callCount;
 
             return $string;
         });
 
-        static::assertTrue($cachedEscaperRuntime->escape(true, 'test'));
-        static::assertTrue($cachedEscaperRuntime->escape(true, 'test'));
-        static::assertFalse($cachedEscaperRuntime->escape(false, 'test'));
-        static::assertFalse($cachedEscaperRuntime->escape(false, 'test'));
+        static::assertTrue(CachedEscaperRuntime::escape($originalEscaperRuntime, true, 'test'));
+        static::assertTrue(CachedEscaperRuntime::escape($originalEscaperRuntime, true, 'test'));
+        static::assertFalse(CachedEscaperRuntime::escape($originalEscaperRuntime, false, 'test'));
+        static::assertFalse(CachedEscaperRuntime::escape($originalEscaperRuntime, false, 'test'));
 
         static::assertSame(4, $callCount);
     }

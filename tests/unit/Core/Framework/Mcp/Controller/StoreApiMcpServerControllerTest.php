@@ -97,13 +97,15 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testRateLimitExceptionIsConvertedToMcpException(): void
     {
+        $rateLimitException = new RateLimitExceededException(time() + 60);
+
         $this->rateLimiter
             ->method('ensureAccepted')
-            ->willThrowException(new RateLimitExceededException(time() + 60));
+            ->willThrowException($rateLimitException);
 
         $controller = $this->buildController(new ServerRequest('GET', '/store-api/_mcp'));
 
-        $this->expectException(McpException::class);
+        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
 
         $controller->handle(new Request());
     }

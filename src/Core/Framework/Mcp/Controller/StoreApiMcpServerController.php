@@ -43,6 +43,10 @@ class StoreApiMcpServerController
 {
     /**
      * @internal
+     *
+     * The first five params are nullable because they are injected via
+     * nullOnInvalid(): when the MCP bundle is absent they resolve to null.
+     * Once MCP_SERVER is stable (v6.8.0) remove the nullable types and the null guards in handle().
      */
     public function __construct(
         private readonly ?Server $server,

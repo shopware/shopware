@@ -40,6 +40,20 @@ const DISPOSITIONS = new Set(['valid-bug', 'duplicate', 'needs-info', 'not-a-bug
 const SEVERITIES = new Set(['low', 'medium', 'high', 'critical']);
 const CHANGE_SIZES = new Set(['quick-fix', 'small', 'medium', 'large', 'unknown']);
 
+// The closed label catalogue. KEEP IN SYNC with the canonical list in
+// .claude/skills/triage/references/DOMAINS.md — when a label is added/removed
+// there, mirror it here (and vice-versa). Kept as a hardcoded set on purpose:
+// parsing the prose doc at runtime would make this gate fragile and non-hermetic.
+const COMPONENT_LABELS = new Set(['component/core', 'component/administration', 'component/storefront']);
+const VALID_LABELS = new Set([
+  'domain/framework', 'domain/inventory', 'domain/discovery', 'domain/checkout',
+  'domain/crm-after-sales', 'domain/b2b', 'domain/dx-tools', 'domain/quality-ops',
+  'domain/service-enablement', 'domain/ux', 'domain/customer-support', 'domain/product-ops',
+  'service/data-intelligence', 'service/business-capabilities',
+  'service/data-&-ai-enablement', 'service/shopping-experience', 'service/databus-nexus',
+  ...COMPONENT_LABELS,
+]);
+
 const LIMITS = {
   reasoning: 2000,
   evidence_quote: 500,
@@ -118,8 +132,19 @@ if (!Array.isArray(payload.evidence_quotes)) {
 
 if (!Array.isArray(payload.suggested_labels)) {
   violations.push('suggested_labels must be an array');
-} else if (payload.suggested_labels.length < LIMITS.labels_min || payload.suggested_labels.length > LIMITS.labels_max) {
-  violations.push(`suggested_labels count must be ${LIMITS.labels_min}-${LIMITS.labels_max}, got ${payload.suggested_labels.length}`);
+} else {
+  const labels = payload.suggested_labels;
+  if (labels.length < LIMITS.labels_min || labels.length > LIMITS.labels_max) {
+    violations.push(`suggested_labels count must be ${LIMITS.labels_min}-${LIMITS.labels_max}, got ${labels.length}`);
+  }
+  for (const [i, l] of labels.entries()) {
+    if (typeof l !== 'string') violations.push(`suggested_labels[${i}] must be a string`);
+    else if (!VALID_LABELS.has(l)) violations.push(`suggested_labels[${i}] not in DOMAINS.md catalogue: ${JSON.stringify(l)}`);
+  }
+  // domain/framework requires an accompanying component/* label (DOMAINS.md "Required second label").
+  if (labels.includes('domain/framework') && !labels.some((l) => COMPONENT_LABELS.has(l))) {
+    violations.push('domain/framework requires a component/* label (component/core|administration|storefront)');
+  }
 }
 
 if (payload.recent_commits_in_area !== undefined) {

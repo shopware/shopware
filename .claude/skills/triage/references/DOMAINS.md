@@ -2,6 +2,8 @@
 
 Suggested labels MUST come from this list — every entry below exists as a real label on `shopware/shopware`. **Use 1–2 labels.** When picking, prefer the primary surface area where the user observes the bug.
 
+> **Maintainer note:** the CI validator `.github/bin/js/validate-triage-output.mjs` hardcodes this label set (`VALID_LABELS` / `COMPONENT_LABELS`). When you add or remove a label here, mirror the change there or valid triages will fail validation.
+
 ## Primary signal: read the package marker on the affected file
 
 Shopware annotates code ownership directly in the source. **This is the WG-Tech-Architecture-curated source of truth — trust it over any path heuristic and over outdated Confluence text.**

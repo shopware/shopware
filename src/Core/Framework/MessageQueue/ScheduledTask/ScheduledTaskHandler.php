@@ -7,6 +7,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Clock\ClockAwareTrait;
 
@@ -14,6 +16,8 @@ use Symfony\Component\Clock\ClockAwareTrait;
 abstract class ScheduledTaskHandler
 {
     use ClockAwareTrait;
+
+    private ?ScheduledTaskExecutor $executor = null;
 
     /**
      * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
@@ -26,48 +30,21 @@ abstract class ScheduledTaskHandler
 
     public function __invoke(ScheduledTask $task): void
     {
-        $taskId = $task->getTaskId();
-
-        if ($taskId === null) {
-            // run task independent of the schedule
-            $this->run();
+        if ($this->executor !== null) {
+            $this->executor->execute($this, $task);
 
             return;
         }
 
-        $taskEntity = $this->scheduledTaskRepository
-            ->search(new Criteria([$taskId]), Context::createCLIContext())
-            ->get($taskId);
+        $this->runLegacy($task);
+    }
 
-        if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {
-            return;
-        }
-
-        $this->markTaskRunning($task);
-
-        try {
-            $this->run();
-        } catch (\Throwable $e) {
-            if ($task->shouldRescheduleOnFailure()) {
-                $this->exceptionLogger->error(
-                    'Scheduled task failed with: ' . $e->getMessage(),
-                    [
-                        'error' => $e,
-                        'scheduledTask' => $task->getTaskName(),
-                    ]
-                );
-
-                $this->rescheduleTask($task, $taskEntity);
-
-                return;
-            }
-
-            $this->markTaskFailed($task);
-
-            throw $e;
-        }
-
-        $this->rescheduleTask($task, $taskEntity);
+    /**
+     * @internal injected by the {@see ScheduledTaskExecutorCompilerPass}
+     */
+    public function setExecutor(ScheduledTaskExecutor $executor): void
+    {
+        $this->executor = $executor;
     }
 
     abstract public function run(): void;
@@ -111,5 +88,62 @@ abstract class ScheduledTaskHandler
                 'nextExecutionTime' => $newNextExecutionTime,
             ],
         ], Context::createCLIContext());
+    }
+
+    private function runLegacy(ScheduledTask $task): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The scheduled task handler "%s" was invoked without a "%s". The inline execution logic in "%s" is deprecated and will be removed. Register the handler as a "messenger.message_handler" service so the "%s" can inject the executor.',
+                static::class,
+                ScheduledTaskExecutor::class,
+                self::class,
+                ScheduledTaskExecutorCompilerPass::class,
+            )
+        );
+
+        $taskId = $task->getTaskId();
+
+        if ($taskId === null) {
+            // run task independent of the schedule
+            $this->run();
+
+            return;
+        }
+
+        $taskEntity = $this->scheduledTaskRepository
+            ->search(new Criteria([$taskId]), Context::createCLIContext())
+            ->get($taskId);
+
+        if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {
+            return;
+        }
+
+        $this->markTaskRunning($task);
+
+        try {
+            $this->run();
+        } catch (\Throwable $e) {
+            if ($task->shouldRescheduleOnFailure()) {
+                $this->exceptionLogger->error(
+                    'Scheduled task failed with: ' . $e->getMessage(),
+                    [
+                        'error' => $e,
+                        'scheduledTask' => $task->getTaskName(),
+                    ]
+                );
+
+                $this->rescheduleTask($task, $taskEntity);
+
+                return;
+            }
+
+            $this->markTaskFailed($task);
+
+            throw $e;
+        }
+
+        $this->rescheduleTask($task, $taskEntity);
     }
 }

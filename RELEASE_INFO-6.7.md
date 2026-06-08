@@ -228,6 +228,22 @@ Extensions that use the registry automatically benefit from the lock; direct SQL
 The `RegisterScheduleTaskMessage` class and the accompanying message handler `RegisterScheduledTaskHandler` is deprecated and will be removed in Shopware 6.8.0.0, as the message wasn't dispatched anymore.
 If you dispatched that message manually, you should call the `TaskScheduler::registerTask()` method directly instead.
 
+### Scheduled task execution moved to `ScheduledTaskExecutor`
+
+The orchestration logic of `ScheduledTaskHandler::__invoke()` (loading the task, marking it running or failed, and rescheduling it) has moved into the new `ScheduledTaskExecutor` service.
+The executor is injected into every scheduled task handler tagged as `messenger.message_handler` via the new `ScheduledTaskExecutorCompilerPass`.
+Scheduled task handlers registered through the container — the standard way plugins register them — require **no changes** and keep working as before.
+
+The inline execution logic in `ScheduledTaskHandler::__invoke()` is deprecated and will be removed in Shopware 6.8.0.0.
+This only affects code that instantiates a `ScheduledTaskHandler` manually instead of resolving it from the container (for example in tests).
+In that case, set the executor explicitly to opt into the new behaviour, otherwise the handler falls back to the deprecated inline logic and triggers a deprecation warning:
+
+```php
+$handler = new MyScheduledTaskHandler($scheduledTaskRepository, $logger);
+$handler->setExecutor(new ScheduledTaskExecutor($scheduledTaskRepository, $logger, $clock));
+$handler($task);
+```
+
 ### Plugin snippet files are no longer silently dropped when any translation is installed
 
 Plugin snippet files (`.json` files shipped in `Resources/snippet/`) were being skipped for **all** locales as soon as a core translation for **any single locale** was installed via the translation installer.

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistFilter;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
 use Shopware\Core\Framework\Mcp\McpException;
@@ -130,10 +131,7 @@ class McpServerController
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function checkAllowlistEarlyReject(Request $request, array $allowlist): ?Response
+    private function checkAllowlistEarlyReject(Request $request, McpAllowlist $allowlist): ?Response
     {
         $body = $this->decodeJson($request->getContent());
 
@@ -143,9 +141,9 @@ class McpServerController
 
         $method = $body['method'] ?? null;
 
-        if ($method === CallToolRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
+        if ($method === CallToolRequest::getMethod() && $allowlist->tools !== null) {
             $toolName = $body['params']['name'] ?? '';
-            if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist[McpAllowlistProvider::TOOLS])) {
+            if ($this->allowlistFilter->isToolCallDenied($toolName, $allowlist->tools)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $toolName !== ''
@@ -155,9 +153,9 @@ class McpServerController
             }
         }
 
-        if ($method === ReadResourceRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
+        if ($method === ReadResourceRequest::getMethod() && $allowlist->resources !== null) {
             $resourceUri = $body['params']['uri'] ?? '';
-            if ($this->allowlistFilter->isResourceReadDenied($resourceUri, $allowlist[McpAllowlistProvider::RESOURCES])) {
+            if ($this->allowlistFilter->isResourceReadDenied($resourceUri, $allowlist->resources)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $resourceUri !== ''
@@ -167,9 +165,9 @@ class McpServerController
             }
         }
 
-        if ($method === GetPromptRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
+        if ($method === GetPromptRequest::getMethod() && $allowlist->prompts !== null) {
             $promptName = $body['params']['name'] ?? '';
-            if ($this->allowlistFilter->isPromptGetDenied($promptName, $allowlist[McpAllowlistProvider::PROMPTS])) {
+            if ($this->allowlistFilter->isPromptGetDenied($promptName, $allowlist->prompts)) {
                 return $this->jsonRpcError(
                     $body['id'] ?? null,
                     $promptName !== ''
@@ -182,10 +180,7 @@ class McpServerController
         return null;
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, array $allowlist): PsrResponseInterface
+    private function filterListResponse(Request $request, PsrResponseInterface $psrResponse, McpAllowlist $allowlist): PsrResponseInterface
     {
         \assert($this->streamFactory !== null);
 
@@ -217,27 +212,21 @@ class McpServerController
             ->withHeader('Content-Length', (string) \strlen($newBody));
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function hasListFilter(?string $method, array $allowlist): bool
+    private function hasListFilter(?string $method, McpAllowlist $allowlist): bool
     {
-        return ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null)
-            || ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null)
-            || ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null);
+        return ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null)
+            || ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null)
+            || ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null);
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $allowlist
-     */
-    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, array $allowlist): void
+    private function applyAllowlistFilter(McpJsonRpcResponse $response, ?string $method, McpAllowlist $allowlist): void
     {
-        if ($method === ListToolsRequest::getMethod() && $allowlist[McpAllowlistProvider::TOOLS] !== null) {
-            $response->filterTools($allowlist[McpAllowlistProvider::TOOLS]);
-        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist[McpAllowlistProvider::RESOURCES] !== null) {
-            $response->filterResources($allowlist[McpAllowlistProvider::RESOURCES]);
-        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist[McpAllowlistProvider::PROMPTS] !== null) {
-            $response->filterPrompts($allowlist[McpAllowlistProvider::PROMPTS]);
+        if ($method === ListToolsRequest::getMethod() && $allowlist->tools !== null) {
+            $response->filterTools($allowlist->tools);
+        } elseif ($method === ListResourcesRequest::getMethod() && $allowlist->resources !== null) {
+            $response->filterResources($allowlist->resources);
+        } elseif ($method === ListPromptsRequest::getMethod() && $allowlist->prompts !== null) {
+            $response->filterPrompts($allowlist->prompts);
         }
     }
 

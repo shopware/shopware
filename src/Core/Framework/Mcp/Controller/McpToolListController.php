@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Mcp\Controller;
 use Mcp\Server\Builder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
 use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -70,9 +70,9 @@ class McpToolListController
         $this->builder->build();
 
         return new JsonResponse([
-            McpAllowlistProvider::TOOLS => $this->catalog->enrichedTools(),
-            McpAllowlistProvider::RESOURCES => $this->catalog->enrichedResources(),
-            McpAllowlistProvider::PROMPTS => $this->catalog->enrichedPrompts(),
+            McpAllowlist::TOOLS => $this->catalog->enrichedTools(),
+            McpAllowlist::RESOURCES => $this->catalog->enrichedResources(),
+            McpAllowlist::PROMPTS => $this->catalog->enrichedPrompts(),
         ]);
     }
 }

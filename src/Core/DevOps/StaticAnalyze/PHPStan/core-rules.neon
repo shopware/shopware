@@ -18,7 +18,6 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NameConstantEntityDefinition
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StorefrontRouteUsageRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoRuntimeExceptionInDomainExceptionsRule
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolResponseRule
 
 services:
     -

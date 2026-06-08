@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -518,8 +519,7 @@ class EntityExtensionTest extends TestCase
 
     public function testICantAddScalarExtensions(): void
     {
-        static::expectException(\Exception::class);
-        static::expectExceptionMessage('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+        $this->expectExceptionObject(DataAbstractionLayerException::wrongFieldTypeForExtension());
 
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
         $definition = static::getContainer()->get(ExtendableDefinition::class);

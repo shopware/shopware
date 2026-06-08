@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
 
 /**
@@ -19,7 +20,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn([]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame([], $provider->getAppToolPrivileges());
     }
@@ -38,7 +39,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
             ],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             [
@@ -58,7 +59,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
             ['tool_name' => 'scalar-json', 'required_privileges' => '"plain-string"'],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(
             ['good-tool' => ['entity:read']],
@@ -88,7 +89,7 @@ class AppMcpPrivilegeProviderTest extends TestCase
             ['tool_name' => 'tool', 'required_privileges' => '{"0":"a","1":"b"}'],
         ]);
 
-        $provider = new AppMcpPrivilegeProvider($connection);
+        $provider = new AppMcpPrivilegeProvider($connection, new NullLogger());
 
         static::assertSame(['tool' => ['a', 'b']], $provider->getAppToolPrivileges());
     }

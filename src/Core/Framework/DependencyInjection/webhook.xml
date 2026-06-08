@@ -172,6 +172,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\StreamLockService"/>
             <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTask">

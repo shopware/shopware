@@ -216,9 +216,11 @@
         <service id="Shopware\Core\Framework\Api\OAuth\AccessTokenRepository"/>
         <service id="Shopware\Core\Framework\Api\OAuth\ClientRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
         <service id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\OAuth\ScopeRepository">
@@ -297,6 +299,7 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\UserService\UserService"/>
             <argument type="service" id="Shopware\Core\Framework\Sso\TokenService\ExternalTokenService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%shopware.api.access_token_ttl%</argument>
             <argument type="string">%shopware.api.refresh_token_ttl%</argument>
 
@@ -307,6 +310,7 @@
             <tag name="kernel.event_subscriber"/>
             <argument type="service" id="Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Controller\UserController" public="true">

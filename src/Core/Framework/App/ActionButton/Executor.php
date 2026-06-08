@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ActionButton;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\AppException;
@@ -35,7 +36,8 @@ class Executor
         private readonly ShopIdProvider $shopIdProvider,
         private readonly RouterInterface $router,
         private readonly RequestStack $requestStack,
-        private readonly KernelInterface $kernel
+        private readonly KernelInterface $kernel,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -49,7 +51,7 @@ class Executor
 
         $payload = $action->asPayload();
         $payload['meta'] = [
-            'timestamp' => (new \DateTime())->getTimestamp(),
+            'timestamp' => $this->clock->now()->getTimestamp(),
             'reference' => Uuid::randomHex(),
             'language' => $context->getLanguageId(),
         ];

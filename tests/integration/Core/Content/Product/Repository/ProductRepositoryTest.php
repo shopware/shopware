@@ -623,7 +623,7 @@ class ProductRepositoryTest extends TestCase
         $id = Uuid::randomHex();
 
         // check nested events are triggered
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.written', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.written', $listener);
@@ -641,7 +641,7 @@ class ProductRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         // validate that nested events are triggered
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
         $this->eventDispatcher->addListener('product.loaded', $listener);
         $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);

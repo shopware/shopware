@@ -109,7 +109,7 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromBinaryUsesFileName(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -200,7 +200,7 @@ class MediaUploadControllerTest extends TestCase
     public function testUploadFromURL(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 
@@ -242,7 +242,7 @@ class MediaUploadControllerTest extends TestCase
     public function testRenameMediaFileThrowsExceptionIfFileNameIsNotPresent(): void
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
         $this->addEventListener($dispatcher, MediaUploadedEvent::class, $listener);
 

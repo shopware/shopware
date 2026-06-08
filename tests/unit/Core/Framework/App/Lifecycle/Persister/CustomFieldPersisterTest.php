@@ -51,6 +51,7 @@ class CustomFieldPersisterTest extends TestCase
                     return \count($sets) === 2 && $sets[0]->getName() === 'test_set';
                 }),
                 'app-id-123',
+                'TestApp',
                 static::isInstanceOf(Context::class)
             );
 
@@ -68,6 +69,7 @@ class CustomFieldPersisterTest extends TestCase
                     return $customFields->getCustomFieldSets() === [];
                 }),
                 'app-id-123',
+                'TestApp',
                 static::isInstanceOf(Context::class)
             );
 
@@ -83,6 +85,7 @@ class CustomFieldPersisterTest extends TestCase
         $app = new AppEntity();
         $app->setId('app-id-123');
         $app->setUniqueIdentifier('app-id-123');
+        $app->setName('TestApp');
 
         return new AppLifecycleContext(
             manifest: $manifest,

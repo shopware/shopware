@@ -561,7 +561,7 @@ class PluginLifecycleService
 
         $customFields = CustomFieldXmlLoader::load($xmlFile);
 
-        $this->customFieldSetPersister->sync($customFields, null, $context);
+        $this->customFieldSetPersister->sync($customFields, null, $pluginBaseClass->getName(), $context);
     }
 
     private function removePluginCustomFields(Plugin $pluginBaseClass, Context $context): void

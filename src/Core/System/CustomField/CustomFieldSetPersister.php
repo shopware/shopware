@@ -37,12 +37,13 @@ class CustomFieldSetPersister
      * Sync custom field sets from parsed XML definition.
      *
      * When $appId is provided, existing sets are looked up by app_id (app behavior).
-     * When $appId is null, existing sets are looked up by the names defined in the XML (plugin behavior).
+     * When $appId is null, existing sets are looked up by extension_name (plugin behavior),
+     * which also catches sets that were removed from the XML so they can be deleted.
      */
-    public function sync(CustomFields $customFields, ?string $appId, Context $context): void
+    public function sync(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context): void
     {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($customFields, $appId): void {
-            $this->upsertCustomFieldSets($customFields, $appId, $innerContext);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($customFields, $appId, $extensionName): void {
+            $this->upsertCustomFieldSets($customFields, $appId, $extensionName, $innerContext);
         });
     }
 
@@ -75,9 +76,9 @@ class CustomFieldSetPersister
         });
     }
 
-    private function upsertCustomFieldSets(CustomFields $customFields, ?string $appId, Context $context): void
+    private function upsertCustomFieldSets(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context): void
     {
-        $existingCustomFieldSets = $this->getExistingCustomFieldSets($customFields, $appId);
+        $existingCustomFieldSets = $this->getExistingCustomFieldSets($appId, $extensionName);
 
         if ($customFields->getCustomFieldSets() === []) {
             if ($existingCustomFieldSets !== []) {
@@ -99,7 +100,12 @@ class CustomFieldSetPersister
         foreach ($customFields->getCustomFieldSets() as $customFieldSet) {
             if (!\array_key_exists($customFieldSet->getName(), $existingCustomFieldSets)) {
                 $existingRelations = $existingFields = [];
-                $payload[] = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
+                $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
+                if ($extensionName !== null) {
+                    $entityData['extensionName'] = $extensionName;
+                }
+
+                $payload[] = $entityData;
 
                 continue;
             }
@@ -119,6 +125,9 @@ class CustomFieldSetPersister
                 )
             );
             $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
+            if ($extensionName !== null) {
+                $entityData['extensionName'] = $extensionName;
+            }
 
             $obsoleteRelations = array_merge($obsoleteRelations, array_values($existingRelations));
             $obsoleteFields = array_merge($obsoleteFields, array_values($existingFields));
@@ -140,7 +149,7 @@ class CustomFieldSetPersister
     /**
      * @return array<string, string> Map of set name => set id (hex)
      */
-    private function getExistingCustomFieldSets(CustomFields $customFields, ?string $appId): array
+    private function getExistingCustomFieldSets(?string $appId, ?string $extensionName): array
     {
         if ($appId !== null) {
             // App behavior: look up by app_id
@@ -149,43 +158,34 @@ class CustomFieldSetPersister
                 'SELECT id, name FROM custom_field_set WHERE app_id = :appId',
                 ['appId' => Uuid::fromHexToBytes($appId)]
             );
-
-            $groupedByName = [];
-            foreach ($allCustomFields as $id => $name) {
-                $groupedByName[$name][] = Uuid::fromBytesToHex($id);
-            }
-
-            $existingCustomFieldSets = [];
-            foreach ($groupedByName as $name => $ids) {
-                if (\count($ids) > 1) {
-                    // duplicate sets - delete all and let them be recreated
-                    $this->deleteObsoleteIds($ids, [], [], Context::createDefaultContext());
-                } else {
-                    $existingCustomFieldSets[$name] = $ids[0];
-                }
-            }
-
-            return $existingCustomFieldSets;
-        }
-
-        // Plugin behavior: look up by names defined in XML
-        $setNames = array_map(
-            static fn ($set) => $set->getName(),
-            $customFields->getCustomFieldSets()
-        );
-
-        if ($setNames === []) {
+        } elseif ($extensionName !== null) {
+            // Plugin behavior: look up all sets owned by the extension, so that sets which
+            // were removed from the XML are loaded too and can be deleted.
+            /** @var array<string, string> $allCustomFields */
+            $allCustomFields = $this->connection->fetchAllKeyValue(
+                'SELECT id, name FROM custom_field_set WHERE extension_name = :extensionName',
+                ['extensionName' => $extensionName]
+            );
+        } else {
             return [];
         }
 
-        /** @var array<string, string> $rows */
-        $rows = $this->connection->fetchAllKeyValue(
-            'SELECT name, LOWER(HEX(id)) FROM custom_field_set WHERE name IN (:names)',
-            ['names' => $setNames],
-            ['names' => ArrayParameterType::STRING]
-        );
+        $groupedByName = [];
+        foreach ($allCustomFields as $id => $name) {
+            $groupedByName[$name][] = Uuid::fromBytesToHex($id);
+        }
 
-        return $rows;
+        $existingCustomFieldSets = [];
+        foreach ($groupedByName as $name => $ids) {
+            if (\count($ids) > 1) {
+                // duplicate sets - delete all and let them be recreated
+                $this->deleteObsoleteIds($ids, [], [], Context::createDefaultContext());
+            } else {
+                $existingCustomFieldSets[$name] = $ids[0];
+            }
+        }
+
+        return $existingCustomFieldSets;
     }
 
     /**

@@ -11,7 +11,7 @@ use Shopware\Core\System\CustomField\Xml\CustomFieldTypes\CustomFieldTypeFactory
 /**
  * @final
  *
- * @phpstan-type CustomFieldSetArray array{id?: string, name?: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId?: string, customFields: list<array<string, mixed>>}
+ * @phpstan-type CustomFieldSetArray array{id?: string, name?: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId?: string, extensionName?: string, customFields: list<array<string, mixed>>}
  */
 #[Package('framework')]
 class CustomFieldSet extends XmlElement

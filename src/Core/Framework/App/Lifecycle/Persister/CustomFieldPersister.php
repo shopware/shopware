@@ -40,6 +40,7 @@ class CustomFieldPersister implements PersisterInterface
         $this->customFieldSetPersister->sync(
             $customFields ?? CustomFields::fromArray([]),
             $context->app->getId(),
+            $context->app->getName(),
             $context->context
         );
     }

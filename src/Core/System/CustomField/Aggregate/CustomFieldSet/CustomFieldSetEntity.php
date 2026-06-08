@@ -36,6 +36,8 @@ class CustomFieldSetEntity extends Entity
 
     protected ?string $appId = null;
 
+    protected ?string $extensionName = null;
+
     protected ?AppEntity $app = null;
 
     public function getName(): string
@@ -132,6 +134,16 @@ class CustomFieldSetEntity extends Entity
     public function setAppId(?string $appId): void
     {
         $this->appId = $appId;
+    }
+
+    public function getExtensionName(): ?string
+    {
+        return $this->extensionName;
+    }
+
+    public function setExtensionName(?string $extensionName): void
+    {
+        $this->extensionName = $extensionName;
     }
 
     public function getApp(): ?AppEntity

@@ -59,10 +59,10 @@ class CustomFieldSetPersisterTest extends TestCase
 
     public function testSyncNewSetsForPluginUpsertsWithoutAppId(): void
     {
-        // plugin behavior: existing sets are looked up by name and none exist yet
+        // plugin behavior: existing sets are looked up by extension_name and none exist yet
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
-        $this->persister->sync($this->loadFixture(), null, Context::createDefaultContext());
+        $this->persister->sync($this->loadFixture(), null, 'TestPlugin', Context::createDefaultContext());
 
         $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
         static::assertCount(2, $upserts);
@@ -71,12 +71,14 @@ class CustomFieldSetPersisterTest extends TestCase
         static::assertSame('test_set', $first['name']);
         static::assertArrayNotHasKey('appId', $first);
         static::assertArrayNotHasKey('id', $first);
+        static::assertSame('TestPlugin', $first['extensionName']);
         static::assertSame(['product', 'customer'], array_column($first['relations'], 'entityName'));
         static::assertCount(2, $first['customFields']);
 
         $second = $upserts[1];
         static::assertSame('test_global_set', $second['name']);
         static::assertTrue($second['global']);
+        static::assertSame('TestPlugin', $second['extensionName']);
 
         static::assertSame([], $this->setRepository->deletes);
     }
@@ -88,12 +90,14 @@ class CustomFieldSetPersisterTest extends TestCase
         // app behavior: existing sets are looked up by app_id and none exist yet
         $this->connection->method('fetchAllKeyValue')->willReturn([]);
 
-        $this->persister->sync($this->loadFixture(), $appId, Context::createDefaultContext());
+        $this->persister->sync($this->loadFixture(), $appId, 'TestApp', Context::createDefaultContext());
 
         $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
         static::assertCount(2, $upserts);
         static::assertSame($appId, $upserts[0]['appId']);
         static::assertSame($appId, $upserts[1]['appId']);
+        static::assertSame('TestApp', $upserts[0]['extensionName']);
+        static::assertSame('TestApp', $upserts[1]['extensionName']);
     }
 
     public function testSyncEmptyDefinitionDeletesAllExistingSets(): void
@@ -105,7 +109,7 @@ class CustomFieldSetPersisterTest extends TestCase
             Uuid::fromHexToBytes($existingSetId) => 'obsolete_set',
         ]);
 
-        $this->persister->sync(CustomFields::fromArray([]), $appId, Context::createDefaultContext());
+        $this->persister->sync(CustomFields::fromArray([]), $appId, 'TestApp', Context::createDefaultContext());
 
         static::assertSame([], $this->setRepository->getPayloads(StaticEntityRepository::UPSERT));
 
@@ -124,8 +128,9 @@ class CustomFieldSetPersisterTest extends TestCase
         $this->connection->method('fetchAllKeyValue')->willReturnCallback(
             function (string $sql) use ($setId, $obsoleteRelationId, $obsoleteFieldId): array {
                 if (str_contains($sql, 'FROM custom_field_set ')) {
-                    // existing set lookup by name (plugin behavior)
-                    return ['test_set' => $setId];
+                    // existing set lookup by extension_name (plugin behavior),
+                    // keyed by binary id, value is the name
+                    return [Uuid::fromHexToBytes($setId) => 'test_set'];
                 }
 
                 if (str_contains($sql, 'FROM custom_field_set_relation')) {
@@ -140,7 +145,7 @@ class CustomFieldSetPersisterTest extends TestCase
             }
         );
 
-        $this->persister->sync($fixture, null, Context::createDefaultContext());
+        $this->persister->sync($fixture, null, 'TestPlugin', Context::createDefaultContext());
 
         $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
         static::assertCount(1, $upserts);
@@ -170,7 +175,7 @@ class CustomFieldSetPersisterTest extends TestCase
             Uuid::fromHexToBytes($duplicateB) => 'test_set',
         ]);
 
-        $this->persister->sync($this->loadFixtureSingleSet(), $appId, Context::createDefaultContext());
+        $this->persister->sync($this->loadFixtureSingleSet(), $appId, 'TestApp', Context::createDefaultContext());
 
         $deletes = $this->setRepository->getPayloads(StaticEntityRepository::DELETE);
         static::assertEqualsCanonicalizing(
@@ -182,6 +187,41 @@ class CustomFieldSetPersisterTest extends TestCase
         $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
         static::assertCount(1, $upserts);
         static::assertSame('test_set', $upserts[0]['name']);
+    }
+
+    public function testSyncForPluginDeletesSetsRemovedFromXml(): void
+    {
+        $keptSetId = Uuid::randomHex();
+        $removedSetId = Uuid::randomHex();
+
+        // the fixture defines only "test_set"; the plugin previously also owned
+        // "test_global_set", which is no longer present in the XML and must be deleted
+        $this->connection->method('fetchAllKeyValue')->willReturnCallback(
+            function (string $sql) use ($keptSetId, $removedSetId): array {
+                if (str_contains($sql, 'FROM custom_field_set ')) {
+                    static::assertStringContainsString('WHERE extension_name = :extensionName', $sql);
+
+                    return [
+                        Uuid::fromHexToBytes($keptSetId) => 'test_set',
+                        Uuid::fromHexToBytes($removedSetId) => 'test_global_set',
+                    ];
+                }
+
+                return [];
+            }
+        );
+
+        $this->persister->sync($this->loadFixtureSingleSet(), null, 'TestPlugin', Context::createDefaultContext());
+
+        // the kept set is upserted, the removed set is deleted
+        $upserts = $this->setRepository->getPayloads(StaticEntityRepository::UPSERT);
+        static::assertCount(1, $upserts);
+        static::assertSame($keptSetId, $upserts[0]['id']);
+
+        static::assertSame(
+            [['id' => $removedSetId]],
+            $this->setRepository->getPayloads(StaticEntityRepository::DELETE)
+        );
     }
 
     public function testRemoveByNamesDeletesResolvedIds(): void

@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -37,6 +36,7 @@ use Shopware\Elasticsearch\AbstractFieldQueryBuilder;
 use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 use Shopware\Elasticsearch\NestedFieldQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
@@ -644,9 +644,9 @@ class TokenQueryBuilderTest extends TestCase
         $builder = new ProductSearchQueryBuilder(
             $this->getDefinition(),
             $this->createMock(TokenFilter::class),
-            new Tokenizer(2),
             $this->createMock(SearchConfigLoader::class),
-            $this->tokenQueryBuilder
+            $this->tokenQueryBuilder,
+            new ElasticsearchTokenizer(),
         );
 
         static::expectException(DecorationPatternException::class);

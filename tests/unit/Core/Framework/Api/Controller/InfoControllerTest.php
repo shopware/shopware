@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Asset\UrlPackage;
@@ -163,32 +164,29 @@ class InfoControllerTest extends TestCase
         static::assertSame('current-shop-id', $data['shopId']);
     }
 
+    #[DisabledFeatures(['WEBHOOKS_REWORK'])]
     public function testConfigHidesWebhookTransportWhenWebhookReworkIsInactive(): void
     {
-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function (): void {
-            $content = $this->createController(['webhook', 'async', 'low_priority'])
-                ->config(Context::createDefaultContext(), Request::create('http://localhost'))
-                ->getContent();
-            static::assertIsString($content);
+        $content = $this->createController(['webhook', 'async', 'low_priority'])
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+        static::assertIsString($content);
 
-            $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
-            static::assertSame(['async', 'low_priority'], $data['adminWorker']['transports']);
-        });
+        static::assertSame(['async', 'low_priority'], $data['adminWorker']['transports']);
     }
 
     public function testConfigKeepsWebhookTransportWhenWebhookReworkIsActive(): void
     {
-        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
-            $content = $this->createController(['webhook', 'async', 'low_priority'])
-                ->config(Context::createDefaultContext(), Request::create('http://localhost'))
-                ->getContent();
-            static::assertIsString($content);
+        $content = $this->createController(['webhook', 'async', 'low_priority'])
+            ->config(Context::createDefaultContext(), Request::create('http://localhost'))
+            ->getContent();
+        static::assertIsString($content);
 
-            $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
 
-            static::assertSame(['webhook', 'async', 'low_priority'], $data['adminWorker']['transports']);
-        });
+        static::assertSame(['webhook', 'async', 'low_priority'], $data['adminWorker']['transports']);
     }
 
     public function testConfigExtension(): void

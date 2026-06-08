@@ -135,6 +135,33 @@ Rule Builder cart total condition labels now describe more clearly which cart va
 
 Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
 
+### Support test file splitting
+
+Administration Jest tests can now be split into multiple files using `*.spec/` directories.
+ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
+
+### Resolving download errors by renaming media
+
+When merchants rename a media file, its URL automatically updates so they can download it without issues.
+
+### Outside clicks in dropdowns are identified correctly
+
+Administration dropdowns now identify outside clicks correctly when the browser reports a click target outside the dropdown even though the pointer is still over the dropdown.
+
+### `sw-data-grid` column labels fall back to the default locale
+
+Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
+
+### App action button icons are aligned in Administration context menus
+
+App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
+Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
+
+### Product variants are easier to distinguish in `sw-entity-multi-id-select`
+
+`sw-entity-multi-id-select` now displays product variant option details for product repositories in the selected labels and dropdown results.
+This helps extensions and plugin configuration UIs that let merchants select multiple products, because variants with inherited product names no longer appear as identical entries.
+
 ## App System
 
 ### [Opt-in] Webhook delivery rework
@@ -323,29 +350,6 @@ The Administration sidebar off-canvas now closes reliably on very small viewport
 
 Switch and checkbox fields in theme configuration now render and handle inheritance consistently. Before they wouldn't have shown the inheritance switch.
 Also the checkbox field is now positionally aligned with the other components.
-
-### Support test file splitting
-
-Administration Jest tests can now be split into multiple files using `*.spec/` directories.
-ESLint now warns for Administration test files with 500 lines or more and errors for test files with 1000 lines or more.
-### Resolving download errors by renaming media
-When merchants rename a media file, its URL automatically updates so they can download it without issues.
-
-### Outside clicks in dropdowns are identified correctly
-
-Administration dropdowns now identify outside clicks correctly when the browser reports a click target outside the dropdown even though the pointer is still over the dropdown.
-### `sw-data-grid` column labels fall back to the default locale
-
-Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
-### App action button icons are aligned in Administration context menus
-
-App action buttons that use an app manifest icon now render the icon at the normal context-menu size and align it on the same row as the action label.
-Previously, the app logo could render oversized or stacked above the action text in Administration action menus, for example on order detail pages.
-
-### Product variants are easier to distinguish in `sw-entity-multi-id-select`
-
-`sw-entity-multi-id-select` now displays product variant option details for product repositories in the selected labels and dropdown results.
-This helps extensions and plugin configuration UIs that let merchants select multiple products, because variants with inherited product names no longer appear as identical entries.
 
 ## Storefront
 

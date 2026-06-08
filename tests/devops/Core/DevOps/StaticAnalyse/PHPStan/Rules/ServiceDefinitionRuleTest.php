@@ -18,7 +18,7 @@ class ServiceDefinitionRuleTest extends RuleTestCase
     {
         $fixtureDir = __DIR__ . '/data/ServiceDefinitionRule';
 
-        $this->analyse([$fixtureDir . '/trigger.php'], [
+        $this->analyse([$fixtureDir . '/Trigger.php'], [
             [
                 'src/Storefront/DependencyInjection/services.php - service "Shopware\Core\Framework\Example\PhpCoreService" is registered in Storefront but its effective class "Shopware\Core\Framework\Example\PhpCoreService" belongs to Core. Register it in a Core DependencyInjection file instead.',
                 1,
@@ -38,6 +38,6 @@ class ServiceDefinitionRuleTest extends RuleTestCase
         $factory = new XmlServiceMapFactory($fixtureDir . '/container.xml');
 
         /** @phpstan-ignore phpstanApi.method */
-        return new ServiceDefinitionRule($factory->create(), $fixtureDir, $fixtureDir . '/trigger.php');
+        return new ServiceDefinitionRule($factory->create(), $fixtureDir, $fixtureDir . '/Trigger.php');
     }
 }

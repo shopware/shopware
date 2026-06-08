@@ -115,6 +115,12 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
+### CMS page loading extension point
+
+The CMS page loading (`SalesChannelCmsPageLoader::load`) is now wrapped with the `Extension` mechanism, so you can resolve the CMS page(s) for a request through a plain event subscriber instead of decorating the loader. This makes it simple to serve a customer-group specific layout, an A/B-test variant, or pages from an external source.
+
+Subscribe to `SalesChannelCmsPageLoaderExtension::onPre()` to take over the loading (assign `$extension->result` and call `stopPropagation()`), or to `SalesChannelCmsPageLoaderExtension::onPost()` to adjust the loaded result. Without a subscriber the unchanged core loading runs.
+
 ## Administration
 
 ### Rule Builder cart total condition labels adjusted

@@ -63,18 +63,15 @@ describe('src/module/sw-sales-channel/service/sales-channel-file.api.service', (
         const result = await service.detail('agentic', 'sales-channel-id', '.well-known/ucp.json');
 
         expect(result).toEqual(response);
-        expect(httpClient.get).toHaveBeenCalledWith(
-            '/_action/sales-channel-file/agentic/sales-channel-id/detail',
-            {
-                headers: expect.objectContaining({
-                    Authorization: 'Bearer test-token',
-                    'Content-Type': 'application/json',
-                }),
-                params: {
-                    fileName: '.well-known/ucp.json',
-                },
+        expect(httpClient.get).toHaveBeenCalledWith('/_action/sales-channel-file/agentic/sales-channel-id/detail', {
+            headers: expect.objectContaining({
+                Authorization: 'Bearer test-token',
+                'Content-Type': 'application/json',
+            }),
+            params: {
+                fileName: '.well-known/ucp.json',
             },
-        );
+        });
     });
 
     it('loads a preview for a file with unsaved template overrides', async () => {

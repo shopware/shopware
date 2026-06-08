@@ -1,0 +1,310 @@
+@import "~scss/variables";
+
+.sw-integration-mcp-allowlist {
+    .sw-integration-mcp-allowlist__sticky {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--sw-background-color, #{$color-white});
+
+        .sw-integration-mcp-allowlist__admin-banner,
+        .sw-integration-mcp-allowlist__coverage-banner,
+        .sw-integration-mcp-allowlist__stale-banner {
+            margin-bottom: 8px;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__all-tools-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        padding: 0 16px 0 8px;
+        margin-bottom: 8px;
+        background: $color-white;
+
+        .mt-switch {
+            margin: 6px 0;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__missing-privileges-list {
+        display: block;
+        margin-top: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        overflow-wrap: break-word;
+        white-space: pre-line;
+        user-select: all;
+    }
+
+    .sw-integration-mcp-allowlist__info-icon {
+        color: $color-gray-500;
+        flex-shrink: 0;
+        cursor: default;
+    }
+
+    // Type-level sections
+    .sw-integration-mcp-allowlist__type-section {
+        border: 1px solid $color-gray-300;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        background: $color-white;
+        overflow: hidden;
+    }
+
+    .sw-integration-mcp-allowlist__type-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        cursor: pointer;
+        user-select: none;
+        background: $color-gray-50;
+        border-bottom: 1px solid transparent;
+
+        &:hover {
+            background: $color-gray-100;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__type-chevron {
+        color: $color-gray-500;
+        flex-shrink: 0;
+    }
+
+    .sw-integration-mcp-allowlist__type-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: $color-gray-800;
+        flex: 1;
+    }
+
+    .sw-integration-mcp-allowlist__type-count {
+        font-size: 11px;
+        color: $color-gray-700;
+        background: $color-gray-200;
+        border-radius: 10px;
+        padding: 1px 7px;
+        flex-shrink: 0;
+    }
+
+    .sw-integration-mcp-allowlist__type-all-switch {
+        flex-shrink: 0;
+        margin: 0;
+
+        label {
+            padding-top: 0;
+            padding-bottom: 0;
+            line-height: 1;
+        }
+
+        .mt-switch__block {
+            padding: 0;
+            min-height: 0;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__type-info {
+        color: $color-gray-400;
+        flex-shrink: 0;
+        cursor: default;
+    }
+
+    // Group-level accordions
+    .sw-integration-mcp-allowlist__group {
+        border-top: 1px solid $color-gray-200;
+
+        &:first-child {
+            border-top: 1px solid $color-gray-300;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__group-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px 6px 8px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            background: $color-gray-50;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__group-checkbox {
+        margin-bottom: 0;
+    }
+
+    .sw-integration-mcp-allowlist__group-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: $color-gray-500;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        flex: 1;
+    }
+
+    .sw-integration-mcp-allowlist__group-chevron {
+        color: $color-gray-400;
+        flex-shrink: 0;
+    }
+
+    .sw-integration-mcp-allowlist__toggle-all {
+        font-size: 10px;
+        font-weight: 600;
+        color: $color-shopware-brand-500;
+        cursor: pointer;
+        flex-shrink: 0;
+        padding: 1px 4px;
+        border-radius: 3px;
+
+        &:hover {
+            background: color-mix(in srgb, $color-shopware-brand-500 10%, transparent);
+        }
+    }
+
+    .sw-integration-mcp-allowlist__tools {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sw-integration-mcp-allowlist__tool {
+        border-top: 1px solid $color-gray-200;
+        background: $color-white;
+
+        &:nth-child(even) {
+            background: $color-gray-100;
+        }
+
+        > .mt-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px 8px 24px;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        .sw-integration-mcp-allowlist__item-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px 8px 24px;
+            cursor: pointer;
+            user-select: none;
+            width: 100%;
+
+            &:hover {
+                background: $color-gray-200;
+            }
+
+            .mt-checkbox {
+                flex: 1;
+                padding: 0;
+                margin-bottom: 0;
+                pointer-events: none;
+            }
+        }
+
+        .sw-integration-mcp-allowlist__item-content {
+            padding: 0 12px 10px 36px;
+        }
+    }
+
+    .sw-integration-mcp-allowlist__missing-privileges-icon {
+        color: $color-shopware-brand-500;
+        flex-shrink: 0;
+        margin-left: 4px;
+        cursor: default;
+    }
+
+    .sw-integration-mcp-allowlist__tool-chevron {
+        color: $color-gray-500;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+
+    .sw-integration-mcp-allowlist__tool-description {
+        margin: 0;
+        font-size: 14px;
+        color: $color-gray-800;
+        line-height: 1.6;
+    }
+
+    .sw-integration-mcp-allowlist__tool-warning {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: $color-shopware-brand-500;
+    }
+
+    .sw-integration-mcp-allowlist__dep-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        color: $color-gray-500;
+        background: $color-gray-200;
+        border-radius: 3px;
+        padding: 1px 5px;
+        margin-left: 6px;
+        flex-shrink: 0;
+        cursor: default;
+    }
+
+    .sw-integration-mcp-allowlist__requires-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        color: $color-shopware-brand-500;
+        background: #e8f0fe;
+        border-radius: 3px;
+        padding: 1px 5px;
+        margin-left: 6px;
+        flex-shrink: 0;
+        cursor: default;
+    }
+
+    .sw-integration-mcp-allowlist__privilege-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        margin-top: 6px;
+    }
+
+    .sw-integration-mcp-allowlist__privilege-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $color-gray-500;
+        margin-right: 2px;
+    }
+
+    .sw-integration-mcp-allowlist__privilege-badge {
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 600;
+        color: $color-gray-600;
+        background: $color-gray-100;
+        border: 1px solid $color-gray-300;
+        border-radius: 3px;
+        padding: 1px 5px;
+        flex-shrink: 0;
+        cursor: default;
+        font-family: monospace;
+
+        &.is--granted {
+            color: #1b5e20;
+            background: #e8f5e9;
+            border-color: #a5d6a7;
+        }
+
+        &.is--missing {
+            color: #b71c1c;
+            background: #fdecea;
+            border-color: #f5c6cb;
+        }
+    }
+}

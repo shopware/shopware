@@ -3,10 +3,9 @@
  */
 import { shallowMount } from '@vue/test-utils';
 
-// Mock Component
-Shopware.Component.register('sw-mock', {
-    template: '<div class="sw-mock"><slot></slot></div>',
-});
+const defaultData = {
+    operator: null,
+};
 
 const config = {
     cartLineItemDimensionWeight: {
@@ -33,6 +32,13 @@ const config = {
         ],
     },
 };
+
+Shopware.Component.register('sw-mock', {
+    template: '<div class="sw-mock"><slot></slot></div>',
+    data() {
+        return defaultData;
+    },
+});
 
 describe('app/mixin/generic-condition', () => {
     let wrapper;
@@ -158,5 +164,25 @@ describe('app/mixin/generic-condition', () => {
                 value: 'optionB',
             },
         ]);
+    });
+
+    it.each([
+        { name: 'date + between', type: 'date', operator: 'between', expected: true },
+        { name: 'datetime + between', type: 'datetime', operator: 'between', expected: true },
+        { name: 'date + equals', type: 'date', operator: '=', expected: false },
+        { name: 'datetime + equals', type: 'datetime', operator: '=', expected: false },
+        { name: 'string + between', type: 'string', operator: 'between', expected: false },
+    ])('should validate if field has between operator: $name', async ({ type, operator, expected }) => {
+        await wrapper.setData({ operator });
+
+        expect(wrapper.vm.isBetweenDateField({ type })).toBe(expected);
+    });
+
+    it('should write the between value to the field', () => {
+        const value = { from: '2026-01-01', to: '2026-12-31' };
+
+        wrapper.vm.updateBetweenDateValue('amount', value);
+
+        expect(wrapper.vm.condition.value).toEqual({ amount: value });
     });
 });

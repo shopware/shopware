@@ -70,6 +70,7 @@ class MediaException extends HttpException
     public const MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED';
     public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
     public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
+    public const MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED';
 
     /**
      * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
@@ -191,6 +192,15 @@ class MediaException extends HttpException
             self::MEDIA_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'media', 'field' => 'id', 'value' => $mediaId]
+        );
+    }
+
+    public static function emptyFile(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_EMPTY_FILE,
+            'Provided file is empty.'
         );
     }
 
@@ -587,6 +597,16 @@ class MediaException extends HttpException
             'Failed to generate presigned URL: {{ message }}',
             ['message' => $e->getMessage()],
             $e
+        );
+    }
+
+    public static function presignedUploadFinalizeFailed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED,
+            'Could not verify uploaded file for media with id "{{ mediaId }}".',
+            ['mediaId' => $mediaId]
         );
     }
 }

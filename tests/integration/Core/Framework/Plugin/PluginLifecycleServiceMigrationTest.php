@@ -31,6 +31,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -82,7 +83,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         $this->context = Context::createDefaultContext();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
 
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',
@@ -190,6 +191,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
+            new NativeClock()
         );
     }
 

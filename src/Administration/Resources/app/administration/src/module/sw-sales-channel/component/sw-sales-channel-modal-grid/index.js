@@ -47,6 +47,11 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
         salesChannelTypeRepository() {
             return this.repositoryFactory.create('sales_channel_type');
         },
@@ -63,10 +68,25 @@ export default {
                 ...Shopware.Context.api,
                 languageId: Shopware.Store.get('session').languageId,
             };
-            this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
-                this.total = response.total;
-                this.salesChannelTypes = response;
-                this.isLoading = false;
+            const criteria = new Criteria(1, 500);
+
+            /**
+             * @deprecated tag:v6.8.0 - keep only the type search of the promise callback.
+             *
+             * Only show the option to create a new agentic commerce sales channel
+             * if one had been created using a previous release and still exists
+             * OR the SwagAgenticCommerce plugin is installed
+             */
+            this.showAgenticCommerceType().then((showAgenticCommerceType) => {
+                if (!showAgenticCommerceType) {
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('id', Defaults.agenticCommerceTypeId)]));
+                }
+
+                this.salesChannelTypeRepository.search(criteria, context).then((response) => {
+                    this.total = response.total;
+                    this.salesChannelTypes = response;
+                    this.isLoading = false;
+                });
             });
         },
 
@@ -79,12 +99,26 @@ export default {
             this.$emit('grid-detail-open', detailType);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerceSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.agenticCommerceTypeId;
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        showAgenticCommerceType() {
+            if (Shopware.Context.app.config.bundles?.SwagAgenticCommerce) {
+                return Promise.resolve(true);
+            }
+
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('type');
+            criteria.addFilter(Criteria.equals('type.id', Defaults.agenticCommerceTypeId));
+
+            return this.salesChannelRepository.searchIds(criteria).then((response) => Promise.resolve(response.total > 0));
         },
     },
 };

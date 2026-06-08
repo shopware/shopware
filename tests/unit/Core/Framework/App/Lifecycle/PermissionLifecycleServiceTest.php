@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\Privileges\Privileges;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -28,7 +29,7 @@ class PermissionLifecycleServiceTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->permissions = $this->createMock(Privileges::class);
-        $this->service = new PermissionLifecycleService($this->connection, $this->permissions);
+        $this->service = new PermissionLifecycleService($this->connection, $this->permissions, new NativeClock());
     }
 
     public function testUpdatePrivilegesAutoAcceptsIfFlagIsSpecified(): void

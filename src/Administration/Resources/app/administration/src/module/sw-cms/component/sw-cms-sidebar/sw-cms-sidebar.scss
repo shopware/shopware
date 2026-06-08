@@ -16,7 +16,7 @@
         .sw-cms-sidebar__navigator-section-header {
             font-weight: $font-weight-semi-bold;
             font-size: $font-size-s;
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
             margin: 12px 0;
             display: grid;
             grid-template-columns: 1fr 34px;
@@ -58,14 +58,14 @@
 
     .sw-cms-sidebar__navigator-section-spacer {
         height: 1px;
-        background: $color-gray-300;
+        background: var(--color-background-tertiary-default);
         margin: 20px 0;
     }
 
     .sw-cms-sidebar__navigator-empty-element {
-        border: 1px dashed $color-gray-300;
-        background-color: #fff;
-        color: $color-gray-500;
+        border: 1px dashed var(--color-border-primary-default);
+        background-color: var(--color-background-primary-default);
+        color: var(--color-text-secondary-default);
         padding: 8px 4px 8px 14px;
         text-align: center;
         border-radius: 4px;
@@ -95,13 +95,13 @@
 
     .sw-cms-sidebar__layout-assignment-headline,
     .sw-cms-sidebar__layout-set-as-default-headline {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
     }
 
     .sw-cms-sidebar__layout-assignment-info-text,
     .sw-cms-sidebar__layout-set-as-default-info-text {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
         margin-bottom: 20px;
     }
@@ -115,12 +115,12 @@
             position: absolute;
 
             .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                color: $color-module-pink-800;
+                color: var(--color-pink-700);
             }
 
             &:disabled {
                 .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                    color: $color-module-pink-200;
+                    color: var(--color-pink-300);
                 }
             }
         }
@@ -129,8 +129,8 @@
 
 .sw-cms-sidebar__block-preview {
     margin: 0 0 7px;
-    background: $color-white;
-    border: 1px solid #d1d9e0;
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-primary-default);
     border-radius: 5px;
     background-clip: padding-box;
     cursor: grab;
@@ -142,8 +142,8 @@
 
     &.is--dragging {
         box-shadow: none;
-        border: 1px dashed $color-gray-300;
-        background-color: $color-gray-50;
+        border: 1px dashed var(--color-border-primary-default);
+        background-color: var(--color-background-tertiary-default);
 
         + .sw-cms-sidebar__block-favorite {
             display: none;
@@ -152,8 +152,8 @@
 
     &.is--drag-element,
     &.is--drag-element.is--valid-drag {
-        border: 1px solid $color-shopware-brand-500;
-        box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);
+        border: 1px solid var(--color-border-brand-default);
+        box-shadow: 0 0 4px 0 var(--color-elevation-shadow-default);
     }
 
     h1,
@@ -175,7 +175,7 @@
     hr {
         max-width: 100px;
         margin: 0 auto 10px;
-        border: 2px solid $color-gray-300;
+        border: 2px solid var(--color-border-primary-default);
     }
 
     img {

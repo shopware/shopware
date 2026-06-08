@@ -49,7 +49,7 @@ export default class StateStyleService {
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
             variant: 'neutral',
-            colorCode: '#94a6b8',
+            colorCode: 'var(--color-icon-secondary-default)',
         },
     };
 
@@ -70,11 +70,11 @@ export default class StateStyleService {
     };
 
     $colorCodes = {
-        neutral: '#94a6b8',
-        progress: '#189eff',
-        done: '#37d046',
-        warning: '#ffab22',
-        danger: '#de294c',
+        neutral: 'var(--color-icon-secondary-default)',
+        progress: 'var(--color-icon-brand-default)',
+        done: 'var(--color-icon-positive-default)',
+        warning: 'var(--color-icon-attention-default)',
+        danger: 'var(--color-icon-critical-default)',
     };
 
     $variants = {

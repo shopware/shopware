@@ -1,10 +1,10 @@
-{%  block sw_sales_channel_detail_content_tab_theme %}
-    <sw-tabs-item
-        v-if="!isProductExportChannel"
-        :disabled="isLoading"
-        :route="{ name: 'sw.sales.channel.detail.theme', params: { id: $route.params.id } }"
-        :title="$t('sw-sales-channel.detail.tabTheme')"
-    >
-        {{ $t('sw-sales-channel.detail.tabTheme') }}
-    </sw-tabs-item>
+{% block sw_sales_channel_detail_content_tab_theme %}
+<sw-tabs-item
+    v-if="!isProductExportChannel"
+    :disabled="isLoading"
+    :route="{ name: 'sw.sales.channel.detail.theme', params: { id: $route.params.id } }"
+    :title="$t('sw-sales-channel.detail.tabTheme')"
+>
+    {{ $t('sw-sales-channel.detail.tabTheme') }}
+</sw-tabs-item>
 {% endblock %}

@@ -114,6 +114,9 @@ Affected commands:
 - `bin/console plugin:list --json` → `bin/console plugin:list --format json`
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
+### Not-null translation columns accept falsy defaults
+
+`DefinitionValidator` no longer reports a not-null translation column as missing a default when the column has a falsy but set default such as `0`, `'0'`, or `''`. Only a `null` default is now treated as missing. This removes false positives for plugin entity definitions that use such defaults.
 
 ## Administration
 

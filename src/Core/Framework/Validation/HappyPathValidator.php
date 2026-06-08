@@ -143,6 +143,7 @@ class HappyPathValidator implements ValidatorInterface
 
                 break;
             case $constraint instanceof NotBlank:
+                // NotBlank rejects all falsy values except the string '0'
                 if ($value === false || (!$value && $value !== '0')) {
                     return false;
                 }

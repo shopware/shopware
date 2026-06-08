@@ -41,7 +41,7 @@ class EntityGenerator implements ScaffoldingGenerator
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
-        if ($entities) {
+        if (\is_string($entities) && $entities !== '') {
             $this->processEntities($config, $entities);
 
             return;

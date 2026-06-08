@@ -49,7 +49,8 @@ class StoreApiDomainResolver implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if (!$request->headers->has(PlatformRequest::HEADER_DOMAIN)) {
+        $domainUrl = trim((string) $request->headers->get(PlatformRequest::HEADER_DOMAIN, ''));
+        if ($domainUrl === '') {
             return;
         }
 
@@ -68,8 +69,6 @@ class StoreApiDomainResolver implements EventSubscriberInterface
         if (!\is_string($salesChannelId) || $salesChannelId === '') {
             return;
         }
-
-        $domainUrl = (string) $request->headers->get(PlatformRequest::HEADER_DOMAIN);
 
         $domain = $this->fetchDomain($salesChannelId, $domainUrl);
 

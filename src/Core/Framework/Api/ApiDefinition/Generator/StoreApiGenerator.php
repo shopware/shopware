@@ -214,8 +214,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'example' => 'https://shop.example.com/de',
                 ],
                 'description' => 'URL of a configured sales channel domain. Headless frontends can use this header to have '
-                    . 'the request served with the language configured for that domain, without knowing the language id. '
-                    . 'Must match one of the sales channel\'s configured domains. An explicit `sw-language-id` header takes precedence.',
+                    . 'the request served with the language and currency configured for that domain, without knowing their ids. '
+                    . 'Must match one of the sales channel\'s configured domains. Explicit `sw-language-id` / `sw-currency-id` '
+                    . 'headers take precedence.',
             ]),
         ];
 

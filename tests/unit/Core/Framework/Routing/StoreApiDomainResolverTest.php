@@ -137,6 +137,44 @@ class StoreApiDomainResolverTest extends TestCase
         static::assertFalse($event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
     }
 
+    public function testEmptyDomainHeaderIsIgnored(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAssociative');
+
+        $event = $this->createEvent([StoreApiRouteScope::ID], TestDefaults::SALES_CHANNEL, [
+            PlatformRequest::HEADER_DOMAIN => '   ',
+        ]);
+
+        $this->createResolver($connection)->resolveDomain($event);
+
+        static::assertFalse($event->getRequest()->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+        static::assertFalse($event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+    }
+
+    public function testDomainHeaderIsTrimmedBeforeLookup(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAssociative')
+            ->with(
+                static::anything(),
+                [
+                    'salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
+                    'url' => 'https://shop.example.com/de',
+                ]
+            )
+            ->willReturn(['languageId' => self::LANGUAGE_ID, 'currencyId' => self::CURRENCY_ID]);
+
+        $event = $this->createEvent([StoreApiRouteScope::ID], TestDefaults::SALES_CHANNEL, [
+            PlatformRequest::HEADER_DOMAIN => '  https://shop.example.com/de  ',
+        ]);
+
+        $this->createResolver($connection)->resolveDomain($event);
+
+        static::assertSame(self::LANGUAGE_ID, $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
+    }
+
     public function testNonStoreApiRequestIsIgnored(): void
     {
         $connection = $this->createMock(Connection::class);

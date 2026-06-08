@@ -88,6 +88,25 @@ class StoreApiDomainResolverTest extends TestCase
         static::assertSame(self::CURRENCY_ID, $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
     }
 
+    public function testEmptyContextHeadersAreTreatedAsAbsentAndResolvedFromDomain(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAssociative')
+            ->willReturn(['languageId' => self::LANGUAGE_ID, 'currencyId' => self::CURRENCY_ID]);
+
+        $event = $this->createEvent([StoreApiRouteScope::ID], TestDefaults::SALES_CHANNEL, [
+            PlatformRequest::HEADER_DOMAIN => 'https://shop.example.com/de',
+            PlatformRequest::HEADER_LANGUAGE_ID => '',
+            PlatformRequest::HEADER_CURRENCY_ID => '',
+        ]);
+
+        $this->createResolver($connection)->resolveDomain($event);
+
+        $request = $event->getRequest();
+        static::assertSame(self::LANGUAGE_ID, $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
+        static::assertSame(self::CURRENCY_ID, $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+    }
+
     public function testExplicitCurrencyHeaderIsKeptButLanguageStillResolved(): void
     {
         $connection = $this->createMock(Connection::class);

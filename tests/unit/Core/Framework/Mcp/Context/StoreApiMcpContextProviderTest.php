@@ -21,7 +21,7 @@ class StoreApiMcpContextProviderTest extends TestCase
 {
     public function testReturnsSalesChannelContextFromRequest(): void
     {
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $request = new Request();
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $salesChannelContext);
@@ -37,7 +37,7 @@ class StoreApiMcpContextProviderTest extends TestCase
     public function testReturnsContextFromSalesChannelContext(): void
     {
         $context = Context::createDefaultContext();
-        $salesChannelContext = $this->createStub(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
 
         $request = new Request();

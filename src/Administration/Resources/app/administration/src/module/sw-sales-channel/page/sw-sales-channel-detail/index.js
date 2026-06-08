@@ -23,6 +23,7 @@ export default {
 
     provide() {
         return {
+            /** @deprecated tag:v6.8.0 - Will be removed */
             swSalesChannelDetailGetAgenticCommerceExportConfig: () => this.agenticCommerceExportConfig,
         };
     },
@@ -53,6 +54,7 @@ export default {
                 showTemplateModal: false,
                 selectedTemplate: null,
             },
+            /** @deprecated tag:v6.8.0 - Will be removed */
             agenticCommerceExportConfig: [],
         };
     },
@@ -108,6 +110,7 @@ export default {
             return this.salesChannel.typeId === Defaults.apiSalesChannelTypeId;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
@@ -163,6 +166,7 @@ export default {
             return this.acl.can('sales_channel.editor');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         defaultAgenticCommerceExportConfig() {
             return [
                 {
@@ -439,6 +443,7 @@ export default {
             this.loadEntityData();
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         validateAgenticCommerceExportConfig() {
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
             const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
@@ -458,6 +463,7 @@ export default {
             return isValid;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         async loadAgenticCommerceExportConfig() {
             this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
@@ -501,6 +507,7 @@ export default {
             );
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
         async saveAgenticCommerceExportConfig() {
             if (!this.isAgenticCommerce || !this.salesChannel?.id) {
                 return true;

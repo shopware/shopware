@@ -10,11 +10,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Elasticsearch\AbstractTokenQueryBuilder;
 use Shopware\Elasticsearch\ElasticsearchException;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 /**
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int, use_exact_subfield?: int}
@@ -28,9 +28,9 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
     public function __construct(
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly TokenizerInterface $tokenizer,
         private readonly SearchConfigLoader $configLoader,
         private readonly AbstractTokenQueryBuilder $tokenQueryBuilder,
+        private readonly ElasticsearchTokenizer $tokenizer,
         private readonly float $dismaxTieBreaker = 0.2,
     ) {
     }
@@ -46,8 +46,8 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
 
         $searchConfig = $this->configLoader->load($context);
 
-        /** @phpstan-ignore arguments.count (This ignore should be removed when the deprecated method signature is updated) */
-        $tokens = $this->tokenizer->tokenize($originalTerm, $searchConfig[0]['min_search_length'] ?? null);
+        $minSearchLength = $searchConfig[0]['min_search_length'] ?? AbstractTokenFilter::DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        $tokens = $this->tokenizer->tokenize($originalTerm, $minSearchLength);
         $tokens = $this->tokenFilter->filter($tokens, $context);
 
         if (array_filter($tokens) === []) {

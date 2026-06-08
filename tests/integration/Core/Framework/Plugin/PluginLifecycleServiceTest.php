@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
@@ -325,7 +326,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
-            $this->container->get(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
 
@@ -866,7 +867,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
-            $this->container->get(\Shopware\Core\System\CustomField\CustomFieldSetPersister::class),
+            $this->container->get(CustomFieldSetPersister::class),
             new NativeClock()
         );
     }

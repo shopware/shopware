@@ -1,6 +1,6 @@
 ---
 title: Sales-channel business timezone
-date: 2026-05-26
+date: 2026-06-08
 area: after-sales
 tags: [core, documents, mail, sales-channel]
 ---
@@ -13,19 +13,19 @@ Depending on the entry point, templates can fall back to UTC, as reported for do
 
 ## Decision
 
-We add an optional `businessTimeZone` field to sales channels. When it is set, Shopware treats it as the merchant-controlled timezone for server-side rendering of sales-channel output such as documents and mails. Code that needs to apply a timezone for one Twig render call uses a new `TwigTimezoneOverride`, which temporarily changes Twig's default timezone and restores the previous value afterwards:
+We add an optional `businessTimeZone` field to sales channels. When it is set, Shopware treats it as the merchant-controlled timezone for server-side rendering of sales-channel output such as documents and mails. Code that needs to apply a timezone for one Twig render call uses `renderWithTimezoneOverride` on Shopware's Twig environment, which temporarily changes Twig's default timezone and restores the previous value afterwards:
 
 ```php
-return TwigTimezoneOverride::run(
-    $this->twig,
+return $this->twig->renderWithTimezoneOverride(
+    $view,
+    $parameters,
     $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
-    fn (): string => $this->twig->render($view, $parameters),
 );
 ```
 
 For 6.7, `businessTimeZone` stays nullable. If it is `NULL`, Shopware keeps the existing render behaviour. Existing sales channels and templates are not changed.
 
-In the next major, this nullable compatibility behaviour will be removed. Every sales channel will have a business timezone, with missing values migrated to `UTC`. `TwigTimezoneOverride` remains the mechanism for applying the timezone to one Twig render call.
+In the next major, this nullable compatibility behaviour will be removed. Every sales channel will have a business timezone, with missing values migrated to `UTC`. The Twig environment render method remains the mechanism for applying the timezone to one Twig render call.
 
 ## Alternatives considered
 

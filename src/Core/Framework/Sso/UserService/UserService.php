@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Sso\UserService;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,6 +33,7 @@ final readonly class UserService
         private IdTokenParser $idTokenParser,
         private EntityRepository $userRepository,
         private ExternalTokenService $externalTokenService,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -90,7 +92,7 @@ final readonly class UserService
             throw SsoException::tokenNotFound();
         }
 
-        if ($oAuthUser->expiry >= new \DateTimeImmutable()) {
+        if ($oAuthUser->expiry >= $this->clock->now()) {
             return $oAuthUser->token->token;
         }
 
@@ -153,7 +155,7 @@ final readonly class UserService
             [
                 'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
                 'expiry' => $userSearchResult->expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'updated_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'updated_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
             ['id' => Uuid::fromHexToBytes($userSearchResult->id)]
         );
@@ -199,7 +201,7 @@ final readonly class UserService
                 'user_sub' => $userSearchResult->sub,
                 'token' => \json_encode($userSearchResult->token, \JSON_THROW_ON_ERROR),
                 'expiry' => $userSearchResult->expiry->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'created_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'updated_at' => null,
             ],
         );

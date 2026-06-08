@@ -225,7 +225,7 @@ class StockStorageTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly($triggered))->method('__invoke');
 
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
@@ -315,7 +315,7 @@ class StockStorageTest extends TestCase
         $this->productRepository->create([$product], $context);
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->exactly($triggered))->method('__invoke');
         $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);

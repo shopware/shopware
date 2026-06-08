@@ -1,13 +1,12 @@
 .sw-settings-mailer {
     &__first-configuration {
-        margin-bottom: var(--scale-size-32);
+        margin-bottom: var(--scale-size-24);
     }
 
     .mt-card__content .sw-settings-mailer__headline {
-        font-weight: var(--font-weight-medium);
-        margin-bottom: var(--scale-size-8);
-        font-size: var(--font-size-s);
-        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-semi-bold);
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
     }
 
     &__description {

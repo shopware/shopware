@@ -23,6 +23,13 @@ class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    private const BUNDLES = [
+        'Administration' => 'Shopware\\Administration',
+        'Core' => 'Shopware\\Core',
+        'Elasticsearch' => 'Shopware\\Elasticsearch',
+        'Storefront' => 'Shopware\\Storefront',
+    ];
+
     public function testEverythingIsInstantiatable(): void
     {
         $excludes = [
@@ -64,21 +71,33 @@ class ServiceDefinitionTest extends TestCase
         KernelFactory::$kernelClass = Kernel::class;
     }
 
-    public function testServiceDefinitionNaming(): void
+    public function testServiceDefinitions(): void
     {
         $basePath = __DIR__ . '/../../../../src';
 
-        $finder = (new Finder())->in($basePath)->files()->path('~DependencyInjection/[^/]+\.xml$~');
+        $finder = (new Finder())
+            ->in($basePath)
+            ->files()
+            ->path('~(?:DependencyInjection/[^/]+|Resources/config/services(?:_[^/]*)?)\.xml$~');
         static::assertTrue($finder->hasResults(), 'No service definition files found. Check the base path.');
 
         $errors = [];
         foreach ($finder->getIterator() as $file) {
-            $content = $file->getContents();
+            $realPath = $file->getRealPath();
+            static::assertIsString($realPath);
 
-            $parameterErrors = $this->checkServiceParameterOrder($content);
-            $argumentErrors = $this->checkArgumentOrder($content);
+            $fileErrors = [];
 
-            $errors[$file->getRelativePathname()] = array_merge($parameterErrors, $argumentErrors);
+            foreach ($this->getServiceDefinitions($realPath) as $service) {
+                $fileErrors = array_merge(
+                    $fileErrors,
+                    $this->checkServiceParameterOrder($service),
+                    $this->checkArgumentOrder($service),
+                    $this->checkServiceBundleRegistration($service, $file->getRelativePathname()),
+                );
+            }
+
+            $errors[$file->getRelativePathname()] = $fileErrors;
         }
 
         $errors = array_filter($errors);
@@ -105,31 +124,25 @@ class ServiceDefinitionTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return list<string>
      */
-    private function checkArgumentOrder(string $content): array
+    private function checkArgumentOrder(\DOMElement $service): array
     {
-        $matches = [];
-        $result = preg_match_all(
-            '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
-
-        if (!$result || $matches === []) {
-            return [];
-        }
-
         $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
+        foreach ($this->getArgumentDefinitions($service) as $argument) {
+            if (!$argument->hasAttribute('id')) {
+                continue;
+            }
+
+            $firstAttribute = $argument->attributes->item(0);
+            if ($firstAttribute?->nodeName === 'type') {
+                continue;
+            }
+
             $errors[] = \sprintf(
                 '%s:%d - invalid order (type should be first)',
-                $match['id'][0],
-                $this->getLineNumber($content, $position)
+                $argument->getAttribute('id'),
+                $argument->getLineNo()
             );
         }
 
@@ -139,43 +152,136 @@ class ServiceDefinitionTest extends TestCase
     /**
      * @return list<string>
      */
-    private function checkServiceParameterOrder(string $content): array
+    private function checkServiceParameterOrder(\DOMElement $service): array
     {
-        $matches = [];
-        $result = preg_match_all(
-            '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
-            $content,
-            $matches,
-            \PREG_OFFSET_CAPTURE | \PREG_SET_ORDER
-        );
-
-        // only continue if a Shopware service definition doesn't start with class followed by id
-        if (!$result || $matches === []) {
+        if (!$service->hasAttribute('id') || !$service->hasAttribute('class')) {
             return [];
         }
 
-        $errors = [];
-        foreach ($matches as $match) {
-            $fullMatch = $match[0];
-            $position = $fullMatch[1];
-            static::assertTrue($position > 1);
-            $errors[] = \sprintf(
-                '%s:%d - parameter class and id are identical. class parameter should be removed',
-                $match['class'][0],
-                $this->getLineNumber($content, $position)
-            );
+        if ($service->getAttribute('id') !== $service->getAttribute('class')) {
+            return [];
         }
 
-        return $errors;
+        return [
+            \sprintf(
+                '%s:%d - parameter class and id are identical. class parameter should be removed',
+                $service->getAttribute('class'),
+                $service->getLineNo()
+            ),
+        ];
     }
 
     /**
-     * @param int<1, max> $position
+     * @return list<string>
      */
-    private function getLineNumber(string $content, int $position): int
+    private function checkServiceBundleRegistration(\DOMElement $service, string $relativePathname): array
     {
-        [$before] = str_split($content, $position);
+        if ($service->hasAttribute('alias')) {
+            return [];
+        }
 
-        return mb_strlen($before) - mb_strlen(str_replace(\PHP_EOL, '', $before)) + 1;
+        $serviceId = $service->getAttribute('id');
+        $serviceClass = $service->getAttribute('class') ?: $serviceId;
+        $currentBundle = $this->getBundleForFile($relativePathname);
+        $expectedBundle = $this->getBundleForClass($serviceClass);
+
+        if ($serviceId === '' || $currentBundle === null || $expectedBundle === null || $expectedBundle === $currentBundle) {
+            return [];
+        }
+
+        return [
+            \sprintf(
+                'Service "%s" is registered in %s but its effective class "%s" belongs to %s:%d - register it in a %s DependencyInjection file instead',
+                $serviceId,
+                $currentBundle,
+                $serviceClass,
+                $expectedBundle,
+                $service->getLineNo(),
+                $expectedBundle
+            ),
+        ];
+    }
+
+    private function getBundleForFile(string $relativePathname): ?string
+    {
+        foreach (array_keys(self::BUNDLES) as $bundle) {
+            if (str_starts_with($relativePathname, $bundle . '/')) {
+                return $bundle;
+            }
+        }
+
+        return null;
+    }
+
+    private function getBundleForClass(string $class): ?string
+    {
+        foreach (self::BUNDLES as $bundle => $namespace) {
+            if ($class === $namespace || str_starts_with($class, $namespace . '\\')) {
+                return $bundle;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return list<\DOMElement>
+     */
+    private function getServiceDefinitions(string $file): array
+    {
+        $previous = libxml_use_internal_errors(true);
+
+        try {
+            $document = new \DOMDocument();
+            if (!$document->load($file, \LIBXML_NONET)) {
+                return [];
+            }
+
+            return $this->getXmlElements($document, '//*[local-name() = "service"]');
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+    }
+
+    /**
+     * @return list<\DOMElement>
+     */
+    private function getArgumentDefinitions(\DOMElement $service): array
+    {
+        $document = $service->ownerDocument;
+        static::assertInstanceOf(\DOMDocument::class, $document);
+
+        $xpath = new \DOMXPath($document);
+
+        return $this->getXmlElements($service, './/*[local-name() = "argument"]', $xpath);
+    }
+
+    /**
+     * @return list<\DOMElement>
+     */
+    private function getXmlElements(\DOMNode $context, string $expression, ?\DOMXPath $xpath = null): array
+    {
+        if ($xpath === null) {
+            $document = $context instanceof \DOMDocument ? $context : $context->ownerDocument;
+            static::assertInstanceOf(\DOMDocument::class, $document);
+
+            $xpath = new \DOMXPath($document);
+        }
+
+        $nodes = $xpath->query($expression, $context);
+
+        if ($nodes === false) {
+            return [];
+        }
+
+        $elements = [];
+        foreach ($nodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $elements[] = $node;
+            }
+        }
+
+        return $elements;
     }
 }

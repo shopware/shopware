@@ -77,6 +77,17 @@ class StoreApiDomainResolverTest extends TestCase
         static::assertSame($this->usdCurrencyId, $this->resolvedCurrencyId());
     }
 
+    public function testBaseDomainIsDistinguishedFromSubPathDomain(): void
+    {
+        $this->browser->request('GET', '/store-api/context', [], [], [
+            'HTTP_SW_DOMAIN' => self::EN_DOMAIN,
+        ]);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->resolvedLanguageId());
+        static::assertSame($this->eurCurrencyId, $this->resolvedCurrencyId());
+    }
+
     public function testResolvesLanguageWithTrailingSlash(): void
     {
         $this->browser->request('GET', '/store-api/context', [], [], [

@@ -98,8 +98,8 @@ class DocsAppEventCommandTest extends TestCase
 
     public function testExecuteReturnsSuccess(): void
     {
-        $mockOutput = $this->getMockBuilder(OutputInterface::class)->getMock();
-        $mockInput = $this->getMockBuilder(InputInterface::class)->getMock();
+        $mockOutput = static::createStub(OutputInterface::class);
+        $mockInput = static::createStub(InputInterface::class);
 
         $this->twig->method('getLoader')->willReturn(new ArrayLoader());
         $this->twig->method('render')->willReturn('rendered content');

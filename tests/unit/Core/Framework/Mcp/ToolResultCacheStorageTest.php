@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -29,7 +30,7 @@ class ToolResultCacheStorageTest extends TestCase
                 return true;
             }));
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $uuid = $storage->store('session-abc', '{"data": 1}');
 
         static::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $uuid);
@@ -52,7 +53,7 @@ class ToolResultCacheStorageTest extends TestCase
                 return true;
             }));
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $storage->store('session-xyz', 'text content', 'text/plain');
 
         static::assertSame('text/plain', $capturedRow['mime_type']);
@@ -71,7 +72,7 @@ class ToolResultCacheStorageTest extends TestCase
             )
             ->willReturn(['content' => '{"foo": "bar"}', 'mime_type' => 'application/json']);
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $result = $storage->read($id, 'session-abc');
 
         static::assertNotNull($result);
@@ -86,7 +87,7 @@ class ToolResultCacheStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $result = $storage->read($id, 'other-session');
 
         static::assertNull($result);
@@ -99,7 +100,7 @@ class ToolResultCacheStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAssociative')->willReturn(false);
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
 
         static::assertNull($storage->read($id, 'session-abc'));
     }
@@ -114,7 +115,7 @@ class ToolResultCacheStorageTest extends TestCase
                 ['sessionId' => 'session-abc'],
             );
 
-        $storage = new ToolResultCacheStorage($connection);
+        $storage = new ToolResultCacheStorage($connection, new NativeClock());
         $storage->deleteForSession('session-abc');
     }
 }

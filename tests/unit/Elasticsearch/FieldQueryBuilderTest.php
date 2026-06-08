@@ -135,7 +135,7 @@ class FieldQueryBuilderTest extends TestCase
         static::assertNotNull($exactMatch);
         static::assertArrayHasKey('match', $exactMatch);
         static::assertArrayHasKey('name.search', $exactMatch['match']);
-        static::assertEquals(1.0, $exactMatch['match']['name.search']['boost']);
+        static::assertEquals(2.0, $exactMatch['match']['name.search']['boost']);
         static::assertSame(0, $exactMatch['match']['name.search']['fuzziness']);
         static::assertSame('and', $exactMatch['match']['name.search']['operator']);
     }

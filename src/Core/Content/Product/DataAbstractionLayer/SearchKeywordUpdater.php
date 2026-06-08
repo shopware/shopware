@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -52,6 +53,7 @@ class SearchKeywordUpdater implements ResetInterface
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $productRepository,
         private readonly ProductSearchKeywordAnalyzerInterface $analyzer,
+        private readonly ClockInterface $clock,
         private readonly bool $searchKeywordIndexingEnabled = true,
     ) {
     }
@@ -109,7 +111,7 @@ class SearchKeywordUpdater implements ResetInterface
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $languageId = Uuid::fromHexToBytes($context->getLanguageId());
 
-        $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $this->delete($ids, $context->getLanguageId(), $context->getVersionId());
 

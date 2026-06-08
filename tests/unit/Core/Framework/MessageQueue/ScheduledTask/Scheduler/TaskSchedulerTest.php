@@ -23,6 +23,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -49,7 +50,8 @@ class TaskSchedulerTest extends TestCase
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         static::assertEquals(
@@ -98,7 +100,8 @@ class TaskSchedulerTest extends TestCase
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         static::assertSame(
@@ -145,7 +148,8 @@ class TaskSchedulerTest extends TestCase
             $bus,
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         $scheduler->queueScheduledTasks();
@@ -188,7 +192,8 @@ class TaskSchedulerTest extends TestCase
                 'shopware.test.active' => false,
             ]),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         $scheduler->queueScheduledTasks();
@@ -238,7 +243,8 @@ class TaskSchedulerTest extends TestCase
             $bus,
             new ParameterBag(['shopware.test.active' => $shouldSchedule]),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         $scheduler->queueScheduledTasks();
@@ -273,7 +279,8 @@ class TaskSchedulerTest extends TestCase
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
             new Logger('test'),
-            12
+            12,
+            new NativeClock()
         );
 
         static::expectExceptionObject(MessageQueueException::scheduledTaskDoesNotImplementInterface(ScheduledTaskEntity::class));
@@ -304,7 +311,8 @@ class TaskSchedulerTest extends TestCase
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
             $logger,
-            12
+            12,
+            new NativeClock()
         );
 
         $scheduler->queueScheduledTasks();

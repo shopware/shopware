@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -23,7 +24,8 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly RefreshTokenRepository $refreshTokenRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -67,7 +69,7 @@ class UserCredentialsChangedSubscriber implements EventSubscriberInterface
     private function updateLastUpdatedPasswordTimestamp(string $userId): void
     {
         $this->connection->update('user', [
-            'last_updated_password_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'last_updated_password_at' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ], [
             'id' => Uuid::fromHexToBytes($userId),
         ]);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -42,6 +43,7 @@ class AppSecretRotationService
         private readonly MessageBusInterface $messageBus,
         private readonly LoggerInterface $logger,
         private readonly ManifestFactory $manifestFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -109,7 +111,7 @@ class AppSecretRotationService
 
                 $this->integrationRepository->update([[
                     'id' => $currentIntegrationId,
-                    'deletedAt' => new \DateTimeImmutable(),
+                    'deletedAt' => $this->clock->now(),
                 ]], $context);
             });
             $integrationUpdated = true;
@@ -136,7 +138,7 @@ class AppSecretRotationService
                         ],
                         [
                             'id' => $newIntegrationId,
-                            'deletedAt' => new \DateTimeImmutable(),
+                            'deletedAt' => $this->clock->now(),
                         ],
                     ], $context);
                 });

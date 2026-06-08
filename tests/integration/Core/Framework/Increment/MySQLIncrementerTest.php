@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -18,7 +19,7 @@ class MySQLIncrementerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->mysqlIncrementer = new MySQLIncrementer(static::getContainer()->get(Connection::class));
+        $this->mysqlIncrementer = new MySQLIncrementer(static::getContainer()->get(Connection::class), new NativeClock());
         $this->mysqlIncrementer->setPool('user-activity-pool');
     }
 

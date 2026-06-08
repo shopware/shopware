@@ -17,6 +17,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -108,7 +109,8 @@ class DeleteCascadeAppsHandlerTest extends TestCase
             $this->scheduledTaskRepo,
             $this->createMock(LoggerInterface::class),
             $this->aclRoleRepo,
-            $this->integrationRepo
+            $this->integrationRepo,
+            new NativeClock()
         );
 
         $handler($task);

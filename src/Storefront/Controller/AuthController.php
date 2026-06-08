@@ -431,6 +431,10 @@ class AuthController extends StorefrontController
             $this->convertGuestRoute->convertGuest($request, $context, $customer, $definition);
         } catch (RateLimitExceededException $e) {
             $this->addFlash(self::INFO, $this->trans('error.rateLimitExceeded', ['%seconds%' => $e->getWaitTime()]));
+
+            return $this->forwardToRoute(
+                'frontend.account.convert.page',
+            );
         } catch (ConstraintViolationException $formViolations) {
             if ($formViolations->getViolations()->findByCodes(CustomerEmailUnique::CUSTOMER_EMAIL_NOT_UNIQUE_CODE)->count()) {
                 $this->addFlash(

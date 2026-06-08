@@ -638,7 +638,7 @@ class AuthControllerTest extends TestCase
 
         static::assertSame(302, $response->getStatusCode());
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/account/login', $response->getTargetUrl());
+        static::assertSame('/account', $response->getTargetUrl());
     }
 
     public function testRegisteredUserCanNotCovert(): void
@@ -689,6 +689,26 @@ class AuthControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
         static::assertIsString($response->getContent());
         static::assertStringContainsString('Confirmation field does not match.', $response->getContent());
+    }
+
+    public function testConvertWithAlreadyUsedEmailAddsErrorMessage(): void
+    {
+        $this->createCustomer();
+        $browser = $this->register();
+        $response = $browser->getResponse();
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('POST', '/account/convert', [
+            'password' => 'password',
+            'passwordConfirmation' => 'pwd',
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertIsString($response->getContent());
+        static::assertStringContainsString('This email address has already been registered.', $response->getContent());
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, Context $context): void
@@ -746,8 +766,8 @@ class AuthControllerTest extends TestCase
             EnvironmentHelper::getVariable('APP_URL') . '/account/register',
             $this->tokenize('frontend.account.register.save', [
                 'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
-                'email' => 'max.mustermann@example.com',
-                'emailConfirmation' => 'max.mustermann@example.com',
+                'email' => 'test@example.com',
+                'emailConfirmation' => 'test@example.com',
                 'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',

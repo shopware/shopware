@@ -109,20 +109,6 @@ class AccountService
         );
     }
 
-    private function _loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
-    {
-        if ($email === '' || $password === '') {
-            throw CustomerException::badCredentials();
-        }
-
-        $event = new CustomerBeforeLoginEvent($context, $email);
-        $this->eventDispatcher->dispatch($event);
-
-        $customer = $this->getCustomerByLogin($email, $password, $context);
-
-        return $this->loginByCustomer($customer, $context);
-    }
-
     /**
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
@@ -177,6 +163,20 @@ class AccountService
         }
 
         return $customer;
+    }
+
+    private function _loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
+    {
+        if ($email === '' || $password === '') {
+            throw CustomerException::badCredentials();
+        }
+
+        $event = new CustomerBeforeLoginEvent($context, $email);
+        $this->eventDispatcher->dispatch($event);
+
+        $customer = $this->getCustomerByLogin($email, $password, $context);
+
+        return $this->loginByCustomer($customer, $context);
     }
 
     private function isCustomerConfirmed(CustomerEntity $customer): bool

@@ -50,6 +50,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService">
@@ -188,6 +189,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute" public="true">
@@ -199,6 +201,7 @@
             <argument type="service" id="shopware.rate_limiter"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute" public="true">
@@ -206,9 +209,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
-            <argument type="service" id="shopware.rate_limiter"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute" public="true">
@@ -272,6 +273,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\DoubleOptInService"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">

@@ -54,8 +54,8 @@
                                     },
                                     "method": {
                                         "type": "string",
-                                        "description": "MCP method name. Common values: initialize, tools/list, tools/call, resources/list, resources/read, prompts/list, prompts/get, ping.",
-                                        "examples": [
+                                        "description": "MCP method name. Extensions may register additional methods beyond this list.",
+                                        "enum": [
                                             "initialize",
                                             "tools/list",
                                             "tools/call",
@@ -133,10 +133,10 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized — missing or invalid Store API access key."
+                        "$ref": "#/components/responses/401"
                     },
                     "429": {
-                        "description": "Too many requests — rate limit exceeded."
+                        "$ref": "#/components/responses/429"
                     }
                 },
                 "security": [
@@ -176,7 +176,7 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthorized."
+                        "$ref": "#/components/responses/401"
                     }
                 },
                 "security": [
@@ -209,7 +209,7 @@
                         "description": "Session closed successfully."
                     },
                     "401": {
-                        "description": "Unauthorized."
+                        "$ref": "#/components/responses/401"
                     }
                 },
                 "security": [

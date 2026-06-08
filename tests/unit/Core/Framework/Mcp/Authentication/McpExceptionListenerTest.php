@@ -44,6 +44,7 @@ class McpExceptionListenerTest extends TestCase
 
         $content = $response->getContent();
         static::assertNotFalse($content);
+        static::assertJson($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('invalid_client', $body['error']);
         static::assertStringContainsString('/api/_mcp', $body['error_description']);
@@ -106,6 +107,7 @@ class McpExceptionListenerTest extends TestCase
 
         $content = $response->getContent();
         static::assertNotFalse($content);
+        static::assertJson($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
     }
@@ -131,6 +133,7 @@ class McpExceptionListenerTest extends TestCase
 
         $content = $response->getContent();
         static::assertNotFalse($content);
+        static::assertJson($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(McpExceptionListener::CODE_UNAUTHORIZED, $body['error']['code']);
     }
@@ -149,6 +152,7 @@ class McpExceptionListenerTest extends TestCase
 
         $content = $response->getContent();
         static::assertNotFalse($content);
+        static::assertJson($content);
         $body = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Error::SERVER_ERROR, $body['error']['code']);
         static::assertSame('Something went wrong', $body['error']['message']);

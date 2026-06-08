@@ -4,7 +4,7 @@
 
 Shopware exposes a dedicated Model Context Protocol (MCP) server for the Store API
 at `/store-api/_mcp`. This endpoint lets AI agents operate in a sales-channel and
-customer context using standard Store API credentials — no Admin API OAuth required.
+customer context using standard Store API credentials. No Admin API OAuth required.
 
 It is separate from the Admin API MCP endpoint (`/api/_mcp`) and runs its own
 capability registry, so plugins can register Store API-specific tools, prompts,
@@ -14,8 +14,8 @@ and resources that are only visible in the storefront context.
 
 The endpoint accepts standard Store API headers:
 
-- `sw-access-key` — the sales channel access key
-- `sw-context-token` — the current customer session token (optional; anonymous context is used when absent)
+- `sw-access-key`: the sales channel access key
+- `sw-context-token`: the current customer session token (optional; anonymous context is used when absent)
 
 Example MCP client configuration:
 
@@ -112,6 +112,14 @@ future extension point.
 
 ## Known Limitations
 
+### Cache bypass
+
+MCP tools that call service-layer code directly (e.g. `ProductListingLoader`, route loaders)
+bypass the HTTP-level full-page cache that normally sits in front of Store API routes. This
+is intentional. AI agents need fresh, consistent data. Tool authors should keep it in
+mind when implementing tools that feed from high-traffic cached routes, as repeated MCP calls
+will hit the database/service layer directly rather than the cache.
+
 ### No automatic discovery
 
 There is currently no automatic discovery mechanism for AI agents visiting the default
@@ -128,7 +136,7 @@ is most useful for:
 
 - **Headless commerce** setups where the client already holds a `sw-access-key` and `sw-context-token`
 - **Developer tooling** with pre-configured credentials
-- **Plugin development** — build and test Store API MCP tools locally before UCP integration
+- **Plugin development**: build and test Store API MCP tools locally before UCP integration
 
 ### No storefront session bridge
 

@@ -97,7 +97,7 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testRateLimitExceptionIsConvertedToMcpException(): void
     {
-        $rateLimitException = new RateLimitExceededException(time() + 60);
+        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
 
         $this->rateLimiter
             ->method('ensureAccepted')

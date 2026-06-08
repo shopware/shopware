@@ -75,8 +75,6 @@ Affected commands:
 | `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
 | `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
 
-`system:config:get` and `system:check` already use `--format` and are unchanged. The `--json` option of `system:config:set` controls input value parsing (not output formatting) and is unaffected.
-
 </details>
 
 # API

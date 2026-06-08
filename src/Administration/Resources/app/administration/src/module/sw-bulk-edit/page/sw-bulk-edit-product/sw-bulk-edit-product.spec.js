@@ -1260,7 +1260,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.weightUnit).toBe('kg');
     });
 
-    it('should materialize parent visibilities on variant when removing a sales channel', async () => {
+    it('should flag the selected sales channel as removed for a variant', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
@@ -1277,6 +1277,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             ],
         });
 
+        // In Remove mode the selector holds the channel(s) to remove — here scn_1.
         const change = {
             field: 'visibilities',
             type: 'remove',
@@ -1286,16 +1287,59 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             ],
         };
 
-        wrapper.vm.transformVariantVisibilityRemove(change);
+        wrapper.vm.transformVariantVisibilityChange(change);
 
-        expect(change.type).toBe('overwrite');
-        expect(change.value).toEqual([
+        // The change is handed to the dedicated handler path: type/value stay intact, the
+        // removed channels come straight from the selection and the parent set is attached
+        // as the fallback base for inheriting variants.
+        expect(change.type).toBe('remove');
+        expect(change.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
             { salesChannelId: 'scn_3', visibility: 20 },
         ]);
     });
 
-    it('should convert a variant visibility remove into an overwrite via onProcessData', async () => {
+    it('should flag every selected sales channel as removed for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        // The user selected scn_1 and scn_3 to be removed.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        expect(change.removedSalesChannelIds).toEqual(['scn_1', 'scn_3']);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should flag the removed sales channels via onProcessData', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
@@ -1325,14 +1369,74 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
         expect(visibilityChange).toBeDefined();
-        expect(visibilityChange.type).toBe('overwrite');
+        expect(visibilityChange.type).toBe('remove');
         expect(visibilityChange.mappingReferenceField).toBe('salesChannelId');
-        expect(visibilityChange.value).toEqual([
+        expect(visibilityChange.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
         ]);
     });
 
-    it('should convert removing all inherited sales channels into an empty overwrite', async () => {
+    it('should NOT flag a parent bulk edit visibility remove (non-variant path)', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        // Parent bulk edit path keeps the standard REMOVE semantics — the transform only
+        // applies to variant (child) edits, so no per-variant flags are attached.
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange.type).toBe('remove');
+        expect(visibilityChange.removedSalesChannelIds).toBeUndefined();
+        expect(visibilityChange.inheritedVisibilities).toBeUndefined();
+    });
+
+    it('should flag nothing to remove when the variant field stays inherited', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+            ],
+        });
+
+        // Field left inherited → value is null, nothing is selected for removal.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: null,
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        // No removed channels → the handler leaves every variant untouched.
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([]);
+        expect(change.inheritedVisibilities).toEqual([{ salesChannelId: 'scn_1', visibility: 30 }]);
+    });
+
+    it('should flag the selected sales channels as added for a variant', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
@@ -1348,54 +1452,29 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             ],
         });
 
+        // In Add mode the selector holds the channel(s) to add — here scn_3.
         const change = {
             field: 'visibilities',
-            type: 'remove',
+            type: 'add',
             mappingReferenceField: 'salesChannelId',
             value: [
-                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
-                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_x', salesChannelId: 'scn_3', visibility: 20 },
             ],
         };
 
-        wrapper.vm.transformVariantVisibilityRemove(change);
+        wrapper.vm.transformVariantVisibilityChange(change);
 
-        // Overwriting the variant's visibilities with an empty set drops all the
-        // inherited rows for that variant — the DAL mapper honours the empty overwrite.
-        expect(change.type).toBe('overwrite');
-        expect(change.value).toEqual([]);
-    });
-
-    it('should NOT rewrite a parent bulk edit visibility remove (non-variant path)', async () => {
-        const wrapper = await createWrapper(undefined, {
-            name: 'sw.bulk.edit.product.save',
-            params: { includesDigital: '0' },
-        });
-
-        await flushPromises();
-
-        const change = {
-            field: 'visibilities',
-            type: 'remove',
-            mappingReferenceField: 'salesChannelId',
-            value: [
-                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
-            ],
-        };
-
-        wrapper.vm.bulkEditProduct.visibilities = { isChanged: true, type: 'remove', value: change.value };
-        wrapper.vm.onProcessData();
-
-        // Parent bulk edit path must keep the REMOVE semantics — the transform only
-        // applies to variant (child) edits, so parent removals hit the standard
-        // BulkEditBaseHandler delete flow.
-        expect(wrapper.vm.bulkEditProduct.visibilities.type).toBe('remove');
-        expect(wrapper.vm.bulkEditProduct.visibilities.value).toEqual([
-            { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+        expect(change.type).toBe('add');
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        // The inherited set is attached so the handler keeps scn_1/scn_2 when materializing.
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
         ]);
     });
 
-    it('should leave visibility remove change unchanged when parent has no visibilities', async () => {
+    it('should flag added sales channels via onProcessData', async () => {
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
             params: { parentId: 'parent_id', includesDigital: '0' },
@@ -1405,23 +1484,31 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.parentProductFrozen = JSON.stringify({
             id: 'parent_id',
-            visibilities: [],
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
         });
 
-        const change = {
-            field: 'visibilities',
-            type: 'remove',
-            mappingReferenceField: 'salesChannelId',
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'add',
             value: [
-                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_x', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
             ],
+            isInherited: false,
         };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
 
-        wrapper.vm.transformVariantVisibilityRemove(change);
+        wrapper.vm.onProcessData();
 
-        expect(change.type).toBe('remove');
-        expect(change.value).toEqual([
-            { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('add');
+        expect(visibilityChange.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
         ]);
     });
 

@@ -74,7 +74,7 @@ class DebugMcpCommand extends Command
         $toolsAllowlist = null;
         if ($integration !== null && $integration !== '') {
             $allowlist = $this->allowlistProvider->forAccessKey($integration);
-            $toolsAllowlist = $allowlist['tools'];
+            $toolsAllowlist = $allowlist->tools;
             if ($toolsAllowlist === null) {
                 $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
             } else {

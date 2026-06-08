@@ -16,6 +16,10 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 final class McpAllowlist
 {
+    public const TOOLS = 'tools';
+    public const RESOURCES = 'resources';
+    public const PROMPTS = 'prompts';
+
     /**
      * @param list<string>|null $tools null = all tools allowed
      * @param list<string>|null $resources null = all resources allowed
@@ -50,9 +54,9 @@ final class McpAllowlist
         }
 
         return new self(
-            tools: self::extractList($data, McpAllowlistProvider::TOOLS),
-            resources: self::extractList($data, McpAllowlistProvider::RESOURCES),
-            prompts: self::extractList($data, McpAllowlistProvider::PROMPTS),
+            tools: self::extractList($data, self::TOOLS),
+            resources: self::extractList($data, self::RESOURCES),
+            prompts: self::extractList($data, self::PROMPTS),
         );
     }
 

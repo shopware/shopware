@@ -26,10 +26,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 class McpAllowlistProvider
 {
-    public const TOOLS = 'tools';
-    public const RESOURCES = 'resources';
-    public const PROMPTS = 'prompts';
-
     /**
      * @param array<string, list<string>> $toolDependencies tool-name => [dep-name, ...]
      *
@@ -47,7 +43,7 @@ class McpAllowlistProvider
      */
     public function toolsForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::TOOLS];
+        return $this->forCurrentRequest()->tools;
     }
 
     /**
@@ -55,7 +51,7 @@ class McpAllowlistProvider
      */
     public function resourcesForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::RESOURCES];
+        return $this->forCurrentRequest()->resources;
     }
 
     /**
@@ -63,18 +59,15 @@ class McpAllowlistProvider
      */
     public function promptsForCurrentRequest(): ?array
     {
-        return $this->forCurrentRequest()[self::PROMPTS];
+        return $this->forCurrentRequest()->prompts;
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forCurrentRequest(): array
+    public function forCurrentRequest(): McpAllowlist
     {
         $request = $this->requestStack->getMainRequest();
 
         if ($request === null) {
-            return $this->unrestricted();
+            return McpAllowlist::unrestricted();
         }
 
         $clientId = $request->attributes->getString(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
@@ -110,13 +103,10 @@ class McpAllowlistProvider
             return $this->forUserId($userId);
         }
 
-        return $this->unrestricted();
+        return McpAllowlist::unrestricted();
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forAccessKey(string $accessKey): array
+    public function forAccessKey(string $accessKey): McpAllowlist
     {
         $json = $this->connection->fetchOne(
             'SELECT `mcp_allowlist` FROM `integration` WHERE `access_key` = :key AND `deleted_at` IS NULL',
@@ -126,10 +116,7 @@ class McpAllowlistProvider
         return $this->fromAllowlist(McpAllowlist::fromJson(\is_string($json) ? $json : null));
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    public function forUserId(string $userId): array
+    public function forUserId(string $userId): McpAllowlist
     {
         $row = $this->connection->fetchAssociative(
             'SELECT `mcp_allowlist`, `admin` FROM `user` WHERE `id` = :id AND `active` = 1',
@@ -138,16 +125,13 @@ class McpAllowlistProvider
 
         // Admin users bypass ACL checks — mirror that for MCP allowlist.
         if ($row === false || (bool) $row['admin']) {
-            return $this->unrestricted();
+            return McpAllowlist::unrestricted();
         }
 
         return $this->fromAllowlist(McpAllowlist::fromJson(\is_string($row['mcp_allowlist']) ? $row['mcp_allowlist'] : null));
     }
 
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    private function forUserAccessKey(string $accessKey): array
+    private function forUserAccessKey(string $accessKey): McpAllowlist
     {
         $userId = $this->connection->fetchOne(
             'SELECT `user_id` FROM `user_access_key` WHERE `access_key` = :key',
@@ -155,30 +139,19 @@ class McpAllowlistProvider
         );
 
         if (!\is_string($userId) || $userId === '') {
-            return $this->unrestricted();
+            return McpAllowlist::unrestricted();
         }
 
         return $this->forUserId(Uuid::fromBytesToHex($userId));
     }
 
-    /**
-     * @return array{tools: null, resources: null, prompts: null}
-     */
-    private function unrestricted(): array
+    private function fromAllowlist(McpAllowlist $allowlist): McpAllowlist
     {
-        return [self::TOOLS => null, self::RESOURCES => null, self::PROMPTS => null];
-    }
-
-    /**
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    private function fromAllowlist(McpAllowlist $allowlist): array
-    {
-        return [
-            self::TOOLS => $allowlist->tools !== null ? $this->expandWithDependencies($allowlist->tools) : null,
-            self::RESOURCES => $allowlist->resources,
-            self::PROMPTS => $allowlist->prompts,
-        ];
+        return new McpAllowlist(
+            tools: $allowlist->tools !== null ? $this->expandWithDependencies($allowlist->tools) : null,
+            resources: $allowlist->resources,
+            prompts: $allowlist->prompts,
+        );
     }
 
     /**
@@ -208,19 +181,13 @@ class McpAllowlistProvider
         return array_keys($expanded);
     }
 
-    /**
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $a
-     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null} $b
-     *
-     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}
-     */
-    private function intersect(array $a, array $b): array
+    private function intersect(McpAllowlist $a, McpAllowlist $b): McpAllowlist
     {
-        return [
-            self::TOOLS => $this->intersectList($a[self::TOOLS], $b[self::TOOLS]),
-            self::RESOURCES => $this->intersectList($a[self::RESOURCES], $b[self::RESOURCES]),
-            self::PROMPTS => $this->intersectList($a[self::PROMPTS], $b[self::PROMPTS]),
-        ];
+        return new McpAllowlist(
+            tools: $this->intersectList($a->tools, $b->tools),
+            resources: $this->intersectList($a->resources, $b->resources),
+            prompts: $this->intersectList($a->prompts, $b->prompts),
+        );
     }
 
     /**

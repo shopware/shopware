@@ -362,7 +362,6 @@ class PromotionCalculatorTest extends TestCase
         static::assertSame(-10.0, $promotionLineItem->getPrice()->getTotalPrice());
 
         // Ensure that non-stackable items are still not stackable!
-        //  Right now they become stackable after each calculation.
         $customLineItem = $toCalculate->get($customLineItem->getId());
         self::assertNotNull($customLineItem);
         self::assertFalse($customLineItem->isStackable());

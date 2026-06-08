@@ -58,8 +58,9 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             return;
         }
 
-        $resolveLanguage = !$request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID);
-        $resolveCurrency = !$request->headers->has(PlatformRequest::HEADER_CURRENCY_ID);
+        // an empty value counts as absent, matching how SalesChannelRequestContextResolver reads these headers
+        $resolveLanguage = $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '') === '';
+        $resolveCurrency = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID, '') === '';
 
         if (!$resolveLanguage && !$resolveCurrency) {
             return;

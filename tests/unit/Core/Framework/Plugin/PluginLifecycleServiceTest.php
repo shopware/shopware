@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use Composer\Autoload\ClassLoader;
-use PHPUnit\Framework\Attributes\BackupStaticProperties;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -131,6 +130,15 @@ class PluginLifecycleServiceTest extends TestCase
             $this->requestStackMock,
             new NativeClock()
         );
+    }
+
+    protected function tearDown(): void
+    {
+        // uninstallPlugin() populates PluginLifecycleService::$pluginToBeDeleted; reset just that
+        // one static so it doesn't leak into other tests. Do NOT use #[BackupStaticProperties(true)]:
+        // it serialize-restores every loaded class's statics, which desyncs Doctrine's global
+        // Type registry (spl_object_id-keyed reverse index) and breaks Type::lookupName() worker-wide.
+        (new \ReflectionClass(PluginLifecycleService::class))->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testInstallPlugin(): void
@@ -405,7 +413,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
     }
 
-    #[BackupStaticProperties(true)]
     public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
     {
         $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)

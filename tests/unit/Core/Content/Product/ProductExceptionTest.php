@@ -72,6 +72,18 @@ class ProductExceptionTest extends TestCase
         static::assertSame(['entity' => 'product', 'field' => 'id', 'value' => $productId], $exception->getParameters());
     }
 
+    public function testProductDocumentNotFound(): void
+    {
+        $documentId = 'document-id';
+
+        $exception = ProductException::productDocumentNotFound($documentId);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(ProductException::PRODUCT_DOCUMENT_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find product document with id "document-id"', $exception->getMessage());
+        static::assertSame(['entity' => 'product document', 'field' => 'id', 'value' => $documentId], $exception->getParameters());
+    }
+
     public function testCategoryNotFound(): void
     {
         $categoryId = 'category-id';

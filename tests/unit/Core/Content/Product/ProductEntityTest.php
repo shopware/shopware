@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature\FeatureException;
@@ -120,6 +121,16 @@ class ProductEntityTest extends TestCase
     {
         $this->expectException(FeatureException::class);
         (new ProductEntity())->setStates(['is-physical']);
+    }
+
+    public function testProductDocumentsAccessors(): void
+    {
+        $productDocuments = new ProductDocumentCollection();
+
+        $entity = new ProductEntity();
+        $entity->setProductDocuments($productDocuments);
+
+        static::assertSame($productDocuments, $entity->getProductDocuments());
     }
 
     /**

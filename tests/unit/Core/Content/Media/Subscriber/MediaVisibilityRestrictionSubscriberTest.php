@@ -228,6 +228,26 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         );
     }
 
+    public function testPrivateProductDownloadAndProductDocumentDefaultFoldersAreVisible(): void
+    {
+        $event = new EntitySearchedEvent(
+            new Criteria(),
+            new MediaDefinition(),
+            Context::createDefaultContext(new AdminApiSource(null))
+        );
+
+        $subscriber = new MediaVisibilityRestrictionSubscriber();
+        $subscriber->securePrivateFolders($event);
+
+        $filters = $event->getCriteria()->getFilters();
+        static::assertCount(1, $filters);
+
+        $allowedDefaultFolderEntities = $this->collectEqualsFilterValues($filters[0], 'mediaFolder.defaultFolder.entity');
+
+        static::assertContains('product_download', $allowedDefaultFolderEntities);
+        static::assertContains('product_document', $allowedDefaultFolderEntities);
+    }
+
     public function testSecurePrivateFoldersDifferentDefinitionDoesNotGetModified(): void
     {
         $event = new EntitySearchedEvent(
@@ -342,5 +362,26 @@ class MediaVisibilityRestrictionSubscriberTest extends TestCase
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($field, $filter->getField());
         static::assertSame($value, $filter->getValue());
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function collectEqualsFilterValues(object $filter, string $field): array
+    {
+        if ($filter instanceof EqualsFilter && $filter->getField() === $field) {
+            return [$filter->getValue()];
+        }
+
+        if (!$filter instanceof MultiFilter) {
+            return [];
+        }
+
+        $values = [];
+        foreach ($filter->getQueries() as $query) {
+            $values = array_merge($values, $this->collectEqualsFilterValues($query, $field));
+        }
+
+        return $values;
     }
 }

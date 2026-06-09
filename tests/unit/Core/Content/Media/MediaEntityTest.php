@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface;
 use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -107,5 +108,15 @@ class MediaEntityTest extends TestCase
         static::assertArrayNotHasKey('mediaTypeRaw', $data);
         static::assertArrayNotHasKey('metaDataRaw', $data);
         static::assertFalse($data['hasFile']);
+    }
+
+    public function testProductDocumentsAccessors(): void
+    {
+        $productDocuments = new ProductDocumentCollection();
+
+        $media = new MediaEntity();
+        $media->setProductDocuments($productDocuments);
+
+        static::assertSame($productDocuments, $media->getProductDocuments());
     }
 }

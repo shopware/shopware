@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -148,6 +149,10 @@ class ProductDocumentOrderMailSubscriber implements EventSubscriberInterface
     private function getExistingBinAttachments(FlowSendMailActionEvent $event): array
     {
         $attachments = $event->getDataBag()->get('binAttachments');
+
+        if ($attachments instanceof DataBag) {
+            return array_values($attachments->all());
+        }
 
         if (!\is_array($attachments)) {
             return [];

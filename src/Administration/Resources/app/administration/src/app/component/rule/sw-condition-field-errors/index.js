@@ -1,3 +1,4 @@
+import startCase from 'lodash-es/startCase';
 import template from './sw-condition-field-errors.html.twig';
 import './sw-condition-field-errors.scss';
 
@@ -70,18 +71,7 @@ export default {
                 return this.$t(match);
             }
 
-            return this.humanize(field);
-        },
-
-        /**
-         * Splits camelCase and PascalCase, replaces underscores and dashes with spaces, capitalizes the first letter.
-         */
-        humanize(field) {
-            return field
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/[_-]+/g, ' ')
-                .replace(/^./, (s) => s.toUpperCase())
-                .trim();
+            return startCase(field);
         },
     },
 };

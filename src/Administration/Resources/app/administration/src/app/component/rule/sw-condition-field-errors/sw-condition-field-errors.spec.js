@@ -118,6 +118,6 @@ describe('src/app/component/rule/sw-condition-field-errors', () => {
         const summary = wrapper.find('.sw-condition-field-errors__summary').text();
 
         expect(summary).toContain('Custom Rendered Field');
-        expect(summary).toContain('Another value');
+        expect(summary).toContain('Another Value');
     });
 });

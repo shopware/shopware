@@ -70,6 +70,9 @@ async function createWrapper(options = {}) {
         props: { role, mcpIntegrations },
         global: {
             renderStubDefaultSlot: true,
+            mocks: {
+                $route: { meta: { $module: { icon: 'default-action-settings' } } },
+            },
             stubs: {
                 'sw-modal': { template: '<div class="sw-modal"><slot /><slot name="modal-footer" /></div>' },
                 'mt-loader': true,

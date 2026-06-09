@@ -817,7 +817,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             { salesChannelId: 'scn_1', visibility: 30 },
                             { salesChannelId: 'scn_2', visibility: 30 },
                         ],
-                        removedSalesChannelIds: ['scn_1', 'scn_2'],
+                        removedSalesChannelIds: [
+                            'scn_1',
+                            'scn_2',
+                        ],
                         inheritedVisibilities: [
                             { salesChannelId: 'scn_1', visibility: 30 },
                             { salesChannelId: 'scn_2', visibility: 30 },

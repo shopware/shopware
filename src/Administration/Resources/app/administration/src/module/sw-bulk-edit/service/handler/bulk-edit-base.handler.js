@@ -341,10 +341,7 @@ class BulkEditBaseHandler {
             (mappedAssociations[entityId] ??= []).push(association);
         });
 
-        const mappedLength = Object.keys(mappedAssociations).reduce(
-            (acc, key) => acc + mappedAssociations[key].length,
-            0,
-        );
+        const mappedLength = Object.keys(mappedAssociations).reduce((acc, key) => acc + mappedAssociations[key].length, 0);
 
         if (ownAssociations.total > mappedLength) {
             return this._fetchOwnAssociations(fieldDefinition, page + 1, mappedAssociations);

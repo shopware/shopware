@@ -1211,7 +1211,14 @@ export default {
                 // each variant's effective set (its own rows when it overrides, otherwise the
                 // inherited parent set) with the removed channels dropped and the added ones
                 // merged in.
-                if (this.isChild && key === 'visibilities' && ['add', 'remove'].includes(bulkEditField.type)) {
+                if (
+                    this.isChild &&
+                    key === 'visibilities' &&
+                    [
+                        'add',
+                        'remove',
+                    ].includes(bulkEditField.type)
+                ) {
                     this.transformVariantVisibilityChange(change);
                 }
 

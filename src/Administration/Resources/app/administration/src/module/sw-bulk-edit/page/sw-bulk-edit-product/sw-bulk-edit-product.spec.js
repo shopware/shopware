@@ -1331,7 +1331,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.transformVariantVisibilityChange(change);
 
-        expect(change.removedSalesChannelIds).toEqual(['scn_1', 'scn_3']);
+        expect(change.removedSalesChannelIds).toEqual([
+            'scn_1',
+            'scn_3',
+        ]);
         expect(change.inheritedVisibilities).toEqual([
             { salesChannelId: 'scn_1', visibility: 30 },
             { salesChannelId: 'scn_2', visibility: 30 },
@@ -1379,9 +1382,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     it('should NOT flag a parent bulk edit visibility remove (non-variant path)', async () => {
+        // parentId 'null' marks a parent (non-variant) bulk edit, so isChild() is false.
         const wrapper = await createWrapper(undefined, {
             name: 'sw.bulk.edit.product.save',
-            params: { includesDigital: '0' },
+            params: { parentId: 'null', includesDigital: '0' },
         });
 
         await flushPromises();

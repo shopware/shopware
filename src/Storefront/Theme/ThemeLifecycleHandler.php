@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -18,7 +19,12 @@ use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 #[Package('framework')]
 class ThemeLifecycleHandler
 {
-    public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     * use {@see AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION} instead.
+     * This constant only re-exports it so existing references keep working until removal.
+     */
+    public const STATE_SKIP_THEME_COMPILATION = AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION;
 
     /**
      * @internal
@@ -153,7 +159,7 @@ class ThemeLifecycleHandler
         StorefrontPluginConfigurationCollection $configurationCollection,
         ?string $themeId
     ): void {
-        if ($context->hasState(self::STATE_SKIP_THEME_COMPILATION)) {
+        if ($context->hasState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION)) {
             return;
         }
 

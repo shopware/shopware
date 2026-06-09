@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Command\AbstractAppActivationCommand;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -18,6 +19,35 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(DeactivateAppCommand::class)]
 class DeactivateAppCommandTest extends TestCase
 {
+    public function testDeactivateDelegatesToLifecycle(): void
+    {
+        $app = AppFixture::createAppEntity('TestApp', 'app-id');
+
+        $appStorage = $this->createMock(AppStorage::class);
+        $appStorage
+            ->expects($this->once())
+            ->method('findByName')
+            ->with('TestApp', static::isInstanceOf(Context::class))
+            ->willReturn($app);
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle
+            ->expects($this->once())
+            ->method('deactivate')
+            ->with('app-id', static::isInstanceOf(Context::class));
+
+        $command = new DeactivateAppCommand(
+            $appStorage,
+            $appLifecycle,
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['name' => 'TestApp']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString('[OK] App deactivated successfully.', $commandTester->getDisplay());
+    }
+
     public function testDeactivateFailsWhenAppCannotBeFound(): void
     {
         $appStorage = $this->createMock(AppStorage::class);

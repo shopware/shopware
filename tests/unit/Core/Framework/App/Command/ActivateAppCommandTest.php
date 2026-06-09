@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\Command\AbstractAppActivationCommand;
 use Shopware\Core\Framework\App\Command\ActivateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
+use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -18,6 +19,35 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ActivateAppCommand::class)]
 class ActivateAppCommandTest extends TestCase
 {
+    public function testActivateDelegatesToLifecycle(): void
+    {
+        $app = AppFixture::createAppEntity('TestApp', 'app-id');
+
+        $appStorage = $this->createMock(AppStorage::class);
+        $appStorage
+            ->expects($this->once())
+            ->method('findByName')
+            ->with('TestApp', static::isInstanceOf(Context::class))
+            ->willReturn($app);
+
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle
+            ->expects($this->once())
+            ->method('activate')
+            ->with('app-id', static::isInstanceOf(Context::class));
+
+        $command = new ActivateAppCommand(
+            $appStorage,
+            $appLifecycle,
+        );
+
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['name' => 'TestApp']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertStringContainsString('[OK] App activated successfully.', $commandTester->getDisplay());
+    }
+
     public function testActivateFailsWhenAppCannotBeFound(): void
     {
         $appStorage = $this->createMock(AppStorage::class);

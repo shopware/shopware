@@ -67,7 +67,6 @@ const swProductDetail = Shopware.Store.register({
                 'measurement',
                 'selling_packaging',
                 'properties',
-                'product_documents',
                 'essential_characteristics',
                 'custom_fields',
             ],

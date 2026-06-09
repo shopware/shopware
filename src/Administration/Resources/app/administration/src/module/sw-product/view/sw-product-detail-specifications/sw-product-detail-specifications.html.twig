@@ -42,56 +42,6 @@
     />
     {% endblock %}
 
-    {% block sw_product_detail_specifications_documents %}
-    <sw-inherit-wrapper
-        v-show="showProductCard('product_documents')"
-        ref="productDocumentInheritance"
-        v-model:value="productDocuments"
-        class="sw-product-detail-specification__documents"
-        :inherited-value="parentProduct.productDocuments"
-        :custom-restore-inheritance-function="productDocumentRestoreInheritanceFunction"
-        :custom-remove-inheritance-function="productDocumentRemoveInheritanceFunction"
-        is-association
-    >
-        <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
-            <mt-card
-                class="sw-product-detail-specification__documents-card"
-                position-identifier="sw-product-detail-specifications-documents"
-                :subtitle="$t('sw-product.specifications.cardSubtitleDocuments')"
-                :is-loading="loading.product || loading.parentProduct"
-                :class="{ 'sw-card__inherited': isInherited }"
-            >
-                <template #title>
-                    <div
-                        class="sw-card__title"
-                        :class="{ 'sw-card__title__inherited': isInherited }"
-                    >
-                        <sw-inheritance-switch
-                            v-if="isInheritField"
-                            class="sw-inherit-wrapper__inheritance-icon"
-                            :is-inherited="isInherited"
-                            @inheritance-restore="restoreInheritance"
-                            @inheritance-remove="removeInheritance"
-                        />
-
-                        {{ $t('sw-product.specifications.cardTitleDocuments') }}
-                    </div>
-                </template>
-
-                <template #grid>
-                    <sw-product-document-form
-                        v-if="productDocumentsFormVisible"
-                        :key="isInherited"
-                        :is-inherited="isInherited"
-                        :disabled="isInherited || !acl.can('product.editor')"
-                        @media-open="onOpenDocumentMediaModal"
-                    />
-                </template>
-            </mt-card>
-        </template>
-    </sw-inherit-wrapper>
-    {% endblock %}
-
     {% block sw_product_detail_specifications_essential_characteristics %}
     <mt-card
         v-show="showProductCard('essential_characteristics')"
@@ -125,17 +75,6 @@
         />
         {% endblock %}
     </mt-card>
-    {% endblock %}
-
-    {% block sw_product_detail_specifications_documents_media_modal %}
-    <sw-media-modal-v2
-        v-if="showDocumentMediaModal"
-        :initial-folder-id="documentDefaultFolderId"
-        entity-context="product_document"
-        file-accept="*/*"
-        @media-modal-selection-change="onAddDocuments"
-        @modal-close="onCloseDocumentMediaModal"
-    />
     {% endblock %}
 </div>
 {% endblock %}

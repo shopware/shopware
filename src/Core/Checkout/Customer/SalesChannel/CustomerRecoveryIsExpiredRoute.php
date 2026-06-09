@@ -6,10 +6,12 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\RecoveryIsExpiredExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -41,6 +43,7 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
         private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -51,6 +54,15 @@ class CustomerRecoveryIsExpiredRoute extends AbstractCustomerRecoveryIsExpiredRo
 
     #[Route(path: '/store-api/account/customer-recovery-is-expired', name: 'store-api.account.customer.recovery.is.expired', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse
+    {
+        return $this->extensions->publish(
+            name: RecoveryIsExpiredExtension::NAME,
+            extension: new RecoveryIsExpiredExtension($data, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(RequestDataBag $data, SalesChannelContext $context): CustomerRecoveryIsExpiredResponse
     {
         $this->validateHash($data, $context);
 

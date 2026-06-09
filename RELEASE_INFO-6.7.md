@@ -677,6 +677,21 @@ The new `AbstractAgenticCommerceProductExportProvider` can be used to implement 
 
 ## Administration
 
+### SFC migration codemod for Administration components
+
+A new developer tool is available to migrate Shopware Administration components from the legacy two-file format (`index.js` + `.html.twig`) to single-file components (`.vue` SFCs).
+
+Run it via:
+
+```bash
+npm run codemod:sfc-migration -- <target-directory>        # dry-run preview
+npm run codemod:sfc-migration -- --write <target-directory> # write .vue files
+```
+
+The codemod converts Options API to Composition API (`data` → `ref`, `computed`, `watch`, `methods`, lifecycle hooks), rewrites Twig block syntax to `<sw-block>` elements, and merges template + script into a single `.vue` file.
+Components with `render()` functions are skipped; components using `mixins` or `Shopware.Component.extend()` receive a backoff to plain `<script>` so they can be migrated manually.
+
+See `src/Administration/Resources/app/administration/scripts/codemods/sfc-migration/README.md` for full usage, flags, and known limitations.
 ### [Internal] Twig to Native Block Runtime Adapter
 A runtime adapter has been added that bridges legacy Twig block overrides (`{% block %}` / `{% parent %}`) with the new native `<sw-block>` / `<sw-block-parent />` system. When core components migrate from `.html.twig` blocks to `<sw-block name="...">`, existing plugin overrides continue to work automatically. A deprecation warning is emitted to guide plugin developers toward the new native syntax.
 ### Fixed mixin-based route guards for lazy-loaded administration routes

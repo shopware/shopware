@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -68,7 +69,9 @@ class InfoControllerTest extends TestCase
             'adminWorker' => [
                 'enableAdminWorker' => true,
                 'enableNotificationWorker' => true,
-                'transports' => ['webhook', 'async', 'low_priority'],
+                'transports' => Feature::isActive('WEBHOOKS_REWORK')
+                    ? ['webhook', 'async', 'low_priority']
+                    : ['async', 'low_priority'],
                 'enableQueueStatsWorker' => true,
             ],
             'bundles' => [],

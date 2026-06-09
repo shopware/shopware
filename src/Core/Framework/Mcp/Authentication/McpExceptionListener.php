@@ -26,6 +26,13 @@ class McpExceptionListener implements EventSubscriberInterface
 {
     private const MCP_ROUTE_NAME = 'api.mcp.endpoint';
 
+    // Must run before Symfony's default exception listener (priority 0) so we intercept before an HTML error page is rendered.
+    private const PRIORITY = 10;
+
+    // Not covered by the MCP SDK's Error constants — defined here for clarity.
+    private const CODE_UNAUTHORIZED = -32001;
+    private const CODE_RATE_LIMITED = -32029;
+
     /**
      * Some MCP clients (e.g. Cursor) fall back to POST {origin}/register when the primary
      * connection fails, expecting a JSON OAuth error response. Without this, they get a
@@ -39,7 +46,7 @@ class McpExceptionListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::EXCEPTION => ['onException', 10],
+            KernelEvents::EXCEPTION => ['onException', self::PRIORITY],
         ];
     }
 
@@ -66,7 +73,7 @@ class McpExceptionListener implements EventSubscriberInterface
     private function handleMcpException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
+        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
 
         $error = new Error(
             id: '',
@@ -80,9 +87,9 @@ class McpExceptionListener implements EventSubscriberInterface
     private function toJsonRpcCode(int $httpCode): int
     {
         return match (true) {
-            $httpCode === 401, $httpCode === 403 => -32001,
-            $httpCode === 429 => -32029,
-            $httpCode >= 400 && $httpCode < 500 => Error::INVALID_REQUEST,
+            $httpCode === Response::HTTP_UNAUTHORIZED, $httpCode === Response::HTTP_FORBIDDEN => self::CODE_UNAUTHORIZED,
+            $httpCode === Response::HTTP_TOO_MANY_REQUESTS => self::CODE_RATE_LIMITED,
+            $httpCode >= Response::HTTP_BAD_REQUEST && $httpCode < Response::HTTP_INTERNAL_SERVER_ERROR => Error::INVALID_REQUEST,
             default => Error::SERVER_ERROR,
         };
     }

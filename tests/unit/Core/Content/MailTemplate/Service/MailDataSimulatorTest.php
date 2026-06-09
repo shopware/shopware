@@ -20,10 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentFkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorResponse;
@@ -195,21 +197,12 @@ class MailDataSimulatorTest extends TestCase
             (new StringField('name', 'name'))->addFlags(new ApiAware()),
         ]));
 
-        $provider = new class($this->createStub(EventDispatcherInterface::class), $this->createStub(ContainerInterface::class)) extends AbstractProvider {
-            public bool $wasCalled = false;
-
-            public function getEntityName(): string
-            {
-                return TestMailTemplateEntityDefinition::ENTITY_NAME;
-            }
-
-            protected function constructCriteria(string $entityId): Criteria
-            {
-                $this->wasCalled = true;
-
-                return new Criteria([$entityId]);
-            }
-        };
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            [],
+        );
+        $provider->wasCalled = false;
 
         $simulator = $this->createSimulator(
             [
@@ -299,6 +292,41 @@ class MailDataSimulatorTest extends TestCase
             $result['testEntity']->get('firstAttribute')->get('name'),
             $result['testEntity']->get('secondAttribute')->get('name')
         );
+    }
+
+    public function testMappingDefinitionDoesNotThrowException(): void
+    {
+        $definition = new TestMailTemplateEntityDefinition(new FieldCollection([
+            (new OneToManyAssociationField('mappingChildren', TestMappingDefinition::class, 'test_mail_template_entity_id'))->addFlags(new ApiAware()),
+        ]));
+
+        $provider = new TestMailTemplateProvider(
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ContainerInterface::class),
+            ['mappingChildren'],
+        );
+
+        $simulator = $this->createSimulator(
+            [
+                'testEntity' => [
+                    'type' => EntityType::TYPE,
+                    'entityClass' => TestMailTemplateEntityDefinition::ENTITY_NAME,
+                ],
+            ],
+            $definition,
+            null,
+            [TestMailTemplateEntityDefinition::ENTITY_NAME => $provider],
+            [new TestMappingDefinition()]
+        );
+
+        $result = $simulator->getTemplateData('test.flow', Context::createDefaultContext());
+
+        static::assertInstanceOf(ArrayEntity::class, $result['testEntity']);
+
+        $mappingChildren = $result['testEntity']->get('mappingChildren');
+        static::assertInstanceOf(EntityCollection::class, $mappingChildren);
+        static::assertCount(1, $mappingChildren);
+        static::assertInstanceOf(Entity::class, $mappingChildren->first());
     }
 
     /**
@@ -444,5 +472,63 @@ class TestSalesChannelDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection();
+    }
+}
+
+/**
+ * @internal
+ *
+ * @extends AbstractProvider<Entity, EntityCollection<Entity>>
+ */
+class TestMailTemplateProvider extends AbstractProvider
+{
+    public bool $wasCalled = false;
+
+    /**
+     * @param list<string> $associations
+     */
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ContainerInterface $container,
+        private readonly array $associations
+    ) {
+        parent::__construct($dispatcher, $container);
+    }
+
+    public function getEntityName(): string
+    {
+        return TestMailTemplateEntityDefinition::ENTITY_NAME;
+    }
+
+    protected function constructCriteria(string $entityId): Criteria
+    {
+        $this->wasCalled = true;
+
+        $criteria = new Criteria([$entityId]);
+
+        foreach ($this->associations as $association) {
+            $criteria->addAssociation($association);
+        }
+
+        return $criteria;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestMappingDefinition extends MappingEntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_mapping';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware()),
+            (new StringField('name', 'name'))->addFlags(new ApiAware()),
+        ]);
     }
 }

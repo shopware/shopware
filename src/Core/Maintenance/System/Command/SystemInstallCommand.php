@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Maintenance\System\Command;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -35,6 +36,7 @@ class SystemInstallCommand extends Command
         private readonly DatabaseConnectionFactory $databaseConnectionFactory,
         private readonly CacheClearer $cacheClearer,
         private readonly SystemLocker $systemLocker,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct();
     }
@@ -164,7 +166,7 @@ class SystemInstallCommand extends Command
             $commands[] = [
                 'command' => 'system:config:set',
                 'key' => 'core.frw.completedAt',
-                'value' => (new \DateTime())->format('Y-m-d H:i:s'),
+                'value' => $this->clock->now()->format('Y-m-d H:i:s'),
             ];
         }
 

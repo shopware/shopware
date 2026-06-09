@@ -137,8 +137,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidType(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Can not find increment gateway for configured type foo of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.foo can not be found');
+        $this->expectExceptionObject(new \RuntimeException('Can not find increment gateway for configured type foo of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.foo can not be found'));
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => [
             'type' => 'foo',
@@ -151,8 +150,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidAdapterClass(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Increment gateway with id shopware.increment.custom_pool.gateway.array, expected service instance of Shopware\Core\Framework\Increment\AbstractIncrementer');
+        $this->expectExceptionObject(new \RuntimeException('Increment gateway with id shopware.increment.custom_pool.gateway.array, expected service instance of Shopware\Core\Framework\Increment\AbstractIncrementer'));
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'array']]);
         $container->setParameter('shopware.increment.custom_pool.type', 'custom_type');
@@ -164,8 +162,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidRedisAdapter(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Can not find increment gateway for configured type redis of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.redis can not be found');
+        $this->expectExceptionObject(new \RuntimeException('Can not find increment gateway for configured type redis of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.redis can not be found'));
 
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'redis']]);

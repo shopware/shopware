@@ -22,6 +22,7 @@
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
             <argument type="service" id="filesystem"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.system_check"/>
         </service>

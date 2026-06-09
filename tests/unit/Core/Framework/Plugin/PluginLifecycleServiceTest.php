@@ -48,6 +48,8 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -126,7 +128,17 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
+            new NativeClock()
         );
+    }
+
+    protected function tearDown(): void
+    {
+        // uninstallPlugin() populates PluginLifecycleService::$pluginToBeDeleted; reset just that
+        // one static so it doesn't leak into other tests. Do NOT use #[BackupStaticProperties(true)]:
+        // it serialize-restores every loaded class's statics, which desyncs Doctrine's global
+        // Type registry (spl_object_id-keyed reverse index) and breaks Type::lookupName() worker-wide.
+        (new \ReflectionClass(PluginLifecycleService::class))->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testInstallPlugin(): void
@@ -422,6 +434,7 @@ class PluginLifecycleServiceTest extends TestCase
                 $this->createMock(VersionSanitizer::class),
                 $this->createMock(DefinitionInstanceRegistry::class),
                 $this->requestStackMock,
+                new MockClock(),
             ])
             ->onlyMethods(['isCLI'])
             ->getMock();
@@ -454,10 +467,6 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertEmpty($replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
-
-        // need to reset the static properties to avoid side effects in other test cases
-        $reflection = new \ReflectionClass(PluginLifecycleService::class);
-        $reflection->setStaticPropertyValue('pluginToBeDeleted', null);
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void

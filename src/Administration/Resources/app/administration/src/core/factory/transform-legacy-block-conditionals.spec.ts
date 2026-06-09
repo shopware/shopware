@@ -204,6 +204,21 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformLegacyBlockConditionals(template)).toBe(template);
     });
 
+    it('leaves conditional chains in the middle of a block untouched', () => {
+        const template = `
+            <div>
+                <sw-block name="test-block">
+                    <div></div>
+                    <div v-if="someCondition" class="if-branch">default</div>
+                    <div v-else class="else-branch">default</div>
+                    <div></div>
+                </sw-block>
+            </div>
+        `;
+
+        expect(transformLegacyBlockConditionals(template)).toBe(template);
+    });
+
     it('keeps whitespace between rewritten v-if and following attributes', () => {
         const transformedEntries = transformLegacyTwigBlockSequenceConditionals([
             {

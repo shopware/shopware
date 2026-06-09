@@ -72,6 +72,7 @@ class McpAllowlistProvider
     public function forCurrentRequest(): array
     {
         $request = $this->requestStack->getMainRequest();
+
         if ($request === null) {
             return $this->unrestricted();
         }

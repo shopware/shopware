@@ -2,9 +2,12 @@
 
 namespace Shopware\Core\Maintenance\SalesChannel\Command;
 
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Console\OutputFormatTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -30,6 +33,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[Package('discovery')]
 class SalesChannelListCommand extends Command
 {
+    use OutputFormatTrait;
+
     /**
      * @var list<string>
      */
@@ -55,17 +60,34 @@ class SalesChannelListCommand extends Command
 
     protected function configure(): void
     {
+        $this->addFormatOption([self::FORMAT_TABLE, self::FORMAT_JSON]);
+        /** @deprecated tag:v6.8.0 - Use `--format` instead */
         $this->addOption(
             'output',
             '0',
             InputOption::VALUE_OPTIONAL,
-            'Output mode. Available options: "table", "json"',
-            'table'
+            '[DEPRECATED] Use `--format` instead.'
         );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new ShopwareStyle($input, $output);
+
+        $deprecatedOutput = $input->getOption('output');
+        if ($deprecatedOutput !== null) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--output" option of the "sales-channel:list" command is deprecated and will be removed in v6.8.0. Use "--format" instead.'
+            );
+            $input->setOption('format', $deprecatedOutput);
+        }
+
+        $format = $this->resolveFormat($input, $output, [self::FORMAT_TABLE, self::FORMAT_JSON]);
+        if ($format === null) {
+            return self::INVALID;
+        }
+
         $criteria = new Criteria();
         $criteria->addAssociations(['language', 'languages', 'currency', 'currencies', 'domains']);
         $salesChannels = $this->salesChannelRepository->search($criteria, Context::createCLIContext())->getEntities();
@@ -91,7 +113,7 @@ class SalesChannelListCommand extends Command
             ];
         }
 
-        if ($input->getOption('output') === 'json') {
+        if ($format === self::FORMAT_JSON) {
             return $this->renderJson($output, $data);
         }
 

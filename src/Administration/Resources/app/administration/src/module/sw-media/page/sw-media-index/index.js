@@ -70,8 +70,26 @@ export default {
 
     watch: {
         routeFolderId() {
-            this.term = '';
+            // Adopt the term from the new route query (e.g. when the user clicks a
+            // global search-bar suggestion that points at a different folder) instead
+            // of unconditionally clearing it.
+            this.term = this.$route.query?.term ?? '';
+            this.clearSelection();
             this.updateFolder();
+        },
+
+        '$route.query.term'(value) {
+            // When the route changes only in its `term` query (same folder, e.g. the
+            // user clicks a media search suggestion while already on `sw.media.index`),
+            // the `routeFolderId` watcher does not fire — sync the term explicitly so
+            // the media library reloads with the new search.
+            const next = value ?? '';
+            if (this.term === next) {
+                return;
+            }
+
+            this.term = next;
+            this.clearSelection();
         },
     },
 

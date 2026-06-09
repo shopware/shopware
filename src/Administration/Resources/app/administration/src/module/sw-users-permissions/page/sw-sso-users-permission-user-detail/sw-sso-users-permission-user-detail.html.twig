@@ -1,6 +1,5 @@
 {% block sw_settings_sso_user_detail %}
 <sw-page class="sw-settings-sso-user-detail">
-
     {% block sw_settings_sso_user_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="!isLoading">
@@ -206,11 +205,11 @@
                 :is-loading="isLoading"
             >
                 {% block sw_settings_sso_user_detail_grid_toolbar %}
-                <template #toolbar>
+                <template #headerRight>
                     {% block sw_settings_sso_user_detail_grid_add_key %}
                     <mt-button
                         class="sw-sso-detail-card__integrations-create-access-key"
-                        variant="primary"
+                        variant="secondary"
                         size="small"
                         :is-loading="isLoading"
                         :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
@@ -259,12 +258,11 @@
                         {% endblock %}
                     </sw-data-grid>
 
-                    <sw-empty-state
+                    <mt-empty-state
                         v-if="integrations.length === 0"
-                        :absolute="false"
-                        :title="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
-                        :subline="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
-                        auto-height
+                        icon="regular-user"
+                        :headline="$t('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
+                        :description="$t('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
                     />
                     {% endblock %}
                 </template>
@@ -294,6 +292,7 @@
                 >
                     {{ $t('global.default.cancel') }}
                 </mt-button>
+
                 <mt-button
                     size="small"
                     variant="critical"

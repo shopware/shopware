@@ -61,6 +61,20 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
+## Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are removed.
+
+Affected commands:
+
+| Old | New |
+| --- | --- |
+| `bin/console user:list --json` | `bin/console user:list --format json` |
+| `bin/console app:list --json` | `bin/console app:list --format json` |
+| `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
+| `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
+| `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
 </details>
 
 # API
@@ -144,6 +158,14 @@ Previously, these routes could return all customer addresses because the underly
 # Core
 
 <details>
+
+## Removed stored `mail_template_type.template_data`
+
+The deprecated `template_data` column on `mail_template_type` was removed.
+Do not read or write stored template data on mail template types anymore.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` are still supported and are not part of this removal.
 
 ## Number range value generator interface removed
 
@@ -1082,7 +1104,13 @@ Use the parent blocks instead
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
 
 ## File accessibility changed from public to private
-`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js`
+
+## Removal of component sw-settings-storefront-configuration
+`sw-settings-storefront-configuration` is removed without replacement.
+The Storefront settings Administration page owns its settings fields directly.
 
 ## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
@@ -1195,6 +1223,24 @@ The following legacy blocks are removed in Shopware 6.8:
 
 - deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 - deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+
+## Removed `sw-select-base.computePath()`
+
+The deprecated `computePath()` method on the Administration component `sw-select-base` has been removed.
+Use `Element.contains()` to check whether an event target belongs to the select root.
+
+Before:
+
+```javascript
+const path = this.computePath(event);
+const isInside = path.includes(this.$el);
+```
+
+After:
+
+```javascript
+const isInside = event.target instanceof Node && this.$el.contains(event.target);
+```
 
 # Storefront
 

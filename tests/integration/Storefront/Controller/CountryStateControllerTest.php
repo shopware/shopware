@@ -62,8 +62,7 @@ class CountryStateControllerTest extends TestCase
 
     public function testEmptyCountryId(): void
     {
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('Parameter "countryId" is missing.');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter('countryId'));
         $this->countryStateController->getCountryData(new Request([], ['countryId' => null]), $this->salesChannelContext);
     }
 

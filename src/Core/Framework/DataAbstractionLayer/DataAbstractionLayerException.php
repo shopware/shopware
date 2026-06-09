@@ -51,6 +51,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
+    public const VERSION_MERGE_SAME_VERSION = 'FRAMEWORK__VERSION_MERGE_SAME_VERSION';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
@@ -299,6 +300,16 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,
             'Merging of version {{ versionId }} is locked, as the merge is already running by another process.',
+            ['versionId' => $versionId]
+        );
+    }
+
+    public static function versionMergeSameVersion(string $versionId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::VERSION_MERGE_SAME_VERSION,
+            'Cannot merge version {{ versionId }} into itself.',
             ['versionId' => $versionId]
         );
     }

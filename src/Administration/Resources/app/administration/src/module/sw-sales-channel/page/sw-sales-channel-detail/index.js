@@ -123,6 +123,64 @@ export default {
             return this.isProductComparison || this.isAgenticCommerce;
         },
 
+        salesChannelDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const tabs = [
+                createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base'),
+            ];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.productExport.tabInsights',
+                        'sw.sales.channel.detail.productExportInsights',
+                    ),
+                );
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabProducts', 'sw.sales.channel.detail.products'));
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                        'sw.sales.channel.detail.agenticCommerceIntegration',
+                    ),
+                );
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.tabProductComparison',
+                        'sw.sales.channel.detail.productComparison',
+                    ),
+                );
+            }
+
+            if (this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabAnalytics', 'sw.sales.channel.detail.analytics'));
+            }
+
+            return tabs;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },

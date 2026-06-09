@@ -4,7 +4,11 @@ import { mount } from '@vue/test-utils';
  * @sw-package checkout
  */
 
-async function createWrapper(privileges = [], editMode = false) {
+async function createWrapper(
+    privileges = [],
+    editMode = false,
+    { featureActive = false, routeName = 'sw.customer.detail.base', routerPush = jest.fn() } = {},
+) {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
             sync: true,
@@ -32,9 +36,40 @@ async function createWrapper(privileges = [], editMode = false) {
                     'sw-field': true,
                     'sw-language-info': true,
                     'sw-tabs': {
-                        template: '<div><slot name="content"></slot></div>',
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot></slot></div>',
+                        props: [
+                            'positionIdentifier',
+                        ],
                     },
-                    'sw-tabs-item': true,
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        template: '<div class="sw-tabs-item"><slot></slot></div>',
+                        props: [
+                            'route',
+                            'title',
+                            'hasError',
+                        ],
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        template: '<div class="mt-tabs"></div>',
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                    },
                     'router-view': true,
                     'sw-customer-card': {
                         template: '<div></div>',
@@ -47,12 +82,15 @@ async function createWrapper(privileges = [], editMode = false) {
                 },
                 mocks: {
                     $route: {
-                        name: 'sw.cusomter.detail',
+                        name: routeName,
                         query: {
                             edit: editMode,
                             page: 1,
                             limit: 25,
                         },
+                    },
+                    $router: {
+                        push: routerPush,
                     },
                 },
                 provide: {
@@ -93,6 +131,9 @@ async function createWrapper(privileges = [], editMode = false) {
                         decline: jest.fn().mockResolvedValue(true),
                     },
                     customerValidationService: {},
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                 },
             },
 
@@ -112,6 +153,10 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it("should keep the customer's account type as private even when the company field is set", async () => {
@@ -230,5 +275,74 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
         expect(addressesAssociation.limit).toBe(criteria.limit);
         expect(addressesAssociation.limit).toBe(25);
+    });
+
+    it('should render the deprecated tabs when the major feature flag is inactive', async () => {
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapperWithMeteorTabs = await createWrapper([], false, {
+            featureActive: true,
+            routeName: 'sw.customer.detail.addresses',
+        });
+
+        const tabs = wrapperWithMeteorTabs.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-customer-detail-tabs');
+        expect(tabs.props('defaultItem')).toBe('sw.customer.detail.addresses');
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabGeneral',
+                name: 'sw.customer.detail.base',
+                hasError: false,
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detail.tabAddresses',
+                name: 'sw.customer.detail.addresses',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'sw-customer.detailBase.labelOrderCard',
+                name: 'sw.customer.detail.order',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapperWithMeteorTabs.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor tab item is clicked', async () => {
+        const routerPush = jest.fn();
+        const wrapperWithMeteorTabs = await createWrapper([], true, {
+            featureActive: true,
+            routerPush,
+        });
+        const tabs = wrapperWithMeteorTabs.getComponent({ name: 'mt-tabs' });
+        const addressesTab = tabs.props('items').find((item) => item.name === 'sw.customer.detail.addresses');
+
+        addressesTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.customer.detail.addresses',
+            params: { id: 'cusotmerId' },
+            query: { edit: true },
+        });
+    });
+
+    it('should pass the general tab error state to meteor tabs', async () => {
+        jest.spyOn(Shopware.Store.get('error'), 'existsErrorInProperty').mockReturnValue(true);
+
+        const wrapperWithMeteorTabs = await createWrapper([], false, {
+            featureActive: true,
+        });
+        const tabs = wrapperWithMeteorTabs.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')[0]).toEqual(
+            expect.objectContaining({
+                hasError: true,
+            }),
+        );
     });
 });

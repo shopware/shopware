@@ -110,6 +110,7 @@ export default {
             tabWaitsAttempts: 0,
             refreshVisibleSets: false,
             translatedInheritanceLoadKey: null,
+            activeCustomFieldSetTab: null,
         };
     },
 
@@ -133,6 +134,19 @@ export default {
 
         visibleCustomFieldSets() {
             return this.sortSets(this.sets);
+        },
+
+        customFieldSetTabs() {
+            return this.visibleCustomFieldSets.map((set) => {
+                return {
+                    label: this.getTabLabel(set),
+                    name: set.id,
+                };
+            });
+        },
+
+        activeCustomFieldSetTabName() {
+            return this.activeCustomFieldSetTab ?? this.visibleCustomFieldSets[0]?.id ?? '';
         },
 
         customFieldSetRepository() {
@@ -565,11 +579,26 @@ export default {
         },
 
         resetTabs() {
+            const firstVisibleCustomFieldSet = this.visibleCustomFieldSets[0];
+
+            if (!firstVisibleCustomFieldSet) {
+                return;
+            }
+
+            if (this.feature.isActive('v6.8.0.0')) {
+                if (this.variant !== 'tabs') {
+                    return;
+                }
+
+                this.setActiveCustomFieldSetTab(firstVisibleCustomFieldSet.id);
+                return;
+            }
+
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
                 // Reset state of tab component if custom field selection changes
                 this.$refs.tabComponent.mountedComponent();
                 this.$refs.tabComponent.setActiveItem({
-                    name: this.visibleCustomFieldSets[0].id,
+                    name: firstVisibleCustomFieldSet.id,
                 });
             }
         },
@@ -592,8 +621,20 @@ export default {
             return set.name;
         },
 
+        setActiveCustomFieldSetTab(setId) {
+            this.activeCustomFieldSetTab = setId;
+
+            if (!this.visibleCustomFieldSets.some((set) => set.id === setId)) {
+                return;
+            }
+
+            this.loadCustomFieldSet(setId);
+        },
+
         onChangeCustomFieldSets(value, updateFn) {
-            if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
+            if (this.feature.isActive('v6.8.0.0') && this.variant === 'tabs') {
+                this.resetTabs();
+            } else if (!this.$refs.tabComponent && (this.visibleCustomFieldSets.length > 0 || value)) {
                 // when rendered initially we wait for the tabcomponent to load so we can activate the first item
                 this.waitForTabComponent();
             } else {

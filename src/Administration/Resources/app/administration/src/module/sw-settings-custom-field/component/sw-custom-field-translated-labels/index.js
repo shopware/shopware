@@ -10,7 +10,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['acl'],
+    inject: [
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -37,6 +40,12 @@ export default {
         },
     },
 
+    data() {
+        return {
+            activeTab: null,
+        };
+    },
+
     computed: {
         fallbackLocale() {
             return this.$root.$i18n.fallbackLocale.value;
@@ -44,6 +53,19 @@ export default {
 
         localeCount() {
             return this.locales.length;
+        },
+
+        activeLocale() {
+            return this.activeTab ?? this.fallbackLocale;
+        },
+
+        translatedLabelTabs() {
+            return this.locales.map((locale) => {
+                return {
+                    label: this.$t(`locale.${locale}`),
+                    name: locale,
+                };
+            });
         },
     },
 

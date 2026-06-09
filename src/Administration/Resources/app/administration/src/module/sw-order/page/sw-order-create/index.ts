@@ -1,3 +1,4 @@
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
@@ -17,6 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [
@@ -94,6 +96,23 @@ export default Shopware.Component.wrapComponentConfig({
 
         showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
+        },
+
+        orderCreateTabs(): TabItem[] {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.create.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.create.details'),
+            ];
         },
     },
 

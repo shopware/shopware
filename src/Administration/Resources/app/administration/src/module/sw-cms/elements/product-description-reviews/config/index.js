@@ -11,7 +11,10 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: ['element-update'],
 
@@ -19,7 +22,26 @@ export default {
         Mixin.getByName('cms-element'),
     ],
 
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
+
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.options'),
+                    name: 'options',
+                },
+            ];
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },

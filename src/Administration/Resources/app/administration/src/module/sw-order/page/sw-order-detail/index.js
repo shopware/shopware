@@ -129,6 +129,35 @@ export default {
             return this.isOrderEditing && this.$route.name === 'sw.order.detail.documents';
         },
 
+        orderDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const documentsTab = createRouteTab('sw-order.detail.tabDocuments', 'sw.order.detail.documents');
+
+            if (this.isOrderEditing) {
+                documentsTab.badge = 'warning';
+            }
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.detail.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.detail.details'),
+                documentsTab,
+            ];
+        },
+
         isOrderEditing() {
             return this.orderChanges || this.hasOrderDeepEdit || this.orderAddressIds?.length > 0;
         },

@@ -65,18 +65,25 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
                 mocks: {
                     $route: {
-                        name: 'sw.product.detail.base',
+                        name: routeName,
                         params: {
                             id: productId,
                         },
                     },
+                    $router: {
+                        push: routerPush,
+                    },
                 },
                 provide: {
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
@@ -152,14 +159,43 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-product-settings-mode': await wrapTestComponent('sw-product-settings-mode', { sync: true }),
                     'sw-loader': true,
                     'sw-tabs': {
+                        name: 'sw-tabs',
+                        props: {
+                            positionIdentifier: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                        },
                         template: '<div class="sw-tabs"><slot /></div>',
                     },
                     'sw-tabs-item': {
+                        name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot /></div>',
                         props: [
                             'route',
                             'title',
+                            'hasError',
                         ],
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
                     },
                     'sw-inheritance-warning': true,
                     'router-link': true,
@@ -216,6 +252,115 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         tabItemClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
+        });
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', () => {
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor route tabs when the major feature flag is active', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
+        await flushPromises();
+
+        Shopware.Store.get('swProductDetail').product = { parentId: null };
+        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+
+        await nextTick();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const items = tabs.props('items');
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
+        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+            {
+                label: 'sw-product.detail.tabGeneral',
+                name: 'sw.product.detail.base',
+            },
+            {
+                label: 'sw-product.detail.tabSpecifications',
+                name: 'sw.product.detail.specifications',
+            },
+            {
+                label: 'sw-product.detail.tabAdvancedPrices',
+                name: 'sw.product.detail.prices',
+            },
+            {
+                label: 'sw-product.detail.tabVariation',
+                name: 'sw.product.detail.variants',
+            },
+            {
+                label: 'sw-product.detail.tabLayout',
+                name: 'sw.product.detail.layout',
+            },
+            {
+                label: 'sw-product.detail.tabSeo',
+                name: 'sw.product.detail.seo',
+            },
+            {
+                label: 'sw-product.detail.tabCrossSelling',
+                name: 'sw.product.detail.crossSelling',
+            },
+            {
+                label: 'sw-product.detail.tabReviews',
+                name: 'sw.product.detail.reviews',
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+        expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
+    });
+
+    it('should omit meteor tabs hidden for variant products', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
+        await flushPromises();
+
+        Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
+        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+
+        await nextTick();
+
+        const tabNames = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .map((item) => item.name);
+
+        expect(tabNames).toContain('sw.product.detail.prices');
+        expect(tabNames).toContain('sw.product.detail.seo');
+        expect(tabNames).not.toContain('sw.product.detail.variants');
+        expect(tabNames).not.toContain('sw.product.detail.layout');
+    });
+
+    it('should navigate when a meteor route tab is selected', async () => {
+        const routerPush = jest.fn();
+
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, undefined, '1234', {
+            featureActive: true,
+            routerPush,
+        });
+        await flushPromises();
+
+        Shopware.Store.get('swProductDetail').product = { parentId: null };
+        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+
+        await nextTick();
+
+        const pricesTab = wrapper
+            .getComponent({ name: 'mt-tabs' })
+            .props('items')
+            .find((item) => item.name === 'sw.product.detail.prices');
+
+        pricesTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.product.detail.prices',
+            params: { id: '1234' },
         });
     });
 

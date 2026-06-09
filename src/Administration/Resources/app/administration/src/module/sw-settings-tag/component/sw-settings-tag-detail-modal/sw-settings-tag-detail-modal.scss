@@ -21,4 +21,15 @@
             display: grid;
         }
     }
+
+    &__tabs {
+        display: grid;
+        height: 100%;
+        grid-template-rows: auto 1fr;
+        padding-bottom: 0;
+    }
+
+    &__tabs-content {
+        display: grid;
+    }
 }

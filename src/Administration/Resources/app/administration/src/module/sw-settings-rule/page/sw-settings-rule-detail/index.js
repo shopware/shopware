@@ -9,10 +9,12 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @private
  * @sw-package fundamentals@after-sales
  */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: [
+        'feature',
         'ruleConditionDataProviderService',
         'ruleConditionsConfigApiService',
         'repositoryFactory',
@@ -125,6 +127,19 @@ export default {
                     cssClassSuffix: 'assignments',
                 },
             ];
+        },
+
+        ruleDetailTabs() {
+            return this.tabItems.map((tab) => {
+                return {
+                    label: tab.title,
+                    name: tab.route.name,
+                    hasError: this.tabHasError(tab),
+                    onClick: () => {
+                        void this.$router.push(tab.route);
+                    },
+                };
+            });
         },
 
         conditionTreeFlat() {

@@ -26,6 +26,10 @@ import './sw-meteor-card.scss';
 export default {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     props: {
         title: {
             type: String,
@@ -78,6 +82,10 @@ export default {
             return !!this.$slots.default;
         },
 
+        tabItems() {
+            return this.getTabItemsFromSlot();
+        },
+
         hasHeader() {
             return this.hasToolbar || this.hasTabs || !!this.title || !!this.$slots.action;
         },
@@ -108,6 +116,122 @@ export default {
 
         setActiveTab(name) {
             this.activeTab = name;
+        },
+
+        getTabItemsFromSlot() {
+            const slotContent = this.$slots.tabs?.({
+                activeTab: this.activeTab,
+            });
+
+            if (!slotContent) {
+                return [];
+            }
+
+            return this.getTabItemsFromSlotContent(slotContent);
+        },
+
+        getTabItemsFromSlotContent(slotContent) {
+            return slotContent.reduce((items, item) => {
+                if (this.isFragment(item)) {
+                    const children = Array.isArray(item.children) ? item.children : [];
+
+                    return [
+                        ...items,
+                        ...this.getTabItemsFromSlotContent(children),
+                    ];
+                }
+
+                if (!this.isTabItem(item)) {
+                    return items;
+                }
+
+                return [
+                    ...items,
+                    this.createTabItem(item),
+                ];
+            }, []);
+        },
+
+        createTabItem(item) {
+            const props = item.props ?? {};
+            const label = props.title ?? this.getTabItemDefaultSlotText(item) ?? props.name ?? '';
+            const tabItem = {
+                label,
+                name: props.name ?? props.title ?? label,
+            };
+
+            if (props.hasError !== undefined) {
+                tabItem.hasError = props.hasError;
+            }
+
+            if (props.disabled !== undefined) {
+                tabItem.disabled = props.disabled;
+            }
+
+            if (props.hasWarning) {
+                tabItem.badge = 'warning';
+            }
+
+            if (props.route || props.onClick) {
+                tabItem.onClick = () => {
+                    if (props.route) {
+                        this.$router.push(props.route);
+                    }
+
+                    this.triggerTabItemClick(props.onClick);
+                };
+            }
+
+            return tabItem;
+        },
+
+        triggerTabItemClick(clickHandler) {
+            if (Array.isArray(clickHandler)) {
+                clickHandler.forEach((handler) => {
+                    handler();
+                });
+
+                return;
+            }
+
+            if (typeof clickHandler === 'function') {
+                clickHandler();
+            }
+        },
+
+        getTabItemDefaultSlotText(item) {
+            const defaultSlotContent = item.children?.default?.();
+
+            if (!defaultSlotContent) {
+                return undefined;
+            }
+
+            const slotText = defaultSlotContent
+                .map((slotItem) => this.getTextFromSlotItem(slotItem))
+                .join('')
+                .trim();
+
+            return slotText || undefined;
+        },
+
+        getTextFromSlotItem(slotItem) {
+            if (typeof slotItem.children === 'string') {
+                return slotItem.children;
+            }
+
+            if (Array.isArray(slotItem.children)) {
+                return slotItem.children.map((child) => this.getTextFromSlotItem(child)).join('');
+            }
+
+            return '';
+        },
+
+        isTabItem(item) {
+            return item.type?.name === 'sw-tabs-item';
+        },
+
+        isFragment(item) {
+            return item.type?.toString() === 'Symbol(v-fgt)';
         },
     },
 };

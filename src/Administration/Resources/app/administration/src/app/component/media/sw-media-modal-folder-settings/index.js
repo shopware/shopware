@@ -12,7 +12,10 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'feature',
+        'repositoryFactory',
+    ],
 
     emits: [
         'media-settings-modal-save',
@@ -45,6 +48,7 @@ export default {
             mediaFolderConfigurationThumbnailSizeRepository: null,
             originalConfiguration: null,
             mediaFolder: null,
+            activeTab: 'settings',
         };
     },
 
@@ -82,6 +86,20 @@ export default {
 
         thumbnailSizeFilter() {
             return Shopware.Filter.getByName('thumbnailSize');
+        },
+
+        tabs() {
+            return [
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelSettings'),
+                    name: 'settings',
+                    hasError: !!this.mediaFolderNameError,
+                },
+                {
+                    label: this.$t('global.sw-media-modal-folder-settings.labelThumbnails'),
+                    name: 'thumbnails',
+                },
+            ];
         },
 
         ...mapPropertyErrors('mediaFolder', ['name']),
@@ -198,7 +216,9 @@ export default {
         },
 
         onActiveTabChanged(activeTab) {
-            if (activeTab === 'settings') {
+            this.activeTab = activeTab;
+
+            if (this.activeTab === 'settings') {
                 this.modalClass = 'sw-media-modal-folder-settings--shows-overflow';
                 return;
             }

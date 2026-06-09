@@ -101,6 +101,28 @@ export default {
             );
         },
 
+        activePageTypeTab() {
+            return this.currentPageType || 'all-pages';
+        },
+
+        cmsListPageTypeTabs() {
+            return this.sortPageTypes.map((pageType) => {
+                const tab = {
+                    label: pageType.name,
+                    name: pageType.value || 'all-pages',
+                    onClick: () => {
+                        this.onSortPageType(pageType.value);
+                    },
+                };
+
+                if (pageType.disabled) {
+                    tab.disabled = pageType.disabled;
+                }
+
+                return tab;
+            });
+        },
+
         listCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.getAssociation('categories').addSorting(Criteria.sort('name', 'ASC')).setLimit(this.associationLimit);

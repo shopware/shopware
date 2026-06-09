@@ -1,3 +1,4 @@
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type {
     AdminTabsDefinition,
     CustomEntityDefinition,
@@ -16,6 +17,7 @@ type GenericCustomEntityDetailData = {
     isSaveSuccessful: boolean;
     customEntityData: Entity<'generic_custom_entity'> | null;
     customEntityDataInstances?: EntityCollection<'generic_custom_entity'>;
+    activeTab: string | null;
 };
 
 /**
@@ -29,6 +31,7 @@ export default Shopware.Component.wrapComponentConfig({
         'customEntityDefinitionService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -42,6 +45,7 @@ export default Shopware.Component.wrapComponentConfig({
             isSaveSuccessful: false,
             customEntityData: null,
             customEntityDataInstances: undefined,
+            activeTab: null,
         };
     },
 
@@ -84,6 +88,38 @@ export default Shopware.Component.wrapComponentConfig({
 
         detailTabs(): AdminTabsDefinition[] {
             return this.customEntityDataDefinition?.flags['admin-ui']?.detail?.tabs ?? [];
+        },
+
+        detailTabItems(): TabItem[] {
+            const detailTabItems = this.detailTabs.map((tab) => {
+                return {
+                    label: this.getLabel('tabs', tab.name),
+                    name: tab.name,
+                };
+            });
+
+            if (this.customEntityDataDefinition?.flags?.['cms-aware']) {
+                detailTabItems.push(
+                    {
+                        label: this.$t('sw-custom-entity.detail.tabs.layout'),
+                        name: 'cms-aware-tab-layout',
+                    },
+                    {
+                        label: this.$t('sw-custom-entity.detail.tabs.seo'),
+                        name: 'cms-aware-tab-seo',
+                    },
+                );
+            }
+
+            return detailTabItems;
+        },
+
+        activeTabName(): string {
+            if (this.activeTab && this.detailTabItems.some((tab) => tab.name === this.activeTab)) {
+                return this.activeTab;
+            }
+
+            return this.detailTabItems[0]?.name ?? '';
         },
 
         mainTabName(): string | undefined {

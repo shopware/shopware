@@ -25,13 +25,31 @@ const defaultSalesChannelResponse = {
 };
 
 async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
+    const hasOptionsShape =
+        typeof optionsOrLegacyArg === 'object' &&
+        optionsOrLegacyArg !== null &&
+        !Array.isArray(optionsOrLegacyArg) &&
+        [
+            'routeParams',
+            'salesChannelResponse',
+            'featureActive',
+            'routeName',
+            'routerPush',
+        ].some((key) => Object.hasOwn(optionsOrLegacyArg, key));
+
     const normalizedOptions = Array.isArray(optionsOrLegacyArg)
         ? { routeParams: { id: '1a2b3c4d' } }
-        : optionsOrLegacyArg.routeParams || optionsOrLegacyArg.salesChannelResponse
+        : hasOptionsShape
           ? optionsOrLegacyArg
           : { routeParams: optionsOrLegacyArg };
 
-    const { routeParams = { id: '1a2b3c4d' }, salesChannelResponse = {} } = normalizedOptions;
+    const {
+        routeParams = { id: '1a2b3c4d' },
+        salesChannelResponse = {},
+        featureActive = false,
+        routeName = '',
+        routerPush = jest.fn(),
+    } = normalizedOptions;
 
     mockGet.mockResolvedValue({
         ...defaultSalesChannelResponse,
@@ -64,15 +82,39 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                 },
                 'sw-language-info': true,
                 'sw-tabs': {
+                    name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
+                    props: [
+                        'positionIdentifier',
+                    ],
                 },
                 'sw-tabs-item': {
+                    name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
                     props: [
                         'route',
                         'title',
                         'disabled',
                     ],
+                },
+                'mt-tabs': {
+                    name: 'mt-tabs',
+                    template: '<div class="mt-tabs"></div>',
+                    props: {
+                        defaultItem: {
+                            type: String,
+                            required: false,
+                            default: undefined,
+                        },
+                        items: {
+                            type: Array,
+                            required: true,
+                        },
+                        positionIdentifier: {
+                            type: String,
+                            required: true,
+                        },
+                    },
                 },
                 'router-view': true,
                 'sw-skeleton': true,
@@ -95,11 +137,17 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
                     getValues: mockGetSystemConfigValues,
                     batchSave: () => Promise.resolve(),
                 },
+                feature: {
+                    isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                },
             },
             mocks: {
                 $route: {
                     params: routeParams,
-                    name: '',
+                    name: routeName,
+                },
+                $router: {
+                    push: routerPush,
                 },
             },
         },
@@ -108,6 +156,7 @@ async function createWrapper(optionsOrLegacyArg = { id: '1a2b3c4d' }) {
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
     beforeEach(() => {
+        global.activeFeatureFlags = [];
         global.activeAclRoles = [];
         mockSave.mockClear();
         mockGet.mockClear();
@@ -212,6 +261,109 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
         expect(typeof provide.swSalesChannelDetailGetAgenticCommerceExportConfig).toBe('function');
         expect(provide.swSalesChannelDetailGetAgenticCommerceExportConfig()).toEqual(wrapper.vm.agenticCommerceExportConfig);
+    });
+
+    it('should render the fallback tabs branch while the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs for storefront channels when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({
+            featureActive: true,
+            routeName: 'sw.sales.channel.detail.products',
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.storefrontSalesChannelTypeId,
+            },
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.products');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-sales-channel.detail.tabBase',
+                name: 'sw.sales.channel.detail.base',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.tabProducts',
+                name: 'sw.sales.channel.detail.products',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.tabAnalytics',
+                name: 'sw.sales.channel.detail.analytics',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs for agentic commerce channels when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({
+            featureActive: true,
+            routeName: 'sw.sales.channel.detail.productExportInsights',
+            salesChannelResponse: {
+                typeId: Shopware.Defaults.agenticCommerceTypeId,
+            },
+        });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-sales-channel-detail');
+        expect(tabs.props('defaultItem')).toBe('sw.sales.channel.detail.productExportInsights');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-sales-channel.detail.tabBase',
+                name: 'sw.sales.channel.detail.base',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.productExport.tabInsights',
+                name: 'sw.sales.channel.detail.productExportInsights',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                name: 'sw.sales.channel.detail.agenticCommerceIntegration',
+                onClick: expect.any(Function),
+            },
+            {
+                label: 'sw-sales-channel.detail.tabProductComparison',
+                name: 'sw.sales.channel.detail.productComparison',
+                onClick: expect.any(Function),
+            },
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should navigate when a meteor route tab is clicked', async () => {
+        const routerPush = jest.fn();
+        const wrapper = await createWrapper({
+            featureActive: true,
+            routerPush,
+        });
+        await flushPromises();
+
+        const productsTab = wrapper.vm.salesChannelDetailTabs.find((tab) => {
+            return tab.name === 'sw.sales.channel.detail.products';
+        });
+
+        productsTab.onClick();
+
+        expect(routerPush).toHaveBeenCalledWith({
+            name: 'sw.sales.channel.detail.products',
+            params: { id: '1a2b3c4d' },
+        });
     });
 
     it('should load agentic commerce export config in create flow when route has typeId but no id', async () => {

@@ -32,6 +32,10 @@
         font-size: var(--font-size-xs);
     }
 
+    &__searchable-content-tab-content {
+        padding: var(--scale-size-20) 0;
+    }
+
     &__searchable-content.mt-card {
         .mt-card__content {
             padding: var(--scale-size-30) 0;
@@ -39,6 +43,7 @@
 
         .sw-settings-search__searchable-content-title,
         .sw-container.sw-field,
+        .sw-settings-search__searchable-content-tabs.mt-tabs,
         .sw-tabs.sw-tabs--small {
             padding: 0 var(--scale-size-30);
         }

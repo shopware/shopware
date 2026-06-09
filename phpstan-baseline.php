@@ -260,6 +260,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/src/Core/DevOps/Environment/EnvironmentHelper.php',
 ];
 $ignoreErrors[] = [
+    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
+    'identifier' => 'empty.notAllowed',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/Framework/Adapter/Twig/Extension/ComparisonExtension.php',
+];
+$ignoreErrors[] = [
     'rawMessage' => 'Method Shopware\\Core\\Framework\\Api\\Acl\\Event\\AclGetAdditionalPrivilegesEvent::__construct() has parameter $privileges with no value type specified in iterable type array.',
     'identifier' => 'missingType.iterableValue',
     'count' => 1,
@@ -324,6 +330,12 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 7,
     'path' => __DIR__ . '/src/Core/Framework/Api/Serializer/JsonApiDecoder.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
+    'identifier' => 'empty.notAllowed',
+    'count' => 2,
+    'path' => __DIR__ . '/src/Core/Framework/Api/Serializer/JsonApiEncodingResult.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
@@ -1092,6 +1104,24 @@ $ignoreErrors[] = [
     'identifier' => 'shopware.domainException',
     'count' => 3,
     'path' => __DIR__ . '/src/Core/System/SystemConfig/Facade/SystemConfigFacade.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
+    'identifier' => 'empty.notAllowed',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/SystemConfig/SymfonySystemConfigService.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
+    'identifier' => 'empty.notAllowed',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/SystemConfig/SystemConfigLoader.php',
+];
+$ignoreErrors[] = [
+    'rawMessage' => 'Construct empty() is not allowed. Use more strict comparison.',
+    'identifier' => 'empty.notAllowed',
+    'count' => 1,
+    'path' => __DIR__ . '/src/Core/System/SystemConfig/SystemConfigService.php',
 ];
 $ignoreErrors[] = [
     'rawMessage' => 'Expected domain exception class Shopware\\Core\\System\\User\\UserException, got Shopware\\Core\\Framework\\Routing\\RoutingException',

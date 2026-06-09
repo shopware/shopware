@@ -101,8 +101,7 @@ class ServiceClientTest extends TestCase
 
     public function testLatestInfoThrowsExceptionWhenTransportErrorOccurs(): void
     {
-        static::expectException(ServiceException::class);
-        static::expectExceptionMessage('Error performing request. Error: host unreachable');
+        $this->expectExceptionObject(ServiceException::requestTransportError(new \Exception('host unreachable')));
 
         $httpClient = new MockHttpClient([
             new MockResponse('', ['error' => 'host unreachable']),

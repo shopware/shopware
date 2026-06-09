@@ -69,7 +69,17 @@ class SearchFieldConfig
             return 0;
         }
 
-        // Let AUTO:3,8 handle length thresholds (0 for ≤3, 1 for 4–8, 2 for ≥9)
-        return 'AUTO:3,8';
+        // Let AUTO:5,10 handle length thresholds (0 for <5, 1 for 5–9, 2 for ≥10)
+        return 'AUTO:5,10';
+    }
+
+    /**
+     * Lock a longer exact prefix on longer tokens so fuzzy expansion stays proportional:
+     * short tokens already allow few edits (AUTO:5,10) so lock 2 chars; long tokens carry
+     * more signal and can afford a 3-char lock without losing useful matches.
+     */
+    public function getPrefixLength(string $token): int
+    {
+        return mb_strlen($token) >= 10 ? 3 : 2;
     }
 }

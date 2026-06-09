@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
@@ -79,7 +81,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpAllowlistProvider::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service('request_stack'),
             param('shopware.mcp.tool_dependencies'),
         ]);
@@ -111,7 +113,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpPrivilegeProvider::class)
-        ->args([service('Doctrine\DBAL\Connection'), service('logger')])
+        ->args([service(Connection::class), service('logger')])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(McpCapabilityCatalog::class)
@@ -150,7 +152,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('console.command');
 
     $services->set(ToolResultCacheStorage::class)
-        ->args([service('Doctrine\DBAL\Connection')]);
+        ->args([service(Connection::class), service(ClockInterface::class)]);
 
     $services->set(McpSessionCleanupSubscriber::class)
         ->args([service(ToolResultCacheStorage::class)])
@@ -202,7 +204,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -210,7 +212,7 @@ return static function (ContainerConfigurator $container): void {
         ->args([
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -226,7 +228,7 @@ return static function (ContainerConfigurator $container): void {
             service(DefinitionInstanceRegistry::class),
             service(McpContextProvider::class),
             service(StateMachineRegistry::class),
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
         ])
         ->tag('mcp.tool');
 
@@ -279,7 +281,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(ExtensionsResource::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service('kernel'),
         ])
         ->tag('mcp.resource');
@@ -304,16 +306,16 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpToolLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
-            param('shopware.mcp.allowed_tools'),
             service('logger'),
+            param('shopware.mcp.allowed_tools'),
         ])
         ->tag('mcp.loader');
 
     $services->set(AppMcpPromptLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
             service('logger'),
         ])
@@ -322,7 +324,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
-            service('Doctrine\DBAL\Connection'),
+            service(Connection::class),
             service(AppMcpCapabilityExecutor::class),
             service('logger'),
         ])

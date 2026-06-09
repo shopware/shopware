@@ -38,6 +38,7 @@ use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -405,6 +406,7 @@ XML,
             $this->configReader,
             $this->createMock(DeletedAppsGateway::class),
             $this->requirementsValidator,
+            new NativeClock()
         );
     }
 

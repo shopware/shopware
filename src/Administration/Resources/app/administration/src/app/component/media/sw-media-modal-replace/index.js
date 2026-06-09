@@ -58,6 +58,10 @@ export default {
         onNewUpload({ data }) {
             this.isUploadDataSet = true;
 
+            // overwrite file name randomly to avoid conflicts on upload before renaming
+            // e.g. you want to replace image.png with shopware.png but shopware.png already exists
+            data[0].fileName = Shopware.Utils.createId();
+
             const newFileExtension = data[0].extension;
             const oldFileExtension = this.itemToReplace.fileExtension;
 

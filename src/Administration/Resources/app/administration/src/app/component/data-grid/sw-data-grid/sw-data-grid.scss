@@ -1,5 +1,13 @@
 @import "~scss/mixins";
 
+/*
+  Match the surrounding mt-card radius so the grid's square corners
+  don't leave a cutoff triangle of card background.
+ */
+.mt-card .sw-data-grid {
+    border-radius: var(--border-radius-card);
+}
+
 .sw-data-grid {
     overflow: hidden;
     background-color: var(--color-elevation-surface-default);

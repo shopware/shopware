@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -112,6 +113,30 @@ class AppListCommandTest extends TestCase
         static::assertStringContainsString('Filtering for: ' . $filterValue, trim($commandTester->getDisplay()));
     }
 
+    public function testFormatJsonOutput(): void
+    {
+        $entities = [
+            $app1 = new AppEntity(),
+            $app2 = new AppEntity(),
+        ];
+
+        $app1->setUniqueIdentifier('1');
+        $app2->setUniqueIdentifier('2');
+
+        $this->setupEntityCollection($entities);
+
+        $options = ['--format' => 'json'];
+        $json = json_encode([$app1->jsonSerialize(), $app2->jsonSerialize()], \JSON_THROW_ON_ERROR);
+
+        $commandTester = $this->executeCommand($options);
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame($json, trim($commandTester->getDisplay()));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with `--json` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testJsonOutput(): void
     {
         $entities = [
@@ -130,6 +155,15 @@ class AppListCommandTest extends TestCase
         $commandTester = $this->executeCommand($options);
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertSame($json, trim($commandTester->getDisplay()));
+    }
+
+    public function testInvalidFormatReturnsError(): void
+    {
+        $this->setupEntityCollection([]);
+
+        $commandTester = $this->executeCommand(['--format' => 'xml']);
+        static::assertSame(2, $commandTester->getStatusCode());
+        static::assertStringContainsString('Invalid format "xml"', $commandTester->getDisplay());
     }
 
     /**

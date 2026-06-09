@@ -1,13 +1,5 @@
 # 6.7.12.0 (upcoming)
 
-## Critical Fixes
-
-### Admin worker requests no longer block same-session API requests
-
-The sales-channel tracking listener no longer initializes a lazy PHP session for unrelated entity writes.
-Previously, an Administration message-queue consume request could handle a scheduled task, trigger a `scheduled_task` entity write, and initialize the current session while the admin worker request kept long-polling.
-With locking session handlers such as native file sessions, this held the session file lock and caused concurrent Admin API requests from the same browser session, for example sync requests, to wait until the consume request returned.
-
 ## Storefront
 
 ### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
@@ -283,6 +275,14 @@ Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues
 Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
 When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
 See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
+
+## Critical Fixes
+
+### Admin worker no longer blocks same-session API requests on PHP session locks
+
+Fixed a session-locking issue that could slow down concurrent Administration requests when the browser-based admin worker is used together with native PHP file session storage.
+In that setup, an admin queue worker request could initialize the current PHP session while consuming messages and keep the session file locked until the long-poll request returned.
+Concurrent Admin API requests from the same browser session, for example sync or save requests, no longer wait for that admin worker session lock.
 
 # 6.7.11.0
 

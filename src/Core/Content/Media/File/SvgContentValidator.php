@@ -7,9 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('discovery')]
-class SvgContentValidator extends AbstractFileContentValidator
+class SvgContentValidator extends AbstractFileContentValidator implements ResetInterface
 {
     private const SVG = 'svg';
     private const STYLE = 'style';
@@ -42,7 +43,7 @@ class SvgContentValidator extends AbstractFileContentValidator
      */
     private readonly array $allowedReferenceAttributes;
 
-    private readonly ConstraintViolationList $violations;
+    private ConstraintViolationList $violations;
 
     /**
      * @internal
@@ -74,12 +75,10 @@ class SvgContentValidator extends AbstractFileContentValidator
 
     public function validate(MediaFile $mediaFile): void
     {
+        $this->reset();
+
         if ($this->supports($mediaFile) === false) {
             return;
-        }
-
-        while ($this->violations->count() > 0) {
-            $this->violations->offsetUnset(0);
         }
 
         $previousErrorHandling = $this->captureLibxmlErrors();
@@ -103,6 +102,11 @@ class SvgContentValidator extends AbstractFileContentValidator
         } finally {
             $this->restoreLibxmlErrorHandling($previousErrorHandling);
         }
+    }
+
+    public function reset(): void
+    {
+        $this->violations = new ConstraintViolationList();
     }
 
     private function validateDocument(\XMLReader $reader): void

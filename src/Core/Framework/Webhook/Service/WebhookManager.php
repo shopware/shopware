@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
+use Shopware\Core\Framework\Webhook\HookableAuthorizer;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
@@ -48,6 +49,9 @@ class WebhookManager implements ResetInterface
      */
     private array $privileges = [];
 
+    /**
+     * @param iterable<HookableAuthorizer> $hookableAuthorizers
+     */
     public function __construct(
         private readonly WebhookLoader $webhookLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -61,6 +65,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly iterable $hookableAuthorizers,
     ) {
     }
 
@@ -336,6 +341,12 @@ class WebhookManager implements ResetInterface
         }
 
         $privileges = $this->privileges[$event->getName()][$webhook->appAclRoleId] ?? new AclPrivilegeCollection([]);
+
+        foreach ($this->hookableAuthorizers as $authorizer) {
+            if ($authorizer->supports($event)) {
+                return $authorizer->isAllowed($event, $webhook->appId, $privileges);
+            }
+        }
 
         return $event->isAllowed($webhook->appId, $privileges);
     }

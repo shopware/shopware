@@ -4,7 +4,7 @@ namespace Shopware\Core\Service\Requirement;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Consent\Definition\ServiceConsent;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\System\Consent\Service\ConsentService;
 
 /**

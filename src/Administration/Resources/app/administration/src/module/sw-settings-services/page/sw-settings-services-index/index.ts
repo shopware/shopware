@@ -1,7 +1,7 @@
 import { mapState } from 'pinia';
 import useSession from 'src/app/composables/use-session';
-import useConsentStore from 'src/core/consent/consent.store';
-import { useShopwareServicesStore } from '../../store/shopware-services.store';
+import useConsentStore, { type ConsentDTO } from 'src/core/consent/consent.store';
+import { useShopwareServicesStore, SERVICE_CONSENT_NAME } from '../../store/shopware-services.store';
 import template from './sw-settings-services-index.html.twig';
 import './sw-settings-services-index.scss';
 import type { ServiceDescription } from '../../service/shopware-services.service';
@@ -56,9 +56,21 @@ export default Shopware.Component.wrapComponentConfig({
         ...mapState(useShopwareServicesStore, [
             'config',
             'currentRevision',
-            'consentGiven',
-            'serviceConsent',
         ]),
+
+        serviceConsent(): ConsentDTO | null {
+            return useConsentStore().consents[SERVICE_CONSENT_NAME] ?? null;
+        },
+
+        consentGiven(): boolean {
+            const consentStore = useConsentStore();
+
+            if (!consentStore.consents[SERVICE_CONSENT_NAME]) {
+                return false;
+            }
+
+            return consentStore.isAccepted(SERVICE_CONSENT_NAME);
+        },
     },
 
     created() {

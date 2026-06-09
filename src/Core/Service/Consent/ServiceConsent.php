@@ -1,12 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Consent\Definition;
+namespace Shopware\Core\Service\Consent;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ServiceConsentRevisionProvider;
 use Shopware\Core\System\Consent\ConsentDefinition;
 use Shopware\Core\System\Consent\ConsentScope;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class ServiceConsent implements ConsentDefinition
 {

@@ -115,44 +115,6 @@ class Client implements ResetInterface
         $this->services = null;
     }
 
-    public function saveConsent(SaveConsentRequest $saveConsentRequest): void
-    {
-        try {
-            $response = $this->client->request('POST', \sprintf('%s/api/consent/', $this->registryUrl), [
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                ],
-                'body' => json_encode($saveConsentRequest),
-            ]);
-
-            if ($response->getStatusCode() !== Response::HTTP_ACCEPTED) {
-                throw ServiceException::consentSaveFailed('Unexpected response status code: ' . $response->getStatusCode());
-            }
-        } catch (ExceptionInterface $e) {
-            throw ServiceException::consentSaveFailed($e->getMessage());
-        }
-    }
-
-    public function revokeConsent(RevokeConsentRequest $revokeConsentRequest): void
-    {
-        try {
-            $response = $this->client->request('POST', \sprintf('%s/api/consent/revoke/', $this->registryUrl), [
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                ],
-                'body' => json_encode($revokeConsentRequest),
-            ]);
-
-            if ($response->getStatusCode() !== Response::HTTP_ACCEPTED) {
-                throw ServiceException::consentRevokeFailed('Unexpected response status code: ' . $response->getStatusCode());
-            }
-        } catch (ExceptionInterface $e) {
-            throw ServiceException::consentRevokeFailed($e->getMessage());
-        }
-    }
-
     /**
      * @return array{
      *     latest-revision: string,

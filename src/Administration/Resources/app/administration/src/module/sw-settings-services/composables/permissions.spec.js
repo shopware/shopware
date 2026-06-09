@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import * as permissions from './permissions';
-import { SERVICE_CONSENT_NAME, useShopwareServicesStore } from '../store/shopware-services.store';
+import { SERVICE_CONSENT_NAME } from '../store/shopware-services.store';
 import useConsentStore from 'src/core/consent/consent.store';
 
 describe('src/module/sw-settings-services/composables/permissions', () => {
@@ -40,7 +40,6 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
     beforeEach(() => {
         reloadMock.mockClear();
         setActivePinia(createPinia());
-        useShopwareServicesStore();
         const consentStore = useConsentStore();
         consentStore.consents = {
             [SERVICE_CONSENT_NAME]: {
@@ -57,26 +56,18 @@ describe('src/module/sw-settings-services/composables/permissions', () => {
     });
 
     it('calls shopware service and reloads', async () => {
-        const shopwareServicesStore = useShopwareServicesStore();
-
-        shopwareServicesStore.revisions = {
-            'latest-revision': '2025-06-25',
-            'available-revisions': [
-                {
-                    revision: '2025-06-25',
-                    links: {},
-                },
-            ],
-        };
-
         await permissions.grantPermissions();
 
+        // latest revision is taken from the consent itself (set in beforeEach), not a separate fetch
         expect(Shopware.Service('consentApiService').accept).toHaveBeenCalledWith(SERVICE_CONSENT_NAME, '2025-06-25');
         expect(reloadMock).toHaveBeenCalled();
     });
 
-    it('throws exception if there is no current revision', async () => {
-        await expect(() => permissions.grantPermissions()).rejects.toThrow(new Error('No revision available'));
+    it('throws if the service consent is not loaded', async () => {
+        useConsentStore().consents = {};
+
+        await expect(() => permissions.grantPermissions()).rejects.toThrow(/not found in store/);
+        expect(reloadMock).not.toHaveBeenCalled();
     });
 
     it('calls shopware service to revoke permissions and reloads', async () => {

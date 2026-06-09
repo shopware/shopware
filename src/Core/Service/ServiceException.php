@@ -218,24 +218,6 @@ class ServiceException extends HttpException
         );
     }
 
-    public static function consentSaveFailed(string $getMessage): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_REQUEST_FAILED,
-            'Could not save consent: ' . $getMessage
-        );
-    }
-
-    public static function consentRevokeFailed(string $getMessage): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_REQUEST_FAILED,
-            'Could not revoke consent: ' . $getMessage
-        );
-    }
-
     public static function invalidPermissionsContext(): self
     {
         return new self(

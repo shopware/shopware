@@ -37,6 +37,16 @@
             <argument type="service" id="cache.app"/>
         </service>
 
+        <service id="Shopware\Core\Service\Consent\ServiceConsent">
+            <argument type="service" id="Shopware\Core\Service\ServiceConsentRevisionProvider"/>
+            <tag name="shopware.consent.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Consent\ServiceConsentAuthorizer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.webhook.authorizer"/>
+        </service>
+
         <service id="Shopware\Core\Service\ServiceLifecycle">
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\ServiceClientFactory"/>
@@ -186,14 +196,6 @@
 
         <service id="Shopware\Core\Service\Notification">
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
-        </service>
-
-        <service id="Shopware\Core\Service\Subscriber\ServiceConsentReporter">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="logger"/>
-            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

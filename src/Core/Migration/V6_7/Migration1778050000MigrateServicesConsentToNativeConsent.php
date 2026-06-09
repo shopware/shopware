@@ -7,13 +7,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Consent\Definition\ServiceConsent;
 use Shopware\Core\System\Consent\ConsentScope\System;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class Migration1778050000MigrateServicesConsentToNativeConsent extends MigrationStep
 {
     private const LEGACY_CONFIG_KEY = 'core.services.permissionsConsent';
+
+    private const SERVICE_CONSENT_NAME = 'service_consent';
 
     public function getCreationTimestamp(): int
     {
@@ -33,7 +37,7 @@ class Migration1778050000MigrateServicesConsentToNativeConsent extends Migration
 
         $existingState = $connection->fetchOne(
             'SELECT 1 FROM consent_state WHERE name = :name AND identifier = :identifier LIMIT 1',
-            ['name' => ServiceConsent::NAME, 'identifier' => System::NAME]
+            ['name' => self::SERVICE_CONSENT_NAME, 'identifier' => System::NAME]
         );
 
         if ($existingState === false) {
@@ -58,7 +62,7 @@ class Migration1778050000MigrateServicesConsentToNativeConsent extends Migration
                 if ($grantedAt !== null) {
                     $connection->insert('consent_state', [
                         'id' => Uuid::randomBytes(),
-                        'name' => ServiceConsent::NAME,
+                        'name' => self::SERVICE_CONSENT_NAME,
                         'identifier' => System::NAME,
                         'state' => 'accepted',
                         'actor' => (string) $decoded[ConfigJsonField::STORAGE_KEY]['consentingUserId'],

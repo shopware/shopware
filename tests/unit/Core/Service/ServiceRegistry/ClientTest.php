@@ -7,8 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistry\RevokeConsentRequest;
-use Shopware\Core\Service\ServiceRegistry\SaveConsentRequest;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -217,119 +215,6 @@ class ClientTest extends TestCase
         $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
 
         static::assertSame([], $registryClient->getAll());
-    }
-
-    public function testSaveConsentSuccess(): void
-    {
-        $client = new MockHttpClient([
-            $response = new MockResponse('', ['http_code' => Response::HTTP_ACCEPTED]), // Changed from 200 to 202 (HTTP_ACCEPTED)
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $saveConsentRequest = new SaveConsentRequest(
-            'service_consent',
-            'user-456',
-            'shop-789',
-            '2023-07-01T10:00:00Z',
-            'v1.0',
-            'https://license.example.com'
-        );
-
-        $registryClient->saveConsent($saveConsentRequest);
-
-        static::assertSame('https://example.com/api/consent/', $response->getRequestUrl());
-        static::assertSame('POST', $response->getRequestMethod());
-    }
-
-    public function testSaveConsentThrowsExceptionOnFailure(): void
-    {
-        $client = new MockHttpClient([
-            new MockResponse('', ['http_code' => Response::HTTP_INTERNAL_SERVER_ERROR]),
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $saveConsentRequest = new SaveConsentRequest(
-            'service_consent',
-            'user-456',
-            'shop-789',
-            '2023-07-01T10:00:00Z',
-            'v1.0'
-        );
-
-        $this->expectException(ServiceException::class);
-        $registryClient->saveConsent($saveConsentRequest);
-    }
-
-    public function testSaveConsentThrowsExceptionOnNonAcceptedStatusCode(): void
-    {
-        $client = new MockHttpClient([
-            new MockResponse('', ['http_code' => Response::HTTP_OK]), // 200 is not HTTP_ACCEPTED (202)
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $saveConsentRequest = new SaveConsentRequest(
-            'service_consent',
-            'user-456',
-            'shop-789',
-            '2023-07-01T10:00:00Z',
-            'v1.0'
-        );
-
-        $this->expectExceptionObject(ServiceException::consentSaveFailed('Unexpected response status code: 200'));
-        $registryClient->saveConsent($saveConsentRequest);
-    }
-
-    public function testRevokeConsentSuccess(): void
-    {
-        $client = new MockHttpClient([
-            $response = new MockResponse('', ['http_code' => Response::HTTP_ACCEPTED]), // Changed from 200 to 202 (HTTP_ACCEPTED)
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $registryClient->revokeConsent(new RevokeConsentRequest(
-            'service_consent',
-            'shop-789',
-            'https://license.example.com'
-        ));
-
-        static::assertSame('https://example.com/api/consent/revoke/', $response->getRequestUrl());
-        static::assertSame('POST', $response->getRequestMethod());
-    }
-
-    public function testRevokeConsentThrowsExceptionOnFailure(): void
-    {
-        $client = new MockHttpClient([
-            new MockResponse('', ['http_code' => Response::HTTP_INTERNAL_SERVER_ERROR]),
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 500'));
-        $registryClient->revokeConsent(new RevokeConsentRequest(
-            'service_consent',
-            'shop-789',
-            'https://license.example.com'
-        ));
-    }
-
-    public function testRevokeConsentThrowsExceptionOnNonAcceptedStatusCode(): void
-    {
-        $client = new MockHttpClient([
-            new MockResponse('', ['http_code' => Response::HTTP_OK]), // 200 is not HTTP_ACCEPTED (202)
-        ]);
-
-        $registryClient = new ServiceRegistryClient('https://example.com', 'https://example.com', $client);
-
-        $this->expectExceptionObject(ServiceException::consentRevokeFailed('Unexpected response status code: 200'));
-        $registryClient->revokeConsent(new RevokeConsentRequest(
-            'service_consent',
-            'shop-789',
-            'https://license.example.com'
-        ));
     }
 
     public function testFetchConsentRevisionsSuccess(): void

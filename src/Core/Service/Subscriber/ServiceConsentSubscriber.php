@@ -4,13 +4,16 @@ namespace Shopware\Core\Service\Subscriber;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
-use Shopware\Core\System\Consent\Definition\ServiceConsent;
 use Shopware\Core\System\Consent\Event\ConsentAcceptedEvent;
 use Shopware\Core\System\Consent\Event\ConsentRevokedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 readonly class ServiceConsentSubscriber implements EventSubscriberInterface
 {

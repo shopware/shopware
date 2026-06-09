@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"[^"]*"|'[^']*')*?))?\s*\/>/g;
+const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;
 
 type LegacyBlockHelperNames = {

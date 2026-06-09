@@ -74,6 +74,36 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
 
+    it('preserves escaped quotes while normalizing self-closing tags', () => {
+        const template = `
+            <div>
+                <sw-block name="quote-block">
+                    <my-component
+                        attr="foo\\"bar"
+                        :config="{ label: 'A/B' }"
+                        v-if="showComponent"
+                    />
+                </sw-block>
+
+                <sw-block extends="quote-block">
+                    <sw-block-parent />
+                    <div v-else class="fallback-case">fallback</div>
+                </sw-block>
+            </div>
+        `;
+
+        const transformedTemplate = transformLegacyBlockConditionals(template);
+
+        expect(transformedTemplate).toContain('attr="foo\\"bar"');
+        expect(transformedTemplate).toContain(`:config="{ label: 'A/B' }"`);
+        expect(transformedTemplate).toContain(
+            `v-if="$swLegacyBlockIf('quote-block:0', showComponent, ${options(0, true, false)})"`,
+        );
+        expect(transformedTemplate).toContain(
+            `v-if="$swLegacyBlockElse('quote-block:0', ${options(1, false, false)})"`,
+        );
+    });
+
     it('rewrites native legacy conditionals after a later sw-block-parent', () => {
         const template = `
             <div>

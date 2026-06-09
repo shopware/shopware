@@ -196,7 +196,7 @@ class InfoController extends AbstractController
         $adminWorker = [
             'enableAdminWorker' => $this->params->get('shopware.admin_worker.enable_admin_worker'),
             'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
-            'transports' => $this->params->get('shopware.admin_worker.transports'),
+            'transports' => $this->getAdminWorkerTransports(),
         ];
 
         if (!Feature::isActive('v6.8.0.0')) {
@@ -259,6 +259,26 @@ class InfoController extends AbstractController
         );
 
         return new JsonResponse(['endpoints' => $endpoints]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getAdminWorkerTransports(): array
+    {
+        $transports = $this->params->get('shopware.admin_worker.transports');
+        if (!\is_array($transports)) {
+            return [];
+        }
+
+        /** @var list<string> $transports */
+        $transports = array_values($transports);
+
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            return $transports;
+        }
+
+        return array_values(array_filter($transports, static fn (string $transport): bool => $transport !== 'webhook'));
     }
 
     /**

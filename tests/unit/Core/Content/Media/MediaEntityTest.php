@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -39,5 +40,15 @@ class MediaEntityTest extends TestCase
         yield 'only-ext' => ['file' => null, 'ext' => 'jpg', 'expected' => null];
         yield 'only-file' => ['file' => 'Tuscany-Landscape', 'ext' => null, 'expected' => null];
         yield 'file-and-ext' => ['file' => 'Tuscany-Landscape', 'ext' => 'jpg', 'expected' => 'Tuscany-Landscape.jpg'];
+    }
+
+    public function testProductDocumentsAccessors(): void
+    {
+        $productDocuments = new ProductDocumentCollection();
+
+        $media = new MediaEntity();
+        $media->setProductDocuments($productDocuments);
+
+        static::assertSame($productDocuments, $media->getProductDocuments());
     }
 }

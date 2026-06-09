@@ -54,6 +54,8 @@ class Migration1779783880AddProductDocument extends MigrationStep
         $this->registerIndexer($connection, 'product.indexer', ['product.inheritance']);
 
         $this->createMediaFolder($connection);
+        $this->registerIndexer($connection, 'media_folder.indexer');
+        $this->registerIndexer($connection, 'media_folder_configuration.indexer');
     }
 
     public function updateDestructive(Connection $connection): void

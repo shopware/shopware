@@ -29,6 +29,11 @@ class ProductDocumentDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.7.11.0';
+    }
+
     public function getCollectionClass(): string
     {
         return ProductDocumentCollection::class;

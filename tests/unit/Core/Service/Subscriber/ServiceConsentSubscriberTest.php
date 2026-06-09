@@ -32,7 +32,7 @@ class ServiceConsentSubscriberTest extends TestCase
             ->method('syncRequirement')
             ->with(
                 ServiceConsentRequirement::NAME,
-                $this->callback(static fn (Context $context): bool => $context->getScope() === Context::SYSTEM_SCOPE)
+                static::callback(static fn (Context $context): bool => $context->getScope() === Context::SYSTEM_SCOPE)
             );
 
         $subscriber = new ServiceConsentSubscriber($manager);

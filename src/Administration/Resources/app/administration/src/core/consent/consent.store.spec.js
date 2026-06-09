@@ -82,7 +82,7 @@ describe('/core/consent/consent.store', () => {
                 latestRevision: '2026-02-02',
             };
 
-            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
+            expect(acceptSpy).toHaveBeenCalledWith('test_consent', undefined);
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
             expect(consentEventHandler).toHaveBeenCalledWith(
@@ -149,7 +149,7 @@ describe('/core/consent/consent.store', () => {
 
             await store.accept('test_consent');
 
-            expect(acceptSpy).toHaveBeenCalledWith('test_consent');
+            expect(acceptSpy).toHaveBeenCalledWith('test_consent', undefined);
             expect(store.consents.test_consent.acceptedRevision).toBe('2026-02-02');
         });
 

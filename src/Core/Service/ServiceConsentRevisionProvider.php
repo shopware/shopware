@@ -3,6 +3,7 @@
 namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -20,6 +21,8 @@ use Symfony\Contracts\Cache\ItemInterface;
  *     latest-revision: string,
  *     available-revisions: list<ServiceConsentRevision>
  * }
+ *
+ * @internal
  */
 #[Package('framework')]
 class ServiceConsentRevisionProvider
@@ -46,7 +49,7 @@ class ServiceConsentRevisionProvider
 
         /** @var ServiceConsentMetadata $metadata */
         $metadata = $this->cache->get(
-            'service-consent-revisions-' . md5($normalizedLocale),
+            'service-consent-revisions-' . Hasher::hash($normalizedLocale),
             function (ItemInterface $item) use ($normalizedLocale): array {
                 $item->expiresAfter(300);
 

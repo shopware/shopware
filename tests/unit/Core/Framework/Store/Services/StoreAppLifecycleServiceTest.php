@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Delta\AppConfirmationDeltaProvider;
@@ -40,7 +41,7 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('activate')
             ->with('app-id', $context);
 
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection>&MockObject $salesChannelRepository */
         $salesChannelRepository = $this->createMock(EntityRepository::class);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -74,7 +75,7 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deactivate')
             ->with('app-id', $context);
 
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection>&MockObject $salesChannelRepository */
         $salesChannelRepository = $this->createMock(EntityRepository::class);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -125,7 +126,7 @@ class StoreAppLifecycleServiceTest extends TestCase
             ->method('deleteApp')
             ->with('TestApp');
 
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection>&MockObject $salesChannelRepository */
         $salesChannelRepository = $this->createMock(EntityRepository::class);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(
@@ -157,7 +158,7 @@ class StoreAppLifecycleServiceTest extends TestCase
 
         $this->expectExceptionObject(StoreException::extensionNotFoundFromId('missing-app-id'));
 
-        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepository */
+        /** @var EntityRepository<SalesChannelCollection>&MockObject $salesChannelRepository */
         $salesChannelRepository = $this->createMock(EntityRepository::class);
 
         $storeAppLifecycleService = new StoreAppLifecycleService(

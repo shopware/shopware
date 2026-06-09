@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
@@ -26,9 +28,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
+
         $strategy = new MoveShopPermanentlyStrategy(
             $this->createMock(ManifestFactory::class),
-            new StaticEntityRepository([]),
+            $appRepository,
             $this->createMock(AppManager::class),
             $this->createMock(ShopIdProvider::class)
         );
@@ -47,9 +52,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->never())->method('refreshRegistration');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
+
         $strategy = new MoveShopPermanentlyStrategy(
             $this->createMock(ManifestFactory::class),
-            new StaticEntityRepository([]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );
@@ -79,15 +87,18 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $calledApps = [];
         $appManager->expects($this->exactly(2))
             ->method('refreshRegistration')
-            ->willReturnCallback(static function ($app, $passedManifest, $passedContext) use (&$calledApps, $manifest, $context): void {
+            ->willReturnCallback(static function (AppEntity $app, Manifest $passedManifest, Context $passedContext) use (&$calledApps, $manifest, $context): void {
                 $calledApps[] = $app->getName();
                 self::assertSame($manifest, $passedManifest);
                 self::assertSame($context, $passedContext);
             });
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
+
         $strategy = new MoveShopPermanentlyStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );
@@ -109,9 +120,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->never())->method('refreshRegistration');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([AppFixture::createAppEntity(name: 'no-setup', id: 'no-setup-id')])]);
+
         $strategy = new MoveShopPermanentlyStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([AppFixture::createAppEntity(name: 'no-setup', id: 'no-setup-id')])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );
@@ -141,9 +155,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
                 }
             });
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
+
         $strategy = new MoveShopPermanentlyStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );

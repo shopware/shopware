@@ -5,8 +5,10 @@ namespace Shopware\Tests\Unit\Core\Framework\App\ShopIdChangeResolver;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
@@ -23,9 +25,12 @@ class ReinstallAppsStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([]);
+
         $strategy = new ReinstallAppsStrategy(
             $this->createMock(ManifestFactory::class),
-            new StaticEntityRepository([]),
+            $appRepository,
             $this->createMock(AppManager::class),
             $this->createMock(ShopIdProvider::class)
         );
@@ -51,15 +56,18 @@ class ReinstallAppsStrategyTest extends TestCase
         $calledApps = [];
         $appManager->expects($this->exactly(2))
             ->method('reregister')
-            ->willReturnCallback(static function ($app, $passedManifest, $passedContext) use (&$calledApps, $manifest, $context): void {
+            ->willReturnCallback(static function (AppEntity $app, Manifest $passedManifest, Context $passedContext) use (&$calledApps, $manifest, $context): void {
                 $calledApps[] = $app->getName();
                 self::assertSame($manifest, $passedManifest);
                 self::assertSame($context, $passedContext);
             });
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
+
         $strategy = new ReinstallAppsStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );
@@ -80,9 +88,12 @@ class ReinstallAppsStrategyTest extends TestCase
         $appManager = $this->createMock(AppManager::class);
         $appManager->expects($this->never())->method('reregister');
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([AppFixture::createAppEntity(name: 'no-setup', id: 'no-setup-id')])]);
+
         $strategy = new ReinstallAppsStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([AppFixture::createAppEntity(name: 'no-setup', id: 'no-setup-id')])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );
@@ -111,9 +122,12 @@ class ReinstallAppsStrategyTest extends TestCase
                 }
             });
 
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
+
         $strategy = new ReinstallAppsStrategy(
             $manifestFactory,
-            new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]),
+            $appRepository,
             $appManager,
             $shopIdProvider
         );

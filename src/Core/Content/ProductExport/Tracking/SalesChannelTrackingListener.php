@@ -105,17 +105,24 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
     public function createTrackingRecords(EntityWrittenContainerEvent $event): void
     {
+        $orderEvent = $event->getEventByEntityName(OrderDefinition::ENTITY_NAME);
+        $customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME);
+
+        if (!$orderEvent && !$customerEvent) {
+            return;
+        }
+
         $referralCode = $this->resolveReferralCode($event);
 
         if ($referralCode === null) {
             return;
         }
 
-        if ($orderEvent = $event->getEventByEntityName(OrderDefinition::ENTITY_NAME)) {
+        if ($orderEvent) {
             $this->trackOrders($orderEvent, $event->getContext(), $referralCode);
         }
 
-        if ($customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME)) {
+        if ($customerEvent) {
             $this->trackCustomers($customerEvent, $event->getContext(), $referralCode);
         }
     }
@@ -138,11 +145,17 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
 
         $request = $this->getCurrentRequest();
 
-        if ($request === null || !$request->hasSession()) {
+        if ($request === null || !$request->hasSession(true)) {
             return null;
         }
 
-        $referralCode = $request->getSession()->get(self::SESSION_KEY_REFERRAL_CODE);
+        $session = $request->getSession();
+
+        if (!$session->isStarted()) {
+            return null;
+        }
+
+        $referralCode = $session->get(self::SESSION_KEY_REFERRAL_CODE);
 
         if (!\is_string($referralCode) || $referralCode === '') {
             return null;

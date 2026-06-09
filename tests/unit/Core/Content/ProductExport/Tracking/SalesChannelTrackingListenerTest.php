@@ -159,6 +159,48 @@ class SalesChannelTrackingListenerTest extends TestCase
         static::assertCount(0, $orderRepo->upserts);
     }
 
+    public function testCreateTrackingRecordsSkipsUnrelatedEntityWithoutInitializingSession(): void
+    {
+        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
+        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+
+        $request = new Request();
+        $request->setSessionFactory(static function (): Session {
+            throw new \RuntimeException('Session should not be initialized.');
+        });
+
+        $listener = $this->createListener(orderRepo: $orderRepo, mainRequest: $request);
+
+        $event = $this->createContainerEvent('scheduled_task', [Uuid::randomHex()]);
+
+        $listener->createTrackingRecords($event);
+
+        static::assertTrue($request->hasSession());
+        static::assertFalse($request->hasSession(true));
+        static::assertCount(0, $orderRepo->upserts);
+    }
+
+    public function testCreateTrackingRecordsSkipsLazySessionWithoutInitializingIt(): void
+    {
+        /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */
+        $orderRepo = new StaticEntityRepository([new SalesChannelTrackingOrderCollection()]);
+
+        $request = new Request();
+        $request->setSessionFactory(static function (): Session {
+            throw new \RuntimeException('Session should not be initialized.');
+        });
+
+        $listener = $this->createListener(orderRepo: $orderRepo, mainRequest: $request);
+
+        $event = $this->createContainerEvent(OrderDefinition::ENTITY_NAME, [Uuid::randomHex()]);
+
+        $listener->createTrackingRecords($event);
+
+        static::assertTrue($request->hasSession());
+        static::assertFalse($request->hasSession(true));
+        static::assertCount(0, $orderRepo->upserts);
+    }
+
     public function testCreateTrackingRecordsSkipsIfNoReferralCodeInSession(): void
     {
         /** @var StaticEntityRepository<SalesChannelTrackingOrderCollection> $orderRepo */

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\AppStorage;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,13 +22,13 @@ class ActivateAppCommand extends AbstractAppActivationCommand
 
     public function __construct(
         AppStorage $appStorage,
-        private readonly AppStateService $appStateService
+        private readonly AbstractAppLifecycle $appLifecycle
     ) {
         parent::__construct($appStorage, self::ACTION);
     }
 
     public function runAction(string $appId, Context $context): void
     {
-        $this->appStateService->activateApp($appId, $context);
+        $this->appLifecycle->activate($appId, $context);
     }
 }

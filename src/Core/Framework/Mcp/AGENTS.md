@@ -214,4 +214,4 @@ App integrations (created on app install via `AppLifecycle::enrichInstallMetadat
 
 **Saving the allowlist** uses a dedicated endpoint `POST /api/_action/integration/{id}/mcp-allowlist` (controller: `IntegrationMcpAllowlistController`). Body: `{ allowlist: {tools, resources, prompts} | null }`. This avoids the changeset generator recursing into the `app` one-to-one association (which has no `_origin` when loaded via criteria) and provides a clean ACL boundary separate from `integration:update`.
 
-**App deactivation**: when an app is deactivated via `AppStateService::deactivateApp()`, its integration is soft-deleted (`deletedAt` set). This suspends MCP authentication for that integration — the DAL excludes soft-deleted rows, so token requests fail. Reactivating the app (`activateApp()`) clears `deletedAt` and restores access.
+**App deactivation**: when an app is deactivated via `AppLifecycle::deactivate()`, its integration is soft-deleted (`deletedAt` set). This suspends MCP authentication for that integration — the DAL excludes soft-deleted rows, so token requests fail. Reactivating the app (`activate()`) clears `deletedAt` and restores access.

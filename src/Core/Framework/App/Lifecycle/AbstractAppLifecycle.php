@@ -18,6 +18,10 @@ abstract class AbstractAppLifecycle
 
     abstract public function install(Manifest $manifest, AppInstallParameters $parameters, Context $context): void;
 
+    abstract public function activate(string $appId, Context $context): void;
+
+    abstract public function deactivate(string $appId, Context $context): void;
+
     /**
      * @param array{id: string, roleId: string} $app
      */

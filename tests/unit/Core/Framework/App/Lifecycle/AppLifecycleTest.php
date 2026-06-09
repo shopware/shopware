@@ -37,6 +37,36 @@ class AppLifecycleTest extends TestCase
         $appLifecycle->install($manifest, $parameters, $context);
     }
 
+    public function testActivateLoadsAppAndDelegatesToAppManager(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'app-id');
+        $context = Context::createDefaultContext();
+
+        $appManager = $this->createMock(AppManager::class);
+        $appManager->expects($this->once())
+            ->method('activate')
+            ->with($app, $context);
+
+        $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository($app)));
+
+        $appLifecycle->activate('app-id', $context);
+    }
+
+    public function testDeactivateLoadsAppAndDelegatesToAppManager(): void
+    {
+        $app = AppFixture::createAppEntity(id: 'app-id');
+        $context = Context::createDefaultContext();
+
+        $appManager = $this->createMock(AppManager::class);
+        $appManager->expects($this->once())
+            ->method('deactivate')
+            ->with($app, $context);
+
+        $appLifecycle = new AppLifecycle($appManager, new AppStorage(AppFixture::createAppRepository($app)));
+
+        $appLifecycle->deactivate('app-id', $context);
+    }
+
     public function testUpdateLoadsAppAndDelegatesToAppManager(): void
     {
         $app = AppFixture::createAppEntity(id: 'app-id');
@@ -76,6 +106,15 @@ class AppLifecycleTest extends TestCase
         static::expectException(AppException::class);
 
         $appLifecycle->update(ManifestFixture::empty(), new AppUpdateParameters(), ['id' => 'missing', 'roleId' => 'role-id'], Context::createDefaultContext());
+    }
+
+    public function testActivateThrowsWhenAppDoesNotExist(): void
+    {
+        $appLifecycle = new AppLifecycle($this->createMock(AppManager::class), new AppStorage(AppFixture::createAppRepository()));
+
+        static::expectException(AppException::class);
+
+        $appLifecycle->activate('missing', Context::createDefaultContext());
     }
 
     public function testGetDecoratedThrows(): void

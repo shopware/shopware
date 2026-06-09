@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\AppStorage;
 use Shopware\Core\Framework\App\Command\AbstractAppActivationCommand;
 use Shopware\Core\Framework\App\Command\DeactivateAppCommand;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -27,12 +27,12 @@ class DeactivateAppCommandTest extends TestCase
             ->with('UnknownApp', static::isInstanceOf(Context::class))
             ->willReturn(null);
 
-        $stateService = $this->createMock(AppStateService::class);
-        $stateService->expects($this->never())->method('deactivateApp');
+        $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
+        $appLifecycle->expects($this->never())->method('deactivate');
 
         $command = new DeactivateAppCommand(
             $appStorage,
-            $stateService,
+            $appLifecycle,
         );
 
         $commandTester = new CommandTester($command);

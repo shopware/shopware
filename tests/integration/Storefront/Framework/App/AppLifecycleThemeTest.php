@@ -6,9 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,7 +29,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-class AppStateServiceThemeTest extends TestCase
+class AppLifecycleThemeTest extends TestCase
 {
     use AppSystemTestBehaviour;
     use IntegrationTestBehaviour;
@@ -45,7 +46,7 @@ class AppStateServiceThemeTest extends TestCase
      */
     private EntityRepository $themeRepo;
 
-    private AppStateService $appStateService;
+    private AbstractAppLifecycle $appLifecycle;
 
     private TraceableEventDispatcher $eventDispatcher;
 
@@ -60,7 +61,7 @@ class AppStateServiceThemeTest extends TestCase
         $this->appRepo = static::getContainer()->get('app.repository');
         $this->themeRepo = static::getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->templateRepo = static::getContainer()->get('app_template.repository');
-        $this->appStateService = static::getContainer()->get(AppStateService::class);
+        $this->appLifecycle = static::getContainer()->get(AppLifecycle::class);
         $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
@@ -88,7 +89,7 @@ class AppStateServiceThemeTest extends TestCase
         }
         $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
 
-        $this->appStateService->deactivateApp($appId, $context);
+        $this->appLifecycle->deactivate($appId, $context);
     }
 
     public function testAppWithAChildThemeInUseCannotBeDeactivated(): void
@@ -128,7 +129,7 @@ class AppStateServiceThemeTest extends TestCase
             $this->expectException(ThemeException::class);
         }
         $this->expectExceptionMessageMatches('/^Unable to deactivate or uninstall theme/');
-        $this->appStateService->deactivateApp($appId, $context);
+        $this->appLifecycle->deactivate($appId, $context);
     }
 
     public function testAppWithAThemeCanBeDeactivated(): void
@@ -149,7 +150,7 @@ class AppStateServiceThemeTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppDeactivatedEvent::class, $onAppDeactivation);
 
-        $this->appStateService->deactivateApp($appId, $context);
+        $this->appLifecycle->deactivate($appId, $context);
 
         static::assertTrue($eventWasReceived);
 
@@ -180,7 +181,7 @@ class AppStateServiceThemeTest extends TestCase
         };
         $this->eventDispatcher->addListener(AppActivatedEvent::class, $onAppActivation);
 
-        $this->appStateService->activateApp($appId, $context);
+        $this->appLifecycle->activate($appId, $context);
 
         static::assertTrue($eventWasReceived);
 

@@ -32,6 +32,19 @@ return [
         // Expected to be appended when a new event is added
         preg_quote('Value of constant Shopware\Core\Framework\Webhook\Hookable', '/'),
 
+        // Intentional rename of the technical-term analyzer chain so the public
+        // identifier matches how the chain is referenced everywhere else
+        // (constants, `buildTextFieldConfig(technicalTerms: true)`, the
+        // architecture doc). Shopware-internal users were already going through
+        // `ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_*` and the
+        // `TECHNICAL_TERM_SEARCH_FIELD` const — both still resolve correctly;
+        // only the underlying analyzer string moved from
+        // `sw_*_word_delimiter_*_analyzer` to `sw_*_technical_term_*_analyzer`.
+        // Documented in UPGRADE-6.8.md.
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_INDEX', '/'),
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder::ANALYZER_WHITESPACE_TECHNICAL_SEARCH', '/'),
+        preg_quote('Value of constant Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition::TECHNICAL_TERM_SEARCH_FIELD', '/'),
+
         // Had a typo in the internal annotation
         preg_quote('CHANGED: Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder was marked "@internal"', '/'),
 

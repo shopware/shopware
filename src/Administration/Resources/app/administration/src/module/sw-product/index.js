@@ -37,6 +37,7 @@ Shopware.Component.extend(
 );
 Shopware.Component.register('sw-product-media-form', () => import('./component/sw-product-media-form'));
 Shopware.Component.register('sw-product-download-form', () => import('./component/sw-product-download-form'));
+Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
 Shopware.Component.register('sw-product-visibility-detail', () => import('./component/sw-product-visibility-detail'));
 Shopware.Component.register(
     'sw-product-restriction-selection',

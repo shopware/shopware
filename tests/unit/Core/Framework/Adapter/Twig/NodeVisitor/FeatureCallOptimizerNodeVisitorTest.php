@@ -204,7 +204,11 @@ class FeatureCallOptimizerNodeVisitorTest extends TestCase
             restore_error_handler();
         }
 
-        static::assertGreaterThan(0, $renderErrors, 'Unregistered feature should still trigger a warning at render time');
+        static::assertSame(0, $renderErrors, 'Unregistered feature should be handled by the runtime guard without triggering a warning');
+
+        Feature::registerFeature('UNREGISTERED_FEATURE_FLAG', ['default' => true]);
+
+        static::assertSame('active', $template->render([]), 'Unregistered feature calls should not be optimized during compilation');
     }
 
     /**

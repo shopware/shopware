@@ -3,6 +3,7 @@
 ## Deprecation of `processSuccess` and `resetButtons` in `sw-settings-cache-index`
 
 The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.
+
 ## Rule builder condition error display rework
 
 `sw-condition-base` now reads errors directly from the `rule_condition` entity error store. A new `sw-condition-field-errors` component renders the labelled summary below the row.

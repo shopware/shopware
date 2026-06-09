@@ -352,6 +352,15 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            mcp:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hours'
+                limits:
+                    - limit: 60
+                      interval: '60 seconds'
+                    - limit: 120
+                      interval: '120 seconds'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'
@@ -364,7 +373,8 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async", "low_priority"]
+        # Keep webhook before async so inline admin-worker failures scheduled for retry are drained.
+        transports: ["webhook", "async", "low_priority"]
 
     auto_update:
         enabled: true
@@ -664,6 +674,7 @@ shopware:
           - digital
         search_keyword:
             indexing: true
+            relevant_keyword_count: 8
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

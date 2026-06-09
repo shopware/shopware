@@ -43,8 +43,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForInvalidUrl(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided URL "invalid-url" is invalid.');
+        $this->expectExceptionObject(MediaException::invalidUrl('invalid-url'));
 
         new ExternalThumbnailData(
             url: 'invalid-url',
@@ -55,8 +54,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForFileUrl(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided URL "file://test.jpg" is invalid.');
+        $this->expectExceptionObject(MediaException::invalidUrl('file://test.jpg'));
 
         new ExternalThumbnailData(
             url: 'file://test.jpg',
@@ -67,8 +65,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForZeroWidth(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The width "0" is invalid. It must be a positive integer.');
+        $this->expectExceptionObject(MediaException::invalidDimension('width', 0));
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
@@ -79,8 +76,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForNegativeWidth(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The width "-100" is invalid. It must be a positive integer.');
+        $this->expectExceptionObject(MediaException::invalidDimension('width', -100));
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
@@ -91,8 +87,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForZeroHeight(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The height "0" is invalid. It must be a positive integer.');
+        $this->expectExceptionObject(MediaException::invalidDimension('height', 0));
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',
@@ -103,8 +98,7 @@ class ExternalThumbnailDataTest extends TestCase
 
     public function testConstructThrowsExceptionForNegativeHeight(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('The height "-100" is invalid. It must be a positive integer.');
+        $this->expectExceptionObject(MediaException::invalidDimension('height', -100));
 
         new ExternalThumbnailData(
             url: 'https://localhost:8000/thumb.jpg',

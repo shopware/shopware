@@ -4,7 +4,37 @@
 
 <details>
 
-### Minimum value constraints added to quantity fields in ProductPriceDefinition
+## Webhook Messenger transport — explicit receiver configuration required
+
+Webhook delivery now uses a dedicated `webhook` Messenger transport. Add it to your `messenger:consume` receiver list and to `shopware.admin_worker.transports` if you override that key.
+
+> [!NOTE]
+> Already opted into `WEBHOOKS_REWORK` on 6.7? No action needed — the flag is gone and the new transport is permanent.
+
+> [!IMPORTANT]
+> Workers that don't list `webhook` will stop consuming webhooks after upgrading.
+
+### Consume command
+
+Put `webhook` first so retries do not wait behind async backlog:
+
+```bash
+bin/console messenger:consume webhook async low_priority --{other-options}....
+```
+
+The webhook transport has built-in fairness, so it never starves async. You can run multiple `messenger:consume webhook` processes in parallel — delivery is IO-bound and scales up to `num_apps + 1` partitions (one per app, plus the `default`). Beyond that, extra workers sit idle. Most installs need only one or two.
+
+### Admin worker transports
+
+If you override `shopware.admin_worker.transports`, prepend `webhook`:
+
+```yaml
+shopware:
+    admin_worker:
+        transports: ["webhook", "async", "low_priority"]
+```
+
+## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
 
@@ -31,11 +61,33 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
+## Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are removed.
+
+Affected commands:
+
+| Old | New |
+| --- | --- |
+| `bin/console user:list --json` | `bin/console user:list --format json` |
+| `bin/console app:list --json` | `bin/console app:list --format json` |
+| `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
+| `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
+| `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
 </details>
 
 # API
 
 <details>
+
+## Type-based number range preview Admin API removed
+
+The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.
+It resolved number ranges only by technical type and could only preview global number range state.
+When previewing or editing an existing persisted number range, call `/api/_action/number-range/{numberRangeId}/preview-pattern` with the concrete `number_range.id` instead.
+
+The allocation route `/api/_action/number-range/reserve/{type}` is unchanged and should still be used when reserving the next number for a business context.
 
 ## Mail payload custom data must use `extensions`
 
@@ -106,6 +158,27 @@ Previously, these routes could return all customer addresses because the underly
 # Core
 
 <details>
+
+## Removed stored `mail_template_type.template_data`
+
+The deprecated `template_data` column on `mail_template_type` was removed.
+Do not read or write stored template data on mail template types anymore.
+
+Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
+The mail API request payloads `templateData` and `mailTemplateData` are still supported and are not part of this removal.
+
+## Number range value generator interface removed
+
+`Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface` was removed.
+Use `Shopware\Core\System\NumberRange\ValueGenerator\AbstractNumberRangeValueGenerator` instead.
+
+If your extension implemented the old interface, update the service to extend `AbstractNumberRangeValueGenerator`.
+Implement `getValue()` for actual number allocation and `previewPatternByNumberRangeId()` for persisted number-range previews.
+
+If your extension decorates the number range value generator, decorate `AbstractNumberRangeValueGenerator`, implement `getDecorated()`, and forward `getValue()` and `previewPatternByNumberRangeId()` to the decorated service where appropriate.
+
+The type-based `previewPattern()` method is removed.
+Replace calls to `previewPattern($type, ...)` with `previewPatternByNumberRangeId($numberRangeId, ...)` when previewing or editing an existing number range.
 
 ## Changed behaviour of default fields in EntityDefinition
 
@@ -236,6 +309,13 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 ### Use `primaryOrderTransaction`
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
+
+## Fixed `ListField` overwrites during entity clone
+
+`VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.
+For entity fields declared as `ListField` (including `ListField` properties nested inside a `JsonField`), this produced incorrect results: an overwrite like `['value2']` against `['value1', 'value2', 'value3']` yielded `['value2', 'value2', 'value3']` instead of replacing the list.
+Overwrites are now applied with a field-aware merge that fully replaces `ListField` values and recurses through nested property mappings.
+Behaviour for all other field types is unchanged.
 
 ## Removal of helper methods in `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper`
 
@@ -1024,7 +1104,13 @@ Use the parent blocks instead
 `administration/src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch` are removed without replacement
 
 ## File accessibility changed from public to private
-`administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `administration/src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-list/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/index.js`
+* `src/Storefront/Resources/app/administration/src/modules/sw-settings-storefront/page/sw-settings-storefront-index/index.js`
+
+## Removal of component sw-settings-storefront-configuration
+`sw-settings-storefront-configuration` is removed without replacement.
+The Storefront settings Administration page owns its settings fields directly.
 
 ## The following template blocks have been replaced due to typos or misleading names:
 * `sw_condiiton_date_range_field_to_date` -> `sw_condition_date_range_field_to_date`
@@ -1137,6 +1223,24 @@ The following legacy blocks are removed in Shopware 6.8:
 
 - deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 - deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
+
+## Removed `sw-select-base.computePath()`
+
+The deprecated `computePath()` method on the Administration component `sw-select-base` has been removed.
+Use `Element.contains()` to check whether an event target belongs to the select root.
+
+Before:
+
+```javascript
+const path = this.computePath(event);
+const isInside = path.includes(this.$el);
+```
+
+After:
+
+```javascript
+const isInside = event.target instanceof Node && this.$el.contains(event.target);
+```
 
 # Storefront
 

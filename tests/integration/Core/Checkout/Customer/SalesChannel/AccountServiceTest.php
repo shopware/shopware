@@ -230,8 +230,7 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannelId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', Hasher::hash('test', 'md5'), 'Md5');
 
-        static::expectException(PasswordPoliciesUpdatedException::class);
-        static::expectExceptionMessage('Password policies updated.');
+        $this->expectExceptionObject(new PasswordPoliciesUpdatedException());
         $this->accountService->getCustomerByLogin($email, 'test', $context);
     }
 

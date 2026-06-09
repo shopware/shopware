@@ -115,7 +115,8 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         float $lineItemVolume2,
         bool $expected,
         bool $lineItem1WithoutDeliveryInfo = false,
-        bool $lineItem2WithoutDeliveryInfo = false
+        bool $lineItem2WithoutDeliveryInfo = false,
+        ?float $containerLineItemVolume = null
     ): void {
         $this->rule->assign([
             'amount' => $volume,
@@ -197,39 +198,213 @@ class LineItemDimensionVolumeRuleTest extends TestCase
     public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
-        yield 'match / operator equals / same volume' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
-        yield 'no match / operator equals / different volume' => [Rule::OPERATOR_EQ, 200, 100, 300, false];
-        yield 'no match / operator equals / item 1 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true];
-        yield 'no match / operator equals / item 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, false, true];
-        yield 'no match / operator equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true, true];
+        yield 'match / operator equals / same volume' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 200,
+            'expected' => true,
+        ];
+        yield 'no match / operator equals / different volume' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => false,
+        ];
+        yield 'no match / operator equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
         // OPERATOR_NEQ
-        yield 'no match / operator not equals / same volume' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, false, 100];
-        yield 'match / operator not equals / different volume' => [Rule::OPERATOR_NEQ, 200, 100, 200, true];
-        yield 'match / operator not equals / different volume 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true];
+        yield 'no match / operator not equals / same volume' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 100,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => false,
+            'containerLineItemVolume' => 100,
+        ];
+        yield 'match / operator not equals / different volume' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 200,
+            'expected' => true,
+        ];
+        yield 'match / operator not equals / different volume 2' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => true,
+        ];
         // OPERATOR_GT
-        yield 'no match / operator greater than / lower volume' => [Rule::OPERATOR_GT, 100, 50, 70, false];
-        yield 'no match / operator greater than / same volume' => [Rule::OPERATOR_GT, 100, 100, 70, false];
-        yield 'match / operator greater than / higher volume' => [Rule::OPERATOR_GT, 100, 200, 70, true];
+        yield 'no match / operator greater than / lower volume' => [
+            'operator' => Rule::OPERATOR_GT,
+            'volume' => 100,
+            'lineItemVolume1' => 50,
+            'lineItemVolume2' => 70,
+            'expected' => false,
+        ];
+        yield 'no match / operator greater than / same volume' => [
+            'operator' => Rule::OPERATOR_GT,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than / higher volume' => [
+            'operator' => Rule::OPERATOR_GT,
+            'volume' => 100,
+            'lineItemVolume1' => 200,
+            'lineItemVolume2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_GTE
-        yield 'no match / operator greater than equals / lower volume' => [Rule::OPERATOR_GTE, 100, 50, 70, false];
-        yield 'match / operator greater than equals / same volume' => [Rule::OPERATOR_GTE, 100, 100, 70, true];
-        yield 'match / operator greater than equals / higher volume' => [Rule::OPERATOR_GTE, 100, 200, 70, true];
+        yield 'no match / operator greater than equals / lower volume' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'volume' => 100,
+            'lineItemVolume1' => 50,
+            'lineItemVolume2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than equals / same volume' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 70,
+            'expected' => true,
+        ];
+        yield 'match / operator greater than equals / higher volume' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'volume' => 100,
+            'lineItemVolume1' => 200,
+            'lineItemVolume2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_LT
-        yield 'match / operator lower than / lower volume' => [Rule::OPERATOR_LT, 100, 50, 120, true];
-        yield 'no match / operator lower  than / same volume' => [Rule::OPERATOR_LT, 100, 100, 120, false];
-        yield 'no match / operator lower than / higher volume' => [Rule::OPERATOR_LT, 100, 200, 120, false];
+        yield 'match / operator lower than / lower volume' => [
+            'operator' => Rule::OPERATOR_LT,
+            'volume' => 100,
+            'lineItemVolume1' => 50,
+            'lineItemVolume2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower  than / same volume' => [
+            'operator' => Rule::OPERATOR_LT,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 120,
+            'expected' => false,
+        ];
+        yield 'no match / operator lower than / higher volume' => [
+            'operator' => Rule::OPERATOR_LT,
+            'volume' => 100,
+            'lineItemVolume1' => 200,
+            'lineItemVolume2' => 120,
+            'expected' => false,
+        ];
         // OPERATOR_LTE
-        yield 'match / operator lower than equals / lower volume' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
-        yield 'match / operator lower than equals / same volume' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
-        yield 'no match / operator lower than equals / higher volume' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
+        yield 'match / operator lower than equals / lower volume' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'volume' => 100,
+            'lineItemVolume1' => 50,
+            'lineItemVolume2' => 120,
+            'expected' => true,
+        ];
+        yield 'match / operator lower than equals / same volume' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower than equals / higher volume' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'volume' => 100,
+            'lineItemVolume1' => 200,
+            'lineItemVolume2' => 120,
+            'expected' => false,
+        ];
 
-        yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
-        yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
-        yield 'match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
+        yield 'match / operator not equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 200,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'volume' => 100,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
 
-        yield 'match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 300, true, true, true];
-        yield 'match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 100, true, true];
-        yield 'match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, null, 100, 100, true, false, true];
+        yield 'match / operator empty / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'volume' => null,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'volume' => null,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'volume' => null,
+            'lineItemVolume1' => 100,
+            'lineItemVolume2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
     }
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void

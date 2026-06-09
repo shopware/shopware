@@ -553,8 +553,7 @@ class RequestCriteriaBuilderTest extends TestCase
             ],
         ];
 
-        static::expectException(FrameworkException::class);
-        static::expectExceptionMessage('Can not find association by name 1');
+        $this->expectExceptionObject(FrameworkException::associationNotFound('1'));
 
         $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
     }

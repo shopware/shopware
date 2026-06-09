@@ -129,6 +129,14 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 
 ## Administration
 
+### Storefront icon cache and speculation rules can be configured per sales channel
+
+The Storefront settings Administration page now allows the icon cache and speculation rules settings (`core.storefrontSettings.iconCache` and `core.storefrontSettings.speculationRules`) to be configured per sales channel.
+`core.storefrontSettings.asyncThemeCompilation` remains a global setting and was moved into a separate Theme configuration card.
+
+The storefront runtime now resolves the icon cache setting with the active sales channel id, matching the sales-channel-aware speculation rules lookup.
+The old `sw_settings_storefront_smtp_settings` block is deprecated and will be removed in v6.8.0.
+
 ### Analytics settings split into Configuration and Tracking cards
 
 The analytics settings view in `sw-sales-channel-detail-analytics` was split into two cards: Configuration (general settings like tracking ID, active state, anonymize IP) and Tracking (order tracking, offcanvas cart tracking, enhanced conversions).

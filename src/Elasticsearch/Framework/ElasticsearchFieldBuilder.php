@@ -41,13 +41,13 @@ class ElasticsearchFieldBuilder
      * SKU-style fields where letter↔digit boundaries and `,` / `-` / `.`
      * separators must survive into the inverted index.
      */
-    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_word_delimiter_index_analyzer';
+    public const ANALYZER_WHITESPACE_TECHNICAL_INDEX = 'sw_whitespace_technical_term_index_analyzer';
 
     /**
      * Search-side counterpart of {@see self::ANALYZER_WHITESPACE_TECHNICAL_INDEX}
      * with the cross-position deduplication filter appended.
      */
-    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_word_delimiter_search_analyzer';
+    public const ANALYZER_WHITESPACE_TECHNICAL_SEARCH = 'sw_whitespace_technical_term_search_analyzer';
 
     /**
      * Common prefix of every language-agnostic analyzer this bundle ships.
@@ -208,8 +208,8 @@ class ElasticsearchFieldBuilder
     private function getTechnicalTermAnalyzer(string $analyzer, bool $searchAnalyzer): ?string
     {
         return match ($analyzer) {
-            'sw_english_analyzer' => $searchAnalyzer ? 'sw_english_word_delimiter_search_analyzer' : 'sw_english_word_delimiter_index_analyzer',
-            'sw_german_analyzer' => $searchAnalyzer ? 'sw_german_word_delimiter_search_analyzer' : 'sw_german_word_delimiter_index_analyzer',
+            'sw_english_analyzer' => $searchAnalyzer ? 'sw_english_technical_term_search_analyzer' : 'sw_english_technical_term_index_analyzer',
+            'sw_german_analyzer' => $searchAnalyzer ? 'sw_german_technical_term_search_analyzer' : 'sw_german_technical_term_index_analyzer',
             default => null,
         };
     }

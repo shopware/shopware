@@ -197,22 +197,7 @@
       "cardTitleCustomFields": "Custom fields",
       "cardTitleProperties": "Properties",
       "cardTitleCustomProduct": "Custom Products",
-      "cardTitleDownloads": "Files",
-      "cardTitleDocuments": "Documents",
-      "cardSubtitleDocuments": "Add product documents such as manuals, datasheets, or specifications."
-    },
-    "documentForm": {
-      "documentsLabel": "Document upload",
-      "emptyState": "No documents assigned yet.",
-      "placeholderTitle": "Document title",
-      "columnTitle": "Title",
-      "columnFileName": "File name",
-      "columnFileType": "Type",
-      "columnFileSize": "Size",
-      "columnUploadedAt": "Uploaded at",
-      "contextMoveUp": "Move up",
-      "contextMoveDown": "Move down",
-      "errorDocumentDuplicated": "The file \"{fileName}\" has already been assigned."
+      "cardTitleDownloads": "Files"
     },
     "seo": {
       "cardTitleSeo": "SEO"
@@ -363,7 +348,6 @@
     },
     "variations": {
       "generatedListColumnDownload": "Files",
-      "generatedListColumnDocuments": "Documents",
       "emptyStateTitle": "This product has no variants yet.",
       "emptyStateDescription": "Manage product variants here.",
       "emptyStatePropertyTitle": "No properties have been created yet",

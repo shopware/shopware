@@ -581,6 +581,12 @@ A new "Agentic Commerce" sales channel type is available in this release.
 The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
 The Administration includes dedicated views for configuration, product mapping, and usage insights.
 
+### [Experimental] Breadcrumb category referrer
+
+Shopware now supports building product breadcrumbs based on the referring category. When a customer lands on a product detail page from a category listing, the breadcrumb can dynamically reflect the category path they came from.
+
+To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and activate the "Build breadcrumb based on referrer category" setting in Settings > Products.
+
 ## API
 
 ### Per-user and per-IP rate limiters for login and OAuth

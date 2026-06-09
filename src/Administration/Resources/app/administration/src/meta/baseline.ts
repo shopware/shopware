@@ -12,7 +12,6 @@ const missingTests = [
     'src/app/component/media/sw-media-folder-content/index.js',
     'src/app/component/media/sw-media-list-selection-item-v2/index.js',
     'src/app/component/media/sw-media-modal-folder-dissolve/index.js',
-    'src/app/component/media/sw-media-modal-replace/index.js',
     'src/app/component/media/sw-media-replace/index.js',
     'src/app/component/media/sw-sidebar-media-item/index.js',
     'src/app/component/app/sw-app-actions/_fixtures/app-action.fixtures.js',

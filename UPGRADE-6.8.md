@@ -61,6 +61,20 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
+## Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are removed.
+
+Affected commands:
+
+| Old | New |
+| --- | --- |
+| `bin/console user:list --json` | `bin/console user:list --format json` |
+| `bin/console app:list --json` | `bin/console app:list --format json` |
+| `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
+| `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
+| `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
 </details>
 
 # API

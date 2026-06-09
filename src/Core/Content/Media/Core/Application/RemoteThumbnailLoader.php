@@ -148,32 +148,43 @@ class RemoteThumbnailLoader implements ResetInterface
             return $this->mediaFolderThumbnailSizes;
         }
 
-        $entities = $this->connection->fetchAllAssociative(
+        /** @var list<array{configuration_id: string, media_thumbnail_size_id: string, width: string, height: string}> $sizes */
+        $sizes = $this->connection->fetchAllAssociative(
             '
             SELECT
-                LOWER(HEX(mf.id)) as media_folder_id,
-                LOWER(HEX(mts.id)) as media_thumbnail_size_id,
+                LOWER(HEX(mfcmts.media_folder_configuration_id)) AS configuration_id,
+                LOWER(HEX(mts.id)) AS media_thumbnail_size_id,
                 mts.width,
                 mts.height
-            FROM media_folder mf
-            INNER JOIN media_folder_configuration mfc ON mf.media_folder_configuration_id = mfc.id
-            INNER JOIN media_folder_configuration_media_thumbnail_size mfcmts ON mfcmts.media_folder_configuration_id = mfc.id
+            FROM media_folder_configuration_media_thumbnail_size mfcmts
             INNER JOIN media_thumbnail_size mts ON mfcmts.media_thumbnail_size_id = mts.id'
         );
 
-        if ($entities === []) {
-            return [];
+        if ($sizes === []) {
+            return $this->mediaFolderThumbnailSizes = [];
         }
 
-        $grouped = [];
-
-        /** @var array{media_folder_id: string, media_thumbnail_size_id: string, width: string, height: string} $entity */
-        foreach ($entities as $entity) {
-            $grouped[$entity['media_folder_id']][] = [
-                'media_thumbnail_size_id' => $entity['media_thumbnail_size_id'],
-                'width' => $entity['width'],
-                'height' => $entity['height'],
+        $configurationSizes = [];
+        foreach ($sizes as $size) {
+            $configurationSizes[$size['configuration_id']][] = [
+                'media_thumbnail_size_id' => $size['media_thumbnail_size_id'],
+                'width' => $size['width'],
+                'height' => $size['height'],
             ];
+        }
+
+        /** @var array<string, string> $folderToConfiguration */
+        $folderToConfiguration = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), LOWER(HEX(media_folder_configuration_id))
+             FROM media_folder
+             WHERE media_folder_configuration_id IS NOT NULL'
+        );
+
+        $grouped = [];
+        foreach ($folderToConfiguration as $folderId => $configurationId) {
+            if (isset($configurationSizes[$configurationId])) {
+                $grouped[$folderId] = $configurationSizes[$configurationId];
+            }
         }
 
         return $this->mediaFolderThumbnailSizes = $grouped;

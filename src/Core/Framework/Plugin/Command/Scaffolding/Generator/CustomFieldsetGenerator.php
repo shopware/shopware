@@ -29,7 +29,7 @@ class CustomFieldsetGenerator implements ScaffoldingGenerator
         }
 
         $stubCollection->add(Stub::template(
-            'src/Resources/custom-fields.xml',
+            'src/Resources/config/custom-fields.xml',
             self::STUB_DIRECTORY . '/custom-fields-xml.stub'
         ));
     }

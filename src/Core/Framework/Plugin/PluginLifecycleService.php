@@ -554,7 +554,7 @@ class PluginLifecycleService
 
     private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context, bool $deleteMissingXml): void
     {
-        $xmlFile = $pluginBaseClass->getPath() . '/Resources/custom-fields.xml';
+        $xmlFile = $pluginBaseClass->getPath() . '/Resources/config/custom-fields.xml';
 
         if (!is_file($xmlFile)) {
             if ($deleteMissingXml) {

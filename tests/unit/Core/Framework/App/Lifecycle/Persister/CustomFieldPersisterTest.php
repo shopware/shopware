@@ -39,7 +39,7 @@ class CustomFieldPersisterTest extends TestCase
     public function testPersistWithExternalFile(): void
     {
         $fixtureFile = \dirname(__DIR__, 4) . '/System/CustomField/_fixtures/custom-fields.xml';
-        $this->fs->copy($fixtureFile, $this->tmpDir . '/Resources/custom-fields.xml');
+        $this->fs->copy($fixtureFile, $this->tmpDir . '/Resources/config/custom-fields.xml');
 
         $sharedPersister = $this->createMock(CustomFieldSetPersister::class);
         $sharedPersister->expects($this->once())

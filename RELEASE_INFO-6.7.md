@@ -158,9 +158,9 @@ Affected commands:
 - `bin/console dal:validate --json` → `bin/console dal:validate --format json`
 - `bin/console sales-channel:list --output json` → `bin/console sales-channel:list --format json`
 
-### Declarative custom fields via `Resources/custom-fields.xml`
+### Declarative custom fields via `Resources/config/custom-fields.xml`
 
-Plugins and apps can now define custom fields declaratively in a `Resources/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
+Plugins and apps can now define custom fields declaratively in a `Resources/config/custom-fields.xml` file. Shopware automatically handles creation, updates, and removal during the extension lifecycle (install, update, uninstall).
 
 This eliminates the boilerplate `CustomFieldsInstaller` service and plugin lifecycle hooks that were previously required for plugins. For apps, the same file-based approach replaces the inline `<custom-fields>` section in `manifest.xml` (now deprecated).
 
@@ -304,9 +304,9 @@ Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues
 
 ### Deprecation of inline `<custom-fields>` in `manifest.xml`
 
-Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
+Defining custom fields inline in `manifest.xml` via the `<custom-fields>` element is deprecated. Use a separate `Resources/config/custom-fields.xml` file instead. The inline definition will be removed in v6.8.0.
 
-When an app has a `Resources/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
+When an app has a `Resources/config/custom-fields.xml` file, it takes priority over the inline manifest definition. If only the inline definition exists, a deprecation warning is triggered.
 ## Hosting & Configuration
 
 ### Google Storage supports application default credentials

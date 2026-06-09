@@ -26,13 +26,13 @@ class CustomFieldPersister implements PersisterInterface
     {
         $customFields = null;
 
-        // Prefer Resources/custom-fields.xml file over inline manifest definition
-        if ($context->appFilesystem->hasFile('Resources', 'custom-fields.xml')) {
+        // Prefer Resources/config/custom-fields.xml file over inline manifest definition
+        if ($context->appFilesystem->hasFile('Resources', 'config', 'custom-fields.xml')) {
             $customFields = CustomFieldXmlLoader::load(
-                $context->appFilesystem->path('Resources', 'custom-fields.xml')
+                $context->appFilesystem->path('Resources', 'config', 'custom-fields.xml')
             );
         } elseif ($context->manifest->getCustomFields() !== null) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Defining custom fields inline in manifest.xml is deprecated, use Resources/custom-fields.xml instead.');
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Defining custom fields inline in manifest.xml is deprecated, use Resources/config/custom-fields.xml instead.');
 
             $customFields = $context->manifest->getCustomFields();
         }

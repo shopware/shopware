@@ -38,6 +38,9 @@ class RemoteThumbnailLoaderTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
+        $connection->method('fetchAllKeyValue')->willReturn([
+            $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
+        ]);
 
         $dispatcher = new EventDispatcher();
         $extensionDispatcher = new ExtensionDispatcher($dispatcher);
@@ -80,9 +83,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'http://localhost:8000/foo/bar.png',
@@ -104,9 +107,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'http://localhost:8000/foo/bar.png?ts=946684800',
@@ -143,9 +146,9 @@ class RemoteThumbnailLoaderTest extends TestCase
                 'private' => false,
             ]),
             [
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
-                ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+                ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '600', 'height' => '600'],
             ],
             [
                 'media' => 'https://test.com/photo/flower.jpg?ts=946684800',
@@ -164,12 +167,15 @@ class RemoteThumbnailLoaderTest extends TestCase
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
 
         $thumbnailSizes = [
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
-            ['media_folder_id' => $ids->get('mediaFolderId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
+            ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '200', 'height' => '200'],
+            ['configuration_id' => $ids->get('mediaFolderConfigurationId'), 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'), 'width' => '400', 'height' => '400'],
         ];
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
+        $connection->method('fetchAllKeyValue')->willReturn([
+            $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
+        ]);
 
         $entity = (new PartialEntity())->assign([
             'id' => $ids->get('media'),
@@ -203,13 +209,13 @@ class RemoteThumbnailLoaderTest extends TestCase
 
         $thumbnailSizes = [
             [
-                'media_folder_id' => $ids->get('mediaFolderId'),
+                'configuration_id' => $ids->get('mediaFolderConfigurationId'),
                 'width' => '200',
                 'height' => '200',
                 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
             ],
             [
-                'media_folder_id' => $ids->get('mediaFolderId'),
+                'configuration_id' => $ids->get('mediaFolderConfigurationId'),
                 'width' => '400',
                 'height' => '400',
                 'media_thumbnail_size_id' => $ids->get('mediaThumbnailSizeId'),
@@ -218,6 +224,9 @@ class RemoteThumbnailLoaderTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->method('fetchAllAssociative')->willReturn($thumbnailSizes);
+        $connection->method('fetchAllKeyValue')->willReturn([
+            $ids->get('mediaFolderId') => $ids->get('mediaFolderConfigurationId'),
+        ]);
 
         $entity = (new PartialEntity())->assign([
             'id' => $ids->get('media'),

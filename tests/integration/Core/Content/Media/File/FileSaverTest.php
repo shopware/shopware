@@ -153,7 +153,11 @@ SVG;
         $this->mediaRepository->create([['id' => $mediaId]], $context);
 
         try {
-            $this->expectExceptionObject(MediaException::invalidFile('SVG files with active content are not allowed.'));
+            $this->expectExceptionObject(MediaException::invalidFile(
+                'SVG files with active content are not allowed.'
+                . \PHP_EOL . 'Event handler attributes not allowed: onload'
+                . \PHP_EOL . 'Attributes not allowed: onload'
+            ));
 
             $this->fileSaver->persistFileToMedia($mediaFile, 'unsafe-svg', $mediaId, $context);
         } finally {

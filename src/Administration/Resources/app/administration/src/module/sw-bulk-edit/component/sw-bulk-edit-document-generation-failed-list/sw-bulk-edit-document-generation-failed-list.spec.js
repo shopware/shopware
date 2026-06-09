@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 
 const rows = [
     {
@@ -47,20 +47,26 @@ async function createWrapper(props = {}) {
                 ...props,
             },
             global: {
+                provide: {
+                    acl: {
+                        can: () => true,
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve([]),
+                        }),
+                    },
+                    feature: {
+                        isActive: () => false,
+                    },
+                },
                 stubs: {
-                    'sw-data-grid': {
-                        props: [
-                            'dataSource',
-                        ],
-                        template: `
-                            <div class="sw-data-grid">
-                                <slot name="pagination"></slot>
-                            </div>
-                        `,
-                    },
-                    'sw-pagination': {
-                        template: '<button class="sw-pagination" @click="$emit(\'page-change\', { page: 2 })"></button>',
-                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                    'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-provide': true,
+                    'router-link': true,
                 },
                 mocks: {
                     $t: (key) => key,
@@ -71,6 +77,11 @@ async function createWrapper(props = {}) {
 }
 
 describe('sw-bulk-edit-document-generation-failed-list', () => {
+    async function goToNextPage(wrapper) {
+        await wrapper.find('.sw-pagination__page-button-next').trigger('click');
+        await flushPromises();
+    }
+
     it('should paginate rows client side', async () => {
         const wrapper = await createWrapper();
 
@@ -78,7 +89,7 @@ describe('sw-bulk-edit-document-generation-failed-list', () => {
         expect(wrapper.vm.paginatedRows).toHaveLength(5);
         expect(wrapper.vm.paginatedRows[0].orderNumber).toBe('10089');
 
-        wrapper.vm.onPageChange({ page: 2 });
+        await goToNextPage(wrapper);
 
         expect(wrapper.vm.paginatedRows).toHaveLength(1);
         expect(wrapper.vm.paginatedRows[0].orderNumber).toBe('10094');
@@ -87,7 +98,8 @@ describe('sw-bulk-edit-document-generation-failed-list', () => {
     it('should reset to page one when rows change', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.vm.onPageChange({ page: 2 });
+        await goToNextPage(wrapper);
+
         await wrapper.setProps({
             rows: rows.slice(0, 2),
         });

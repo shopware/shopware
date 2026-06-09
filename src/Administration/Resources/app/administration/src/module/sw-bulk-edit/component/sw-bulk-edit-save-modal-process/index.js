@@ -165,58 +165,30 @@ export default {
             const stornoDocuments = this.createDocumentPayload.filter((item) => item.type === 'storno');
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
+            const documentGroups = [
+                ['invoice', invoiceDocuments],
+                ['storno', stornoDocuments],
+                ['credit_note', creditNoteDocuments],
+                ['delivery_note', deliveryNoteDocuments],
+            ];
 
             let totalRequested = 0;
             let totalErrors = 0;
             let totalSkipped = 0;
             const failedItems = [];
 
-            if (invoiceDocuments.length > 0) {
-                const {
-                    requested,
-                    failed,
-                    skipped,
-                    failedItems: documentFailedItems,
-                } = await this.createDocument('invoice', invoiceDocuments);
-                totalRequested += requested;
-                totalErrors += failed;
-                totalSkipped += skipped ?? 0;
-                failedItems.push(...(documentFailedItems ?? []));
-            }
+            for (const [documentType, documents] of documentGroups) {
+                if (documents.length <= 0) {
+                    continue;
+                }
 
-            if (stornoDocuments.length > 0) {
                 const {
                     requested,
                     failed,
                     skipped,
                     failedItems: documentFailedItems,
-                } = await this.createDocument('storno', stornoDocuments);
-                totalRequested += requested;
-                totalErrors += failed;
-                totalSkipped += skipped ?? 0;
-                failedItems.push(...(documentFailedItems ?? []));
-            }
+                } = await this.createDocument(documentType, documents);
 
-            if (creditNoteDocuments.length > 0) {
-                const {
-                    requested,
-                    failed,
-                    skipped,
-                    failedItems: documentFailedItems,
-                } = await this.createDocument('credit_note', creditNoteDocuments);
-                totalRequested += requested;
-                totalErrors += failed;
-                totalSkipped += skipped ?? 0;
-                failedItems.push(...(documentFailedItems ?? []));
-            }
-
-            if (deliveryNoteDocuments.length > 0) {
-                const {
-                    requested,
-                    failed,
-                    skipped,
-                    failedItems: documentFailedItems,
-                } = await this.createDocument('delivery_note', deliveryNoteDocuments);
                 totalRequested += requested;
                 totalErrors += failed;
                 totalSkipped += skipped ?? 0;

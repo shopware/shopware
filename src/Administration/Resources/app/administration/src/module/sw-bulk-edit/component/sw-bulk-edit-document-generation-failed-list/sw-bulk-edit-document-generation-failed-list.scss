@@ -3,9 +3,7 @@
 
     .sw-data-grid {
         border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-xs);
     }
 
-    .sw-data-grid__pagination {
-        justify-content: center;
-    }
 }

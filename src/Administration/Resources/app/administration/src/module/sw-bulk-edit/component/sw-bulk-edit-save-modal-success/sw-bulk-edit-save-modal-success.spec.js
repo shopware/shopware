@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
-import { mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 
 async function createWrapper(
     repositoryMocks = {
@@ -30,19 +30,7 @@ async function createWrapper(
                     'sw-bulk-edit-document-generation-failed-list': true,
                 },
                 mocks: {
-                    $t: (key, values = {}) => {
-                        if (key === 'sw-bulk-edit.modal.success.documentGenerationSkipped') {
-                            return `${values.count} documents were not generated because they already exist.`;
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.documentGenerationFailed') {
-                            return `${values.count} documents could not be generated.`;
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.documentGenerationWarningHelpText') {
-                            return `${values.generated} generated successfully, ${values.failed} failed.`;
-                        }
-
+                    $t: (key) => {
                         if (key === 'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline') {
                             return 'Failed documents';
                         }
@@ -130,24 +118,24 @@ describe('sw-bulk-edit-save-modal-success', () => {
 
     it('should show document generation warning when documents failed', async () => {
         Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(5, 2);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const warning = wrapper.find('.sw-bulk-edit-save-modal-success__warning-document-generation');
 
         expect(wrapper.vm.hasDocumentGenerationErrors).toBe(true);
         expect(warning.exists()).toBe(true);
-        expect(warning.text()).toContain('2 documents could not be generated.');
+        expect(warning.text()).toBe('sw-bulk-edit.modal.success.documentGenerationFailed');
     });
 
     it('should show skipped document generation info', async () => {
         Shopware.Store.get('swBulkEdit').setDocumentGenerationResult(5, 0, 2);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const info = wrapper.find('.sw-bulk-edit-save-modal-success__info-document-generation');
 
         expect(wrapper.vm.hasSkippedDocuments).toBe(true);
         expect(info.exists()).toBe(true);
-        expect(info.text()).toContain('2 documents were not generated because they already exist.');
+        expect(info.text()).toBe('sw-bulk-edit.modal.success.documentGenerationSkipped');
     });
 
     it('should be able to get latest documents', async () => {
@@ -337,7 +325,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
             },
         ]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.updateButtons();
 
         const emittedButtons = wrapper.emitted('buttons-update').at(-1)[0];

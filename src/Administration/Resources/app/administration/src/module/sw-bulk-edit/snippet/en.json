@@ -262,8 +262,6 @@
         "instruction": "The bulk edit has been finished successfully.",
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "No documents found",
-        "documentGenerationWarning": "Some documents could not be generated.",
-        "documentGenerationWarningHelpText": "{generated} generated successfully, {failed} failed.",
         "documentGenerationSkipped": "{count} documents were not generated because they already exist.",
         "documentGenerationFailed": "{count} documents could not be generated.",
         "failedDocuments": {

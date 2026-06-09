@@ -4,7 +4,9 @@
 import template from './sw-bulk-edit-document-generation-failed-list.html.twig';
 import './sw-bulk-edit-document-generation-failed-list.scss';
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @private
+ */
 export default {
     template,
 

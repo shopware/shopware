@@ -262,8 +262,6 @@
         "instruction": "Mehrfachänderung erfolgreich abgeschlossen.",
         "buttonDownload": "Download",
         "messageNoDocumentsFound": "Keine Dokumente vorhanden",
-        "documentGenerationWarning": "Einige Dokumente konnten nicht generiert werden:",
-        "documentGenerationWarningHelpText": "{generated} erfolgreich erstellt, {failed} fehlgeschlagen.",
         "documentGenerationSkipped": "{count} Dokumente wurden nicht erzeugt, weil sie bereits existieren.",
         "documentGenerationFailed": "{count} Dokumente konnten nicht erzeugt werden.",
         "failedDocuments": {

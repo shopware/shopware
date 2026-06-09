@@ -4,13 +4,14 @@
 import template from './sw-bulk-edit-save-modal-success.html.twig';
 import './sw-bulk-edit-save-modal-success.scss';
 import fileReaderUtils from '../../../../core/service/utils/file-reader.utils';
+import { DOCUMENT_TYPES } from '../../../sw-order/order.types';
 
 const { Criteria } = Shopware.Data;
 const documentTypeOrder = [
-    'invoice',
-    'storno',
-    'credit_note',
-    'delivery_note',
+    DOCUMENT_TYPES.INVOICE,
+    DOCUMENT_TYPES.CANCELLATION_INVOICE,
+    DOCUMENT_TYPES.CREDIT_NOTE,
+    DOCUMENT_TYPES.DELIVERY_NOTE,
 ];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

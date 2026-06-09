@@ -417,19 +417,19 @@ describe('core/service/api/snippet.api.service.ts', () => {
         it('should get locales correctly', async () => {
             const { snippetApiService, clientMock } = createSnippetApiService();
 
-            clientMock.onGet('/_admin/locales').reply(200, [
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            clientMock.onGet('/_admin/locales').reply(200, {
+                'lang-id-1': 'en-GB',
+                'lang-id-2': 'de-DE',
+                'lang-id-3': 'fr-FR',
+            });
 
             const result = await snippetApiService.getLocales();
 
-            expect(result).toEqual([
-                'en-GB',
-                'de-DE',
-                'fr-FR',
-            ]);
+            expect(result).toEqual({
+                'lang-id-1': 'en-GB',
+                'lang-id-2': 'de-DE',
+                'lang-id-3': 'fr-FR',
+            });
         });
     });
 });

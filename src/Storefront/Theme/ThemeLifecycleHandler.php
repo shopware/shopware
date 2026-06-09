@@ -79,6 +79,23 @@ class ThemeLifecycleHandler
         }
     }
 
+    public function refreshAllActiveThemeImportMaps(Context $context, ?StorefrontPluginConfigurationCollection $configurationCollection = null): void
+    {
+        $mappings = $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id
+             FROM theme_sales_channel'
+        );
+
+        foreach ($mappings as $mapping) {
+            $this->themeService->refreshThemeImportMap(
+                $mapping['sales_channel_id'],
+                $mapping['theme_id'],
+                $context,
+                $configurationCollection
+            );
+        }
+    }
+
     public function deactivateTheme(StorefrontPluginConfiguration $config, Context $context): ?string
     {
         $themeId = null;

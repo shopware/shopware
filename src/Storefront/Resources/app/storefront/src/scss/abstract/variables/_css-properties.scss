@@ -1,0 +1,43 @@
+/*
+CSS Custom Properties
+==================================================
+Exposes custom SCSS variables of the Storefront as CSS custom properties.
+
+@sw-package framework
+*/
+:root {
+    --search-suggest-zindex: #{$search-suggest-zindex};
+    --offcanvas-zindex: #{$offcanvas-zindex};
+    --cookie-msg-zindex: #{$cookie-msg-zindex};
+    --scroll-up-zindex: #{$scroll-up-zindex};
+    --menu-flyout-zindex: #{$menu-flyout-zindex};
+    --zoom-modal-action-zindex: #{$zoom-modal-action-zindex};
+    --magnifier-overlay-zindex: #{$magnifier-overlay-zindex};
+
+    --icon-base-size: #{$icon-base-size};
+    --icon-base-color: #{$icon-base-color};
+    --icon-review-color: #{$icon-review-color};
+    --progress-bar-review: #{$progress-bar-review};
+
+    --element-backdrop-bg: #{$element-backdrop-bg};
+
+    --spacer-xs: #{$spacer-xs};
+    --spacer-sm: #{$spacer-sm};
+    --spacer-md: #{$spacer-md};
+    --spacer-lg: #{$spacer-lg};
+    --spacer-xl: #{$spacer-xl};
+
+    --buy-btn-bg: #{$buy-btn-bg};
+    --buy-btn-color: #{$buy-btn-color};
+
+    --disabled-btn-bg: #{$disabled-btn-bg};
+    --disabled-btn-border-color: #{$disabled-btn-border-color};
+
+    --cms-block-text-hero-hr-color: #{$cms-block-text-hero-hr-color};
+    --cms-element-text-quotes-color: #{$cms-element-text-quotes-color};
+    --cms-element-product-listing-gutter-width: #{$cms-element-product-listing-gutter-width};
+
+    --price-color: #{$price-color};
+
+    --font-weight-semibold: #{$font-weight-semibold};
+}

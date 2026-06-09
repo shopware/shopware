@@ -28,6 +28,7 @@ use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeTokenGenerator;
 use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeUserInstaller;
 use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
@@ -256,7 +257,7 @@ class ShopwareRefreshTokenGrantTypeTest extends TestCase
     {
         $shopwarePasswordGrantType = new ShopwarePasswordGrantType(
             $this->getContainer()->get(UserRepository::class),
-            new RefreshTokenRepository($this->getContainer()->get(Connection::class)),
+            new RefreshTokenRepository($this->getContainer()->get(Connection::class), new NativeClock()),
             $this->getContainer()->get(UserService::class)
         );
 

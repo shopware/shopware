@@ -25,6 +25,7 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
                     data-id="product-123"
+                    data-sku="product-123"
                     data-name="Test Product"
                     data-quantity="2"
                     data-price="99.99"
@@ -80,6 +81,7 @@ describe('plugin/google-analytics/events/add-payment-info.event', () => {
             <div class="hidden-line-items-information" data-currency="EUR" data-value="49.99">
                 <span class="hidden-line-item"
                     data-id="product-123"
+                    data-sku="product-123"
                     data-name="Test Product"
                     data-quantity="1"
                     data-price="49.99">

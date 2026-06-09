@@ -11,7 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
@@ -76,7 +77,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->appRepositoryMock,
             'https://shopware.swag',
             $shopIdProviderMock,
-            '6.5.2.0'
+            '6.5.2.0',
+            new NativeClock(),
         );
     }
 
@@ -100,6 +102,7 @@ class AppRegistrationServiceTest extends TestCase
             'shop-id',
             $this->createMock(StoreClient::class),
             '6.5.2.0',
+            new NativeClock(),
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -115,8 +118,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Unknown app');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Unknown app'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -132,6 +134,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -154,8 +157,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -171,6 +173,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -189,8 +192,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Database error on app server');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Database error on app server'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -206,6 +208,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $this->testApp->setAppSecret('4pp-s3cr3t');
@@ -231,8 +234,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The new app secret returned from the App must be different from the current one.');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The new app secret returned from the App must be different from the current one.'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -248,6 +250,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -295,6 +298,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -308,8 +312,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->mockHandler->append(new Response(body: '{invalid-json: test,}'));
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: JSON response could not be decoded');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'JSON response could not be decoded'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -325,6 +328,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -342,8 +346,7 @@ class AppRegistrationServiceTest extends TestCase
             new RequestException('Unknown app', $registrationRequest, new Response(SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR, body: $responseBody)),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: Got status code 500, with response: ' . $responseBody);
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'Got status code 500, with response: ' . $responseBody));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -359,6 +362,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -382,8 +386,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided no proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
@@ -399,6 +402,7 @@ class AppRegistrationServiceTest extends TestCase
             'test',
             'shop-id',
             '6.5.2.0',
+            new NativeClock()
         );
 
         $registrationRequest = $handshake->assembleRequest();
@@ -422,8 +426,7 @@ class AppRegistrationServiceTest extends TestCase
             ),
         );
 
-        $this->expectException(AppRegistrationException::class);
-        $this->expectExceptionMessage('App registration for "test" failed: The app server provided an invalid proof');
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided an invalid proof'));
 
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }

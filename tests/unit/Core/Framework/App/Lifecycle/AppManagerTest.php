@@ -12,10 +12,12 @@ use Shopware\Core\Framework\App\DeletedApps\DeletedAppsGateway;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
 use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -52,6 +54,8 @@ class AppManagerTest extends TestCase
 
     private AppRegistrationService $registrationService;
 
+    private AppSecretRotationService $appSecretRotationService;
+
     private ActiveAppsLoader $activeAppsLoader;
 
     private SystemConfigService $systemConfigService;
@@ -78,6 +82,7 @@ class AppManagerTest extends TestCase
         $this->eventDispatcher = new CollectingEventDispatcher();
         $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         $this->registrationService = $this->createMock(AppRegistrationService::class);
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->integrationRepository = new StaticEntityRepository([]);
@@ -186,6 +191,77 @@ class AppManagerTest extends TestCase
             static::assertSame([['id' => $installedApp->getId()]], $appRepository->getPayloads(StaticEntityRepository::DELETE));
             static::assertSame([['id' => 'integration-id']], $this->integrationRepository->getPayloads(StaticEntityRepository::DELETE));
         }
+    }
+
+    public function testRefreshRegistrationRefreshesRemoteRegistrationWithoutLifecycleEvents(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+
+        $appManager->refreshRegistration($app, $manifest, $context);
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testReregisterReplaysInstallAndActivationForActiveApps(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->exactly(2))->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+
+        $appManager->reregister($app, $manifest, $context);
+        $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
+        static::assertCount(1, $installedEvents);
+        static::assertSame($app, $installedEvents[0]->getApp());
+
+        $activatedEvents = $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class);
+        static::assertCount(1, $activatedEvents);
+        static::assertSame($app, $activatedEvents[0]->getApp());
+    }
+
+    public function testReregisterDoesNotReplayActivationForInactiveApps(): void
+    {
+        $context = Context::createDefaultContext();
+        $manifest = ManifestFixture::empty()->withSetup();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), $context, AppSecretRotationService::TRIGGER_SHOP_MOVE);
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->once())->method('execute');
+
+        $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
+
+        $appManager->reregister($app, $manifest, $context);
+        $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
+        static::assertCount(1, $installedEvents);
+        static::assertSame($app, $installedEvents[0]->getApp());
+
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
     }
 
     public function testActivateDoesNothingIfAppIsAlreadyActive(): void
@@ -424,6 +500,7 @@ XML,
             $this->permissionLifecycle,
             $this->eventDispatcher,
             $this->registrationService,
+            $this->appSecretRotationService,
             $this->activeAppsLoader,
             AppFixture::createLanguageRepository(),
             $this->systemConfigService,

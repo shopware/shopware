@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Framework\App\AppUrlChangeResolver;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppInstalledEvent;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
-use Shopware\Core\Framework\App\Lifecycle\AppSecretRotationService;
+use Shopware\Core\Framework\App\Lifecycle\AppManager;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
@@ -18,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -59,26 +61,20 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $rotationService = $this->createMock(AppSecretRotationService::class);
-        $rotationService->expects($this->once())
-            ->method('rotateNow')
+        $appManager = $this->createMock(AppManager::class);
+        $appManager->expects($this->once())
+            ->method('reregister')
             ->with(
-                $app->getId(),
-                static::isInstanceOf(Context::class),
-                AppSecretRotationService::TRIGGER_SHOP_MOVE
+                $app,
+                static::callback(static fn (Manifest $manifest): bool => $manifest->getMetadata()->getName() === 'test'),
+                static::isInstanceOf(Context::class)
             );
 
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects($this->once())
-            ->method('dispatch')
-            ->with(static::isInstanceOf(AppInstalledEvent::class));
-
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new StaticSourceResolver(['test' => new Filesystem($appDir)]),
+            new ManifestFactory(new StaticSourceResolver(['test' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
-            $rotationService,
-            $this->shopIdProvider,
-            $eventDispatcher
+            $appManager,
+            $this->shopIdProvider
         );
 
         $reinstallAppsResolver->resolve($this->context);
@@ -93,25 +89,59 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl(false);
 
-        $rotationService = $this->createMock(AppSecretRotationService::class);
-        $rotationService->expects($this->never())
-            ->method('rotateNow');
-
-        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $eventDispatcher->expects($this->never())
-            ->method('dispatch');
+        $appManager = $this->createMock(AppManager::class);
+        $appManager->expects($this->never())
+            ->method('reregister');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new StaticSourceResolver(['no-setup' => new Filesystem($appDir)]),
+            new ManifestFactory(new StaticSourceResolver(['no-setup' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
-            $rotationService,
-            $this->shopIdProvider,
-            $eventDispatcher
+            $appManager,
+            $this->shopIdProvider
         );
 
         $reinstallAppsResolver->resolve($this->context);
 
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
+    }
+
+    public function testItContinuesWithOtherAppsWhenOneReinstallFails(): void
+    {
+        $testAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
+        $withConfigAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/withConfig');
+        $testApp = $this->createAppEntity('test', 'app-1');
+        $withConfigApp = $this->createAppEntity('withConfig', 'app-2');
+
+        $appManager = $this->createMock(AppManager::class);
+        $calls = 0;
+        $appManager->expects($this->exactly(2))
+            ->method('reregister')
+            ->willReturnCallback(static function () use (&$calls): void {
+                ++$calls;
+
+                if ($calls === 1) {
+                    throw new \RuntimeException('Could not reach app server');
+                }
+            });
+
+        /** @var StaticEntityRepository<AppCollection> $appRepository */
+        $appRepository = new StaticEntityRepository([
+            new AppCollection([$testApp, $withConfigApp]),
+        ]);
+
+        $reinstallAppsResolver = new ReinstallAppsStrategy(
+            new ManifestFactory(new StaticSourceResolver([
+                'test' => new Filesystem($testAppDir),
+                'withConfig' => new Filesystem($withConfigAppDir),
+            ])),
+            $appRepository,
+            $appManager,
+            $this->shopIdProvider
+        );
+
+        $this->expectExceptionObject(AppException::reRegistrationFailed(['test']));
+
+        $reinstallAppsResolver->resolve($this->context);
     }
 
     private function changeAppUrl(bool $expectToThrow = true): string
@@ -142,6 +172,15 @@ class ReinstallAppsStrategyTest extends TestCase
         $criteria->addAssociation('integration');
         $app = $appRepo->search($criteria, $context)->getEntities()->first();
         static::assertNotNull($app);
+
+        return $app;
+    }
+
+    private function createAppEntity(string $name, string $id): AppEntity
+    {
+        $app = new AppEntity();
+        $app->setId($id);
+        $app->setName($name);
 
         return $app;
     }

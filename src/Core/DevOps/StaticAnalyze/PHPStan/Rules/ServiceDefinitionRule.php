@@ -4,7 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
-use PHPStan\Node\FileNode;
+use PHPStan\Node\CollectedDataNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -18,7 +18,9 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
- * @implements Rule<FileNode>
+ * @phpstan-import-type ServiceDefinitionCollectorData from ServiceDefinitionCollector
+ *
+ * @implements Rule<CollectedDataNode>
  *
  * @internal
  */
@@ -34,67 +36,133 @@ class ServiceDefinitionRule implements Rule
 
     private readonly string $projectRoot;
 
-    private readonly string $triggerFile;
+    /**
+     * @var array<string, list<array{file: string, relativePath: string}>>|null
+     */
+    private ?array $declarationsByServiceId = null;
+
+    /**
+     * @var list<array{file: string, relativePath: string, message: string}>|null
+     */
+    private ?array $loadingErrors = null;
 
     public function __construct(
         private readonly ServiceMap $serviceMap,
-        ?string $projectRoot = null,
-        ?string $triggerFile = null
+        ?string $projectRoot = null
     ) {
         $this->projectRoot = $projectRoot ?? (\defined('TEST_PROJECT_DIR') ? TEST_PROJECT_DIR : \dirname(__DIR__, 6));
-        $this->triggerFile = $triggerFile ?? __FILE__;
     }
 
     public function getNodeType(): string
     {
-        return FileNode::class;
+        return CollectedDataNode::class;
     }
 
     /**
-     * @param FileNode $node
+     * @param CollectedDataNode $node
      *
      * @return list<RuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$this->isTriggerFile($scope->getFile())) {
-            return [];
+        $errors = [];
+        $checkedServiceIds = [];
+
+        foreach ($this->getServiceDefinitionLoadingErrors() as $loadingError) {
+            $errors[] = $this->buildError(\sprintf(
+                '%s - could not load service definitions: %s',
+                $loadingError['relativePath'],
+                $loadingError['message']
+            ), $loadingError['file']);
         }
 
-        $errors = [];
+        /** @var array<string, list<list<ServiceDefinitionCollectorData>>> $collectedServiceDefinitions */
+        $collectedServiceDefinitions = $node->get(ServiceDefinitionCollector::class);
 
-        foreach ($this->getServiceDefinitionFiles() as $file) {
-            $relativePath = $this->getRelativePath($file);
+        foreach ($collectedServiceDefinitions as $serviceDefinitionGroups) {
+            foreach ($serviceDefinitionGroups as $serviceDefinitions) {
+                foreach ($serviceDefinitions as $serviceDefinition) {
+                    $serviceId = $serviceDefinition['serviceId'];
 
-            try {
-                $serviceIds = $this->getDeclaredServiceIds($file);
-            } catch (\Throwable $e) {
-                $errors[] = $this->buildError(\sprintf(
-                    '%s - could not load service definitions: %s',
-                    $relativePath,
-                    $e->getMessage()
-                ));
+                    if (isset($checkedServiceIds[$serviceId])) {
+                        continue;
+                    }
 
-                continue;
-            }
+                    $checkedServiceIds[$serviceId] = true;
 
-            foreach ($serviceIds as $serviceId) {
-                $errors = array_merge(
-                    $errors,
-                    $this->checkServiceBundleRegistration($serviceId, $relativePath)
-                );
+                    foreach ($this->checkServiceDeclarationBundle($serviceId) as $error) {
+                        $errors[] = $error;
+                    }
+                }
             }
         }
 
         return $errors;
     }
 
-    private function isTriggerFile(string $file): bool
+    /**
+     * @return list<array{file: string, relativePath: string, message: string}>
+     */
+    private function getServiceDefinitionLoadingErrors(): array
     {
-        $realFile = realpath($file);
-        $realTriggerFile = realpath($this->triggerFile);
+        if ($this->loadingErrors !== null) {
+            return $this->loadingErrors;
+        }
 
-        return $realFile !== false && $realTriggerFile !== false && $realFile === $realTriggerFile;
+        $this->collectServiceDeclarations();
+
+        return $this->loadingErrors ?? [];
+    }
+
+    /**
+     * @return array<string, list<array{file: string, relativePath: string}>>
+     */
+    private function getServiceDeclarations(): array
+    {
+        if ($this->declarationsByServiceId !== null) {
+            return $this->declarationsByServiceId;
+        }
+
+        $this->collectServiceDeclarations();
+
+        return $this->declarationsByServiceId ?? [];
+    }
+
+    private function collectServiceDeclarations(): void
+    {
+        $this->declarationsByServiceId = [];
+        $this->loadingErrors = [];
+        $seenDeclarations = [];
+
+        foreach ($this->getServiceDefinitionFiles() as $file) {
+            $relativePath = $this->getRelativePath($file);
+
+            try {
+                $declaredServiceIds = $this->getDeclaredServiceIds($file);
+            } catch (\Throwable $e) {
+                $this->loadingErrors[] = [
+                    'file' => $file,
+                    'relativePath' => $relativePath,
+                    'message' => $e->getMessage(),
+                ];
+
+                continue;
+            }
+
+            foreach ($declaredServiceIds as $serviceId) {
+                $declarationKey = $file . ':' . $serviceId;
+
+                if (isset($seenDeclarations[$declarationKey])) {
+                    continue;
+                }
+
+                $seenDeclarations[$declarationKey] = true;
+                $this->declarationsByServiceId[$serviceId][] = [
+                    'file' => $file,
+                    'relativePath' => $relativePath,
+                ];
+            }
+        }
     }
 
     /**
@@ -193,7 +261,7 @@ class ServiceDefinitionRule implements Rule
     /**
      * @return list<RuleError>
      */
-    private function checkServiceBundleRegistration(string $serviceId, string $relativePath): array
+    private function checkServiceDeclarationBundle(string $serviceId): array
     {
         $service = $this->serviceMap->getService($serviceId);
 
@@ -201,23 +269,29 @@ class ServiceDefinitionRule implements Rule
             return [];
         }
 
-        $currentBundle = $this->getBundleForFile($relativePath);
+        $errors = [];
         $serviceClass = $service->getClass() ?? $serviceId;
         $expectedBundle = $this->getBundleForClass($serviceClass);
 
-        if ($serviceId === '' || $currentBundle === null || $expectedBundle === null || $expectedBundle === $currentBundle) {
-            return [];
+        foreach ($this->getServiceDeclarations()[$serviceId] ?? [] as $declaration) {
+            $currentBundle = $this->getBundleForFile($declaration['relativePath']);
+
+            if ($serviceId === '' || $currentBundle === null || $expectedBundle === null || $expectedBundle === $currentBundle) {
+                continue;
+            }
+
+            $errors[] = $this->buildError(\sprintf(
+                '%s - service "%s" is registered in %s but its effective class "%s" belongs to %s. Register it in a %s DependencyInjection file instead.',
+                $declaration['relativePath'],
+                $serviceId,
+                $currentBundle,
+                $serviceClass,
+                $expectedBundle,
+                $expectedBundle
+            ), $declaration['file']);
         }
 
-        return [$this->buildError(\sprintf(
-            '%s - service "%s" is registered in %s but its effective class "%s" belongs to %s. Register it in a %s DependencyInjection file instead.',
-            $relativePath,
-            $serviceId,
-            $currentBundle,
-            $serviceClass,
-            $expectedBundle,
-            $expectedBundle
-        ))];
+        return $errors;
     }
 
     private function getBundleForFile(string $relativePath): ?string
@@ -251,9 +325,10 @@ class ServiceDefinitionRule implements Rule
         return $file;
     }
 
-    private function buildError(string $message): RuleError
+    private function buildError(string $message, string $file): RuleError
     {
         return RuleErrorBuilder::message($message)
+            ->file($file)
             ->line(1)
             ->identifier('shopware.serviceDefinition')
             ->build();

@@ -22,6 +22,11 @@ rules:
 
 services:
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\ServiceDefinitionCollector
+        tags:
+            - phpstan.collector
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessageHandlerFinalRule
         tags:
             - phpat.test

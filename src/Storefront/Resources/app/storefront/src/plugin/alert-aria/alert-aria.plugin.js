@@ -16,10 +16,11 @@ export default class AlertAriaPlugin extends Plugin {
 
     static options = {
         ariaLive: 'polite',
+        contentSelector: '.alert-content-container',
     };
 
     init() {
-        this._container = this.el.querySelector('.alert-content-container');
+        this._container = this.el.querySelector(this.options.contentSelector);
 
         if (!this._container) {
             console.warn(`[${this._pluginName}] The alert content container cannot be found.`);

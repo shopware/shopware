@@ -126,7 +126,7 @@ class SalesChannelDefinitionTest extends TestCase
         $this->apiRepository->create([$data], Context::createDefaultContext());
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
         $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);
 

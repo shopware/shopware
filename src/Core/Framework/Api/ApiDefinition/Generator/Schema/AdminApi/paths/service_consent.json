@@ -1,0 +1,104 @@
+{
+  "openapi": "3.1.0",
+  "info": [],
+  "paths": {
+    "\/services\/consent-revision": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "Get service consent revision metadata",
+        "description": "Returns the latest service consent revision together with all available revisions and their related links. The revision texts are localized via the Accept-Language header.",
+        "operationId": "getServiceConsentRevision",
+        "parameters": [
+          {
+            "name": "Accept-Language",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Locale used to localize the revision links, e.g. \"de-DE\". Defaults to \"en-GB\"."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service consent revision metadata",
+            "content": {
+              "application\/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "latest-revision",
+                    "available-revisions"
+                  ],
+                  "properties": {
+                    "latest-revision": {
+                      "type": "string",
+                      "description": "The latest service consent revision"
+                    },
+                    "available-revisions": {
+                      "type": "array",
+                      "description": "All available service consent revisions",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "revision",
+                          "links"
+                        ],
+                        "properties": {
+                          "revision": {
+                            "type": "string",
+                            "description": "The revision identifier"
+                          },
+                          "links": {
+                            "type": "object",
+                            "required": [
+                              "feedback-url",
+                              "docs-url",
+                              "tos-url"
+                            ],
+                            "properties": {
+                              "feedback-url": {
+                                "type": "string",
+                                "description": "URL to provide feedback for this revision"
+                              },
+                              "docs-url": {
+                                "type": "string",
+                                "description": "URL to the documentation of this revision"
+                              },
+                              "tos-url": {
+                                "type": "string",
+                                "description": "URL to the terms of service of this revision"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "latest-revision": "2026-05-05",
+                    "available-revisions": [
+                      {
+                        "revision": "2026-05-05",
+                        "links": {
+                          "feedback-url": "https:\/\/example.com\/feedback",
+                          "docs-url": "https:\/\/example.com\/docs",
+                          "tos-url": "https:\/\/example.com\/tos"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  }
+}

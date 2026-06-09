@@ -129,7 +129,6 @@
     "GET /service/list",
     "POST /service/uninstall/{serviceName}",
     "GET /services/categorized-permissions/{serviceName}",
-    "GET /services/consent-revision",
     "POST /services/disable",
     "POST /services/enable",
     "POST /services/trigger-update",

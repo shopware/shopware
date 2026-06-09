@@ -7,6 +7,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_7\Migration1765287397AddConsentTable;
+use Shopware\Core\Migration\V6_7\Migration1770740885AddRevisionToConsentState;
 use Shopware\Core\Migration\V6_7\Migration1778050000MigrateServicesConsentToNativeConsent;
 
 /**
@@ -23,6 +25,11 @@ class Migration1778050000MigrateServicesConsentToNativeConsentTest extends TestC
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+
+        // other migration tests drop and recreate consent_state in older revisions of its schema,
+        // so make sure the table exists with all columns this migration relies on
+        (new Migration1765287397AddConsentTable())->update($this->connection);
+        (new Migration1770740885AddRevisionToConsentState())->update($this->connection);
 
         $this->connection->executeStatement(
             'DELETE FROM consent_state WHERE name = :name AND identifier = :identifier',

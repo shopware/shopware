@@ -166,10 +166,22 @@ export default {
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
             const documentGroups = [
-                ['invoice', invoiceDocuments],
-                ['storno', stornoDocuments],
-                ['credit_note', creditNoteDocuments],
-                ['delivery_note', deliveryNoteDocuments],
+                [
+                    'invoice',
+                    invoiceDocuments,
+                ],
+                [
+                    'storno',
+                    stornoDocuments,
+                ],
+                [
+                    'credit_note',
+                    creditNoteDocuments,
+                ],
+                [
+                    'delivery_note',
+                    deliveryNoteDocuments,
+                ],
             ];
 
             let totalRequested = 0;
@@ -177,7 +189,10 @@ export default {
             let totalSkipped = 0;
             const failedItems = [];
 
-            for (const [documentType, documents] of documentGroups) {
+            for (const [
+                documentType,
+                documents,
+            ] of documentGroups) {
                 if (documents.length <= 0) {
                     continue;
                 }

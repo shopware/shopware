@@ -85,10 +85,6 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$request->hasSession()) {
-            return;
-        }
-
         $referralCode = $request->query->get(self::QUERY_PARAM);
 
         if (!$referralCode || !Uuid::isValid($referralCode)) {
@@ -96,6 +92,10 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         }
 
         if (!$this->isTrackableChannel($referralCode)) {
+            return;
+        }
+
+        if (!$request->hasSession(true)) {
             return;
         }
 
@@ -108,7 +108,7 @@ class SalesChannelTrackingListener implements EventSubscriberInterface
         $orderEvent = $event->getEventByEntityName(OrderDefinition::ENTITY_NAME);
         $customerEvent = $event->getEventByEntityName(CustomerDefinition::ENTITY_NAME);
 
-        if (!$orderEvent && !$customerEvent) {
+        if ($orderEvent === null && $customerEvent === null) {
             return;
         }
 

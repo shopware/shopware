@@ -13,8 +13,11 @@ use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\AtLeastOneOf;
 use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -39,6 +42,7 @@ class CustomFieldRule
                 new NotBlank(),
                 new Choice(
                     choices: [
+                        Rule::OPERATOR_BETWEEN,
                         Rule::OPERATOR_NEQ,
                         Rule::OPERATOR_GTE,
                         Rule::OPERATOR_LTE,
@@ -54,7 +58,7 @@ class CustomFieldRule
     /**
      * @param array<string, string|array<string, string>> $renderedField
      * @param array<string, mixed> $customFields
-     * @param array<string|int|bool|float>|string|int|bool|float|null $renderedFieldValue
+     * @param array<string|int|bool|float>|array{from: string, to: string}|string|int|bool|float|null $renderedFieldValue
      */
     public static function match(array $renderedField, array|string|int|bool|float|null $renderedFieldValue, string $operator, array $customFields, ?SalesChannelContext $context = null): bool
     {
@@ -75,6 +79,14 @@ class CustomFieldRule
 
         if (self::isArray($renderedField)) {
             return ArrayComparator::compare((array) $actual, (array) $expected, $operator);
+        }
+
+        if ($operator === Rule::OPERATOR_BETWEEN && self::isDatetimeOrDateField($renderedField)) {
+            if (!\is_array($expected) || !isset($expected['from'], $expected['to'])) {
+                return false;
+            }
+
+            return $actual >= $expected['from'] && $actual <= $expected['to'];
         }
 
         return match ($operator) {
@@ -125,7 +137,7 @@ class CustomFieldRule
     }
 
     /**
-     * @param array<string|int|bool|float>|float|bool|int|string|null $renderedFieldValue
+     * @param array<string|int|bool|float>|float|bool|int|string|array{from: string, to: string}|null $renderedFieldValue
      * @param array<string, string|array<string, string>> $renderedField
      *
      * @return array<string|int|bool|float>|float|bool|int|string|null
@@ -140,8 +152,23 @@ class CustomFieldRule
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
         }
 
-        if (self::isDatetimeOrDateField($renderedField) && \is_string($renderedFieldValue)) {
-            return (new \DateTimeImmutable($renderedFieldValue))->format(\DATE_ATOM);
+        if (self::isDatetimeOrDateField($renderedField)) {
+            if ($renderedFieldValue === null) {
+                return null;
+            }
+
+            if (\is_string($renderedFieldValue)) {
+                return (new \DateTimeImmutable($renderedFieldValue))->format(\DATE_ATOM);
+            }
+
+            if (\is_array($renderedFieldValue) && isset($renderedFieldValue['from'], $renderedFieldValue['to'])) {
+                return [
+                    'from' => (new \DateTimeImmutable((string) $renderedFieldValue['from']))->format(\DATE_ATOM),
+                    'to' => (new \DateTimeImmutable((string) $renderedFieldValue['to']))->format(\DATE_ATOM),
+                ];
+            }
+
+            return null;
         }
 
         return $renderedFieldValue;
@@ -198,17 +225,35 @@ class CustomFieldRule
      */
     private static function getRenderedFieldValueConstraints(array $renderedField): array
     {
-        $constraints = [];
-
         if (!\array_key_exists('type', $renderedField)) {
             return [new NotBlank()];
         }
 
-        if ($renderedField['type'] !== CustomFieldTypes::BOOL) {
-            $constraints[] = new NotBlank();
+        if ($renderedField['type'] === CustomFieldTypes::BOOL) {
+            return [];
         }
 
-        return $constraints;
+        // Date/datetime fields accept two payload shapes depending on the operator:
+        // - scalar date string  (=, !=, >, <, >=, <=)
+        // - array{from: string, to: string}  (BETWEEN)
+        if (self::isDatetimeOrDateField($renderedField)) {
+            return [
+                new NotBlank(),
+                new AtLeastOneOf([
+                    new Type('string'),
+                    new Collection(
+                        fields: [
+                            'from' => [new NotBlank(), new Type('string')],
+                            'to' => [new NotBlank(), new Type('string')],
+                        ],
+                        allowExtraFields: false,
+                        allowMissingFields: false
+                    ),
+                ]),
+            ];
+        }
+
+        return [new NotBlank()];
     }
 
     /**

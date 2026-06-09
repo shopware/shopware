@@ -476,11 +476,12 @@ export default {
             this.cmsPageState.setBlock(block);
         },
 
-        onChangeLanguage() {
+        onChangeLanguage(languageId) {
             this.isLoading = true;
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             this.cmsPageState.setIsSystemDefaultLanguage(isSystemDefaultLanguage);
+            Shopware.Store.get('context').setApiLanguageId(languageId);
             return this.loadPage(this.pageId);
         },
 

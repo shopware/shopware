@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\User\Command\UserCreateCommand;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -37,8 +38,7 @@ class UserCreateCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $this->expectException(MaintenanceException::class);
-        $this->expectExceptionMessage('The password must have at least 8 characters.');
+        $this->expectExceptionObject(MaintenanceException::passwordTooShort(8));
 
         $commandTester->execute([
             'username' => self::TEST_USERNAME,
@@ -48,7 +48,7 @@ class UserCreateCommandTest extends TestCase
 
     private function getCommandTester(): CommandTester
     {
-        return new CommandTester(new UserCreateCommand(new UserProvisioner($this->createConnection())));
+        return new CommandTester(new UserCreateCommand(new UserProvisioner($this->createConnection(), new NativeClock())));
     }
 
     private function createConnection(): Connection

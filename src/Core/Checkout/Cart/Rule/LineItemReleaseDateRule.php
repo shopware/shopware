@@ -21,10 +21,12 @@ class LineItemReleaseDateRule extends Rule
 
     /**
      * @internal
+     *
+     * @param string|array{from: string, to: string}|null $lineItemReleaseDate
      */
     public function __construct(
         protected string $operator = self::OPERATOR_EQ,
-        protected ?string $lineItemReleaseDate = null
+        protected string|array|null $lineItemReleaseDate = null
     ) {
         parent::__construct();
     }
@@ -41,14 +43,18 @@ class LineItemReleaseDateRule extends Rule
 
         $constraints['lineItemReleaseDate'] = RuleConstraints::datetime();
 
+        if ($this->operator === self::OPERATOR_BETWEEN) {
+            $constraints['lineItemReleaseDate'] = RuleConstraints::dateBetween();
+        }
+
         return $constraints;
     }
 
     public function match(RuleScope $scope): bool
     {
-        try {
-            $ruleValue = $this->buildDate($this->lineItemReleaseDate);
-        } catch (\Exception) {
+        $ruleValue = $this->lineItemReleaseDate;
+
+        if ($ruleValue === null) {
             return false;
         }
 
@@ -72,46 +78,34 @@ class LineItemReleaseDateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_DATE, true)
             ->dateTimeField('lineItemReleaseDate');
     }
 
     /**
+     * @param string|array{from: string, to: string} $ruleValue
+     *
      * @throws CartException
      */
-    private function matchesReleaseDate(LineItem $lineItem, ?\DateTime $ruleValue): bool
+    private function matchesReleaseDate(LineItem $lineItem, string|array $ruleValue): bool
     {
+        /** @var string|null $releasedAtString */
+        $releasedAtString = $lineItem->getPayloadValue('releaseDate');
+
+        if ($releasedAtString === null) {
+            return RuleComparison::isNegativeOperator($this->operator);
+        }
+
         try {
-            $releasedAtString = $lineItem->getPayloadValue('releaseDate');
-
-            if ($releasedAtString === null) {
-                return RuleComparison::isNegativeOperator($this->operator);
-            }
-
-            /** @var \DateTime $itemReleased */
-            $itemReleased = $this->buildDate($releasedAtString);
+            $itemReleased = new \DateTime($releasedAtString);
         } catch (\Exception) {
             return false;
         }
 
-        if ($ruleValue === null) {
-            return false;
-        }
-
-        return RuleComparison::datetime($itemReleased, $ruleValue, $this->operator);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function buildDate(?string $dateString): ?\DateTime
-    {
-        if ($dateString === null) {
-            return null;
-        }
-
-        $dateTime = new \DateTime($dateString);
-
-        return $dateTime;
+        return RuleComparison::datetimeValue(
+            $itemReleased,
+            $ruleValue,
+            $this->operator
+        );
     }
 }

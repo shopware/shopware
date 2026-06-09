@@ -12,6 +12,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -45,7 +46,8 @@ class AdministrationReadinessCheckTest extends TestCase
             $this->router,
             $this->kernel,
             $this->viteFileAccessor,
-            $this->filesystem
+            $this->filesystem,
+            new NativeClock()
         );
     }
 

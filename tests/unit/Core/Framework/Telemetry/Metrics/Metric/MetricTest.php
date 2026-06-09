@@ -17,53 +17,40 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 #[Package('framework')]
 class MetricTest extends TestCase
 {
-    public function testInvokeRemovesDisallowedLabels(): void
+    public function testFromConfiguredMapsAllFields(): void
     {
-        $metricConfig = MetricConfig::fromDefinition(
-            'test_metric',
-            [
-                'type' => Type::COUNTER->value,
-                'description' => 'Cache hits',
-                'unit' => 'hits',
-                'enabled' => true,
-                'labels' => [
-                    'label1' => ['allowed_values' => ['allowed_value', 'another_allowed_value']],
-                    'label2' => ['allowed_values' => ['allowed_value', 'another_allowed_value']],
-                ],
-            ]
-        );
+        $metricConfig = MetricConfig::fromDefinition('test_metric', [
+            'type' => Type::HISTOGRAM->value,
+            'description' => 'Cache hits',
+            'unit' => 'hits',
+            'enabled' => true,
+            'labels' => [],
+        ]);
 
-        $configuredMetric = new ConfiguredMetric(
-            'test_metric',
-            100,
-            ['label1' => 'allowed_value', 'label2' => 'disallowed_value']
-        );
+        $configuredMetric = new ConfiguredMetric('my_metric', 42.5, ['env' => 'stale']);
+        $processedLabels = ['env' => 'prod'];
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, $processedLabels);
 
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
-        static::assertSame(['label1' => 'allowed_value'], $metric->labels);
+        static::assertSame('my_metric', $metric->name);
+        static::assertSame(42.5, $metric->value);
+        static::assertSame(['env' => 'prod'], $metric->labels, 'Resulting Metric labels differ from provided processedLabels');
+        static::assertSame(Type::HISTOGRAM, $metric->type);
+        static::assertSame('Cache hits', $metric->description);
+        static::assertSame('hits', $metric->unit);
     }
 
-    public function testInvokeWithNoAllowedValues(): void
+    public function testFromConfiguredResolvesClosureValue(): void
     {
-        $metricConfig = MetricConfig::fromDefinition(
-            'test_metric',
-            [
-                'type' => Type::COUNTER->value,
-                'description' => 'Cache hits',
-                'unit' => 'hits',
-                'enabled' => true,
-                'labels' => [],
-            ]
-        );
+        $metricConfig = MetricConfig::fromDefinition('lazy_metric', [
+            'description' => 'Cache hits',
+            'type' => Type::HISTOGRAM->value,
+            'enabled' => true,
+        ]);
 
-        $configuredMetric = new ConfiguredMetric(
-            'test_metric',
-            100,
-            ['some_label' => 'some_value', 'another_label' => 'another_value']
-        );
+        $configuredMetric = new ConfiguredMetric('lazy_metric', static fn () => 99);
+        $metric = Metric::fromConfigured($configuredMetric, $metricConfig, []);
 
-        $metric = Metric::fromConfigured($configuredMetric, $metricConfig);
-        static::assertSame([], $metric->labels);
+        static::assertSame(99, $metric->value);
     }
 
     public function testFromArray(): void

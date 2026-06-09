@@ -62,6 +62,15 @@
             <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
         </input-field>
 
+        <input-field type="int">
+            <name>doubleOptInResendInterval</name>
+            <label>Resend double opt-in email after (hours)</label>
+            <label lang="de-DE">Double-Opt-In-E-Mail erneut senden nach (Stunden)</label>
+            <helpText>If a customer attempts to log in without completing double opt-in, the confirmation email is resent automatically if it was sent more than this many hours ago. Set to 0 to disable auto-resend.</helpText>
+            <helpText lang="de-DE">Falls ein Kunde versucht sich anzumelden, ohne das Double-Opt-In abzuschließen, wird die Bestätigungs-E-Mail erneut gesendet, wenn sie vor mehr als dieser Anzahl an Stunden gesendet wurde. Auf 0 setzen, um das automatische Erneut-Senden zu deaktivieren.</helpText>
+            <defaultValue>24</defaultValue>
+        </input-field>
+
         <input-field type="text">
             <name>confirmationUrl</name>
             <label>Confirmation URL for double opt-in on sign-up</label>

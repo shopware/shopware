@@ -62,8 +62,7 @@ class EsiDecorationTest extends TestCase
             return new Response();
         });
 
-        static::expectException(AdapterException::class);
-        static::expectExceptionMessage('Circular ESI request detected: Request call stack: /foo, /foo');
+        $this->expectExceptionObject(AdapterException::circularReferenceEsi(['/foo', '/foo']));
 
         // this is the first call
         $esi->handle($this->cache, '/foo', '', false);
@@ -77,8 +76,7 @@ class EsiDecorationTest extends TestCase
 
         $esi = new EsiDecoration();
 
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Error when rendering "http://localhost/foo" (Status code is 500).');
+        $this->expectExceptionObject(new \RuntimeException('Error when rendering "http://localhost/foo" (Status code is 500).'));
 
         $esi->handle($this->cache, '/foo', '', false);
     }

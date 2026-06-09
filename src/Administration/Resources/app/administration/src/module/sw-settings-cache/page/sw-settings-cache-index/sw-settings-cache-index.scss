@@ -1,14 +1,46 @@
-@import "~scss/variables";
-
 .sw-settings-cache {
-    .sw-card .sw-card__content {
-        padding-top: 0;
+    .sw-card-section {
+        width: 100%;
+        padding: var(--scale-size-30) 0;
     }
 
-    .sw-settings-cache__card-indexes {
-        .sw-container + .sw-container {
-            margin-top: 30px;
+    &__card {
+        &-toolbar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: var(--scale-size-8);
+            padding: var(--scale-size-6) 0;
+            width: 100%;
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+
+            &-heading {
+                font-weight: var(--font-weight-semi-bold);
+            }
         }
+
+        &-section-heading {
+            font-size: var(--font-size-xs);
+            line-height: var(--font-line-height-xs);
+            font-weight: var(--font-weight-semi-bold);
+        }
+
+        .mt-card__content {
+            .sw-card-section:first-child {
+                padding-top: 0;
+            }
+
+            .sw-card-section:last-child {
+                padding-bottom: 0;
+            }
+        }
+    }
+
+    &__card-indexes {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-24);
 
         .mt-select {
             margin-bottom: 0;
@@ -16,75 +48,46 @@
     }
 
     &__indexers-entry {
-        padding: 4px 8px;
-        border-radius: $border-radius-default;
+        padding: var(--scale-size-12) var(--scale-size-16);
+        border-radius: var(--border-radius-xs);
 
         &:hover {
-            background-color: lighten($color-shopware-brand-500, 40%);
-        }
+            background: var(--color-background-brand-default);
 
-        &.sw-field--checkbox {
-            margin-bottom: 8px;
-        }
-    }
-
-    .sw-card-section {
-        width: 100%;
-        padding: 30px 0;
-
-        &--secondary {
-            padding: 30px;
+            .mt-field__label {
+                color: var(--color-text-brand-default);
+            }
         }
     }
-}
 
-.sw-settings-cache__card-toolbar {
-    width: 100%;
-    row-gap: 25px;
+    &__indexers-list {
+        list-style: none;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
 
-    &-heading {
-        font-weight: $font-weight-semi-bold;
-    }
-}
-
-.sw-settings-cache__card-section-heading {
-    font-weight: $font-weight-semi-bold;
-}
-
-.sw-settings-cache__indexers-list {
-    list-style: none;
-    font-size: $font-size-xs;
-    padding-top: 8px;
-    margin: 0 12px;
-
-    & > li {
-        & > ul {
+        & > li > ul {
             list-style: none;
-            margin-left: 25px;
+            margin-left: var(--scale-size-24);
         }
     }
-}
 
-.sw-settings-cache__indexers-placeholder {
-    &.sw-label.sw-label--ghost {
-        border-color: transparent;
-    }
-}
-
-.sw-settings-cache__indexers-select {
-    &.sw-field {
-        margin: 0;
+    &__indexers-placeholder {
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-secondary-default) !important;
+        padding-left: var(--scale-size-8);
+        padding-top: 5px;
     }
 
-    &.sw-select {
-        .sw-select__selection {
-            padding-top: 8px;
+    &__indexers-select {
+        &.sw-field {
+            margin: 0;
         }
-    }
-}
 
-.sw-settings-cache__skip-indexers-select {
-    &.sw-field {
-        margin-bottom: 0;
+        &.sw-select {
+            .sw-select__selection {
+                padding-top: var(--scale-size-8);
+            }
+        }
     }
 }

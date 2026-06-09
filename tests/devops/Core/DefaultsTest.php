@@ -11,7 +11,7 @@ use Shopware\Core\Defaults;
  */
 class DefaultsTest extends TestCase
 {
-    private const CURRENT_AMOUNT_OF_DEFAULT_CONSTANTS = 10;
+    private const CURRENT_AMOUNT_OF_DEFAULT_CONSTANTS = 11;
 
     public function testValues(): void
     {
@@ -27,6 +27,7 @@ class DefaultsTest extends TestCase
         static::assertSame('5e29f9890c4d4d519a1c7f9d5c24b7c1', Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE);
         static::assertSame('Y-m-d H:i:s.v', Defaults::STORAGE_DATE_TIME_FORMAT);
         static::assertSame('Y-m-d', Defaults::STORAGE_DATE_FORMAT);
+        static::assertSame('U.u', Defaults::MICROTIME_FORMAT);
         static::assertSame('7a6d253a67204037966f42b0119704d5', Defaults::CMS_PRODUCT_DETAIL_PAGE);
     }
 }

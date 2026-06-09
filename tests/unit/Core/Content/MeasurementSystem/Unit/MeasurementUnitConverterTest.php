@@ -152,8 +152,7 @@ class MeasurementUnitConverterTest extends TestCase
                 ['kg', $toUnitInfo],
             ]);
 
-        static::expectException(MeasurementSystemException::class);
-        static::expectExceptionMessage('The measurement units "mm" and "kg" are incompatible.');
+        $this->expectExceptionObject(MeasurementSystemException::incompatibleMeasurementUnits('mm', 'kg'));
 
         $this->converter->convert(10.0, 'mm', 'kg');
     }
@@ -250,8 +249,7 @@ class MeasurementUnitConverterTest extends TestCase
                 ['cm', $toUnitInfo],
             ]);
 
-        static::expectException(MeasurementSystemException::class);
-        static::expectExceptionMessage('The measurement system unit "cm" cannot have a factor of zero.');
+        $this->expectExceptionObject(MeasurementSystemException::measurementUnitCantHaveZeroFactor('cm'));
         $this->converter->convert(1.0, 'mm', 'cm');
     }
 

@@ -72,7 +72,11 @@ class ProductListingLoader
         'variation',
         'options.group',
         'coverId',
-        'cover.media',
+        'cover.media.url',
+        'cover.media.alt',
+        'cover.media.title',
+        'cover.media.mediaTypeRaw',
+        'cover.media.thumbnailsRo',
         'manufacturerId',
         'manufacturer.name',
         'ratingAverage',
@@ -122,7 +126,7 @@ class ProductListingLoader
 
         $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
 
-        if ($criteria->getFields() === [] && ($partialDataLoading === null || (bool) $partialDataLoading)) {
+        if ($criteria->getFields() === [] && (bool) $partialDataLoading) {
             $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
         }
 

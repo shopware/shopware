@@ -13,7 +13,7 @@
       "contextMenuDelete": "Delete",
       "messageEmpty": "No integrations yet",
       "sublineEmpty": "The module for managing integrations.",
-      "permissions": "Permissions",
+      "permissions": "Roles",
       "writeAccess": "Write",
       "readAccess": "Read",
       "integrationName": "Integration",

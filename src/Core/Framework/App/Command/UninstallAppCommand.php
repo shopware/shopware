@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -50,10 +49,9 @@ class UninstallAppCommand extends Command
         }
 
         $context = Context::createCLIContext();
-        /** @phpstan-ignore phpat.restrictNamespacesInCore (Existence of Storefront dependency is checked before usage. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966) */
-        if (class_exists(ThemeLifecycleHandler::class) && $input->getOption('skip-theme-compile')) {
-            /** @phpstan-ignore phpat.restrictNamespacesInCore */
-            $context->addState(ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION);
+        if ($input->getOption('skip-theme-compile')) {
+            // Storefront's ThemeLifecycleHandler reads this context state to skip theme compilation
+            $context->addState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION);
         }
 
         $app = $this->getAppByName($name, $context);

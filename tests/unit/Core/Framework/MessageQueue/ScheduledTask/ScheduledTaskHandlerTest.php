@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskExecutor;
@@ -40,7 +40,7 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertTrue($handler->wasCalled);
     }
 
-    public function testInvokeThrowsDeprecationWhenNoExecutorIsSetAndMajorIsActive(): void
+    public function testInvokeThrowsWhenNoExecutorIsSetAndMajorIsActive(): void
     {
         $handler = new HandlerStub(
             $this->createMock(EntityRepository::class),
@@ -48,10 +48,15 @@ class ScheduledTaskHandlerTest extends TestCase
         );
 
         Feature::fake(['v6.8.0.0'], function () use ($handler): void {
-            $this->expectException(FeatureException::class);
-
-            $handler(new HandlerStubTask());
+            try {
+                $handler(new HandlerStubTask());
+                static::fail('Expected MessageQueueException to be thrown');
+            } catch (MessageQueueException $e) {
+                static::assertSame(MessageQueueException::SCHEDULED_TASK_EXECUTOR_NOT_SET, $e->getErrorCode());
+            }
         });
+
+        static::assertFalse($handler->wasCalled);
     }
 
     public function testInvokeFallsBackToInlineLogicWhenNoExecutorIsSet(): void

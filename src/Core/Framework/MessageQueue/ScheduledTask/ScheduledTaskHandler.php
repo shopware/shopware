@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Symfony\Component\Clock\ClockAwareTrait;
 
 #[Package('framework')]
@@ -34,6 +35,10 @@ abstract class ScheduledTaskHandler
             $this->scheduledTaskExecutor->execute($this, $task);
 
             return;
+        }
+
+        if (Feature::isActive('v6.8.0.0')) {
+            throw MessageQueueException::scheduledTaskExecutorNotSet(static::class);
         }
 
         $this->runLegacy($task);

@@ -2,11 +2,10 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
@@ -26,19 +25,14 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsCollection;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
-use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Test\Store\StaticInAppPurchaseFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
-use Shopware\Core\Test\Stub\Symfony\StubKernel;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -51,9 +45,9 @@ class InfoControllerTest extends TestCase
 
     private ShopIdProvider&MockObject $shopIdProvider;
 
-    private StatsService&MockObject $statsService;
+    private StatsService&Stub $statsService;
 
-    private MigrationInfo&MockObject $migrationInfo;
+    private MigrationInfo&Stub $migrationInfo;
 
     private EventDispatcher $eventDispatcher;
 
@@ -61,8 +55,8 @@ class InfoControllerTest extends TestCase
     {
         parent::setUp();
         $this->shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $this->statsService = $this->createMock(StatsService::class);
-        $this->migrationInfo = $this->createMock(MigrationInfo::class);
+        $this->statsService = static::createStub(StatsService::class);
+        $this->migrationInfo = static::createStub(MigrationInfo::class);
         $this->eventDispatcher = new EventDispatcher();
 
         $shopId = ShopId::v2('shop-id');
@@ -103,24 +97,6 @@ class InfoControllerTest extends TestCase
         static::assertIsArray($workerConfig['transports']);
         static::assertCount(1, $workerConfig['transports']);
         static::assertSame('slow', $workerConfig['transports'][0]);
-
-        static::assertArrayHasKey('bundles', $data);
-        $bundles = $data['bundles'];
-        static::assertIsArray($bundles);
-        static::assertCount(1, $bundles);
-        static::assertArrayHasKey('AdminExtensionApiPluginWithLocalEntryPoint', $bundles);
-        $bundle = $bundles['AdminExtensionApiPluginWithLocalEntryPoint'];
-        static::assertIsArray($bundle);
-        static::assertArrayHasKey('css', $bundle);
-        static::assertIsArray($bundle['css']);
-        static::assertCount(0, $bundle['css']);
-        static::assertArrayHasKey('js', $bundle);
-        static::assertIsArray($bundle['js']);
-        static::assertCount(0, $bundle['js']);
-        static::assertArrayHasKey('baseUrl', $bundle);
-        static::assertSame('/admin/adminextensionapipluginwithlocalentrypoint/index.html', $bundle['baseUrl']);
-        static::assertArrayHasKey('type', $bundle);
-        static::assertSame('plugin', $bundle['type']);
 
         static::assertArrayHasKey('settings', $data);
         $settings = $data['settings'];
@@ -288,55 +264,21 @@ class InfoControllerTest extends TestCase
             'shopware.deployment.runtime_extension_management' => true,
         ]);
 
-        $kernel = new StubKernel([
-            new AdminExtensionApiPluginWithLocalEntryPoint(true, __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint'),
-        ]);
-
-        $routerMock = $this->createMock(RouterInterface::class);
-        $routerMock->method('generate')
-            ->with('administration.plugin.index', [
-                'pluginName' => 'adminextensionapipluginwithlocalentrypoint',
-            ])
-            ->willReturn('/admin/adminextensionapipluginwithlocalentrypoint/index.html');
-
-        $viteAccessor = new ViteFileAccessorDecorator(
-            [],
-            $this->createMock(UrlPackage::class),
-            $kernel,
-            new Filesystem(),
-        );
-
         return new InfoController(
-            $this->createMock(DefinitionService::class),
+            static::createStub(DefinitionService::class),
             $parameterBag,
-            $kernel,
-            $this->createMock(BusinessEventCollector::class),
-            $this->createMock(IncrementGatewayRegistry::class),
-            $this->createMock(Connection::class),
+            static::createStub(BusinessEventCollector::class),
+            static::createStub(IncrementGatewayRegistry::class),
             $this->migrationInfo,
-            $this->createMock(AppUrlVerifier::class),
-            $routerMock,
-            $this->createMock(FlowActionCollector::class),
+            static::createStub(AppUrlVerifier::class),
+            static::createStub(FlowActionCollector::class),
             new StaticSystemConfigService(),
-            $this->createMock(ApiRouteInfoResolver::class),
+            static::createStub(ApiRouteInfoResolver::class),
             StaticInAppPurchaseFactory::createWithFeatures(['SwagApp' => ['SwagApp_premium']]),
-            $viteAccessor,
-            new Filesystem(),
             $this->shopIdProvider,
             $this->statsService,
             $this->eventDispatcher,
             null,
         );
-    }
-}
-
-/**
- * @internal
- */
-class AdminExtensionApiPluginWithLocalEntryPoint extends Plugin
-{
-    public function getPath(): string
-    {
-        return __DIR__ . '/Fixtures/AdminExtensionApiPluginWithLocalEntryPoint';
     }
 }

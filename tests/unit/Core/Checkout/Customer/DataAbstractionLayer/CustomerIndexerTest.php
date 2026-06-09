@@ -58,7 +58,7 @@ class CustomerIndexerTest extends TestCase
         $message = $this->createMock(CustomerIndexingMessage::class);
         $message->method('getData')->willReturn([$customerId]);
         $message->method('getContext')->willReturn(
-            $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock()
+            static::createStub(Context::class)
         );
         $message->method('getIds')->willReturn([$customerId]);
 

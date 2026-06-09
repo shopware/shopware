@@ -91,8 +91,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_english_word_delimiter_index_analyzer',
-                        'search_analyzer' => 'sw_english_word_delimiter_search_analyzer',
+                        'analyzer' => 'sw_english_technical_term_index_analyzer',
+                        'search_analyzer' => 'sw_english_technical_term_search_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -113,8 +113,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_german_word_delimiter_index_analyzer',
-                        'search_analyzer' => 'sw_german_word_delimiter_search_analyzer',
+                        'analyzer' => 'sw_german_technical_term_index_analyzer',
+                        'search_analyzer' => 'sw_german_technical_term_search_analyzer',
                     ],
                     'ngram' => [
                         'type' => 'text',
@@ -140,8 +140,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_english_word_delimiter_index_analyzer',
-                        'search_analyzer' => 'sw_english_word_delimiter_search_analyzer',
+                        'analyzer' => 'sw_english_technical_term_index_analyzer',
+                        'search_analyzer' => 'sw_english_technical_term_search_analyzer',
                         'similarity' => 'sw_length_norm',
                     ],
                     'ngram' => [
@@ -163,8 +163,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                     'search' => [
                         'type' => 'text',
-                        'analyzer' => 'sw_german_word_delimiter_index_analyzer',
-                        'search_analyzer' => 'sw_german_word_delimiter_search_analyzer',
+                        'analyzer' => 'sw_german_technical_term_index_analyzer',
+                        'search_analyzer' => 'sw_german_technical_term_search_analyzer',
                         'similarity' => 'sw_length_norm',
                     ],
                     'ngram' => [
@@ -242,8 +242,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             'search' => [
                 'type' => 'text',
-                'analyzer' => 'sw_whitespace_word_delimiter_index_analyzer',
-                'search_analyzer' => 'sw_whitespace_word_delimiter_search_analyzer',
+                'analyzer' => 'sw_whitespace_technical_term_index_analyzer',
+                'search_analyzer' => 'sw_whitespace_technical_term_search_analyzer',
             ],
             'ngram' => [
                 'type' => 'text',

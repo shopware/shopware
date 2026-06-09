@@ -120,10 +120,9 @@ class ProductListingLoader
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
-        if (
-            $criteria->getFields() === []
-            && $this->systemConfigService->getBool('core.listing.partialDataLoading', $context->getSalesChannelId())
-        ) {
+        $partialDataLoading = $this->systemConfigService->get('core.listing.partialDataLoading', $context->getSalesChannelId());
+
+        if ($criteria->getFields() === [] && ($partialDataLoading === null || (bool) $partialDataLoading)) {
             $criteria->addFields(self::PARTIAL_LISTING_FIELDS);
         }
 

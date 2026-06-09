@@ -37,7 +37,7 @@
             <label lang="de-DE">Reduzierte Produktdaten in Listings laden</label>
             <helpText>Product listings only load the data required by the default product boxes, including a shortened description. This reduces database load and memory usage for products with large descriptions. Deactivate if your theme or extensions require additional product data in listings.</helpText>
             <helpText lang="de-DE">Produktlistings laden nur die Daten, die die Standard-Produktboxen benötigen, inklusive einer gekürzten Beschreibung. Das reduziert Datenbanklast und Speicherverbrauch bei Produkten mit umfangreichen Beschreibungen. Deaktivieren, falls Theme oder Erweiterungen zusätzliche Produktdaten in Listings benötigen.</helpText>
-            <defaultValue>false</defaultValue>
+            <defaultValue>true</defaultValue>
         </input-field>
 
         <input-field type="bool">

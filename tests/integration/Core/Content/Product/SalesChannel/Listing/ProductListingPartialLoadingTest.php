@@ -72,9 +72,26 @@ class ProductListingPartialLoadingTest extends TestCase
         static::assertSame('probe-manufacturer', $manufacturer->get('translated')['name'] ?? null);
     }
 
-    public function testListingLoadsFullDataByDefault(): void
+    public function testListingLoadsPartialDataByDefault(): void
     {
         $this->createData();
+
+        // No config set: reduced loading is opt-out, so it is active by default.
+        $result = $this->loadListing();
+
+        $product = $result->getEntities()->get($this->ids->get('product0'));
+        static::assertInstanceOf(PartialEntity::class, $product);
+
+        $translated = $product->get('translated');
+        static::assertIsArray($translated);
+        static::assertArrayNotHasKey('description', array_filter($translated), 'description must not be loaded by default');
+        static::assertNotEmpty($translated['descriptionTeaser'] ?? null, 'descriptionTeaser must be loaded by default');
+    }
+
+    public function testListingLoadsFullDataWhenDisabled(): void
+    {
+        $this->createData();
+        static::getContainer()->get(SystemConfigService::class)->set(self::CONFIG_KEY, false);
 
         $result = $this->loadListing();
 

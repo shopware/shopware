@@ -305,43 +305,6 @@
         </template>
         {% endblock %}
 
-        {% block sw_product_variants_overview_data_grid_column_documents %}
-        <template #column-productDocuments="{ item, isInlineEdit }">
-            {% block sw_product_variants_overview_data_grid_column_documents_inherit %}
-            <sw-inheritance-switch
-                :is-inherited="isProductDocumentsFieldInherited(item)"
-                :disabled="!isInlineEdit"
-                class="sw-product-variants-overview_documents__inherited-icon"
-                @inheritance-restore="onProductDocumentsInheritanceRestore(item, isInlineEdit)"
-                @inheritance-remove="onProductDocumentsInheritanceRemove(item, isInlineEdit)"
-            />
-            {% endblock %}
-
-            {% block sw_product_variants_overview_data_grid_column_documents_listener %}
-            <sw-upload-listener
-                :upload-tag="`product-documents-${item.id}`"
-                auto-upload
-                @media-upload-finish="(event) => successfulProductDocumentUpload(event, item)"
-            />
-            {% endblock %}
-
-            {% block sw_product_variants_overview_data_grid_column_documents_content %}
-            <sw-media-compact-upload-v2
-                v-if="productDocumentFolderId"
-                :upload-tag="`product-documents-${item.id}`"
-                :disabled="isInlineEdit ? isProductDocumentsFieldInherited(item) : true"
-                private-filesystem
-                allow-multi-select
-                add-files-on-multiselect
-                :source-multiselect="getProductDocumentsSource(item)"
-                :target-folder-id="productDocumentFolderId"
-                file-accept="*/*"
-                @delete-item="(file) => removeProductDocument(file, item)"
-            />
-            {% endblock %}
-        </template>
-        {% endblock %}
-
         <template #column-downloads="{item, isInlineEdit, compact}">
             <sw-upload-listener
                 :upload-tag="item.productNumber"

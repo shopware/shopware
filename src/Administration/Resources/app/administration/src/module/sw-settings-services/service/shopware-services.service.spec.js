@@ -55,27 +55,21 @@ describe('src/module/sw-settings-services/service/shopware-services-service.ts',
             false,
             false,
         ],
-    ])(
-        'loads the services context',
-        async (
-            configValueDisabled,
-            expectedValueDisabled,
-        ) => {
-            const client = createHTTPClient();
-            const clientMock = new MockAdapter(client);
-            const loginService = createLoginService(client, Shopware.Context.api);
-            const systemConfigService = new SystemConfigApiService(client, loginService);
-            const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
+    ])('loads the services context', async (configValueDisabled, expectedValueDisabled) => {
+        const client = createHTTPClient();
+        const clientMock = new MockAdapter(client);
+        const loginService = createLoginService(client, Shopware.Context.api);
+        const systemConfigService = new SystemConfigApiService(client, loginService);
+        const shopwareServicesService = new ShopwareServicesService(client, loginService, systemConfigService);
 
-            clientMock.onGet('_action/system-config').reply(200, {
-                'core.services.disabled': configValueDisabled,
-            });
+        clientMock.onGet('_action/system-config').reply(200, {
+            'core.services.disabled': configValueDisabled,
+        });
 
-            const servicesContext = await shopwareServicesService.getServicesContext();
+        const servicesContext = await shopwareServicesService.getServicesContext();
 
-            expect(servicesContext.disabled).toBe(expectedValueDisabled);
-        },
-    );
+        expect(servicesContext.disabled).toBe(expectedValueDisabled);
+    });
 
     it('loads consent revision metadata', async () => {
         const client = createHTTPClient();

@@ -92,5 +92,12 @@ return [
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule#$birthday changed from string|null to string|array|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemReleaseDateRule#$lineItemReleaseDate changed from string|null to string|array|null', '/'),
         preg_quote('CHANGED: Type of property Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule#$lineItemCreationDate changed from string|null to string|array|null', '/'),
+
+        // Service consent migration: the deprecated permission/consent error API on ServiceException is removed
+        // (services consent now uses the native consent system; ServiceException is slated to become @internal in 6.8)
+        preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::NO_CURRENT_PERMISSIONS_CONSENT was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::consentSaveFailed() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::consentRevokeFailed() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Service\ServiceException::noCurrentPermissionsConsent() was removed', '/'),
     ],
 ];

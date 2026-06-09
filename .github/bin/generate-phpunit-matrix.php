@@ -21,7 +21,7 @@ $matrix = [
             ['testsuite' => 'core-framework-batch3'],
             ['path' => 'Storefront'],
             ['path' => '{Administration,Elasticsearch}'],
-            ['path' => '{Core/Installer,Core/Maintenance,Core/Service,Core/System}'],
+            ['path' => '{Core/Installer,Core/Maintenance,Core/System}'],
             ['testsuite' => 'migration'],
         ],
         'php' => $php,

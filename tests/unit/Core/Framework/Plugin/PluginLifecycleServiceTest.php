@@ -46,6 +46,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\Cache\CacheItem;
@@ -90,6 +91,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private RequestStack&MockObject $requestStackMock;
 
+    private CustomFieldSetPersister&MockObject $customFieldSetPersister;
+
     protected function setUp(): void
     {
         $this->pluginRepoMock = $this->createMock(EntityRepository::class);
@@ -110,6 +113,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->method('getMigrationNamespace')->willReturn('migration');
 
         $this->requestStackMock = $this->createMock(RequestStack::class);
+        $this->customFieldSetPersister = $this->createMock(CustomFieldSetPersister::class);
 
         $this->pluginLifecycleService = new PluginLifecycleService(
             $this->pluginRepoMock,
@@ -129,7 +133,7 @@ class PluginLifecycleServiceTest extends TestCase
             $this->createMock(VersionSanitizer::class),
             $this->createMock(DefinitionInstanceRegistry::class),
             $this->requestStackMock,
-            $this->createMock(CustomFieldSetPersister::class),
+            $this->customFieldSetPersister,
             new NativeClock()
         );
     }
@@ -319,6 +323,27 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
     }
 
+    public function testUninstallPluginRemovesCustomFieldsByExtensionName(): void
+    {
+        $pluginEntityMock = $this->getPluginEntityMock();
+        $context = Context::createDefaultContext();
+        $extensionName = $this->pluginMock->getName();
+
+        $pluginEntityMock->setInstalledAt(new \DateTime());
+        $pluginEntityMock->setActive(false);
+
+        $this->customFieldSetPersister->expects($this->once())
+            ->method('sync')
+            ->with(
+                static::callback(static fn (CustomFields $customFields): bool => $customFields->getCustomFieldSets() === []),
+                null,
+                $extensionName,
+                $context
+            );
+
+        $this->pluginLifecycleService->uninstallPlugin($pluginEntityMock, $context);
+    }
+
     public function testUninstallPluginNotInstalled(): void
     {
         $pluginEntityMock = $this->getPluginEntityMock();
@@ -413,6 +438,27 @@ class PluginLifecycleServiceTest extends TestCase
         $this->commandExecutor->expects($this->once())->method('remove');
 
         $this->pluginLifecycleService->updatePlugin($plugin, Context::createDefaultContext());
+    }
+
+    public function testUpdatePluginSyncsEmptyCustomFieldsWhenXmlFileIsMissing(): void
+    {
+        $plugin = $this->getPluginEntityMock();
+        $context = Context::createDefaultContext();
+        $extensionName = $this->pluginMock->getName();
+
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(false);
+
+        $this->customFieldSetPersister->expects($this->once())
+            ->method('sync')
+            ->with(
+                static::callback(static fn (CustomFields $customFields): bool => $customFields->getCustomFieldSets() === []),
+                null,
+                $extensionName,
+                $context
+            );
+
+        $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
     public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void

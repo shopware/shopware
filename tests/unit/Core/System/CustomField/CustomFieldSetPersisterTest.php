@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomField;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -117,6 +116,28 @@ class CustomFieldSetPersisterTest extends TestCase
         static::assertSame([['id' => $existingSetId]], $deletes);
     }
 
+    public function testSyncEmptyPluginDefinitionDeletesExistingSetsByExtensionName(): void
+    {
+        $existingSetId = Uuid::randomHex();
+
+        $this->connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturnCallback(function (string $sql, array $params) use ($existingSetId): array {
+                static::assertStringContainsString('WHERE extension_name = :extensionName', $sql);
+                static::assertSame(['extensionName' => 'TestPlugin'], $params);
+
+                return [Uuid::fromHexToBytes($existingSetId) => 'obsolete_set'];
+            });
+
+        $this->persister->sync(CustomFields::fromArray([]), null, 'TestPlugin', Context::createDefaultContext());
+
+        static::assertSame([], $this->setRepository->getPayloads(StaticEntityRepository::UPSERT));
+        static::assertSame(
+            [['id' => $existingSetId]],
+            $this->setRepository->getPayloads(StaticEntityRepository::DELETE)
+        );
+    }
+
     public function testSyncExistingSetCarriesIdAndDeletesObsoleteChildren(): void
     {
         $setId = Uuid::randomHex();
@@ -222,47 +243,6 @@ class CustomFieldSetPersisterTest extends TestCase
             [['id' => $removedSetId]],
             $this->setRepository->getPayloads(StaticEntityRepository::DELETE)
         );
-    }
-
-    public function testRemoveByNamesDeletesResolvedIds(): void
-    {
-        $idA = Uuid::randomHex();
-        $idB = Uuid::randomHex();
-
-        $this->connection->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturnCallback(function (string $sql, array $params, array $types) use ($idA, $idB): array {
-                static::assertStringContainsString('FROM custom_field_set WHERE name IN (:names)', $sql);
-                static::assertSame(['names' => ['set_a', 'set_b']], $params);
-                static::assertSame(['names' => ArrayParameterType::STRING], $types);
-
-                return [$idA, $idB];
-            });
-
-        $this->persister->removeByNames(['set_a', 'set_b'], Context::createDefaultContext());
-
-        static::assertSame(
-            [['id' => $idA], ['id' => $idB]],
-            $this->setRepository->getPayloads(StaticEntityRepository::DELETE)
-        );
-    }
-
-    public function testRemoveByNamesWithEmptyInputIsNoop(): void
-    {
-        $this->connection->expects($this->never())->method('fetchFirstColumn');
-
-        $this->persister->removeByNames([], Context::createDefaultContext());
-
-        static::assertSame([], $this->setRepository->deletes);
-    }
-
-    public function testRemoveByNamesWithoutMatchesDoesNotDelete(): void
-    {
-        $this->connection->expects($this->once())->method('fetchFirstColumn')->willReturn([]);
-
-        $this->persister->removeByNames(['unknown'], Context::createDefaultContext());
-
-        static::assertSame([], $this->setRepository->deletes);
     }
 
     private function loadFixture(): CustomFields

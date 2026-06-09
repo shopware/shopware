@@ -50,6 +50,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -159,7 +160,7 @@ class PluginLifecycleService
 
             $this->runMigrations($installContext);
 
-            $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext);
+            $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, false);
 
             $installDate = $this->clock->now();
             $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -321,7 +322,7 @@ class PluginLifecycleService
 
         $this->runMigrations($updateContext);
 
-        $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext);
+        $this->syncPluginCustomFields($pluginBaseClass, $shopwareContext, true);
 
         $updateVersion = $updateContext->getUpdatePluginVersion();
         $updateDate = $this->clock->now();
@@ -551,11 +552,15 @@ class PluginLifecycleService
         $this->pluginService->refreshPlugins($context, new NullIO());
     }
 
-    private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context): void
+    private function syncPluginCustomFields(Plugin $pluginBaseClass, Context $context, bool $deleteMissingXml): void
     {
         $xmlFile = $pluginBaseClass->getPath() . '/Resources/custom-fields.xml';
 
         if (!is_file($xmlFile)) {
+            if ($deleteMissingXml) {
+                $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
+            }
+
             return;
         }
 
@@ -566,19 +571,7 @@ class PluginLifecycleService
 
     private function removePluginCustomFields(Plugin $pluginBaseClass, Context $context): void
     {
-        $xmlFile = $pluginBaseClass->getPath() . '/Resources/custom-fields.xml';
-
-        if (!is_file($xmlFile)) {
-            return;
-        }
-
-        $customFields = CustomFieldXmlLoader::load($xmlFile);
-        $setNames = array_map(
-            static fn ($set) => $set->getName(),
-            $customFields->getCustomFieldSets()
-        );
-
-        $this->customFieldSetPersister->removeByNames($setNames, $context);
+        $this->customFieldSetPersister->sync(CustomFields::fromArray([]), null, $pluginBaseClass->getName(), $context);
     }
 
     private function removeCustomEntities(string $pluginId): void

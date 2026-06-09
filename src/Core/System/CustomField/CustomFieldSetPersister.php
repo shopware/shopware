@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\CustomField;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -46,35 +45,6 @@ class CustomFieldSetPersister
     {
         $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($customFields, $appId, $extensionName): void {
             $this->upsertCustomFieldSets($customFields, $appId, $extensionName, $innerContext);
-        });
-    }
-
-    /**
-     * Remove custom field sets by their names.
-     *
-     * @param list<string> $setNames
-     */
-    public function removeByNames(array $setNames, Context $context): void
-    {
-        if ($setNames === []) {
-            return;
-        }
-
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($setNames): void {
-            $ids = $this->connection->fetchFirstColumn(
-                'SELECT LOWER(HEX(id)) FROM custom_field_set WHERE name IN (:names)',
-                ['names' => $setNames],
-                ['names' => ArrayParameterType::STRING]
-            );
-
-            if ($ids === []) {
-                return;
-            }
-
-            $this->customFieldSetRepository->delete(
-                array_map(static fn (string $id): array => ['id' => $id], $ids),
-                $innerContext
-            );
         });
     }
 

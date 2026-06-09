@@ -60,7 +60,7 @@ class SeoActionController extends AbstractController
     #[Route(
         path: '/api/_action/seo-url-template/validate',
         name: 'api.seo-url-template.validate',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo-url-template:update']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function validate(Request $request, Context $context): JsonResponse
@@ -79,7 +79,7 @@ class SeoActionController extends AbstractController
     #[Route(
         path: '/api/_action/seo-url-template/preview',
         name: 'api.seo-url-template.preview',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo-url-template:update']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['seo_url_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function preview(Request $request, Context $context): Response

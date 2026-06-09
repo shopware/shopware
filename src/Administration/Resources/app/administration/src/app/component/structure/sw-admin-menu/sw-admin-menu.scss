@@ -580,7 +580,7 @@ $sw-admin-menu-active-text: $color-white;
             }
         }
 
-        .sw-admin-menu__sub-navigation-list {
+        & > .sw-admin-menu__sub-navigation-list {
             display: block;
             position: absolute;
             top: 0;
@@ -598,6 +598,13 @@ $sw-admin-menu-active-text: $color-white;
             .sw-admin-menu__navigation-link {
                 padding: 12px 30px;
             }
+        }
+    }
+
+    .navigation-list-item__level-2.is--flyout-enabled {
+        & > .sw-admin-menu__sub-navigation-list {
+            width: $sw-admin-menu-width-flyout;
+            z-index: $sw-admin-menu-z-index-flyout;
         }
     }
 }

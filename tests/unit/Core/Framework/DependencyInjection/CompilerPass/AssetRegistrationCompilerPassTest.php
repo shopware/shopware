@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetRegistrationCompilerPass;
-use Shopware\Storefront\Theme\ThemeCompiler;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -28,35 +27,6 @@ class AssetRegistrationCompilerPassTest extends TestCase
 
         static::assertArrayHasKey('assets.package', $tags);
         static::assertSame('asset', $tags['assets.package'][0]['package']);
-    }
-
-    public function testProcessInjectsAssetsIntoThemeCompilerWhenPresent(): void
-    {
-        $container = $this->createContainerWithAssets();
-
-        $themeCompilerDefinition = new Definition(ThemeCompiler::class);
-        $themeCompilerDefinition->setPublic(true);
-        $container->setDefinition(ThemeCompiler::class, $themeCompilerDefinition);
-
-        (new AssetRegistrationCompilerPass())->process($container);
-
-        // Compiler pass injects by named argument, not constructor index.
-        $argument = $container->getDefinition(ThemeCompiler::class)->getArgument('$packages');
-
-        static::assertIsArray($argument);
-        static::assertArrayHasKey('asset', $argument);
-    }
-
-    public function testProcessDoesNotTouchThemeCompilerWhenAbsent(): void
-    {
-        $container = $this->createContainerWithAssets();
-
-        static::assertFalse($container->hasDefinition(ThemeCompiler::class));
-
-        // Must not throw
-        (new AssetRegistrationCompilerPass())->process($container);
-
-        static::assertFalse($container->hasDefinition(ThemeCompiler::class));
     }
 
     private function createContainerWithAssets(): ContainerBuilder

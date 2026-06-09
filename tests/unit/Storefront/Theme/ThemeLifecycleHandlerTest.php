@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
@@ -243,7 +244,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $config->setIsTheme(true);
 
         $context = Context::createDefaultContext();
-        $context->addState('skip-theme-compilation');
+        $context->addState(AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION);
 
         $this->themeLifecycleServiceMock
             ->expects($this->once())

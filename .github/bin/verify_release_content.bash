@@ -66,6 +66,8 @@ main() {
     echo "  file   : ${release_info_file}"
     echo ""
 
+    # Trunk is the authoritative source for what is supposed to be in the release.
+    # The release branch is what actually shipped (or will ship).
     local trunk_headings branch_headings
     trunk_headings=$(git show "${TRUNK_REF}:${release_info_file}" | extract_headings "$version_prefix")
     branch_headings=$(extract_headings "$version_prefix" < "$release_info_file")
@@ -84,23 +86,46 @@ main() {
         local text_present=0 commit_reachable=0
         local introducing_commit short_sha
 
+        # Check 1 — text: is the heading present in the release branch's copy of the file?
+        # If it's missing here, the RELEASE_INFO update was never merged or cherry-picked into the branch.
         grep -qF "$heading" <<< "$branch_headings" 2>/dev/null && text_present=1
 
+        # Check 2 — commit: find the trunk commit that introduced this heading via pickaxe search (-S),
+        # then verify it is a direct ancestor of the release branch HEAD.
+        # This confirms the full PR (docs + code) landed in the branch, not just the text.
         introducing_commit=$(find_introducing_commit "$heading" "$release_info_file")
         short_sha="${introducing_commit:0:8}"
 
+        local docs_only=0
         if [[ -n "$introducing_commit" ]]; then
             git merge-base --is-ancestor "$introducing_commit" HEAD 2>/dev/null && commit_reachable=1
+
+            # Check 3 — docs-only: if the introducing commit only touched RELEASE_INFO and nothing else,
+            # it was a standalone documentation update decoupled from the feature code.
+            # In that case the commit reachability check above tells us nothing about the actual feature —
+            # we can only flag it for manual verification.
+            local changed_files
+            changed_files=$(git diff-tree --no-commit-id -r --name-only "$introducing_commit")
+            if [[ "$changed_files" == "$release_info_file" ]]; then
+                docs_only=1
+            fi
         fi
 
-        if   [[ $text_present -eq 1 && $commit_reachable -eq 1 ]]; then
-            : # confirmed present
+        if   [[ $text_present -eq 1 && $commit_reachable -eq 1 && $docs_only -eq 0 ]]; then
+            : # confirmed — heading and feature code landed in the same commit and are both reachable
         elif [[ $text_present -eq 0 && $commit_reachable -eq 0 ]]; then
             missing+=("${heading} [${short_sha:-unknown}]")
         elif [[ $text_present -eq 1 && $commit_reachable -eq 0 ]]; then
+            # RELEASE_INFO was cherry-picked but the original trunk commit is not a direct ancestor.
+            # The feature code may have come along with the cherry-pick, but we cannot confirm automatically.
             warnings+=("${heading} [${short_sha}] RELEASE_INFO present but trunk commit not in branch — verify cherry-pick includes feature code")
         elif [[ $text_present -eq 0 && $commit_reachable -eq 1 ]]; then
+            # The feature commit is present but the RELEASE_INFO entry was dropped from the branch.
             warnings+=("${heading} [${short_sha}] code commit present but RELEASE_INFO entry missing from branch")
+        elif [[ $docs_only -eq 1 ]]; then
+            # The heading was added in a commit that only touched RELEASE_INFO, so we cannot trace
+            # the feature code back to a specific commit to check reachability.
+            warnings+=("${heading} [${short_sha}] RELEASE_INFO was updated in a docs-only commit — feature code commit is unknown, verify manually")
         fi
     done <<< "$trunk_headings"
 

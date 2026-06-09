@@ -6,6 +6,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Symfony\Component\Config\Util\XmlUtils;
 
+/**
+ * @internal
+ */
 #[Package('framework')]
 class CustomFieldXmlLoader
 {

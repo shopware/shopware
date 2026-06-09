@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @final
+ * @internal
  */
 #[Package('framework')]
 class CustomFields extends XmlElement

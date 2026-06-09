@@ -13,6 +13,8 @@ use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFiel
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 
 /**
+ * @internal
+ *
  * @phpstan-import-type CustomFieldSetArray from \Shopware\Core\System\CustomField\Xml\CustomFieldSet
  */
 #[Package('framework')]
@@ -78,7 +80,7 @@ class CustomFieldSetPersister
 
     private function upsertCustomFieldSets(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context): void
     {
-        $existingCustomFieldSets = $this->getExistingCustomFieldSets($appId, $extensionName);
+        $existingCustomFieldSets = $this->getExistingCustomFieldSets($appId, $extensionName, $context);
 
         if ($customFields->getCustomFieldSets() === []) {
             if ($existingCustomFieldSets !== []) {
@@ -149,7 +151,7 @@ class CustomFieldSetPersister
     /**
      * @return array<string, string> Map of set name => set id (hex)
      */
-    private function getExistingCustomFieldSets(?string $appId, ?string $extensionName): array
+    private function getExistingCustomFieldSets(?string $appId, ?string $extensionName, Context $context): array
     {
         if ($appId !== null) {
             // App behavior: look up by app_id
@@ -179,7 +181,7 @@ class CustomFieldSetPersister
         foreach ($groupedByName as $name => $ids) {
             if (\count($ids) > 1) {
                 // duplicate sets - delete all and let them be recreated
-                $this->deleteObsoleteIds($ids, [], [], Context::createDefaultContext());
+                $this->deleteObsoleteIds($ids, [], [], $context);
             } else {
                 $existingCustomFieldSets[$name] = $ids[0];
             }

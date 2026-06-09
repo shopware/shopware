@@ -169,7 +169,8 @@
         "placeholderDescription": "Enter rule description...",
         "labelType": "Type",
         "placeholderType": "Select rule type...",
-        "productStatesConditionWarning": "The condition \"Item with product state\" is deprecated and will be removed in v6.8. Please use \"Item with product type\" instead.",
+        "deprecatedConditionWarning": "The condition \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+        "deprecatedConditionWarningNoReplacement": "The condition \"{label}\" is deprecated and will be removed in {version}.",
         "placeholderDelayType": "Select delay..."
       },
       "tag": {

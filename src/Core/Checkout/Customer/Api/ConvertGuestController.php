@@ -44,7 +44,12 @@ class ConvertGuestController
     ) {
     }
 
-    #[Route(path: '/api/_action/customer-convert/{customerId}', name: 'api.action.customer.convert', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/customer-convert/{customerId}',
+        name: 'api.action.customer.convert',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['customer:update']],
+        methods: ['POST']
+    )]
     public function convert(Request $request, Context $context, string $customerId): NoContentResponse
     {
         $customer = $this->customerRepository->search(new Criteria([$customerId]), $context)->first();
@@ -78,7 +83,7 @@ class ConvertGuestController
         ]);
         $this->convertGuestRoute->convertGuest($requestBag, $salesChannelContext, $customer);
 
-        if ($request->request->has('password')) {
+        if ($request->request->getString('password')) {
             return new NoContentResponse();
         }
 

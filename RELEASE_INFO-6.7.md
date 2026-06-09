@@ -57,6 +57,23 @@ It was only used as stored preview data and is no longer needed after the mail t
 Use explicit `templateData` in the mail preview and send APIs, or generated data from the simulate endpoint, instead.
 The mail API request payloads `templateData` and `mailTemplateData` remain supported and are not part of this deprecation.
 
+### Pluggable thumbnail image processor
+
+The thumbnail generation pipeline now uses a `ThumbnailProcessorInterface` instead of a hardwired GD implementation.
+Two processors ship out of the box:
+
+- `GdImageThumbnailProcessor` — uses the PHP GD extension and is the default.
+- `ImagickThumbnailProcessor` — uses the PHP Imagick extension, if installed.
+
+Switch between them in `config/packages/shopware.yaml`:
+
+    shopware:
+      media:
+        thumbnail_processor: imagick   # or "gd" (default)
+
+Both processors work with the new `ThumbnailImage` DTO (`Shopware\Core\Content\Media\Thumbnail\DTO\ThumbnailImage`), which is a thin wrapper carrying the underlying image resource.
+`ThumbnailService` only ever deals with `ThumbnailImage` objects and is fully agnostic of the concrete library.
+
 ### Number range value generator interface deprecated
 
 `NumberRangeValueGeneratorInterface` is deprecated in favor of `AbstractNumberRangeValueGenerator`.

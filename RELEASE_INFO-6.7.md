@@ -1,5 +1,13 @@
 # 6.7.12.0 (upcoming)
 
+## Critical Fixes
+
+### Admin worker requests no longer block same-session API requests
+
+The sales-channel tracking listener no longer initializes a lazy PHP session for unrelated entity writes.
+Previously, an Administration message-queue consume request could handle a scheduled task, trigger a `scheduled_task` entity write, and initialize the current session while the admin worker request kept long-polling.
+With locking session handlers such as native file sessions, this held the session file lock and caused concurrent Admin API requests from the same browser session, for example sync requests, to wait until the consume request returned.
+
 ## Storefront
 
 ### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint

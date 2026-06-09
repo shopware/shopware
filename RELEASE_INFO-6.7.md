@@ -144,6 +144,12 @@ Affected commands:
 
 A new `sha256` Twig filter is available alongside the existing `md5` filter. Both accept strings and arrays (arrays are JSON-encoded before hashing) and return the hex-encoded hash.
 
+### Variants can now be searched by parent product name
+
+The new `parent.name` search field allows variants to be found through their parent product name and ranked independently from the variant's own `name`.
+
+The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
+
 ## Administration
 
 ### Storefront icon cache and speculation rules can be configured per sales channel

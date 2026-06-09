@@ -11,9 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -49,7 +51,7 @@ class LifecycleManager
         private readonly EntityRepository $repository,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AllServiceInstaller $serviceInstaller,
-        private readonly PermissionsService $permissionsService,
+        private readonly ConsentService $consentService,
         private readonly Client $client,
         private readonly RequirementsValidator $requirementsValidator,
     ) {
@@ -131,7 +133,11 @@ class LifecycleManager
             $this->appLifecycle->delete($service->getName(), ['id' => $service->getId()], $context);
         }
 
-        $this->permissionsService->revoke($context);
+        $consentState = $this->consentService->getConsentState(ServiceConsent::NAME, $context);
+        if ($consentState->status !== ConsentStatus::UNSET) {
+            $this->consentService->revokeConsent(ServiceConsent::NAME, $context);
+        }
+
         $this->systemConfigService->set(self::CONFIG_KEY_SERVICES_DISABLED, true, null, true);
     }
 

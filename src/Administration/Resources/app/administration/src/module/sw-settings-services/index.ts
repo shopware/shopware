@@ -13,14 +13,6 @@ Shopware.Component.register(
 );
 
 /**
- * @private
- */
-Shopware.Component.register(
-    'sw-settings-services-grant-permissions-modal',
-    () => import('./component/sw-settings-services-grant-permissions-modal'),
-);
-
-/**
  * @sw-package framework
  * @private
  */

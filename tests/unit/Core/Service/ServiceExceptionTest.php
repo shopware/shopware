@@ -161,33 +161,6 @@ class ServiceExceptionTest extends TestCase
         static::assertSame('The service is not installed.', $e->getMessage());
     }
 
-    public function testConsentSaveFailed(): void
-    {
-        $e = ServiceException::consentSaveFailed('Network timeout');
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ServiceException::SERVICE_REQUEST_FAILED, $e->getErrorCode());
-        static::assertSame('Could not save consent: Network timeout', $e->getMessage());
-    }
-
-    public function testConsentRevokeFailed(): void
-    {
-        $e = ServiceException::consentRevokeFailed('Server error');
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ServiceException::SERVICE_REQUEST_FAILED, $e->getErrorCode());
-        static::assertSame('Could not revoke consent: Server error', $e->getMessage());
-    }
-
-    public function testNoCurrentPermissionsConsent(): void
-    {
-        $e = ServiceException::noCurrentPermissionsConsent();
-
-        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertSame(ServiceException::NO_CURRENT_PERMISSIONS_CONSENT, $e->getErrorCode());
-        static::assertSame('No current permissions consent found.', $e->getMessage());
-    }
-
     public function testInvalidPermissionsContext(): void
     {
         $e = ServiceException::invalidPermissionsContext();

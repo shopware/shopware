@@ -110,7 +110,7 @@
                 </a>
 
                 <sw-settings-services-revoke-permissions-modal
-                    v-if="!config.disabled && config.permissionsConsent"
+                    v-if="!config.disabled && serviceConsent?.status === 'accepted'"
                 />
 
                 <sw-settings-services-deactivate-modal

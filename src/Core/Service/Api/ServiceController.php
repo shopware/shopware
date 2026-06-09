@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
+use Shopware\Core\Service\ServiceConsentRevisionProvider;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\State;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,6 +43,7 @@ class ServiceController
         private readonly AppStateService $appStateService,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly LifecycleManager $manager,
+        private readonly ServiceConsentRevisionProvider $serviceConsentRevisionProvider,
     ) {
     }
 
@@ -165,7 +167,7 @@ class ServiceController
         name: 'api.services.disable',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain', 'system.system_config'],
         ],
         methods: [Request::METHOD_POST]
     )]
@@ -174,6 +176,23 @@ class ServiceController
         $this->manager->disable($context);
 
         return new Response();
+    }
+
+    #[Route(
+        path: '/api/services/consent-revision',
+        name: 'api.services.consent_revision',
+        defaults: [
+            'auth_required' => true,
+            PlatformRequest::ATTRIBUTE_ACL => ['system.plugin_maintain'],
+        ],
+        methods: [Request::METHOD_GET]
+    )]
+    public function consentRevision(Request $request): JsonResponse
+    {
+        $locale = trim((string) $request->headers->get('Accept-Language', ServiceConsentRevisionProvider::DEFAULT_LOCALE));
+        $locale = $locale !== '' ? explode(',', $locale)[0] : ServiceConsentRevisionProvider::DEFAULT_LOCALE;
+
+        return new JsonResponse($this->serviceConsentRevisionProvider->getMetadata($locale));
     }
 
     #[Route(

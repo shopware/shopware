@@ -131,8 +131,6 @@
     "GET /services/categorized-permissions/{serviceName}",
     "POST /services/disable",
     "POST /services/enable",
-    "POST /services/permissions/grant/{revision}",
-    "POST /services/permissions/revoke",
     "POST /services/trigger-update",
     "GET /store/active-in-app-purchases",
     "POST /store/check-in-app-purchase-active",

@@ -123,3 +123,5 @@
 |`consent.backend_data.revoked` | Fires when the backend_data consent is revoked. | `consent:backend_data:read` | 
 |`consent.product_analytics.accepted` | Fires when the product_analytics consent is accepted. | `consent:product_analytics:read` | 
 |`consent.product_analytics.revoked` | Fires when the product_analytics consent is revoked. | `consent:product_analytics:read` | 
+|`consent.service_consent.accepted` | Fires when the service_consent consent is accepted. | `consent:service_consent:read` | 
+|`consent.service_consent.revoked` | Fires when the service_consent consent is revoked. | `consent:service_consent:read` | 

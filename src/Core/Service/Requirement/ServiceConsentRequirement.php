@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Service\Requirement;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Service\Permission\PermissionsService;
+use Shopware\Core\Service\Consent\ServiceConsent;
+use Shopware\Core\System\Consent\Service\ConsentService;
 
 /**
  * @internal
@@ -14,7 +16,7 @@ class ServiceConsentRequirement implements ServiceRequirement
     public const NAME = 'service_consent';
 
     public function __construct(
-        private readonly PermissionsService $permissionsService,
+        private readonly ConsentService $consentService,
     ) {
     }
 
@@ -25,6 +27,12 @@ class ServiceConsentRequirement implements ServiceRequirement
 
     public function isSatisfied(): bool
     {
-        return $this->permissionsService->areGranted();
+        try {
+            return $this->consentService
+                ->getConsentState(ServiceConsent::NAME, Context::createDefaultContext())
+                ->isCurrent();
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

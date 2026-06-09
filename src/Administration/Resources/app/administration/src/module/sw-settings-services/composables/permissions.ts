@@ -1,7 +1,8 @@
 /**
  * @sw-package framework
  */
-import { useShopwareServicesStore } from '../store/shopware-services.store';
+import useConsentStore from 'src/core/consent/consent.store';
+import { SERVICE_CONSENT_NAME } from '../store/shopware-services.store';
 
 let reloadFn: () => void = () => window.location.reload();
 
@@ -25,14 +26,12 @@ export function __setReloadFn(fn: () => void) {
  * @private
  */
 export async function grantPermissions() {
-    const shopwareServiceStore = useShopwareServicesStore();
-    const currentRevision = shopwareServiceStore.currentRevision?.revision;
+    const consentStore = useConsentStore();
+    // The latest revision the merchant is consenting to is the authoritative one carried on the
+    // consent itself (sourced from the registry server-side) — no need for a separate revision fetch.
+    const latestRevision = consentStore.consents[SERVICE_CONSENT_NAME]?.latestRevision ?? null;
 
-    if (!currentRevision) {
-        throw new Error('No revision available');
-    }
-
-    await Shopware.Service('shopwareServicesService').acceptRevision(currentRevision);
+    await consentStore.accept(SERVICE_CONSENT_NAME, latestRevision);
 
     _reloadPage();
 }
@@ -41,7 +40,7 @@ export async function grantPermissions() {
  * @private
  */
 export async function revokePermissions() {
-    await Shopware.Service('shopwareServicesService').revokePermissions();
+    await useConsentStore().revoke(SERVICE_CONSENT_NAME);
 
     _reloadPage();
 }

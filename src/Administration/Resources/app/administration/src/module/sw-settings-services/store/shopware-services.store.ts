@@ -1,30 +1,23 @@
 /**
  * @sw-package framework
  */
-import type { RevisionData, ServicesRevision } from '../service/service-registry-client';
+import type { RevisionData, ServicesRevision } from '../service/shopware-services.service';
 
 /**
  * @private
  */
-export type PermissionsConsent = {
-    identifier: string;
-    revision: string;
-    consentingUserId: string;
-    grantedAt: string;
-};
+export const SERVICE_CONSENT_NAME = 'service_consent';
 
 /**
  * @private
  */
 export type ServiceConfiguration = {
-    permissionsConsent?: PermissionsConsent;
     disabled?: boolean;
 };
 
 type ShopwareServicesState = {
     config: ServiceConfiguration | null;
     revisions: RevisionData | null;
-    showGrantPermissionsModal: boolean;
 };
 
 /**
@@ -35,25 +28,9 @@ export const useShopwareServicesStore = Shopware.Store.register('shopwareService
     state: (): ShopwareServicesState => ({
         config: null,
         revisions: null,
-        showGrantPermissionsModal: false,
     }),
 
     getters: {
-        consentGiven(): boolean {
-            const permissionsConsent = this.config?.permissionsConsent ?? false;
-
-            if (permissionsConsent === false) {
-                return false;
-            }
-
-            const currentRevision = this.revisions?.['latest-revision'] ?? false;
-
-            if (currentRevision === false) {
-                return false;
-            }
-
-            return currentRevision === permissionsConsent.revision;
-        },
         currentRevision(): ServicesRevision | null {
             if (!this.revisions) {
                 return null;

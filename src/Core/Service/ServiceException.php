@@ -39,8 +39,6 @@ class ServiceException extends HttpException
 
     public const SERVICE_REQUEST_FAILED = 'SERVICE__REQUEST_FAILED';
 
-    public const NO_CURRENT_PERMISSIONS_CONSENT = 'SERVICE__NO_CURRENT_PERMISSIONS_CONSENT';
-
     public const SERVICES_NOT_INSTALLED = 'SERVICE__NOT_INSTALLED';
 
     public const SERVICE_INVALID_SERVICES_STATE = 'SERVICE__INVALID_SERVICES_STATE';
@@ -183,6 +181,15 @@ class ServiceException extends HttpException
         );
     }
 
+    public static function couldNotFetchPermissionsRevisions(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::COULD_NOT_FETCH_PERMISSIONS_REVISIONS,
+            'Could not fetch permissions revisions: ' . $message,
+        );
+    }
+
     public static function scheduledTaskNotRegistered(): self
     {
         return new self(
@@ -208,33 +215,6 @@ class ServiceException extends HttpException
             self::SERVICES_NOT_INSTALLED,
             'The service is not installed.',
             ['name' => $name]
-        );
-    }
-
-    public static function consentSaveFailed(string $getMessage): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_REQUEST_FAILED,
-            'Could not save consent: ' . $getMessage
-        );
-    }
-
-    public static function consentRevokeFailed(string $getMessage): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::SERVICE_REQUEST_FAILED,
-            'Could not revoke consent: ' . $getMessage
-        );
-    }
-
-    public static function noCurrentPermissionsConsent(): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::NO_CURRENT_PERMISSIONS_CONSENT,
-            'No current permissions consent found.',
         );
     }
 

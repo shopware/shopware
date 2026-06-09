@@ -303,6 +303,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             false,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            [],
         );
     }
 

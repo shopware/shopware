@@ -15,10 +15,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
-        </service>
-
-        <service id="Shopware\Core\Service\Api\PermissionController" public="true">
-            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\Service\ServiceConsentRevisionProvider"/>
         </service>
 
         <service id="Shopware\Core\Service\Command\Install">
@@ -33,6 +30,21 @@
             <argument type="service" id="service_registry.http_client"/>
 
             <tag name="kernel.reset" method="reset"/>
+        </service>
+
+        <service id="Shopware\Core\Service\ServiceConsentRevisionProvider">
+            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
+            <argument type="service" id="cache.app"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Consent\ServiceConsent">
+            <argument type="service" id="Shopware\Core\Service\ServiceConsentRevisionProvider"/>
+            <tag name="shopware.consent.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Service\Consent\ServiceConsentAuthorizer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.webhook.authorizer"/>
         </service>
 
         <service id="Shopware\Core\Service\ServiceLifecycle">
@@ -136,15 +148,8 @@
             <tag name="shopware.hookable_event.describer"/>
         </service>
 
-        <service id="Shopware\Core\Service\Permission\PermissionsService">
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
-            <argument type="service" id="Psr\Clock\ClockInterface"/>
-        </service>
-
         <service id="Shopware\Core\Service\Requirement\ServiceConsentRequirement">
-            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\System\Consent\Service\ConsentService"/>
             <tag name="shopware.service.requirement"/>
         </service>
 
@@ -165,7 +170,7 @@
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Service\AllServiceInstaller"/>
-            <argument type="service" id="Shopware\Core\Service\Permission\PermissionsService"/>
+            <argument type="service" id="Shopware\Core\System\Consent\Service\ConsentService"/>
             <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
             <argument type="service" id="Shopware\Core\Service\Requirement\RequirementsValidator"/>
         </service>
@@ -177,7 +182,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Service\Subscriber\PermissionsSubscriber">
+        <service id="Shopware\Core\Service\Subscriber\ServiceConsentSubscriber">
             <argument type="service" id="Shopware\Core\Service\LifecycleManager"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -191,19 +196,6 @@
 
         <service id="Shopware\Core\Service\Notification">
             <argument type="service" id="Shopware\Core\Framework\Notification\NotificationService"/>
-        </service>
-
-        <service id="Shopware\Core\Service\ServiceRegistry\PermissionLogger">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\Client"/>
-            <argument type="service" id="messenger.bus.default"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-
-        </service>
-
-        <service id="Shopware\Core\Service\MessageHandler\LogConsentToRegistryHandler">
-            <argument type="service" id="Shopware\Core\Service\ServiceRegistry\PermissionLogger"/>
-            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

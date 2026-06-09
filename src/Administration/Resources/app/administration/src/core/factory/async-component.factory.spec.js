@@ -2433,6 +2433,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2443,6 +2444,7 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
         ]);
 
@@ -2455,10 +2457,12 @@ describe('core/factory/async-component.factory.ts', () => {
             {
                 componentName: 'component',
                 innerTemplate: 'Sync override',
+                legacyConditionCases: [],
             },
             {
                 componentName: 'component',
                 innerTemplate: 'Async override',
+                legacyConditionCases: [],
             },
         ]);
     });
@@ -3311,18 +3315,18 @@ describe('core/factory/async-component.factory.ts', () => {
                     },
                     config: {
                         globalProperties: {
-                            $swLegacyBlockIf(blockName, expression) {
-                                return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
+                            $swLegacyBlockIf(blockName, expression, options) {
+                                return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
                             },
-                            $swLegacyBlockElseIf(blockName, expression, shimConditionChainIndex) {
+                            $swLegacyBlockElseIf(blockName, expression, options) {
                                 return legacyElseIf(
                                     getLegacyBlockConditionKey(this, blockName),
                                     expression,
-                                    shimConditionChainIndex,
+                                    options,
                                 );
                             },
-                            $swLegacyBlockElse(blockName, shimConditionChainIndex) {
-                                return legacyElse(getLegacyBlockConditionKey(this, blockName), shimConditionChainIndex);
+                            $swLegacyBlockElse(blockName, options) {
+                                return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
                             },
                         },
                     },
@@ -3477,12 +3481,16 @@ describe('core/factory/async-component.factory.ts', () => {
             expect(wrapper.find('.fallback-condition').exists()).toBe(true);
 
             await wrapper.setData({ condition2: true });
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
 
             expect(wrapper.find('.condition-one').exists()).toBe(false);
             expect(wrapper.find('.condition-two').exists()).toBe(true);
             expect(wrapper.find('.fallback-condition').exists()).toBe(false);
 
             await wrapper.setData({ condition1: true });
+            await wrapper.vm.$nextTick();
+            await wrapper.vm.$nextTick();
 
             expect(wrapper.find('.condition-one').exists()).toBe(true);
             expect(wrapper.find('.condition-two').exists()).toBe(false);

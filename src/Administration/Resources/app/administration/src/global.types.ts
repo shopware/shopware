@@ -30,6 +30,7 @@ import type ShopIdChangeService from 'src/core/service/api/shop-id-change.servic
 import type ProductTypeApiService from 'src/app/service/product-type.api.service';
 import type { ComponentInternalInstance, PropType as VuePropType } from 'vue';
 import type { I18n } from 'vue-i18n';
+import type { LegacyConditionCaseOptions } from 'src/app/composables/use-block-context';
 import type {
     Store,
     mapActions as mapVuexActions,
@@ -520,9 +521,9 @@ interface CustomProperties extends ServiceContainer {
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $dataScope: () => ComponentInternalInstance['proxy'];
-    $swLegacyBlockIf: (blockName: string, expression: unknown) => boolean;
-    $swLegacyBlockElseIf: (blockName: string, expression: unknown, branchIndex?: number) => boolean;
-    $swLegacyBlockElse: (blockName: string, branchIndex?: number) => boolean;
+    $swLegacyBlockIf: (blockName: string, expression: unknown, options?: LegacyConditionCaseOptions) => boolean;
+    $swLegacyBlockElseIf: (blockName: string, expression: unknown, options?: LegacyConditionCaseOptions) => boolean;
+    $swLegacyBlockElse: (blockName: string, options?: LegacyConditionCaseOptions) => boolean;
 }
 
 declare module '@vue/runtime-core' {

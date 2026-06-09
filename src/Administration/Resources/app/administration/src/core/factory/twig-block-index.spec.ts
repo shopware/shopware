@@ -16,6 +16,10 @@ describe('core/factory/twig-block-index.ts', () => {
     });
 
     describe('indexTwigBlocksFromTemplate', () => {
+        function options(caseIndex: number, isStartingCondition: boolean, isShim: boolean): string {
+            return `{ caseIndex: ${caseIndex}, isStartingCondition: ${isStartingCondition}, isShim: ${isShim} }`;
+        }
+
         it('indexes a single block from a Twig template', () => {
             indexTwigBlocksFromTemplate(
                 'sw-product-detail',
@@ -66,9 +70,62 @@ describe('core/factory/twig-block-index.ts', () => {
 
             const [entry] = getBlockEntries('legacy_else_block');
 
-            expect(entry.innerTemplate).toContain('<sw-block-parent></sw-block-parent>');
-            expect(entry.innerTemplate).toContain(`v-if="$swLegacyBlockElse('legacy_else_block')"`);
+            expect(entry.innerTemplate).toContain('<sw-block-parent />');
+            expect(entry.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('legacy_else_block:0', ${options(0, false, true)})"`,
+            );
             expect(entry.innerTemplate).not.toContain('v-else class="legacy-else"');
+            expect(entry.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'legacy_else_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+        });
+
+        it('offsets legacy condition cases for chained plugin overrides of the same block', () => {
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-one',
+                `
+                {% block shared_condition_block %}
+                    {% parent %}
+                    <div v-else-if="condition2" class="plugin-one"></div>
+                {% endblock %}
+            `,
+            );
+            indexTwigBlocksFromTemplate(
+                'sw-plugin-two',
+                `
+                {% block shared_condition_block %}
+                    {% parent %}
+                    <div v-else class="plugin-two"></div>
+                {% endblock %}
+            `,
+            );
+
+            const [pluginOne, pluginTwo] = getBlockEntries('shared_condition_block');
+
+            expect(pluginOne.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, true)})"`,
+            );
+            expect(pluginOne.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'shared_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 0,
+                },
+            ]);
+            expect(pluginTwo.innerTemplate).toContain(
+                `v-if="$swLegacyBlockElse('shared_condition_block:0', ${options(1, false, true)})"`,
+            );
+            expect(pluginTwo.legacyConditionCases).toEqual([
+                {
+                    chainKey: 'shared_condition_block:0',
+                    caseCount: 1,
+                    caseStartIndex: 1,
+                },
+            ]);
         });
 
         it('accumulates multiple entries for the same block name from separate calls', () => {

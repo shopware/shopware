@@ -4,14 +4,75 @@
 
 const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"[^"]*"|'[^']*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;
-const SW_BLOCK_PARENT_TAG = 'sw-block-parent';
-const SW_BLOCK_TAG = 'sw-block';
 
 type LegacyBlockHelperNames = {
     if: string;
     elseIf: string;
     else: string;
 };
+
+type HelperParameters = {
+    caseIndex: number;
+    isStartingCondition?: boolean;
+    isShim?: boolean;
+};
+
+/**
+ * @private
+ */
+export type LegacyConditionCaseReservation = {
+    chainKey: string;
+    caseCount: number;
+    caseStartIndex: number;
+};
+
+/**
+ * @private
+ */
+export type LegacyConditionTransformResult = {
+    template: string;
+    conditionCases: LegacyConditionCaseReservation[];
+    trailingChainKey?: string;
+};
+
+/**
+ * @private
+ */
+export type LegacyTwigBlockSequenceEntry = {
+    blockName: string;
+    innerTemplate: string;
+};
+
+/**
+ * @private
+ */
+export type LegacyTwigBlockSequenceTransformEntry = LegacyTwigBlockSequenceEntry & {
+    legacyConditionCases: LegacyConditionCaseReservation[];
+};
+
+type BlockConditionChainInfo = {
+    children: Element[];
+    blockName: string;
+    starting: boolean; //Is this chain starting a chain in the block
+    ending: boolean; //Is this chain ending a chain in the block
+    firstChainInBlock: boolean;
+    lastChainInBlock: boolean;
+    index: number;
+    fullChainKey?: string;
+    caseStartIndex?: number; //Assigned during rewrite construction, the starting case index for this chain in the global condition case reservation
+    followedBy?: BlockConditionChainInfo; //Chains in other blocks that are following this chain as continuation chains
+};
+
+type BlockConditionInfo = {
+    blockName: string;
+    conditionalChains: BlockConditionChainInfo[];
+};
+
+type RewriteInfo = {
+    codeBefore: string;
+    codeAfter: string;
+};
+
 
 const GLOBAL_LEGACY_HELPERS = {
     if: '$swLegacyBlockIf',
@@ -24,20 +85,19 @@ function escapeSingleQuotedString(value: string): string {
     return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-/** Escapes block names for the temporary wrapper attribute used during DOM parsing. */
-function escapeDoubleQuotedString(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+function createLegacyConditionOptionsCode(parameters: HelperParameters): string {
+    return `{ caseIndex: ${parameters.caseIndex}, isStartingCondition: ${Boolean(parameters.isStartingCondition)}, isShim: ${Boolean(parameters.isShim)} }`;
 }
 
 /** Builds the replacement v-if expression that links a case to the legacy condition state. */
-function createLegacyHelperExpression(helperName: string, blockName: string, expression?: string | null): string {
-    const escapedBlockName = escapeSingleQuotedString(blockName);
+function createLegacyHelperExpression(helperName: string, conditionKey: string, expression: string | null | undefined, parameters: HelperParameters): string {
+    const escapedConditionKey = escapeSingleQuotedString(conditionKey);
 
-    if (!expression) {
-        return `${helperName}('${escapedBlockName}')`;
+    if (expression !== undefined) {
+        return `${helperName}('${escapedConditionKey}', ${expression}, ${createLegacyConditionOptionsCode(parameters)})`;
     }
 
-    return `${helperName}('${escapedBlockName}', ${expression})`;
+    return `${helperName}('${escapedConditionKey}', ${createLegacyConditionOptionsCode(parameters)})`;
 }
 
 /** Expands self-closing custom components so the browser parser keeps the intended tree. */
@@ -50,213 +110,9 @@ function normalizeSelfClosingTags(template: string): string {
     });
 }
 
-/** Finds the v-if / v-else-if chain at the end of a native block. */
-function getTrailingConditionalChain(children: Element[]): Element[] {
-    const lastElement = children.at(-1);
 
-    if (!lastElement) {
-        return [];
-    }
-
-    if (lastElement.hasAttribute('v-if')) {
-        return [lastElement];
-    }
-
-    if (!lastElement.hasAttribute('v-else-if')) {
-        return [];
-    }
-
-    const conditionalChain = [lastElement];
-
-    for (let index = children.length - 2; index >= 0; index -= 1) {
-        const child = children[index];
-
-        if (child.hasAttribute('v-else-if')) {
-            conditionalChain.unshift(child);
-            continue;
-        }
-
-        if (child.hasAttribute('v-if')) {
-            conditionalChain.unshift(child);
-
-            return conditionalChain;
-        }
-
-        return [];
-    }
-
-    return [];
-}
-
-/** Finds the leading v-else-if / v-else chain that directly continues another block. */
-function getLeadingConditionalChain(children: Element[]): Element[] {
-    const firstElement = children[0];
-
-    if (!firstElement || (!firstElement.hasAttribute('v-else') && !firstElement.hasAttribute('v-else-if'))) {
-        return [];
-    }
-
-    const conditionalChain = [firstElement];
-
-    if (firstElement.hasAttribute('v-else')) {
-        return conditionalChain;
-    }
-
-    for (let index = 1; index < children.length; index += 1) {
-        const child = children[index];
-
-        if (child.hasAttribute('v-else-if')) {
-            conditionalChain.push(child);
-            continue;
-        }
-
-        if (child.hasAttribute('v-else')) {
-            conditionalChain.push(child);
-        }
-
-        return conditionalChain;
-    }
-
-    return conditionalChain;
-}
-
-/** Finds the v-else-if / v-else chain that directly continues after sw-block-parent. */
-function getConditionalChainFollowingBlockParent(children: Element[]): Element[] {
-    let shouldCheckChild = true;
-
-    for (let index = 0; index < children.length; index += 1) {
-        const child = children[index];
-
-        if (child.tagName.toLowerCase() === SW_BLOCK_PARENT_TAG) {
-            shouldCheckChild = true;
-            continue;
-        }
-
-        if (shouldCheckChild && (child.hasAttribute('v-else') || child.hasAttribute('v-else-if'))) {
-            return getLeadingConditionalChain(children.slice(index));
-        }
-
-        shouldCheckChild = false;
-    }
-
-    return [];
-}
-
-/** Rewrites the parent side of a cross-block conditional chain. */
-function rewriteTrailingConditionalChain(
-    blockName: string,
-    conditionalChain: Element[],
-    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
-): boolean {
-    if (conditionalChain.length === 0) {
-        return false;
-    }
-
-    const firstConditional = conditionalChain[0];
-    const firstExpression = firstConditional.getAttribute('v-if');
-
-    if (!firstExpression) {
-        return false;
-    }
-
-    firstConditional.setAttribute('v-if', createLegacyHelperExpression(helpers.if, blockName, firstExpression));
-
-    conditionalChain.slice(1).forEach((conditionalElement) => {
-        const expression = conditionalElement.getAttribute('v-else-if');
-
-        if (!expression) {
-            return;
-        }
-
-        conditionalElement.removeAttribute('v-else-if');
-        conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.elseIf, blockName, expression));
-    });
-
-    return true;
-}
-
-/** Rewrites the extension side so Vue no longer needs adjacent v-if/v-else nodes. */
-function rewriteLeadingConditional(
-    blockName: string,
-    conditionalElement: Element | null,
-    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
-): boolean {
-    if (!conditionalElement) {
-        return false;
-    }
-
-    if (conditionalElement.hasAttribute('v-else')) {
-        conditionalElement.removeAttribute('v-else');
-        conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.else, blockName));
-
-        return true;
-    }
-
-    const expression = conditionalElement.getAttribute('v-else-if');
-
-    if (!expression) {
-        return false;
-    }
-
-    conditionalElement.removeAttribute('v-else-if');
-    conditionalElement.setAttribute('v-if', createLegacyHelperExpression(helpers.elseIf, blockName, expression));
-
-    return true;
-}
-
-/** Rewrites a leading v-else-if / v-else chain to standalone v-if helper calls. */
-function rewriteLeadingConditionalChain(
-    blockName: string,
-    conditionalChain: Element[],
-    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
-): boolean {
-    if (conditionalChain.length === 0) {
-        return false;
-    }
-
-    let hasChanges = false;
-
-    conditionalChain.forEach((conditionalElement) => {
-        hasChanges = rewriteLeadingConditional(blockName, conditionalElement, helpers) || hasChanges;
-    });
-
-    return hasChanges;
-}
-
-/** Rewrites v-else-if / v-else cases that continue in following sibling sw-blocks. */
-function rewriteFollowingNamedBlockConditionals(
-    blockName: string,
-    blockElement: Element,
-    rewrittenContinuationBlocks: WeakSet<Element>,
-    helpers: LegacyBlockHelperNames = GLOBAL_LEGACY_HELPERS,
-): boolean {
-    let nextBlockElement = blockElement.nextElementSibling;
-    let hasChanges = false;
-
-    while (nextBlockElement?.tagName.toLowerCase() === SW_BLOCK_TAG && nextBlockElement.hasAttribute('name')) {
-        const leadingConditionalChain = getLeadingConditionalChain(Array.from(nextBlockElement.children));
-
-        if (leadingConditionalChain.length === 0) {
-            return hasChanges;
-        }
-
-        const hasFinalElseCase = leadingConditionalChain.at(-1)?.hasAttribute('v-else') ?? false;
-
-        if (!rewriteLeadingConditionalChain(blockName, leadingConditionalChain, helpers)) {
-            return hasChanges;
-        }
-
-        rewrittenContinuationBlocks.add(nextBlockElement);
-        hasChanges = true;
-
-        if (hasFinalElseCase) {
-            return hasChanges;
-        }
-
-        nextBlockElement = nextBlockElement.nextElementSibling;
-    }
-
-    return hasChanges;
+function createLegacyConditionChainKey(blockName: string, chainIndex: number): string {
+    return `${blockName}:${chainIndex}`;
 }
 
 /**
@@ -264,85 +120,319 @@ function rewriteFollowingNamedBlockConditionals(
  *
  * @private
  */
-export default function transformLegacyBlockConditionals(template: string): string {
-    if (!template.includes('<sw-block') || !CONDITIONAL_REG_EXP.test(template) || typeof document === 'undefined') {
+export default function transformNativeLegacyBlockConditionals(template: string): string {
+    if (
+        template.indexOf('<sw-block') === -1 ||
+        !CONDITIONAL_REG_EXP.test(template) ||
+        typeof document === 'undefined'
+    ) {
         return template;
     }
 
     const parsedTemplate = document.createElement('template');
     parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
 
-    let hasChanges = false;
-    const rewrittenContinuationBlocks = new WeakSet<Element>();
+    const blocks = parsedTemplate.content.querySelectorAll('sw-block[name], sw-block[extends]');
 
-    parsedTemplate.content.querySelectorAll('sw-block[name]').forEach((blockElement) => {
-        if (rewrittenContinuationBlocks.has(blockElement)) {
-            return;
-        }
+    const entries: LegacyTwigBlockSequenceEntry[] = Array.from(blocks).map((block) => ({
+        blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
+        innerTemplate: block.innerHTML,
+    }));
 
-        const blockName = blockElement.getAttribute('name');
+    const blockConditionInfos: BlockConditionInfo[] = [];
 
-        if (!blockName) {
-            return;
-        }
-
-        if (!rewriteTrailingConditionalChain(blockName, getTrailingConditionalChain(Array.from(blockElement.children)))) {
-            return;
-        }
-
-        hasChanges = true;
-        hasChanges =
-            rewriteFollowingNamedBlockConditionals(blockName, blockElement, rewrittenContinuationBlocks) || hasChanges;
+    entries.forEach(entry => {
+        const conditionalChains = collectBlockConditionalChains(entry.blockName, parseBlockTemplateChildren(entry.innerTemplate));
+        blockConditionInfos.push({
+            blockName: entry.blockName,
+            conditionalChains: conditionalChains,
+        });
     });
 
-    parsedTemplate.content.querySelectorAll('sw-block[extends]').forEach((blockElement) => {
-        const blockName = blockElement.getAttribute('extends');
+    fillChainIndices(blockConditionInfos);
 
-        if (!blockName) {
+    const allRewrites: RewriteInfo[] = [];
+    blockConditionInfos.forEach(blockInfo => {
+        blockInfo.conditionalChains.filter(chain => shouldPerformChainRewrite(chain)).forEach(chain => {
+            const rewrites = constructChainAttributeRewrites(chain, template, false);
+            allRewrites.push(...rewrites);
+        });
+    });
+    template = applyOrderedRewrites(template, allRewrites);
+
+    return template;
+}
+
+function collectBlockConditionalChains(blockName: string, children: Element[]): BlockConditionChainInfo[] {
+    let chainIndex: number = 0;
+    let buildingChain = false;
+    const conditionalChains: BlockConditionChainInfo[] = [];
+
+    children.forEach((child, childIndex) => {
+        const isConditional = child.hasAttribute('v-if') || child.hasAttribute('v-else-if') || child.hasAttribute('v-else');
+
+        if (buildingChain && (!isConditional || child.hasAttribute('v-if'))) {
+            buildingChain = false;
+            chainIndex += 1;
+        }
+
+        if (!isConditional) {
             return;
         }
 
-        hasChanges =
-            rewriteLeadingConditionalChain(
-                blockName,
-                getConditionalChainFollowingBlockParent(Array.from(blockElement.children)),
-            ) || hasChanges;
+        if (buildingChain) {
+            conditionalChains[chainIndex].children.push(child);
+
+            if (child.hasAttribute('v-else')) {
+                conditionalChains[chainIndex].ending = true;
+                conditionalChains[chainIndex].lastChainInBlock = childIndex === children.length - 1;
+                buildingChain = false;
+                chainIndex += 1;
+            } else if (childIndex === children.length - 1) {
+                conditionalChains[chainIndex].lastChainInBlock = true;
+            }
+
+            return;
+        }
+
+        if (!child.hasAttribute('v-if')) {
+            buildingChain = true;
+            conditionalChains.push({
+                children: [child],
+                starting: false,
+                ending: child.hasAttribute('v-else'),
+                firstChainInBlock: childIndex === 0,
+                lastChainInBlock: false,
+                index: chainIndex,
+                fullChainKey: createLegacyConditionChainKey(blockName, chainIndex),
+                blockName: blockName,
+            });
+            if (child.hasAttribute('v-else')) {
+                buildingChain = false;
+                chainIndex += 1;
+            } else if (childIndex === children.length - 1) {
+                conditionalChains[chainIndex].lastChainInBlock = true;
+            }
+
+            return;
+        }
+
+        buildingChain = true;
+        conditionalChains.push({
+            children: [child],
+            starting: true,
+            ending: false,
+            lastChainInBlock: false,
+            firstChainInBlock: childIndex === 0,
+            index: chainIndex,
+            fullChainKey: createLegacyConditionChainKey(blockName, chainIndex),
+            blockName: blockName,
+        });
+
+        if (childIndex === children.length - 1 && buildingChain) {
+            conditionalChains[chainIndex].lastChainInBlock = true;
+        }
     });
 
-    if (!hasChanges) {
-        return template;
+    return conditionalChains;
+}
+
+function parseBlockTemplateChildren(template: string): Element[] {
+    const parsedTemplate = document.createElement('template');
+    parsedTemplate.innerHTML = normalizeSelfClosingTags(template);
+
+    return Array.from(parsedTemplate.content.children);
+}
+
+function fillChainIndices(blockConditionInfos: BlockConditionInfo[], caseStartIndexByChainKey: Record<string, number> = {}): void {
+
+    let lastChain: BlockConditionChainInfo | null = null;
+    let startingChain: BlockConditionChainInfo | null = null;
+
+    const nextCaseIndexByChainKey = new Map<string, number>();
+
+    // Iterate over blocks in order and assign chain keys, ensuring that continuation chains receive the same key as their leading chain.
+    blockConditionInfos.forEach((blockInfo) => {
+        blockInfo.conditionalChains.forEach((chain) => {
+            if (chain.starting) {
+                chain.fullChainKey = createLegacyConditionChainKey(blockInfo.blockName, chain.index);
+                lastChain = chain;
+                startingChain = chain;
+            } else if (startingChain && lastChain) {
+                chain.fullChainKey = startingChain.fullChainKey;
+                lastChain.followedBy = chain;
+            }
+
+            if (chain.fullChainKey) {
+                const caseStartIndex = nextCaseIndexByChainKey.get(chain.fullChainKey) ?? caseStartIndexByChainKey[chain.fullChainKey] ?? 0;
+                chain.caseStartIndex = caseStartIndex;
+                nextCaseIndexByChainKey.set(
+                    chain.fullChainKey,
+                    caseStartIndex + chain.children.length,
+                );
+            }
+
+            if (!chain.starting) {
+                if (chain.ending) {
+                    lastChain = null;
+                    startingChain = null;
+                } else {
+                    lastChain = chain;
+                }
+            }
+        });
+    });
+}
+
+function normalizeParsedVueTemplate(template: string): string {
+    return template.replace(/(\s)([^\s"'<>\/=]+)\s*=\s*(?:""|'')/g, '$1$2');
+}
+
+function getAttributeCode(template: string, attributeName: string): string {
+    const escapedAttributeName = attributeName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const attributeRegExp = new RegExp(`\\b${escapedAttributeName}(?![\\w-])(?:\\s*=\\s*(?:"[^"]*"|'[^']*'))?`);
+    const match = template.match(attributeRegExp);
+
+    if (!match) {
+        console.warn(`Failed to extract code for attribute "${attributeName}" during rewrite. This should not happen.`, template);
+        return '';
     }
 
-    return parsedTemplate.innerHTML;
+    return match[0] ?? '';
+}
+
+function constructChainAttributeRewrites(chain: BlockConditionChainInfo, template: string, isShim: boolean): RewriteInfo[] {
+    const rewrites: RewriteInfo[] = [];
+    const chainKey = chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index);
+
+    chain.children.forEach((child, localCaseIndex) => {
+        const caseIndex = (chain.caseStartIndex ?? 0) + localCaseIndex;
+        if (child.hasAttribute('v-if')) {
+            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
+            const oldExpression = getAttributeCode(codeBefore, 'v-if');
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.if, chainKey, child.getAttribute('v-if'), { isStartingCondition: chain.starting && localCaseIndex === 0, caseIndex, isShim })}"`;
+            rewrites.push({
+                codeBefore: oldExpression,
+                codeAfter: newExpression,
+            });
+        } else if (child.hasAttribute('v-else-if')) {
+            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
+            const oldExpression = getAttributeCode(codeBefore, 'v-else-if');
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.elseIf, chainKey, child.getAttribute('v-else-if'), { isStartingCondition: false, caseIndex, isShim })}"`;
+            rewrites.push({
+                codeBefore: oldExpression,
+                codeAfter: newExpression,
+            });
+        } else if (child.hasAttribute('v-else')) {
+            const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
+            const oldExpression = getAttributeCode(codeBefore, 'v-else');
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.else, chainKey, undefined, { isStartingCondition: false, caseIndex, isShim })}"`;
+            rewrites.push({
+                codeBefore: oldExpression,
+                codeAfter: newExpression,
+            });
+        }
+    });
+
+    return rewrites;
+}
+
+function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
+    if (chains.length === 0) {
+        return false;
+    }
+    if (chains.every(chain => chain.starting && chain.followedBy === undefined)) {
+        return false;
+    }
+    return true;
+}
+
+function shouldPerformChainRewrite(chain: BlockConditionChainInfo): boolean {
+    return !chain.starting || chain.children.length > 1 || chain.firstChainInBlock || chain.lastChainInBlock;
+}
+
+function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string {
+    let cursor = 0;
+    let rewrittenTemplate = template;
+
+    rewrites.forEach((rewrite) => {
+        let foundIndex = rewrittenTemplate.indexOf(rewrite.codeBefore, cursor);
+
+        while (
+            foundIndex !== -1 &&
+            rewrite.codeBefore === 'v-else' &&
+            /[\w-]/.test(rewrittenTemplate.charAt(foundIndex + rewrite.codeBefore.length))
+        ) {
+            foundIndex = rewrittenTemplate.indexOf(rewrite.codeBefore, foundIndex + rewrite.codeBefore.length);
+        }
+
+        if (foundIndex === -1) {
+            console.warn('Failed to apply rewrite because codeBefore was not found from cursor position.', {
+                codeBefore: rewrite.codeBefore,
+                codeAfter: rewrite.codeAfter,
+                cursor,
+            });
+            return;
+        }
+
+        rewrittenTemplate =
+            rewrittenTemplate.slice(0, foundIndex) +
+            rewrite.codeAfter +
+            rewrittenTemplate.slice(foundIndex + rewrite.codeBefore.length);
+
+        cursor = foundIndex + rewrite.codeAfter.length;
+    });
+
+    return rewrittenTemplate;
 }
 
 /**
- * Applies the same rewrite to reconstructed legacy Twig block override content.
+ * Rewrites neighboring top-level legacy Twig blocks as one conditional sequence.
  *
  * @private
  */
-export function transformLegacyBlockExtensionConditionals(blockName: string, template: string): string {
-    if (!CONDITIONAL_REG_EXP.test(template) || typeof document === 'undefined') {
-        return template;
-    }
+export function transformLegacyTwigBlockSequenceConditionals(
+    initialEntries: LegacyTwigBlockSequenceEntry[],
+    caseStartIndexByChainKey: Record<string, number> = {},
+): LegacyTwigBlockSequenceTransformEntry[] {
 
-    const parsedTemplate = document.createElement('template');
-    parsedTemplate.innerHTML =
-        `<${SW_BLOCK_TAG} extends="${escapeDoubleQuotedString(blockName)}">` +
-        `${normalizeSelfClosingTags(template)}` +
-        `</${SW_BLOCK_TAG}>`;
+    const blockConditonalChains: BlockConditionInfo[] = [];
 
-    const blockElement = parsedTemplate.content.querySelector(`${SW_BLOCK_TAG}[extends]`);
+    const entries: LegacyTwigBlockSequenceTransformEntry[] = initialEntries.map(entry => ({
+        ...entry,
+        legacyConditionCases: [],
+    }));
 
-    if (
-        !blockElement ||
-        !rewriteLeadingConditionalChain(
-            blockName,
-            getConditionalChainFollowingBlockParent(Array.from(blockElement.children)),
-        )
-    ) {
-        return template;
-    }
+    // Step 1: Analyze the blocks child elements to find v-if / v-else-if / v-else chains and collect information about their structure, such as whether they are leading or trailing chains and which chains are continuing each other across blocks.
+    entries.forEach((entry) => {
+        const children = parseBlockTemplateChildren(entry.innerTemplate);
+        const conditionalChains = collectBlockConditionalChains(entry.blockName, children);
+        blockConditonalChains.push({
+            blockName: entry.blockName,
+            conditionalChains,
+        });
+    });
+    // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive the same key as their leading chain.
+    fillChainIndices(blockConditonalChains, caseStartIndexByChainKey);
 
-    return blockElement.innerHTML;
+
+    // Step 3: Apply the helper function rewrites to each chain
+
+    entries.forEach((entry, entryIndex) => {
+        const chains = blockConditonalChains[entryIndex]?.conditionalChains ?? [];
+        if (shouldPerformBlockRewrite(chains)) {
+            entry.legacyConditionCases.push(...chains.filter(chain => shouldPerformChainRewrite(chain)).map(chain => ({
+                chainKey: chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index),
+                caseStartIndex: chain.caseStartIndex ?? 0,
+                caseCount: chain.children.length,
+            })));
+            chains.forEach(chain => {
+                const rewrites = constructChainAttributeRewrites(chain, entry.innerTemplate, true);
+                entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
+            });
+        }
+    });
+
+    return entries;
+
 }

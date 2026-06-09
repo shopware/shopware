@@ -16,7 +16,16 @@
 
 import Twig from 'twig';
 import reconstructInnerTemplate, { type TwigToken } from './reconstruct-twig-template';
-import { transformLegacyBlockExtensionConditionals } from './transform-legacy-block-conditionals';
+import { transformLegacyTwigBlockSequenceConditionals } from './transform-legacy-block-conditionals';
+
+/**
+ * @private
+ */
+export type LegacyConditionCaseReservation = {
+    chainKey: string;
+    caseStartIndex: number;
+    caseCount: number;
+};
 
 /**
  * @private
@@ -24,6 +33,7 @@ import { transformLegacyBlockExtensionConditionals } from './transform-legacy-bl
 export interface BlockEntry {
     componentName: string;
     innerTemplate: string;
+    legacyConditionCases: LegacyConditionCaseReservation[];
 }
 
 type ParsedTwigToken = {
@@ -71,15 +81,37 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
 
     const parsedTokens = parsed.tokens as ParsedTwigToken[];
 
-    parsedTokens.filter(isBlockToken).forEach((token) => {
-        const blockName = token.token.blockName;
-        const output = (token.token.output ?? []) as TwigToken[];
+    const entries = parsedTokens
+        .filter(isBlockToken)
+        .map((token) => ({
+            blockName: token.token.blockName,
+            innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
+        }));
 
-        const innerTemplate = transformLegacyBlockExtensionConditionals(blockName, reconstructInnerTemplate(output));
+    const caseStartIndexByChainKey: Record<string, number> = {};
+    entries.forEach(({ blockName }) => {
+        getBlockEntries(blockName).forEach(({ legacyConditionCases }) => {
+            legacyConditionCases.forEach(({ chainKey, caseStartIndex, caseCount }) => {
+                caseStartIndexByChainKey[chainKey] = Math.max(
+                    caseStartIndexByChainKey[chainKey] ?? 0,
+                    caseStartIndex + caseCount,
+                );
+            });
+        });
+    });
 
-        const existing = getBlockEntries(blockName);
-        existing.push({ componentName, innerTemplate });
-        blockIndex.set(blockName, existing);
+    const transformedEntries = transformLegacyTwigBlockSequenceConditionals(entries, caseStartIndexByChainKey);
+
+    transformedEntries.forEach((entry) => {
+        const existing = getBlockEntries(entry.blockName);
+
+        existing.push({
+            componentName,
+            innerTemplate: entry.innerTemplate,
+            legacyConditionCases: entry.legacyConditionCases,
+        });
+
+        blockIndex.set(entry.blockName, existing);
     });
 }
 

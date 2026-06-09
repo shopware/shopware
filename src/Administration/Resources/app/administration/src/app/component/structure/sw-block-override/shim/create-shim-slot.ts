@@ -46,14 +46,24 @@ function resolveAllowedLegacyBlockHelper(source: DataScope, helperName: string):
 }
 
 /** Builds the same per-component condition key used by the global legacy helpers. */
-function getLegacyBlockConditionKey(source: DataScope, blockName: string): string {
+function getLegacyBlockConditionKey(source: DataScope, chainKey: string): string {
     const componentUid = (source as DataScopeWithAppContext).$?.uid;
 
     if (typeof componentUid !== 'number') {
-        return blockName;
+        return chainKey;
     }
 
-    return `${componentUid}:${blockName}`;
+    return `${componentUid}:${chainKey}`;
+}
+
+function getReservedLegacyConditionChainKeys(source: DataScope, entry: BlockEntry): string[] {
+    return Array.from(
+        new Set(
+            entry.legacyConditionCases.map((reservation) => {
+                return getLegacyBlockConditionKey(source, reservation.chainKey);
+            }),
+        ),
+    );
 }
 
 /** Guards against accidentally exposing Vue internals or private properties into the shim template. */
@@ -69,8 +79,6 @@ function isInternalKey(key: string | symbol): boolean {
 export function createShimSlot(
     entry: BlockEntry,
     blockName: string,
-    legacyConditionChainIndex?: number,
-    legacyConditionCaseCount = 0,
 ): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
@@ -97,19 +105,12 @@ export function createShimSlot(
     // reused shim instance even when the host component proxy identity is stable.
     const dataScopeRef = shallowRef<DataScope>({});
     let renderVersion = 0;
-    let legacyConditionChainOffset = 0;
     const { reserveLegacyConditionCases, clearLegacyConditionChain } = useBlockContext();
-    /** Restarts condition chain numbering for each shim render pass. */
-    const resetLegacyConditionChainOffset = () => {
-        legacyConditionChainOffset = 0;
-    };
     /** Drops persisted chain state when the owning shim component is removed. */
     const clearExtensionChain = () => {
-        if (legacyConditionCaseCount < 1) {
-            return;
-        }
-
-        clearLegacyConditionChain(getLegacyBlockConditionKey(dataScopeRef.value, blockName));
+        getReservedLegacyConditionChainKeys(dataScopeRef.value, entry).forEach((chainKey) => {
+            clearLegacyConditionChain(chainKey);
+        });
     };
     const methods = Object.fromEntries(
         Array.from(allowedLegacyBlockHelperKeys).map((helperName) => [
@@ -121,18 +122,7 @@ export function createShimSlot(
                     return undefined;
                 }
 
-                if (
-                    legacyConditionChainIndex === undefined ||
-                    (helperName !== '$swLegacyBlockElseIf' && helperName !== '$swLegacyBlockElse')
-                ) {
-                    return (helper as LegacyBlockHelper)(...args);
-                }
-
-                // Each shim helper call gets a stable local position inside its reserved condition range.
-                const shimConditionChainIndex = legacyConditionChainIndex + legacyConditionChainOffset;
-                legacyConditionChainOffset += 1;
-
-                return (helper as LegacyBlockHelper)(...args, shimConditionChainIndex);
+                return (helper as LegacyBlockHelper)(...args);
             },
         ]),
     );
@@ -147,8 +137,6 @@ export function createShimSlot(
             },
         },
         setup: () => buildSetupContext(() => dataScopeRef.value),
-        beforeMount: resetLegacyConditionChainOffset,
-        beforeUpdate: resetLegacyConditionChainOffset,
         beforeUnmount: clearExtensionChain,
     };
 
@@ -156,14 +144,13 @@ export function createShimSlot(
         dataScopeRef.value = (dataScope ?? {}) as DataScope;
         renderVersion += 1;
 
-        if (legacyConditionChainIndex !== undefined) {
-            // Reserve before mounting so later native cases wait for this shim chain to evaluate.
+        // Reserve before mounting so later native cases wait for this shim chain to evaluate.
+        entry.legacyConditionCases.forEach((reservation) => {
             reserveLegacyConditionCases(
-                getLegacyBlockConditionKey(dataScopeRef.value, blockName),
-                legacyConditionChainIndex,
-                legacyConditionCaseCount,
+                getLegacyBlockConditionKey(dataScopeRef.value, reservation.chainKey),
+                reservation,
             );
-        }
+        });
 
         return [
             h(shimComponent, {

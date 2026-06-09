@@ -54,6 +54,7 @@ import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromo
 
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useBlockContext from '../../composables/use-block-context';
+import type { LegacyConditionCaseOptions } from '../../composables/use-block-context';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
@@ -209,23 +210,24 @@ export default class VueAdapter extends ViewAdapter {
             this: ComponentPublicInstance,
             blockName: string,
             expression: unknown,
+            options?: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression);
+            return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
         };
         this.app.config.globalProperties.$swLegacyBlockElseIf = function legacyBlockElseIf(
             this: ComponentPublicInstance,
             blockName: string,
             expression: unknown,
-            shimConditionChainIndex?: number,
+            options?: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, shimConditionChainIndex);
+            return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
         };
         this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
             this: ComponentPublicInstance,
             blockName: string,
-            shimConditionChainIndex?: number,
+            options?: LegacyConditionCaseOptions,
         ): boolean {
-            return legacyElse(getLegacyBlockConditionKey(this, blockName), shimConditionChainIndex);
+            return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
         };
 
         /**

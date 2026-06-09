@@ -93,21 +93,15 @@ export default Shopware.Component.wrapComponentConfig({
         // input focus. They are NOT registered in the global blockContext so that
         // multiple simultaneous instances of <sw-block name="foo"> each maintain
         // their own isolated shim slots and cannot double-render each other's content.
-        let legacyConditionChainIndex = 0;
         const shimSlots: Slot[] =
             props.name && hasBlockEntries(props.name)
                 ? getBlockEntries(props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
-                      const legacyConditionCaseCount =
-                          entry.innerTemplate.match(/\$swLegacyBlockElse(?:If)?\(/g)?.length ?? 0;
                       const shimSlot = createShimSlot(
                           entry,
-                          props.name!,
-                          legacyConditionCaseCount > 0 ? legacyConditionChainIndex : undefined,
-                          legacyConditionCaseCount,
+                          props.name!
                       );
 
-                      legacyConditionChainIndex += legacyConditionCaseCount;
 
                       return shimSlot;
                   })

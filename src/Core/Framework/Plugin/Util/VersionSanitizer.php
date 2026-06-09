@@ -27,6 +27,6 @@ class VersionSanitizer
                 return $match[0];
             },
             $version
-        );
+        ) ?? $version;
     }
 }

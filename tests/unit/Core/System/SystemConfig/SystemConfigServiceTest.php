@@ -21,6 +21,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -54,6 +55,7 @@ class SystemConfigServiceTest extends TestCase
             $this->eventDispatcher,
             new SymfonySystemConfigService([]),
             $this->createMock(CacheTagCollector::class),
+            new NativeClock()
         );
     }
 
@@ -95,6 +97,7 @@ class SystemConfigServiceTest extends TestCase
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['core.test' => true]]),
             $this->createMock(CacheTagCollector::class),
+            new NativeClock()
         );
 
         // Setting the same value is okay
@@ -128,6 +131,7 @@ class SystemConfigServiceTest extends TestCase
             $this->eventDispatcher,
             new SymfonySystemConfigService(['default' => ['foo.bar.key1' => 'value1', 'baz.qux.key2' => 'value2']]),
             $this->createMock(CacheTagCollector::class),
+            new NativeClock()
         );
 
         $this->eventDispatcher->method('dispatch')->willReturnArgument(0);

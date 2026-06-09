@@ -7,12 +7,14 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\MaintenanceException;
+use Shopware\Tests\Integration\Core\Maintenance\System\Service\SetupDatabaseAdapterTest;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Is tested by integration test, does not make sense to unit test
- * as the sole purpose of this class is to abstract DB interactions during setup
+ * @codeCoverageIgnore
+ *
+ * @see SetupDatabaseAdapterTest
  */
 #[Package('framework')]
 class SetupDatabaseAdapter

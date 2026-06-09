@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\TraceableMessageBus;
 
@@ -76,6 +77,7 @@ class ProductIndexerTest extends TestCase
             self::getContainer()->get(ProductStreamUpdater::class),
             $this->messageBus,
             Feature::isActive('v6.8.0.0') ? null : self::getContainer()->get(StatesUpdater::class),
+            new NativeClock()
         );
     }
 

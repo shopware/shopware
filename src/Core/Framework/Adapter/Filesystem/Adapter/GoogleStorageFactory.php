@@ -21,9 +21,9 @@ class GoogleStorageFactory implements AdapterFactoryInterface
 
         $options = $this->resolveStorageConfig($config);
         $storageConfig = ['projectId' => $options['projectId']];
-        if (isset($config['keyFile'])) {
+        if (isset($options['keyFile'])) {
             $storageConfig['keyFile'] = $options['keyFile'];
-        } else {
+        } elseif (isset($options['keyFilePath'])) {
             $storageConfig['keyFilePath'] = $options['keyFilePath'];
         }
 

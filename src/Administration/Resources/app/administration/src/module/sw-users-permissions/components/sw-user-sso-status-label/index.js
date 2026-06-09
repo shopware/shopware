@@ -1,10 +1,9 @@
 import template from './sw-user-sso-status-label.html.twig';
 
 /**
- * @internal
+ * @private
  * @sw-package framework
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     name: 'sw-user-sso-status-label',
     template,
@@ -36,11 +35,11 @@ export default {
         variant() {
             switch (this.status) {
                 case 'active':
-                    return 'success';
+                    return 'positive';
                 case 'invited':
-                    return 'warning';
+                    return 'attention';
                 default:
-                    return 'danger';
+                    return 'critical';
             }
         },
     },

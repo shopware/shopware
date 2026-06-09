@@ -23,12 +23,12 @@ class IndexCreator
      * analyzers when the bundle parameter is enabled.
      */
     private const TECHNICAL_TERM_ANALYZERS = [
-        'sw_whitespace_word_delimiter_index_analyzer',
-        'sw_whitespace_word_delimiter_search_analyzer',
-        'sw_english_word_delimiter_index_analyzer',
-        'sw_english_word_delimiter_search_analyzer',
-        'sw_german_word_delimiter_index_analyzer',
-        'sw_german_word_delimiter_search_analyzer',
+        'sw_whitespace_technical_term_index_analyzer',
+        'sw_whitespace_technical_term_search_analyzer',
+        'sw_english_technical_term_index_analyzer',
+        'sw_english_technical_term_search_analyzer',
+        'sw_german_technical_term_index_analyzer',
+        'sw_german_technical_term_search_analyzer',
     ];
 
     /**

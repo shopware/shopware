@@ -104,7 +104,9 @@
         "message": "Die Bedingung „Position in dynamischer Produktgruppe” wird nie zutreffen.",
         "action": "Mehr dazu in unserer Dokumentation"
       },
-      "productStatesConditionWarning": "Die Bedingung \"Position mit Produktzustand\" ist veraltet und wird mit v6.8 entfernt. Bitte nutze stattdessen \"Position mit Produkttyp\".",
+      "deprecatedConditionWarning": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt. Bitte nutze stattdessen \"{replacement}\".",
+      "deprecatedConditionWarningNoReplacement": "Die Bedingung \"{label}\" ist veraltet und wird mit {version} entfernt.",
+      "flowOnlyConditionsWarning": "Folgende Bedingungen dieser Regel benötigen einen Flow-Kontext: {conditions}. Außerhalb eines Flows (z. B. in Versandarten, Zahlungsarten oder Aktions-Zuweisungen) werden sie immer zu \"falsch\" ausgewertet.",
       "tabGeneral": "Allgemein",
       "tabAssignments": "Zuweisungen",
       "buttonAddAssignment":  "Zuweisung hinzufügen",

@@ -19,6 +19,7 @@ class Validator
     }
 
     /**
+     * @param mixed $propertyValue
      * @param Constraint[] $constraints
      */
     public function addConstraint(string $propertyName, $propertyValue, array $constraints): void

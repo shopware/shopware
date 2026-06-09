@@ -245,10 +245,6 @@ This helps extensions and plugin configuration UIs that let merchants select mul
 
 Administration dropdowns now identify outside clicks correctly when the browser reports a click target outside the dropdown even though the pointer is still over the dropdown.
 
-### `sw-data-grid` column labels fall back to the default locale
-
-Column headers and the column visibility settings in `sw-data-grid` now resolve their labels against the configured i18n fallback locale when the snippet is missing in the current locale, instead of rendering the raw snippet key. This matches the behavior users expect when a translation is only available in English.
-
 ### Resolving download errors by renaming media
 
 When merchants rename a media file, its URL automatically updates so they can download it without issues.

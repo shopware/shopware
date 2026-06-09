@@ -557,7 +557,6 @@ The admin menu only supports up to three levels of nesting.`,
             this.possiblyActivate(entry, target, parentEntries);
         },
 
-        /* istanbul ignore next - is covered by E2E test */
         onSubMenuItemEnter(entry, event) {
             const target = event.target;
             const flyoutParent = target.closest('.sw-admin-menu_flyout-holder');

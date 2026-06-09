@@ -119,7 +119,7 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
@@ -160,7 +160,7 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');
@@ -189,7 +189,7 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="Jan"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01');
@@ -230,7 +230,7 @@ describe('component/rule/sw-condition-date-range', () => {
         document.querySelector('[data-test-id="30"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
-        document.querySelector('[data-test-id="dp-1900-01-01"]').dispatchEvent(new Event('click'));
+        document.querySelector('[id="1900-01-01"]').dispatchEvent(new Event('click'));
         await flushPromises();
 
         expect(fromDateInput.attributes('value')).toBe('1900/01/01, 12:30');

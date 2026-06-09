@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Context;
@@ -32,13 +33,13 @@ class AdminSearcherTest extends TestCase
 
     private AdminSearcher $searcher;
 
-    private AdminSearchRegistry&MockObject $registry;
+    private AdminSearchRegistry&Stub $registry;
 
     protected function setUp(): void
     {
         $this->client = $this->createMock(Client::class);
 
-        $this->registry = $this->getMockBuilder(AdminSearchRegistry::class)->disableOriginalConstructor()->getMock();
+        $this->registry = static::createStub(AdminSearchRegistry::class);
 
         $indexer = new ProductAdminSearchIndexer(
             $this->createMock(Connection::class),

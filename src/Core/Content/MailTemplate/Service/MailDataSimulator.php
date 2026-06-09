@@ -225,7 +225,7 @@ class MailDataSimulator
             $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
         }
 
-        $cacheKey = $definition->getEntityName();
+        $cacheKey = $this->getEntityCacheKey($definition);
 
         if (!\array_key_exists($cacheKey, $entityCache)) {
             $this->generateEntityData($definition, $entityCache, $context);
@@ -233,7 +233,7 @@ class MailDataSimulator
 
         $cachedEntity = $entityCache[$cacheKey];
 
-        $entity = new ($definition->getEntityClass());
+        $entity = $this->getEntity($definition);
 
         $fields = $definition->getFields();
 
@@ -292,24 +292,19 @@ class MailDataSimulator
             }
 
             return $data;
-        } elseif ($field instanceof ManyToManyAssociationField) {
-            return $this->getEntityData(
-                $field->getToManyReferenceDefinition(),
+        } elseif ($field instanceof ManyToManyAssociationField || $field instanceof OneToManyAssociationField) {
+            $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
+
+            $entity = $this->getEntityData(
+                $referenceDefinition,
                 $criteria?->getAssociation($propertyName),
                 $entityCache,
                 $context
             );
-        } elseif ($field instanceof OneToManyAssociationField) {
-            $toManyDefinition = $field->getReferenceDefinition();
+            $this->ensureEntityIdentifier($entity);
 
-            $collection = new ($toManyDefinition->getCollectionClass());
-            \assert($collection instanceof EntityCollection);
-            $collection->add($this->getEntityData(
-                $toManyDefinition,
-                $criteria?->getAssociation($propertyName),
-                $entityCache,
-                $context
-            ));
+            $collection = $this->getCollection($referenceDefinition);
+            $collection->add($entity);
 
             return $collection;
         } elseif ($field instanceof AssociationField) {
@@ -336,7 +331,7 @@ class MailDataSimulator
             $definition = $this->definitionRegistry->getByClassOrEntityName($definition);
         }
 
-        $cacheKey = $definition->getEntityName();
+        $cacheKey = $this->getEntityCacheKey($definition);
 
         if (\array_key_exists($cacheKey, $entityCache)) {
             return $entityCache[$cacheKey];
@@ -344,7 +339,7 @@ class MailDataSimulator
 
         $fields = $definition->getFields();
 
-        $entity = new ($definition->getEntityClass());
+        $entity = $this->getEntity($definition);
 
         $entityCache[$cacheKey] = $entity;
 
@@ -553,12 +548,14 @@ class MailDataSimulator
             case $field instanceof LongTextField:
                 return 'Lorem ipsum dolor sit amet.';
 
+            case $field instanceof OneToManyAssociationField:
             case $field instanceof ManyToManyAssociationField:
-                $entity = $this->generateEntityData($field->getToManyReferenceDefinition(), $entityCache, $context);
+                $referenceDefinition = $field instanceof ManyToManyAssociationField ? $field->getToManyReferenceDefinition() : $field->getReferenceDefinition();
 
-                $collection = new ($this->getCollectionClass($entity))();
-                \assert($collection instanceof EntityCollection);
+                $entity = $this->generateEntityData($referenceDefinition, $entityCache, $context);
                 $this->ensureEntityIdentifier($entity);
+
+                $collection = $this->getCollection($referenceDefinition);
                 $collection->add($entity);
 
                 return $collection;
@@ -568,16 +565,6 @@ class MailDataSimulator
 
             case $field instanceof NumberRangeField:
                 return '"' . Random::getInteger(1, 999999) . '"';
-
-            case $field instanceof OneToManyAssociationField:
-                $entity = $this->generateEntityData($field->getReferenceDefinition(), $entityCache, $context);
-
-                $collection = new ($this->getCollectionClass($entity))();
-                \assert($collection instanceof EntityCollection);
-                $this->ensureEntityIdentifier($entity);
-                $collection->add($entity);
-
-                return $collection;
 
             case $field instanceof PasswordField:
                 return 'P@ssw0rd!';
@@ -596,10 +583,10 @@ class MailDataSimulator
                 $language = $this->generateEntityData(LanguageDefinition::class, $entityCache, $context);
                 $this->ensureEntityIdentifier($language);
 
+                // Use the language id as the simulated translation key so each language gets a distinct entry
                 $entity->setUniqueIdentifier($language->getUniqueIdentifier());
 
-                $collection = new ($this->getCollectionClass($entity))();
-                \assert($collection instanceof EntityCollection);
+                $collection = $this->getCollection($field->getReferenceDefinition());
                 $collection->add($entity);
 
                 return $collection;
@@ -628,6 +615,45 @@ class MailDataSimulator
         }
     }
 
+    private function getEntity(EntityDefinition $definition): Entity
+    {
+        try {
+            $entityClass = $definition->getEntityClass();
+
+            $entity = new $entityClass();
+            \assert($entity instanceof Entity);
+
+            return $entity;
+        } catch (\Throwable) {
+            // MappingEntityDefinition throws for example, so we need to catch that and return a default entity.
+            return new Entity();
+        }
+    }
+
+    /**
+     * @return EntityCollection<Entity>
+     */
+    private function getCollection(EntityDefinition $definition): EntityCollection
+    {
+        try {
+            /** @var class-string<EntityCollection<Entity>> $collectionClass */
+            $collectionClass = $definition->getCollectionClass();
+
+            $collection = new $collectionClass();
+            \assert($collection instanceof EntityCollection);
+
+            return $collection;
+        } catch (\Throwable) {
+            // MappingEntityDefinition throws for example, so we need to catch that and return a default collection.
+            return new EntityCollection();
+        }
+    }
+
+    private function getEntityCacheKey(EntityDefinition $definition): string
+    {
+        return $definition::class . ':' . $definition->getEntityName();
+    }
+
     private function randomString(string $propertyName, ?string $entityName = null): string
     {
         // Generate a deterministic substring of the base text, so different fields get different values,
@@ -639,13 +665,5 @@ class MailDataSimulator
         $length = 12 + (abs(crc32('length.' . $offsetSeed)) % 9);
 
         return mb_ucfirst(trim(mb_substr($baseText, $offset, $length)));
-    }
-
-    /**
-     * @return ?class-string
-     */
-    private function getCollectionClass(Entity $class): ?string
-    {
-        return $this->definitionRegistry->getByEntityClass($class)?->getCollectionClass();
     }
 }

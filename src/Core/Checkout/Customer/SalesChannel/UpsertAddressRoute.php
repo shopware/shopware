@@ -37,6 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class UpsertAddressRoute extends AbstractUpsertAddressRoute
 {
+    use CustomerAddressDataNormalizerTrait;
     use CustomerAddressValidationTrait;
 
     /**
@@ -120,6 +121,8 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
             'additionalAddressLine1' => $data->get('additionalAddressLine1'),
             'additionalAddressLine2' => $data->get('additionalAddressLine2'),
         ];
+
+        $addressData = $this->trimAddressFields($addressData);
 
         if ($data->get('customFields') instanceof RequestDataBag) {
             $addressData['customFields'] = $this->storeApiCustomFieldMapper->map(

@@ -29,6 +29,8 @@ test ('As a customer, I can request a new password without existing customer ema
    StorefrontAccountLogin,
    StorefrontAccountRecover,
 }) => {
+    const uniqueEmail = `forgot-password-${test.info().repeatEachIndex}-${test.info().retry}-${Date.now()}@email.net`;
+    
     await test.step('Navigate to login page and initiate password recovery', async () => {
         await ShopCustomer.goesTo(StorefrontAccountLogin.url());
         await ShopCustomer.presses(StorefrontAccountLogin.forgotPasswordLink);
@@ -40,7 +42,7 @@ test ('As a customer, I can request a new password without existing customer ema
     });
 
     await test.step('Request password reset with a non-existing email', async () => {
-        await ShopCustomer.fillsIn(StorefrontAccountRecover.emailInput, 'test-forgot-password-non-existing@email.net');
+        await ShopCustomer.fillsIn(StorefrontAccountRecover.emailInput, uniqueEmail);
         await ShopCustomer.presses(StorefrontAccountRecover.requestEmailButton);
         // Verify that the success message is shown for security reasons
         await ShopCustomer.expects(StorefrontAccountRecover.passwordResetEmailSentMessage).toBeVisible();
@@ -57,7 +59,7 @@ test ('As a customer, I can reset my password using the password recovery proces
     Login,
     DefaultSalesChannel,
 }) => {
-    test.skip(InstanceMeta.isSaaS, 'Skipping test because it requires a local mailpit instance.');
+    test.skip(InstanceMeta.isSaaS || InstanceMeta.isPaaS, 'Skipping test because it requires a local mailpit instance.');
 
     let passwordResetLink = '';
     const newPassword = 'new-password';

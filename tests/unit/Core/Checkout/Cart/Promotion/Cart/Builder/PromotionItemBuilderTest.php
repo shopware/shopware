@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -37,7 +37,7 @@ class PromotionItemBuilderTest extends TestCase
     private PromotionEntity $promotion;
 
     /**
-     * @var MockObject&SalesChannelContext
+     * @var Stub&SalesChannelContext
      */
     private SalesChannelContext $salesChannelContext;
 
@@ -50,8 +50,8 @@ class PromotionItemBuilderTest extends TestCase
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
 
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
+        $context = static::createStub(Context::class);
 
         $this->salesChannelContext->method('getContext')->willReturn($context);
     }

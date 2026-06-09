@@ -705,6 +705,36 @@
         "empty": "Ist leer | Sind leer",
         "between": "Ist zwischen | Sind zwischen"
       },
+      "field": {
+        "amount": "Betrag",
+        "operator": "Operator",
+        "type": "Bedingung",
+        "count": "Anzahl",
+        "quantity": "Menge",
+        "isNet": "Netto / Brutto",
+        "isNumeric": "Vergleichsmodus",
+        "fromDate": "Von",
+        "toDate": "Bis",
+        "fromTime": "Von",
+        "toTime": "Bis",
+        "useTime": "Zeitmodus",
+        "timezone": "Zeitzone",
+        "categoryIds": "Kategorie",
+        "identifiers": "Auswahl",
+        "zipCodes": "Postleitzahl",
+        "selectedField": "Zusatzfeld",
+        "selectedFieldSet": "Zusatzfeld-Set",
+        "renderedField": "Zusatzfeld",
+        "renderedFieldValue": "Wert",
+        "isAlwaysValid": "Immer gültig"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Produkt"
+      },
+      "errors": {
+        "prefix": "Ungültiger Wert:",
+        "andMore": "+{count} weitere"
+      },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
       "condition": {

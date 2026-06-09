@@ -1,9 +1,6 @@
 import template from './sw-condition-line-item-purchase-price.html.twig';
 import './sw-condition-line-item-purchase-price.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -41,12 +38,9 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.isNet',
-            'value.amount',
-        ]),
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         currentError() {
             return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;
         },

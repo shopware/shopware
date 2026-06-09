@@ -1,9 +1,6 @@
 import template from './sw-condition-goods-price.html.twig';
 import './sw-condition-goods-price.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -39,11 +36,9 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.amount',
-        ]),
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;
         },

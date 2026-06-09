@@ -3,6 +3,21 @@
 ## Deprecation of `processSuccess` and `resetButtons` in `sw-settings-cache-index`
 
 The data property `processSuccess` and the method `resetButtons()` on the `sw-settings-cache-index` page component (`src/Administration/Resources/app/administration/src/module/sw-settings-cache/page/sw-settings-cache-index/index.js`) have been deprecated and will be removed in v6.8.0.
+## Rule builder condition error display rework
+
+`sw-condition-base` now reads errors directly from the `rule_condition` entity error store. A new `sw-condition-field-errors` component renders the labelled summary below the row.
+
+### Removals on `sw-condition-*` components
+
+* `mapPropertyErrors('condition', [...])` spreads have been dropped from every `sw-condition-*` component.
+* `hasError` prop on `sw-condition-type-select` has been removed.
+* `operatorClasses` and `hasError` computed properties on `sw-condition-operator-select` have been removed.
+* `typeSelectClasses` and `arrowColor` computed properties on `sw-condition-type-select` have been removed.
+* `currentError` has been removed from the `generic-condition.mixin.ts` mixin.
+
+### Deprecation
+
+* `currentError` computed on every individual `sw-condition-*` component is deprecated and will be removed in v6.8.0.0.
 
 ## Deprecation of `sw_settings_mailer_headline_agent` twig block
 

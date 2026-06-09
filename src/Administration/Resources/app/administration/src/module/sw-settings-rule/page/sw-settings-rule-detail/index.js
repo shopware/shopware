@@ -455,10 +455,21 @@ export default {
         },
 
         validateDateRange() {
+            return this.invalidDateRangeConditions().length === 0;
+        },
+
+        invalidDateRangeConditions() {
             return this.conditionTreeFlat
                 .filter((condition) => condition.type === 'dateRange')
-                .every(({ value: { fromDate, toDate } }) => {
-                    return fromDate && toDate && new Date(fromDate) <= new Date(toDate);
+                .filter(({ value }) => {
+                    const fromDate = value?.fromDate;
+                    const toDate = value?.toDate;
+
+                    if (!fromDate || !toDate) {
+                        return false;
+                    }
+
+                    return new Date(fromDate) > new Date(toDate);
                 });
         },
 
@@ -471,13 +482,19 @@ export default {
                 return Promise.resolve(false);
             }
 
-            if (!this.validateDateRange()) {
-                Shopware.Store.get('error').addApiError({
-                    expression: `rule_condition.${this.rule.id}.value`,
-                    error: new Shopware.Classes.ShopwareError({
-                        detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
-                        code: 'INVALID_DATE_RANGE',
-                    }),
+            const reversedRanges = this.invalidDateRangeConditions();
+
+            if (reversedRanges.length > 0) {
+                const errorStore = Shopware.Store.get('error');
+
+                reversedRanges.forEach((condition) => {
+                    errorStore.addApiError({
+                        expression: `rule_condition.${condition.id}.value.toDate`,
+                        error: new Shopware.Classes.ShopwareError({
+                            detail: this.$t('sw-settings-rule.error-codes.INVALID_DATE_RANGE'),
+                            code: 'INVALID_DATE_RANGE',
+                        }),
+                    });
                 });
 
                 this.showErrorNotification();

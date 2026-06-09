@@ -1,7 +1,6 @@
 import template from './sw-condition-line-item-property.html.twig';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -52,11 +51,9 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
         },

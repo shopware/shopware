@@ -705,6 +705,36 @@
         "empty": "Is empty | Are empty",
         "between": "Is between | Are between"
       },
+      "field": {
+        "amount": "Amount",
+        "operator": "Operator",
+        "type": "Condition",
+        "count": "Quantity",
+        "quantity": "Quantity",
+        "isNet": "Net / Gross",
+        "isNumeric": "Comparison mode",
+        "fromDate": "From",
+        "toDate": "Until",
+        "fromTime": "From",
+        "toTime": "Until",
+        "useTime": "Time mode",
+        "timezone": "Time zone",
+        "categoryIds": "Category",
+        "identifiers": "Selection",
+        "zipCodes": "Postal code",
+        "selectedField": "Custom field",
+        "selectedFieldSet": "Custom field set",
+        "renderedField": "Custom field",
+        "renderedFieldValue": "Value",
+        "isAlwaysValid": "Always valid"
+      },
+      "cartLineItemWithQuantity": {
+        "id": "Product"
+      },
+      "errors": {
+        "prefix": "Invalid value:",
+        "andMore": "+{count} more"
+      },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
       "condition": {

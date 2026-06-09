@@ -1,8 +1,6 @@
 import template from './sw-condition-line-item.html.twig';
 import './sw-condition-line-item.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -46,11 +44,9 @@ export default {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
         },
@@ -62,6 +58,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         resultCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');

@@ -1,8 +1,5 @@
 import template from './sw-condition-always-valid.html.twig';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -36,8 +33,9 @@ export default {
             ];
         },
 
-        ...mapPropertyErrors('condition', ['value.isNew']),
-
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         currentError() {
             return this.conditionValueIsNewError;
         },

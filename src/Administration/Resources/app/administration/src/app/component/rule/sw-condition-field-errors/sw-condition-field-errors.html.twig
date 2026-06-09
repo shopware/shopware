@@ -1,0 +1,22 @@
+{% block sw_condition_field_errors %}
+<div
+    v-if="labels.length"
+    class="sw-condition-field-errors"
+    :title="labels.join(', ')"
+>
+    <mt-icon
+        class="sw-condition-field-errors__icon"
+        name="solid-exclamation-circle"
+        size="14px"
+        decorative
+    />
+
+    <p class="sw-condition-field-errors__summary">
+        <span class="sw-condition-field-errors__prefix">
+            {{ $t('global.sw-condition.errors.prefix') }}
+        </span>
+
+        <span>{{ summary }}</span>
+    </p>
+</div>
+{% endblock %}

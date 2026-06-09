@@ -13,6 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
@@ -135,6 +136,38 @@ class SeoUrlPersisterTest extends TestCase
         $first = $obsoletedSeoUrls->first();
         static::assertInstanceOf(SeoUrlEntity::class, $first);
         static::assertSame('fancy-path', $first->getSeoPathInfo());
+    }
+
+    public function testGeneratedSeoUrlsWithDisallowedCharactersAreSanitised(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $fk = Uuid::randomHex();
+        // Mimics what `rawurlencode(slugify(...))` can emit for non-ASCII slug
+        // configs; these characters break the storefront router (see #13796).
+        $seoUrlUpdates = [
+            [
+                'foreignKey' => $fk,
+                'pathInfo' => 'normal/path',
+                'seoPathInfo' => 'caf%C3%A9/with#frag?q=1',
+            ],
+        ];
+
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
+
+        $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
+        static::assertCount(1, $seoUrls);
+
+        $first = $seoUrls->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $first);
+
+        $stored = $first->getSeoPathInfo();
+        static::assertDoesNotMatchRegularExpression(
+            ValidSeoPathInfo::DISALLOWED_CHARACTERS_PATTERN,
+            $stored,
+            'Persisted SEO path must not contain router-breaking characters'
+        );
+        static::assertSame('caf-C3-A9/with-frag-q=1', $stored);
     }
 
     public function testDuplicatesSameSalesChannel(): void

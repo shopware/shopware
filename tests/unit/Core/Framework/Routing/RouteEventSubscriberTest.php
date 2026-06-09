@@ -33,7 +33,7 @@ class RouteEventSubscriberTest extends TestCase
 
         $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -50,7 +50,7 @@ class RouteEventSubscriberTest extends TestCase
 
         $event = new ResponseEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST, new Response());
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -72,7 +72,7 @@ class RouteEventSubscriberTest extends TestCase
 
         $event = new StorefrontRenderEvent('', [], $request, $this->createMock(SalesChannelContext::class));
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -90,10 +90,10 @@ class RouteEventSubscriberTest extends TestCase
 
         $event = new RequestEvent($this->createMock(Kernel::class), $request, HttpKernelInterface::MAIN_REQUEST);
 
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $storefrontListener = $this->createMock(CallableClass::class);
         $storefrontListener->expects($this->once())->method('__invoke');
 
-        $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $apiListener = $this->createMock(CallableClass::class);
         $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -116,7 +116,7 @@ class RouteEventSubscriberTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -139,10 +139,10 @@ class RouteEventSubscriberTest extends TestCase
             HttpKernelInterface::MAIN_REQUEST
         );
 
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $storefrontListener = $this->createMock(CallableClass::class);
         $storefrontListener->expects($this->once())->method('__invoke');
 
-        $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $apiListener = $this->createMock(CallableClass::class);
         $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -166,10 +166,10 @@ class RouteEventSubscriberTest extends TestCase
 
         $event = new StorefrontRenderEvent('', [], $request, $this->createMock(SalesChannelContext::class));
 
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $storefrontListener = $this->createMock(CallableClass::class);
         $storefrontListener->expects($this->once())->method('__invoke');
 
-        $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $apiListener = $this->createMock(CallableClass::class);
         $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();
@@ -193,13 +193,13 @@ class RouteEventSubscriberTest extends TestCase
             new Response()
         );
 
-        $routeListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $routeListener = $this->createMock(CallableClass::class);
         $routeListener->expects($this->once())->method('__invoke');
 
-        $storefrontListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $storefrontListener = $this->createMock(CallableClass::class);
         $storefrontListener->expects($this->once())->method('__invoke');
 
-        $apiListener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $apiListener = $this->createMock(CallableClass::class);
         $apiListener->expects($this->once())->method('__invoke');
 
         $dispatcher = new EventDispatcher();

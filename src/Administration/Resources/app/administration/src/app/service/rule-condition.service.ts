@@ -349,7 +349,7 @@ export default class RuleConditionService {
 
     private collectTypes(conditions: Array<{ type: string; children?: unknown }>): string[] {
         return conditions.flatMap((condition) => {
-            if (!Array.isArray(condition.children)) {
+            if (!condition.children) {
                 return [condition.type];
             }
 

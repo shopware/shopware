@@ -127,7 +127,7 @@
         </div>
 
         <div
-            v-if="flowOnlyConditionLabels.length > 0"
+            v-if="flowOnlyConditionLabels?.length > 0"
             class="sw-settings-rule-detail-base__flow-only-warning"
         >
             <mt-banner variant="info">
@@ -138,7 +138,7 @@
         </div>
 
         <div
-            v-if="deprecatedConditionsInUse.length > 0"
+            v-if="deprecatedConditionsInUse?.length > 0"
             class="sw-settings-rule-detail-base__product-type-warning"
         >
             <mt-banner variant="attention">

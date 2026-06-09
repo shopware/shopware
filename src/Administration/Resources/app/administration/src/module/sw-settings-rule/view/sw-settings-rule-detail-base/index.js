@@ -94,7 +94,7 @@ export default {
         },
 
         deprecatedConditionsInUse() {
-            if (!Array.isArray(this.conditions)) {
+            if (!this.conditions) {
                 return [];
             }
 
@@ -102,7 +102,7 @@ export default {
         },
 
         flowOnlyConditionLabels() {
-            if (!Array.isArray(this.conditions)) {
+            if (!this.conditions) {
                 return [];
             }
 

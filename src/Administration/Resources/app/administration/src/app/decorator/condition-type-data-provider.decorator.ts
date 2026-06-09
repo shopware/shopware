@@ -88,7 +88,7 @@ export type ConditionDefinition = {
     label: string;
     scopes: RuleScope[];
     group: RuleGroup;
-    removedInFeature?: string; // e.g. 'v6.8.0.0'
+    removedInFeature?: string; // e.g. 'v6.8.0'
     replacement?: string; // condition type that supersedes this one
 };
 

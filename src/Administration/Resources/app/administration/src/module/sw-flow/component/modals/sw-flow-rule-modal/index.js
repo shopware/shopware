@@ -103,7 +103,7 @@ export default {
         },
 
         deprecatedConditionsInUse() {
-            if (!Array.isArray(this.conditions)) {
+            if (!this.conditions) {
                 return [];
             }
 

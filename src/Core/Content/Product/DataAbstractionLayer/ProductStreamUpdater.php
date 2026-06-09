@@ -368,31 +368,28 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
         $currentIds = $restrictToIds;
 
-        foreach ($chunks as $chunkIndex => $chunk) {
+        foreach ($chunks as $chunk) {
+            // Once a previous chunk (or the initial restriction) narrowed the
+            // candidates to an empty set, no product can satisfy the remaining
+            // AND conditions, so stop early and skip the pointless query.
+            if ($currentIds === []) {
+                return [];
+            }
+
             $criteria = new Criteria();
             $criteria->addFilter(...$chunk);
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
+            // null means "no restriction yet" (first chunk); a non-empty list
+            // constrains this chunk to the intersection found so far, so the final
+            // result equals filter_1 AND filter_2 AND ... AND filter_n.
             if ($currentIds !== null) {
-                if ($currentIds === []) {
-                    // no candidates left, no product can match the remaining AND conditions
-                    return [];
-                }
-
                 $criteria->addFilter(new EqualsAnyFilter('id', $currentIds));
             }
 
             /** @var list<string> $matched */
             $matched = $this->repository->searchIds($criteria, $context)->getIds();
-
-            // Only the first chunk determines the initial id set; subsequent chunks
-            // are already constrained to `currentIds`, so their result set is the
-            // intersection we are after.
             $currentIds = $matched;
-
-            if ($currentIds === [] && $chunkIndex < \count($chunks) - 1) {
-                return [];
-            }
         }
 
         return $currentIds ?? [];

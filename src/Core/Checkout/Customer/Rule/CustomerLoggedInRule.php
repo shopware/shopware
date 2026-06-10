@@ -31,7 +31,7 @@ class CustomerLoggedInRule extends Rule
             return false;
         }
 
-        $customer = $scope->getSalesChannelContext()->getCustomer();
+        $customer = $scope->getCustomer();
 
         $loggedIn = $customer !== null;
 

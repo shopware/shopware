@@ -5,8 +5,8 @@ name: Reproduce Issue
 #   gate ─▶ analyze ─▶ reproduce (matrix: reported ‖ trunk, parallel) ─▶ report
 #
 # Status: analyze = real claude-code-action agent (explicit dry_run demo / hard-fail
-# if no key); reproduce(http) = real provision + executor; reproduce(direct|playwright)
-# = stubs (emit inconclusive). All JSON conforms to
+# if no key); reproduce = real provision + executor for all three layers
+# (http / playwright / direct). All JSON conforms to
 # .claude/skills/reproduce/references/SCHEMA.md.
 
 on:

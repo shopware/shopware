@@ -31,10 +31,16 @@ on:
         default: false
         type: boolean
       dry_run:
-        description: "DEMO: skip the Analyze agent and emit a canned plan (smoke-test the wiring without an API key)"
+        description: "DEMO: skip the Analyze agent and emit a canned plan (smoke-test the wiring without an API key, $0)"
         required: false
         default: false
         type: boolean
+      demo_layer:
+        description: "DEMO (dry_run only): which executor to smoke-test end-to-end"
+        required: false
+        default: "http"
+        type: choice
+        options: [http, direct, playwright]
       branch:
         description: "Branch/ref the trunk leg reproduces against (defaults to trunk)"
         required: false
@@ -309,23 +315,54 @@ jobs:
             --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(gh api:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
 
       # DEMO only: canned plan, reached solely via dry_run=true.
+      # DEMO: a canned plan per layer so the WHOLE pipeline (provision → executor → verdict
+      # → report) can be smoke-tested for $0 — no agent, no API key. confidence is 1.0 so the
+      # < 0.4 bail-out doesn't suppress the run; derived_from + the ::warning:: mark it fake.
       - name: Analyze (dry-run demo)
         if: steps.mode.outputs.mode == 'dry_run'
         env:
           ISSUE: ${{ needs.gate.outputs.issue }}
+          DEMO_LAYER: ${{ github.event.inputs.demo_layer || 'http' }}
         run: |
           set -euo pipefail
-          echo "::warning::DEMO dry-run — emitting a canned plan, NOT a real analysis."
-          jq -n --argjson issue "$ISSUE" '{
-            schema_version: "1", issue: $issue, layer: "store-api", executor: "http",
-            version: "6.6.10.0",
-            scenario: ["Given a running shop", "When POST /store-api/checkout/cart with an empty body", "Then a healthy shop returns HTTP 400"],
-            build_profile: { admin_build: false, storefront_build: false, theme_build: false },
-            fixtures: { demodata: false, sync_payload_path: "fixtures.json" },
-            request: { method: "POST", path: "/store-api/checkout/cart", headers: { "Content-Type": "application/json" }, body: "{}" },
-            assertion: { kind: "http_status", expect: "400", field: null, locator: "/store-api/checkout/cart" },
-            derived_from: "DEMO (dry-run)", confidence: 0.0, blocked_reason: null
-          }' > analysis.json
+          echo "::warning::DEMO dry-run ($DEMO_LAYER) — canned plan, NOT a real analysis."
+          case "$DEMO_LAYER" in
+            http)
+              jq -n --argjson issue "$ISSUE" '{
+                schema_version:"1", issue:$issue, layer:"store-api", executor:"http", version:"6.6.10.0",
+                scenario:["Given a running shop","When POST /store-api/checkout/cart with an empty body","Then a healthy shop returns HTTP 400"],
+                build_profile:{admin_build:false,storefront_build:false,theme_build:false},
+                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
+                request:{method:"POST",path:"/store-api/checkout/cart",headers:{"Content-Type":"application/json"},body:"{}"},
+                assertion:{kind:"http_status",expect:"400",field:null,locator:"/store-api/checkout/cart"},
+                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
+              }' > analysis.json
+              ;;
+            direct)
+              jq -n --argjson issue "$ISSUE" '{
+                schema_version:"1", issue:$issue, layer:"service", executor:"direct", version:"6.6.10.0",
+                scenario:["Given a provisioned shop","When a PHPUnit integration test resolves a core service","Then the service is available (healthy)"],
+                build_profile:{admin_build:false,storefront_build:false,theme_build:false},
+                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
+                script_path:"ReproTest.php",
+                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
+              }' > analysis.json
+              cp .github/actions/repro/demo/ReproTest.php ReproTest.php
+              ;;
+            playwright)
+              jq -n --argjson issue "$ISSUE" '{
+                schema_version:"1", issue:$issue, layer:"admin-ui", executor:"playwright", version:"6.6.10.0",
+                scenario:["Given a provisioned shop with the admin built","When the admin entry point is opened","Then the page renders (healthy)"],
+                build_profile:{admin_build:true,storefront_build:false,theme_build:false},
+                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
+                script_path:"repro.spec.ts",
+                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
+              }' > analysis.json
+              cp .github/actions/repro/demo/repro.spec.ts repro.spec.ts
+              ;;
+            *) echo "::error::unknown demo_layer '$DEMO_LAYER'"; exit 1 ;;
+          esac
+          cat analysis.json
 
       # Capture the agent transcript (tool calls, denials, per-turn breakdown) for cost
       # analysis. Fork/dev only — gate behind debug before the real shopware PR (tool

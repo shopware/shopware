@@ -10,6 +10,10 @@ import { cwd } from 'node:process';
 export default defineConfig({
     testDir: '.',
     testIgnore: '**/demo/**',
+    // A repro is a multi-step flow against a freshly-provisioned shop (login + navigate +
+    // interact), with generous per-locator waits. Playwright's 30s default per-test timeout
+    // is too short and aborts mid-flow; give the whole test room.
+    timeout: 120_000,
     outputDir: `${cwd()}/test-results`,
     reporter: [['json', { outputFile: 'pw-report.json' }]],
     use: {

@@ -49,7 +49,8 @@ else
   SKIPPED=$(jq -r '.stats.skipped // 0' "$REPORT")
   REASON="null"
   # Every failed/timed-out test's error message — used to classify WHY it failed.
-  ERRS=$(jq -r '[.. | objects | select(.status?=="failed" or .status?=="timedOut") | .error?.message // empty] | join(" || ")' "$REPORT")
+  # Strip ANSI colour codes Playwright embeds, else they leak into the rendered comment.
+  ERRS=$(jq -r '[.. | objects | select(.status?=="failed" or .status?=="timedOut") | .error?.message // empty] | join(" || ")' "$REPORT" | perl -pe 's/\e\[[0-9;]*m//g')
   MSG=$(printf '%s' "$ERRS" | tr -s ' \n' '  ' | head -c 300)
   if [ "$EXPECTED" = 0 ] && [ "$UNEXPECTED" = 0 ] && [ "$SKIPPED" = 0 ]; then
     STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"no tests ran\""

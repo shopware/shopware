@@ -1,0 +1,226 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`scripts/codemods/sfc-migration/generate-sfc block-component: fully migrated SFC with twig blocks replaced and createExtendableSetup script matches the complete SFC output snapshot 1`] = `
+"<template>
+<sw-block name="sw_block_card" :data="$dataScope">
+<div class="sw-block-card">
+    <sw-block name="sw_block_card_header" :data="$dataScope">
+    <div class="sw-block-card__header">
+        <h3>{{ title }}</h3>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_content" :data="$dataScope">
+    <div class="sw-block-card__content">
+        <p>{{ description }}</p>
+    </div>
+    </sw-block>
+
+    <sw-block name="sw_block_card_footer" :data="$dataScope">
+    <div class="sw-block-card__footer">
+        <sw-block-parent/>
+        <button @click="onAction">Action</button>
+    </div>
+    </sw-block>
+</div>
+</sw-block>
+
+</template>
+
+<script setup>
+const props = defineProps({
+        initialCount: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
+        readOnly: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    });
+const emit = defineEmits(['action', 'reset']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject, watch, onMounted } from 'vue';
+
+const cardWrapper = ref(null);
+
+const {
+    acl,
+    title,
+    description,
+    count,
+    canEdit,
+    label,
+    onAction,
+    onReset,
+} = createExtendableSetup(
+    {
+        name: 'sw-block-card',
+        props,
+    },
+    () => {
+        const acl = inject('acl');
+
+        const title = ref('Block Card');
+        const description = ref('A card with extensible blocks');
+        const count = ref(props.initialCount);
+
+        const canEdit = computed(() => {
+            return !props.readOnly && acl.can('product.editor');
+        });
+        const label = computed({
+            get: () => {
+                return title.value;
+            },
+            set: (val) => {
+                title.value = val;
+            },
+        });
+
+        const onAction = () => {
+            count.value += 1;
+            emit('action', count.value);
+        };
+        const onReset = () => {
+            count.value = props.initialCount;
+            title.value = 'Block Card';
+            cardWrapper.value.focus();
+            emit('reset');
+        };
+
+        watch(() => count.value, (newVal) => {
+            if (newVal > 10) {
+                title.value = 'Limit reached';
+            }
+        });
+        watch(() => props.readOnly, (newVal) => {
+            if (newVal) {
+                title.value = 'Read-only mode';
+            }
+        });
+
+        onMounted(() => {
+            count.value = props.initialCount;
+        });
+
+        return {
+            public: {
+                acl,
+                title,
+                description,
+                count,
+                canEdit,
+                label,
+                onAction,
+                onReset,
+            },
+        };
+    },
+);
+</script>"
+`;
+
+exports[`scripts/codemods/sfc-migration/generate-sfc mixin-component: partially migrated SFC — template converted, script kept as Options API without createExtendableSetup matches the complete partially-migrated SFC output snapshot 1`] = `
+"<template>
+<div class="sw-mixin-list"></div>
+</template>
+
+<script>
+import listingMixin from 'src/app/mixin/listing.mixin';
+
+Shopware.Component.register('sw-mixin-list', {
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+        listingMixin,
+    ],
+
+    data() {
+        return {
+            items: [],
+            isLoading: false,
+        };
+    },
+
+    computed: {
+        total() {
+            return this.items.length;
+        },
+    },
+
+    methods: {
+        async loadItems() {
+            this.isLoading = true;
+            try {
+                this.items = await this.fetchItems();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onNotify() {
+            this.createNotificationSuccess({ message: 'Done' });
+        },
+    },
+});
+</script>"
+`;
+
+exports[`scripts/codemods/sfc-migration/generate-sfc simple-component: fully migrated SFC with plain template and <script setup> matches the complete SFC output snapshot 1`] = `
+"<template>
+<div class="sw-simple-card">
+    <div class="sw-simple-card__title">{{ title }}</div>
+    <div class="sw-simple-card__description">{{ description }}</div>
+    <button class="sw-simple-card__action" @click="onSave">Save</button>
+</div>
+
+</template>
+
+<script setup>
+const props = defineProps({});
+const emit = defineEmits(['save']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject } from 'vue';
+
+const {
+    repositoryFactory,
+    title,
+    isLoading,
+    description,
+    onSave,
+} = createExtendableSetup(
+    {
+        name: 'sw-simple-card',
+        props,
+    },
+    () => {
+        const repositoryFactory = inject('repositoryFactory');
+
+        const title = ref('Default Title');
+        const isLoading = ref(false);
+
+        const description = computed(() => {
+            return \`This is: \${title.value}\`;
+        });
+
+        const onSave = () => {
+            isLoading.value = true;
+            emit('save', title.value);
+        };
+
+        return {
+            public: {
+                repositoryFactory,
+                title,
+                isLoading,
+                description,
+                onSave,
+            },
+        };
+    },
+);
+</script>"
+`;

@@ -19,12 +19,20 @@ export default {
         },
 
         styles() {
-            const { displayMode, minHeight, verticalAlign } = this.element.config;
+            const { displayMode, minHeight } = this.element.config;
+            const isCover = displayMode.value === 'cover';
+
             return {
-                'max-width': '180px',
-                'min-height':
-                    displayMode.value === 'cover' && minHeight.value && minHeight.value !== 0 ? minHeight.value : '40px',
-                'align-self': verticalAlign.value || null,
+                'min-height': isCover && minHeight.value && minHeight.value !== 0 ? minHeight.value : null,
+            };
+        },
+
+        logoStyles() {
+            const isStandard = this.element.config.displayMode.value === 'standard';
+
+            return {
+                'max-height': isStandard ? '100px' : null,
+                'align-self': this.element.config.verticalAlign?.value || null,
             };
         },
     },

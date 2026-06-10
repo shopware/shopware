@@ -40,6 +40,12 @@ yalc.lock
 .codewhispererignore
 .chunkhound*
 
+!.claude/
+.claude/*
+!.claude/commands/
+.claude/commands/*
+!.claude/commands/issue-fix.md
+
 # GIT worktrees
 .worktrees
 

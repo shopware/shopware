@@ -60,3 +60,7 @@ shopware/
 | **Twig** (Storefront)  | `composer ludtwig:storefront` | `composer ludtwig:storefront:fix`            |
 | **Snippets**           | `composer translation:lint`   | Manual fix required                          |
 | **Prettier** (Admin)   | `composer format:admin`       | `composer format:admin:fix`                  |
+
+## AI Issue Fix Workflow
+
+When the user asks to fix a GitHub issue from Claude or Codex, prefer the shared `issue-fix` AI command/tool and follow the canonical workflow in `.agents-templates/issue-fix.md`.

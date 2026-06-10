@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
 use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -44,6 +45,7 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
     ) {
     }
 
@@ -97,7 +99,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             $entitySearchResult->getCriteria()
         );
 
-        if ($this->isHideOutOfStockCloseoutEnabled($this->systemConfigService, $context)) {
+        // Safety net: handleProductStream() can remap stream hits to their display
+        // parent or main variant, which may itself be a hidden closeout product even
+        // though the stream criteria already filtered unavailable closeout products.
+        if ($this->hideUnavailableProducts($context)) {
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
@@ -147,6 +152,13 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             return null;
         }
 
+        // Exclude unavailable closeout products before the limit is applied, so they
+        // do not consume slider slots (same handling as listing and cross-selling).
+        $context = $resolverContext->getSalesChannelContext();
+        if ($this->hideUnavailableProducts($context)) {
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
+        }
+
         $criteria->setLimit($limit);
 
         if (!$this->shouldSkipGrouping($criteria)) {
@@ -165,6 +177,14 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         }
 
         return $criteria;
+    }
+
+    private function hideUnavailableProducts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
     }
 
     private function handleProductStream(

@@ -71,13 +71,38 @@ class ProductStreamProcessorTest extends TestCase
         static::assertTrue($products->has($this->ids->get('closeout-oos-product')));
     }
 
-    private function resolveStreamSlider(): ?ProductCollection
+    public function testHiddenCloseoutProductsDoNotConsumeSliderLimit(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        // stock ASC puts the OOS closeout product first; with a limit of 1 it would
+        // consume the only slot if filtering happened after the stream search.
+        $products = $this->resolveStreamSlider(1, 'stock:ASC');
+
+        static::assertInstanceOf(ProductCollection::class, $products);
+        static::assertCount(1, $products);
+        static::assertTrue(
+            $products->has($this->ids->get('available-product')),
+            'Hidden closeout products must not consume slider limit slots'
+        );
+    }
+
+    private function resolveStreamSlider(?int $limit = null, ?string $sorting = null): ?ProductCollection
     {
         $resolverContext = new ResolverContext($this->context, new Request());
 
         $config = new FieldConfig('products', 'product_stream', $this->ids->get('stream'));
         $configs = new FieldConfigCollection();
         $configs->add($config);
+
+        if ($limit !== null) {
+            $configs->add(new FieldConfig('productStreamLimit', FieldConfig::SOURCE_STATIC, $limit));
+        }
+
+        if ($sorting !== null) {
+            $configs->add(new FieldConfig('productStreamSorting', FieldConfig::SOURCE_STATIC, $sorting));
+        }
 
         $slot = new CmsSlotEntity();
         $slot->setId(Uuid::randomHex());

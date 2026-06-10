@@ -2098,9 +2098,11 @@ Long-form text fields (`description`, `metaDescription`) retain the standard BM2
 
 Both similarities are configurable via `elasticsearch.similarity` in `elasticsearch.yaml`. This change requires a full reindex (`bin/console es:index`).
 
-### `ProductStreamProcessor` constructor now requires `SystemConfigService`
+### Stream-backed CMS product sliders honour `hideCloseoutProductsWhenOutOfStock`
 
-`Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` now takes an additional `SystemConfigService` argument so stream-backed CMS product sliders can honour the `core.listing.hideCloseoutProductsWhenOutOfStock` setting (mirroring the manual-products slider). Plugins that extend the service and call `parent::__construct(...)` must pass the new argument; when declaring the service in XML, add an `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` after the existing ones.
+Product sliders sourced from a product stream now apply the `core.listing.hideCloseoutProductsWhenOutOfStock` setting, mirroring the manual-products slider. The closeout filter is added to the stream criteria (before the slider limit is applied, so hidden products do not consume slider slots), with an additional post-search filter to catch display-parent/main-variant remapping.
+
+The `@internal` constructor of `Shopware\Core\Content\Product\Cms\ProductSlider\ProductStreamProcessor` takes two additional arguments: `SystemConfigService` and `AbstractProductCloseoutFilterFactory`. Plugins that extend the service and call `parent::__construct(...)` must pass the new arguments; when declaring the service in XML, add `<argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>` and `<argument type="service" id="Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory"/>` after the existing ones.
 
 ### Product `display_group` values use SHA-256
 

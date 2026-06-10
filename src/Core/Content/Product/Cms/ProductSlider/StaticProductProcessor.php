@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -72,7 +73,7 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
 
         $context = $resolverContext->getSalesChannelContext();
 
-        if ($this->isHideOutOfStockCloseoutEnabled($this->systemConfigService, $context)) {
+        if ($this->hideUnavailableProducts($context)) {
             $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
         }
 
@@ -90,5 +91,13 @@ class StaticProductProcessor extends AbstractProductSliderProcessor
         $slider->setProducts($products);
 
         $slot->setData($slider);
+    }
+
+    protected function hideUnavailableProducts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
     }
 }

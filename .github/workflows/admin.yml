@@ -97,25 +97,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: install packages
-        working-directory: src/Storefront/Resources/app/storefront
-        env:
-          # Survive transient registry resets (ECONNRESET) instead of failing the job.
-          npm_config_fetch_retries: "5"
-          npm_config_fetch_retry_mintimeout: "20000"
-          npm_config_fetch_retry_maxtimeout: "120000"
-          npm_config_prefer_offline: "true"
-        run: |
-          for attempt in 1 2 3; do
-            if npm ci; then
-              break
-            fi
-            if [ "${attempt}" -eq 3 ]; then
-              echo "::error::'npm ci' failed after ${attempt} attempts"
-              exit 1
-            fi
-            echo "::warning::'npm ci' failed (attempt ${attempt}/3); retrying in $((attempt * 15))s"
-            sleep "$((attempt * 15))"
-          done
+        uses: ./.github/actions/npm-ci-retry
+        with:
+          working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
         working-directory: src/Administration/Resources/app/administration
         run: |

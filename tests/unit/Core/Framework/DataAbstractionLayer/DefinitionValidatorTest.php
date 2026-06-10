@@ -134,6 +134,81 @@ class DefinitionValidatorTest extends TestCase
         static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
     }
 
+    public function testForeignKeyReferencingFullCompositePrimaryKeyReportsNoViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
+        $child = $this->createTable('child', ['id', 'parent_id', 'parent_version_id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id', 'parent_version_id'], ['id', 'version_id'], [], 'fk_child_parent_id');
+
+        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+    }
+
+    public function testForeignKeyReferencingPrefixOfCompositePrimaryKeyReportsViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
+        $child = $this->createTable('child', ['id', 'parent_id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+
+        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+
+        static::assertCount(1, $violations);
+        static::assertStringContainsString('Foreign key "fk_child_parent_id" on table "child" references parent(id)', $violations[0]);
+        static::assertStringContainsString('restrict_fk_on_non_standard_key', $violations[0]);
+    }
+
+    public function testForeignKeyReferencingSingleColumnPrimaryKeyReportsNoViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'name'], ['id']);
+        $child = $this->createTable('child', ['id', 'parent_id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+
+        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+    }
+
+    public function testForeignKeyReferencingUniqueIndexReportsNoViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'code'], ['id']);
+        $parent->addUniqueIndex(['code'], 'uniq_parent_code');
+        $child = $this->createTable('child', ['id', 'parent_code']);
+        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+
+        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+    }
+
+    public function testForeignKeyReferencingNonKeyColumnReportsViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'name'], ['id']);
+        $child = $this->createTable('child', ['id', 'parent_name']);
+        $child->addForeignKeyConstraint('parent', ['parent_name'], ['name'], [], 'fk_child_parent_name');
+
+        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+
+        static::assertCount(1, $violations);
+        static::assertStringContainsString('references parent(name)', $violations[0]);
+    }
+
+    public function testSelfReferencingForeignKeyToOwnPrimaryKeyReportsNoViolation(): void
+    {
+        $table = $this->createTable('tree', ['id', 'parent_id'], ['id']);
+        $table->addForeignKeyConstraint('tree', ['parent_id'], ['id'], [], 'fk_tree_parent_id');
+
+        static::assertSame([], $this->foreignKeyViolations(new Schema([$table])));
+    }
+
+    public function testForeignKeyReferencingPrefixUniqueIndexReportsViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'code'], ['id']);
+        // A unique index on a column prefix cannot back a foreign key.
+        $parent->addUniqueIndex(['code'], 'uniq_parent_code', ['lengths' => [191]]);
+        $child = $this->createTable('child', ['id', 'parent_code']);
+        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+
+        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+
+        static::assertCount(1, $violations);
+        static::assertStringContainsString('references parent(code)', $violations[0]);
+    }
+
     /**
      * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
      */
@@ -263,5 +338,57 @@ class DefinitionValidatorTest extends TestCase
                 return false;
             }
         };
+    }
+
+    /**
+     * @param list<string> $columnNames
+     * @param list<string> $primaryKeyColumns
+     */
+    private function createTable(string $name, array $columnNames, array $primaryKeyColumns = []): Table
+    {
+        $columns = array_map(
+            static fn (string $columnName): Column => new Column($columnName, Type::getType(Types::BINARY)),
+            $columnNames
+        );
+
+        $table = new Table($name, $columns);
+
+        if ($primaryKeyColumns !== []) {
+            $pkColumns = array_map(
+                static function (string $columnName): UnqualifiedName {
+                    static::assertNotEmpty($columnName);
+
+                    return new UnqualifiedName(Identifier::unquoted($columnName));
+                },
+                $primaryKeyColumns
+            );
+            $table->addPrimaryKeyConstraint(new PrimaryKeyConstraint(null, $pkColumns, false));
+        }
+
+        return $table;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function foreignKeyViolations(Schema $schema): array
+    {
+        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager->method('introspectSchema')->willReturn($schema);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
+
+        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry->method('getDefinitions')->willReturn([]);
+        $registry->method('getByEntityName')->willReturn($this->createMock(EntityDefinition::class));
+
+        $violations = (new DefinitionValidator($registry, $connection))->validate();
+        $registryViolations = $violations[DefinitionInstanceRegistry::class] ?? [];
+
+        return array_values(array_filter(
+            $registryViolations,
+            static fn (string $violation): bool => str_contains($violation, 'not a complete PRIMARY or UNIQUE key')
+        ));
     }
 }

@@ -52,6 +52,19 @@ timeout. This is the ONLY failure that may mean `reproduced`.
   (`toHaveAttribute('aria-hidden','true')`) — **NOT** `not.toBeVisible()`: an element moved
   off-screen via transform/translate is still "visible" to Playwright, so `toBeVisible`
   fails on BOTH versions and FAKES a reproduction.
+- **Make the symptom's PRECONDITION actually hold.** If it only fires when content exceeds
+  the visible area (overflow/cut-off/"cannot scroll" bugs), FORCE a viewport that guarantees
+  it (`test.use({ viewport: { width: 1280, height: 500 } })`) — at the default 720p the
+  content may simply fit and the spec passes on the BUGGY version (a silent false negative
+  we hit live: a 17-entry dropdown fit the default viewport).
+- **For "cannot scroll / cannot reach" symptoms, scroll like a USER** — hover the element's
+  container, then `page.mouse.wheel(0, N)`, then assert `toBeInViewport()`. **NEVER**
+  `scrollIntoViewIfNeeded()` for these: it uses CDP and can scroll `overflow:hidden`
+  ancestors a real user cannot, masking the bug (hit live: it scrolled the admin's
+  `overflow:hidden` layout wrapper and faked a pass on the buggy version).
+- When the target is one of many same-role items (rows, options), scope by each item's own
+  visible text (`getByRole('row', {name:/module.?filter/i})`) before `.first()`/`.last()` —
+  a bare role can match unrelated tables elsewhere on the page.
 
 ## How `run-playwright.sh` classifies the result
 - genuine `expect()` assertion failure → `reproduced`

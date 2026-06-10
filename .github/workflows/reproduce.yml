@@ -822,6 +822,10 @@ jobs:
         if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
+          # GitHub's API intermittently returns transient 401s; github-script exempts 401
+          # from retries by default, which failed an otherwise-green run. Un-exempt it.
+          retries: 3
+          retry-exempt-status-codes: 400,403,404,422
           script: |
             const fs = require('fs');
             await github.rest.issues.createComment({

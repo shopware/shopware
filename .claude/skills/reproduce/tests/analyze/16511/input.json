@@ -1,0 +1,10 @@
+{
+  "mode": "analyze",
+  "issue": 16511,
+  "title": "Out-of-range pagination on category/listing pages returns HTTP 200 instead of a redirect or 404",
+  "version": "6.7.9.0",
+  "body_path": "issue.md",
+  "regression_test_path": "regression-test.php",
+  "regression_test_ref": "PR#16575 ProductListingRouteTest::testReturnsHttpNotFoundWhenRequestedPageExceedsLastPage",
+  "note": "Self-contained fixture: the issue body and the fix PR's regression test are provided as files so the eval is deterministic (no live gh fetch, no issue drift)."
+}

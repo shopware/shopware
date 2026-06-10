@@ -1,0 +1,102 @@
+name: "Reproduce — provision"
+description: >
+  Boot a Shopware instance at a specific version, building only the surface the
+  bug lives on (build_profile). Outputs APP_URL and a store-api access key.
+  Reuses shopware/setup-shopware; mirrors the server-start flow of .github/actions/ats.
+
+inputs:
+  version:
+    description: "Shopware ref: 'trunk' for the checked-out branch, or a tag like 'v6.6.10.0' for the reported version"
+    required: true
+  repository:
+    description: "Shopware repository"
+    required: false
+    default: "shopware/shopware"
+  php-version:
+    required: false
+    default: "8.4"
+  path:
+    description: "Subdir to install the shop into (keeps the workspace root tooling/analysis intact)"
+    required: false
+    default: "shop"
+  storefront-build:
+    description: "Build storefront assets (only needed for storefront-ui layer)"
+    required: false
+    default: "false"
+  admin-build:
+    description: "Build admin assets (only needed for admin-ui layer)"
+    required: false
+    default: "false"
+
+outputs:
+  app_url:
+    description: "Base URL of the running shop"
+    value: ${{ steps.serve.outputs.app_url }}
+  access_key:
+    description: "store-api sales-channel access key"
+    value: ${{ steps.access-key.outputs.key }}
+
+runs:
+  using: "composite"
+  steps:
+    # Install only what the surface needs. http/direct → no JS build at all.
+    - name: Setup Shopware
+      uses: shopware/setup-shopware@main
+      with:
+        shopware-version: ${{ inputs.version }}
+        shopware-repository: ${{ inputs.repository }}
+        path: ${{ inputs.path }}
+        php-version: ${{ inputs.php-version }}
+        mysql-version: "builtin"
+        install: "true"
+        install-admin: ${{ inputs.admin-build }}
+        install-storefront: ${{ inputs.storefront-build }}
+        skip-js-build: ${{ (inputs.admin-build == 'false' && inputs.storefront-build == 'false') && 'true' || 'false' }}
+        allow-insecure-versions: "true" # reported version may be an old release
+        env: "prod"
+
+    - name: Define minimal environment
+      shell: bash
+      run: |
+        echo "SHOPWARE_HTTP_CACHE_ENABLED=0" >> "$GITHUB_ENV"
+        echo "SHOPWARE_DISABLE_UPDATE_CHECK=true" >> "$GITHUB_ENV"
+        echo "BLUE_GREEN_DEPLOYMENT=1" >> "$GITHUB_ENV"
+
+    - name: Start webserver and wait until READY
+      id: serve
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      env:
+        SYMFONY_DAEMON: "1"
+        SYMFONY_NO_TLS: "1"
+        SYMFONY_ALLOW_HTTP: "1"
+        SYMFONY_PORT: "8000"
+        SYMFONY_ALLOW_ALL_IP: "1"
+      run: |
+        set -euo pipefail
+        symfony server:start
+        APP_URL="http://localhost:8000"
+        # one-shot start, then poll until READY (never yield mid-build).
+        # READY = the web server responds at all; ANY HTTP status counts (the
+        # executor probes the real endpoint). Do not require 2xx here.
+        ready=0
+        for i in $(seq 1 60); do
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$APP_URL/admin" || echo 000)
+          if [ "$code" != "000" ]; then echo "server responding (HTTP $code) after ${i}s"; ready=1; break; fi
+          sleep 1
+        done
+        [ "$ready" = 1 ] || { echo "::error::shop not READY after 60s"; exit 1; }
+        echo "app_url=$APP_URL" >> "$GITHUB_OUTPUT"
+
+    - name: Resolve store-api access key
+      id: access-key
+      shell: bash
+      run: |
+        set -euo pipefail
+        # DATABASE_URL is exported by setup-shopware. Read the default sales channel key.
+        eval "$(php -r '$u=parse_url(getenv("DATABASE_URL")); printf("DBH=%s DBP=%s DBU=%s DBPW=%s DBN=%s",
+          $u["host"]??"127.0.0.1", $u["port"]??3306, $u["user"]??"root", $u["pass"]??"", ltrim($u["path"]??"/","/"));')"
+        KEY=$(mysql -h"$DBH" -P"$DBP" -u"$DBU" ${DBPW:+-p"$DBPW"} "$DBN" -N -e \
+          "SELECT access_key FROM sales_channel WHERE active=1 ORDER BY created_at LIMIT 1;")
+        echo "::add-mask::$KEY"
+        echo "key=$KEY" >> "$GITHUB_OUTPUT"

@@ -1,0 +1,784 @@
+name: Reproduce Issue
+
+# Hand-written orchestrator for the bug-reproduction pipeline.
+#
+#   gate ─▶ analyze ─▶ reproduce (matrix: reported ‖ trunk, parallel) ─▶ report
+#
+# Status: analyze = real claude-code-action agent (explicit dry_run demo / hard-fail
+# if no key); reproduce(http) = real provision + executor; reproduce(direct|playwright)
+# = stubs (emit inconclusive). All JSON conforms to
+# .claude/skills/reproduce/references/SCHEMA.md.
+
+on:
+  issues:
+    types: [labeled] # initial trigger: apply the `ci:reproduce` label
+  issue_comment:
+    types: [created] # initial trigger: comment `/reproduce`
+  workflow_dispatch: # on-demand run (BOTH legs by default; opt into trunk-only via skip_reported)
+    inputs:
+      issue_number:
+        description: "Issue number to reproduce"
+        required: true
+        type: number
+      skip_reported:
+        description: "Re-check trunk only (skip the reported-version leg)"
+        required: false
+        default: false
+        type: boolean
+      post_comment:
+        description: "Post the result as an issue comment (otherwise job summary only)"
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: "DEMO: skip the Analyze agent and emit a canned plan (smoke-test the wiring without an API key)"
+        required: false
+        default: false
+        type: boolean
+      branch:
+        description: "Branch/ref the trunk leg reproduces against (defaults to trunk)"
+        required: false
+        default: "trunk"
+        type: string
+      max_turns:
+        description: "Cap on the Analyze agent's turns (cost control; default 35)"
+        required: false
+        default: "35"
+        type: string
+
+concurrency:
+  group: reproduce-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+env:
+  # shopware/setup-shopware pulls node20 sub-actions (runs-on/action, setup-php, cache,
+  # checkout@v4); force them onto node24 to silence the deprecation warning we don't own.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+  issues: write # comment + label, guarded by the gate job
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Decide whether to run, who is allowed, and which issue. One source of truth
+  # for downstream `if:` guards.
+  # --------------------------------------------------------------------------
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+      issue: ${{ steps.decide.outputs.issue }}
+      is_manual: ${{ steps.decide.outputs.is_manual }}
+      post: ${{ steps.decide.outputs.post }}
+      skip_reported: ${{ steps.decide.outputs.skip_reported }}
+      needs_info: ${{ steps.decide.outputs.needs_info }}
+    steps:
+      - id: decide
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const LABEL = 'ci:reproduce';
+            const CMD = '/reproduce';
+            const TRUSTED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const ev = context.eventName;
+            let run = false, issue = '', isManual = false, post = false, skipReported = false;
+
+            if (ev === 'workflow_dispatch') {
+              // dispatch already requires write access → trusted. Runs BOTH legs unless
+              // skip_reported is set (then it's a trunk-only re-check).
+              run = true;
+              isManual = true;
+              skipReported = String(context.payload.inputs.skip_reported) === 'true';
+              issue = String(context.payload.inputs.issue_number);
+              post = String(context.payload.inputs.post_comment) === 'true';
+            } else if (ev === 'issues' && context.payload.action === 'labeled') {
+              // only collaborators can apply labels → the label itself is the authz.
+              if (context.payload.label && context.payload.label.name === LABEL) {
+                run = true; post = true; // labeling an issue should post the verdict
+                issue = String(context.payload.issue.number);
+              }
+            } else if (ev === 'issue_comment' && context.payload.action === 'created') {
+              const c = context.payload.comment;
+              const onIssue = !context.payload.issue.pull_request; // issues only, not PRs
+              const body = (c.body || '').trim();
+              if (onIssue && body.startsWith(CMD) && TRUSTED.includes(c.author_association)) {
+                run = true; post = true; // /reproduce should post the verdict
+                issue = String(context.payload.issue.number);
+              }
+            }
+
+            // Dumb pre-check (no agent): the issue must have usable "Steps to reproduce".
+            // If not, ask for them and abort — don't spend an agent/provision on a vague issue.
+            let needsInfo = false;
+            if (run && issue) {
+              const { owner, repo } = context.repo;
+              let body = '';
+              try {
+                const { data } = await github.rest.issues.get({ owner, repo, issue_number: Number(issue) });
+                body = data.body || '';
+              } catch (e) { core.warning('could not fetch issue body: ' + e.message); }
+              const m = body.match(/steps to reproduce[:\s]*([\s\S]*?)(?=\n\s*#{1,6}\s|$)/i);
+              const steps = m ? m[1].replace(/[\s>*#-]/g, ' ').trim() : '';
+              if (steps.length < 15) {
+                needsInfo = true; run = false;
+                core.warning('no usable "Steps to reproduce" — requesting info, aborting');
+                if (post) {
+                  await github.rest.issues.createComment({ owner, repo, issue_number: Number(issue),
+                    body: "## Reproduction — needs info\n\nI couldn't find usable **Steps to reproduce** in this issue. Please add a clear, numbered reproduction and the affected Shopware version, then re-apply the `ci:reproduce` label." });
+                }
+              }
+            }
+
+            core.setOutput('run', String(run));
+            core.setOutput('issue', issue);
+            core.setOutput('is_manual', String(isManual));
+            core.setOutput('post', String(post));
+            core.setOutput('skip_reported', String(skipReported));
+            core.setOutput('needs_info', String(needsInfo));
+            core.info(`event=${ev} run=${run} issue=${issue} manual=${isManual} post=${post} skip_reported=${skipReported} needs_info=${needsInfo}`);
+
+  # --------------------------------------------------------------------------
+  # Analyze: emit the repro plan (analysis.json) and the target matrix.
+  # The matrix encodes BOTH dedup (reported == trunk) and "not on manual rerun".
+  # --------------------------------------------------------------------------
+  analyze:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # the agent reads the issue + fix-PR test + schema
+    permissions:
+      contents: read # checkout
+      issues: write # agent reads the issue + posts a clarifying question when info is missing
+      id-token: write # claude-code-action fetches a GitHub token via OIDC
+    outputs:
+      targets: ${{ steps.matrix.outputs.targets }}
+    steps:
+      # Codebase available so the agent can read the DAL schema + the fix PR's test.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      # Decide the mode ONCE. Never silently fabricate: missing key + not dry-run = fail.
+      - id: mode
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$DRY_RUN" = "true" ]; then m=dry_run
+          elif [ "$HAS_KEY" = "true" ]; then m=real
+          else m=fail; fi
+          echo "mode=$m" >> "$GITHUB_OUTPUT"
+          echo "analyze mode: $m"
+
+      # Production safety: no key and not an explicit demo → fail loud, BEFORE provisioning.
+      - name: Guard — refuse to fabricate
+        if: steps.mode.outputs.mode == 'fail'
+        run: |
+          echo "::error::Analyze requires ANTHROPIC_API_KEY. Refusing to emit a fabricated plan."
+          echo "::error::Set the secret, or dispatch with dry_run=true for a clearly-labelled demo."
+          exit 1
+
+      # Real Analyze agent. Emits analysis.json per references/SCHEMA.md.
+      # Prefetch the issue + (best-effort) the linked fix PR's diff with cheap gh calls,
+      # so the agent reads them directly instead of spending turns searching/fetching.
+      - name: Prefetch context
+        if: steps.mode.outputs.mode == 'real'
+        env:
+          ISSUE: ${{ needs.gate.outputs.issue }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Issue title + body + COMMENTS — comments often hold the real repro steps,
+          # affected version, and the "closed by #PR" cross-reference. EXCLUDE our own
+          # prior verdict comments (they all start with "## Reproduction") to avoid a
+          # feedback loop / wasted context — free jq filter, the gh call is the same.
+          gh issue view "$ISSUE" --repo "$GITHUB_REPOSITORY" --json title,body,comments \
+            --jq '"# " + .title + "\n\n" + (.body // "") + "\n\n## Comments\n\n" + ([.comments[]? | select(((.body // "") | contains("## Reproduction")) | not) | "**@" + (.author.login // "?") + ":** " + (.body // "")] | join("\n\n"))' \
+            > issue.md 2>/dev/null || echo "(issue unavailable)" > issue.md
+          head -c 60000 issue.md > issue.cap && mv issue.cap issue.md   # bound context
+
+          # First #-referenced number (in body OR comments) that is a real upstream PR →
+          # its title + body + diff (the diff carries the regression test). Best-effort.
+          for n in $(grep -oE '#[0-9]{3,}' issue.md | tr -d '#' | sort -un); do
+            if gh pr view "$n" --repo shopware/shopware --json title,body >/tmp/pv 2>/dev/null; then
+              { echo "# Fix PR shopware/shopware#$n"; jq -r '.title + "\n\n" + (.body // "")' /tmp/pv;
+                echo; echo "## Diff"; gh pr diff "$n" --repo shopware/shopware 2>/dev/null | head -c 40000; } > fixpr.diff
+              echo "prefetched fix PR shopware/shopware#$n"; break
+            fi
+          done
+
+      - name: Analyze (agent)
+        id: analyze
+        if: steps.mode.outputs.mode == 'real'
+        # Hitting --max-turns is a hard error in the action; tolerate it so a
+        # complete analysis.json (written before the cap) still counts. The matrix
+        # step fails cleanly if no analysis.json was produced.
+        continue-on-error: true
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Use the default token so the action skips the Claude GitHub App token
+          # exchange (the App is installed on shopware/shopware, but not everywhere).
+          github_token: ${{ github.token }}
+          prompt: |
+            Run the `reproduce` skill's Analyze phase for issue
+            #${{ needs.gate.outputs.issue }} in repository ${{ github.repository }}.
+            The issue (title, body AND comments) is ALREADY fetched to `./issue.md`, and if
+            a linked fix PR was found, its description + diff (with the regression test) is
+            in `./fixpr.diff` — READ THOSE FIRST and do not re-fetch/search when they suffice
+            (saves turns). Follow any OTHER linked issue/PR only if these are insufficient
+            (use `--repo shopware/shopware`). The working directory is a shopware checkout —
+            read it for code/DAL schema only as needed. If the issue is too vague,
+            contradictory, or missing essentials to derive a FAITHFUL plan, do NOT guess —
+            write analysis.json as {"schema_version":"1","issue":N,"needs_info":"<one
+            specific clarifying question>"} and stop (the pipeline will ask and abort).
+            Otherwise derive the cheapest faithful plan. BE ECONOMICAL — you have a limited turn
+            budget: do the MINIMUM investigation to fill the plan (a few targeted searches,
+            NOT a full code tour), then WRITE the output file(s) immediately as your top
+            priority. If still uncertain after a handful of tool calls, emit a best-effort
+            plan with a lower `confidence` rather than exploring further. `confidence` is how
+            faithful you believe the plan is (0..1); a plan derived from a linked fix PR's
+            regression test is high (~0.95), one where you had to infer the repro steps with
+            NO fix PR to anchor on is low. Whenever `confidence` < 0.7 you MUST also set
+            `confidence_reason` to one short sentence saying what makes it uncertain (e.g.
+            "no linked fix PR; repro steps inferred from the issue body") — a run below 0.4 is
+            NOT executed (a human is asked to confirm the draft first), so the reason is what
+            they act on. For a playwright
+            layer, write the spec straight FROM THE ISSUE'S STEPS using resilient
+            role/text locators (getByRole / getByText / getByLabel) — do NOT read
+            storefront templates/JS to hunt exact selectors. A simple, imperfect spec is
+            fine (the trace shows what happened); emit it immediately. Treat this as a hard
+            budget: do not exceed ~15 tool calls before writing the file(s).
+            Write the analysis.json object (per
+            .claude/skills/reproduce/references/SCHEMA.md) to `analysis.json` in the
+            workspace root. If the repro needs seeded entities, ALSO write the admin
+            sync payload to `fixtures.json` (the path in fixtures.sync_payload_path),
+            using {{SC}}/{{NAV_CAT}}/{{TAX}}/{{CURRENCY}} placeholders for install-specific
+            ids. Every entity id you mint MUST be a 32-char lowercase-hex Shopware UUID
+            (e.g. 0192f3c4a5b67890abcdef0123456789) — never a human-readable string like
+            "repro-1" (the sync API rejects non-UUIDs). For http, use `request` or
+            `requests` (a multi-step array; the executor carries sw-context-token and
+            injects sw-access-key — never add those); reference PRE-EXISTING install ids via
+            {{SC}}/{{COUNTRY}}/{{SALUTATION}}/{{SALUTATION2}}/{{STOREFRONT_URL}} placeholders
+            the executor resolves. For a `playwright` (UI) layer, ALSO generate the test as `repro.spec.ts`
+            (referenced by script_path) — it must assert the HEALTHY behaviour and use
+            relative paths (baseURL is injected). For a `direct`/`service` layer (a bug that
+            can't fire faithfully through store-api or the UI — license-gated, an internal
+            service, or heavy domain setup), ALSO generate a minimal PHPUnit integration test
+            as `ReproTest.php` (referenced by script_path): namespace
+            `Shopware\Tests\Integration\Repro`, class `ReproTest extends TestCase` using
+            `IntegrationTestBehaviour` + `KernelTestBehaviour`, services from
+            `$this->getContainer()`. REUSE the fix PR's regression-test setup where it exists
+            (./fixpr.diff) — do NOT reinvent the bootstrap. The single test method must ASSERT
+            THE HEALTHY (fixed) behaviour so it fails on the buggy version. Prefer STABLE
+            service/DAL APIs so the same test also runs on the reported version; if it can
+            only compile on trunk, that is fine (the reported leg reports `inconclusive`,
+            never a bogus pass). Include `scenario` in analysis.json: a
+            plain-English, numbered Given/When/Then list of the repro steps. Comment EVERY
+            step of the generated script (curl or spec) explaining what it does and what it
+            asserts. Emit only those file(s) — no prose, no markdown fence. Do not comment or label.
+          # Pin Sonnet (bounded task) + cap turns (bounds cost when the agent can't find
+          # context, e.g. off-repo). Widen the READ-ONLY allowlist so the agent stops
+          # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
+          claude_args: >-
+            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '35' }}
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(gh api:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
+
+      # DEMO only: canned plan, reached solely via dry_run=true.
+      - name: Analyze (dry-run demo)
+        if: steps.mode.outputs.mode == 'dry_run'
+        env:
+          ISSUE: ${{ needs.gate.outputs.issue }}
+        run: |
+          set -euo pipefail
+          echo "::warning::DEMO dry-run — emitting a canned plan, NOT a real analysis."
+          jq -n --argjson issue "$ISSUE" '{
+            schema_version: "1", issue: $issue, layer: "store-api", executor: "http",
+            version: "6.6.10.0",
+            scenario: ["Given a running shop", "When POST /store-api/checkout/cart with an empty body", "Then a healthy shop returns HTTP 400"],
+            build_profile: { admin_build: false, storefront_build: false, theme_build: false },
+            fixtures: { demodata: false, sync_payload_path: "fixtures.json" },
+            request: { method: "POST", path: "/store-api/checkout/cart", headers: { "Content-Type": "application/json" }, body: "{}" },
+            assertion: { kind: "http_status", expect: "400", field: null, locator: "/store-api/checkout/cart" },
+            derived_from: "DEMO (dry-run)", confidence: 0.0, blocked_reason: null
+          }' > analysis.json
+
+      # Capture the agent transcript (tool calls, denials, per-turn breakdown) for cost
+      # analysis. Fork/dev only — gate behind debug before the real shopware PR (tool
+      # outputs can be sensitive on a public repo).
+      - name: Upload agent transcript (debug)
+        if: always() && steps.analyze.outputs.execution_file != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analyze-transcript
+          path: ${{ steps.analyze.outputs.execution_file }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Compute the target matrix from the produced plan (dedup + not-on-manual-rerun).
+      - id: matrix
+        env:
+          SKIP_REPORTED: ${{ needs.gate.outputs.skip_reported }}
+          BRANCH: ${{ github.event.inputs.branch || 'trunk' }}
+          ISSUE: ${{ needs.gate.outputs.issue }}
+          POST: ${{ needs.gate.outputs.post }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [ -f analysis.json ] || { echo "::error::no analysis.json produced"; exit 1; }
+          cat analysis.json
+          # Analyze judged the issue too ambiguous to reproduce faithfully → ask, don't guess.
+          NEEDS=$(jq -r '.needs_info // empty' analysis.json)
+          if [ -n "$NEEDS" ]; then
+            echo "::warning::analyze needs info: $NEEDS"
+            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+              --body "## Reproduction — needs info"$'\n\n'"$NEEDS"
+            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
+            exit 0
+          fi
+          # Pre-provision bail-out: a plan the agent itself doesn't trust (< 0.4) is almost
+          # always a guess (no fix PR to derive from). Provisioning two installs to test a
+          # guess wastes the expensive part of the run, so ask a human to confirm the draft
+          # plan FIRST rather than spend it. (0.4–0.7 still runs → needs_human_review.)
+          CONF=$(jq -r '.confidence // 1' analysis.json)
+          if awk "BEGIN{exit !($CONF < 0.4)}"; then
+            REASON=$(jq -r '.confidence_reason // .blocked_reason // "no reason given"' analysis.json)
+            SCEN=$(jq -r '(.scenario // []) | map("- " + .) | join("\n")' analysis.json)
+            echo "::warning::analyze low confidence ($CONF) — bailing before provision: $REASON"
+            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+              --body "## Reproduction — low confidence, not run"$'\n\n'"The analyzer produced a draft plan it is not confident is faithful (confidence \`$CONF\`), so the reproduction was **not** run (to avoid provisioning two installs to test a guess)."$'\n\n'"**Why:** $REASON"$'\n\n'"**Draft scenario it would have tried:**"$'\n'"$SCEN"$'\n\n'"_Confirm or correct the steps above and re-trigger to run it._"
+            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
+            exit 0
+          fi
+          VERSION=$(jq -r '.version' analysis.json)
+          # Each leg carries role (reported|trunk) + the ref to display/provision. The
+          # trunk leg uses $BRANCH (default trunk) so you can reproduce against a fix branch.
+          # Trunk-only when explicitly requested (skip_reported) or reported == the branch.
+          if [ "$SKIP_REPORTED" = "true" ] || [ "$VERSION" = "$BRANCH" ]; then
+            TARGETS=$(jq -nc --arg b "$BRANCH" '[$b]')
+          else
+            TARGETS=$(jq -nc --arg v "$VERSION" --arg b "$BRANCH" '[$v,$b]')
+          fi
+          echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
+          echo "Computed targets: $TARGETS"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analysis
+          path: |
+            analysis.json
+            fixtures.json
+            repro.spec.ts
+            ReproTest.php
+          if-no-files-found: ignore # fixtures.json / repro.spec.ts / ReproTest.php are optional (seed / playwright / direct only)
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Reproduce: one parallel leg per target. fail-fast:false so one dead leg
+  # never kills the other. Executor is chosen by analysis.layer (here: http).
+  # --------------------------------------------------------------------------
+  reproduce:
+    needs: [gate, analyze]
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # No explicit name: the matrix is a list of version strings, so GitHub's default
+    # label is "reproduce (6.7.9.0)" when it runs and a clean "reproduce" when skipped
+    # (an explicit name template would render the raw ${{ }} on a skipped matrix job).
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJSON(needs.analyze.outputs.targets) }}
+    steps:
+      # repro tooling (this workflow's repo) at root; the shop is installed under ./shop
+      # so setup-shopware's checkout never clobbers analysis.json or the scripts.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: analysis
+      - id: plan
+        env:
+          LEG_VERSION: ${{ matrix.version }}
+          BRANCH: ${{ github.event.inputs.branch || 'trunk' }}
+        run: |
+          set -euo pipefail
+          # role derived: the leg whose version is the branch is "trunk", else "reported".
+          if [ "$LEG_VERSION" = "$BRANCH" ]; then ROLE=trunk; else ROLE=reported; fi
+          echo "role=$ROLE" >> "$GITHUB_OUTPUT"
+          EXECUTOR=$(jq -r .executor analysis.json)
+          echo "executor=$EXECUTOR" >> "$GITHUB_OUTPUT"
+          # trunk leg provisions the branch ref as-is (default trunk); reported leg pins the
+          # exact released tag (v-prefixed).
+          if [ "$ROLE" = "trunk" ]; then
+            echo "version=$LEG_VERSION" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=v$LEG_VERSION" >> "$GITHUB_OUTPUT"
+          fi
+          echo "admin_build=$(jq -r .build_profile.admin_build analysis.json)" >> "$GITHUB_OUTPUT"
+          echo "storefront_build=$(jq -r .build_profile.storefront_build analysis.json)" >> "$GITHUB_OUTPUT"
+
+      # Provision only when an executor needs a live shop (http/playwright). Build only the surface.
+      # continue-on-error: a dead env blocks THIS leg, it must not kill the run (the other leg + report still go).
+      - id: provision
+        if: steps.plan.outputs.executor == 'http' || steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct'
+        continue-on-error: true
+        uses: ./.github/actions/repro/provision
+        with:
+          version: ${{ steps.plan.outputs.version }}
+          admin-build: ${{ steps.plan.outputs.admin_build }}
+          storefront-build: ${{ steps.plan.outputs.storefront_build }}
+
+      # Seed exactly the entities the plan needs (admin sync, demodata:false).
+      # No-ops when the plan ships no fixtures.json. Runs once per leg, before the executor.
+      - name: Seed fixtures
+        id: seed
+        if: steps.provision.outcome == 'success'
+        continue-on-error: true
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+        run: PAYLOAD=fixtures.json bash .github/actions/repro/bin/seed.sh
+
+      # Playwright legs need node + the browser (gated; http/direct skip this cost).
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        with:
+          node-version: 22
+      - name: Install Playwright
+        if: steps.plan.outputs.executor == 'playwright' && steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        run: |
+          npm init -y >/dev/null
+          npm i -D @playwright/test
+          npx playwright install --with-deps chromium
+
+      # Dead env (provision or seed failed) → emit a blocked result for this leg, skip the executor.
+      - name: Mark leg blocked
+        if: steps.provision.outcome == 'failure' || steps.seed.outcome == 'failure'
+        env:
+          TARGET: ${{ steps.plan.outputs.role }}
+        run: |
+          set -euo pipefail
+          FAILED=provision; [ "${{ steps.seed.outcome }}" = "failure" ] && FAILED=seed
+          jq -n --argjson issue "$(jq -r .issue analysis.json)" --arg target "$TARGET" \
+            --arg version "$(jq -r .version analysis.json)" --arg executor "$(jq -r .executor analysis.json)" --arg failed "$FAILED" '{
+              schema_version:"1", issue:$issue, target:$target, version:$version, executor:$executor,
+              status:"blocked", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
+              evidence:{script:"", script_lang:"sh", reporter_output:($failed+" failed for this leg"),
+                http:[], artifacts:[], truncated:false},
+              blocked_reason:($failed+" step failed (dead env)") }' > result.json
+          cat result.json
+
+      - name: Run executor
+        if: steps.provision.outcome != 'failure' && steps.seed.outcome != 'failure'
+        env:
+          TARGET: ${{ steps.plan.outputs.role }}
+          EXECUTOR: ${{ steps.plan.outputs.executor }}
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+          SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
+        run: |
+          set -euo pipefail
+          case "$EXECUTOR" in
+            http)
+              ANALYSIS=analysis.json OUT=result.json \
+                bash .github/actions/repro/bin/run-http.sh
+              ;;
+            playwright)
+              ANALYSIS=analysis.json OUT=result.json \
+                bash .github/actions/repro/bin/run-playwright.sh
+              ;;
+            direct)
+              ANALYSIS=analysis.json OUT=result.json SHOP_DIR=shop \
+                bash .github/actions/repro/bin/run-direct.sh
+              ;;
+            *)
+              echo "::warning::unknown executor '$EXECUTOR'; emitting inconclusive"
+              jq -n --argjson issue "$(jq -r .issue analysis.json)" --arg target "$TARGET" \
+                --arg version "$(jq -r .version analysis.json)" --arg executor "$EXECUTOR" '{
+                  schema_version:"1", issue:$issue, target:$target, version:$version, executor:$executor,
+                  status:"inconclusive", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
+                  evidence:{script:"", script_lang:"sh", reporter_output:("unknown executor "+$executor),
+                    http:[], artifacts:[], truncated:false},
+                  blocked_reason:("unknown executor "+$executor) }' > result.json
+              ;;
+          esac
+          cat result.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always() # capture evidence even when a leg fails
+        with:
+          name: repro-${{ steps.plan.outputs.role }}
+          path: |
+            result.json
+            repro.sh
+            repro.spec.ts
+            ReproTest.php
+            test-results/
+          if-no-files-found: ignore # the runnable script (repro.sh|repro.spec.ts|ReproTest.php) + test-results/ vary by executor
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Verdict: deterministic decision from leg statuses + Analyze confidence. No agent.
+  # --------------------------------------------------------------------------
+  verdict:
+    needs: [gate, analyze, reproduce]
+    if: always() && needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      has_results: ${{ steps.v.outputs.has_results }}
+      verdict: ${{ steps.v.outputs.verdict }}
+      reported: ${{ steps.v.outputs.reported }}
+      trunk: ${{ steps.v.outputs.trunk }}
+      fix_candidate: ${{ steps.v.outputs.fix_candidate }}
+      unsure_reason: ${{ steps.v.outputs.unsure_reason }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: v
+        run: |
+          set -euo pipefail
+          REP="artifacts/repro-reported/result.json"
+          TRU="artifacts/repro-trunk/result.json"
+          # No leg produced a result → no verdict, no comment downstream.
+          if [ ! -f "$REP" ] && [ ! -f "$TRU" ]; then
+            echo "has_results=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No reproduce leg produced a result (aborted/cancelled/failed)."
+            exit 0
+          fi
+          echo "has_results=true" >> "$GITHUB_OUTPUT"
+          rep="null"; tru="null"
+          [ -f "$REP" ] && rep=$(jq -r .status "$REP")
+          [ -f "$TRU" ] && tru=$(jq -r .status "$TRU")
+          echo "reported=$rep" >> "$GITHUB_OUTPUT"
+          echo "trunk=$tru" >> "$GITHUB_OUTPUT"
+
+          A=artifacts/analysis/analysis.json
+          CONF=$(jq -r '.confidence // 1' "$A" 2>/dev/null || echo 1)
+          BLOCKED=$(jq -r '.blocked_reason // ""' "$A" 2>/dev/null || echo "")
+          DERIVED=$(jq -r '.derived_from // ""' "$A" 2>/dev/null || echo "")
+          CONF_REASON=$(jq -r '.confidence_reason // ""' "$A" 2>/dev/null || echo "")
+          # Mid-band plan (0.4–0.7; below 0.4 bailed before provision) → don't trust the
+          # verdict even if the legs ran; route to a human with the reason. Capture WHY so
+          # the report says "uncertain: <reason>" not just a number.
+          unsure=false; UNSURE_REASON=""
+          [ -n "$BLOCKED" ] && { unsure=true; UNSURE_REASON="$BLOCKED"; }
+          awk "BEGIN{exit !($CONF < 0.7)}" && { unsure=true; [ -n "$CONF_REASON" ] && UNSURE_REASON="$CONF_REASON"; }
+          echo "unsure_reason=$UNSURE_REASON" >> "$GITHUB_OUTPUT"
+
+          # Precedence: infra → unreliable-plan → indeterminate leg → core combos.
+          if   [ "$rep" = "blocked" ] || [ "$tru" = "blocked" ];               then V="blocked"
+          elif [ "$unsure" = "true" ];                                         then V="needs_human_review"
+          elif [ "$rep" = "inconclusive" ] || [ "$tru" = "inconclusive" ];     then V="needs_human_review"
+          elif [ "$rep" = "reproduced" ]     && [ "$tru" = "reproduced" ];     then V="live_bug"
+          elif [ "$rep" = "reproduced" ]     && [ "$tru" = "not_reproduced" ]; then V="fixed_on_trunk"
+          elif [ "$rep" = "not_reproduced" ] && [ "$tru" = "reproduced" ];     then V="regression"
+          elif [ "$rep" = "not_reproduced" ] && [ "$tru" = "not_reproduced" ]; then V="not_reproducible"
+          elif [ "$rep" = "null" ]           && [ "$tru" = "reproduced" ];     then V="live_bug"
+          elif [ "$rep" = "null" ]           && [ "$tru" = "not_reproduced" ]; then V="not_reproducible"
+          else V="needs_human_review"
+          fi
+          echo "verdict=$V" >> "$GITHUB_OUTPUT"
+          # fixed_on_trunk: the fixing PR/commit is often already known (Analyze's derived_from).
+          FIX=""; [ "$V" = "fixed_on_trunk" ] && FIX="$DERIVED"
+          echo "fix_candidate=$FIX" >> "$GITHUB_OUTPUT"
+          echo "verdict=$V reported=$rep trunk=$tru unsure=$unsure fix='$FIX'"
+
+  # --------------------------------------------------------------------------
+  # Attribute (AGENT, gated): on a diverging verdict, name the commit that fixed
+  # or introduced the symptom. Only runs for regression, or fixed_on_trunk with no
+  # known fix PR. Enrichment only — skips (does not fail) when no API key.
+  # --------------------------------------------------------------------------
+  attribute:
+    needs: [gate, analyze, reproduce, verdict]
+    if: >
+      always() && needs.gate.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true' &&
+      ( needs.verdict.outputs.verdict == 'regression' ||
+        ( needs.verdict.outputs.verdict == 'fixed_on_trunk' && needs.verdict.outputs.fix_candidate == '' ) )
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read # full history for the git log range
+      issues: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # need v<reported>..trunk history + tags
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: analysis
+      - id: mode
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: echo "real=$HAS_KEY" >> "$GITHUB_OUTPUT"
+      - name: Attribute (agent)
+        if: steps.mode.outputs.real == 'true'
+        continue-on-error: true # enrichment only — a failed attribution must not red the run
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          claude_args: >-
+            --model claude-sonnet-4-6 --max-turns 20
+            --allowedTools "Read,Glob,Grep,Write,Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(rg:*),Bash(cat:*),Bash(ls:*),Bash(jq:*)"
+          prompt: |
+            The reproduce pipeline returned verdict "${{ needs.verdict.outputs.verdict }}" for issue
+            #${{ needs.gate.outputs.issue }}. Read analysis.json for the reported version and the
+            implicated code paths/symptom. Inspect `git log v<reported-version>..trunk` restricted to
+            those paths and find the single commit that most likely
+            ${{ needs.verdict.outputs.verdict == 'regression' && 'INTRODUCED' || 'FIXED' }} the symptom
+            (the one whose diff touches the asserted behaviour). Write ONLY this JSON to
+            attribution.json — no prose, no fence:
+            {"schema_version":"1","kind":"${{ needs.verdict.outputs.verdict == 'regression' && 'regression' || 'fix' }}","likely_commit":"<sha>","pr":"<#-or-null>","reasoning":"<1-2 sentences>","confidence":0.0}
+      - name: Skipped (no key)
+        if: steps.mode.outputs.real != 'true'
+        run: echo "::warning::No API key — skipping commit attribution (enrichment only)."
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: hashFiles('attribution.json') != ''
+        with:
+          name: attribution
+          path: attribution.json
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Report: render a self-contained comment from the verdict + per-leg evidence
+  # + (optional) attribution. No agent. Posts only when a result exists.
+  # --------------------------------------------------------------------------
+  report:
+    needs: [gate, analyze, reproduce, verdict, attribute]
+    if: always() && needs.gate.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: render
+        env:
+          ISSUE: ${{ needs.gate.outputs.issue }}
+          VERDICT: ${{ needs.verdict.outputs.verdict }}
+          REP: ${{ needs.verdict.outputs.reported }}
+          TRU: ${{ needs.verdict.outputs.trunk }}
+          FIX: ${{ needs.verdict.outputs.fix_candidate }}
+          UNSURE: ${{ needs.verdict.outputs.unsure_reason }}
+        run: |
+          set -euo pipefail
+          LAYER=$(jq -r .layer artifacts/analysis/analysis.json 2>/dev/null || echo "unknown")
+          ATTR="artifacts/attribution/attribution.json"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RF="artifacts/repro-reported/result.json"; TF="artifacts/repro-trunk/result.json"
+          have_r=0; [ -f "$RF" ] && have_r=1
+          have_t=0; [ -f "$TF" ] && have_t=1
+          # The generated script is identical across legs for direct/playwright (authored
+          # ONCE and reused) and usually for http; only http can vary (per-leg resolved
+          # ids/tokens). Decide once whether to show it a single time or per-leg, so we don't
+          # list two copies of the same script.
+          same=0; maxlines=0
+          for f in "$RF" "$TF"; do
+            [ -f "$f" ] || continue
+            n=$(jq -r '.evidence.script // ""' "$f" | wc -l | tr -d ' ')
+            [ "$n" -gt "$maxlines" ] && maxlines=$n
+          done
+          if [ "$have_r" = 1 ] && [ "$have_t" = 1 ]; then
+            cmp -s <(jq -r '.evidence.script // ""' "$RF") <(jq -r '.evidence.script // ""' "$TF") && same=1
+          fi
+          # emit_script <result.json> <label-suffix> <mode: comment|full>
+          emit_script () {
+            local f="$1" label="$2" mode="$3" lang nlines
+            lang=$(jq -r '.evidence.script_lang // "sh"' "$f")
+            nlines=$(jq -r '.evidence.script // ""' "$f" | wc -l | tr -d ' ')
+            [ "$nlines" -gt 0 ] || return 0
+            echo "**Repro script${label}** (\`${lang}\`)"
+            if [ "$mode" = comment ] && [ "$nlines" -gt 60 ]; then
+              echo "_${nlines} lines — in the \`repro-*\` run [artifact](${RUN_URL})._"
+            else
+              echo "\`\`\`${lang}"; jq -r .evidence.script "$f"; echo '```'
+            fi
+          }
+          # Show one script when the legs match (direct/playwright/most http); both only when
+          # http resolved to genuinely different ids. mode picks comment (trim long) vs full.
+          render_scripts () {
+            local mode="$1"
+            if [ "$have_r" = 1 ] && [ "$have_t" = 1 ] && [ "$same" = 1 ]; then
+              emit_script "$RF" " (run unchanged on both legs)" "$mode"
+            elif [ "$have_r" = 1 ] && [ "$have_t" = 1 ]; then
+              emit_script "$RF" " — reported" "$mode"; echo; emit_script "$TF" " — trunk" "$mode"
+            elif [ "$have_r" = 1 ]; then emit_script "$RF" "" "$mode"
+            elif [ "$have_t" = 1 ]; then emit_script "$TF" "" "$mode"
+            fi
+          }
+          {
+            echo "## Reproduction — Issue #${ISSUE}: \`${VERDICT}\`"
+            echo
+            echo "Layer \`${LAYER}\` · reported: \`${REP}\` · trunk: \`${TRU}\` · [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo
+            # Scenario (human-readable intent) before the per-leg scripts.
+            if jq -e '.scenario | arrays and length > 0' artifacts/analysis/analysis.json >/dev/null 2>&1; then
+              echo "**Scenario**"
+              jq -r '.scenario[] | "1. " + .' artifacts/analysis/analysis.json
+              echo
+            fi
+            if [ "$VERDICT" = "fixed_on_trunk" ] && [ -n "$FIX" ]; then
+              echo "**Likely fix (backport candidate):** ${FIX}"
+            fi
+            if [ "$VERDICT" = "regression" ]; then
+              echo "> ⚠️ **Regression**: not reproduced on the reported version but reproduced on trunk. Confirm the reported leg actually exercised the symptom (a missing fixture can cause a false negative)."
+            fi
+            if [ "$VERDICT" = "needs_human_review" ]; then
+              # The legs ran but the plan was mid-confidence (0.4–0.7) or a leg was indeterminate.
+              # Show the evidence below; flag WHY a human should adjudicate rather than trust the legs.
+              echo "> 🟡 **Needs human review**: the verdict is not trusted automatically${UNSURE:+ — ${UNSURE}}. The leg evidence below is informative but unconfirmed; confirm against the steps before acting."
+            fi
+            if [ -f "$ATTR" ]; then
+              KIND=$(jq -r .kind "$ATTR"); CMT=$(jq -r .likely_commit "$ATTR"); RSN=$(jq -r .reasoning "$ATTR")
+              echo "**Likely ${KIND} commit:** \`${CMT}\` — ${RSN}"
+            fi
+            # Per-leg verdicts — these legitimately differ between the two versions.
+            for t in reported trunk; do
+              f="artifacts/repro-${t}/result.json"
+              [ -f "$f" ] || continue
+              st=$(jq -r .status "$f"); br=$(jq -r '.blocked_reason // ""' "$f")
+              echo
+              if [ -n "$br" ] && [ "$br" != "null" ]; then
+                # blocked/inconclusive: the assertion never ran — show WHY (incl. the failing response body)
+                echo "### ${t} — \`${st}\`"
+                echo
+                echo "> ⚠️ ${br}"
+              else
+                ex=$(jq -r .assertion.expect "$f"); ac=$(jq -r .assertion.actual "$f")
+                echo "### ${t} — \`${st}\` (expected ${ex}, got ${ac})"
+              fi
+              echo "Reporter: \`$(jq -r .evidence.reporter_output "$f")\`"
+            done
+            # The script is shared by both legs (shown once) unless http resolved differently.
+            echo
+            render_scripts comment
+          } > comment.md
+          # Job summary mirrors the comment; if the comment trimmed a long script to a pointer,
+          # append the full script (collapsed) so it stays visible on the run page too.
+          {
+            cat comment.md
+            if [ "$maxlines" -gt 60 ]; then
+              echo; echo "<details><summary>Full generated repro script</summary>"; echo
+              render_scripts full
+              echo; echo "</details>"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Post comment
+        # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the
+        # job summary, don't post public noise on the issue. Real verdicts still post.
+        if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number('${{ needs.gate.outputs.issue }}'),
+              body: fs.readFileSync('comment.md', 'utf8'),
+            });

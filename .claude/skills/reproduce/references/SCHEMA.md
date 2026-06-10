@@ -1,0 +1,224 @@
+# Output Shape
+
+Three contracts, one per pipeline seam. Emit JSON only in wrapper-fed / CI mode —
+no markdown fence, no prose.
+
+- `analysis.json` — produced by **Analyze**, consumed by **Reproduce**. The repro plan.
+- `result.json` — produced by each **Reproduce** leg (one per target).
+- `repro-output.json` — produced by **Report**, merges the legs, renders the GitHub comment.
+
+Every phase may be a stub first (emit a hand-written object that satisfies the
+contract) and an agent later. Downstream phases bind to the shape, not the source.
+
+## Analysis (`analysis.json`)
+
+The repro plan. Picks the cheapest faithful surface and the minimal build.
+
+```json
+{
+    "schema_version": "1",
+    "issue": 16638,
+    "layer": "service | store-api | admin-api | storefront-ui | admin-ui",
+    "executor": "direct | http | playwright",
+    "version": "6.6.10.0",
+    "build_profile": {
+        "admin_build": false,
+        "storefront_build": false,
+        "theme_build": false
+    },
+    "fixtures": {
+        "demodata": false,
+        "sync_payload_path": "/tmp/repro/fixtures.json"
+    },
+    "scenario": [
+        "Given a category with at least one product visible in the Storefront sales channel",
+        "When POST /store-api/product-listing/{categoryId}?p=99 (a page past the last)",
+        "Then a healthy shop returns HTTP 404 with PRODUCT__LISTING_PAGE_OUT_OF_RANGE"
+    ],
+    "request": {
+        "method": "POST",
+        "path": "/store-api/checkout/cart",
+        "headers": { "Content-Type": "application/json" },
+        "body": "{}"
+    },
+    "script_path": "repro.spec.ts",
+    "assertion": {
+        "kind": "http_status | response_field | exception | ui_state",
+        "expect": "400",
+        "field": ".errors[0].code",
+        "locator": "/store-api/checkout/cart"
+    },
+    "plugins": [{ "name": "SwagFoo", "activate": true }],
+    "derived_from": "PR#16640 tests/.../MultiWarehouseTest.php",
+    "confidence": 0.82,
+    "blocked_reason": null,
+    "needs_info": null
+}
+```
+
+Rules:
+
+- `layer` is the cheapest surface that genuinely exercises the symptom. Order:
+  `service` < `store-api` / `admin-api` < `storefront-ui` / `admin-ui`. Escalate
+  only when a cheaper layer cannot fire the symptom; record why in the agent's reasoning.
+- `executor` follows `layer`: `service` → `direct`, `*-api` → `http`, `*-ui` → `playwright`.
+- `build_profile` enables only the surface `layer` needs. `storefront_build` /
+  `theme_build` are `true` only for `storefront-ui`. A `direct` or `http` plan builds neither.
+- The agent does NOT choose which versions to run — the **workflow** computes that from
+  `version`: two legs (reported = `version`, trunk) normally; **one leg (trunk only) when
+  `version == trunk` or on a manual `workflow_dispatch` rerun** ("not on manual rerun").
+  So a dispatch always runs trunk alone; use the **label/comment** trigger for both legs.
+- `fixtures.sync_payload_path` seeds exactly the entities the bug needs via the admin
+  sync API with `demodata: false`. Entity and field names come from the DAL schema,
+  never from probing the API.
+- `fixtures.sync_payload` entity ids MUST be 32-char lowercase-hex Shopware UUIDs
+  (e.g. `0192f3c4a5b67890abcdef0123456789`) — the admin sync API rejects non-UUID
+  strings (`FRAMEWORK__WRITE_CONSTRAINT_VIOLATION`). Use `{{SC}}/{{NAV_CAT}}/{{TAX}}/
+  {{CURRENCY}}` placeholders for install-specific ids; `seed.sh` resolves them.
+- `request` (single object) OR `requests` (array, for a multi-step flow) is required for
+  the `http` executor; the assertion runs on the FINAL response. The executor injects
+  `sw-access-key` and captures/carries `sw-context-token` across the sequence — do NOT put
+  those in the plan. Reference install-specific ids via placeholders the executor resolves
+  against the shop: `{{SC}} {{NAV_CAT}} {{COUNTRY}} {{SALUTATION}} {{SALUTATION2}} {{TAX}}
+  {{CURRENCY}} {{LANGUAGE}} {{STOREFRONT_URL}}` (also valid in `assertion.expect`). Entities
+  you create yourself go in `fixtures.json` with known hex UUIDs. A non-2xx non-final
+  request → `blocked`; a missing field on a non-2xx final response → `inconclusive` (never
+  a bogus `reproduced`). `assertion.field` is a jq path used only by `response_field`;
+  `assertion.locator` is a human reference to the endpoint/UI element.
+- `script_path` is required for the `playwright` executor — the generated spec
+  (`repro.spec.ts`) that asserts the HEALTHY behaviour, generated ONCE by Analyze and
+  reused by both legs (it fails on the buggy version → `reproduced`).
+- `script_path` is also required for the `direct` executor — a generated PHPUnit
+  integration test (`ReproTest.php`, namespace `Shopware\Tests\Integration\Repro`,
+  `extends TestCase` with `IntegrationTestBehaviour`). `run-direct.sh` drops it under the
+  shop's `tests/integration/Repro/` (PSR-4 autoload) and runs `vendor/bin/phpunit`. The
+  test asserts the HEALTHY behaviour, so the summary maps: `OK` → `not_reproduced`,
+  `FAILURES!` → `reproduced`, `ERRORS!`/fatal/no-tests → `inconclusive` (the test could not
+  bootstrap — usually a cross-version API mismatch on the reported leg, never a bogus pass),
+  anything else → `blocked`. Use the `direct` layer only when neither `http` nor
+  `playwright` can fire the bug faithfully (license-gated, internal service, heavy domain
+  setup); reuse the fix PR's regression-test setup rather than reinventing it.
+- `scenario` is a plain-English, numbered Given/When/Then list of the repro steps,
+  rendered in the comment above the script so a human reads the intent first. The
+  generated script (curl or spec) must comment every step (what it does + asserts).
+- `assertion` is derived from the linked fix PR's regression test or an existing test
+  when one exists (`derived_from`), not discovered by trial-and-error.
+- `assertion.expect` is the **healthy** value (what a fixed shop returns). A leg is
+  `reproduced` when `actual != expect` (symptom present) and `not_reproduced` when
+  `actual == expect` (healthy). This matches running the fix PR's regression test:
+  it fails on the buggy version and passes on the fixed one.
+- `confidence` (0..1) is how faithful the plan is believed to be: a plan derived from a
+  linked fix PR's regression test is high (~0.95); one where the repro had to be inferred
+  with no fix PR to anchor on is low. Whenever `confidence < 0.7`, ALSO set
+  `confidence_reason` (one sentence on what makes it uncertain) — it is surfaced to the
+  human instead of a bare number. Two bands gate behaviour:
+  - **`confidence < 0.4`** → the run is **not executed**. The matrix step posts the draft
+    scenario + `confidence_reason` and asks a human to confirm before spending provision
+    budget (provisioning two installs to test a guess is the wasteful case; below 0.4 there
+    is usually no regression test to validate the legs against anyway). Terminal, like
+    `needs_info`.
+  - **`0.4 ≤ confidence < 0.7`** (or no faithful layer → `blocked_reason`) → the legs DO
+    run, but the verdict is forced to `needs_human_review`: the evidence is shown, the
+    definitive action (labels/attribution) is withheld, and `confidence_reason` is rendered
+    so the human adjudicates from real leg output.
+- **`needs_info`**: when the issue is too vague/contradictory/incomplete to derive a
+  FAITHFUL plan, emit ONLY `{schema_version, issue, needs_info: "<one specific question>"}`
+  and omit the plan. The workflow posts the question and aborts — no provisioning. (A
+  cheaper deterministic version runs first in `gate`: a missing "Steps to reproduce"
+  section is rejected before any agent runs.) `needs_info` is a terminal state, like
+  `blocked`/`needs_human_review`.
+
+## Repro Result (`result.json`)
+
+One object per Reproduce leg.
+
+```json
+{
+    "schema_version": "1",
+    "issue": 16638,
+    "target": "reported | trunk",
+    "version": "6.6.10.0",
+    "executor": "playwright",
+    "status": "reproduced | not_reproduced | blocked | inconclusive",
+    "assertion": { "expect": "400", "actual": "200", "matched": false },
+    "duration_s": 47,
+    "evidence": {
+        "script": "import { test, expect } from '@playwright/test';\n…",
+        "script_lang": "ts | php | sh",
+        "reporter_output": "✘ checkout › cart returns 400\n  Expected 400, received 200",
+        "http": [{ "method": "POST", "path": "/store-api/checkout/cart", "status": 200 }],
+        "artifacts": [
+            { "kind": "trace | video | screenshot | html_report | har", "name": "trace.zip", "run_artifact": "repro-reported" }
+        ],
+        "truncated": false
+    },
+    "blocked_reason": null
+}
+```
+
+Rules:
+
+- `status` is one-shot and bounded. `not_reproduced` only after a single re-check.
+  `blocked` when the env is dead — plugin install or theme build failed after one
+  rebuild; never grind. `inconclusive` = env READY but the fixture could not be triggered.
+- `evidence.script` is the full generated repro source, verbatim, always inline — the
+  report stays self-contained after artifacts expire.
+- `evidence.reporter_output` is the trimmed console reporter (Playwright `list`, PHPUnit,
+  or the curl exchange). `evidence.http` carries the request/response (HAR) for
+  `http` and `playwright` legs.
+- `evidence.artifacts` are run-artifact references only and may expire. `screenshot`,
+  `video`, and `trace` are emitted only by the `playwright` executor — never force a
+  browser screenshot on a `direct` or `http` leg.
+- The verdict in `status` / `assertion` never depends on fetching an artifact.
+- Set `truncated: true` and trim `reporter_output` first when the rendered comment would
+  exceed GitHub's 65 535-character limit; trim `script` last.
+- Redact secrets, tokens, and instance hostnames to `[REDACTED_KEY]`, `[REDACTED_ID]`,
+  `[REDACTED_URL]` before emit.
+
+## Merged Report (`repro-output.json`)
+
+```json
+{
+    "schema_version": "1",
+    "issue": 16638,
+    "verdict": "live_bug | fixed_on_trunk | regression | not_reproducible | blocked | needs_human_review",
+    "fix_candidate": "PR#16575 (backport candidate; from analyze derived_from when fixed_on_trunk)",
+    "layer": "store-api",
+    "results": { "reported": { "...": "result.json" }, "trunk": { "...": "result.json" } },
+    "summary": "1-3 sentences naming the symptom and the surface it fired on.",
+    "label": "ci:reproduced | ci:not-reproduced | ci:fixed-on-trunk | ci:repro-blocked",
+    "requires_human": false
+}
+```
+
+Verdict map (first match wins, top to bottom):
+
+| reported         | trunk            | verdict              |
+| ---------------- | ---------------- | -------------------- |
+| any `blocked`    | —                | `blocked`            |
+| analyze `blocked_reason` set or `0.4 ≤ confidence < 0.7` | — | `needs_human_review` |
+| any `inconclusive` | —              | `needs_human_review` |
+| `reproduced`     | `reproduced`     | `live_bug`           |
+| `reproduced`     | `not_reproduced` | `fixed_on_trunk`     |
+| `not_reproduced` | `reproduced`     | `regression`         |
+| `not_reproduced` | `not_reproduced` | `not_reproducible`   |
+| anything else    | —                | `needs_human_review` |
+
+Notes:
+
+- `needs_human_review` is **deliberate**, not a catch-all: it fires when the plan is
+  untrustworthy (`blocked_reason`/low confidence) or a leg is `inconclusive`. The
+  trailing row is a logged safety net.
+- `regression` carries a false-negative caveat: a `not_reproduced` reported leg may
+  have under-exercised the symptom (e.g. missing fixture). Surface the caveat.
+- `fix_candidate` is set for `fixed_on_trunk` from analyze's `derived_from` (the fix
+  PR). When absent, the `attribute` phase finds the fixing/introducing commit.
+
+Rules:
+
+- When `targets` collapsed to one leg, the missing leg is `null`. A single-leg run can
+  only yield `live_bug` (trunk reproduced), `not_reproducible`, or `needs_human_review`.
+- `label` and `summary` are the only fields Report turns into write-actions. The comment
+  body embeds each leg's `evidence.script` and trimmed `reporter_output`, and links
+  `evidence.artifacts`.
+- `requires_human` is `true` for `blocked` and `needs_human_review`.

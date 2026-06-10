@@ -1,0 +1,39 @@
+version: "1"
+
+skill: ..
+
+defaults:
+    agent: claude
+    provider: local
+    trials: 1
+    timeout: 900
+    threshold: 0.8
+
+_anchors:
+    - &skill_runner |
+        You are testing the Shopware `reproduce` skill's Analyze phase.
+
+        1. Read input.json (a Shopware bug report) and the provided regression
+           test file `regression-test.php` (the fix PR's test — your source of
+           truth for the failing assertion and fixtures). DERIVE from it; do not
+           guess.
+        2. Invoke the reproduce skill (Skill tool, name "reproduce") to produce
+           the repro plan. references/SCHEMA.md is authoritative for the shape.
+        3. Write the skill's analysis.json output verbatim to a file called
+           output.json in the current directory.
+        4. No prose, no markdown fence. The grader reads output.json only.
+    - &lib { src: _lib.sh, dest: _lib.sh }
+
+tasks:
+    # Derive a store-api/http plan from a real bug (#16511) whose fix (#16575)
+    # added a regression test asserting HTTP 404 + PRODUCT__LISTING_PAGE_OUT_OF_RANGE.
+    - name: analyze-16511-listing-pagination
+      instruction: *skill_runner
+      workspace:
+          - { src: analyze/16511/input.json, dest: input.json }
+          - { src: analyze/16511/issue.md, dest: issue.md }
+          - { src: analyze/16511/regression-test.php, dest: regression-test.php }
+          - { src: analyze/16511/grader.sh, dest: grader.sh }
+          - *lib
+      graders:
+          - { type: deterministic, run: bash grader.sh, weight: 1.0 }

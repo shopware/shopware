@@ -379,7 +379,6 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should keep the first root category closed when loading children in another root category', async () => {
         const wrapper = await createInteractiveWrapper();
         await flushPromises();
-        await flushPromises();
 
         const getFirstRoot = () => wrapper.get('[data-item-id="first-root"]');
 
@@ -403,7 +402,6 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const wrapper = await createWrapper(interactiveCategories, {
             categoryId: 'second-child',
         });
-        await flushPromises();
         await flushPromises();
 
         expect(wrapper.get('.sw-tree').attributes('data-initially-expanded-root')).toBe('false');

@@ -67,6 +67,13 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 
 ## Core
 
+### Storefront snippets of self-managed apps are loaded
+
+Storefront snippet files (`Resources/snippet/*.json`) shipped by self-managed apps (services) are now loaded.
+Previously, the snippet loader resolved app snippets only from the local app directory, which self-managed apps do not have, so their storefront snippets were silently ignored.
+The snippet files are now resolved through the app source system, the same way assets, scripts, and admin snippets of self-managed apps already are.
+Service developers no longer need to work around missing storefront translations; the same app zip now behaves identically whether installed as a regular app or as a service.
+
 ### Stored mail template type data deprecated
 
 The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.

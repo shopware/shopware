@@ -117,21 +117,11 @@ class ProductConfiguratorLoaderTest extends TestCase
 
         // The Blue option has no configurator setting, so the loader resolves it
         // from the option repository to surface it back into the Color group.
-        $blueGroup = new PropertyGroupEntity();
-        $blueGroup->setId($colorGroupId);
-        $blueGroup->setName('Color');
-        $blueGroup->setTranslated(['name' => 'Color']);
-
-        $blueOption = new PropertyGroupOptionEntity();
-        $blueOption->setId($blueOptionId);
-        $blueOption->setName('Blue');
-        $blueOption->setTranslated(['name' => 'Blue']);
-        $blueOption->setGroupId($colorGroupId);
-        $blueOption->setGroup($blueGroup);
-
         /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
         $optionRepository = new StaticEntityRepository([
-            new PropertyGroupOptionCollection([$blueOption]),
+            new PropertyGroupOptionCollection([
+                $this->buildOptionWithGroup($blueOptionId, 'Blue', $colorGroupId, 'Color'),
+            ]),
         ]);
 
         $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader, $optionRepository);
@@ -185,6 +175,213 @@ class ProductConfiguratorLoaderTest extends TestCase
             $blueOptionResolved->getCombinable(),
             'The surfaced Blue option must be selectable since Blue variants exist in stock.'
         );
+    }
+
+    public function testNoOptionLookupWhenAllCombinationOptionsHaveConfiguratorSettings(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex();
+        $sizeSmallId = Uuid::randomHex();
+        $sizeMediumId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository */
+        $configuratorRepository = new StaticEntityRepository([
+            new ProductConfiguratorSettingCollection([
+                $this->buildConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                $this->buildConfiguratorSetting($blueOptionId, 'Blue', $colorGroupId, 'Color', 1),
+                $this->buildConfiguratorSetting($sizeSmallId, 'S', $sizeGroupId, 'Size', 2),
+                $this->buildConfiguratorSetting($sizeMediumId, 'M', $sizeGroupId, 'Size', 2),
+            ]),
+        ]);
+
+        $combinationResult = new AvailableCombinationResult();
+        $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
+        $combinationResult->addCombination([$redOptionId, $sizeMediumId], true);
+        $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
+        $combinationResult->addCombination([$blueOptionId, $sizeMediumId], true);
+
+        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
+
+        // Every combination option id is covered by a configurator setting, so the
+        // option repository must not be queried at all. The empty static repository
+        // throws on an unexpected search, doubling as the assertion.
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
+        $optionRepository = new StaticEntityRepository([]);
+
+        $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader, $optionRepository);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($variantId);
+        $product->setParentId($parentId);
+        $product->setOptionIds([$blueOptionId, $sizeSmallId]);
+
+        $groups = $loader->load($product, $context);
+
+        static::assertCount(2, $groups);
+        foreach ($groups as $group) {
+            foreach ($group->getOptions() ?? [] as $option) {
+                static::assertTrue($option->getCombinable());
+            }
+        }
+    }
+
+    public function testOptionWithoutGroupAssociationIsNotSurfaced(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex(); // missing from product_configurator_setting
+        $sizeSmallId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository */
+        $configuratorRepository = new StaticEntityRepository([
+            new ProductConfiguratorSettingCollection([
+                $this->buildConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                $this->buildConfiguratorSetting($sizeSmallId, 'S', $sizeGroupId, 'Size', 2),
+            ]),
+        ]);
+
+        $combinationResult = new AvailableCombinationResult();
+        $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
+        $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
+
+        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
+
+        // The resolved option carries no group association and therefore cannot be
+        // assigned to a configurator group.
+        $blueOption = new PropertyGroupOptionEntity();
+        $blueOption->setId($blueOptionId);
+        $blueOption->setName('Blue');
+        $blueOption->setTranslated(['name' => 'Blue']);
+
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
+        $optionRepository = new StaticEntityRepository([
+            new PropertyGroupOptionCollection([$blueOption]),
+        ]);
+
+        $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader, $optionRepository);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($variantId);
+        $product->setParentId($parentId);
+        $product->setOptionIds([$blueOptionId, $sizeSmallId]);
+
+        $groups = $loader->load($product, $context);
+
+        $colorGroup = $groups->get($colorGroupId);
+        static::assertInstanceOf(PropertyGroupEntity::class, $colorGroup);
+        $colorOptions = $colorGroup->getOptions();
+        static::assertNotNull($colorOptions);
+        static::assertNull(
+            $colorOptions->get($blueOptionId),
+            'An option without group association must not be surfaced into the configurator.'
+        );
+    }
+
+    public function testMissingGroupIsCreatedWhenSurfacingOptions(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $colorGroupId = Uuid::randomHex();
+        $sizeGroupId = Uuid::randomHex();
+
+        $redOptionId = Uuid::randomHex();
+        $blueOptionId = Uuid::randomHex();
+        $sizeSmallId = Uuid::randomHex();
+        $sizeMediumId = Uuid::randomHex();
+
+        $context = Generator::generateSalesChannelContext();
+
+        // The Color group has no configurator settings at all - only the Size group
+        // is configured.
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository */
+        $configuratorRepository = new StaticEntityRepository([
+            new ProductConfiguratorSettingCollection([
+                $this->buildConfiguratorSetting($sizeSmallId, 'S', $sizeGroupId, 'Size', 2),
+                $this->buildConfiguratorSetting($sizeMediumId, 'M', $sizeGroupId, 'Size', 2),
+            ]),
+        ]);
+
+        $combinationResult = new AvailableCombinationResult();
+        $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
+        $combinationResult->addCombination([$redOptionId, $sizeMediumId], true);
+        $combinationResult->addCombination([$blueOptionId, $sizeSmallId], true);
+        $combinationResult->addCombination([$blueOptionId, $sizeMediumId], true);
+
+        $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
+        $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
+
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
+        $optionRepository = new StaticEntityRepository([
+            new PropertyGroupOptionCollection([
+                $this->buildOptionWithGroup($redOptionId, 'Red', $colorGroupId, 'Color'),
+                $this->buildOptionWithGroup($blueOptionId, 'Blue', $colorGroupId, 'Color'),
+            ]),
+        ]);
+
+        $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader, $optionRepository);
+
+        $product = new SalesChannelProductEntity();
+        $product->setId($variantId);
+        $product->setParentId($parentId);
+        $product->setOptionIds([$blueOptionId, $sizeSmallId]);
+
+        $groups = $loader->load($product, $context);
+
+        $colorGroup = $groups->get($colorGroupId);
+        static::assertInstanceOf(
+            PropertyGroupEntity::class,
+            $colorGroup,
+            'The Color group must be created when surfacing options of a group without any configurator setting.'
+        );
+
+        $colorOptions = $colorGroup->getOptions();
+        static::assertNotNull($colorOptions);
+        static::assertCount(2, $colorOptions);
+
+        foreach ([$redOptionId, $blueOptionId] as $optionId) {
+            $option = $colorOptions->get($optionId);
+            static::assertInstanceOf(PropertyGroupOptionEntity::class, $option);
+            static::assertTrue($option->getCombinable());
+        }
+    }
+
+    private function buildOptionWithGroup(
+        string $optionId,
+        string $optionName,
+        string $groupId,
+        string $groupName
+    ): PropertyGroupOptionEntity {
+        $group = new PropertyGroupEntity();
+        $group->setId($groupId);
+        $group->setName($groupName);
+        $group->setTranslated(['name' => $groupName]);
+
+        $option = new PropertyGroupOptionEntity();
+        $option->setId($optionId);
+        $option->setName($optionName);
+        $option->setTranslated(['name' => $optionName]);
+        $option->setGroupId($groupId);
+        $option->setGroup($group);
+
+        return $option;
     }
 
     private function createGroup(string $id, string $name, int $position): PropertyGroupEntity

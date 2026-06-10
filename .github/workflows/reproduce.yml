@@ -578,57 +578,16 @@ jobs:
       fix_candidate: ${{ steps.v.outputs.fix_candidate }}
       unsure_reason: ${{ steps.v.outputs.unsure_reason }}
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: artifacts
+      # Shared, mode-parameterized verdict map (see bin/verdict.sh). Emits has_results,
+      # reported, trunk, verdict, fix_candidate, unsure_reason to the step outputs.
       - id: v
-        run: |
-          set -euo pipefail
-          REP="artifacts/repro-reported/result.json"
-          TRU="artifacts/repro-trunk/result.json"
-          # No leg produced a result → no verdict, no comment downstream.
-          if [ ! -f "$REP" ] && [ ! -f "$TRU" ]; then
-            echo "has_results=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::No reproduce leg produced a result (aborted/cancelled/failed)."
-            exit 0
-          fi
-          echo "has_results=true" >> "$GITHUB_OUTPUT"
-          rep="null"; tru="null"
-          [ -f "$REP" ] && rep=$(jq -r .status "$REP")
-          [ -f "$TRU" ] && tru=$(jq -r .status "$TRU")
-          echo "reported=$rep" >> "$GITHUB_OUTPUT"
-          echo "trunk=$tru" >> "$GITHUB_OUTPUT"
-
-          A=artifacts/analysis/analysis.json
-          CONF=$(jq -r '.confidence // 1' "$A" 2>/dev/null || echo 1)
-          BLOCKED=$(jq -r '.blocked_reason // ""' "$A" 2>/dev/null || echo "")
-          DERIVED=$(jq -r '.derived_from // ""' "$A" 2>/dev/null || echo "")
-          CONF_REASON=$(jq -r '.confidence_reason // ""' "$A" 2>/dev/null || echo "")
-          # Mid-band plan (0.4–0.7; below 0.4 bailed before provision) → don't trust the
-          # verdict even if the legs ran; route to a human with the reason. Capture WHY so
-          # the report says "uncertain: <reason>" not just a number.
-          unsure=false; UNSURE_REASON=""
-          [ -n "$BLOCKED" ] && { unsure=true; UNSURE_REASON="$BLOCKED"; }
-          awk "BEGIN{exit !($CONF < 0.7)}" && { unsure=true; [ -n "$CONF_REASON" ] && UNSURE_REASON="$CONF_REASON"; }
-          echo "unsure_reason=$UNSURE_REASON" >> "$GITHUB_OUTPUT"
-
-          # Precedence: infra → unreliable-plan → indeterminate leg → core combos.
-          if   [ "$rep" = "blocked" ] || [ "$tru" = "blocked" ];               then V="blocked"
-          elif [ "$unsure" = "true" ];                                         then V="needs_human_review"
-          elif [ "$rep" = "inconclusive" ] || [ "$tru" = "inconclusive" ];     then V="needs_human_review"
-          elif [ "$rep" = "reproduced" ]     && [ "$tru" = "reproduced" ];     then V="live_bug"
-          elif [ "$rep" = "reproduced" ]     && [ "$tru" = "not_reproduced" ]; then V="fixed_on_trunk"
-          elif [ "$rep" = "not_reproduced" ] && [ "$tru" = "reproduced" ];     then V="regression"
-          elif [ "$rep" = "not_reproduced" ] && [ "$tru" = "not_reproduced" ]; then V="not_reproducible"
-          elif [ "$rep" = "null" ]           && [ "$tru" = "reproduced" ];     then V="live_bug"
-          elif [ "$rep" = "null" ]           && [ "$tru" = "not_reproduced" ]; then V="not_reproducible"
-          else V="needs_human_review"
-          fi
-          echo "verdict=$V" >> "$GITHUB_OUTPUT"
-          # fixed_on_trunk: the fixing PR/commit is often already known (Analyze's derived_from).
-          FIX=""; [ "$V" = "fixed_on_trunk" ] && FIX="$DERIVED"
-          echo "fix_candidate=$FIX" >> "$GITHUB_OUTPUT"
-          echo "verdict=$V reported=$rep trunk=$tru unsure=$unsure fix='$FIX'"
+        run: MODE=reproduce ART=artifacts bash .github/actions/repro/bin/verdict.sh
 
   # --------------------------------------------------------------------------
   # Attribute (AGENT, gated): on a diverging verdict, name the commit that fixed
@@ -698,124 +657,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: artifacts
+      # Shared, mode-parameterized renderer (see bin/report.sh): writes comment.md and the
+      # collapsible job summary, with the script dedup + playwright HTML-report pointer.
       - id: render
         env:
+          MODE: reproduce
           ISSUE: ${{ needs.gate.outputs.issue }}
           VERDICT: ${{ needs.verdict.outputs.verdict }}
-          REP: ${{ needs.verdict.outputs.reported }}
-          TRU: ${{ needs.verdict.outputs.trunk }}
           FIX: ${{ needs.verdict.outputs.fix_candidate }}
           UNSURE: ${{ needs.verdict.outputs.unsure_reason }}
-        run: |
-          set -euo pipefail
-          LAYER=$(jq -r .layer artifacts/analysis/analysis.json 2>/dev/null || echo "unknown")
-          ATTR="artifacts/attribution/attribution.json"
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          RF="artifacts/repro-reported/result.json"; TF="artifacts/repro-trunk/result.json"
-          have_r=0; [ -f "$RF" ] && have_r=1
-          have_t=0; [ -f "$TF" ] && have_t=1
-          # The generated script is identical across legs for direct/playwright (authored
-          # ONCE and reused) and usually for http; only http can vary (per-leg resolved
-          # ids/tokens). Decide once whether to show it a single time or per-leg, so we don't
-          # list two copies of the same script.
-          same=0; maxlines=0
-          for f in "$RF" "$TF"; do
-            [ -f "$f" ] || continue
-            n=$(jq -r '.evidence.script // ""' "$f" | wc -l | tr -d ' ')
-            [ "$n" -gt "$maxlines" ] && maxlines=$n
-          done
-          if [ "$have_r" = 1 ] && [ "$have_t" = 1 ]; then
-            cmp -s <(jq -r '.evidence.script // ""' "$RF") <(jq -r '.evidence.script // ""' "$TF") && same=1
-          fi
-          # emit_script <result.json> <label-suffix> <mode: comment|full>
-          emit_script () {
-            local f="$1" label="$2" mode="$3" lang nlines
-            lang=$(jq -r '.evidence.script_lang // "sh"' "$f")
-            nlines=$(jq -r '.evidence.script // ""' "$f" | wc -l | tr -d ' ')
-            [ "$nlines" -gt 0 ] || return 0
-            echo "**Repro script${label}** (\`${lang}\`)"
-            if [ "$mode" = comment ] && [ "$nlines" -gt 60 ]; then
-              echo "_${nlines} lines — in the \`repro-*\` run [artifact](${RUN_URL})._"
-            else
-              echo "\`\`\`${lang}"; jq -r .evidence.script "$f"; echo '```'
-            fi
-          }
-          # Show one script when the legs match (direct/playwright/most http); both only when
-          # http resolved to genuinely different ids. mode picks comment (trim long) vs full.
-          render_scripts () {
-            local mode="$1"
-            if [ "$have_r" = 1 ] && [ "$have_t" = 1 ] && [ "$same" = 1 ]; then
-              emit_script "$RF" " (run unchanged on both legs)" "$mode"
-            elif [ "$have_r" = 1 ] && [ "$have_t" = 1 ]; then
-              emit_script "$RF" " — reported" "$mode"; echo; emit_script "$TF" " — trunk" "$mode"
-            elif [ "$have_r" = 1 ]; then emit_script "$RF" "" "$mode"
-            elif [ "$have_t" = 1 ]; then emit_script "$TF" "" "$mode"
-            fi
-          }
-          {
-            echo "## Reproduction — Issue #${ISSUE}: \`${VERDICT}\`"
-            echo
-            echo "Layer \`${LAYER}\` · reported: \`${REP}\` · trunk: \`${TRU}\` · [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            echo
-            # Scenario (human-readable intent) before the per-leg scripts.
-            if jq -e '.scenario | arrays and length > 0' artifacts/analysis/analysis.json >/dev/null 2>&1; then
-              echo "**Scenario**"
-              jq -r '.scenario[] | "1. " + .' artifacts/analysis/analysis.json
-              echo
-            fi
-            if [ "$VERDICT" = "fixed_on_trunk" ] && [ -n "$FIX" ]; then
-              echo "**Likely fix (backport candidate):** ${FIX}"
-            fi
-            if [ "$VERDICT" = "regression" ]; then
-              echo "> ⚠️ **Regression**: not reproduced on the reported version but reproduced on trunk. Confirm the reported leg actually exercised the symptom (a missing fixture can cause a false negative)."
-            fi
-            if [ "$VERDICT" = "needs_human_review" ]; then
-              # The legs ran but the plan was mid-confidence (0.4–0.7) or a leg was indeterminate.
-              # Show the evidence below; flag WHY a human should adjudicate rather than trust the legs.
-              echo "> 🟡 **Needs human review**: the verdict is not trusted automatically${UNSURE:+ — ${UNSURE}}. The leg evidence below is informative but unconfirmed; confirm against the steps before acting."
-            fi
-            if [ -f "$ATTR" ]; then
-              KIND=$(jq -r .kind "$ATTR"); CMT=$(jq -r .likely_commit "$ATTR"); RSN=$(jq -r .reasoning "$ATTR")
-              echo "**Likely ${KIND} commit:** \`${CMT}\` — ${RSN}"
-            fi
-            # Per-leg verdicts — these legitimately differ between the two versions.
-            for t in reported trunk; do
-              f="artifacts/repro-${t}/result.json"
-              [ -f "$f" ] || continue
-              st=$(jq -r .status "$f"); br=$(jq -r '.blocked_reason // ""' "$f")
-              echo
-              if [ -n "$br" ] && [ "$br" != "null" ]; then
-                # blocked/inconclusive: the assertion never ran — show WHY (incl. the failing response body)
-                echo "### ${t} — \`${st}\`"
-                echo
-                echo "> ⚠️ ${br}"
-              else
-                ex=$(jq -r .assertion.expect "$f"); ac=$(jq -r .assertion.actual "$f")
-                echo "### ${t} — \`${st}\` (expected ${ex}, got ${ac})"
-              fi
-              echo "Reporter: \`$(jq -r .evidence.reporter_output "$f")\`"
-              # playwright legs ship the interactive HTML report (+ trace/video/screenshot).
-              if [ "$(jq -r .executor "$f")" = playwright ]; then
-                echo "📊 Interactive Playwright report + trace/video: \`repro-${t}\` artifact of the [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})  — open \`playwright-report/index.html\`."
-              fi
-            done
-            # The script is shared by both legs (shown once) unless http resolved differently.
-            echo
-            render_scripts comment
-          } > comment.md
-          # Job summary mirrors the comment; if the comment trimmed a long script to a pointer,
-          # append the full script (collapsed) so it stays visible on the run page too.
-          {
-            cat comment.md
-            if [ "$maxlines" -gt 60 ]; then
-              echo; echo "<details><summary>Full generated repro script</summary>"; echo
-              render_scripts full
-              echo; echo "</details>"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash .github/actions/repro/bin/report.sh
       - name: Post comment
         # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the
         # job summary, don't post public noise on the issue. Real verdicts still post.

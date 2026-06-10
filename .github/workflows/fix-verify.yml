@@ -1,0 +1,406 @@
+name: Verify Fix
+
+# Sibling of reproduce.yml — the SAME engine pointed at a PR. Instead of {reported version,
+# trunk} it provisions the PR's {base (fix ABSENT), head (fix PRESENT)} from source, runs ONE
+# derived repro on both, and confirms the symptom is present on base and gone on head.
+#
+#   gate ─▶ analyze ─▶ verify (matrix: base ‖ head) ─▶ verdict ─▶ report
+#
+# Verdict map (bin/verdict.sh MODE=fix-verify):
+#   base=reproduced  head=not_reproduced → fix_verified         (the fix works)
+#   base=reproduced  head=reproduced     → fix_ineffective      (fix doesn't remove it)
+#   base=not_repro   head=not_repro      → test_does_not_guard  (repro passes without the fix)
+#   base=not_repro   head=reproduced     → introduces_symptom
+# Shares provision/, bin/run-*.sh, seed.sh, verdict.sh, report.sh, and the skill contracts
+# with reproduce.yml.
+
+on:
+  pull_request_target:
+    types: [labeled] # maintainer applies `ci:verify-fix` (only collaborators can label → authz)
+  issue_comment:
+    types: [created] # `/verify-fix` on a PR, trusted authors only
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to verify"
+        required: true
+        type: number
+      post_comment:
+        description: "Post the result as a PR comment (otherwise job summary only)"
+        required: false
+        default: false
+        type: boolean
+      max_turns:
+        description: "Cap on the Analyze agent's turns (cost control; default 35)"
+        required: false
+        default: "35"
+        type: string
+
+concurrency:
+  group: fix-verify-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr_number }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+permissions:
+  contents: read
+  pull-requests: write # comment on the PR, guarded by the gate
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Gate: decide whether to run + who is allowed, and resolve the PR's base/head
+  # refs. SECURITY: pull_request_target runs in the base-repo context (secrets
+  # present) but we build/run PR HEAD code, so only TRUSTED triggers proceed.
+  # --------------------------------------------------------------------------
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+      pr: ${{ steps.decide.outputs.pr }}
+      post: ${{ steps.decide.outputs.post }}
+      base_repo: ${{ steps.decide.outputs.base_repo }}
+      base_sha: ${{ steps.decide.outputs.base_sha }}
+      head_repo: ${{ steps.decide.outputs.head_repo }}
+      head_sha: ${{ steps.decide.outputs.head_sha }}
+      linked_issue: ${{ steps.decide.outputs.linked_issue }}
+    steps:
+      - id: decide
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const LABEL = 'ci:verify-fix';
+            const CMD = '/verify-fix';
+            const TRUSTED = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const ev = context.eventName;
+            let run = false, pr = '', post = false;
+
+            if (ev === 'workflow_dispatch') {
+              run = true; // dispatch already requires write access
+              pr = String(context.payload.inputs.pr_number);
+              post = String(context.payload.inputs.post_comment) === 'true';
+            } else if (ev === 'pull_request_target' && context.payload.action === 'labeled') {
+              // only collaborators can apply labels → the label itself is the authz.
+              if (context.payload.label && context.payload.label.name === LABEL) {
+                run = true; post = true;
+                pr = String(context.payload.pull_request.number);
+              }
+            } else if (ev === 'issue_comment' && context.payload.action === 'created') {
+              const c = context.payload.comment;
+              const onPR = !!context.payload.issue.pull_request; // PRs only
+              const body = (c.body || '').trim();
+              if (onPR && body.startsWith(CMD) && TRUSTED.includes(c.author_association)) {
+                run = true; post = true;
+                pr = String(context.payload.issue.number);
+              }
+            }
+
+            let baseRepo = '', baseSha = '', headRepo = '', headSha = '', linked = '';
+            if (run && pr) {
+              const { owner, repo } = context.repo;
+              try {
+                const { data } = await github.rest.pulls.get({ owner, repo, pull_number: Number(pr) });
+                baseRepo = data.base.repo.full_name; baseSha = data.base.sha;
+                headRepo = data.head.repo.full_name; headSha = data.head.sha;
+                const m = (data.body || '').match(/(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?)\s+#(\d+)/i);
+                linked = m ? m[1] : '';
+              } catch (e) { core.warning('could not resolve PR refs: ' + e.message); run = false; }
+            }
+
+            core.setOutput('run', String(run));
+            core.setOutput('pr', pr);
+            core.setOutput('post', String(post));
+            core.setOutput('base_repo', baseRepo);
+            core.setOutput('base_sha', baseSha);
+            core.setOutput('head_repo', headRepo);
+            core.setOutput('head_sha', headSha);
+            core.setOutput('linked_issue', linked);
+            core.info(`run=${run} pr=${pr} base=${baseRepo}@${baseSha} head=${headRepo}@${headSha} linked=#${linked} post=${post}`);
+
+  # --------------------------------------------------------------------------
+  # Analyze: derive a STANDALONE repro from the bug this PR fixes (its linked
+  # issue + this PR's regression test). It must run on the BASE ref, which lacks
+  # the PR's test file — so it must NOT import that test.
+  # --------------------------------------------------------------------------
+  analyze:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    outputs:
+      ready: ${{ steps.matrix.outputs.ready }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - id: mode
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          set -euo pipefail
+          if [ "$HAS_KEY" = "true" ]; then echo "mode=real" >> "$GITHUB_OUTPUT"
+          else echo "::error::Verify-fix requires ANTHROPIC_API_KEY. Refusing to fabricate a plan."; exit 1; fi
+
+      # Prefetch: the bug = the PR's linked issue (or the PR body); the regression test = this PR's diff.
+      - name: Prefetch context
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ needs.gate.outputs.pr }}
+          LINKED: ${{ needs.gate.outputs.linked_issue }}
+        run: |
+          set -euo pipefail
+          if [ -n "$LINKED" ]; then
+            gh issue view "$LINKED" --repo "$GITHUB_REPOSITORY" --json title,body,comments \
+              --jq '"# " + .title + "\n\n" + (.body // "") + "\n\n## Comments\n\n" + ([.comments[]? | select(((.body // "") | contains("## Reproduction")) | not) | "**@" + (.author.login // "?") + ":** " + (.body // "")] | join("\n\n"))' \
+              > issue.md 2>/dev/null || echo "(linked issue unavailable)" > issue.md
+          else
+            gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json title,body \
+              --jq '"# " + .title + "\n\n" + (.body // "")' > issue.md 2>/dev/null || echo "(PR unavailable)" > issue.md
+          fi
+          head -c 60000 issue.md > issue.cap && mv issue.cap issue.md
+          # This PR's diff carries the fix + the regression test.
+          { echo "# PR #$PR (the fix under verification)"; gh pr diff "$PR" --repo "$GITHUB_REPOSITORY" 2>/dev/null | head -c 60000; } > fixpr.diff
+
+      - name: Analyze (agent)
+        id: analyze
+        if: steps.mode.outputs.mode == 'real'
+        continue-on-error: true
+        uses: anthropics/claude-code-action@11ba60486e4aec9ddfeafcf4bb3f00b028ac2c16 # v1.0.142
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: |
+            Run the `reproduce` skill's Analyze phase to verify the fix in PR
+            #${{ needs.gate.outputs.pr }} of ${{ github.repository }}.
+            The bug the PR fixes (its linked issue, or the PR description) is in `./issue.md`;
+            the PR's own diff — fix AND its regression test — is in `./fixpr.diff`. READ BOTH
+            FIRST. Derive the cheapest faithful, SELF-CONTAINED repro of the bug that runs on a
+            ref that does NOT contain this PR's changes (the `base` leg) — so it must NOT
+            import or depend on the test file THIS PR adds; reproduce the symptom independently
+            (derive the assertion from the linked issue + the PR's test, but author your own
+            script/test). It asserts the HEALTHY (fixed) behaviour, so on base (fix absent) it
+            fails → reproduced, and on head (fix present) it passes → not_reproduced.
+            BE ECONOMICAL: your VERY FIRST Write must be a complete best-effort analysis.json
+            (plus its spec/test); refine only if turns remain; never finish without it. If the
+            PR has no derivable, CI-reproducible symptom, write analysis.json as
+            {"schema_version":"1","issue":${{ needs.gate.outputs.pr }},"needs_info":"<one
+            question>"} and stop. `confidence` (0..1) measures repro fidelity (not whether a
+            fix exists); set `confidence_reason` if < 0.7.
+            Pick the cheapest faithful `layer` (service < *-api < *-ui) and its `executor`
+            (service→direct, *-api→http, *-ui→playwright). THEN READ
+            `.claude/skills/reproduce/references/executors/<executor>.md` and FOLLOW it
+            (http → request/requests in analysis.json; playwright → repro.spec.ts; direct →
+            ReproTest.php; set script_path). Write analysis.json per
+            `.claude/skills/reproduce/references/SCHEMA.md`. If seeding is needed, write
+            fixtures.json (hex UUIDs + {{SC}}/{{NAV_CAT}}/{{TAX}}/{{CURRENCY}} placeholders).
+            Include `scenario` (numbered Given/When/Then). Comment every step. Emit only the
+            file(s) — no prose, no markdown fence.
+          claude_args: >-
+            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '35' }}
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(gh api:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: analysis
+          path: |
+            analysis.json
+            fixtures.json
+            repro.spec.ts
+            ReproTest.php
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - id: matrix
+        env:
+          PR: ${{ needs.gate.outputs.pr }}
+          POST: ${{ needs.gate.outputs.post }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # No plan / needs_info / low confidence → don't provision two from-source builds.
+          if [ ! -f analysis.json ]; then
+            echo "::warning::analyze produced no analysis.json"
+            [ "$POST" = "true" ] && gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+              --body "## Fix verification — could not analyze"$'\n\n'"The analyzer did not produce a plan within its budget. A human can review, or re-trigger."
+            echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          cat analysis.json
+          NEEDS=$(jq -r '.needs_info // empty' analysis.json)
+          if [ -n "$NEEDS" ]; then
+            echo "::warning::needs info: $NEEDS"
+            [ "$POST" = "true" ] && gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+              --body "## Fix verification — needs info"$'\n\n'"$NEEDS"
+            echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          CONF=$(jq -r '.confidence // 1' analysis.json)
+          if awk "BEGIN{exit !($CONF < 0.4)}"; then
+            REASON=$(jq -r '.confidence_reason // "low confidence"' analysis.json)
+            SCEN=$(jq -r '(.scenario // []) | map("- " + .) | join("\n")' analysis.json)
+            echo "::warning::low confidence ($CONF) — not run: $REASON"
+            [ "$POST" = "true" ] && gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
+              --body "## Fix verification — low confidence, not run"$'\n\n'"confidence \`$CONF\` — not run (building two installs from source to test a guess is wasteful)."$'\n\n'"**Why:** $REASON"$'\n\n'"**Draft scenario:**"$'\n'"$SCEN"
+            echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+  # --------------------------------------------------------------------------
+  # Verify: one parallel leg per ref. base = fix ABSENT, head = fix PRESENT.
+  # Both build Shopware FROM SOURCE at the leg's SHA (setup-shopware checks out
+  # shopware-version as a git ref), then run the SAME derived repro.
+  # --------------------------------------------------------------------------
+  verify:
+    needs: [gate, analyze]
+    if: needs.gate.outputs.run == 'true' && needs.analyze.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40 # build-from-source is heavier than installing a release
+    strategy:
+      fail-fast: false
+      matrix:
+        leg: [base, head]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: analysis
+      - id: plan
+        env:
+          LEG: ${{ matrix.leg }}
+          BASE_REPO: ${{ needs.gate.outputs.base_repo }}
+          BASE_SHA: ${{ needs.gate.outputs.base_sha }}
+          HEAD_REPO: ${{ needs.gate.outputs.head_repo }}
+          HEAD_SHA: ${{ needs.gate.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$LEG" = "base" ]; then echo "repo=$BASE_REPO" >> "$GITHUB_OUTPUT"; echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          else echo "repo=$HEAD_REPO" >> "$GITHUB_OUTPUT"; echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"; fi
+          echo "executor=$(jq -r .executor analysis.json)" >> "$GITHUB_OUTPUT"
+          echo "admin_build=$(jq -r .build_profile.admin_build analysis.json)" >> "$GITHUB_OUTPUT"
+          echo "storefront_build=$(jq -r .build_profile.storefront_build analysis.json)" >> "$GITHUB_OUTPUT"
+
+      # Provision the leg's ref FROM SOURCE — version=<sha>, repository=<repo> are forwarded to
+      # setup-shopware, which checks them out via actions/checkout (accepts any ref/fork).
+      - id: provision
+        if: steps.plan.outputs.executor == 'http' || steps.plan.outputs.executor == 'playwright' || steps.plan.outputs.executor == 'direct'
+        continue-on-error: true
+        uses: ./.github/actions/repro/provision
+        with:
+          version: ${{ steps.plan.outputs.sha }}
+          repository: ${{ steps.plan.outputs.repo }}
+          admin-build: ${{ steps.plan.outputs.admin_build }}
+          storefront-build: ${{ steps.plan.outputs.storefront_build }}
+
+      - name: Seed fixtures
+        id: seed
+        if: steps.provision.outcome == 'success'
+        continue-on-error: true
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+        run: PAYLOAD=fixtures.json bash .github/actions/repro/bin/seed.sh
+
+      - name: Mark leg blocked (provision/seed failed)
+        if: steps.provision.outcome != 'success' || steps.seed.outcome != 'success'
+        run: |
+          set -euo pipefail
+          jq -n --argjson issue "$(jq -r .issue analysis.json)" --arg leg "${{ matrix.leg }}" \
+            --arg version "$(jq -r .version analysis.json)" --arg executor "$(jq -r .executor analysis.json)" '{
+              schema_version:"1", issue:$issue, target:$leg, version:$version, executor:$executor,
+              status:"blocked", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
+              evidence:{script:"",script_lang:"sh",reporter_output:"provision/seed failed",http:[],artifacts:[],truncated:false},
+              blocked_reason:"environment not READY (provision or seed failed) for the '"${{ matrix.leg }}"' leg" }' > result.json
+
+      - name: Run executor
+        if: steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
+        env:
+          APP_URL: ${{ steps.provision.outputs.app_url }}
+          TARGET: ${{ matrix.leg }}
+        run: |
+          set -euo pipefail
+          EXECUTOR=$(jq -r .executor analysis.json)
+          case "$EXECUTOR" in
+            http)       ANALYSIS=analysis.json OUT=result.json bash .github/actions/repro/bin/run-http.sh ;;
+            playwright) ANALYSIS=analysis.json OUT=result.json bash .github/actions/repro/bin/run-playwright.sh ;;
+            direct)     ANALYSIS=analysis.json OUT=result.json SHOP_DIR=shop bash .github/actions/repro/bin/run-direct.sh ;;
+            *) echo "::warning::unknown executor"; jq -n '{schema_version:"1",status:"inconclusive",blocked_reason:"unknown executor"}' > result.json ;;
+          esac
+          cat result.json
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: repro-${{ matrix.leg }}
+          path: |
+            result.json
+            repro.sh
+            repro.spec.ts
+            ReproTest.php
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # Verdict + report: shared scripts, MODE=fix-verify.
+  # --------------------------------------------------------------------------
+  verdict:
+    needs: [gate, analyze, verify]
+    if: always() && needs.gate.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      has_results: ${{ steps.v.outputs.has_results }}
+      verdict: ${{ steps.v.outputs.verdict }}
+      base: ${{ steps.v.outputs.base }}
+      head: ${{ steps.v.outputs.head }}
+      fix_candidate: ${{ steps.v.outputs.fix_candidate }}
+      unsure_reason: ${{ steps.v.outputs.unsure_reason }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: v
+        run: MODE=fix-verify ART=artifacts bash .github/actions/repro/bin/verdict.sh
+
+  report:
+    needs: [gate, analyze, verify, verdict]
+    if: always() && needs.gate.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+      - id: render
+        env:
+          MODE: fix-verify
+          ISSUE: ${{ needs.gate.outputs.pr }}
+          VERDICT: ${{ needs.verdict.outputs.verdict }}
+          FIX: ${{ needs.verdict.outputs.fix_candidate }}
+          UNSURE: ${{ needs.verdict.outputs.unsure_reason }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash .github/actions/repro/bin/report.sh
+      - name: Post comment
+        if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number('${{ needs.gate.outputs.pr }}'),
+              body: fs.readFileSync('comment.md', 'utf8'),
+            });

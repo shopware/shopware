@@ -697,7 +697,13 @@ jobs:
     if: always() && needs.gate.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      issues: write # post the comment
+      contents: write # push inline evidence (gated by vars.REPRO_EVIDENCE_BRANCH)
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: artifacts
@@ -816,6 +822,20 @@ jobs:
               echo; echo "</details>"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+      # Inline evidence (playwright legs): publish the screenshot + a symptom-tail GIF to the
+      # evidence branch and embed them in the comment — comments can't host real video (no
+      # attachments API), but images/GIFs render inline and PERSIST past artifact expiry.
+      # Opt-in via the REPRO_EVIDENCE_BRANCH repo variable; enhancement only, never fails.
+      - name: Embed inline evidence
+        if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked' && vars.REPRO_EVIDENCE_BRANCH != ''
+        continue-on-error: true
+        env:
+          BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          TOKEN: ${{ github.token }}
+        run: bash .github/actions/repro/bin/embed-evidence.sh
+
       - name: Post comment
         # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the
         # job summary, don't post public noise on the issue. Real verdicts still post.

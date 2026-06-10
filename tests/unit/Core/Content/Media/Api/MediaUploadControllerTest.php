@@ -28,8 +28,6 @@ class MediaUploadControllerTest extends TestCase
 {
     public static bool $simulateFailedTempnam = false;
 
-    public static bool $simulateNullPregReplace = false;
-
     private FileSaver&MockObject $fileSaver;
 
     private MediaService&MockObject $mediaService;
@@ -49,7 +47,6 @@ class MediaUploadControllerTest extends TestCase
     protected function tearDown(): void
     {
         self::$simulateFailedTempnam = false;
-        self::$simulateNullPregReplace = false;
     }
 
     public function testRemoveNonPrintingCharactersInFileNameBeforeUpload(): void
@@ -143,8 +140,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request([], ['fileName' => '']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -162,8 +158,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request(['fileName' => '', 'extension' => 'jpg']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('A valid filename must be provided.');
+        $this->expectExceptionObject(MediaException::emptyMediaFilename());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -181,8 +176,7 @@ class MediaUploadControllerTest extends TestCase
         $context = Context::createDefaultContext();
         $request = new Request(['fileName' => 'test', 'extension' => '']);
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('No file extension provided. Please use the "extension" query parameter to specify the extension of the uploaded file.');
+        $this->expectExceptionObject(MediaException::missingFileExtension());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -199,8 +193,7 @@ class MediaUploadControllerTest extends TestCase
     {
         self::$simulateFailedTempnam = true;
 
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('Cannot create a temp file.');
+        $this->expectExceptionObject(MediaException::cannotCreateTempFile());
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -215,10 +208,7 @@ class MediaUploadControllerTest extends TestCase
 
     public function testUploadThrowsOnIllegalFileName(): void
     {
-        self::$simulateNullPregReplace = true;
-
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -228,15 +218,12 @@ class MediaUploadControllerTest extends TestCase
             new EventDispatcher()
         );
 
-        $controller->upload(new Request(['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+        $controller->upload(new Request(['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
     }
 
     public function testRenameThrowsOnIllegalFileName(): void
     {
-        self::$simulateNullPregReplace = true;
-
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -246,15 +233,12 @@ class MediaUploadControllerTest extends TestCase
             new EventDispatcher()
         );
 
-        $controller->renameMediaFile(new Request([], ['fileName' => 'test.png']), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
+        $controller->renameMediaFile(new Request([], ['fileName' => "\xFF\xFE"]), Uuid::randomHex(), Context::createDefaultContext(), $this->responseFactory);
     }
 
     public function testProvideNameThrowsOnIllegalFileName(): void
     {
-        self::$simulateNullPregReplace = true;
-
-        static::expectException(MediaException::class);
-        static::expectExceptionMessage('is not permitted');
+        $this->expectExceptionObject(MediaException::illegalFileName("\xFF\xFE", 'Path encoding is invalid'));
 
         $controller = new MediaUploadController(
             $this->mediaService,
@@ -264,7 +248,7 @@ class MediaUploadControllerTest extends TestCase
             new EventDispatcher()
         );
 
-        $controller->provideName(new Request(['fileName' => 'test.png', 'extension' => 'png']), Context::createDefaultContext());
+        $controller->provideName(new Request(['fileName' => "\xFF\xFE", 'extension' => 'png']), Context::createDefaultContext());
     }
 }
 
@@ -279,25 +263,4 @@ function tempnam(string $dir, string $prefix): string|false
     }
 
     return \tempnam($dir, $prefix);
-}
-
-/**
- * @param string|array<string> $pattern
- * @param string|array<string> $replacement
- * @param string|array<string> $subject
- *
- * @return string|array<string>|null
- */
-function preg_replace(
-    string|array $pattern,
-    string|array $replacement,
-    string|array $subject,
-    int $limit = -1,
-    ?int &$count = null
-): string|array|null {
-    if (MediaUploadControllerTest::$simulateNullPregReplace) {
-        return null;
-    }
-
-    return \preg_replace($pattern, $replacement, $subject, $limit, $count);
 }

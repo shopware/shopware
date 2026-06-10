@@ -1,9 +1,8 @@
 <sw-modal
     :title="$t('sw-users-permissions.sso.modal.title')"
     v-bind="$attrs"
-    @modal-close="closeModal()"
+    @modal-close="closeModal"
 >
-
     <template #default>
         <mt-text-field
             v-model="email"
@@ -34,7 +33,7 @@
             class="sw-users-permissions-sso-modal-close-button"
             variant="secondary"
             :disabled="isLoading"
-            @click="closeModal()"
+            @click="closeModal"
         >
             {{ $t('global.default.cancel') }}
         </mt-button>

@@ -19,10 +19,16 @@ interface Field {
         placeholder: string;
     };
 }
+
 interface Config {
     operatorSet: null;
     fields: Field[];
 }
+
+type BetweenValue = {
+    from: string | null;
+    to: string | null;
+};
 
 /* Mixin uses many untyped dependencies */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
@@ -257,6 +263,23 @@ export default Mixin.register(
                 }
 
                 return this.visibleValue;
+            },
+
+            isBetweenDateField(field: Field): boolean {
+                // @ts-expect-error - operator is available in base component
+                if (this.operator !== 'between') {
+                    return false;
+                }
+
+                return [
+                    'date',
+                    'datetime',
+                ].includes(field.type);
+            },
+
+            updateBetweenDateValue(fieldName: string, value: BetweenValue) {
+                // @ts-expect-error - value exists in main component
+                this.values[fieldName] = value;
             },
 
             handleUnitChange(event: { unit: unknown; value: number }) {

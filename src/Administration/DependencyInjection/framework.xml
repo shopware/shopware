@@ -22,6 +22,7 @@
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
             <argument type="service" id="filesystem"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="shopware.system_check"/>
         </service>
@@ -38,6 +39,20 @@
         <service id="Shopware\Administration\Framework\App\Subscriber\SystemLanguageChangedSubscriber">
             <argument type="service" id="locale.repository"/>
             <argument type="service" id="app_administration_snippet.repository"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\App\ActiveAdminAppLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Administration\Framework\App\ActiveAdminAppLoader"/>
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

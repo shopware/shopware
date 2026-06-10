@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\FilesystemReader;
 use League\Flysystem\StorageAttributes;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -28,6 +29,7 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
         private readonly Connection $connection,
         private readonly FilesystemOperator $themeFileSystem,
         private readonly AbstractThemePathBuilder $themePathBuilder,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($scheduledTaskRepository, $exceptionLogger);
     }
@@ -51,7 +53,7 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
             }
 
             // Only delete directories that were last modified more than 24 hours ago, as more recently compiled themes might still be referenced in cached responses
-            $twentyFourHoursAgo = (new \DateTimeImmutable())->modify('-24 hours')->getTimestamp();
+            $twentyFourHoursAgo = $this->clock->now()->modify('-24 hours')->getTimestamp();
 
             return $twentyFourHoursAgo > $modifiedTimestampOfFirstFile;
         });

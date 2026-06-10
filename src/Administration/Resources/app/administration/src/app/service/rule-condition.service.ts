@@ -33,6 +33,7 @@ type OperatorSetIdentifier =
     | 'bool'
     | 'number'
     | 'date'
+    | 'datetime'
     | 'isNet'
     | 'empty'
     | 'zipCode';
@@ -81,6 +82,10 @@ type CustomFieldConditionConfig = {
 export default class RuleConditionService {
     $store: { [key: string]: Condition } = {};
 
+    $deprecations: {
+        [type: string]: { version: string; replacement?: string; label: string };
+    } = {};
+
     awarenessConfiguration: { [key: string]: AwarenessConfiguration } = {};
 
     operators = {
@@ -128,6 +133,10 @@ export default class RuleConditionService {
             identifier: 'empty',
             label: 'global.sw-condition.operator.empty',
         },
+        between: {
+            identifier: 'between',
+            label: 'global.sw-condition.operator.between',
+        },
     };
 
     operatorSets = {
@@ -167,6 +176,16 @@ export default class RuleConditionService {
             this.operators.lowerThan,
             this.operators.lowerThanEquals,
             this.operators.notEquals,
+            this.operators.between,
+        ],
+        datetime: [
+            this.operators.equals,
+            this.operators.greaterThan,
+            this.operators.greaterThanEquals,
+            this.operators.lowerThan,
+            this.operators.lowerThanEquals,
+            this.operators.notEquals,
+            this.operators.between,
         ],
         isNet: [
             this.operators.gross,
@@ -191,6 +210,8 @@ export default class RuleConditionService {
         text: 'string',
         int: 'number',
         bool: 'bool',
+        date: 'date',
+        datetime: 'datetime',
     };
 
     moduleTypes: { [key: string]: ModuleType } = {
@@ -271,6 +292,72 @@ export default class RuleConditionService {
         (condition as Condition).type = type;
 
         this.$store[condition.scriptId ?? type] = condition as Condition;
+    }
+
+    registerDeprecation(type: string, deprecation: { version: string; replacement?: string; label: string }) {
+        this.$deprecations[type] = deprecation;
+    }
+
+    getDeprecationsInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+        version: string;
+        replacement: { type: string; label: string } | null;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const deprecation = this.$deprecations[type];
+
+            if (!deprecation) {
+                return [];
+            }
+
+            const replacementCondition = deprecation.replacement ? this.$store[deprecation.replacement] : null;
+
+            return [
+                {
+                    type,
+                    label: deprecation.label,
+                    version: deprecation.version,
+                    replacement: replacementCondition
+                        ? { type: replacementCondition.type, label: replacementCondition.label }
+                        : null,
+                },
+            ];
+        });
+    }
+
+    getFlowOnlyTypesInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const scopes = this.$store[type]?.scopes;
+
+            if (!scopes?.length || !scopes.every((scope) => scope === 'flow')) {
+                return [];
+            }
+
+            const label = this.$store[type]?.label;
+
+            return label ? [{ type, label }] : [];
+        });
+    }
+
+    private collectTypes(conditions: Array<{ type: string; children?: unknown }>): string[] {
+        return conditions.flatMap((condition) => {
+            if (!condition.children) {
+                return [condition.type];
+            }
+
+            return [
+                condition.type,
+                ...this.collectTypes(condition.children as Array<{ type: string; children?: unknown }>),
+            ];
+        });
     }
 
     addScriptConditions(scripts: Script[]) {

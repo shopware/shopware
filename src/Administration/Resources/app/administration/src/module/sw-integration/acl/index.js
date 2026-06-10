@@ -2,6 +2,18 @@
  * @sw-package fundamentals@framework
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'additional_permissions',
+    parent: null,
+    key: 'integration_mcp',
+    roles: {
+        editor: {
+            privileges: ['api_action_integration_mcp-allowlist'],
+            dependencies: ['integration.viewer'],
+        },
+    },
+});
+
+Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
     key: 'integration',

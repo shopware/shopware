@@ -1,20 +1,18 @@
-@import "~scss/variables";
-
 .sw-cms-stage-add-section {
     width: 100%;
     padding: 19px 0;
     text-align: center;
     z-index: 200;
-    background: $color-gray-50;
+    background: var(--color-background-secondary-default);
     display: grid;
 
     &.is--disabled {
         .sw-cms-stage-add-section__button {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-default);
             cursor: not-allowed;
 
             &:hover {
-                color: $color-gray-300;
+                color: var(--color-icon-secondary-default);
             }
         }
     }
@@ -25,11 +23,11 @@
         justify-self: center;
         align-self: center;
         cursor: pointer;
-        color: $color-gray-900;
+        color: var(--color-icon-primary-default);
         transition: 0.5s;
 
         &:hover {
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
         }
 
         &.is--open {

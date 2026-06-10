@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -41,7 +42,8 @@ class CacheInvalidator
         private readonly bool $useDelayedCache,
         private readonly bool $tagInvalidationLogEnabled,
         private readonly BacktraceCollector $backtraceCollector,
-        private readonly ?AbstractReverseProxyGateway $reverseProxyGateway = null
+        private readonly ClockInterface $clock,
+        private readonly ?AbstractReverseProxyGateway $reverseProxyGateway = null,
     ) {
         $this->httpCacheStore = new Psr16Cache($httpCacheStore);
     }
@@ -120,7 +122,7 @@ class CacheInvalidator
             $list = [];
 
             foreach ($keys as $key) {
-                $list['http_invalidation_' . $key . '_timestamp'] = time();
+                $list['http_invalidation_' . $key . '_timestamp'] = $this->clock->now()->getTimestamp();
             }
 
             $this->httpCacheStore->setMultiple($list);

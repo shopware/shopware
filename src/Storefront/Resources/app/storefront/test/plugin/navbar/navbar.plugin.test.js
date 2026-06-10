@@ -86,14 +86,29 @@ describe('NavbarPlugin', () => {
         const mockLink = {
             href: 'https://example.com/abc',
             target: '_self',
-            parentNode: {
-                classList: { contains: jest.fn().mockReturnValue(true) },
-            },
+            classList: { contains: jest.fn().mockReturnValue(true) },
         };
 
         navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
 
+        expect(mockLink.classList.contains).toHaveBeenCalledWith('dropdown-toggle');
         expect(navigateToSpy).toHaveBeenCalledWith('https://example.com/abc');
+    });
+
+    test('_navigateToLinkOnClick should not redirect manually when link has no dropdown', () => {
+        const navigateToSpy = jest.spyOn(NavbarPlugin.prototype, '_navigateTo').mockImplementation(() => {});
+
+        const mockEventClick = { type: 'click', pageX: 99 };
+        const mockLink = {
+            href: 'https://example.com/abc',
+            target: '_self',
+            classList: { contains: jest.fn().mockReturnValue(false) },
+        };
+
+        navbarPlugin._navigateToLinkOnClick(mockLink, mockEventClick);
+
+        expect(mockLink.classList.contains).toHaveBeenCalledWith('dropdown-toggle');
+        expect(navigateToSpy).not.toHaveBeenCalled();
     });
 
     test('_closeAllDropdowns should close all dropdowns', () => {

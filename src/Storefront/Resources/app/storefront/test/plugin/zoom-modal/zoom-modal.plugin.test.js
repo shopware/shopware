@@ -181,6 +181,31 @@ describe('ZoomModalPlugin tests', () => {
         expect(window.focusHandler.setFocus).toHaveBeenCalledWith(activeModalImgElement);
     });
 
+    test('zoom modal registers listeners on triggers only once when init runs multiple times', () => {
+        const onClickSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onClick').mockImplementation(() => {});
+        const onKeyDownSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onKeyDown').mockImplementation(() => {});
+
+        const element = document.querySelector('[data-zoom-modal]');
+        const plugin = new ZoomModalPlugin(element);
+
+        // Re-run init multiple times to simulate repeated plugin initialization
+        plugin.init();
+        plugin.init();
+        plugin.init();
+
+        const triggerImgElement = document.getElementById('gallery-slider').querySelector('img');
+
+        triggerImgElement.dispatchEvent(new Event('click'));
+
+        const keydownEvent = new Event('keydown');
+        keydownEvent.key = 'Enter';
+        triggerImgElement.dispatchEvent(keydownEvent);
+
+        // Both listeners should only fire once even though init was called multiple times
+        expect(onClickSpy).toHaveBeenCalledTimes(1);
+        expect(onKeyDownSpy).toHaveBeenCalledTimes(1);
+    });
+
     test('zoom modal closes via ESC key', () => {
         const triggerImgElement = document.querySelector('img');
         const modal = document.querySelector('.js-zoom-modal');

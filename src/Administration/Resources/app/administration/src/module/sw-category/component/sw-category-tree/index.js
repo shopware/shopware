@@ -98,7 +98,7 @@ export default {
         },
 
         criteria() {
-            return new Criteria(1, 500)
+            return new Criteria()
                 .addAssociation('navigationSalesChannels')
                 .addAssociation('footerSalesChannels')
                 .addAssociation('serviceSalesChannels');
@@ -375,7 +375,10 @@ export default {
                 }
 
                 if (checked === true) {
-                    this.$refs.categoryTree.checkedElementsCount -= 1;
+                    this.$refs.categoryTree.checkedElementsCount = Math.max(
+                        0,
+                        this.$refs.categoryTree.checkedElementsCount - 1,
+                    );
                     this.$emit('category-checked-elements-count', this.$refs.categoryTree.checkedElementsCount);
                 }
             });

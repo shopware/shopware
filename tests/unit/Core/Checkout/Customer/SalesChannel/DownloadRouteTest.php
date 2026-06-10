@@ -61,8 +61,7 @@ class DownloadRouteTest extends TestCase
 
     public function testCustomerNotLoggedInException(): void
     {
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Customer is not logged in.');
+        $this->expectExceptionObject(CustomerException::customerNotLoggedIn());
 
         $this->downloadRoute->load(new Request(), $this->salesChannelContext);
     }
@@ -92,8 +91,7 @@ class DownloadRouteTest extends TestCase
         $request->attributes->set('downloadId', 'foo');
         $request->attributes->set('orderId', 'bar');
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('Line item download file with id "foo" not found.');
+        $this->expectExceptionObject(CustomerException::downloadFileNotFound('foo'));
         $this->downloadRoute->load($request, $this->salesChannelContext);
     }
 

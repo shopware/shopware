@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -838,5 +840,18 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         wrapper.vm.beforeDestroyedComponent();
 
         expect(resetSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set api language id on language change', async () => {
+        const wrapper = await createWrapper();
+        const defaultLanguageSpy = jest.spyOn(wrapper.vm.cmsPageState, 'setIsSystemDefaultLanguage');
+        const setApiLanguageSpy = jest.spyOn(Shopware.Store.get('context'), 'setApiLanguageId');
+        const loadPageSpy = jest.spyOn(wrapper.vm, 'loadPage');
+
+        wrapper.vm.onChangeLanguage('new-language');
+
+        expect(defaultLanguageSpy).toHaveBeenCalledWith(true);
+        expect(setApiLanguageSpy).toHaveBeenCalledWith('new-language');
+        expect(loadPageSpy).toHaveBeenCalledWith('1a');
     });
 });

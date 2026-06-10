@@ -9,7 +9,7 @@
         }
 
         p:not(:first-child) {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
     }
 
@@ -22,17 +22,17 @@
         }
 
         .sw-context-menu-item__text {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
 
         .sw-context-menu-item__text:hover {
-            border-bottom: 1px solid $color-shopware-brand-500;
+            border-bottom: 1px solid var(--color-border-brand-default);
         }
     }
 
     &__popover {
         .sw-order-address-selection__order-address p:first-child {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
 
         .sw-select-result .sw-select-result__result-item-text {
@@ -43,5 +43,14 @@
         .sw-select-result .mt-icon {
             display: none;
         }
+    }
+
+    &__selected-address {
+        margin-top: 8px;
+    }
+
+    &__selected-address-content.sw-address {
+        color: var(--color-text-primary-default);
+        margin-bottom: 0;
     }
 }

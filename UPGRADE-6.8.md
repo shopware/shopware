@@ -739,6 +739,12 @@ The following exception classes were removed and replaced by domain exceptions:
 
 Removed the constants `Shopware\Core\Content\MailTemplate\MAIL_TEMPLATE_SALES_CHANNEL_{WRITTEN,DELETED,LOADED,SEARCH_RESULT_LOADED,AGGREGATION_LOADED,ID_SEARCH_RESULT_LOADED}_EVENT` as the entity has been removed with Shopware 6.5 and the events were not fired anymore.
 
+## Removal of the `SwInclude` Twig node
+
+The internal `\Shopware\Core\Framework\Adapter\Twig\Node\SwInclude` node has been removed; `{% sw_include %}`, `{% sw_icon %}` and `{% sw_thumbnails %}` now compile to a stock `\Twig\Node\IncludeNode`. Node visitors matching `instanceof SwInclude` must match `IncludeNode` instead.
+
+`IconTokenParser` and `ThumbnailTokenParser` are now `@internal`.
+
 </details>
 
 ## `AbstractTranslationLoader::pluginTranslationExists()` removed

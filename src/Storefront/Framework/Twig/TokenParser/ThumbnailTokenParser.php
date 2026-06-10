@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\FinderTemplateExpression;
+use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
@@ -10,6 +12,9 @@ use Twig\Node\IncludeNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('framework')]
 final class ThumbnailTokenParser extends AbstractTokenParser
 {
@@ -33,6 +38,10 @@ final class ThumbnailTokenParser extends AbstractTokenParser
             new ConstantExpression($className, $token->getLine()),
             new ConstantExpression('name', $token->getLine())
         );
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new SwInclude($expr, $variables, false, false, $token->getLine());
+        }
 
         $resolved = new FinderTemplateExpression($expr, $token->getLine());
 

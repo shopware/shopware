@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Adapter\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\FinderTemplateExpression;
+use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\IncludeNode;
@@ -41,6 +43,10 @@ final class IncludeTokenParser extends AbstractTokenParser
             $expr->setAttribute('value', $parent);
 
             return new IncludeNode($expr, $variables, $only, $ignoreMissing, $token->getLine());
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new SwInclude($expr, $variables, $only, $ignoreMissing, $token->getLine());
         }
 
         $resolved = new FinderTemplateExpression($expr, $token->getLine());

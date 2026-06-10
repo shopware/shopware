@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\Node\FinderTemplateExpression;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Compiler;
@@ -40,6 +41,10 @@ class FinderTemplateExpressionTest extends TestCase
     #[TestDox('It resolves a dynamic template name through the finder at render time and loads the result')]
     public function testRenderResolvesDynamicNameThroughFinder(): void
     {
+        // sw_include only emits a FinderTemplateExpression once the v6.8.0.0 behavior is active;
+        // before that the token parser still returns the deprecated SwInclude node.
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
         $templateName = Uuid::randomHex() . '.html.twig';
 
         $finder = $this->createMock(TemplateFinder::class);

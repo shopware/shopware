@@ -344,8 +344,8 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(() => compile(entry.innerTemplate)).not.toThrow();
     });
 
-    describe('cases.md regressions', () => {
-        it('covers case 1: native core v-if with a legacy Twig v-else extension', () => {
+    describe('all supported template combinations of conditional chains', () => {
+        it('rewrites a native core v-if with a legacy Twig v-else extension', () => {
             const nativeTemplate = transformLegacyBlockConditionals(`
                 <sw-block name="test_block">
                     <div v-if="condition">Test</div>
@@ -376,7 +376,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             ]);
         });
 
-        it('covers cases 2 and 4: legacy Twig chains continuing across different block entries', () => {
+        it('rewrites legacy Twig chains continuing across different block entries', () => {
             const [leadingEntry, fallbackEntry] = transformLegacyTwigBlockSequenceConditionals([
                 {
                     blockName: 'test_block',
@@ -403,7 +403,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             ]);
         });
 
-        it('covers case 3: more than two chained native extensions', () => {
+        it('rewrites condition chains across more than two chained native extensions', () => {
             const transformedTemplate = transformLegacyBlockConditionals(`
                 <div>
                     <sw-block name="test_block">
@@ -437,7 +437,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             );
         });
 
-        it('covers case 5: a new v-if after a non-conditional child starts a separate chain', () => {
+        it('rewrites a trailing chain while keeping a restarted chain separate', () => {
             const transformedTemplate = transformLegacyBlockConditionals(`
                 <div>
                     <sw-block name="test-block">

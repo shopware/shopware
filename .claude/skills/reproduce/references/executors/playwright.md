@@ -17,6 +17,15 @@ injected). Comment every step.
 - **Scope inside the relevant landmark + use SPECIFIC names** to avoid strict-mode
   ambiguity: `getByRole('navigation').getByRole('link', {name:/^Products$/i})`, NOT a broad
   regex with `.first()`.
+- **Anchor names and pin the role** — a broad regex matches sibling controls and throws a
+  strict-mode violation. Real example: `getByLabel(/password/i)` matched the field, the
+  "Show password" toggle, AND the "Forgot your password?" link. Use `/^password$/i` and pin
+  the role: `getByRole('textbox', {name:/^password$/i})` (a password input is a `textbox`;
+  the toggle is a `button`), so only the field matches.
+- **Beware untranslated snippet keys.** If the target admin renders raw keys (e.g.
+  `global.sw-admin-menu.navigation.label` instead of "Navigation"), accessible-name / text
+  locators can't match. Prefer the issue's own visible strings + structural roles; a
+  name-not-found is a `PRECONDITION_NOT_FOUND` (→ inconclusive), never the symptom.
 - **NEVER** use CSS classes, data-test ids, or attribute selectors — not even as a
   fallback. An element no semantic locator can reach IS a `PRECONDITION_NOT_FOUND` (and may
   mean the bug isn't faithfully automatable — set low confidence).

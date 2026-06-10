@@ -1,0 +1,14 @@
+@import "~scss/variables";
+
+.sw-cms-el-preview-product-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    &__heading {
+        margin: 0;
+        font-size: $font-size-s;
+        font-weight: $font-weight-semi-bold;
+    }
+}

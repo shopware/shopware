@@ -267,22 +267,26 @@ jobs:
             below 0.4 is NOT executed (a human is asked to confirm the draft first), so the
             reason is what they act on. For a playwright
             layer, write the spec straight FROM THE ISSUE'S STEPS using VERSION-STABLE,
-            semantic locators — getByRole(role, {name}) / getByText / getByPlaceholder with
-            case-insensitive regex and user-visible/accessible names. For form inputs (login,
-            search) prefer getByRole('textbox'|'combobox', {name}) or getByPlaceholder; do NOT
-            use getByLabel for inputs — Shopware's custom admin/storefront fields have no
-            associated <label>, so getByLabel silently matches nothing (a real bug we hit: a
-            "Username" field is reachable as getByRole('textbox', {name:/username/i}), not
-            getByLabel). NEVER use CSS classes, data-test ids, or attribute selectors — not
-            even as a fallback; an element no semantic locator can reach IS a
-            PRECONDITION_NOT_FOUND. The admin SPA is slow to bootstrap (especially on a mobile
-            viewport) — wait robustly (locator.waitFor visible) for the login field and the
-            dashboard, don't use an instant isVisible() right after goto. The SAME spec runs on
-            BOTH the reported and trunk versions, so it must tolerate UI drift. Structure it in
-            two parts: (1) NAVIGATION/PRECONDITION
-            — reach the state and verify each element the repro depends on EXISTS; if a
-            required element is absent, `throw new Error('PRECONDITION_NOT_FOUND: <what>')`
-            (or test.skip) so a changed-UI version is reported inconclusive, NOT as a false
+            semantic locators — getByRole(role, {name}) / getByLabel / getByText /
+            getByPlaceholder with case-insensitive regex and user-visible/accessible names.
+            For form inputs, getByRole('textbox'|'combobox', {name}) AND getByLabel both work
+            (getByLabel resolves aria-label / aria-labelledby / associated <label>, all of
+            which Shopware's mt-* fields expose as the accessible name). NEVER use CSS classes,
+            data-test ids, or attribute selectors — not even as a fallback; an element no
+            semantic locator can reach IS a PRECONDITION_NOT_FOUND.
+            CRITICAL — gate EVERY precondition on a WAITING check: `await
+            expect(locator).toBeVisible({timeout})` or `locator.waitFor({state:'visible',
+            timeout})`, then treat the timeout as PRECONDITION_NOT_FOUND. NEVER use
+            `isVisible()`/`isHidden()` to decide a precondition — they return the element's
+            CURRENT state immediately and IGNORE any timeout option, so right after
+            `page.goto('/admin')` (the admin SPA is still bootstrapping) they return false in
+            milliseconds and throw a FALSE PRECONDITION_NOT_FOUND (this is exactly the #6 miss
+            — the getByLabel locator was correct; the un-waiting isVisible was the bug).
+            The SAME spec runs on BOTH the reported and trunk versions, so it must tolerate UI
+            drift. Structure it in two parts: (1) NAVIGATION/PRECONDITION
+            — reach the state and wait for each element the repro depends on to be visible; if
+            it never appears, `throw new Error('PRECONDITION_NOT_FOUND: <what>')` (or
+            test.skip) so a changed-UI version is reported inconclusive, NOT as a false
             reproduction; (2) exactly ONE symptom assertion of the HEALTHY behaviour via
             expect(). Do NOT read storefront templates/JS to hunt exact selectors; emit the
             spec immediately. Treat this as a hard budget: do not exceed ~15 tool calls

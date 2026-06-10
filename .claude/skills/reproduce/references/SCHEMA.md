@@ -90,13 +90,22 @@ Rules:
   reused by both legs (it fails on the buggy version → `reproduced`). Because the SAME
   spec runs on both versions, it must use **version-stable, semantic locators**
   (`getByRole`/`getByLabel`/`getByText` with case-insensitive regex; never CSS/data-test
-  ids) and separate **precondition** from **symptom**: navigation/setup verifies each
-  element it depends on exists and `throw`s `PRECONDITION_NOT_FOUND` (or `test.skip`) if
-  not, then makes exactly one `expect()` symptom assertion. `run-playwright.sh` classifies
-  a failure accordingly: a genuine `expect()` assertion → `reproduced`; a
-  `PRECONDITION_NOT_FOUND`/skip, a navigation/connection error, or a non-assertion
-  locator/timeout failure → `inconclusive` (cross-version UI drift, never a bogus
-  `reproduced`).
+  ids) and separate **precondition** from **symptom**:
+  - **Precondition** — `await locator.waitFor({state:'visible',timeout}).catch(() => { throw
+    new Error('PRECONDITION_NOT_FOUND: …') })`. NEVER `isVisible()`/`isHidden()` (they don't
+    wait — they return current state and ignore the timeout) and NEVER `expect()` for a
+    precondition (a timed-out `expect` is misread as the symptom → false `reproduced`). Don't
+    wait via `networkidle` (the admin SPA never settles) or `waitForURL()` on an already-true
+    pattern — wait for a concrete element.
+  - **Symptom** — exactly one `await expect(...)`. For a hidden/closed/off-canvas symptom use
+    `not.toBeInViewport()` or `toHaveAttribute('aria-hidden','true')`, NOT `not.toBeVisible()`
+    (a transform/translate-off-screen element is still "visible" to Playwright, so it fails on
+    BOTH versions and fakes a reproduction).
+
+  `run-playwright.sh` classifies a failure accordingly: a genuine `expect()` assertion →
+  `reproduced`; a `PRECONDITION_NOT_FOUND`/skip, a navigation/connection error, or a
+  non-assertion locator/timeout failure → `inconclusive` (cross-version UI drift, never a
+  bogus `reproduced`).
 - `script_path` is also required for the `direct` executor — a generated PHPUnit
   integration test (`ReproTest.php`, namespace `Shopware\Tests\Integration\Repro`,
   `extends TestCase` with `IntegrationTestBehaviour`). `run-direct.sh` drops it under the

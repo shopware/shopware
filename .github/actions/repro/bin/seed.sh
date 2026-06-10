@@ -24,6 +24,15 @@ if [ ! -f "$PAYLOAD" ]; then
   exit 0
 fi
 
+# The sync API requires an OPERATION envelope per key: {entity, action, payload:[...]}.
+# Agents sometimes emit the bare shape {"product": [ {...} ]} instead (a real 400 we hit:
+# FRAMEWORK__INVALID_SYNC_OPERATION). Auto-wrap bare entity→array keys into upserts.
+WRAPPED=$(mktemp)
+jq 'with_entries(if (.value|type) == "array"
+      then .value = {entity: .key, action: "upsert", payload: .value}
+      else . end)' "$PAYLOAD" > "$WRAPPED" || { echo "::error::fixtures payload is not valid JSON"; exit 1; }
+PAYLOAD="$WRAPPED"
+
 # 1. Admin token via the first-party password grant (works on a default install).
 TOKEN=$(curl -sS --max-time 30 -X POST "$BASE/api/oauth/token" \
   -H 'Content-Type: application/json' \

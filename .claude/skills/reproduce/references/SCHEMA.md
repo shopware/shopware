@@ -71,6 +71,19 @@ Rules:
 - `fixtures.sync_payload_path` seeds exactly the entities the bug needs via the admin
   sync API with `demodata: false`. Entity and field names come from the DAL schema,
   never from probing the API.
+- The sync payload is a map of **sync OPERATIONS** — each key carries an
+  `{entity, action, payload}` envelope, NOT a bare entity→array (the API rejects that
+  with `FRAMEWORK__INVALID_SYNC_OPERATION`):
+
+  ```json
+  {
+      "product": {
+          "entity": "product",
+          "action": "upsert",
+          "payload": [{ "id": "0192f3c4a5b67890abcdef0123456789", "name": "Repro Product", "...": "..." }]
+      }
+  }
+  ```
 - `fixtures.sync_payload` entity ids MUST be 32-char lowercase-hex Shopware UUIDs
   (e.g. `0192f3c4a5b67890abcdef0123456789`) — the admin sync API rejects non-UUID
   strings (`FRAMEWORK__WRITE_CONSTRAINT_VIOLATION`). Use `{{SC}}/{{NAV_CAT}}/{{TAX}}/

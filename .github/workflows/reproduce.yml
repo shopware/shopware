@@ -389,7 +389,10 @@ jobs:
   # --------------------------------------------------------------------------
   reproduce:
     needs: [gate, analyze]
-    if: needs.gate.outputs.run == 'true'
+    # Skip cleanly (don't fail the run) when there are no targets — analyze emitted an
+    # empty matrix for needs_info or a < 0.4 low-confidence bail-out. An empty fromJSON('[]')
+    # matrix would otherwise error on expansion and turn a correct no-op run red.
+    if: needs.gate.outputs.run == 'true' && needs.analyze.outputs.targets != '[]' && needs.analyze.outputs.targets != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # No explicit name: the matrix is a list of version strings, so GitHub's default

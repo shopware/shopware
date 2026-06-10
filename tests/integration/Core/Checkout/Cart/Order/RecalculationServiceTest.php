@@ -36,6 +36,7 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -200,7 +201,14 @@ class RecalculationServiceTest extends TestCase
 
         // recalculation must complete without throwing
         $versionContext = $this->context->createWithVersionId($versionId);
-        static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+        $errors = static::getContainer()->get(RecalculationService::class)->recalculate($orderId, $versionContext);
+
+        // dropping the discount must be surfaced as a warning instead of happening silently
+        $unknownConditionErrors = $errors->filterInstance(PromotionDiscountUnknownConditionError::class);
+        static::assertCount(1, $unknownConditionErrors);
+        $unknownConditionError = $unknownConditionErrors->first();
+        static::assertInstanceOf(PromotionDiscountUnknownConditionError::class, $unknownConditionError);
+        static::assertSame('unknownPluginRule', $unknownConditionError->getOriginalConditionName());
 
         // order is still intact: products survive, and the now-unmatchable discount is dropped (fail-closed)
         $order = $this->orderRepository->search(

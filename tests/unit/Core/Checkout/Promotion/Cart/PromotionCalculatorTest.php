@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
@@ -113,6 +115,18 @@ class PromotionCalculatorTest extends TestCase
 
             static::assertCount(0, $calculated->getErrors());
         }
+    }
+
+    public function testZeroValueDiscountWithNonFilterablePriceDefinitionStaysSilent(): void
+    {
+        // a QuantityPriceDefinition cannot carry a filter, so there is no condition to inspect
+        $discountItem = $this->createDiscountItem(null);
+        $discountItem->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()));
+        $calculated = new Cart('calculated');
+
+        $this->promotionCalculator->calculate(new LineItemCollection([$discountItem]), new Cart('original'), $calculated, $this->context, new CartBehavior());
+
+        static::assertCount(0, $calculated->getErrors());
     }
 
     private function createDiscountItem(?Rule $filter): LineItem

@@ -129,17 +129,6 @@ export default {
             );
         },
 
-        descriptionTeaserPreview() {
-            const description =
-                this.product?.description ??
-                this.product?.translated?.description ??
-                this.getInheritValue('translated', 'description') ??
-                '';
-
-            // Mirrors the descriptionTeaser write logic: strip HTML, then truncate to 512 characters.
-            return Shopware.Filter.getByName('truncate')(description, 512, true, '');
-        },
-
         numberRangeCriteria() {
             const criteria = new Criteria(1, 25);
 

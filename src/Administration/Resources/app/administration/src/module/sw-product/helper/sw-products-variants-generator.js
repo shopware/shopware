@@ -80,6 +80,31 @@ export default class VariantsGenerator extends EventEmitter {
         );
     }
 
+    saveVariantRestrictions(variantRestrictions = this.product?.variantRestrictions) {
+        if (!this.product?.id || variantRestrictions === undefined) {
+            return Promise.resolve();
+        }
+
+        const payload = [
+            {
+                id: this.product.id,
+                variantRestrictions: variantRestrictions === null ? null : deepCopyObject(variantRestrictions),
+            },
+        ];
+
+        return this.syncService.sync(
+            [
+                {
+                    entity: 'product',
+                    action: 'upsert',
+                    payload,
+                },
+            ],
+            {},
+            { 'single-operation': 1 },
+        );
+    }
+
     /**
      * Saves the variants to the database via sync api.
      */
@@ -219,6 +244,10 @@ export default class VariantsGenerator extends EventEmitter {
 
             // Check if the new variation exists on the server.
             newVariationsSorted.forEach((variation) => {
+                if (this.isVariationRestricted(variation)) {
+                    return;
+                }
+
                 const hash = md5(JSON.stringify(variation));
                 const exist = hashed[hash];
 
@@ -237,6 +266,10 @@ export default class VariantsGenerator extends EventEmitter {
 
             // Check if the new variation exists on the server.
             newVariationsSorted.forEach((variation) => {
+                if (this.isVariationRestricted(variation)) {
+                    return;
+                }
+
                 const hash = md5(JSON.stringify(variation));
                 const exist = hashed[hash];
 
@@ -366,12 +399,12 @@ export default class VariantsGenerator extends EventEmitter {
         return { number, increment };
     }
 
-    filterRestrictions(createQueue) {
+    getValidRestrictions() {
         if (!Array.isArray(this.product.variantRestrictions)) {
-            return createQueue;
+            return [];
         }
 
-        const validRestrictions = this.product.variantRestrictions.filter((restriction) => {
+        return this.product.variantRestrictions.filter((restriction) => {
             return (
                 restriction &&
                 Array.isArray(restriction.values) &&
@@ -379,17 +412,32 @@ export default class VariantsGenerator extends EventEmitter {
                 restriction.values.every((value) => Array.isArray(value.options) && value.options.length > 0)
             );
         });
+    }
+
+    isVariationRestricted(variations, validRestrictions = this.getValidRestrictions()) {
+        if (validRestrictions.length === 0) {
+            return false;
+        }
+
+        return validRestrictions.some((restriction) => {
+            return restriction.values.reduce((exists, restrictionValue) => {
+                const restrictionExist = restrictionValue.options.find((optionId) => {
+                    const idOfOption = optionId.optionId ? optionId.optionId : optionId;
+
+                    return variations.indexOf(idOfOption) >= 0;
+                });
+
+                return restrictionExist ? exists : false;
+            }, true);
+        });
+    }
+
+    filterRestrictions(createQueue) {
+        const validRestrictions = this.getValidRestrictions();
 
         if (validRestrictions.length === 0) {
             return createQueue;
         }
-
-        // Filter to get an array with only the restrictions ids with the single option ids
-        const restrictionsOnly = validRestrictions.map((restriction) => {
-            return restriction.values.map((value) => {
-                return value.options;
-            });
-        });
 
         /**
          * Go through the whole createQueue and check for each variation,
@@ -398,17 +446,7 @@ export default class VariantsGenerator extends EventEmitter {
         return createQueue.filter((newVariation) => {
             const variations = newVariation.options.map((variation) => variation.id);
 
-            return restrictionsOnly.reduce((result, restriction) => {
-                const hasRestriction = restriction.reduce((exists, restrictionArray) => {
-                    const restrictionExist = restrictionArray.find((optionId) => {
-                        return variations.indexOf(optionId) >= 0;
-                    });
-
-                    return restrictionExist ? exists : false;
-                }, true);
-
-                return hasRestriction ? false : result;
-            }, true);
+            return !this.isVariationRestricted(variations, validRestrictions);
         });
     }
 

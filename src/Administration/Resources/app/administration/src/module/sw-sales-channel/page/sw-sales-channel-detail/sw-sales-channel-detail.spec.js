@@ -299,6 +299,12 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
                 onClick: expect.any(Function),
             },
             {
+                label: 'sw-sales-channel.detail.tabTheme',
+                name: 'sw.sales.channel.detail.theme',
+                disabled: false,
+                onClick: expect.any(Function),
+            },
+            {
                 label: 'sw-sales-channel.detail.tabAnalytics',
                 name: 'sw.sales.channel.detail.analytics',
                 onClick: expect.any(Function),

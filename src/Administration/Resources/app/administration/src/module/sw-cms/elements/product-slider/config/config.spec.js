@@ -36,6 +36,33 @@ const defaultConfig = {
     productStreamLimit: {
         value: 10,
     },
+    displayMode: {
+        value: 'standard',
+    },
+    elMinWidth: {
+        value: null,
+    },
+    verticalAlign: {
+        value: null,
+    },
+    boxLayout: {
+        value: 'standard',
+    },
+    border: {
+        value: false,
+    },
+    navigationArrows: {
+        value: 'outside',
+    },
+    speed: {
+        value: 300,
+    },
+    rotate: {
+        value: false,
+    },
+    autoplayTimeout: {
+        value: 5000,
+    },
 };
 
 const productStreamMock = {

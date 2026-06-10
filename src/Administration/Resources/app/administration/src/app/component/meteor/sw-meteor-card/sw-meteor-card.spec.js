@@ -302,4 +302,52 @@ describe('src/app/component/meteor/sw-meteor-card', () => {
         expect(content.text()).toBe('Tab 2');
         expect(tabs.props('defaultItem')).toBe('tab2');
     });
+
+    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
+        const wrapper = mount(
+            {
+                template: `
+<sw-meteor-card defaultTab="tab1">
+    <template #tabs="{ activeTab }">
+        <sw-tabs-item
+            name="tab1"
+            title="Tooltip text"
+            :activeTab="activeTab"
+        >
+            Visible tab text
+        </sw-tabs-item>
+    </template>
+</sw-meteor-card>
+            `,
+            },
+            {
+                global: {
+                    stubs: {
+                        'sw-meteor-card': await wrapTestComponent('sw-meteor-card'),
+                        'sw-tabs': await wrapTestComponent('sw-tabs'),
+                        'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                        'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                        'sw-loader': true,
+                        'mt-tabs': createMtTabsStub(),
+                        'sw-extension-component-section': true,
+                        'router-link': true,
+                    },
+                    provide: {
+                        feature: createFeatureMock(true),
+                    },
+                },
+            },
+        );
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'Visible tab text',
+                name: 'tab1',
+            },
+        ]);
+    });
 });

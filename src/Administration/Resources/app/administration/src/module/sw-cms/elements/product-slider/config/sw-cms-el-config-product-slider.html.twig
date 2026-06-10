@@ -8,6 +8,7 @@
             class="sw-cms-el-config-product-slider__tabs"
             :default-item="activeTab"
             :items="tabs"
+            :use-routes-for-extensions="false"
             @new-item-active="activeTab = $event"
         />
         {% endblock %}

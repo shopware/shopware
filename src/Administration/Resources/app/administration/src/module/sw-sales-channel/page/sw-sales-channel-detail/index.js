@@ -124,7 +124,7 @@ export default {
         },
 
         salesChannelDetailTabs() {
-            const createRouteTab = (label, routeName) => {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
                 const route = {
                     name: routeName,
                     params: { id: this.$route.params.id },
@@ -133,6 +133,7 @@ export default {
                 return {
                     label: this.$t(label),
                     name: route.name,
+                    ...additionalProperties,
                     onClick: () => {
                         void this.$router.push(route);
                     },
@@ -154,6 +155,14 @@ export default {
 
             if (this.isHeadless || this.isStorefront) {
                 tabs.push(createRouteTab('sw-sales-channel.detail.tabProducts', 'sw.sales.channel.detail.products'));
+            }
+
+            if (!this.isProductExportChannel) {
+                tabs.push(
+                    createRouteTab('sw-sales-channel.detail.tabTheme', 'sw.sales.channel.detail.theme', {
+                        disabled: this.isLoading,
+                    }),
+                );
             }
 
             if (this.isAgenticCommerce && !this.isLoading) {

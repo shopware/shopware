@@ -21,6 +21,16 @@ const pageTabsSlot = `
 </sw-tabs-item>
 `;
 
+const pageTabsSlotWithTitle = `
+<sw-tabs-item
+    name="tab.one"
+    :route="{ name: 'tab.one' }"
+    title="Tooltip text"
+>
+    Visible tab text
+</sw-tabs-item>
+`;
+
 async function createWrapper(slotsData = {}, { routeName = undefined } = {}) {
     return mount(await wrapTestComponent('sw-meteor-page', { sync: true }), {
         global: {
@@ -276,6 +286,25 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         ]);
 
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
+    });
+
+    it('should prefer the visible tab text over the title attribute for meteor tab labels', async () => {
+        global.activeFeatureFlags = ['v6.8.0.0'];
+
+        const wrapper = await createWrapper({
+            'page-tabs': pageTabsSlotWithTitle,
+        });
+
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items').map(({ label, name }) => ({ label, name }))).toEqual([
+            {
+                label: 'Visible tab text',
+                name: 'tab.one',
+            },
+        ]);
     });
 
     it('should not render the tabs when slot is empty', async () => {

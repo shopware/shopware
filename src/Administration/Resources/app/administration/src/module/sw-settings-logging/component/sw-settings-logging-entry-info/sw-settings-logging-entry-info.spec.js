@@ -10,8 +10,26 @@ const defaultLogEntry = {
     },
 };
 
-async function createWrapper({ featureActive = false, logEntry = defaultLogEntry } = {}) {
-    return mount(await wrapTestComponent('sw-settings-logging-entry-info', { sync: true }), {
+const mailLogEntry = {
+    context: {
+        additionalData: {
+            recipients: {
+                'shopware@example.com': {},
+            },
+            contents: {
+                'text/html': '<strong>HTML mail body</strong>',
+                'text/plain': 'Plain mail body',
+            },
+        },
+    },
+};
+
+async function createWrapper({
+    componentName = 'sw-settings-logging-entry-info',
+    featureActive = false,
+    logEntry = defaultLogEntry,
+} = {}) {
+    return mount(await wrapTestComponent(componentName, { sync: true }), {
         props: {
             logEntry,
         },
@@ -129,5 +147,44 @@ describe('src/module/sw-settings-logging/component/sw-settings-logging-entry-inf
 
         expect(wrapper.vm.activeTab).toBe('inactive');
         expect(wrapper.findComponent({ name: 'mt-textarea' }).exists()).toBe(false);
+    });
+
+    it('should render mail sent meteor tabs and content when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({
+            componentName: 'sw-settings-logging-mail-sent-info',
+            featureActive: true,
+            logEntry: mailLogEntry,
+        });
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-settings-logging.mailInfo.tabHTML',
+                name: 'html',
+            },
+            {
+                label: 'sw-settings-logging.mailInfo.tabPlain',
+                name: 'plain',
+            },
+            {
+                label: 'sw-settings-logging.entryInfo.tabRaw',
+                name: 'raw',
+            },
+        ]);
+        expect(wrapper.text()).toContain('sw-settings-logging.mailInfo.recipientsTitle: shopware@example.com');
+        expect(wrapper.html()).toContain('<strong>HTML mail body</strong>');
+
+        await tabs.vm.$emit('new-item-active', 'plain');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('Plain mail body');
+
+        await tabs.vm.$emit('new-item-active', 'raw');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.getComponent({ name: 'mt-textarea' }).props('modelValue')).toBe(
+            JSON.stringify(mailLogEntry.context, null, 2),
+        );
     });
 });

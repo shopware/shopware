@@ -1,3 +1,4 @@
+import { Fragment } from 'vue';
 import template from './sw-meteor-card.html.twig';
 import './sw-meteor-card.scss';
 
@@ -154,7 +155,8 @@ export default {
 
         createTabItem(item) {
             const props = item.props ?? {};
-            const label = props.title ?? this.getTabItemDefaultSlotText(item) ?? props.name ?? '';
+            const slotText = this.getTabItemDefaultSlotText(item);
+            const label = slotText ?? props.title ?? props.name ?? '';
             const tabItem = {
                 label,
                 name: props.name ?? props.title ?? label,
@@ -227,11 +229,20 @@ export default {
         },
 
         isTabItem(item) {
-            return item.type?.name === 'sw-tabs-item';
+            const props = item.props ?? {};
+
+            return (
+                item.type?.name === 'sw-tabs-item' ||
+                (typeof item.children?.default === 'function' &&
+                    (props.name !== undefined ||
+                        props.route !== undefined ||
+                        props.title !== undefined ||
+                        props.activeTab !== undefined))
+            );
         },
 
         isFragment(item) {
-            return item.type?.toString() === 'Symbol(v-fgt)';
+            return item.type === Fragment || (typeof item.type === 'symbol' && item.type.toString() === 'Symbol(v-fgt)');
         },
     },
 };

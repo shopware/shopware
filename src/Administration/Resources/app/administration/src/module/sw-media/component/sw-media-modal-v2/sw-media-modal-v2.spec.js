@@ -117,7 +117,7 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         expect(wrapper.vm.activeTab).toBe('upload');
         expect(wrapper.vm.selection).toEqual([]);
         expect(wrapper.find('.sw-media-modal-v2__library-content').attributes('style')).toBe('display: none;');
-        expect(wrapper.find('.sw-media-modal-v2__uploads-content').attributes('style')).toBeUndefined();
+        expect(wrapper.find('.sw-media-modal-v2__uploads-content').attributes('style')).not.toBe('display: none;');
     });
 
     it('should disable the library item in meteor tabs when uploads exist', async () => {

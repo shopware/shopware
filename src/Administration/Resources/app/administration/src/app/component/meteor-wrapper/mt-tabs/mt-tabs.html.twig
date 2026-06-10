@@ -2,6 +2,23 @@
 <mt-tabs-original
     v-bind="$attrs"
     ref="mtTabsOriginal"
+    :default-item="defaultItem"
     :items="mergedItems"
+    @new-item-active="onNewItemActive"
 />
+
+<div
+    v-if="$slots.content || activeTabExtension"
+    class="mt-tabs__custom-content"
+>
+    <slot
+        name="content"
+        v-bind="{ active: activeItem }"
+    ></slot>
+
+    <sw-extension-component-section
+        v-if="activeTabExtension"
+        :position-identifier="activeTabExtension.componentSectionId"
+    />
+</div>
 {% endblock %}

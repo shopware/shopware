@@ -247,6 +247,7 @@ describe('sw-theme-manager-detail', () => {
 
     it('should keep default tab first without reordering other tabs', async () => {
         const wrapper = await createWrapper();
+        wrapper.vm.getTabLabel = jest.fn((key) => key);
 
         wrapper.vm.structuredThemeFields = {
             tabs: {

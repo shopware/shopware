@@ -157,7 +157,8 @@ export default Shopware.Component.wrapComponentConfig({
         createTabItem(item: VNode): TabItem {
             const props = (item.props ?? {}) as SwTabsItemProps;
             const routeName = this.getRouteName(props.route);
-            const label = props.title ?? this.getTabItemDefaultSlotText(item) ?? props.name ?? routeName ?? '';
+            const slotText = this.getTabItemDefaultSlotText(item);
+            const label = slotText ?? props.title ?? props.name ?? routeName ?? '';
             const tabItem: TabItem = {
                 label,
                 name: props.name ?? props.title ?? routeName ?? label,
@@ -239,11 +240,19 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isTabItem(item: VNode): boolean {
-            return (item.type as VNodeTypeWithName | undefined)?.name === 'sw-tabs-item';
+            const props = item.props as SwTabsItemProps | null;
+            const children = item.children as VNodeChildrenWithDefaultSlot | undefined;
+
+            return (
+                (item.type as VNodeTypeWithName | undefined)?.name === 'sw-tabs-item' ||
+                (typeof children?.default === 'function' &&
+                    props !== null &&
+                    (props.name !== undefined || props.route !== undefined || props.title !== undefined))
+            );
         },
 
         isFragment(item: VNode): boolean {
-            return item.type === Fragment;
+            return item.type === Fragment || (typeof item.type === 'symbol' && item.type.toString() === 'Symbol(v-fgt)');
         },
 
         initPage(): void {

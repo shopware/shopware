@@ -18,11 +18,27 @@ export default Shopware.Component.wrapComponentConfig({
         'mt-tabs-original': MtTabs,
     },
 
+    emits: [
+        'new-item-active',
+    ],
+
     props: {
         positionIdentifier: {
             type: String,
             required: true,
             default: null,
+        },
+
+        defaultItem: {
+            type: String,
+            required: false,
+            default: '',
+        },
+
+        useRoutesForExtensions: {
+            type: Boolean,
+            required: false,
+            default: true,
         },
 
         items: {
@@ -31,27 +47,61 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    data(): {
+        activeItem: string;
+    } {
+        return {
+            activeItem: this.defaultItem,
+        };
+    },
+
     computed: {
         tabExtensions(): TabItemEntry[] {
             return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
         },
 
+        activeTabExtension(): TabItemEntry | undefined {
+            return this.tabExtensions.find((extension) => {
+                return extension.componentSectionId === this.activeItem;
+            });
+        },
+
         mergedItems(): TabItem[] {
             const mergedItems: TabItem[] = [
                 ...this.items,
-                ...this.tabExtensions.map((extension) => ({
-                    label: this.$t(extension.label) ?? '',
-                    name: extension.componentSectionId,
-                    onClick: () => {
-                        // Push route to extension.componentSectionId path
-                        void this.$router.push({
-                            path: extension.componentSectionId,
-                        });
-                    },
-                })),
+                ...this.tabExtensions.map((extension) => {
+                    const tabItem: TabItem = {
+                        label: this.$t(extension.label) ?? '',
+                        name: extension.componentSectionId,
+                    };
+
+                    if (this.useRoutesForExtensions && !this.$slots.content) {
+                        tabItem.onClick = () => {
+                            // Push route to extension.componentSectionId path
+                            void this.$router.push({
+                                path: extension.componentSectionId,
+                            });
+                        };
+                    }
+
+                    return tabItem;
+                }),
             ];
 
             return mergedItems;
+        },
+    },
+
+    watch: {
+        defaultItem() {
+            this.activeItem = this.defaultItem;
+        },
+    },
+
+    methods: {
+        onNewItemActive(itemName: string): void {
+            this.activeItem = itemName;
+            this.$emit('new-item-active', itemName);
         },
     },
 });

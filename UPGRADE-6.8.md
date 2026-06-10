@@ -1541,6 +1541,12 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
+
+## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
+
+The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
+
+Use `Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION` instead.
 </details>
 
 # App System

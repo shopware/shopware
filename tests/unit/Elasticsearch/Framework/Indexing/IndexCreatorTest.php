@@ -323,14 +323,14 @@ class IndexCreatorTest extends TestCase
                 $analyzers = $payload['body']['settings']['analysis']['analyzer'];
 
                 // Non-German chains had `['sw_unit_glue']`; dimension is prepended.
-                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_whitespace_word_delimiter_index_analyzer']['char_filter']);
-                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_whitespace_word_delimiter_search_analyzer']['char_filter']);
-                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_english_word_delimiter_index_analyzer']['char_filter']);
-                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_english_word_delimiter_search_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_whitespace_technical_term_index_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_whitespace_technical_term_search_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_english_technical_term_index_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_unit_glue'], $analyzers['sw_english_technical_term_search_analyzer']['char_filter']);
 
                 // German chains had `['sw_decimal_normalize', 'sw_unit_glue']`; dimension is prepended, decimal + unit_glue preserved.
-                static::assertSame(['sw_dimension_normalize', 'sw_decimal_normalize', 'sw_unit_glue'], $analyzers['sw_german_word_delimiter_index_analyzer']['char_filter']);
-                static::assertSame(['sw_dimension_normalize', 'sw_decimal_normalize', 'sw_unit_glue'], $analyzers['sw_german_word_delimiter_search_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_decimal_normalize', 'sw_unit_glue'], $analyzers['sw_german_technical_term_index_analyzer']['char_filter']);
+                static::assertSame(['sw_dimension_normalize', 'sw_decimal_normalize', 'sw_unit_glue'], $analyzers['sw_german_technical_term_search_analyzer']['char_filter']);
 
                 // Non-technical analyzers are untouched.
                 static::assertArrayNotHasKey('char_filter', $analyzers['sw_whitespace_analyzer']);
@@ -362,7 +362,7 @@ class IndexCreatorTest extends TestCase
             ->willReturnCallback(static function (array $payload): void {
                 static::assertSame(
                     ['sw_dimension_normalize', 'sw_unit_glue'],
-                    $payload['body']['settings']['analysis']['analyzer']['sw_english_word_delimiter_index_analyzer']['char_filter'],
+                    $payload['body']['settings']['analysis']['analyzer']['sw_english_technical_term_index_analyzer']['char_filter'],
                     'sw_dimension_normalize must not be appended twice when already present.',
                 );
             });
@@ -370,7 +370,7 @@ class IndexCreatorTest extends TestCase
         $client->method('indices')->willReturn($indices);
 
         $analysis = self::technicalTermAnalysisFixture();
-        $analysis['analyzer']['sw_english_word_delimiter_index_analyzer']['char_filter'] = ['sw_dimension_normalize', 'sw_unit_glue'];
+        $analysis['analyzer']['sw_english_technical_term_index_analyzer']['char_filter'] = ['sw_dimension_normalize', 'sw_unit_glue'];
 
         $helper = $this->createMock(ElasticsearchHelper::class);
         $index = new IndexCreator(
@@ -477,12 +477,12 @@ class IndexCreatorTest extends TestCase
             'analyzer' => [
                 'sw_whitespace_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'filter' => ['lowercase']],
                 'sw_ngram_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'filter' => ['lowercase', 'sw_ngram_filter']],
-                'sw_whitespace_word_delimiter_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
-                'sw_whitespace_word_delimiter_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
-                'sw_english_word_delimiter_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
-                'sw_english_word_delimiter_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
-                'sw_german_word_delimiter_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
-                'sw_german_word_delimiter_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_whitespace_technical_term_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_whitespace_technical_term_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_english_technical_term_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_english_technical_term_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_german_technical_term_index_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
+                'sw_german_technical_term_search_analyzer' => ['type' => 'custom', 'tokenizer' => 'whitespace', 'char_filter' => ['sw_decimal_normalize', 'sw_unit_glue'], 'filter' => ['sw_word_delimiter_filter']],
             ],
         ];
     }

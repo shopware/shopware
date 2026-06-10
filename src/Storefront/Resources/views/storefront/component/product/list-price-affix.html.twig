@@ -1,0 +1,14 @@
+{% block component_list_price_affix %}
+    {% set position = position ?? 'before' %}
+    {% set listPriceAffixSnippetKey = (config('core.listing.' ~ position ~ 'ListPriceSnippetKey') ?? '')|trim %}
+    {% set listPriceAffixContent = listPriceAffixSnippetKey ? listPriceAffixSnippetKey|trans|trim : '' %}
+
+    {% block component_list_price_affix_config %}
+        {# Missing snippets translate to their own key, which must not be rendered. #}
+        {% if listPriceAffixContent and (listPriceAffixContent != listPriceAffixSnippetKey) %}
+            <span class="list-price-affix list-price-affix-{{ position }}">{{ listPriceAffixContent|sw_sanitize }}</span>
+        {% endif %}
+    {% endblock %}
+
+    {% block component_list_price_affix_content %}{% endblock %}
+{% endblock %}

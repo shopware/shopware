@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
 /**
@@ -103,6 +104,38 @@ class TwigSwIncludeTest extends TestCase
         $template = $twig->loadTemplate($twig->getTemplateClass('storefront/frontend/dynamic_include.html.twig'), 'storefront/frontend/dynamic_include.html.twig');
         static::assertSame('a', $template->render(['child' => 'a']));
         static::assertSame('b', $template->render(['child' => 'b']));
+    }
+
+    public function testDynamicIncludeThrowsWhenTemplateMissingWithoutIgnoreMissing(): void
+    {
+        $twig = $this->initTwig([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+        ]);
+
+        $template = $twig->loadTemplate($twig->getTemplateClass('storefront/frontend/dynamic_include.html.twig'), 'storefront/frontend/dynamic_include.html.twig');
+
+        // The dynamic name resolves through TemplateFinder at render time; an unresolvable
+        // name surfaces as a raw Twig LoaderError (no "ignore missing" to swallow it).
+        $this->expectExceptionObject(new LoaderError(
+            'Unable to load template "storefront/frontend/dynamic_include_missing.html.twig". (Looked into: Storefront)'
+        ));
+
+        $template->render(['child' => 'missing']);
+    }
+
+    public function testDynamicIncludeWithIgnoreMissingSkipsUnresolvableTemplate(): void
+    {
+        $twig = $this->initTwig([
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+        ]);
+
+        $template = $twig->loadTemplate($twig->getTemplateClass('storefront/frontend/dynamic_include_ignore_missing.html.twig'), 'storefront/frontend/dynamic_include_ignore_missing.html.twig');
+
+        // Same dynamic resolution path, but "ignore missing" lets the stock IncludeNode
+        // swallow the LoaderError and continue rendering the surrounding content.
+        static::assertSame('done', $template->render(['child' => 'missing']));
+        // A resolvable name is still included as normal.
+        static::assertSame('adone', $template->render(['child' => 'a']));
     }
 
     public function testDynamicIncludeExtended(): void

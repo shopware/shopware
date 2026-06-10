@@ -9,7 +9,7 @@
              role="status"
              aria-live="polite"
              data-alert-aria="true"
-             data-alert-aria-options='{{ alertAriaJsOptions|json_encode }}'>
+             data-alert-aria-options="{{ alertAriaJsOptions|json_encode }}">
             <div class="cart-live-update-content">
                 {{ 'checkout.cartScreenReaderUpdate'|trans({
                     '%count%': page.cart.lineItems|length,

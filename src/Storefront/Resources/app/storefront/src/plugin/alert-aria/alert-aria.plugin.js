@@ -10,6 +10,16 @@ import Plugin from 'src/plugin-system/plugin.class';
 *     announceOnLoad: true
 * } %}
 *
+* Manual usage with custom markup:
+* @example
+* <div aria-live="polite"
+*      data-alert-aria="true"
+*      data-alert-aria-options="{{ { contentSelector: '.live-update-content' }|json_encode }}">
+*      <div class="live-update-content">
+*          {# ... content that should be announced ... #}
+*      </div>
+* </div>
+*
 * @internal
 */
 export default class AlertAriaPlugin extends Plugin {

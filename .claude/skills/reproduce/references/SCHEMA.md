@@ -116,11 +116,17 @@ Rules:
   `reproduced` when `actual != expect` (symptom present) and `not_reproduced` when
   `actual == expect` (healthy). This matches running the fix PR's regression test:
   it fails on the buggy version and passes on the fixed one.
-- `confidence` (0..1) is how faithful the plan is believed to be: a plan derived from a
-  linked fix PR's regression test is high (~0.95); one where the repro had to be inferred
-  with no fix PR to anchor on is low. Whenever `confidence < 0.7`, ALSO set
-  `confidence_reason` (one sentence on what makes it uncertain) — it is surfaced to the
-  human instead of a bare number. Two bands gate behaviour:
+- `confidence` (0..1) measures how FAITHFULLY the plan reproduces the reported symptom —
+  **not** whether a fix exists. HIGH when the symptom is deterministically assertable
+  (clear expected-vs-actual, stable endpoint/field/locator) and the environment is
+  reproducible in CI; LOW when it is vague, non-deterministic, environment-dependent
+  (timing/network/hardware/third-party state CI can't reproduce), or the failing layer is
+  unclear. A linked fix PR's regression test is the **preferred source** to derive the
+  assertion from, but its absence is **neutral** — derive from the issue's symptom and stay
+  confident if it is concrete. Never dock confidence merely for "no fix PR": open, unfixed
+  bugs are the pipeline's primary case. Whenever `confidence < 0.7`, ALSO set
+  `confidence_reason` to the faithfulness obstacle (one sentence) — never "no fix PR"; it is
+  surfaced to the human instead of a bare number. Two bands gate behaviour:
   - **`confidence < 0.4`** → the run is **not executed**. The matrix step posts the draft
     scenario + `confidence_reason` and asks a human to confirm before spending provision
     budget (provisioning two installs to test a guess is the wasteful case; below 0.4 there

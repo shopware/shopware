@@ -239,14 +239,24 @@ jobs:
             budget: do the MINIMUM investigation to fill the plan (a few targeted searches,
             NOT a full code tour), then WRITE the output file(s) immediately as your top
             priority. If still uncertain after a handful of tool calls, emit a best-effort
-            plan with a lower `confidence` rather than exploring further. `confidence` is how
-            faithful you believe the plan is (0..1); a plan derived from a linked fix PR's
-            regression test is high (~0.95), one where you had to infer the repro steps with
-            NO fix PR to anchor on is low. Whenever `confidence` < 0.7 you MUST also set
-            `confidence_reason` to one short sentence saying what makes it uncertain (e.g.
-            "no linked fix PR; repro steps inferred from the issue body") — a run below 0.4 is
-            NOT executed (a human is asked to confirm the draft first), so the reason is what
-            they act on. For a playwright
+            plan with a lower `confidence` rather than exploring further. `confidence` (0..1)
+            measures how FAITHFULLY the plan reproduces the reported symptom — NOT whether a
+            fix exists. It is HIGH when the symptom can be asserted deterministically (clear
+            expected-vs-actual, a stable endpoint/field/locator) AND the environment is
+            faithfully reproducible in CI. It is LOW when the symptom is vague or
+            non-deterministic, depends on environment CI can't reproduce (specific
+            timing/network/hardware/third-party state), or the failing layer is unclear.
+            A linked fix PR's regression test is the PREFERRED SOURCE to derive the assertion
+            from (derive, don't discover) and makes a confident plan easy — but its ABSENCE is
+            NEUTRAL: derive the assertion from the issue's described symptom and stay confident
+            if that symptom is concrete and reproducible. Do NOT lower confidence merely
+            because there is no fix PR — open, unfixed, clearly-described bugs are exactly what
+            this pipeline should reproduce. Whenever `confidence` < 0.7 you MUST also set
+            `confidence_reason` to the FAITHFULNESS obstacle in one short sentence (e.g.
+            "symptom is timing/environment-dependent and may not reproduce in CI" or "symptom
+            under-specified: no concrete expected value to assert") — never "no fix PR". A run
+            below 0.4 is NOT executed (a human is asked to confirm the draft first), so the
+            reason is what they act on. For a playwright
             layer, write the spec straight FROM THE ISSUE'S STEPS using VERSION-STABLE,
             semantic locators (getByRole / getByLabel / getByText with case-insensitive
             regex, ARIA roles, user-visible text) — NEVER CSS classes, data-test ids, or DOM

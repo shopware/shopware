@@ -76,6 +76,28 @@ For cache efficiency, clients should consistently either omit `sw-language-id` a
 
 ## Core
 
+### Deprecation of `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` config options
+
+The `shopware.cache.cache_compression` and `shopware.cache.cache_compression_method` configuration options are deprecated and will be removed in v6.8.0.0. Please use the new `shopware.cache.compress` and `shopware.cache.compression_method` options instead.
+
+#### Before
+
+```yaml
+shopware:
+    cache:
+        cache_compression: true
+        cache_compression_method: 'gzip'
+```
+
+#### After
+
+```yaml
+shopware:
+    cache:
+        compress: true
+        compression_method: 'gzip'
+```
+
 ### Stored mail template type data deprecated
 
 The persisted `mail_template_type.template_data` column is deprecated and will be removed in Shopware 6.8.

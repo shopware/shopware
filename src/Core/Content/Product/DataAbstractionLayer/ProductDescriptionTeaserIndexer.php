@@ -14,11 +14,12 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reconciles `description_teaser` with `description` for recovery: a full run (e.g.
- * `dal:refresh:index`) recomputes every teaser via {@see ProductDescriptionTeaserBuilder} and only
- * writes rows whose teaser actually differs. Live writes are handled synchronously by
- * {@see ProductDescriptionTeaserSubscriber}, so this
- * indexer intentionally does nothing on the write path.
+ * Reconciles `description_teaser` with `description`: a full run recomputes every teaser via
+ * {@see ProductDescriptionTeaserBuilder} and only writes rows whose teaser actually differs.
+ * Scheduled by Migration1780645634AddProductDescriptionTeaser to backfill existing products
+ * asynchronously; also usable for recovery via `dal:refresh:index`. Live writes are handled
+ * synchronously by {@see ProductDescriptionTeaserSubscriber}, so this indexer intentionally does
+ * nothing on the write path.
  *
  * @internal
  */

@@ -11,8 +11,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Derives the read-only `descriptionTeaser` from the `description` on write via the shared
  * {@see ProductDescriptionTeaserBuilder}, keeping the teaser cheap to load in listings without
- * stripping HTML on every read. Existing products are backfilled with the same builder in the
- * migration that adds the column.
+ * stripping HTML on every read. Existing products are backfilled asynchronously by the
+ * `product.description_teaser.indexer` scheduled in the migration that adds the column.
  *
  * @internal
  */

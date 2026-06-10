@@ -59,7 +59,9 @@ expensive paths.
 
 ## Reference files
 
-- `references/SCHEMA.md` — the three JSON contracts and their rules.
+- `references/SCHEMA.md` — the three JSON contracts and the universal rules.
+- `references/executors/{http,playwright,direct}.md` — the per-executor authoring
+  contract. After choosing the `layer`, read ONLY the file for its executor.
 
 ## Output format
 

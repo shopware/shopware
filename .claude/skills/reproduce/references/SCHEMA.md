@@ -75,47 +75,19 @@ Rules:
   (e.g. `0192f3c4a5b67890abcdef0123456789`) — the admin sync API rejects non-UUID
   strings (`FRAMEWORK__WRITE_CONSTRAINT_VIOLATION`). Use `{{SC}}/{{NAV_CAT}}/{{TAX}}/
   {{CURRENCY}}` placeholders for install-specific ids; `seed.sh` resolves them.
-- `request` (single object) OR `requests` (array, for a multi-step flow) is required for
-  the `http` executor; the assertion runs on the FINAL response. The executor injects
-  `sw-access-key` and captures/carries `sw-context-token` across the sequence — do NOT put
-  those in the plan. Reference install-specific ids via placeholders the executor resolves
-  against the shop: `{{SC}} {{NAV_CAT}} {{COUNTRY}} {{SALUTATION}} {{SALUTATION2}} {{TAX}}
-  {{CURRENCY}} {{LANGUAGE}} {{STOREFRONT_URL}}` (also valid in `assertion.expect`). Entities
-  you create yourself go in `fixtures.json` with known hex UUIDs. A non-2xx non-final
-  request → `blocked`; a missing field on a non-2xx final response → `inconclusive` (never
-  a bogus `reproduced`). `assertion.field` is a jq path used only by `response_field`;
+- **Executor authoring contracts live in [`references/executors/`](executors/)** — once you
+  pick the layer, read the ONE file for its executor and follow it:
+  - [`executors/http.md`](executors/http.md) — `request`/`requests` (assertion on the FINAL
+    response), sw-context handling, install-id placeholders, false-positive guard. No
+    separate script file — the executor generates `repro.sh` from the plan.
+  - [`executors/playwright.md`](executors/playwright.md) — `repro.spec.ts`: version-stable
+    semantic locators, precondition-vs-symptom structure, the `waitFor` (not `isVisible`/
+    `expect`) and `toBeInViewport` (not `toBeVisible`) rules.
+  - [`executors/direct.md`](executors/direct.md) — `ReproTest.php`: a PHPUnit integration
+    test reusing the fix PR's setup; PHPUnit summary → status mapping.
+- `script_path` names the generated script (`repro.spec.ts` for playwright, `ReproTest.php`
+  for direct; omit for http). `assertion.field` is a jq path used only by `response_field`;
   `assertion.locator` is a human reference to the endpoint/UI element.
-- `script_path` is required for the `playwright` executor — the generated spec
-  (`repro.spec.ts`) that asserts the HEALTHY behaviour, generated ONCE by Analyze and
-  reused by both legs (it fails on the buggy version → `reproduced`). Because the SAME
-  spec runs on both versions, it must use **version-stable, semantic locators**
-  (`getByRole`/`getByLabel`/`getByText` with case-insensitive regex; never CSS/data-test
-  ids) and separate **precondition** from **symptom**:
-  - **Precondition** — `await locator.waitFor({state:'visible',timeout}).catch(() => { throw
-    new Error('PRECONDITION_NOT_FOUND: …') })`. NEVER `isVisible()`/`isHidden()` (they don't
-    wait — they return current state and ignore the timeout) and NEVER `expect()` for a
-    precondition (a timed-out `expect` is misread as the symptom → false `reproduced`). Don't
-    wait via `networkidle` (the admin SPA never settles) or `waitForURL()` on an already-true
-    pattern — wait for a concrete element.
-  - **Symptom** — exactly one `await expect(...)`. For a hidden/closed/off-canvas symptom use
-    `not.toBeInViewport()` or `toHaveAttribute('aria-hidden','true')`, NOT `not.toBeVisible()`
-    (a transform/translate-off-screen element is still "visible" to Playwright, so it fails on
-    BOTH versions and fakes a reproduction).
-
-  `run-playwright.sh` classifies a failure accordingly: a genuine `expect()` assertion →
-  `reproduced`; a `PRECONDITION_NOT_FOUND`/skip, a navigation/connection error, or a
-  non-assertion locator/timeout failure → `inconclusive` (cross-version UI drift, never a
-  bogus `reproduced`).
-- `script_path` is also required for the `direct` executor — a generated PHPUnit
-  integration test (`ReproTest.php`, namespace `Shopware\Tests\Integration\Repro`,
-  `extends TestCase` with `IntegrationTestBehaviour`). `run-direct.sh` drops it under the
-  shop's `tests/integration/Repro/` (PSR-4 autoload) and runs `vendor/bin/phpunit`. The
-  test asserts the HEALTHY behaviour, so the summary maps: `OK` → `not_reproduced`,
-  `FAILURES!` → `reproduced`, `ERRORS!`/fatal/no-tests → `inconclusive` (the test could not
-  bootstrap — usually a cross-version API mismatch on the reported leg, never a bogus pass),
-  anything else → `blocked`. Use the `direct` layer only when neither `http` nor
-  `playwright` can fire the bug faithfully (license-gated, internal service, heavy domain
-  setup); reuse the fix PR's regression-test setup rather than reinventing it.
 - `scenario` is a plain-English, numbered Given/When/Then list of the repro steps,
   rendered in the comment above the script so a human reads the intent first. The
   generated script (curl or spec) must comment every step (what it does + asserts).

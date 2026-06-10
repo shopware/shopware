@@ -265,65 +265,22 @@ jobs:
             "symptom is timing/environment-dependent and may not reproduce in CI" or "symptom
             under-specified: no concrete expected value to assert") — never "no fix PR". A run
             below 0.4 is NOT executed (a human is asked to confirm the draft first), so the
-            reason is what they act on. For a playwright
-            layer, write the spec straight FROM THE ISSUE'S STEPS using VERSION-STABLE
-            semantic locators — getByRole(role,{name}) / getByLabel / getByText /
-            getByPlaceholder with case-insensitive regex and accessible/visible names
-            (getByRole and getByLabel both resolve aria-label/aria-labelledby/<label>, which
-            Shopware's mt-* fields expose). Scope locators inside the relevant landmark and use
-            SPECIFIC names to avoid strict-mode ambiguity (e.g.
-            getByRole('navigation').getByRole('link',{name:/^Products$/i}), NOT a broad regex
-            with .first()). NEVER use CSS classes, data-test ids, or attribute selectors, even
-            as a fallback; an element no semantic locator can reach IS a PRECONDITION_NOT_FOUND.
-            The SAME spec runs on BOTH the reported and trunk versions, so it must tolerate UI
-            drift. Structure it in two parts:
-            (1) NAVIGATION/PRECONDITION — reach the state and WAIT for each element the repro
-            depends on: `await locator.waitFor({state:'visible',timeout}).catch(() => { throw
-            new Error('PRECONDITION_NOT_FOUND: <what>') })`. NEVER gate a precondition on
-            isVisible()/isHidden() (they return the CURRENT state immediately and IGNORE the
-            timeout, so right after page.goto they false-negative while the SPA is still
-            loading — the #6 miss) and NEVER on expect()/toBeVisible() (a precondition that
-            times out would be misread as the SYMPTOM => false `reproduced`). Do NOT wait via
-            waitForLoadState('networkidle') (the admin SPA long-polls and never settles) or
-            waitForURL() on a pattern already true before the action — wait for a concrete
-            post-action element instead.
-            (2) exactly ONE SYMPTOM assertion of the HEALTHY behaviour via `await expect(...)` —
-            this is the ONLY failure that may mean `reproduced`, so give it a generous timeout.
-            For a hidden/closed/collapsed/off-canvas symptom use
-            `await expect(locator).not.toBeInViewport()` or assert explicit state
-            (toHaveAttribute('aria-hidden','true')) — NOT not.toBeVisible(): an element moved
-            off-screen via transform/translate is still "visible" to Playwright, so toBeVisible
-            would fail on BOTH versions and FAKE a reproduction. Do NOT read storefront templates/JS to hunt exact selectors; emit the
-            spec immediately. Treat this as a hard budget: do not exceed ~15 tool calls
-            before writing the file(s).
-            Write the analysis.json object (per
-            .claude/skills/reproduce/references/SCHEMA.md) to `analysis.json` in the
-            workspace root. If the repro needs seeded entities, ALSO write the admin
-            sync payload to `fixtures.json` (the path in fixtures.sync_payload_path),
-            using {{SC}}/{{NAV_CAT}}/{{TAX}}/{{CURRENCY}} placeholders for install-specific
-            ids. Every entity id you mint MUST be a 32-char lowercase-hex Shopware UUID
-            (e.g. 0192f3c4a5b67890abcdef0123456789) — never a human-readable string like
-            "repro-1" (the sync API rejects non-UUIDs). For http, use `request` or
-            `requests` (a multi-step array; the executor carries sw-context-token and
-            injects sw-access-key — never add those); reference PRE-EXISTING install ids via
-            {{SC}}/{{COUNTRY}}/{{SALUTATION}}/{{SALUTATION2}}/{{STOREFRONT_URL}} placeholders
-            the executor resolves. For a `playwright` (UI) layer, ALSO generate the test as `repro.spec.ts`
-            (referenced by script_path) — it must assert the HEALTHY behaviour and use
-            relative paths (baseURL is injected). For a `direct`/`service` layer (a bug that
-            can't fire faithfully through store-api or the UI — license-gated, an internal
-            service, or heavy domain setup), ALSO generate a minimal PHPUnit integration test
-            as `ReproTest.php` (referenced by script_path): namespace
-            `Shopware\Tests\Integration\Repro`, class `ReproTest extends TestCase` using
-            `IntegrationTestBehaviour` + `KernelTestBehaviour`, services from
-            `$this->getContainer()`. REUSE the fix PR's regression-test setup where it exists
-            (./fixpr.diff) — do NOT reinvent the bootstrap. The single test method must ASSERT
-            THE HEALTHY (fixed) behaviour so it fails on the buggy version. Prefer STABLE
-            service/DAL APIs so the same test also runs on the reported version; if it can
-            only compile on trunk, that is fine (the reported leg reports `inconclusive`,
-            never a bogus pass). Include `scenario` in analysis.json: a
-            plain-English, numbered Given/When/Then list of the repro steps. Comment EVERY
-            step of the generated script (curl or spec) explaining what it does and what it
-            asserts. Emit only those file(s) — no prose, no markdown fence. Do not comment or label.
+            reason is what they act on.
+            Pick the cheapest faithful `layer` (service < *-api < *-ui; escalate only when a
+            cheaper layer cannot fire the symptom) and its matching `executor`: service →
+            direct, *-api → http, *-ui → playwright. THEN READ
+            `.claude/skills/reproduce/references/executors/<executor>.md` and FOLLOW that
+            file's authoring contract for the script that executor needs (http → `request`/
+            `requests` in analysis.json, no separate file; playwright → `repro.spec.ts`;
+            direct → `ReproTest.php`; set `script_path` accordingly). Write analysis.json (per
+            `.claude/skills/reproduce/references/SCHEMA.md`) to `analysis.json` in the
+            workspace root. If the repro needs seeded entities, ALSO write the admin sync
+            payload to `fixtures.json` (fixtures.sync_payload_path): mint 32-char
+            lowercase-hex UUIDs for entities you create and use {{SC}}/{{NAV_CAT}}/{{TAX}}/
+            {{CURRENCY}} placeholders for install ids (never human-readable ids — the sync API
+            rejects them). Include `scenario`: a plain-English, numbered Given/When/Then list
+            of the repro steps. Comment every step of the generated script. Emit only the
+            file(s) — no prose, no markdown fence. Do not comment or label.
           # Pin Sonnet (bounded task) + cap turns (bounds cost when the agent can't find
           # context, e.g. off-repo). Widen the READ-ONLY allowlist so the agent stops
           # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.

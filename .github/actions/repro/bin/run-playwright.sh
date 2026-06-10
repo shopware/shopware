@@ -42,13 +42,41 @@ if ! jq -e . "$REPORT" >/dev/null 2>&1; then
 else
   EXPECTED=$(jq -r '.stats.expected // 0' "$REPORT")
   UNEXPECTED=$(jq -r '.stats.unexpected // 0' "$REPORT")
+  SKIPPED=$(jq -r '.stats.skipped // 0' "$REPORT")
   REASON="null"
-  if [ "$EXPECTED" = 0 ] && [ "$UNEXPECTED" = 0 ]; then
+  # Every failed/timed-out test's error message — used to classify WHY it failed.
+  ERRS=$(jq -r '[.. | objects | select(.status?=="failed" or .status?=="timedOut") | .error?.message // empty] | join(" || ")' "$REPORT")
+  MSG=$(printf '%s' "$ERRS" | tr -s ' \n' '  ' | head -c 300)
+  if [ "$EXPECTED" = 0 ] && [ "$UNEXPECTED" = 0 ] && [ "$SKIPPED" = 0 ]; then
     STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"no tests ran\""
-    REPORTER="no tests executed"
+    REPORTER="no tests executed"; REASON="\"playwright ran no tests\""
   elif [ "$UNEXPECTED" -gt 0 ]; then
-    STATUS="reproduced"; MATCHED="false"; ACTUAL="\"$UNEXPECTED failing\""
-    REPORTER=$(jq -r '[.. | objects | select(.status?=="failed") | .error?.message // empty] | first // "assertion failed"' "$REPORT" | head -c 300)
+    # A failure is the SYMPTOM (=> reproduced) ONLY when it's a real value assertion on an
+    # element that was found. The SAME spec runs on both versions, so a failure because the
+    # page/control the repro depends on is ABSENT on this version (cross-version UI drift)
+    # must NOT masquerade as the symptom => inconclusive. Precedence: explicit precondition
+    # marker, then navigation/connection failure, then a genuine expect() assertion, else
+    # an unrecognised locator/timeout failure (a drive failure, not a reproduction).
+    if printf '%s' "$ERRS" | grep -q 'PRECONDITION_NOT_FOUND'; then
+      STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"precondition missing on $VERSION\""
+      REPORTER="precondition absent on this version (UI differs) — $MSG"
+      REASON="\"a precondition element the spec depends on is absent on $VERSION (likely cross-version UI drift); the symptom could not be exercised, so this is not a reproduction\""
+    elif printf '%s' "$ERRS" | grep -qiE 'net::ERR|ERR_CONNECTION|page\.goto|waiting for navigation|Navigation to .* failed'; then
+      STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"could not load the page on $VERSION\""
+      REPORTER="navigation/connection failure — $MSG"
+      REASON="\"the spec could not load the target page on $VERSION; the symptom cannot be judged\""
+    elif printf '%s' "$ERRS" | grep -qE 'expect|Expected:|toBe|toHave|toContain|toEqual'; then
+      STATUS="reproduced"; MATCHED="false"; ACTUAL="\"$UNEXPECTED failing\""
+      REPORTER=$([ -n "$MSG" ] && printf '%s' "$MSG" || echo "assertion failed")
+    else
+      STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"$UNEXPECTED failing (non-assertion)\""
+      REPORTER="failure was not a value assertion (likely a missing/changed element) — $MSG"
+      REASON="\"the failure was a locator/timeout error, not an assertion on a found element; cannot confirm the symptom on $VERSION\""
+    fi
+  elif [ "$SKIPPED" -gt 0 ] && [ "$EXPECTED" = 0 ]; then
+    STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"$SKIPPED skipped\""
+    REPORTER="spec skipped (precondition not met on this version)"
+    REASON="\"the spec skipped itself (test.skip): the repro's precondition is not met on $VERSION\""
   else
     STATUS="not_reproduced"; MATCHED="true"; ACTUAL="\"$EXPECTED passing\""
     REPORTER="all $EXPECTED test(s) passed (healthy)"

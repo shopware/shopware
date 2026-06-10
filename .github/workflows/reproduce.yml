@@ -247,11 +247,19 @@ jobs:
             "no linked fix PR; repro steps inferred from the issue body") — a run below 0.4 is
             NOT executed (a human is asked to confirm the draft first), so the reason is what
             they act on. For a playwright
-            layer, write the spec straight FROM THE ISSUE'S STEPS using resilient
-            role/text locators (getByRole / getByText / getByLabel) — do NOT read
-            storefront templates/JS to hunt exact selectors. A simple, imperfect spec is
-            fine (the trace shows what happened); emit it immediately. Treat this as a hard
-            budget: do not exceed ~15 tool calls before writing the file(s).
+            layer, write the spec straight FROM THE ISSUE'S STEPS using VERSION-STABLE,
+            semantic locators (getByRole / getByLabel / getByText with case-insensitive
+            regex, ARIA roles, user-visible text) — NEVER CSS classes, data-test ids, or DOM
+            structure, which churn between versions and would make the reported leg fail for
+            the WRONG reason. The SAME spec runs on BOTH the reported and trunk versions, so
+            it must tolerate UI drift. Structure it in two parts: (1) NAVIGATION/PRECONDITION
+            — reach the state and verify each element the repro depends on EXISTS; if a
+            required element is absent, `throw new Error('PRECONDITION_NOT_FOUND: <what>')`
+            (or test.skip) so a changed-UI version is reported inconclusive, NOT as a false
+            reproduction; (2) exactly ONE symptom assertion of the HEALTHY behaviour via
+            expect(). Do NOT read storefront templates/JS to hunt exact selectors; emit the
+            spec immediately. Treat this as a hard budget: do not exceed ~15 tool calls
+            before writing the file(s).
             Write the analysis.json object (per
             .claude/skills/reproduce/references/SCHEMA.md) to `analysis.json` in the
             workspace root. If the repro needs seeded entities, ALSO write the admin

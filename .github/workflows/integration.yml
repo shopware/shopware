@@ -328,15 +328,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-storefront-
 
-      - name: Install storefront dependencies
-        uses: ./.github/actions/npm-ci-retry
-        with:
-          working-directory: new-shopware
-          command: composer run npm:storefront ci
-
       - name: Build new shopware
         working-directory: new-shopware
+        env:
+          # Survive transient registry resets (ECONNRESET). This job checks out into
+          # new-shopware/, so the ./.github/actions/npm-ci-retry composite isn't on the
+          # workspace root — keep the retry inline here.
+          npm_config_fetch_retries: "5"
+          npm_config_fetch_retry_mintimeout: "20000"
+          npm_config_fetch_retry_maxtimeout: "120000"
+          npm_config_prefer_offline: "true"
         run: |
+          for attempt in 1 2 3; do
+            if composer run npm:storefront ci; then
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "::error::'composer run npm:storefront ci' failed after ${attempt} attempts"
+              exit 1
+            fi
+            echo "::warning::storefront install failed (attempt ${attempt}/3); retrying in $((attempt * 15))s"
+            sleep "$((attempt * 15))"
+          done
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
@@ -385,10 +398,27 @@ jobs:
         run: npm install -g npm@11.8.0
 
       - name: Install dependencies
-        # ~/.npm is already cached earlier in this job, so prefer-offline reuses tarballs.
-        uses: ./.github/actions/npm-ci-retry
-        with:
-          working-directory: new-shopware/tests/acceptance
+        working-directory: new-shopware/tests/acceptance
+        env:
+          # Survive transient registry resets (ECONNRESET); ~/.npm is cached earlier in
+          # this job so prefer-offline reuses tarballs. Inline (not the composite action)
+          # because this job checks out into new-shopware/, off the workspace root.
+          npm_config_fetch_retries: "5"
+          npm_config_fetch_retry_mintimeout: "20000"
+          npm_config_fetch_retry_maxtimeout: "120000"
+          npm_config_prefer_offline: "true"
+        run: |
+          for attempt in 1 2 3; do
+            if npm ci; then
+              break
+            fi
+            if [ "${attempt}" -eq 3 ]; then
+              echo "::error::'npm ci' failed after ${attempt} attempts"
+              exit 1
+            fi
+            echo "::warning::'npm ci' failed (attempt ${attempt}/3); retrying in $((attempt * 15))s"
+            sleep "$((attempt * 15))"
+          done
 
       - name: Refresh Package List
         run: sudo apt-get update --allow-releaseinfo-change

@@ -48,4 +48,24 @@ check "single-leg trunk clean -> not_repro"    not_reproducible "$(verdict null 
 check "inconclusive -> needs_human_review"     needs_human_review "$(verdict inconclusive not_reproduced)"
 check "low-confidence plan -> needs_human"     needs_human_review "$(verdict reproduced reproduced true)"
 
+# --- fix-verify verdict map: drive the REAL bin/verdict.sh (MODE=fix-verify) ---
+# legs: base (fix absent) , head (fix present). Builds a temp artifacts dir and runs the script.
+VS="$(cd "$(dirname "$0")/../../../../.github/actions/repro/bin" && pwd)/verdict.sh"
+fv () { # fv <base_status> <head_status> [conf]
+  local d; d=$(mktemp -d)
+  mkdir -p "$d/repro-base" "$d/repro-head" "$d/analysis"
+  [ "$1" != "-" ] && echo "{\"status\":\"$1\"}" > "$d/repro-base/result.json"
+  [ "$2" != "-" ] && echo "{\"status\":\"$2\"}" > "$d/repro-head/result.json"
+  echo "{\"confidence\":${3:-0.9}}" > "$d/analysis/analysis.json"
+  MODE=fix-verify ART="$d" bash "$VS" 2>/dev/null | grep '^verdict=' | cut -d= -f2
+}
+echo "fix-verify verdict map (real bin/verdict.sh):"
+check "base repro, head clean -> fix_verified"      fix_verified        "$(fv reproduced not_reproduced)"
+check "both reproduced -> fix_ineffective"          fix_ineffective     "$(fv reproduced reproduced)"
+check "both clean -> test_does_not_guard"           test_does_not_guard "$(fv not_reproduced not_reproduced)"
+check "base clean, head repro -> introduces"        introduces_symptom  "$(fv not_reproduced reproduced)"
+check "any blocked -> blocked"                       blocked             "$(fv blocked not_reproduced)"
+check "inconclusive -> needs_human_review"           needs_human_review  "$(fv inconclusive not_reproduced)"
+check "low confidence -> needs_human_review"         needs_human_review  "$(fv reproduced not_reproduced 0.5)"
+
 [ "$fail" = 0 ] && echo "PASS" || { echo "FAILURES"; exit 1; }

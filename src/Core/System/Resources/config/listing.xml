@@ -32,6 +32,15 @@
         </input-field>
 
         <input-field type="bool">
+            <name>partialDataLoading</name>
+            <label>Load reduced product data in listings</label>
+            <label lang="de-DE">Reduzierte Produktdaten in Listings laden</label>
+            <helpText>Product listings only load the data required by the default product boxes, including a shortened description. This reduces database load and memory usage for products with large descriptions. Only enable this if your theme and extensions work with the reduced product data in listings.</helpText>
+            <helpText lang="de-DE">Produktlistings laden nur die Daten, die die Standard-Produktboxen benötigen, inklusive einer gekürzten Beschreibung. Das reduziert Datenbanklast und Speicherverbrauch bei Produkten mit umfangreichen Beschreibungen. Nur aktivieren, wenn Theme und Erweiterungen mit den reduzierten Produktdaten in Listings funktionieren.</helpText>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
             <name>hideCloseoutProductsWhenOutOfStock</name>
             <label>Hide products after clearance</label>
             <label lang="de-DE">Produkte nach Abverkaufende ausblenden</label>

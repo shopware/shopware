@@ -72,6 +72,18 @@
         {% endblock %}
     </sw-container>
 
+    {% block sw_product_basic_form_cover_image_description_hint %}
+    <mt-banner
+        v-if="!hideCoverImageDescriptionHint"
+        class="sw-product-basic-form__cover-image-description-hint"
+        variant="info"
+        closable
+        @close="onCloseCoverImageDescriptionHint"
+    >
+        {{ $t('sw-product.basicForm.hintCoverImageDescription') }}
+    </mt-banner>
+    {% endblock %}
+
     {% block sw_product_basic_form_description_field %}
     <sw-inherit-wrapper
         v-model:value="product.description"
@@ -105,6 +117,16 @@
             />
         </template>
     </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_product_basic_form_description_teaser_preview %}
+    <mt-textarea
+        class="sw-product-basic-form__description-teaser-preview"
+        :model-value="descriptionTeaserPreview"
+        :label="$t('sw-product.basicForm.labelDescriptionTeaserPreview')"
+        :help-text="$t('sw-product.basicForm.helpTextDescriptionTeaserPreview')"
+        disabled
+    />
     {% endblock %}
 
     <div class="product-basic-form__switches">

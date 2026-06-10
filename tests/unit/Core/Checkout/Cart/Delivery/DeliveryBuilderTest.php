@@ -35,7 +35,7 @@ class DeliveryBuilderTest extends TestCase
 {
     public function testBuildThrowsIfNoShippingMethodCanBeFound(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getShippingMethod')
             ->willReturn(
                 (new ShippingMethodEntity())->assign([
@@ -54,34 +54,44 @@ class DeliveryBuilderTest extends TestCase
 
     public function testBuildDelegatesToBuildByUsingShippingMethod(): void
     {
-        $shippingMethod = (new ShippingMethodEntity())->assign([
-            'id' => 'shipping-method-id',
-        ]);
+        // build() derives the lookup key from the context's shipping method id but resolves the
+        // actual method from the cart data collection, then delegates to buildByUsingShippingMethod().
+        // Use a distinct object in the data collection and assert it is the one that ends up on the
+        // produced delivery, rather than partial-mocking the method under test.
+        $contextShippingMethod = (new ShippingMethodEntity())->assign(['id' => 'shipping-method-id']);
 
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->method('getShippingMethod')
-            ->willReturn($shippingMethod);
+        $resolvedShippingMethod = (new ShippingMethodEntity())->assign(['id' => 'shipping-method-id']);
+        $resolvedShippingMethod->setDeliveryTime(self::createDeliveryTimeEntity(DeliveryTimeEntity::DELIVERY_TIME_DAY, 2, 3));
+
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
+        $salesChannelContext->method('getShippingMethod')->willReturn($contextShippingMethod);
+        $salesChannelContext->method('getShippingLocation')->willReturn(new ShippingLocation(new CountryEntity(), null, null));
 
         $cart = new Cart('cart-token');
+        $cart->setLineItems(new LineItemCollection([
+            (new LineItem('line-item-id', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 1))
+                ->assign([
+                    'deliveryInformation' => self::createDeliveryInformation(null, 0),
+                    'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                    'shippingCostAware' => true,
+                ]),
+        ]));
+
         $cartDataCollection = new CartDataCollection([
-            'shipping-method-shipping-method-id' => $shippingMethod,
+            'shipping-method-shipping-method-id' => $resolvedShippingMethod,
         ]);
 
-        $deliveryBuilder = $this->getMockBuilder(DeliveryBuilder::class)
-            // don't mock build because it is the function under test
-            ->onlyMethods(['buildByUsingShippingMethod'])
-            ->getMock();
-
-        $deliveryBuilder->expects($this->once())
-            ->method('buildByUsingShippingMethod')
-            ->with($cart, $shippingMethod, $salesChannelContext);
-
-        $deliveryBuilder->build(
+        $deliveries = (new DeliveryBuilder())->build(
             $cart,
             $cartDataCollection,
             $salesChannelContext,
             new CartBehavior(),
         );
+
+        static::assertCount(1, $deliveries);
+        $delivery = $deliveries->first();
+        static::assertNotNull($delivery);
+        static::assertSame($resolvedShippingMethod, $delivery->getShippingMethod());
     }
 
     #[DataProvider('getLineItemsThatResultInAnEmptyDelivery')]
@@ -93,7 +103,7 @@ class DeliveryBuilderTest extends TestCase
         $deliveries = (new DeliveryBuilder())->buildByUsingShippingMethod(
             $cart,
             new ShippingMethodEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
         );
 
         static::assertCount(0, $deliveries);

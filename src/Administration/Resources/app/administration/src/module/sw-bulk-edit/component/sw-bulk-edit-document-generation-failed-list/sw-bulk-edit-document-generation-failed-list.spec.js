@@ -68,9 +68,6 @@ async function createWrapper(props = {}) {
                     'sw-provide': true,
                     'router-link': true,
                 },
-                mocks: {
-                    $t: (key) => key,
-                },
             },
         },
     );

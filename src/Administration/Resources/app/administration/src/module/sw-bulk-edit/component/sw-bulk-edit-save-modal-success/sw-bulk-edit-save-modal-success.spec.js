@@ -29,35 +29,6 @@ async function createWrapper(
                     },
                     'sw-bulk-edit-document-generation-failed-list': true,
                 },
-                mocks: {
-                    $t: (key) => {
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline') {
-                            return 'Failed documents';
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.downloadFileName') {
-                            return 'bulk-edit-document-generation-result';
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice') {
-                            return 'Invoice';
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.storno') {
-                            return 'Cancellation invoice';
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote') {
-                            return 'Credit note';
-                        }
-
-                        if (key === 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote') {
-                            return 'Delivery note';
-                        }
-
-                        return key;
-                    },
-                },
                 provide: {
                     repositoryFactory: {
                         create: (entity) => {
@@ -88,7 +59,18 @@ describe('sw-bulk-edit-save-modal-success', () => {
     });
 
     beforeEach(async () => {
-        Shopware.Store.get('swBulkEdit').resetDocumentGenerationResult();
+        const bulkEditStore = Shopware.Store.get('swBulkEdit');
+
+        bulkEditStore.resetDocumentGenerationResult();
+        bulkEditStore.setOrderDocumentsIsChanged({
+            type: 'download',
+            isChanged: false,
+        });
+        bulkEditStore.setOrderDocumentsValue({
+            type: 'download',
+            value: [],
+        });
+
         wrapper = await createWrapper();
     });
 
@@ -279,7 +261,10 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     'invoice',
                     'delivery_note',
                 ],
-                documentTypesLabel: 'Invoice, Delivery note',
+                documentTypesLabel: [
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice',
+                    'sw-bulk-edit.modal.success.failedDocuments.documentTypes.deliveryNote',
+                ].join(', '),
             },
             {
                 id: 'orderId2',
@@ -288,7 +273,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
                 documentTypes: [
                     'credit_note',
                 ],
-                documentTypesLabel: 'Credit note',
+                documentTypesLabel: 'sw-bulk-edit.modal.success.failedDocuments.documentTypes.creditNote',
             },
         ]);
     });
@@ -309,9 +294,15 @@ describe('sw-bulk-edit-save-modal-success', () => {
             },
         });
 
-        expect(wrapper.vm.getDocumentGenerationResultFileContent()).toBe('Failed documents\n\n10089 - Invoice');
+        expect(wrapper.vm.getDocumentGenerationResultFileContent()).toBe(
+            [
+                'sw-bulk-edit.modal.success.failedDocuments.downloadHeadline',
+                '',
+                '10089 - sw-bulk-edit.modal.success.failedDocuments.documentTypes.invoice',
+            ].join('\n'),
+        );
         expect(wrapper.vm.getDocumentGenerationResultFileName()).toBe(
-            'bulk-edit-document-generation-result-2026-06-08-10-58.txt',
+            'sw-bulk-edit.modal.success.failedDocuments.downloadFileName-2026-06-08-10-58.txt',
         );
 
         jest.useRealTimers();

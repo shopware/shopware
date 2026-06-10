@@ -24,12 +24,16 @@ VERSION=$(jq -r '.version // "unknown"' "$ANALYSIS")
 SPEC=$(jq -r '.script_path // "repro.spec.ts"' "$ANALYSIS")
 REPORT=${PW_REPORT:-pw-report.json}
 
+CONFIG=.github/actions/repro/repro.playwright.config.ts
 if [ -z "${PW_REPORT:-}" ]; then
   [ -f "$SPEC" ] || { echo "::error::generated spec '$SPEC' not found"; exit 1; }
-  # one-shot run; the config's baseURL reads $APP_URL.
+  # Playwright's testDir is the config's directory, so the spec must live THERE to be
+  # collected — a spec at the workspace root is silently ignored (0 tests => "no tests ran").
+  # Place it next to the config (mirrors run-direct.sh dropping ReproTest.php under the shop).
+  cp "$SPEC" "$(dirname "$CONFIG")/repro.spec.ts"
   set +e
-  APP_URL="$APP_URL" npx playwright test "$SPEC" \
-    --config .github/actions/repro/repro.playwright.config.ts --reporter=json >"$REPORT" 2>pw-stderr.txt
+  APP_URL="$APP_URL" npx playwright test \
+    --config "$CONFIG" --reporter=json >"$REPORT" 2>pw-stderr.txt
   set -e
 fi
 

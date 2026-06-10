@@ -102,6 +102,10 @@ $sw-page-search-bar-z-index: $z-index-sw-page-search-bar;
         }
     }
 
+    .smart-bar__content > .sw-app-actions__empty {
+        display: none;
+    }
+
     .smart-bar__header {
         flex: 1;
         min-width: 0;

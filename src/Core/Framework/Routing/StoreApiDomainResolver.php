@@ -7,7 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -28,6 +31,7 @@ class StoreApiDomainResolver implements EventSubscriberInterface
      */
     public function __construct(
         private readonly Connection $connection,
+        private readonly SalesChannelContextPersister $contextPersister,
         private readonly RouteScopeRegistry $routeScopeRegistry
     ) {
     }
@@ -77,7 +81,7 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             throw RoutingException::salesChannelDomainNotFound($domainUrl);
         }
 
-        if ($resolveLanguage) {
+        if ($resolveLanguage && !$this->hasSwitchedLanguage($request, $salesChannelId)) {
             $request->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $config['languageId']);
         }
 
@@ -90,6 +94,19 @@ class StoreApiDomainResolver implements EventSubscriberInterface
     protected function getScopeRegistry(): RouteScopeRegistry
     {
         return $this->routeScopeRegistry;
+    }
+
+    private function hasSwitchedLanguage(Request $request, string $salesChannelId): bool
+    {
+        $token = $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        if (!\is_string($token) || $token === '') {
+            return false;
+        }
+
+        return \array_key_exists(
+            SalesChannelContextService::LANGUAGE_ID,
+            $this->contextPersister->load($token, $salesChannelId)
+        );
     }
 
     /**

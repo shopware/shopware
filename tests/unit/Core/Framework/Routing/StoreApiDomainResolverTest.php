@@ -15,6 +15,8 @@ use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
@@ -236,10 +238,33 @@ class StoreApiDomainResolverTest extends TestCase
         $this->createResolver($connection)->resolveDomain($event);
     }
 
-    private function createResolver(Connection $connection): StoreApiDomainResolver
+    public function testSwitchedLanguageInContextBeatsDomain(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchAssociative')
+            ->willReturn(['languageId' => self::LANGUAGE_ID, 'currencyId' => self::CURRENCY_ID]);
+
+        $persister = $this->createMock(SalesChannelContextPersister::class);
+        $persister->method('load')->willReturn([SalesChannelContextService::LANGUAGE_ID => 'cccccccccccccccccccccccccccccccc']);
+
+        $event = $this->createEvent([StoreApiRouteScope::ID], TestDefaults::SALES_CHANNEL, [
+            PlatformRequest::HEADER_DOMAIN => 'https://shop.example.com/de',
+            PlatformRequest::HEADER_CONTEXT_TOKEN => 'ctx-token',
+        ]);
+
+        $this->createResolver($connection, $persister)->resolveDomain($event);
+
+        $request = $event->getRequest();
+        // a language the customer switched to wins over the domain, but the domain currency still applies
+        static::assertFalse($request->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
+        static::assertSame(self::CURRENCY_ID, $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID));
+    }
+
+    private function createResolver(Connection $connection, ?SalesChannelContextPersister $persister = null): StoreApiDomainResolver
     {
         return new StoreApiDomainResolver(
             $connection,
+            $persister ?? $this->createMock(SalesChannelContextPersister::class),
             new RouteScopeRegistry([new StoreApiRouteScope(), new ApiRouteScope()])
         );
     }

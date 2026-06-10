@@ -237,9 +237,12 @@ jobs:
             specific clarifying question>"} and stop (the pipeline will ask and abort).
             Otherwise derive the cheapest faithful plan. BE ECONOMICAL — you have a limited turn
             budget: do the MINIMUM investigation to fill the plan (a few targeted searches,
-            NOT a full code tour), then WRITE the output file(s) immediately as your top
-            priority. If still uncertain after a handful of tool calls, emit a best-effort
-            plan with a lower `confidence` rather than exploring further. `confidence` (0..1)
+            NOT a full code tour). Your VERY FIRST Write MUST be a complete best-effort
+            analysis.json (plus its spec/test file) within the first few tool calls — treat
+            "produce the files" as turn 1, not the finale. Refine them afterwards ONLY if turns
+            remain; NEVER finish (or hit the turn cap) without having written analysis.json. If
+            still uncertain after a handful of tool calls, keep the best-effort plan with a
+            lower `confidence` rather than exploring further. `confidence` (0..1)
             measures how FAITHFULLY the plan reproduces the reported symptom — NOT whether a
             fix exists. It is HIGH when the symptom can be asserted deterministically (clear
             expected-vs-actual, a stable endpoint/field/locator) AND the environment is
@@ -346,7 +349,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          [ -f analysis.json ] || { echo "::error::no analysis.json produced"; exit 1; }
+          # No plan file: the agent errored or exceeded its turn budget without writing one.
+          # Degrade gracefully (visible comment + clean skip) instead of an opaque red run.
+          if [ ! -f analysis.json ]; then
+            echo "::warning::analyze produced no analysis.json (agent error or exceeded turn budget)"
+            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
+              --body "## Reproduction — could not analyze"$'\n\n'"The analyzer did not produce a repro plan within its turn budget (likely an over-exploring UI/playwright analysis). No reproduction was run. A human can review the issue, or re-trigger to retry."
+            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
+            exit 0
+          fi
           cat analysis.json
           # Analyze judged the issue too ambiguous to reproduce faithfully → ask, don't guess.
           NEEDS=$(jq -r '.needs_info // empty' analysis.json)

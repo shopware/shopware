@@ -5,9 +5,11 @@ import { cwd } from 'node:process';
 // directory — run-playwright.sh copies the generated spec here so it is the only spec
 // collected (a spec left at the workspace root is NOT discovered). baseURL comes from the
 // leg's running shop; outputDir is pinned to the workspace root so the workflow uploads the
-// trace/video/screenshot evidence.
+// trace/video/screenshot evidence. testIgnore excludes the committed dry-run demo fixtures
+// under demo/ — testDir recurses, so without this a real run would ALSO collect demo/.
 export default defineConfig({
     testDir: '.',
+    testIgnore: '**/demo/**',
     outputDir: `${cwd()}/test-results`,
     reporter: [['json', { outputFile: 'pw-report.json' }]],
     use: {

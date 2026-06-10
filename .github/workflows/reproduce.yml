@@ -267,11 +267,19 @@ jobs:
             below 0.4 is NOT executed (a human is asked to confirm the draft first), so the
             reason is what they act on. For a playwright
             layer, write the spec straight FROM THE ISSUE'S STEPS using VERSION-STABLE,
-            semantic locators (getByRole / getByLabel / getByText with case-insensitive
-            regex, ARIA roles, user-visible text) — NEVER CSS classes, data-test ids, or DOM
-            structure, which churn between versions and would make the reported leg fail for
-            the WRONG reason. The SAME spec runs on BOTH the reported and trunk versions, so
-            it must tolerate UI drift. Structure it in two parts: (1) NAVIGATION/PRECONDITION
+            semantic locators — getByRole(role, {name}) / getByText / getByPlaceholder with
+            case-insensitive regex and user-visible/accessible names. For form inputs (login,
+            search) prefer getByRole('textbox'|'combobox', {name}) or getByPlaceholder; do NOT
+            use getByLabel for inputs — Shopware's custom admin/storefront fields have no
+            associated <label>, so getByLabel silently matches nothing (a real bug we hit: a
+            "Username" field is reachable as getByRole('textbox', {name:/username/i}), not
+            getByLabel). NEVER use CSS classes, data-test ids, or attribute selectors — not
+            even as a fallback; an element no semantic locator can reach IS a
+            PRECONDITION_NOT_FOUND. The admin SPA is slow to bootstrap (especially on a mobile
+            viewport) — wait robustly (locator.waitFor visible) for the login field and the
+            dashboard, don't use an instant isVisible() right after goto. The SAME spec runs on
+            BOTH the reported and trunk versions, so it must tolerate UI drift. Structure it in
+            two parts: (1) NAVIGATION/PRECONDITION
             — reach the state and verify each element the repro depends on EXISTS; if a
             required element is absent, `throw new Error('PRECONDITION_NOT_FOUND: <what>')`
             (or test.skip) so a changed-UI version is reported inconclusive, NOT as a false

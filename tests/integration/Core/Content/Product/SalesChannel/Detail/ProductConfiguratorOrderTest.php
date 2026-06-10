@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -93,6 +94,13 @@ class ProductConfiguratorOrderTest extends TestCase
      */
     public function testVariantsRemainCombinableWhenOptionIsMissingFromConfiguratorSetting(): void
     {
+        // The variants are on clearance (isCloseout). Make sure the storefront's
+        // "hide closeout products when out of stock" setting does not filter the
+        // in-stock variant out of the sales-channel result, so the test loads the
+        // data deterministically regardless of the environment default.
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', false);
+
         $productId = Uuid::randomHex();
         $redSmallId = Uuid::randomHex();
         $redMediumId = Uuid::randomHex();

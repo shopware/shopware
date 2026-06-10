@@ -11,15 +11,14 @@ use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinati
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
@@ -29,9 +28,15 @@ class ProductConfiguratorLoaderTest extends TestCase
 {
     public function testSortSettingsOrdersRemainingGroupsByPositionWhenConfigIsPartial(): void
     {
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository */
+        $configuratorRepository = new StaticEntityRepository([]);
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
+        $optionRepository = new StaticEntityRepository([]);
+
         $loader = new ProductConfiguratorLoader(
-            $this->createMock(EntityRepository::class),
+            $configuratorRepository,
             $this->createMock(AbstractAvailableCombinationLoader::class),
+            $optionRepository,
         );
 
         $product = new SalesChannelProductEntity();
@@ -73,8 +78,9 @@ class ProductConfiguratorLoaderTest extends TestCase
      * Previously the Size group would grey out every option, because the
      * stored variant combinations (which still carried the Blue option id)
      * could never be matched against the hash built from the configurator
-     * options. Availability now falls back to the actual variant
-     * stock / clearance state.
+     * options. The loader now surfaces the setting-less Blue option from the
+     * actual variant combinations, so the current selection includes it and
+     * every combination resolves against real variant availability.
      */
     public function testSizeOptionsRemainCombinableWhenCurrentVariantCarriesUnsetConfiguratorOption(): void
     {
@@ -91,21 +97,14 @@ class ProductConfiguratorLoaderTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $configuratorRepository = $this->createMock(EntityRepository::class);
-        $configuratorRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_configurator_setting',
-                3,
-                new ProductConfiguratorSettingCollection([
-                    $this->buildConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
-                    $this->buildConfiguratorSetting($sizeSmallId, 'S', $sizeGroupId, 'Size', 2),
-                    $this->buildConfiguratorSetting($sizeMediumId, 'M', $sizeGroupId, 'Size', 2),
-                ]),
-                null,
-                new Criteria(),
-                $context->getContext()
-            )
-        );
+        /** @var StaticEntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository */
+        $configuratorRepository = new StaticEntityRepository([
+            new ProductConfiguratorSettingCollection([
+                $this->buildConfiguratorSetting($redOptionId, 'Red', $colorGroupId, 'Color', 1),
+                $this->buildConfiguratorSetting($sizeSmallId, 'S', $sizeGroupId, 'Size', 2),
+                $this->buildConfiguratorSetting($sizeMediumId, 'M', $sizeGroupId, 'Size', 2),
+            ]),
+        ]);
 
         $combinationResult = new AvailableCombinationResult();
         $combinationResult->addCombination([$redOptionId, $sizeSmallId], true);
@@ -116,7 +115,26 @@ class ProductConfiguratorLoaderTest extends TestCase
         $combinationLoader = $this->createMock(AbstractAvailableCombinationLoader::class);
         $combinationLoader->method('loadCombinations')->willReturn($combinationResult);
 
-        $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader);
+        // The Blue option has no configurator setting, so the loader resolves it
+        // from the option repository to surface it back into the Color group.
+        $blueGroup = new PropertyGroupEntity();
+        $blueGroup->setId($colorGroupId);
+        $blueGroup->setName('Color');
+        $blueGroup->setTranslated(['name' => 'Color']);
+
+        $blueOption = new PropertyGroupOptionEntity();
+        $blueOption->setId($blueOptionId);
+        $blueOption->setName('Blue');
+        $blueOption->setTranslated(['name' => 'Blue']);
+        $blueOption->setGroupId($colorGroupId);
+        $blueOption->setGroup($blueGroup);
+
+        /** @var StaticEntityRepository<PropertyGroupOptionCollection> $optionRepository */
+        $optionRepository = new StaticEntityRepository([
+            new PropertyGroupOptionCollection([$blueOption]),
+        ]);
+
+        $loader = new ProductConfiguratorLoader($configuratorRepository, $combinationLoader, $optionRepository);
 
         $product = new SalesChannelProductEntity();
         $product->setId($variantId);
@@ -155,6 +173,17 @@ class ProductConfiguratorLoaderTest extends TestCase
         static::assertTrue(
             $redOption->getCombinable(),
             'The Red option must be selectable since Red variants exist in stock.'
+        );
+
+        $blueOptionResolved = $colorOptions->get($blueOptionId);
+        static::assertInstanceOf(
+            PropertyGroupOptionEntity::class,
+            $blueOptionResolved,
+            'The Blue option must be surfaced into the Color group even without a configurator setting.'
+        );
+        static::assertTrue(
+            $blueOptionResolved->getCombinable(),
+            'The surfaced Blue option must be selectable since Blue variants exist in stock.'
         );
     }
 

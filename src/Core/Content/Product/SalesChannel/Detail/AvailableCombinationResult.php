@@ -46,15 +46,6 @@ class AvailableCombinationResult extends Struct
     public function addCombination(array $optionIds, bool $available): void
     {
         $hash = $this->calculateHash($optionIds);
-
-        // When multiple source combinations collapse to the same hash (e.g. after
-        // filtering out option ids that are not part of the configurator settings),
-        // the combination must be considered available if any of the collapsed
-        // variants is available.
-        if (isset($this->combinationDetails[$hash])) {
-            $available = $available || ($this->combinationDetails[$hash]['available'] ?? false);
-        }
-
         $this->hashes[$hash] = true;
         $this->combinations[$hash] = $optionIds;
         $this->combinationDetails[$hash] = [
@@ -64,41 +55,6 @@ class AvailableCombinationResult extends Struct
         foreach ($optionIds as $id) {
             $this->optionIds[$id] = true;
         }
-    }
-
-    /**
-     * Returns a new result that only contains option ids that exist in the given
-     * allow-list. Variant combinations that reference option ids which are not
-     * present as a configurator setting (for example because a row in
-     * `product_configurator_setting` has been removed) are normalized to the
-     * intersection with the known option ids so that the remaining configurator
-     * options can still be resolved as combinable.
-     *
-     * @param array<string, mixed> $knownOptionIds map of known option id => any value
-     */
-    public function filterByKnownOptionIds(array $knownOptionIds): self
-    {
-        $filtered = new self();
-
-        foreach ($this->combinations as $hash => $optionIds) {
-            $intersected = [];
-            foreach ($optionIds as $id) {
-                if (isset($knownOptionIds[$id])) {
-                    $intersected[] = $id;
-                }
-            }
-
-            if ($intersected === []) {
-                continue;
-            }
-
-            $filtered->addCombination(
-                $intersected,
-                (bool) ($this->combinationDetails[$hash]['available'] ?? false)
-            );
-        }
-
-        return $filtered;
     }
 
     public function hasOptionId(string $optionId): bool

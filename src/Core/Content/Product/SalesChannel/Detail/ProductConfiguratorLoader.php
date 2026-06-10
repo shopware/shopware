@@ -23,10 +23,12 @@ class ProductConfiguratorLoader
      * @internal
      *
      * @param EntityRepository<ProductConfiguratorSettingCollection> $configuratorRepository
+     * @param EntityRepository<PropertyGroupOptionCollection> $optionRepository
      */
     public function __construct(
         private readonly EntityRepository $configuratorRepository,
-        private readonly AbstractAvailableCombinationLoader $combinationLoader
+        private readonly AbstractAvailableCombinationLoader $combinationLoader,
+        private readonly EntityRepository $optionRepository
     ) {
     }
 
@@ -51,15 +53,14 @@ class ProductConfiguratorLoader
             $context,
         );
 
-        // Variants may carry option ids that do not (or no longer) exist as a
-        // row in `product_configurator_setting`. In that case the stored
-        // combination can never match a hash built from configurator options
-        // alone, which would cause every option in this group to be marked as
-        // not combinable (greyed out) even though the variant itself is in
-        // stock / on clearance. Normalize the combinations against the option
-        // ids that are actually known to the configurator so the fallback
-        // matches the real availability of the variant.
-        $combinations = $combinations->filterByKnownOptionIds($groups->getOptionIdMap());
+        // Variants may carry option ids that have no `product_configurator_setting`
+        // row (e.g. the row was deleted directly, or the variant was created via API
+        // without it). Such options are never loaded by loadSettings(), so the option
+        // would silently disappear from the configurator and - in multi-group products
+        // - the stored combination could never be matched, greying out the sibling
+        // options. Surface those options from the actual variant combinations so the
+        // configurator reflects the real, purchasable variants.
+        $this->addOptionsMissingFromConfiguratorSettings($groups, $combinations, $context);
 
         $current = $this->buildCurrentOptions($product, $groups);
         $emptyGroupIds = [];
@@ -92,6 +93,61 @@ class ProductConfiguratorLoader
         }
 
         return $groups;
+    }
+
+    /**
+     * Adds options that appear on the product's variants but are missing from the
+     * configurator settings (no `product_configurator_setting` row) to their group,
+     * creating the group when it is missing entirely. This keeps the variant
+     * resolvable instead of disappearing or greying out its siblings.
+     */
+    private function addOptionsMissingFromConfiguratorSettings(
+        PropertyGroupCollection $groups,
+        AvailableCombinationResult $combinations,
+        SalesChannelContext $context
+    ): void {
+        $knownOptionIds = $groups->getOptionIdMap();
+
+        $missingOptionIds = [];
+        foreach ($combinations->getCombinations() as $optionIds) {
+            foreach ($optionIds as $optionId) {
+                if (!isset($knownOptionIds[$optionId])) {
+                    $missingOptionIds[$optionId] = true;
+                }
+            }
+        }
+
+        if ($missingOptionIds === []) {
+            return;
+        }
+
+        $criteria = new Criteria(array_keys($missingOptionIds));
+        $criteria->addAssociation('group')
+            ->addAssociation('media');
+
+        $options = $this->optionRepository
+            ->search($criteria, $context->getContext())
+            ->getEntities();
+
+        foreach ($options as $option) {
+            $group = $option->getGroup();
+            if ($group === null) {
+                continue;
+            }
+
+            $existingGroup = $groups->get($group->getId());
+            if ($existingGroup === null) {
+                $group->setOptions(new PropertyGroupOptionCollection());
+                $groups->add($group);
+                $existingGroup = $group;
+            }
+
+            $groupOptions = $existingGroup->getOptions() ?? new PropertyGroupOptionCollection();
+            if (!$groupOptions->has($option->getId())) {
+                $groupOptions->add($option);
+            }
+            $existingGroup->setOptions($groupOptions);
+        }
     }
 
     /**

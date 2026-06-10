@@ -16,6 +16,30 @@ responses.addResponse({
     },
 });
 
+function buildServiceWithDeprecation({ registerReplacementInStore = true } = {}) {
+    const ruleConditionService = new RuleConditionService();
+
+    if (registerReplacementInStore) {
+        ruleConditionService.addCondition('cartLineItemProductType', { label: 'Product type' });
+    }
+
+    ruleConditionService.registerDeprecation('cartLineItemProductStates', {
+        version: 'v6.8.0.0',
+        replacement: 'cartLineItemProductType',
+        label: 'Product states',
+    });
+
+    return ruleConditionService;
+}
+
+function buildServiceWithCondition(type, condition) {
+    const ruleConditionService = new RuleConditionService();
+
+    ruleConditionService.addCondition(type, condition);
+
+    return ruleConditionService;
+}
+
 describe('src/app/service/rule-condition.service.js', () => {
     it('should be a function', async () => {
         expect(typeof RuleConditionService).toBe('function');
@@ -675,6 +699,169 @@ describe('src/app/service/rule-condition.service.js', () => {
         const ruleConditionService = new RuleConditionService();
 
         expect(ruleConditionService.getTransformedCustomFieldConditionConfig(null, jest.fn())).toBeNull();
+    });
+
+    describe('getDeprecationsInTree', () => {
+        it.each([
+            { name: 'no conditions provided', conditions: [] },
+            { name: 'no deprecated type in tree', conditions: [{ type: 'cartCartAmount' }] },
+        ])('should return an empty array when $name', ({ conditions }) => {
+            const ruleConditionService = new RuleConditionService();
+            ruleConditionService.addCondition('cartCartAmount', { label: 'Cart amount' });
+
+            expect(ruleConditionService.getDeprecationsInTree(conditions)).toEqual([]);
+        });
+
+        it.each([
+            {
+                name: 'registered replacement is in the store',
+                setup: () => buildServiceWithDeprecation(),
+                expectedReplacement: { type: 'cartLineItemProductType', label: 'Product type' },
+            },
+            {
+                name: 'replacement type is not in the store',
+                setup: () => buildServiceWithDeprecation({ registerReplacementInStore: false }),
+                expectedReplacement: null,
+            },
+            {
+                name: 'no replacement is registered',
+                setup: () => {
+                    const service = new RuleConditionService();
+
+                    service.registerDeprecation('cartLineItemProductStates', {
+                        version: 'v6.8.0.0',
+                        label: 'Product states',
+                    });
+
+                    return service;
+                },
+                expectedReplacement: null,
+            },
+        ])('should resolve replacement to the expected value when $name', ({ setup, expectedReplacement }) => {
+            const result = setup().getDeprecationsInTree([{ type: 'cartLineItemProductStates' }]);
+
+            expect(result).toEqual([
+                {
+                    type: 'cartLineItemProductStates',
+                    label: 'Product states',
+                    version: 'v6.8.0.0',
+                    replacement: expectedReplacement,
+                },
+            ]);
+        });
+
+        it.each([
+            {
+                name: 'nested children',
+                conditions: [
+                    {
+                        type: 'andContainer',
+                        children: [
+                            {
+                                type: 'orContainer',
+                                children: [{ type: 'cartLineItemProductStates' }],
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                name: 'duplicates across the tree',
+                conditions: [
+                    { type: 'cartLineItemProductStates' },
+                    {
+                        type: 'andContainer',
+                        children: [
+                            { type: 'cartLineItemProductStates' },
+                            { type: 'cartLineItemProductStates' },
+                        ],
+                    },
+                ],
+            },
+        ])('should return a single deprecation entry for $name', ({ conditions }) => {
+            const result = buildServiceWithDeprecation().getDeprecationsInTree(conditions);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].type).toBe('cartLineItemProductStates');
+        });
+    });
+
+    describe('getFlowOnlyTypesInTree', () => {
+        it.each([
+            {
+                name: 'no conditions are provided',
+                setup: () => new RuleConditionService(),
+                conditions: [],
+            },
+            {
+                name: 'condition has mixed scopes',
+                setup: () =>
+                    buildServiceWithCondition('mixedCondition', {
+                        label: 'Mixed condition',
+                        scopes: [
+                            'flow',
+                            'cart',
+                        ],
+                    }),
+                conditions: [{ type: 'mixedCondition' }],
+            },
+            {
+                name: 'condition has an empty scopes array',
+                setup: () =>
+                    buildServiceWithCondition('emptyScopeCondition', {
+                        label: 'Empty scope',
+                        scopes: [],
+                    }),
+                conditions: [{ type: 'emptyScopeCondition' }],
+            },
+            {
+                name: 'condition has no scopes property',
+                setup: () => buildServiceWithCondition('noScopeCondition', { label: 'No scope' }),
+                conditions: [{ type: 'noScopeCondition' }],
+            },
+            {
+                name: 'condition type is unknown',
+                setup: () => new RuleConditionService(),
+                conditions: [{ type: 'unknownType' }],
+            },
+        ])('should return an empty array when $name', ({ setup, conditions }) => {
+            expect(setup().getFlowOnlyTypesInTree(conditions)).toEqual([]);
+        });
+
+        it.each([
+            {
+                name: 'flat tree',
+                conditions: [{ type: 'orderStatus' }],
+            },
+            {
+                name: 'nested children',
+                conditions: [
+                    {
+                        type: 'andContainer',
+                        children: [{ type: 'orderStatus' }],
+                    },
+                ],
+            },
+            {
+                name: 'duplicates across the tree',
+                conditions: [
+                    { type: 'orderStatus' },
+                    { type: 'orderStatus' },
+                ],
+            },
+        ])('should return a single flow-only entry for $name', ({ conditions }) => {
+            const ruleConditionService = buildServiceWithCondition('orderStatus', {
+                label: 'Order status',
+                scopes: ['flow'],
+            });
+
+            expect(ruleConditionService.getFlowOnlyTypesInTree(conditions)).toEqual([
+                {
+                    type: 'orderStatus',
+                    label: 'Order status',
+                },
+            ]);
+        });
     });
 
     it('should use en-GB as fallback locale for custom field condition config', async () => {

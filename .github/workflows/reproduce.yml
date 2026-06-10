@@ -558,7 +558,8 @@ jobs:
             repro.spec.ts
             ReproTest.php
             test-results/
-          if-no-files-found: ignore # the runnable script (repro.sh|repro.spec.ts|ReproTest.php) + test-results/ vary by executor
+            playwright-report/
+          if-no-files-found: ignore # script (repro.sh|repro.spec.ts|ReproTest.php) + test-results/ + playwright-report/ vary by executor
           retention-days: 7
 
   # --------------------------------------------------------------------------
@@ -796,6 +797,10 @@ jobs:
                 echo "### ${t} — \`${st}\` (expected ${ex}, got ${ac})"
               fi
               echo "Reporter: \`$(jq -r .evidence.reporter_output "$f")\`"
+              # playwright legs ship the interactive HTML report (+ trace/video/screenshot).
+              if [ "$(jq -r .executor "$f")" = playwright ]; then
+                echo "📊 Interactive Playwright report + trace/video: \`repro-${t}\` artifact of the [run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})  — open \`playwright-report/index.html\`."
+              fi
             done
             # The script is shared by both legs (shown once) unless http resolved differently.
             echo

@@ -31,9 +31,10 @@ if [ -z "${PW_REPORT:-}" ]; then
   # collected — a spec at the workspace root is silently ignored (0 tests => "no tests ran").
   # Place it next to the config (mirrors run-direct.sh dropping ReproTest.php under the shop).
   cp "$SPEC" "$(dirname "$CONFIG")/repro.spec.ts"
+  # No --reporter on the CLI: that would OVERRIDE the config and suppress the html report.
+  # Let the config's reporters run — json → $REPORT (pw-report.json), html → playwright-report/.
   set +e
-  APP_URL="$APP_URL" npx playwright test \
-    --config "$CONFIG" --reporter=json >"$REPORT" 2>pw-stderr.txt
+  APP_URL="$APP_URL" npx playwright test --config "$CONFIG" >pw-stdout.txt 2>pw-stderr.txt
   set -e
 fi
 

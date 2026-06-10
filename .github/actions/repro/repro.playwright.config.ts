@@ -15,7 +15,13 @@ export default defineConfig({
     // is too short and aborts mid-flow; give the whole test room.
     timeout: 120_000,
     outputDir: `${cwd()}/test-results`,
-    reporter: [['json', { outputFile: 'pw-report.json' }]],
+    // json → machine verdict (run-playwright.sh reads it); html → the rich interactive
+    // report (trace/screenshots/steps) uploaded with the leg so a human can open it.
+    // open:'never' so CI never tries to launch a browser to serve it.
+    reporter: [
+        ['json', { outputFile: `${cwd()}/pw-report.json` }],
+        ['html', { outputFolder: `${cwd()}/playwright-report`, open: 'never' }],
+    ],
     use: {
         baseURL: process.env['APP_URL'],
         trace: 'on',

@@ -837,7 +837,8 @@ jobs:
         run: |
           # ffmpeg is no longer preinstalled on ubuntu-latest; needed for the tail GIF
           # (the script degrades to screenshot-only without it).
-          command -v ffmpeg >/dev/null || sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null 2>&1 || true
+          command -v ffmpeg >/dev/null || { sudo apt-get update -qq >/dev/null 2>&1; sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null 2>&1; } || true
+          command -v ffmpeg >/dev/null || echo "::warning::ffmpeg install failed — GIF will be skipped"
           bash .github/actions/repro/bin/embed-evidence.sh
 
       - name: Post comment

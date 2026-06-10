@@ -8,6 +8,7 @@ import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+import getBlockDataScope from 'src/app/component/structure/sw-block-override/sw-block/get-block-data-scope';
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -3313,6 +3314,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         'sw-block': swBlock,
                         'sw-block-parent': swBlockParent,
                     },
+                    mocks: {
+                        $dataScope: getBlockDataScope,
+                    },
                     config: {
                         globalProperties: {
                             $swLegacyBlockIf(blockName, expression, options) {
@@ -3386,14 +3390,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         isConditionTrue: false,
                     };
                 },
-                computed: {
-                    dataScope() {
-                        return this;
-                    },
-                },
                 template: `
                     <div>
-                        <sw-block name="twig_shim_test_block" :data="dataScope">
+                        <sw-block name="twig_shim_test_block" :data="$dataScope()">
                             <div v-if="isConditionTrue" class="true-case">true</div>
                         </sw-block>
                     </div>
@@ -3436,14 +3435,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         condition2: false,
                     };
                 },
-                computed: {
-                    dataScope() {
-                        return this;
-                    },
-                },
                 template: `
                     <div>
-                        <sw-block name="chained_condition_block" :data="dataScope">
+                        <sw-block name="chained_condition_block" :data="$dataScope()">
                             <div v-if="condition1" class="condition-one">Condition 1</div>
                         </sw-block>
                     </div>
@@ -3507,14 +3501,9 @@ describe('core/factory/async-component.factory.ts', () => {
                         condition2: true,
                     };
                 },
-                computed: {
-                    dataScope() {
-                        return this;
-                    },
-                },
                 template: `
                     <div>
-                        <sw-block name="mixed_chained_condition_block" :data="dataScope">
+                        <sw-block name="mixed_chained_condition_block" :data="$dataScope()">
                             <div v-if="condition1" class="condition-one">Condition 1</div>
                         </sw-block>
 

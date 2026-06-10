@@ -822,10 +822,11 @@ jobs:
               echo; echo "</details>"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
-      # Inline evidence (playwright legs): publish the screenshot + a symptom-tail GIF to the
-      # evidence branch and embed them in the comment — comments can't host real video (no
-      # attachments API), but images/GIFs render inline and PERSIST past artifact expiry.
-      # Opt-in via the REPRO_EVIDENCE_BRANCH repo variable; enhancement only, never fails.
+      # Inline evidence (playwright legs): publish each leg's screenshot to the evidence
+      # branch and embed it in the comment — comments can't host real video (no attachments
+      # API), but images render inline and PERSIST past artifact expiry. Full video/trace/
+      # HTML report stay in the artifacts. Opt-in via the REPRO_EVIDENCE_BRANCH repo
+      # variable; enhancement only, never fails.
       - name: Embed inline evidence
         if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked' && vars.REPRO_EVIDENCE_BRANCH != ''
         continue-on-error: true
@@ -834,12 +835,7 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
           TOKEN: ${{ github.token }}
-        run: |
-          # ffmpeg is no longer preinstalled on ubuntu-latest; needed for the tail GIF
-          # (the script degrades to screenshot-only without it).
-          command -v ffmpeg >/dev/null || { sudo apt-get update -qq >/dev/null 2>&1; sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null 2>&1; } || true
-          command -v ffmpeg >/dev/null || echo "::warning::ffmpeg install failed — GIF will be skipped"
-          bash .github/actions/repro/bin/embed-evidence.sh
+        run: bash .github/actions/repro/bin/embed-evidence.sh
 
       - name: Post comment
         # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the

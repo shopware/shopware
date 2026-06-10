@@ -204,6 +204,43 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
         },
     );
 
+    it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
+        'should register a deprecation for $type with version $removedInFeature',
+        ({ type, removedInFeature, label, replacement }) => {
+            const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+            expect(conditionService.$deprecations[type]).toEqual({
+                version: removedInFeature,
+                label,
+                replacement,
+            });
+        },
+    );
+
+    it.each(CONDITIONS.filter((condition) => Boolean(condition.removedInFeature)))(
+        'should register a deprecation for $type even when feature flag $removedInFeature is active',
+        ({ type, removedInFeature }) => {
+            jest.spyOn(Shopware.Feature, 'isActive').mockImplementation((flag) => flag === removedInFeature);
+
+            const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+            expect(conditionService.$deprecations[type]).toBeDefined();
+
+            jest.restoreAllMocks();
+        },
+    );
+
+    it('should not register deprecations for conditions without removedInFeature', () => {
+        const conditionService = ruleConditionTypeDataProvider(new RuleConditionService());
+
+        const nonDeprecatedTypes = CONDITIONS.filter((condition) => !condition.removedInFeature).map(
+            (condition) => condition.type,
+        );
+
+        nonDeprecatedTypes.forEach((type) => {
+            expect(conditionService.$deprecations[type]).toBeUndefined();
+        });
+    });
+
     it('should add app script conditions', () => {
         service.addScriptConditions([
             {

@@ -61,6 +61,20 @@ For user interfaces that display only one delivery & transaction, there is now a
 If an extension modifies or adds new deliveries or transactions, this should be taken into account.
 To partly comply with old behaviour, primary deliveries are ordered first and primary transactions are ordered last wherever appropriate.
 
+## Standardized CLI JSON output flag
+
+CLI commands now consistently use `--format json` to request JSON output. The previously used `--json` and `--output json` options are removed.
+
+Affected commands:
+
+| Old | New |
+| --- | --- |
+| `bin/console user:list --json` | `bin/console user:list --format json` |
+| `bin/console app:list --json` | `bin/console app:list --format json` |
+| `bin/console plugin:list --json` | `bin/console plugin:list --format json` |
+| `bin/console dal:validate --json` | `bin/console dal:validate --format json` |
+| `bin/console sales-channel:list --output json` | `bin/console sales-channel:list --format json` |
+
 </details>
 
 # API
@@ -1210,6 +1224,24 @@ The following legacy blocks are removed in Shopware 6.8:
 - deprecated method `documentTypeAvailable()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 - deprecated method `invoiceExists()` in `src/Administration/Resources/app/administration/src/module/sw-order/component/sw-order-document-card/index.js` without replacement
 
+## Removed `sw-select-base.computePath()`
+
+The deprecated `computePath()` method on the Administration component `sw-select-base` has been removed.
+Use `Element.contains()` to check whether an event target belongs to the select root.
+
+Before:
+
+```javascript
+const path = this.computePath(event);
+const isInside = path.includes(this.$el);
+```
+
+After:
+
+```javascript
+const isInside = event.target instanceof Node && this.$el.contains(event.target);
+```
+
 # Storefront
 
 <details>
@@ -1273,6 +1305,14 @@ To extend or replace a schema in a plugin or theme, use `sw_extends` on the rele
 ## Removed block `page_product_detail_product_buy_button_label` from `@Storefront/storefront/component/product/card/action.html.twig`
 
 The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
+
+## Deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets
+
+The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Override the new Twig blocks instead:
+
+- `buy-widget-price.html.twig`: `buy_widget_was_price_before` / `buy_widget_was_price_after`
+- `block-price.html.twig`: `component_product_detail_block_list_price_before` / `component_product_detail_block_list_price_after`
+- `price-unit.html.twig`: `component_product_box_main_price_before` / `component_product_box_main_price_after`
 
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
@@ -1509,6 +1549,12 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
+
+## Removal of `ThemeLifecycleHandler::STATE_SKIP_THEME_COMPILATION`
+
+The context-state flag that suppresses theme recompilation during app lifecycle operations is now owned by the Core app-lifecycle contract.
+
+Use `Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle::STATE_SKIP_THEME_COMPILATION` instead.
 </details>
 
 # App System

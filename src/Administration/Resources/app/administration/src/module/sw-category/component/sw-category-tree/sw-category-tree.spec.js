@@ -366,6 +366,33 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(1);
     });
 
+    it('should not allow checked elements count to become negative when deleting the last checked category', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            isLoadingInitialData: false,
+        });
+
+        wrapper.vm.$refs.categoryTree.checkedElementsCount = 0;
+
+        const category = {
+            id: '1a',
+            isNew: () => false,
+        };
+
+        await wrapper.vm.onDeleteCategory({
+            data: category,
+            children: [],
+            checked: true,
+        });
+
+        const emitted = wrapper.emitted()['category-checked-elements-count'];
+
+        expect(emitted).toBeTruthy();
+        expect(emitted).toEqual([[0]]);
+        expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(0);
+    });
+
     it('should fix the sorting right after deleting a single category', async () => {
         const wrapper = await createWrapper();
 

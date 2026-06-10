@@ -376,6 +376,9 @@ jobs:
     if: always() && needs.gate.outputs.run == 'true' && needs.verdict.outputs.has_results == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: write # post the comment
+      contents: write # push inline evidence (gated by vars.REPRO_EVIDENCE_BRANCH)
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -392,6 +395,19 @@ jobs:
           UNSURE: ${{ needs.verdict.outputs.unsure_reason }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash .github/actions/repro/bin/report.sh
+      # Inline evidence (playwright legs): each leg's screenshot on the evidence branch,
+      # embedded via raw URLs (persists past artifact expiry; full video/trace/HTML report
+      # stay in the artifacts). Opt-in via the REPRO_EVIDENCE_BRANCH repo variable;
+      # enhancement only, never fails the report.
+      - name: Embed inline evidence
+        if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked' && vars.REPRO_EVIDENCE_BRANCH != ''
+        continue-on-error: true
+        env:
+          BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          TOKEN: ${{ github.token }}
+        run: bash .github/actions/repro/bin/embed-evidence.sh
       - name: Post comment
         if: needs.gate.outputs.post == 'true' && needs.verdict.outputs.verdict != 'blocked'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0

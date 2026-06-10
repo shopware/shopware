@@ -834,7 +834,11 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
           TOKEN: ${{ github.token }}
-        run: bash .github/actions/repro/bin/embed-evidence.sh
+        run: |
+          # ffmpeg is no longer preinstalled on ubuntu-latest; needed for the tail GIF
+          # (the script degrades to screenshot-only without it).
+          command -v ffmpeg >/dev/null || sudo apt-get install -y -qq --no-install-recommends ffmpeg >/dev/null 2>&1 || true
+          bash .github/actions/repro/bin/embed-evidence.sh
 
       - name: Post comment
         # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the

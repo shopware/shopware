@@ -21,8 +21,10 @@ ART=${ART:-artifacts}
 : "${REPO:?REPO is required}"
 : "${RUN_ID:?RUN_ID is required}"
 
-command -v ffmpeg >/dev/null || { echo "::warning::ffmpeg not available — skipping inline evidence"; exit 0; }
 [ -f "$COMMENT" ] || { echo "::warning::$COMMENT not found — skipping inline evidence"; exit 0; }
+# ffmpeg is only needed for the tail GIF; without it we still embed the screenshot.
+HAVE_FFMPEG=0; command -v ffmpeg >/dev/null && HAVE_FFMPEG=1
+[ "$HAVE_FFMPEG" = 1 ] || echo "::warning::ffmpeg not available — embedding screenshots only (no recording GIF)"
 
 OUT=$(mktemp -d)
 LEGS=()
@@ -33,7 +35,7 @@ for d in "$ART"/repro-*/; do
   webm=$(find "$d" -name 'video.webm' 2>/dev/null | head -1)
   [ -n "$png$webm" ] || continue
   [ -n "$png" ] && cp "$png" "$OUT/$leg.png"
-  if [ -n "$webm" ]; then
+  if [ -n "$webm" ] && [ "$HAVE_FFMPEG" = 1 ]; then
     # Tail clip only: the symptom moment is at the END of the recording.
     ffmpeg -y -v error -sseof -10 -i "$webm" \
       -vf "setpts=PTS/1.5,fps=8,scale=640:-1:flags=lanczos" "$OUT/$leg.gif" || true

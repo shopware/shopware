@@ -7,15 +7,23 @@
             {% if price.listprice and isListPrice %}
                 <div class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}</div>
 
-                {% block component_product_detail_block_list_price_wrapper %}
-                    {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
-                    {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
+                {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
 
+                {% block component_product_detail_block_list_price_wrapper %}
+                    {# @deprecated tag:v6.8.0 - The conditional "product-detail-advanced-list-price-wrapper-no-line-through" class will be removed. #}
                     <span class="product-detail-advanced-list-price-wrapper{% if beforeListPriceSnippetExists or afterListPriceSnippetExists %} product-detail-advanced-list-price-wrapper-no-line-through{% endif %}">
+                        {% block component_product_detail_block_list_price_before %}{% endblock %}
+
+                        {# @deprecated tag:v6.8.0 - Snippet listing.beforeListPrice output will be removed. Use twig blocks instead. #}
                         {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans }}{% endif %}
 
                         <span class="list-price-price">{{ price.listprice.price|currency }}</span>
 
+                        {% block component_product_detail_block_list_price_after %}{% endblock %}
+
+                        {# @deprecated tag:v6.8.0 - Snippet listing.afterListPrice output will be removed. Use twig blocks instead. #}
                         {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans }}{% endif %}
 
                         <span class="list-price-percentage">{{ 'detail.listPricePercentage'|trans({'%price%': price.listPrice.percentage })|sw_sanitize }}</span>

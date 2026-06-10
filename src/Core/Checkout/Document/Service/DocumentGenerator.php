@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Service;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -45,7 +46,8 @@ class DocumentGenerator
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly MediaService $mediaService,
         private readonly EntityRepository $documentRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -209,7 +211,7 @@ class DocumentGenerator
                 'id' => $documentId,
                 'documentMediaFileId' => $mediaId,
                 'documentA11yMediaFileId' => null,
-                'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ],
         ], $context);
 

@@ -21,7 +21,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 {
     public function testExecute(): void
     {
-        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
@@ -35,7 +35,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testExecuteQueue(): void
     {
-        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
         $message = new ElasticsearchIndexingMessage(
             new IndexingDto([], 'product', 'product'),
@@ -63,7 +63,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testEsDisabled(): void
     {
-        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
@@ -79,7 +79,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testExecuteOnly(): void
     {
-        $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
+        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
 
         $bus = $this->createMock(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);

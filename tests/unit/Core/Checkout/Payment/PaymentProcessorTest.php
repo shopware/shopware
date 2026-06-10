@@ -361,8 +361,7 @@ class PaymentProcessorTest extends TestCase
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('The order with id order-id is invalid or could not be found.');
+        $this->expectExceptionObject(PaymentException::invalidOrder('order-id'));
         $this->processor->pay(
             'order-id',
             $request,

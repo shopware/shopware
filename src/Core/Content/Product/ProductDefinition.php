@@ -204,6 +204,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('name', true))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new TranslatedField('keywords'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('description'))->addFlags(new ApiAware(), new Inherited()),
+            (new TranslatedField('descriptionTeaser'))->addFlags(new ApiAware(), new Inherited())->setDescription('Read-only excerpt of the description, computed by the database.'),
             (new TranslatedField('metaTitle'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new ApiAware(), new Inherited()),

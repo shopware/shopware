@@ -37,6 +37,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -131,7 +132,7 @@ class ScriptRuleTest extends TestCase
         ]));
         $twigFactory = new DebuggableScriptEnvironmentFactory();
         $container->set(ScriptEnvironmentFactory::class, $twigFactory);
-        $container->set(ScriptTraces::class, new ScriptTraces());
+        $container->set(ScriptTraces::class, new ScriptTraces(new NativeClock()));
 
         $rule->configureDependencies($container);
         $rule->assign([

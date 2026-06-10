@@ -339,10 +339,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 
     public function testAgenticCommerceSalesChannelValidationSucceedsWithLanguageEntry(): void
@@ -365,10 +383,28 @@ class SalesChannelValidatorTest extends TestCase
         $data = $this->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM);
         $data['typeId'] = Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON;
 
-        $this->expectException(WriteException::class);
-        $this->expectExceptionMessage(\sprintf(self::INSERT_VALIDATION_MESSAGE, $id));
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation(
+                    \sprintf(self::INSERT_VALIDATION_MESSAGE, $id),
+                    null,
+                    [],
+                    '',
+                    null,
+                    null,
+                ),
+            ]),
+        ));
 
-        $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        try {
+            $this->getSalesChannelRepository()->create([$data], Context::createDefaultContext());
+        } catch (WriteException $e) {
+            foreach ($e->getExceptions() as $inner) {
+                throw $inner;
+            }
+
+            throw $e;
+        }
     }
 
     public function testProductComparisonSalesChannelValidationSucceedsWithLanguageEntry(): void

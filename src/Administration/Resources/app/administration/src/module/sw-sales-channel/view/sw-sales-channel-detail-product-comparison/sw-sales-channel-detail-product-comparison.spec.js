@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-sales-channel-detail-product-comparison', {
             sync: true,
@@ -35,6 +35,7 @@ async function createWrapper() {
             props: {
                 productExport: {},
                 salesChannel: {},
+                ...props,
             },
         },
     );

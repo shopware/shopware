@@ -9,6 +9,9 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 
@@ -23,13 +26,18 @@ final class AppFixture
     {
     }
 
-    public static function createAppEntity(string $name = 'testApp', ?string $id = null): AppEntity
+    public static function createAppEntity(string $name = 'testApp', ?string $id = null, bool $active = true, bool $allowDisable = true): AppEntity
     {
         $app = new AppEntity();
         $app->setId($id ?? Uuid::randomHex());
         $app->setName($name);
         $app->setPath($name);
-        $app->setActive(true);
+        $app->setActive($active);
+        $app->setAllowDisable($allowDisable);
+        $app->setVersion('1.0.0');
+        $app->setIntegrationId('integration-id');
+        $app->setAclRoleId('acl-role-id');
+        $app->setSourceType('static');
 
         return $app;
     }
@@ -41,6 +49,26 @@ final class AppFixture
     {
         /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection($apps)]);
+
+        return $repository;
+    }
+
+    /**
+     * @return StaticEntityRepository<LanguageCollection>
+     */
+    public static function createLanguageRepository(string $locale = 'en-GB'): StaticEntityRepository
+    {
+        $localeEntity = new LocaleEntity();
+        $localeEntity->assign(['code' => $locale]);
+
+        $languageEntity = new LanguageEntity();
+        $languageEntity->assign([
+            'id' => 'language-id',
+            'translationCode' => $localeEntity,
+        ]);
+
+        /** @var StaticEntityRepository<LanguageCollection> $repository */
+        $repository = new StaticEntityRepository([new LanguageCollection([$languageEntity])]);
 
         return $repository;
     }

@@ -96,7 +96,28 @@ async function createWrapper(props, options = {}) {
                     'sw-switch-field-deprecated': await wrapTestComponent('sw-switch-field-deprecated'),
                     'sw-button-process': true,
                     'sw-media-collapse': true,
-                    'mt-tabs': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: [
+                            'new-item-active',
+                        ],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-help-text': true,

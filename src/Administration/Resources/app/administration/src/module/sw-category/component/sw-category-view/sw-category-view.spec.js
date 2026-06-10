@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
 
@@ -99,6 +100,7 @@ async function createWrapper(
 
 describe('src/module/sw-category/component/sw-category-view', () => {
     afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
         jest.restoreAllMocks();
     });
 
@@ -217,7 +219,15 @@ describe('src/module/sw-category/component/sw-category-view', () => {
     });
 
     it('should pass the general tab error state to meteor tabs', async () => {
-        jest.spyOn(Shopware.Store.get('error'), 'existsErrorInProperty').mockReturnValue(true);
+        Shopware.Store.get('error').addApiError({
+            expression: 'category.CATEGORY_MOCK_ID.name',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
 
         const wrapper = await createWrapper('page', { featureActive: true });
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });

@@ -1,6 +1,5 @@
 import useConsentStore from './consent.store';
 import ConsentApiService from './consent.api.service';
-import { ConsentEvent } from './events';
 
 const defaultConsents = {
     test_consent: {
@@ -86,7 +85,11 @@ describe('/core/consent/consent.store', () => {
             expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
             expect(consentEventHandler).toHaveBeenCalledWith(
-                new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
+                expect.objectContaining({
+                    eventName: 'consent_status_change',
+                    eventProperties: expectedUpdatedValue,
+                    timestamp: expect.any(Date),
+                }),
             );
         });
 
@@ -187,7 +190,11 @@ describe('/core/consent/consent.store', () => {
                 expect(store.consents.test_consent).toEqual(expectedUpdatedValue);
 
                 expect(consentEventHandler).toHaveBeenCalledWith(
-                    new ConsentEvent('consent_status_change', expectedUpdatedValue, new Date()),
+                    expect.objectContaining({
+                        eventName: 'consent_status_change',
+                        eventProperties: expectedUpdatedValue,
+                        timestamp: expect.any(Date),
+                    }),
                 );
             });
 

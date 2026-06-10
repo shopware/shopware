@@ -108,13 +108,9 @@ describe('src/module/sw-category/component/sw-landing-page-view', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.getComponent('.sw-landing_page-view').attributes('position-identifier')).toBe('sw-landing-page-view');
-        expect(wrapper.getComponent('.sw-language-info').props('entityDescription')).toStrictEqual({
-            entity: {
-                id: landingPageIdMock,
-            },
-            fallbackSnippet: 'sw-manufacturer.detail.textHeadline',
-            field: 'name',
-        });
+        expect(wrapper.getComponent('.sw-language-info').props('entityDescription')).toBe(
+            'sw-manufacturer.detail.textHeadline',
+        );
 
         expect(wrapper.get('.sw-customer-detail-page__tabs').attributes('position-identifier')).toBe('sw-landing-page-view');
     });

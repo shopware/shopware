@@ -116,7 +116,7 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
     it('should render deprecated tabs when the major feature flag is inactive', async () => {
         await flushPromises();
 
-        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.find('sw-tabs-deprecated-stub').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 

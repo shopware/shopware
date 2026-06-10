@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 import { mount } from '@vue/test-utils';
-import { createRouter, createWebHashHistory } from 'vue-router';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -25,41 +24,14 @@ const mockData = [
 async function createWrapper({
     featureActive = false,
     routeName = 'sw.settings.search.index.general',
-    routerPush = null,
+    routerPush = jest.fn(),
 } = {}) {
-    const router = createRouter({
-        history: createWebHashHistory(),
-        routes: [
-            {
-                name: 'sw.settings.search.index.general',
-                path: '/sw/settings/search/index/general',
-                component: { template: '<div></div>' },
-            },
-            {
-                name: 'sw.settings.search.index.liveSearch',
-                path: '/sw/settings/search/index/live-search/',
-                component: { template: '<div></div>' },
-            },
-        ],
-    });
-
-    await router.push({
-        name: routeName,
-    });
-    await router.isReady();
-
-    if (routerPush) {
-        jest.spyOn(router, 'push').mockImplementation(routerPush);
-    }
-
     return mount(
         await wrapTestComponent('sw-settings-search', {
             sync: true,
         }),
         {
             global: {
-                router,
-
                 provide: {
                     repositoryFactory: {
                         create: () => ({
@@ -106,9 +78,20 @@ async function createWrapper({
                     </div>
                 `,
                     },
-                    'sw-tabs': await wrapTestComponent('sw-tabs'),
-                    'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs': {
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot></slot></div>',
+                        props: [
+                            'positionIdentifier',
+                        ],
+                    },
+                    'sw-tabs-item': {
+                        name: 'sw-tabs-item',
+                        template: '<div class="sw-tabs-item"><slot></slot></div>',
+                        props: [
+                            'route',
+                        ],
+                    },
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
                     'sw-modal': true,
@@ -135,6 +118,14 @@ async function createWrapper({
                         },
                     },
                     'sw-extension-component-section': true,
+                },
+                mocks: {
+                    $route: {
+                        name: routeName,
+                    },
+                    $router: {
+                        push: routerPush,
+                    },
                 },
             },
         },

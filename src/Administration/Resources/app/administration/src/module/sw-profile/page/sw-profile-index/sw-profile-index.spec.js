@@ -78,6 +78,7 @@ async function createWrapper(
             mocks: {
                 $route: {
                     name: routeName,
+                    params: {},
                 },
                 $router: {
                     push: routerPush,

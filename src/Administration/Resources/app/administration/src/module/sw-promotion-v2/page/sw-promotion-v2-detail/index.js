@@ -19,8 +19,8 @@ export default {
     ],
 
     mixins: [
-        'notification',
-        'placeholder',
+        Mixin.getByName('notification'),
+        Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('promotion'),
     ],
 

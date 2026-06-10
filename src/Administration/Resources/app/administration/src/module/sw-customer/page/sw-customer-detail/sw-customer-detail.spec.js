@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 
 /**
  * @sw-package checkout
@@ -152,10 +153,12 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     beforeEach(async () => {
+        Shopware.Store.get('error').resetApiErrors();
         wrapper = await createWrapper();
     });
 
     afterEach(() => {
+        Shopware.Store.get('error').resetApiErrors();
         jest.restoreAllMocks();
     });
 
@@ -332,7 +335,15 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should pass the general tab error state to meteor tabs', async () => {
-        jest.spyOn(Shopware.Store.get('error'), 'existsErrorInProperty').mockReturnValue(true);
+        Shopware.Store.get('error').addApiError({
+            expression: 'customer.test.email',
+            error: new ShopwareError({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            }),
+        });
 
         const wrapperWithMeteorTabs = await createWrapper([], false, {
             featureActive: true,

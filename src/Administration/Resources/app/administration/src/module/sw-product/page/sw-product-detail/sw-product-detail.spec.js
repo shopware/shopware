@@ -203,9 +203,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-extension-component-section': true,
                     'sw-product-clone-modal': true,
                 },
-                propsData: {
-                    productId,
-                },
+            },
+            props: {
+                productId,
             },
         });
     }
@@ -396,6 +396,12 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should show Advance mode setting on the variant product page', async () => {
+        await flushPromises();
+        Shopware.Store.get('swProductDetail').product = {
+            ...wrapper.vm.product,
+            parentId: 'parent-id',
+        };
+
         await wrapper.setProps({
             productId: '1234',
         });
@@ -523,15 +529,20 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await wrapper.unmount();
 
-        wrapper = await createWrapper(() => {
-            return Promise.resolve([
-                {
-                    id: '98432def39fc4624b33213a56b8c944d',
-                    name: 'Headless',
-                },
-            ]);
-        });
+        wrapper = await createWrapper(
+            () => {
+                return Promise.resolve([
+                    {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Headless',
+                    },
+                ]);
+            },
+            undefined,
+            null,
+        );
 
+        await flushPromises();
         await flushPromises();
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
     });

@@ -151,6 +151,9 @@ async function createWrapper(options = {}) {
                         boxLayout: {
                             value: {},
                         },
+                        boxHeadlineLevel: {
+                            value: null,
+                        },
                         defaultSorting: {
                             value: {},
                         },

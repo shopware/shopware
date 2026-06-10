@@ -92,7 +92,10 @@ async function createWrapper(
                         template: '<div class="mt-tabs"></div>',
                     },
                     'sw-button': await wrapTestComponent('sw-button'),
-                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-modal': {
+                        name: 'sw-modal__wrapped',
+                        template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
                     'sw-import-export-edit-profile-general': true,
                     'sw-import-export-edit-profile-field-indicators': true,
                     'sw-import-export-edit-profile-import-settings': true,

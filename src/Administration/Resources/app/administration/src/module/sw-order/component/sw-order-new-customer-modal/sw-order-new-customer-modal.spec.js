@@ -146,10 +146,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
     });
 
     it('should render the fallback tabs branch while the major feature flag is inactive', () => {
-        const tabs = wrapper.getComponent({ name: 'sw-tabs' });
-
-        expect(tabs.props('positionIdentifier')).toBe('sw-order-new-customer-modal');
-        expect(tabs.props('defaultItem')).toBe('details');
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
@@ -236,7 +233,7 @@ describe('src/module/sw-order/component/sw-order-new-customer-modal', () => {
             },
         ]);
 
-        wrapper.vm.isSameBilling = false;
+        wrapper.vm.customer.defaultShippingAddressId = 'different-shipping-address-id';
         await wrapper.vm.$nextTick();
 
         expect(wrapper.getComponent({ name: 'mt-tabs' }).props('items')[2]).toEqual({

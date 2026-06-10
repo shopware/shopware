@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -40,7 +42,9 @@ class AppSnippetFileLoaderTest extends TestCase
             static::getContainer()->get(ActiveAppsLoader::class),
             static::getContainer()->get(TranslationConfig::class),
             static::getContainer()->get(TranslationLoader::class),
-            $flySystem
+            $flySystem,
+            static::getContainer()->get(SourceResolver::class),
+            new NullLogger()
         );
     }
 

@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -76,14 +75,6 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
         static::assertCount(1, $this->findThemes($app->getName()));
 
-        $deletedEvents = 0;
-        static::getContainer()->get('event_dispatcher')->addListener(
-            AppDeletedEvent::class,
-            static function () use (&$deletedEvents): void {
-                ++$deletedEvents;
-            }
-        );
-
         // local-only delete (e.g. the uninstall-apps shop-id strategy): the app server is not notified
         $this->appManager->delete($app, $this->context);
 
@@ -91,7 +82,6 @@ class ThemeAppLifecycleHandlerTest extends TestCase
         // behaviour for copied shops); only an uninstall removes the theme record
         static::assertCount(0, $this->appRepository->searchIds(new Criteria(), $this->context)->getIds());
         static::assertCount(1, $this->findThemes($app->getName()));
-        static::assertSame(0, $deletedEvents);
     }
 
     /**

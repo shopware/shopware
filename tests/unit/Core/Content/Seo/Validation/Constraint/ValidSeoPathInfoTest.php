@@ -22,9 +22,12 @@ class ValidSeoPathInfoTest extends TestCase
     {
         yield 'plain path' => ['Computers/Laptops', false];
         yield 'dot and tilde' => ['a.b~c', false];
+        yield 'query string' => ['foo/bar?x=1', false];
+        yield 'valid percent-escape' => ['caf%C3%A9', false];
         yield 'percent (#13796)' => ['seo/url%/1', true];
+        yield 'incomplete percent-escape' => ['seo/url%4/1', true];
+        yield 'percent at end' => ['seo/url%', true];
         yield 'fragment' => ['foo/bar#baz', true];
-        yield 'query' => ['foo/bar?x=1', true];
         yield 'backslash' => ['foo\\bar', true];
         yield 'control char' => ["foo\0bar", true];
     }
@@ -41,14 +44,14 @@ class ValidSeoPathInfoTest extends TestCase
     public static function sanitizeProvider(): iterable
     {
         yield 'untouched when clean' => ['Computers/Laptops', 'Computers/Laptops'];
-        yield 'percent collapsed' => ['seo/url%/1', 'seo/url-/1'];
+        yield 'stray percent collapsed' => ['seo/url%/1', 'seo/url-/1'];
         yield 'fragment collapsed' => ['foo/bar#baz', 'foo/bar-baz'];
-        yield 'query collapsed' => ['foo/bar?x=1', 'foo/bar-x=1'];
         yield 'backslash collapsed' => ['foo\\bar', 'foo-bar'];
-        // Only the disallowed characters are replaced; the surrounding
-        // alphanumerics survive. The result is router-safe, not a faithful
-        // decode of the original `%XX` sequence.
-        yield 'percent markers in encoded sequence replaced' => ['caf%C3%A9', 'caf-C3-A9'];
+        // Query strings are URL-allowed and resolvable, so they survive.
+        yield 'query string untouched' => ['foo/bar?x=1', 'foo/bar?x=1'];
+        // Valid percent-escapes (rawurlencode output for non-ASCII slug
+        // configs) are URL-allowed and must survive untouched.
+        yield 'valid percent-escapes untouched' => ['caf%C3%A9', 'caf%C3%A9'];
         // A consecutive run of disallowed characters collapses to one separator.
         yield 'control characters collapsed' => ["foo\0\nbar", 'foo-bar'];
     }

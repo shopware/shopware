@@ -8,9 +8,14 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
 /**
- * Validates that a SEO path does not contain characters that would break
- * the frontend router (notably the `%` URL-encoding marker, fragment `#`,
- * query separator `?`, backslashes and ASCII control characters).
+ * Validates that a SEO path only contains URL-allowed characters. Rejected
+ * are only sequences that can never reach or round-trip through the
+ * frontend router: a stray `%` that does not form a valid percent-escape
+ * (causes a 400 Bad Request), the fragment marker `#` (never sent to the
+ * server), backslashes (normalized to `/` by browsers) and ASCII control
+ * characters. Valid percent-escapes (`%C3%A9`) and query strings
+ * (`path?foo=bar`) are URL-allowed and stay valid — the SEO resolver
+ * supports query-string SEO URLs.
  *
  * @internal
  */
@@ -20,19 +25,20 @@ class ValidSeoPathInfo extends Constraint
     final public const INVALID_TYPE_MESSAGE = 'This value should be of type string.';
     final public const INVALID_CHARACTERS = 'CONTENT__SEO_URL_INVALID_CHARACTERS';
 
-    public const DISALLOWED_CHARACTERS_PATTERN = '/[' . self::DISALLOWED_CHARACTERS . ']/';
+    public const DISALLOWED_CHARACTERS_PATTERN = '/' . self::DISALLOWED_SEQUENCES . '/';
 
     protected const ERROR_NAMES = [
         self::INVALID_CHARACTERS => 'CONTENT__SEO_URL_INVALID_CHARACTERS',
     ];
 
     /**
-     * Character class (regex body, without delimiters/quantifier) of the
-     * characters that must never appear unescaped inside a seo path because
-     * they break Symfony routing or cause a 400 Bad Request when the URL is
-     * resolved by the frontend (e.g. `%` in "seo/url%/1").
+     * Regex body (without delimiters/quantifier) matching the sequences that
+     * are not URL-allowed inside a seo path: a `%` that is not part of a valid
+     * percent-escape (causes a 400 Bad Request, e.g. "seo/url%/1"), the
+     * fragment marker `#`, backslashes and ASCII control characters. `?` and
+     * valid `%XX` escapes are deliberately not matched.
      */
-    private const DISALLOWED_CHARACTERS = '%#?\\\\\x00-\x1F\x7F';
+    private const DISALLOWED_SEQUENCES = '%(?![0-9A-Fa-f]{2})|[#\\\\\x00-\x1F\x7F]';
 
     /**
      * Separator used when sanitising generated paths. Mirrors the default
@@ -40,7 +46,7 @@ class ValidSeoPathInfo extends Constraint
      */
     private const SANITIZE_SEPARATOR = '-';
 
-    protected string $message = 'The SEO path "{{ path }}" contains disallowed characters.';
+    protected string $message = 'The SEO path "{{ path }}" contains characters that are not allowed in URLs.';
 
     /**
      * @param array<string, mixed>|null $options
@@ -70,20 +76,19 @@ class ValidSeoPathInfo extends Constraint
     }
 
     /**
-     * Filters disallowed characters out of a generated path instead of
+     * Filters disallowed sequences out of a generated path instead of
      * rejecting it. Used on the write paths that produce SEO URLs internally
      * (e.g. {@see SeoUrlPersister}), where a hard
      * rejection would abort the whole indexing batch. Each run of disallowed
-     * characters is collapsed into a single separator.
+     * sequences is collapsed into a single separator.
      *
-     * Note: replacing a whole run (rather than stripping single characters)
-     * is intentional — a `%` produced by `rawurlencode` is part of a
-     * `%XX` sequence, so dropping only the `%` would leave dangling bytes.
+     * Valid percent-escapes survive untouched, so `rawurlencode(slugify(...))`
+     * output for non-ASCII slug configs (e.g. `caf%C3%A9`) is preserved.
      */
     public static function sanitize(string $path): string
     {
         return (string) \preg_replace(
-            '/[' . self::DISALLOWED_CHARACTERS . ']+/',
+            '/(?:' . self::DISALLOWED_SEQUENCES . ')+/',
             self::SANITIZE_SEPARATOR,
             $path
         );

@@ -92,8 +92,10 @@ class SeoUrlPersister
             }
 
             // Generated SEO URLs bypass the DAL write validator, so filter
-            // router-breaking characters here (e.g. `%` emitted by rawurlencode
-            // for non-ASCII slug configs) rather than rejecting the batch. See #13796.
+            // sequences that are not URL-allowed here (stray `%`, `#`, `\`,
+            // control chars) rather than rejecting the batch. Valid
+            // percent-escapes emitted by rawurlencode for non-ASCII slug
+            // configs are preserved. See #13796.
             $seoPathInfo = ValidSeoPathInfo::sanitize(ltrim((string) $seoUrl['seoPathInfo'], '/'));
 
             $seoPathInfos[] = $seoPathInfo;

@@ -143,13 +143,15 @@ class SeoUrlPersisterTest extends TestCase
         $context = Context::createDefaultContext();
 
         $fk = Uuid::randomHex();
-        // Mimics what `rawurlencode(slugify(...))` can emit for non-ASCII slug
-        // configs; these characters break the storefront router (see #13796).
+        // Valid percent-escapes (`rawurlencode(slugify(...))` output for
+        // non-ASCII slug configs) and query strings are URL-allowed and must
+        // survive; only sequences that break the storefront router are
+        // filtered (here the `#` and the stray `%`, see #13796).
         $seoUrlUpdates = [
             [
                 'foreignKey' => $fk,
                 'pathInfo' => 'normal/path',
-                'seoPathInfo' => 'caf%C3%A9/with#frag?q=1',
+                'seoPathInfo' => 'caf%C3%A9/with#frag%/url?q=1',
             ],
         ];
 
@@ -167,7 +169,7 @@ class SeoUrlPersisterTest extends TestCase
             $stored,
             'Persisted SEO path must not contain router-breaking characters'
         );
-        static::assertSame('caf-C3-A9/with-frag-q=1', $stored);
+        static::assertSame('caf%C3%A9/with-frag-/url?q=1', $stored);
     }
 
     public function testDuplicatesSameSalesChannel(): void

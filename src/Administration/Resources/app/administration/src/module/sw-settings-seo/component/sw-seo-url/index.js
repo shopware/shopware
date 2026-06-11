@@ -10,12 +10,14 @@ const Criteria = Shopware.Data.Criteria;
 const EntityCollection = Shopware.Data.EntityCollection;
 
 /**
- * Characters that break the frontend router when present as a literal
- * inside a SEO path. Keep this regex in sync with
+ * Sequences that are not URL-allowed inside a SEO path: a `%` that is not
+ * part of a valid percent-escape, the fragment marker `#`, backslashes and
+ * ASCII control characters. Query strings (`?`) and valid `%XX` escapes are
+ * allowed. Keep this regex in sync with
  * `Shopware\\Core\\Content\\Seo\\Validation\\Constraint\\ValidSeoPathInfo::DISALLOWED_CHARACTERS_PATTERN`.
  */
 // eslint-disable-next-line no-control-regex
-const DISALLOWED_SEO_PATH_CHARS = /[%#?\\\x00-\x1F\x7F]/;
+const DISALLOWED_SEO_PATH_CHARS = /%(?![0-9A-Fa-f]{2})|[#\\\x00-\x1F\x7F]/;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

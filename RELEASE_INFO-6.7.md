@@ -1131,17 +1131,18 @@ To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and a
 
 ## API
 
-### SEO URL paths reject router-breaking characters on write
+### SEO URL paths reject characters that are not URL-allowed on write
 
-Writes to `seo_url.seoPathInfo` now reject strings containing `%`, `#`, `?`, `\`, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
-The validation runs in three places backed by a single allowlist (`ValidSeoPathInfo::containsDisallowedCharacters`):
+Writes to `seo_url.seoPathInfo` now reject strings containing sequences that are not allowed in URLs: a stray `%` that does not form a valid percent-escape (`%XX`), the fragment marker `#`, backslashes, or ASCII control characters (`\x00`–`\x1F`, `\x7F`).
+Query strings (`path?foo=bar`) and valid percent-escapes (`caf%C3%A9`) remain allowed — they are URL-valid and resolvable by the SEO resolver.
+The validation runs in three places backed by a single rule (`ValidSeoPathInfo::containsDisallowedCharacters`):
 
 * the admin `POST /api/_action/seo-url/create-custom-url` and `PATCH /api/_action/seo-url/canonical` endpoints (via `SeoUrlValidationFactory`),
 * raw `POST /api/seo-url` DAL writes (via a new `PreWriteValidationEvent` subscriber, `SeoUrlWriteValidator`),
 * and the inline admin UI form (`sw-seo-url`).
 
-API consumers that currently persist any of these characters in `seoPathInfo` will receive a `CONTENT__SEO_URL_INVALID_CHARACTERS` violation where the write previously succeeded.
-Percent-encode the value (`%25` for `%`) or sanitise it on the client side before sending.
+API consumers that currently persist any of these sequences in `seoPathInfo` will receive a `CONTENT__SEO_URL_INVALID_CHARACTERS` violation where the write previously succeeded.
+Percent-encode the value (`%25` for a literal `%`) or sanitise it on the client side before sending.
 
 ### Per-user and per-IP rate limiters for login and OAuth
 

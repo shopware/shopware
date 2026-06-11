@@ -32,6 +32,9 @@ class ValidSeoPathInfoValidatorTest extends TestCase
         yield 'with hyphen and digits' => ['Pepper-white-ground-pearl/SW10098'];
         yield 'with unicode letters' => ['café/über'];
         yield 'with dot and tilde' => ['a.b~c'];
+        yield 'with query string' => ['seo/url?foo=bar'];
+        yield 'with valid percent-escape' => ['seo/%20/foo'];
+        yield 'with encoded unicode' => ['caf%C3%A9/SW10098'];
     }
 
     /**
@@ -39,10 +42,9 @@ class ValidSeoPathInfoValidatorTest extends TestCase
      */
     public static function invalidValues(): iterable
     {
-        yield 'percent' => ['seo/url%/1'];
-        yield 'url-encoded hint' => ['seo/%20/foo'];
+        yield 'stray percent' => ['seo/url%/1'];
+        yield 'incomplete percent-escape' => ['seo/url%4/1'];
         yield 'fragment' => ['seo/url#anchor'];
-        yield 'query' => ['seo/url?foo=bar'];
         yield 'backslash' => ['seo\\url'];
         yield 'control character NUL' => ["seo\0url"];
         yield 'control character newline' => ["seo\nurl"];

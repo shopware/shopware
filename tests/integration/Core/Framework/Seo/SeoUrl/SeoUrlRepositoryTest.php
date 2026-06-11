@@ -145,8 +145,31 @@ class SeoUrlRepositoryTest extends TestCase
     {
         yield 'percent (issue #13796)' => ['seo/url%/1'];
         yield 'fragment' => ['foo/bar#baz'];
-        yield 'query separator' => ['foo/bar?x=1'];
         yield 'backslash' => ['foo\\bar'];
+    }
+
+    /**
+     * Query strings and valid percent-escapes are URL-allowed and resolvable
+     * by the SEO resolver, so writing them must stay possible.
+     */
+    public function testWritingUrlAllowedSeoPathInfoSucceeds(): void
+    {
+        $urls = array_map(static fn (string $seoPathInfo) => [
+            'id' => Uuid::randomHex(),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'foreignKey' => Uuid::randomHex(),
+
+            'routeName' => 'testRoute',
+            'pathInfo' => '/ugly/path',
+            'seoPathInfo' => $seoPathInfo,
+
+            'isCanonical' => true,
+            'isModified' => false,
+        ], ['foo/bar?x=1', 'caf%C3%A9/SW10098']);
+
+        $written = $this->seoUrlRepository->create($urls, Context::createDefaultContext());
+
+        static::assertCount(2, $written->getPrimaryKeys(SeoUrlDefinition::ENTITY_NAME));
     }
 
     #[DataProvider('invalidSeoPathInfoProvider')]

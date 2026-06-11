@@ -102,6 +102,8 @@ class SeoUrlWriteValidatorTest extends TestCase
     {
         yield 'simple path' => ['Computers/Laptops'];
         yield 'hyphen and digits' => ['Pepper-white-ground-pearl/SW10098'];
+        yield 'query string' => ['foo/bar?x=1'];
+        yield 'valid percent-escape' => ['caf%C3%A9/SW10098'];
     }
 
     /**
@@ -111,7 +113,6 @@ class SeoUrlWriteValidatorTest extends TestCase
     {
         yield 'percent reported in #13796' => ['seo/url%/1'];
         yield 'fragment' => ['foo/bar#baz'];
-        yield 'query' => ['foo/bar?x=1'];
         yield 'backslash' => ['foo\\bar'];
     }
 

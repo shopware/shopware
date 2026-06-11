@@ -171,18 +171,6 @@ class DefinitionValidator
     ];
 
     /**
-     * Foreign keys that are knowingly tolerated to reference a non-standard key.
-     *
-     * Should stay empty. Any entry must be justified, as MySQL 8.4
-     * (restrict_fk_on_non_standard_key=ON) rejects such foreign keys on schema import.
-     *
-     * @see self::validateForeignKeysReferenceUniqueKey()
-     *
-     * @var list<string>
-     */
-    private const FOREIGN_KEY_NON_STANDARD_KEY_ALLOWLIST = [];
-
-    /**
      * @internal
      */
     public function __construct(
@@ -192,9 +180,12 @@ class DefinitionValidator
     }
 
     /**
+     * @param list<string> $toleratedNonStandardForeignKeys Foreign key constraint names that are knowingly
+     *                                                      tolerated to reference a non-standard key
+     *
      * @return array<class-string<EntityDefinition|DefinitionInstanceRegistry>, list<string>>
      */
-    public function validate(): array
+    public function validate(array $toleratedNonStandardForeignKeys = []): array
     {
         $violations = [];
 
@@ -263,7 +254,7 @@ class DefinitionValidator
 
         $violations = array_merge_recursive($violations, $this->findNotRegisteredTables($schema->getTables()));
 
-        $violations = array_merge_recursive($violations, $this->validateForeignKeysReferenceUniqueKey($schema));
+        $violations = array_merge_recursive($violations, $this->validateForeignKeysReferenceUniqueKey($schema, $toleratedNonStandardForeignKeys));
 
         return array_filter($violations);
     }
@@ -1053,17 +1044,18 @@ class DefinitionValidator
      * keys can still be created on older/lenient servers but break schema imports on 8.4 (e.g.
      * disaster-recovery mysqldump restores). This check guards against introducing new ones.
      *
+     * @param list<string> $toleratedForeignKeys Foreign key constraint names excluded from this check
+     *
      * @return array<class-string<DefinitionInstanceRegistry>, list<string>>
      */
-    private function validateForeignKeysReferenceUniqueKey(Schema $schema): array
+    private function validateForeignKeysReferenceUniqueKey(Schema $schema, array $toleratedForeignKeys): array
     {
         $violations = [];
 
         foreach ($schema->getTables() as $table) {
             foreach ($table->getForeignKeys() as $foreignKey) {
                 $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue() ?? '';
-                /** @phpstan-ignore function.impossibleType (the allowlist is intentionally empty; entries are added to tolerate specific foreign keys) */
-                if (\in_array($foreignKeyName, self::FOREIGN_KEY_NON_STANDARD_KEY_ALLOWLIST, true)) {
+                if (\in_array($foreignKeyName, $toleratedForeignKeys, true)) {
                     continue;
                 }
 

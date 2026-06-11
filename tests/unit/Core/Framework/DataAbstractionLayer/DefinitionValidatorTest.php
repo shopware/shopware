@@ -140,7 +140,7 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_id', 'parent_version_id']);
         $child->addForeignKeyConstraint('parent', ['parent_id', 'parent_version_id'], ['id', 'version_id'], [], 'fk_child_parent_id');
 
-        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
     }
 
     public function testForeignKeyReferencingPrefixOfCompositePrimaryKeyReportsViolation(): void
@@ -149,7 +149,7 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_id']);
         $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
 
-        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('Foreign key "fk_child_parent_id" on table "child" references parent(id)', $violations[0]);
@@ -162,7 +162,7 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_id']);
         $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
 
-        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
     }
 
     public function testForeignKeyReferencingUniqueIndexReportsNoViolation(): void
@@ -172,7 +172,7 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_code']);
         $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
 
-        static::assertSame([], $this->foreignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
     }
 
     public function testForeignKeyReferencingNonKeyColumnReportsViolation(): void
@@ -181,7 +181,7 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_name']);
         $child->addForeignKeyConstraint('parent', ['parent_name'], ['name'], [], 'fk_child_parent_name');
 
-        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('references parent(name)', $violations[0]);
@@ -192,7 +192,7 @@ class DefinitionValidatorTest extends TestCase
         $table = $this->createTable('tree', ['id', 'parent_id'], ['id']);
         $table->addForeignKeyConstraint('tree', ['parent_id'], ['id'], [], 'fk_tree_parent_id');
 
-        static::assertSame([], $this->foreignKeyViolations(new Schema([$table])));
+        static::assertSame([], $this->getForeignKeyViolations(new Schema([$table])));
     }
 
     public function testForeignKeyReferencingPrefixUniqueIndexReportsViolation(): void
@@ -203,10 +203,44 @@ class DefinitionValidatorTest extends TestCase
         $child = $this->createTable('child', ['id', 'parent_code']);
         $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
 
-        $violations = $this->foreignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('references parent(code)', $violations[0]);
+    }
+
+    public function testForeignKeyReferencingPartialUniqueIndexReportsViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'code'], ['id']);
+        // A partial (predicate) unique index cannot back a foreign key.
+        $parent->addUniqueIndex(['code'], 'uniq_parent_code', ['where' => 'code IS NOT NULL']);
+        $child = $this->createTable('child', ['id', 'parent_code']);
+        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+
+        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+
+        static::assertCount(1, $violations);
+        static::assertStringContainsString('references parent(code)', $violations[0]);
+    }
+
+    public function testForeignKeyReferencingTableOutsideSchemaReportsNoViolation(): void
+    {
+        $child = $this->createTable('child', ['id', 'parent_id'], ['id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+
+        static::assertSame([], $this->getForeignKeyViolations(new Schema([$child])));
+    }
+
+    public function testToleratedForeignKeyReportsNoViolation(): void
+    {
+        $parent = $this->createTable('parent', ['id', 'version_id', 'name'], ['id', 'version_id']);
+        $child = $this->createTable('child', ['id', 'parent_id']);
+        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+
+        static::assertSame(
+            [],
+            $this->getForeignKeyViolations(new Schema([$parent, $child]), ['fk_child_parent_id'])
+        );
     }
 
     /**
@@ -369,21 +403,23 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
+     * @param list<string> $toleratedForeignKeys
+     *
      * @return list<string>
      */
-    private function foreignKeyViolations(Schema $schema): array
+    private function getForeignKeyViolations(Schema $schema, array $toleratedForeignKeys = []): array
     {
-        $schemaManager = $this->createMock(AbstractSchemaManager::class);
+        $schemaManager = static::createStub(AbstractSchemaManager::class);
         $schemaManager->method('introspectSchema')->willReturn($schema);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getDefinitions')->willReturn([]);
-        $registry->method('getByEntityName')->willReturn($this->createMock(EntityDefinition::class));
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
 
-        $violations = (new DefinitionValidator($registry, $connection))->validate();
+        $violations = (new DefinitionValidator($registry, $connection))->validate($toleratedForeignKeys);
         $registryViolations = $violations[DefinitionInstanceRegistry::class] ?? [];
 
         return array_values(array_filter(

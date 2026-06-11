@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -41,7 +42,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(SystemConfigService::class),
         );
 
         static::expectException(\RuntimeException::class);
@@ -62,7 +64,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->logAndThrowException(new \RuntimeException('test'));
@@ -85,7 +88,8 @@ class ElasticsearchHelperTest extends TestCase
             $client,
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(SystemConfigService::class),
         );
 
         static::assertFalse($helper->allowIndexing());
@@ -105,7 +109,8 @@ class ElasticsearchHelperTest extends TestCase
             $client,
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         static::expectException(\RuntimeException::class);
@@ -123,7 +128,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         static::assertSame('prefix_product', $helper->getIndexName(new ProductDefinition()));
@@ -146,7 +152,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $registry,
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $criteria = new Criteria();
@@ -196,7 +203,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $parser,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -235,7 +243,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $parser,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);

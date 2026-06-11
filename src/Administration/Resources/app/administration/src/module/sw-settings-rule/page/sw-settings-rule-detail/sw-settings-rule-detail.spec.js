@@ -72,6 +72,8 @@ const ruleConditionDataProviderServiceMock = {
     getModuleTypes: jest.fn(() => []),
     addScriptConditions: jest.fn(() => {}),
     getAwarenessKeysWithEqualsAnyConfig: jest.fn(() => []),
+    getDeprecationsInTree: jest.fn(() => []),
+    getFlowOnlyTypesInTree: jest.fn(() => []),
 };
 
 const ruleConditionsConfigApiServiceMock = {
@@ -385,6 +387,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     'orderPromotions',
                     'cartPromotions',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
         await flushPromises();
@@ -921,6 +925,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                     isRestricted: true,
                 }),
                 getTranslatedConditionViolationList: () => ['someSnippetPath'],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -941,6 +947,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getModuleTypes: () => [],
                 addScriptConditions: () => {},
                 getAwarenessKeysWithEqualsAnyConfig: () => [],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -969,6 +977,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -997,6 +1007,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
 
@@ -1020,6 +1032,8 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
                 getAwarenessKeysWithEqualsAnyConfig: () => [
                     'testRelation',
                 ],
+                getDeprecationsInTree: () => [],
+                getFlowOnlyTypesInTree: () => [],
             },
         });
         await flushPromises();

@@ -10,6 +10,8 @@ on:
         required: true
         type: number
 
+run-name: "Shopware Issue Triage #${{ github.event.issue.number || github.event.inputs.issue_number }}"
+
 concurrency:                 # explicit — workflow_dispatch default group cancels parallel runs (gh-aw #19467)
   group: triage-${{ github.event.inputs.issue_number }}
   cancel-in-progress: false
@@ -43,6 +45,43 @@ safe-outputs:
     retention-days: 7
     allowed-paths:
       - "triage-output.json"
+  threat-detection:
+    enabled: true
+    prompt: |
+      The triage output is a potential exfiltration channel. In ADDITION to the default
+      checks, set secret_leak=true if any field contains:
+        - a GitHub token (prefixes ghp_, gho_, ghu_, ghs_, ghr_, or github_pat_),
+        - an Anthropic API key (sk-ant-...) or OpenAI API key (sk-...),
+        - any long, high-entropy base64-like blob that could encode a credential or binary payload.
+      A valid TriageOutput only ever contains dispositions, severities, labels, reasoning,
+      evidence quotes, file paths, and issue/PR/commit references — never credentials,
+      tokens, or binary blobs.
+
+post-steps:
+  - name: Write deterministic triage context
+    if: always()
+    shell: bash
+    env:
+      TRIAGE_ISSUE_NUMBER: ${{ github.event.inputs.issue_number }}
+      TRIAGE_RUN_ID: ${{ github.run_id }}
+    run: |
+      mkdir -p "${RUNNER_TEMP}/triage-context"
+      jq -n \
+        --argjson issue_number "${TRIAGE_ISSUE_NUMBER}" \
+        --argjson run_id "${TRIAGE_RUN_ID}" \
+        '{
+          issue_number: $issue_number,
+          run_id: $run_id
+        }' > "${RUNNER_TEMP}/triage-context/triage-context.json"
+
+  - name: Upload deterministic triage context
+    if: always()
+    uses: actions/upload-artifact@v7
+    with:
+      name: triage-context
+      path: ${{ runner.temp }}/triage-context/triage-context.json
+      retention-days: 7
+      if-no-files-found: error
 ---
 
 # Shopware Issue Triage

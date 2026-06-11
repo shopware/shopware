@@ -64,7 +64,11 @@ const LIMITS = {
   labels_max: 2,
 };
 
-// Catastrophic-leakage patterns. Each match aborts the upload.
+// Catastrophic-leakage patterns. A match fails this post-run validation (red check on
+// the triage run) — it does NOT abort the upload: by the time this runs the artifact is
+// already stored, so this is the deterministic backstop. Upload-time blocking is gh-aw's
+// threat-detection job (configured via safe-outputs.threat-detection in triage.md), which
+// runs before the upload and is aligned to these same patterns.
 // GitHub token prefixes per https://github.blog/2021-04-05-behind-githubs-new-authentication-token-formats/
 const SECRET_PATTERNS = [
   { name: 'GitHub PAT (classic)', re: /\bghp_[A-Za-z0-9]{36,}\b/ },

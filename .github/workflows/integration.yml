@@ -319,15 +319,26 @@ jobs:
       - name: Cache Storefront npm packages
         uses: actions/cache@v5
         with:
-          path: new-shopware/src/Storefront/Resources/app/storefront/node_modules
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps the install off the network.
+          path: |
+            new-shopware/src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
           key: ${{ runner.os }}-storefront-${{ hashFiles('new-shopware/src/Storefront/Resources/app/storefront/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-storefront-
 
+      # This job checks the repo out into new-shopware/, so the composite action is
+      # referenced at its checked-out subpath (local ./ actions resolve from the workspace root).
+      - name: Install storefront dependencies
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware
+          command: composer run npm:storefront ci
+
       - name: Build new shopware
         working-directory: new-shopware
         run: |
-          composer run npm:storefront ci
           composer run npm:storefront run production
           (cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js)
 
@@ -375,9 +386,12 @@ jobs:
       - name: Install npm
         run: npm install -g npm@11.8.0
 
+      # ~/.npm is cached earlier in this job, so prefer-offline reuses tarballs.
+      # Referenced at the new-shopware/ subpath where the repo is checked out.
       - name: Install dependencies
-        working-directory: new-shopware/tests/acceptance
-        run: npm ci
+        uses: ./new-shopware/.github/actions/npm-ci-retry
+        with:
+          working-directory: new-shopware/tests/acceptance
 
       - name: Refresh Package List
         run: sudo apt-get update --allow-releaseinfo-change

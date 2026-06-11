@@ -730,7 +730,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'rawMessage' => 'Throwing new exceptions within classes are not allowed. Please use domain exception pattern. See https://github.com/shopware/platform/blob/v6.4.20.0/adr/2022-02-24-domain-exceptions.md',
     'identifier' => 'shopware.domainException',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/src/Core/Framework/DataAbstractionLayer/FieldSerializer/PriceDefinitionFieldSerializer.php',
 ];
 $ignoreErrors[] = [

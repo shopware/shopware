@@ -13,6 +13,19 @@ Generate `ReproTest.php` (set `script_path: "ReproTest.php"`):
   reinvent the bootstrap.
 - A single test method that ASSERTS THE HEALTHY (fixed) behaviour, so it FAILS on the buggy
   version and PASSES when healthy.
+- **When the SYMPTOM is a thrown exception** (the buggy version throws — e.g. a DB error
+  during indexing), wrap exactly that action in try/catch and convert the throw into an
+  assertion FAILURE:
+  ```php
+  try {
+      $indexer->handle($message); // the action that throws on the buggy version
+  } catch (\Throwable $e) {
+      static::fail('symptom: ... threw ' . $e->getMessage());
+  }
+  ```
+  Without this, the throw surfaces as a PHPUnit ERROR, which the executor classifies as
+  `inconclusive` (reserved for bootstrap/compile failures) — not as the reproduction it is.
+  Keep setup OUTSIDE the try/catch so genuine setup breakage still errors → `inconclusive`.
 
 `run-direct.sh` drops the file under the shop's `tests/integration/Repro/` (PSR-4
 autoload) and runs `vendor/bin/phpunit`.

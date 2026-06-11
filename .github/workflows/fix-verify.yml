@@ -325,6 +325,7 @@ jobs:
         if: steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
         env:
           APP_URL: ${{ steps.provision.outputs.app_url }}
+          SW_ACCESS_KEY: ${{ steps.provision.outputs.access_key }}
           TARGET: ${{ matrix.leg }}
         run: bash .github/actions/repro/bin/run-leg.sh
 

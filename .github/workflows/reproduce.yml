@@ -557,9 +557,10 @@ jobs:
             repro.sh
             repro.spec.ts
             ReproTest.php
+            phpunit-output.txt
             test-results/
             playwright-report/
-          if-no-files-found: ignore # script (repro.sh|repro.spec.ts|ReproTest.php) + test-results/ + playwright-report/ vary by executor
+          if-no-files-found: ignore # script + phpunit-output.txt + test-results/ + playwright-report/ vary by executor
           retention-days: 7
 
   # --------------------------------------------------------------------------

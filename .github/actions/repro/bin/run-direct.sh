@@ -33,7 +33,13 @@ else
       tests/integration/Repro/ReproTest.php ) >"$REPORT" 2>&1
   set -e
 fi
+# Keep the FULL output as a leg artifact (the workflow uploads phpunit-output.txt) — a
+# trimmed excerpt once cut off the exception MESSAGE and made a failure undiagnosable.
+cp "$REPORT" phpunit-output.txt || true
 TAIL=$(tail -c 1500 "$REPORT" | tr -d '\r' | tr -s ' ')
+# The most diagnostic part of a PHPUnit error/failure is the HEAD of the first error block
+# ("1) Test::method" + the exception message), not the tail (which is just the trace).
+ERRHEAD=$(grep -m1 -A4 -E '^[0-9]+\) ' "$REPORT" | tr -d '\r' | tr -s ' \n' '  ' | head -c 700)
 
 # Map the PHPUnit summary. OK => healthy; FAILURES => symptom; ERRORS/fatal/no-tests =>
 # the test couldn't run (likely a cross-version API mismatch) => inconclusive.
@@ -44,7 +50,7 @@ elif grep -q 'FAILURES!' "$REPORT"; then
   REPORTER=$(grep -m1 -E '^[0-9]+\)' "$REPORT" | head -c 300); [ -n "$REPORTER" ] || REPORTER="assertion failed (symptom present)"
 elif grep -qE 'ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught' "$REPORT"; then
   STATUS="inconclusive"; MATCHED="null"
-  REASON_TEXT="PHPUnit could not run the test (bootstrap/compile error — likely a cross-version API mismatch): $TAIL"
+  REASON_TEXT="PHPUnit could not run the test (errored before/outside the symptom assertion): ${ERRHEAD:-$TAIL} — full output in the leg artifact's phpunit-output.txt"
   REPORTER="PHPUnit errored (test could not run)"
 else
   STATUS="blocked"; MATCHED="null"

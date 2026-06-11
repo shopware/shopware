@@ -26,6 +26,16 @@ Generate `ReproTest.php` (set `script_path: "ReproTest.php"`):
   Without this, the throw surfaces as a PHPUnit ERROR, which the executor classifies as
   `inconclusive` (reserved for bootstrap/compile failures) — not as the reproduction it is.
   Keep setup OUTSIDE the try/catch so genuine setup breakage still errors → `inconclusive`.
+- **DAL writes run indexers SYNCHRONOUSLY in integration tests** (`EntityIndexingSubscriber`
+  dispatches on entity-written). If the symptom is thrown FROM an indexer, the triggering
+  **write IS the action** — wrap THAT `$repository->create()/upsert()` in the try/catch
+  (mirroring the issue's "create a product"), NOT a later explicit indexer call that is
+  never reached. (A real miss: the product create() at "setup" line 80 ran ProductIndexer
+  inline and threw there → ERROR → inconclusive, while the wrapped indexer call below it
+  was dead code.) If heavy FIXTURES would also trigger the same indexer prematurely,
+  create them with indexing deferred — `$context->addState(EntityIndexerRegistry::DISABLE_INDEXING)`
+  (or `EntityIndexerRegistry::USE_INDEXING_QUEUE`) during fixture writes — then perform the
+  one real triggering write inside the try/catch with a normal context.
 
 `run-direct.sh` drops the file under the shop's `tests/integration/Repro/` (PSR-4
 autoload) and runs `vendor/bin/phpunit`.

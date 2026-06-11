@@ -760,29 +760,26 @@ class CartLineItemControllerTest extends TestCase
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
+        // Raw request payload: browsers submit everything as strings.
         $lineItems = [
-            [
-                'id' => $id1,
-                'quantity' => 5,
-                'stackable' => false,
-                'priceDefinition' => [
-                    'quantity' => 5,
-                    'isCalculated' => 1,
-                ],
-            ],
-            [
-                'id' => $id2,
-                'removable' => false,
-            ],
+            ['id' => $id1, 'quantity' => '5', 'stackable' => '1', 'priceDefinition' => ['quantity' => '5', 'isCalculated' => '1']],
+            ['id' => $id2, 'removable' => '0'],
         ];
 
         $request = new Request([], ['lineItems' => $lineItems]);
         $cart = new Cart(Uuid::randomHex());
         $context = $this->createMock(SalesChannelContext::class);
 
+        // The controller must normalize the raw strings to int/bool before handing them to update().
+        // identicalTo() enforces the types strictly; the default with() uses == and would pass uncast.
+        $expectedItems = [
+            ['id' => $id1, 'quantity' => 5, 'stackable' => true, 'priceDefinition' => ['quantity' => 5, 'isCalculated' => 1]],
+            ['id' => $id2, 'removable' => false],
+        ];
+
         $this->cartService->expects($this->once())
             ->method('update')
-            ->with($cart, $lineItems, $context)
+            ->with($cart, static::identicalTo($expectedItems), $context)
             ->willReturn($cart);
 
         $this->translatorCallback();

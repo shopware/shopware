@@ -20,7 +20,37 @@
             <tag name="kernel.reset" method="reset"/>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ScssPhpCompiler" />
+        <service id="ScssPhp\ScssPhp\Compiler" />
+
+        <service id="Shopware\Storefront\Theme\ScssPhpCompiler">
+            <argument type="service" key="$compiler" id="ScssPhp\ScssPhp\Compiler"/>
+            <argument type="service" key="$filesystem" id="Symfony\Component\Filesystem\Filesystem"/>
+        </service>
+
+        <service id="storefront.scss_cache_key_generator.filesystem" class="League\Flysystem\Filesystem">
+            <argument type="service">
+                <service class="League\Flysystem\Local\LocalFilesystemAdapter">
+                    <argument>/</argument>
+                </service>
+            </argument>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ScssCacheKeyGenerator">
+            <argument type="service" id="storefront.scss_cache_key_generator.filesystem"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\CachedScssCompiler"
+                 decorates="Shopware\Storefront\Theme\ScssPhpCompiler">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="cache.app.taggable"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ScssCacheKeyGenerator"/>
+            <argument type="collection">
+                <argument key="lifetime">3600</argument>
+                <argument key="tags" type="collection">
+                    <argument>scss_compiler</argument>
+                </argument>
+            </argument>
+        </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
             <argument type="service" id="shopware.filesystem.theme"/>

@@ -85,7 +85,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             $themeId,
             $themeConfig,
             $salesChannelId,
-            $context
+            $context,
+            $context->hasState(ThemeService::STATE_USE_THEME_CACHE)
         );
 
         $newThemeHash = Uuid::randomHex();
@@ -668,7 +669,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         array $resolveMappings,
         string $salesChannelId,
         string $themeId,
-        Context $context
+        Context $context,
+        bool $useCache = false
     ): string {
         try {
             $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $themeId, $salesChannelId, $context);
@@ -688,6 +690,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 [
                     'importPaths' => $importPaths,
                     'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
+                    'useCache' => $useCache,
                 ]
             );
 
@@ -874,6 +877,7 @@ PHP_EOL;
         StorefrontPluginConfiguration $themeConfig,
         string $salesChannelId,
         Context $context,
+        bool $useCache = false,
     ): string {
         try {
             $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
@@ -891,7 +895,8 @@ PHP_EOL;
             $styleFiles->getResolveMappings(),
             $salesChannelId,
             $themeId,
-            $context
+            $context,
+            $useCache
         );
     }
 

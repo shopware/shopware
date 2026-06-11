@@ -86,6 +86,32 @@ class ThemeCompileCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
+    public function testItSetsUseCacheThemeCompileContextState(): void
+    {
+        $salesChannelId = 'sales-channel-id';
+        $themeId = 'theme-id';
+
+        $themeService = static::createMock(ThemeService::class);
+        $themeService->expects($this->once())
+            ->method('compileTheme')
+            ->willReturnCallback(static function (string $sc, string $tid, Context $context) use ($salesChannelId, $themeId): void {
+                static::assertSame($salesChannelId, $sc);
+                static::assertSame($themeId, $tid);
+                static::assertTrue($context->hasState(ThemeService::STATE_USE_THEME_CACHE));
+            });
+
+        $themeProvider = static::createMock(AbstractAvailableThemeProvider::class);
+        $themeProvider->expects($this->once())
+            ->method('load')
+            ->with(static::anything(), false)
+            ->willReturn([$salesChannelId => $themeId]);
+
+        $commandTester = new CommandTester(new ThemeCompileCommand($themeService, $themeProvider, new NativeClock()));
+
+        $commandTester->execute(['--use-cache' => true]);
+        $commandTester->assertCommandIsSuccessful();
+    }
+
     public function testItPassesSkipSalesChannelFlagCorrectly(): void
     {
         $salesChannelIdSkip1 = 'sales-channel-id1';

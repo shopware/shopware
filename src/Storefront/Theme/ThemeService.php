@@ -35,6 +35,7 @@ class ThemeService implements ResetInterface
 {
     public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
     public const STATE_NO_QUEUE = 'state-no-queue';
+    public const STATE_USE_THEME_CACHE = 'state-use-theme-cache';
 
     private bool $notified = false;
 

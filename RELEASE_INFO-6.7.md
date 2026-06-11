@@ -49,6 +49,13 @@ This prevents leading or trailing whitespace from being stored in standard addre
 
 Existing customer address records are not changed.
 
+### Optional SCSS compile cache
+
+SCSS compilation can now reuse previously compiled output through the new `CachedScssCompiler` decorator, backed by `cache.app.taggable` (tag `scss_compiler`, 1h lifetime).
+Caching is **opt-in per call and off by default**: enable it with `theme:compile --use-cache` or by adding `ThemeService::STATE_USE_THEME_CACHE` to the `Context`.
+The cache key tracks the source, output style, import paths, and the mtimes of every imported file, so entries invalidate when any SCSS in the import graph changes.
+Override the service to change the pool, lifetime, or tags, and flush manually with `invalidateTags(['scss_compiler'])`.
+
 ## API
 
 ### Plain JSON API includes preserve extension wrappers

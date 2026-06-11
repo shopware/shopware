@@ -319,21 +319,14 @@ jobs:
               evidence:{script:"",script_lang:"sh",reporter_output:"provision/seed failed",http:[],artifacts:[],truncated:false},
               blocked_reason:"environment not READY (provision or seed failed) for the '"${{ matrix.leg }}"' leg" }' > result.json
 
+      # Shared leg dispatcher (see bin/run-leg.sh): derives the executor from the plan and
+      # runs run-{http,playwright,direct}.sh. The same script the reproduce workflow uses.
       - name: Run executor
         if: steps.provision.outcome == 'success' && steps.seed.outcome == 'success'
         env:
           APP_URL: ${{ steps.provision.outputs.app_url }}
           TARGET: ${{ matrix.leg }}
-        run: |
-          set -euo pipefail
-          EXECUTOR=$(jq -r .executor analysis.json)
-          case "$EXECUTOR" in
-            http)       ANALYSIS=analysis.json OUT=result.json bash .github/actions/repro/bin/run-http.sh ;;
-            playwright) ANALYSIS=analysis.json OUT=result.json bash .github/actions/repro/bin/run-playwright.sh ;;
-            direct)     ANALYSIS=analysis.json OUT=result.json SHOP_DIR=shop bash .github/actions/repro/bin/run-direct.sh ;;
-            *) echo "::warning::unknown executor"; jq -n '{schema_version:"1",status:"inconclusive",blocked_reason:"unknown executor"}' > result.json ;;
-          esac
-          cat result.json
+        run: bash .github/actions/repro/bin/run-leg.sh
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()

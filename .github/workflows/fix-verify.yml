@@ -149,11 +149,11 @@ jobs:
 
       - id: mode
         env:
-          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          HAS_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY != '' || secrets.ANTHROPIC_API_KEY != '' }}
         run: |
           set -euo pipefail
           if [ "$HAS_KEY" = "true" ]; then echo "mode=real" >> "$GITHUB_OUTPUT"
-          else echo "::error::Verify-fix requires ANTHROPIC_API_KEY. Refusing to fabricate a plan."; exit 1; fi
+          else echo "::error::Verify-fix requires QUALITY_INITIATIVE_ANTHROPIC_API_KEY (or ANTHROPIC_API_KEY). Refusing to fabricate a plan."; exit 1; fi
 
       # Prefetch: the bug = the PR's linked issue (or the PR body); the regression test = this PR's diff.
       - name: Prefetch context
@@ -181,7 +181,7 @@ jobs:
         continue-on-error: true
         uses: anthropics/claude-code-action@11ba60486e4aec9ddfeafcf4bb3f00b028ac2c16 # v1.0.142
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY || secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
           prompt: |
             Run the `reproduce` skill's Analyze phase in FIX-VERIFY mode for PR

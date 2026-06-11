@@ -1306,6 +1306,19 @@ To extend or replace a schema in a plugin or theme, use `sw_extends` on the rele
 
 The block `page_product_detail_product_buy_button_label` has been removed. Use `component_product_box_action_buy_button_label` instead.
 
+## Deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets
+
+The snippets `listing.beforeListPrice` and `listing.afterListPrice` for injecting markup around the list price are deprecated; their output is removed in 6.8.0. Use one of the following replacements instead:
+
+- Without code, via system config: create a regular translation snippet with a custom key and enter that key in the new system config settings `core.listing.beforeListPriceSnippetKey` / `core.listing.afterListPriceSnippetKey` (Settings > Shop > Listing). The snippet content is rendered sanitized around every list price, per sales channel and language.
+- In a theme or plugin: override the central template `@Storefront/storefront/component/product/list-price-affix.html.twig` (block `component_list_price_affix_content`, with `position` set to `before` or `after`) to inject markup into all list price displays at once.
+
+To target a single display only, override the local Twig blocks instead:
+
+- `buy-widget-price.html.twig`: `buy_widget_was_price_before` / `buy_widget_was_price_after`
+- `block-price.html.twig`: `component_product_detail_block_list_price_before` / `component_product_detail_block_list_price_after`
+- `price-unit.html.twig`: `component_product_box_main_price_before` / `component_product_box_main_price_after`
+
 ## TOS checkbox position update
 The Terms of Service (TOS) was relocated to the bottom of the order confirmation page. The checkbox is now hidden by default due to not being necessary and replaced with a descriptive label, while its visibility can be controlled using the new configuration option `core.cart.showTosCheckbox`.
 

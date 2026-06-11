@@ -2,6 +2,15 @@
 
 ## Storefront
 
+### Central extension point for content before/after list prices
+
+A new template `@Storefront/storefront/component/product/list-price-affix.html.twig` is rendered inside every list price display (product box, product detail buy widget, advanced pricing table). It replaces the deprecated `listing.beforeListPrice` / `listing.afterListPrice` snippets as the single place to inject content around list prices.
+
+Content can be provided in two ways:
+
+- Without code: create a translation snippet with a custom key and enter that key in the new sales-channel-aware system config settings `core.listing.beforeListPriceSnippetKey` / `core.listing.afterListPriceSnippetKey`. The snippet content is rendered sanitized, wrapped in a `list-price-affix list-price-affix-{before|after}` span.
+- In a theme or plugin: override the block `component_list_price_affix_content` once; the `position` variable (`before` / `after`) allows position-specific output.
+
 ### Thumbnail `sizes` attribute now emits a value for the XXL breakpoint
 
 The auto-generated `sizes` attribute produced by `thumbnail.html.twig` now includes a value for the XXL breakpoint. The `xxl` key is the open-ended top (`container / columns`), and `xl` is a closed range bounded by `breakpoint.xxl - 1`, matching the pattern used by smaller breakpoints. Templates that pass a manual `sizes` map to `sw_thumbnails` should add an `xxl` entry to keep parity.
@@ -167,6 +176,13 @@ A new `sha256` Twig filter is available alongside the existing `md5` filter. Bot
 The new `parent.name` search field allows variants to be found through their parent product name and ranked independently from the variant's own `name`.
 
 The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
+### Reduced product data in listings via description teaser
+
+Product listings can now load a shortened, HTML-free excerpt of the product description instead of the full text, which significantly reduces database load, transfer size and memory usage for catalogs with large descriptions. Previously the complete description was loaded for every product box even though the storefront only displays a few clamped lines.
+
+This reduced loading is **disabled by default** (opt-in) and can be enabled per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
+
+A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
 ## Administration
 
@@ -275,6 +291,14 @@ Tracked in [shopware/shopware#16560](https://github.com/shopware/shopware/issues
 Google Storage filesystem configurations can now omit `keyFile` and `keyFilePath`.
 When neither option is configured, Shopware lets the Google Cloud PHP SDK resolve credentials through [Application Default Credentials](https://docs.cloud.google.com/docs/authentication/application-default-credentials), such as `GOOGLE_APPLICATION_CREDENTIALS`, local ADC files, or attached service accounts in Google Cloud environments.
 See Google's [PHP client authentication guide](https://docs.cloud.google.com/php/docs/reference/help/authentication) for the PHP library lookup behavior.
+
+## Critical Fixes
+
+### Admin worker no longer blocks same-session API requests on PHP session locks
+
+Fixed a session-locking issue that could slow down concurrent Administration requests when the browser-based admin worker is used together with native PHP file session storage.
+In that setup, an admin queue worker request could initialize the current PHP session while consuming messages and keep the session file locked until the long-poll request returned.
+Concurrent Admin API requests from the same browser session, for example sync or save requests, no longer wait for that admin worker session lock.
 
 # 6.7.11.0
 
@@ -580,6 +604,12 @@ See `UPGRADE-6.8.md` for migration details.
 A new "Agentic Commerce" sales channel type is available in this release.
 The OpenAI Merchant Center integration is the first supported provider for AI-powered product feed exports.
 The Administration includes dedicated views for configuration, product mapping, and usage insights.
+
+### [Experimental] Breadcrumb category referrer
+
+Shopware now supports building product breadcrumbs based on the referring category. When a customer lands on a product detail page from a category listing, the breadcrumb can dynamically reflect the category path they came from.
+
+To enable this feature, set the `BREADCRUMB_REWORK` feature flag to `true` and activate the "Build breadcrumb based on referrer category" setting in Settings > Products.
 
 ## API
 

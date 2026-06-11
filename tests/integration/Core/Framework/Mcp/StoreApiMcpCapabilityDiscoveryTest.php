@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -42,19 +43,26 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
             ], \JSON_THROW_ON_ERROR),
         );
 
-        $sessionHeaders = $browser->getResponse()->headers->all();
-        $sessionHeader = $sessionHeaders['mcp-session-id'] ?? $sessionHeaders['Mcp-Session-Id'] ?? null;
-        $sessionId = \is_string($sessionHeader[0] ?? null) ? $sessionHeader[0] : null;
+        $initializeResponse = $browser->getResponse();
+        $sessionId = $initializeResponse->headers->get('mcp-session-id');
+        static::assertNotNull($sessionId, 'initialize response is missing the mcp-session-id header');
+
+        $exposedHeaders = (string) $initializeResponse->headers->get('Access-Control-Expose-Headers');
+        static::assertContains(
+            PlatformRequest::HEADER_MCP_SESSION_ID,
+            explode(',', $exposedHeaders),
+            'mcp-session-id must be exposed via CORS for browser-based MCP clients',
+        );
 
         $browser->request(
             'POST',
             '/store-api/_mcp',
             [],
             [],
-            array_filter([
+            [
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_MCP_SESSION_ID' => $sessionId,
-            ]),
+            ],
             json_encode([
                 'jsonrpc' => '2.0',
                 'method' => 'tools/list',

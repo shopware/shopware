@@ -104,6 +104,25 @@ authenticated Store API client can access all registered Store API MCP capabilit
 Fine-grained access control at the sales-channel or customer tier is a deliberate
 future extension point.
 
+## Browser-based Clients (CORS)
+
+The endpoint supports browser-based MCP clients. The global CORS handling
+(`CorsListener`) allows the `mcp-session-id` and `mcp-protocol-version` request headers
+and exposes `mcp-session-id` on responses. A browser client can therefore read the
+session ID from the `initialize` response header and send it on all subsequent requests.
+
+## Sessions
+
+The server assigns a session ID (UUID) on `initialize` and returns it in the
+`mcp-session-id` response header. A malformed `mcp-session-id` request header is
+rejected with HTTP 400 before it reaches the transport.
+
+Session state uses the MCP SDK's in-memory session store by default, which does not
+survive across PHP workers. For multi-worker or multi-server deployments, define the
+`mcp.session.store` service with an implementation of
+`Mcp\Server\Session\SessionStoreInterface` backed by shared storage (e.g. Redis); the
+Store API server builder picks it up automatically.
+
 ## Built-in Capabilities
 
 | Name | Type | Description |

@@ -20,6 +20,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -33,9 +34,6 @@ use Symfony\Component\Routing\Attribute\Route;
  * the Store API is intentionally open: any authenticated sales-channel client
  * can access all registered Store API MCP capabilities. Fine-grained access
  * control at the sales-channel level is a deliberate future extension point.
- *
- * @todo Browser-based MCP clients need the `mcp-session-id` response header
- *       exposed via CORS. The default CorsListener does not include it yet.
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 #[Package('framework')]
@@ -77,6 +75,7 @@ class StoreApiMcpServerController
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
+        $this->validateSessionId($request);
         $this->rateLimit($request);
 
         $this->logger?->debug('Store API MCP request', [
@@ -95,6 +94,20 @@ class StoreApiMcpServerController
         $streamed = strtolower($psrResponse->getHeaderLine('Content-Type')) === 'text/event-stream';
 
         return $this->httpFoundationFactory->createResponse($psrResponse, $streamed);
+    }
+
+    /**
+     * The MCP SDK transport parses the session header with Uuid::fromString(),
+     * which throws on malformed input. Reject garbage early with a clean 400
+     * instead of surfacing a 500 from the transport.
+     */
+    private function validateSessionId(Request $request): void
+    {
+        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
+
+        if ($sessionId !== null && !Uuid::isValid($sessionId)) {
+            throw McpException::invalidSessionId();
+        }
     }
 
     private function rateLimit(Request $request): void

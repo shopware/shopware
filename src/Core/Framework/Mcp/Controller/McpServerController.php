@@ -34,6 +34,7 @@ use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0 feature:MCP_SERVER
@@ -86,6 +87,7 @@ class McpServerController
             return new Response(null, Response::HTTP_NOT_FOUND);
         }
 
+        $this->validateSessionId($request);
         $this->rateLimit($request);
 
         $this->logger?->debug('MCP request', [
@@ -288,6 +290,20 @@ class McpServerController
             return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             return null;
+        }
+    }
+
+    /**
+     * The MCP SDK transport parses the session header with Uuid::fromString(),
+     * which throws on malformed input. Reject garbage early with a clean 400
+     * instead of surfacing a 500 from the transport.
+     */
+    private function validateSessionId(Request $request): void
+    {
+        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID);
+
+        if ($sessionId !== null && !Uuid::isValid($sessionId)) {
+            throw McpException::invalidSessionId();
         }
     }
 

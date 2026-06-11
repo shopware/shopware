@@ -17,6 +17,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -40,6 +43,7 @@ class StoreApiMcpServerControllerTest extends TestCase
     protected function tearDown(): void
     {
         unset($_SERVER['MCP_SERVER']);
+        Clock::set(new NativeClock());
     }
 
     public function testHandleReturnsResponseForValidStoreApiMcpRequest(): void
@@ -97,7 +101,8 @@ class StoreApiMcpServerControllerTest extends TestCase
 
     public function testRateLimitExceptionIsConvertedToMcpException(): void
     {
-        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
+        Clock::set(new MockClock('2026-01-01 00:00:00'));
+        $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('2026-01-01 00:01:00'))->getTimestamp());
 
         $this->rateLimiter
             ->method('ensureAccepted')
@@ -105,9 +110,25 @@ class StoreApiMcpServerControllerTest extends TestCase
 
         $controller = $this->buildController(new ServerRequest('GET', '/store-api/_mcp'));
 
-        $this->expectExceptionObject(McpException::throttled($rateLimitException->getWaitTime(), $rateLimitException));
+        $this->expectExceptionObject(McpException::throttled(60, $rateLimitException));
 
         $controller->handle(new Request());
+    }
+
+    public function testMalformedSessionIdHeaderIsRejected(): void
+    {
+        $this->rateLimiter
+            ->expects($this->never())
+            ->method('ensureAccepted');
+
+        $controller = $this->buildController(new ServerRequest('POST', '/store-api/_mcp'));
+
+        $request = Request::create('/store-api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, 'not-a-uuid');
+
+        $this->expectExceptionObject(McpException::invalidSessionId());
+
+        $controller->handle($request);
     }
 
     private function buildController(

@@ -82,6 +82,20 @@ class McpServerControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
+    public function testMalformedSessionIdHeaderIsRejected(): void
+    {
+        $this->rateLimiter
+            ->expects($this->never())
+            ->method('ensureAccepted');
+
+        $request = Request::create('/api/_mcp', 'POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, 'not-a-uuid');
+
+        $this->expectExceptionObject(McpException::invalidSessionId());
+
+        $this->controller->handle($request);
+    }
+
     public function testInitializeEnrichmentKeepsEmptyCapabilityObjects(): void
     {
         $body = json_encode([

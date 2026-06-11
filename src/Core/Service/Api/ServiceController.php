@@ -124,10 +124,7 @@ class ServiceController
     #[Route(
         path: '/api/service/uninstall/{serviceName}',
         name: 'api.service.uninstall',
-        defaults: [
-            'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
-        ],
+        defaults: ['auth_required' => true],
         methods: [Request::METHOD_POST]
     )]
     public function uninstall(string $serviceName, Context $context): JsonResponse

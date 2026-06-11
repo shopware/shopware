@@ -115,8 +115,11 @@ jobs:
               }
             }
 
-            // Dumb pre-check (no agent): the issue must have usable "Steps to reproduce".
-            // If not, ask for them and abort — don't spend an agent/provision on a vague issue.
+            // Dumb pre-check (no agent): the issue must have usable reproduction steps.
+            // The current Shopware bug template renders "How to reproduce"; older issues
+            // (and other projects) use "Steps to reproduce" — accept either heading.
+            // If neither carries content, ask for them and abort — don't spend an
+            // agent/provision on a vague issue.
             let needsInfo = false;
             if (run && issue) {
               const { owner, repo } = context.repo;
@@ -125,14 +128,14 @@ jobs:
                 const { data } = await github.rest.issues.get({ owner, repo, issue_number: Number(issue) });
                 body = data.body || '';
               } catch (e) { core.warning('could not fetch issue body: ' + e.message); }
-              const m = body.match(/steps to reproduce[:\s]*([\s\S]*?)(?=\n\s*#{1,6}\s|$)/i);
+              const m = body.match(/(?:how to reproduce|steps to reproduce)[:\s]*([\s\S]*?)(?=\n\s*#{1,6}\s|$)/i);
               const steps = m ? m[1].replace(/[\s>*#-]/g, ' ').trim() : '';
               if (steps.length < 15) {
                 needsInfo = true; run = false;
-                core.warning('no usable "Steps to reproduce" — requesting info, aborting');
+                core.warning('no usable reproduction steps ("How to reproduce" / "Steps to reproduce") — requesting info, aborting');
                 if (post) {
                   await github.rest.issues.createComment({ owner, repo, issue_number: Number(issue),
-                    body: "## Reproduction — needs info\n\nI couldn't find usable **Steps to reproduce** in this issue. Please add a clear, numbered reproduction and the affected Shopware version, then re-apply the `ci:reproduce` label." });
+                    body: "## Reproduction — needs info\n\nI couldn't find usable reproduction steps (the **How to reproduce** section) in this issue. Please add a clear, numbered reproduction and the affected Shopware version, then re-apply the `ci:reproduce` label." });
                 }
               }
             }

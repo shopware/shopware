@@ -24,8 +24,8 @@ for by trial and error.
 gate ─▶ analyze ─▶ reproduce (matrix: reported ‖ trunk) ─▶ verdict ─▶ report
 ```
 
-- **gate** — deterministic checks (a real "Steps to reproduce" section must exist) before
-  any agent runs; cheap rejection of under-specified issues.
+- **gate** — deterministic checks (a real "How to reproduce" / "Steps to reproduce" section
+  must exist) before any agent runs; cheap rejection of under-specified issues.
 - **analyze** — the only AI step. Emits `analysis.json`: the cheapest faithful `layer`,
   minimal `build_profile`, `fixtures`, and an `assertion` derived from the fix PR's
   regression test. Pinned to a bounded turn budget.

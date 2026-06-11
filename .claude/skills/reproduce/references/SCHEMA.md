@@ -139,8 +139,8 @@ Rules:
 - **`needs_info`**: when the issue is too vague/contradictory/incomplete to derive a
   FAITHFUL plan, emit ONLY `{schema_version, issue, needs_info: "<one specific question>"}`
   and omit the plan. The workflow posts the question and aborts — no provisioning. (A
-  cheaper deterministic version runs first in `gate`: a missing "Steps to reproduce"
-  section is rejected before any agent runs.) `needs_info` is a terminal state, like
+  cheaper deterministic version runs first in `gate`: a missing "How to reproduce" /
+  "Steps to reproduce" section is rejected before any agent runs.) `needs_info` is a terminal state, like
   `blocked`/`needs_human_review`.
 
 ## Repro Result (`result.json`)

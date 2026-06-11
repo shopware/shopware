@@ -215,10 +215,26 @@ $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
 
 // font-family
 /* stylelint-disable-next-line max-line-length */
-$font-family-default: "Inter", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
+$font-family-default:
+    'Inter',
+    -apple-system,
+    blinkmacsystemfont,
+    'San Francisco',
+    'Segoe UI',
+    roboto,
+    'Helvetica Neue',
+    sans-serif;
 /* stylelint-disable-next-line max-line-length */
-$font-family-variables: "Inter var", -apple-system, blinkmacsystemfont, "San Francisco", "Segoe UI", roboto, "Helvetica Neue", sans-serif;
-$font-family-default-feature-settings: "cv10" on, "cv05" on, "cv02" on, "cv07" on, "cv09" on, "cv04" on, "cv03" on;
+$font-family-variables:
+    'Inter',
+    -apple-system,
+    blinkmacsystemfont,
+    'San Francisco',
+    'Segoe UI',
+    roboto,
+    'Helvetica Neue',
+    sans-serif;
+$font-family-default-feature-settings: inherit;
 
 // font-size
 $font-size-xxs: 12px;
@@ -252,8 +268,8 @@ $border-radius-md: 6px;
 $border-radius-lg: 8px;
 $border-radius-xl: 8px;
 $border-radius-pill: 100vh;
-$transparent-background-url: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC");
-$asset-base-url: "/administration/static/";
+$transparent-background-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAACVBMVEX39/f////+/v66RnnUAAAAM0lEQVQIHQXBwQ3AMAgEMC95SPRPpQxENuiete2HCqZRhWlkcV4kIIPb6MUWZpEHN+j9ARNGDXV0xoICAAAAAElFTkSuQmCC');
+$asset-base-url: '/administration/static/';
 
 /* ------------------------------------
  * 8. z-index

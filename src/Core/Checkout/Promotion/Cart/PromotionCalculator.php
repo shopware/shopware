@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -32,6 +33,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
@@ -39,6 +41,9 @@ use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -134,6 +139,14 @@ class PromotionCalculator
             // this can be if the price-definition filter is none,
             // or if a fixed price is set to the price of the product itself.
             if (abs($result->getPrice()->getTotalPrice()) === 0.0) {
+                // if the zero result is caused by a filter condition that is no longer registered
+                // (e.g. the extension providing it was uninstalled), the discount would vanish
+                // silently - add a warning so the removal is visible to the user
+                $unknownCondition = $this->getUnknownCondition($discountItem->getPriceDefinition());
+                if ($unknownCondition !== null) {
+                    $calculated->addErrors(new PromotionDiscountUnknownConditionError($discountItem, $unknownCondition->getOriginalName()));
+                }
+
                 continue;
             }
 
@@ -435,5 +448,37 @@ class PromotionCalculator
         $code = $discountItem->getPayloadValue('code');
 
         return $code === null || $code === '';
+    }
+
+    /**
+     * Returns the first unknown (no longer registered) condition inside the price definition's
+     * filter, or null if every condition is resolvable. Containers are searched recursively,
+     * because unknown conditions are substituted at leaf level on decode.
+     */
+    private function getUnknownCondition(?PriceDefinitionInterface $priceDefinition): ?UnknownConditionRule
+    {
+        if (!$priceDefinition instanceof FilterableInterface) {
+            return null;
+        }
+
+        return $this->findUnknownCondition($priceDefinition->getFilter());
+    }
+
+    private function findUnknownCondition(?Rule $rule): ?UnknownConditionRule
+    {
+        if ($rule instanceof UnknownConditionRule) {
+            return $rule;
+        }
+
+        if ($rule instanceof Container) {
+            foreach ($rule->getRules() as $nested) {
+                $unknownCondition = $this->findUnknownCondition($nested);
+                if ($unknownCondition !== null) {
+                    return $unknownCondition;
+                }
+            }
+        }
+
+        return null;
     }
 }

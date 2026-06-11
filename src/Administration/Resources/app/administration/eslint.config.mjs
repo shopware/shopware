@@ -315,6 +315,7 @@ export default [
                 ],
             }],
             'sw-deprecation-rules/no-deprecated-component-usage': ['error', 'enableFix'],
+            'sw-deprecation-rules/no-sw-tabs-usage': 'error',
             'vue/no-useless-template-attributes': 'error',
             'vue/no-lone-template': 'error',
 

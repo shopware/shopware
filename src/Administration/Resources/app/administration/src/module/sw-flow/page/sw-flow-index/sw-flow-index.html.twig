@@ -51,51 +51,80 @@
 
     <template #content>
         <sw-card-view>
-            <sw-tabs
-                class="sw-flow-list__tab"
-                position-identifier="sw-flow-listing"
-                :small="false"
-            >
-                <sw-tabs-item
-                    class="sw-flow-listing__tab-my-flows"
-                    name="flows"
-                    :title="$t('sw-flow.general.tabMyFlows')"
-                    :route="{ name: 'sw.flow.index.flows'}"
-                >
-                    {{ $t('sw-flow.general.tabMyFlows') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    class="sw-flow-list__tab"
+                    position-identifier="sw-flow-listing"
+                    :default-item="$route.name"
+                    :items="flowTabs"
+                />
 
-                <sw-tabs-item
-                    class="sw-flow-listing__tab-flow-templates"
-                    name="templates"
-                    :title="$t('sw-flow.general.tabFlowTemplates')"
-                    :route="{ name: 'sw.flow.index.templates'}"
-                >
-                    {{ $t('sw-flow.general.tabFlowTemplates') }}
-                </sw-tabs-item>
-
-                {% block sw_flow_tabs_header_extension %}{% endblock %}
-
-                <template #content="{ active }">
-                    <template v-if="isLoading">
-                        <sw-skeleton />
-                        <sw-skeleton />
-                    </template>
-
-                    <template v-else>
-                        <router-view
-                            v-slot="{ Component }"
-                        >
-                            <component
-                                :is="Component"
-                                :is-loading="isLoading"
-                                :search-term="term"
-                                @on-update-total="onUpdateTotalFlow"
-                            />
-                        </router-view>
-                    </template>
+                <template v-if="isLoading">
+                    <sw-skeleton />
+                    <sw-skeleton />
                 </template>
-            </sw-tabs>
+
+                <template v-else>
+                    <router-view
+                        v-slot="{ Component }"
+                    >
+                        <component
+                            :is="Component"
+                            :is-loading="isLoading"
+                            :search-term="term"
+                            @on-update-total="onUpdateTotalFlow"
+                        />
+                    </router-view>
+                </template>
+            </template>
+
+            <template v-else>
+                <sw-tabs
+                    class="sw-flow-list__tab"
+                    position-identifier="sw-flow-listing"
+                    :small="false"
+                >
+                    <sw-tabs-item
+                        class="sw-flow-listing__tab-my-flows"
+                        name="flows"
+                        :title="$t('sw-flow.general.tabMyFlows')"
+                        :route="{ name: 'sw.flow.index.flows'}"
+                    >
+                        {{ $t('sw-flow.general.tabMyFlows') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        class="sw-flow-listing__tab-flow-templates"
+                        name="templates"
+                        :title="$t('sw-flow.general.tabFlowTemplates')"
+                        :route="{ name: 'sw.flow.index.templates'}"
+                    >
+                        {{ $t('sw-flow.general.tabFlowTemplates') }}
+                    </sw-tabs-item>
+
+                    {% block sw_flow_tabs_header_extension %}{% endblock %}
+
+                    <template #content="{ active }">
+                        <template v-if="isLoading">
+                            <sw-skeleton />
+                            <sw-skeleton />
+                        </template>
+
+                        <template v-else>
+                            <router-view
+                                v-slot="{ Component }"
+                            >
+                                <component
+                                    :is="Component"
+                                    :is-loading="isLoading"
+                                    :search-term="term"
+                                    @on-update-total="onUpdateTotalFlow"
+                                />
+                            </router-view>
+                        </template>
+                    </template>
+                </sw-tabs>
+            </template>
         </sw-card-view>
 
         {% block sw_flow_index_modal_content_custom %}

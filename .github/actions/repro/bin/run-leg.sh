@@ -3,15 +3,19 @@
 # `executor` (http | playwright | direct) picks the cheapest faithful runner; an
 # unknown value degrades to an `inconclusive` result rather than failing the leg.
 #
-# Env: EXECUTOR (req, http|playwright|direct), TARGET (req, leg role/name),
-#      APP_URL + SW_ACCESS_KEY (live shop coords for http/playwright; unused by direct),
-#      ANALYSIS (default analysis.json), OUT (default result.json), SHOP_DIR (direct, default shop).
+# Env: TARGET (req, leg role/name), EXECUTOR (optional override; else derived from the
+#      plan's .executor), APP_URL + SW_ACCESS_KEY (live shop coords for http/playwright;
+#      unused by direct), ANALYSIS (default analysis.json), OUT (default result.json),
+#      SHOP_DIR (direct, default shop).
 set -euo pipefail
 
-: "${EXECUTOR:?EXECUTOR is required}"
 : "${TARGET:?TARGET is required}"
 ANALYSIS=${ANALYSIS:-analysis.json}
 OUT=${OUT:-result.json}
+# The executor is a property of the plan; callers may override via env, else read it
+# from the analysis so both workflows can invoke this script identically.
+EXECUTOR=${EXECUTOR:-$(jq -r '.executor // ""' "$ANALYSIS")}
+: "${EXECUTOR:?EXECUTOR not set and no .executor in $ANALYSIS}"
 
 case "$EXECUTOR" in
   http)

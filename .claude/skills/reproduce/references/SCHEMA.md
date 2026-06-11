@@ -101,6 +101,12 @@ Rules:
 - `script_path` names the generated script (`repro.spec.ts` for playwright, `ReproTest.php`
   for direct; omit for http). `assertion.field` is a jq path used only by `response_field`;
   `assertion.locator` is a human reference to the endpoint/UI element.
+- `assertion.symptom_pattern` (optional, `direct` executor, `kind: exception`): a
+  distinctive extended-regex for the symptom exception's text (e.g.
+  `"1116 Too many tables"`). When the PHPUnit run ERRORS and the output matches, the leg is
+  classified `reproduced` — the throw IS the symptom even if it escaped the test's
+  try/catch (integration-test DAL writes run indexers synchronously). Errors that do NOT
+  match stay `inconclusive` (bootstrap/compile failures).
 - `scenario` is a plain-English, numbered Given/When/Then list of the repro steps,
   rendered in the comment above the script so a human reads the intent first. The
   generated script (curl or spec) must comment every step (what it does + asserts).

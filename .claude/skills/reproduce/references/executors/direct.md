@@ -14,8 +14,13 @@ Generate `ReproTest.php` (set `script_path: "ReproTest.php"`):
 - A single test method that ASSERTS THE HEALTHY (fixed) behaviour, so it FAILS on the buggy
   version and PASSES when healthy.
 - **When the SYMPTOM is a thrown exception** (the buggy version throws — e.g. a DB error
-  during indexing), wrap exactly that action in try/catch and convert the throw into an
-  assertion FAILURE:
+  during indexing), ALSO set `assertion.symptom_pattern` in analysis.json — a distinctive
+  extended-regex for the exception text (e.g. `"1116 Too many tables"`). If the test ERRORS
+  and the output matches this pattern, the executor classifies it `reproduced` even when the
+  throw escaped your try/catch (DAL writes run indexers synchronously, so the symptom often
+  fires during a write you considered setup). This is the safety net; still structure the
+  test properly: wrap exactly the triggering action in try/catch and convert the throw into
+  an assertion FAILURE:
   ```php
   try {
       $indexer->handle($message); // the action that throws on the buggy version

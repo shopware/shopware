@@ -49,9 +49,20 @@ elif grep -q 'FAILURES!' "$REPORT"; then
   STATUS="reproduced"; MATCHED="false"; REASON_TEXT=""
   REPORTER=$(grep -m1 -E '^[0-9]+\)' "$REPORT" | head -c 300); [ -n "$REPORTER" ] || REPORTER="assertion failed (symptom present)"
 elif grep -qE 'ERRORS!|No tests executed|Fatal error|PHP Fatal|Uncaught' "$REPORT"; then
-  STATUS="inconclusive"; MATCHED="null"
-  REASON_TEXT="PHPUnit could not run the test (errored before/outside the symptom assertion): ${ERRHEAD:-$TAIL} — full output in the leg artifact's phpunit-output.txt"
-  REPORTER="PHPUnit errored (test could not run)"
+  # An ERROR is normally a bootstrap/compile problem => inconclusive. BUT when the plan
+  # declares the symptom as an exception pattern (assertion.symptom_pattern) and the error
+  # text MATCHES it, the throw IS the reproduction — regardless of where in the test it
+  # fired (DAL writes run indexers synchronously, so the symptom often escapes the
+  # try/catch the test author placed around a later explicit call).
+  SYMPTOM=$(jq -r '.assertion.symptom_pattern // empty' "$ANALYSIS")
+  if [ -n "$SYMPTOM" ] && grep -qE "$SYMPTOM" "$REPORT"; then
+    STATUS="reproduced"; MATCHED="false"; REASON_TEXT=""
+    REPORTER="symptom exception matched '${SYMPTOM}': $(grep -m1 -E "$SYMPTOM" "$REPORT" | tr -s ' ' | head -c 260)"
+  else
+    STATUS="inconclusive"; MATCHED="null"
+    REASON_TEXT="PHPUnit could not run the test (errored before/outside the symptom assertion): ${ERRHEAD:-$TAIL} — full output in the leg artifact's phpunit-output.txt"
+    REPORTER="PHPUnit errored (test could not run)"
+  fi
 else
   STATUS="blocked"; MATCHED="null"
   REASON_TEXT="PHPUnit produced no recognisable result: $TAIL"

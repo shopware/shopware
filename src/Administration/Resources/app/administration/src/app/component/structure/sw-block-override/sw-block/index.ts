@@ -97,11 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
             props.name && hasBlockEntries(props.name)
                 ? getBlockEntries(props.name).map((entry) => {
                       // The transformed Twig helper calls reveal how many conditional cases this shim must reserve.
-                      const shimSlot = createShimSlot(
-                          entry,
-                          props.name!
-                      );
-
+                      const shimSlot = createShimSlot(entry, props.name!);
 
                       return shimSlot;
                   })

@@ -377,7 +377,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         });
 
         it('rewrites legacy Twig chains continuing across different block entries', () => {
-            const [leadingEntry, fallbackEntry] = transformLegacyTwigBlockSequenceConditionals([
+            const [
+                leadingEntry,
+                fallbackEntry,
+            ] = transformLegacyTwigBlockSequenceConditionals([
                 {
                     blockName: 'test_block',
                     innerTemplate: '<div v-if="condition">Test</div>',

@@ -76,7 +76,6 @@ type RewriteInfo = {
     codeAfter: string;
 };
 
-
 const GLOBAL_LEGACY_HELPERS = {
     if: '$swLegacyBlockIf',
     elseIf: '$swLegacyBlockElseIf',
@@ -93,7 +92,12 @@ function createLegacyConditionOptionsCode(parameters: HelperParameters): string 
 }
 
 /** Builds the replacement v-if expression that links a case to the legacy condition state. */
-function createLegacyHelperExpression(helperName: string, conditionKey: string, expression: string | null | undefined, parameters: HelperParameters): string {
+function createLegacyHelperExpression(
+    helperName: string,
+    conditionKey: string,
+    expression: string | null | undefined,
+    parameters: HelperParameters,
+): string {
     const escapedConditionKey = escapeSingleQuotedString(conditionKey);
 
     if (expression !== undefined) {
@@ -113,7 +117,6 @@ function normalizeSelfClosingTags(template: string): string {
     });
 }
 
-
 function createLegacyConditionChainKey(blockName: string, chainIndex: number): string {
     return `${blockName}:${chainIndex}`;
 }
@@ -124,11 +127,7 @@ function createLegacyConditionChainKey(blockName: string, chainIndex: number): s
  * @private
  */
 export default function transformNativeLegacyBlockConditionals(template: string): string {
-    if (
-        template.indexOf('<sw-block') === -1 ||
-        !CONDITIONAL_REG_EXP.test(template) ||
-        typeof document === 'undefined'
-    ) {
+    if (template.indexOf('<sw-block') === -1 || !CONDITIONAL_REG_EXP.test(template) || typeof document === 'undefined') {
         return template;
     }
 
@@ -138,7 +137,9 @@ export default function transformNativeLegacyBlockConditionals(template: string)
     const blocks = parsedTemplate.content.querySelectorAll('sw-block[name], sw-block[extends]');
 
     const entries = Array.from(blocks).map((block) => {
-        const renderOrderSegment: LegacyConditionRenderOrderSegment = block.hasAttribute('extends') ? 'nativeExtension' : 'defaultSlot';
+        const renderOrderSegment: LegacyConditionRenderOrderSegment = block.hasAttribute('extends')
+            ? 'nativeExtension'
+            : 'defaultSlot';
 
         return {
             blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
@@ -149,8 +150,11 @@ export default function transformNativeLegacyBlockConditionals(template: string)
 
     const blockConditionInfos: BlockConditionInfo[] = [];
 
-    entries.forEach(entry => {
-        const conditionalChains = collectBlockConditionalChains(entry.blockName, parseBlockTemplateChildren(entry.innerTemplate));
+    entries.forEach((entry) => {
+        const conditionalChains = collectBlockConditionalChains(
+            entry.blockName,
+            parseBlockTemplateChildren(entry.innerTemplate),
+        );
         blockConditionInfos.push({
             blockName: entry.blockName,
             renderOrderSegment: entry.renderOrderSegment,
@@ -161,11 +165,13 @@ export default function transformNativeLegacyBlockConditionals(template: string)
     fillChainIndices(blockConditionInfos);
 
     const allRewrites: RewriteInfo[] = [];
-    blockConditionInfos.forEach(blockInfo => {
-        blockInfo.conditionalChains.filter(chain => shouldPerformChainRewrite(chain)).forEach(chain => {
-            const rewrites = constructChainAttributeRewrites(chain, template, blockInfo.renderOrderSegment);
-            allRewrites.push(...rewrites);
-        });
+    blockConditionInfos.forEach((blockInfo) => {
+        blockInfo.conditionalChains
+            .filter((chain) => shouldPerformChainRewrite(chain))
+            .forEach((chain) => {
+                const rewrites = constructChainAttributeRewrites(chain, template, blockInfo.renderOrderSegment);
+                allRewrites.push(...rewrites);
+            });
     });
     template = applyOrderedRewrites(template, allRewrites);
 
@@ -253,8 +259,10 @@ function parseBlockTemplateChildren(template: string): Element[] {
     return Array.from(parsedTemplate.content.children);
 }
 
-function fillChainIndices(blockConditionInfos: BlockConditionInfo[], caseStartIndexByChainKey: Record<string, number> = {}): void {
-
+function fillChainIndices(
+    blockConditionInfos: BlockConditionInfo[],
+    caseStartIndexByChainKey: Record<string, number> = {},
+): void {
     let lastChain: BlockConditionChainInfo | null = null;
     let startingChain: BlockConditionChainInfo | null = null;
 
@@ -274,12 +282,10 @@ function fillChainIndices(blockConditionInfos: BlockConditionInfo[], caseStartIn
 
             if (chain.fullChainKey) {
                 const chainSegmentKey = `${chain.fullChainKey}:${blockInfo.renderOrderSegment}`;
-                const caseStartIndex = nextCaseIndexByChainKey.get(chainSegmentKey) ?? caseStartIndexByChainKey[chain.fullChainKey] ?? 0;
+                const caseStartIndex =
+                    nextCaseIndexByChainKey.get(chainSegmentKey) ?? caseStartIndexByChainKey[chain.fullChainKey] ?? 0;
                 chain.caseStartIndex = caseStartIndex;
-                nextCaseIndexByChainKey.set(
-                    chainSegmentKey,
-                    caseStartIndex + chain.children.length,
-                );
+                nextCaseIndexByChainKey.set(chainSegmentKey, caseStartIndex + chain.children.length);
             }
 
             if (!chain.starting) {
@@ -304,7 +310,10 @@ function getAttributeCode(template: string, attributeName: string): string {
     const match = template.match(attributeRegExp);
 
     if (!match) {
-        console.warn(`Failed to extract code for attribute "${attributeName}" during rewrite. This should not happen.`, template);
+        console.warn(
+            `Failed to extract code for attribute "${attributeName}" during rewrite. This should not happen.`,
+            template,
+        );
         return '';
     }
 
@@ -355,7 +364,7 @@ function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
     if (chains.length === 0) {
         return false;
     }
-    if (chains.every(chain => chain.starting && chain.followedBy === undefined)) {
+    if (chains.every((chain) => chain.starting && chain.followedBy === undefined)) {
         return false;
     }
     return true;
@@ -409,10 +418,9 @@ export function transformLegacyTwigBlockSequenceConditionals(
     initialEntries: LegacyTwigBlockSequenceEntry[],
     caseStartIndexByChainKey: Record<string, number> = {},
 ): LegacyTwigBlockSequenceTransformEntry[] {
-
     const blockConditonalChains: BlockConditionInfo[] = [];
 
-    const entries: LegacyTwigBlockSequenceTransformEntry[] = initialEntries.map(entry => ({
+    const entries: LegacyTwigBlockSequenceTransformEntry[] = initialEntries.map((entry) => ({
         ...entry,
         legacyConditionCases: [],
     }));
@@ -430,18 +438,21 @@ export function transformLegacyTwigBlockSequenceConditionals(
     // Step 2: Assign stable chain keys to the collected chains, ensuring that continuation chains across blocks receive the same key as their leading chain.
     fillChainIndices(blockConditonalChains, caseStartIndexByChainKey);
 
-
     // Step 3: Apply the helper function rewrites to each chain
 
     entries.forEach((entry, entryIndex) => {
         const chains = blockConditonalChains[entryIndex]?.conditionalChains ?? [];
         if (shouldPerformBlockRewrite(chains)) {
-            entry.legacyConditionCases.push(...chains.filter(chain => shouldPerformChainRewrite(chain)).map(chain => ({
-                chainKey: chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index),
-                caseStartIndex: chain.caseStartIndex ?? 0,
-                caseCount: chain.children.length,
-            })));
-            chains.forEach(chain => {
+            entry.legacyConditionCases.push(
+                ...chains
+                    .filter((chain) => shouldPerformChainRewrite(chain))
+                    .map((chain) => ({
+                        chainKey: chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index),
+                        caseStartIndex: chain.caseStartIndex ?? 0,
+                        caseCount: chain.children.length,
+                    })),
+            );
+            chains.forEach((chain) => {
                 const rewrites = constructChainAttributeRewrites(chain, entry.innerTemplate, 'shimExtension');
                 entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
             });
@@ -449,5 +460,4 @@ export function transformLegacyTwigBlockSequenceConditionals(
     });
 
     return entries;
-
 }

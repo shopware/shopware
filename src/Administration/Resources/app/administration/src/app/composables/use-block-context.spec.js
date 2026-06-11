@@ -237,16 +237,20 @@ describe('use-block-context', () => {
         const stopEffects = [];
 
         try {
-            stopEffects.push(watchEffect(() => {
-                legacyIf('test', false, defaultCase(0, true));
-                reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
+            stopEffects.push(
+                watchEffect(() => {
+                    legacyIf('test', false, defaultCase(0, true));
+                    reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
 
-                parentElseResults.push(legacyElse('test', nativeCase(0)));
-            }));
+                    parentElseResults.push(legacyElse('test', nativeCase(0)));
+                }),
+            );
 
-            stopEffects.push(watchEffect(() => {
-                legacyElseIf('test', false, shimCase(0));
-            }));
+            stopEffects.push(
+                watchEffect(() => {
+                    legacyElseIf('test', false, shimCase(0));
+                }),
+            );
 
             expect(parentElseResults[0]).toBe(false);
 

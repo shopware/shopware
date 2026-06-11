@@ -116,14 +116,16 @@ function getCaseListForRenderOrderSegment(
     return chain.nativeExtensionCases;
 }
 
-function getPreviousCaseResults(chain: LegacyConditionChain, options: LegacyConditionCaseOptions): Array<CaseResult | undefined> {
+function getPreviousCaseResults(
+    chain: LegacyConditionChain,
+    options: LegacyConditionCaseOptions,
+): Array<CaseResult | undefined> {
     const previousCaseResults: Array<CaseResult | undefined> = [];
 
     for (const renderOrderSegment of LEGACY_CONDITION_RENDER_ORDER) {
         const caseList = getCaseListForRenderOrderSegment(chain, renderOrderSegment);
-        const lastSegmentCaseIndex = renderOrderSegment === options.renderOrderSegment
-            ? options.segmentCaseIndex
-            : caseList.length;
+        const lastSegmentCaseIndex =
+            renderOrderSegment === options.renderOrderSegment ? options.segmentCaseIndex : caseList.length;
 
         for (let segmentCaseIndex = 0; segmentCaseIndex < lastSegmentCaseIndex; segmentCaseIndex += 1) {
             const caseResult = caseList[segmentCaseIndex];
@@ -160,8 +162,7 @@ function scheduleChainUpdate(chainKey: string): void {
 
     queueMicrotask(() => {
         pendingUpdates.delete(chainKey);
-        legacyConditionRenderVersions[chainKey] =
-            (legacyConditionRenderVersions[chainKey] ?? 0) + 1;
+        legacyConditionRenderVersions[chainKey] = (legacyConditionRenderVersions[chainKey] ?? 0) + 1;
     });
 }
 
@@ -178,21 +179,14 @@ function setLegacyCaseResult(
 
     if (
         chain.persistent &&
-        (
-            previous?.result !== nextResult.result ||
-            previous?.isStartingCondition !== nextResult.isStartingCondition
-        )
+        (previous?.result !== nextResult.result || previous?.isStartingCondition !== nextResult.isStartingCondition)
     ) {
         scheduleChainUpdate(chainKey);
     }
 }
 
 /** Starts a legacy conditional chain for one block render. */
-function legacyIf(
-    chainKey: string,
-    expression: unknown,
-    options: LegacyConditionCaseOptions,
-): boolean {
+function legacyIf(chainKey: string, expression: unknown, options: LegacyConditionCaseOptions): boolean {
     const result = Boolean(expression);
 
     if (!legacyConditionContext[chainKey]) {
@@ -210,23 +204,14 @@ function legacyIf(
         chain.persistent = true;
     }
 
-    setLegacyCaseResult(
-        chainKey,
-        chain,
-        options,
-        createLegacyConditionCaseResult(result, options),
-    );
+    setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(result, options));
     scheduleLegacyConditionCleanup(chainKey, chain);
 
     return result;
 }
 
 /** Continues the chain only when no earlier case matched. */
-function legacyElseIf(
-    chainKey: string,
-    expression: unknown,
-    options: LegacyConditionCaseOptions,
-): boolean {
+function legacyElseIf(chainKey: string, expression: unknown, options: LegacyConditionCaseOptions): boolean {
     const chain = legacyConditionContext[chainKey];
 
     if (!chain) {
@@ -243,21 +228,13 @@ function legacyElseIf(
     const hasPendingPreviousCase = previousCaseResults.some((previousCaseResult) => previousCaseResult === undefined);
 
     const caseResult = !hasPendingPreviousCase && !previousCaseMatched && result;
-    setLegacyCaseResult(
-        chainKey,
-        chain,
-        options,
-        createLegacyConditionCaseResult(caseResult, options),
-    );
+    setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(caseResult, options));
 
     return caseResult;
 }
 
 /** Finishes the chain and renders only when all previous cases missed. */
-function legacyElse(
-    chainKey: string,
-    options: LegacyConditionCaseOptions,
-): boolean {
+function legacyElse(chainKey: string, options: LegacyConditionCaseOptions): boolean {
     trackLegacyConditionChain(chainKey);
     const chain = legacyConditionContext[chainKey];
 
@@ -274,12 +251,7 @@ function legacyElse(
     const hasPendingPreviousCase = previousCaseResults.some((previousCaseResult) => previousCaseResult === undefined);
 
     const result = !hasPendingPreviousCase && !previousCaseMatched;
-    setLegacyCaseResult(
-        chainKey,
-        chain,
-        options,
-        createLegacyConditionCaseResult(result, options),
-    );
+    setLegacyCaseResult(chainKey, chain, options, createLegacyConditionCaseResult(result, options));
 
     if (!chain.persistent) {
         delete legacyConditionContext[chainKey];

@@ -104,7 +104,10 @@ describe('core/factory/twig-block-index.ts', () => {
             `,
             );
 
-            const [pluginOne, pluginTwo] = getBlockEntries('shared_condition_block');
+            const [
+                pluginOne,
+                pluginTwo,
+            ] = getBlockEntries('shared_condition_block');
 
             expect(pluginOne.innerTemplate).toContain(
                 `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, 'shimExtension')})"`,

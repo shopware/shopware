@@ -3323,11 +3323,7 @@ describe('core/factory/async-component.factory.ts', () => {
                                 return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
                             },
                             $swLegacyBlockElseIf(blockName, expression, options) {
-                                return legacyElseIf(
-                                    getLegacyBlockConditionKey(this, blockName),
-                                    expression,
-                                    options,
-                                );
+                                return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
                             },
                             $swLegacyBlockElse(blockName, options) {
                                 return legacyElse(getLegacyBlockConditionKey(this, blockName), options);

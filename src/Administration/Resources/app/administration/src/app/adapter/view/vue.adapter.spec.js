@@ -853,9 +853,15 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 isStartingCondition: false,
             };
 
-            expect(rootComponent.config.globalProperties.$swLegacyBlockIf.call(vmOne, 'test-block', false, firstCase)).toBe(false);
-            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmTwo, 'test-block', fallbackCase)).toBe(false);
-            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmOne, 'test-block', fallbackCase)).toBe(true);
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf.call(vmOne, 'test-block', false, firstCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmTwo, 'test-block', fallbackCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmOne, 'test-block', fallbackCase)).toBe(
+                true,
+            );
         });
 
         it('should initialize the directives correctly', async () => {

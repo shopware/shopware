@@ -76,10 +76,7 @@ function isInternalKey(key: string | symbol): boolean {
 }
 
 /** @private */
-export function createShimSlot(
-    entry: BlockEntry,
-    blockName: string,
-): Slot {
+export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
         console.warn(
@@ -146,10 +143,7 @@ export function createShimSlot(
 
         // Reserve before mounting so later native cases wait for this shim chain to evaluate.
         entry.legacyConditionCases.forEach((reservation) => {
-            reserveLegacyConditionCases(
-                getLegacyBlockConditionKey(dataScopeRef.value, reservation.chainKey),
-                reservation,
-            );
+            reserveLegacyConditionCases(getLegacyBlockConditionKey(dataScopeRef.value, reservation.chainKey), reservation);
         });
 
         return [

@@ -81,12 +81,10 @@ export function indexTwigBlocksFromTemplate(componentName: string, rawTemplate: 
 
     const parsedTokens = parsed.tokens as ParsedTwigToken[];
 
-    const entries = parsedTokens
-        .filter(isBlockToken)
-        .map((token) => ({
-            blockName: token.token.blockName,
-            innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
-        }));
+    const entries = parsedTokens.filter(isBlockToken).map((token) => ({
+        blockName: token.token.blockName,
+        innerTemplate: reconstructInnerTemplate((token.token.output ?? []) as TwigToken[]),
+    }));
 
     const caseStartIndexByChainKey: Record<string, number> = {};
     entries.forEach(({ blockName }) => {

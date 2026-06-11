@@ -222,6 +222,65 @@ class IndexMappingUpdaterTest extends TestCase
         $updater->update(Context::createDefaultContext());
     }
 
+    public function testUpdateWithObjectNestingChangeError(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+
+        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $registry = new ElasticsearchRegistry([$definition]);
+
+        $client = $this->createMock(Client::class);
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'index',
+                'body' => [
+                    'foo' => '1',
+                ],
+            ])->willThrowException(new BadRequestHttpException('illegal_argument_exception: cannot change object mapping from non-nested to nested'));
+
+        $client
+            ->method('indices')
+            ->willReturn($indicesNamespace);
+
+        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider
+            ->method('build')
+            ->willReturn(['foo' => '1']);
+
+        $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (ElasticsearchProductException $exception) {
+                return $exception->getMessage() === 'One or more fields already exist in the index with different types. Please reset the index and rebuild it.';
+            }),
+        );
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())
+            ->method('set')
+            ->with(
+                SystemUpdateListener::CONFIG_KEY,
+                ['product'],
+            );
+
+        $updater = new IndexMappingUpdater(
+            $registry,
+            $elasticsearchHelper,
+            $client,
+            $indexMappingProvider,
+            $storage,
+        );
+
+        $updater->update(Context::createDefaultContext());
+    }
+
     public function testUpdateWithConflictedMappingError(): void
     {
         $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);

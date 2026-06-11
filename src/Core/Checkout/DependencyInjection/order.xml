@@ -129,6 +129,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Service\GuestAuthenticator"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.order.deep_link.expire_days%</argument>
         </service>
 

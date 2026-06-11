@@ -35,6 +35,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces" public="true">
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
+
             <tag name="data_collector"/>
             <tag name="kernel.reset" method="reset"/>
         </service>

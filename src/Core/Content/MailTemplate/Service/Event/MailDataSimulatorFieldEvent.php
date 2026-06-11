@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\MailTemplate\Service\Event;
 
-use Faker\Generator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Log\Package;
@@ -18,7 +17,6 @@ class MailDataSimulatorFieldEvent extends Event
     public function __construct(
         public readonly Field $field,
         public readonly Context $context,
-        public readonly Generator $faker,
     ) {
     }
 

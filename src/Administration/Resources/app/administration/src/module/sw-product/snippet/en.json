@@ -35,6 +35,9 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
+      "hintCoverImageDescription": "Begin the description with one or two short sentences describing the product shown in the cover image. This improves accessibility and the presentation in product listings.",
+      "labelDescriptionTeaserPreview": "Short description",
+      "helpTextDescriptionTeaserPreview": "Automatically generated excerpt of the first 512 characters of the description, with HTML removed. It is used in product listings and cannot be edited directly. The amount of text actually displayed depends on the theme and design and is mostly below this upper limit of 512 characters. You can configure whether listings only load this shortened product data under \"Settings > Products\".",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
       "labelManufacturerCreation": "manufacturer",

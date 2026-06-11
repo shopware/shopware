@@ -12,6 +12,7 @@ use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskH
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
@@ -51,7 +52,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
             $connection,
-            $messageBusMock
+            $messageBusMock,
+            new NativeClock(),
         );
 
         $productExportGenerateTaskHandler->run();

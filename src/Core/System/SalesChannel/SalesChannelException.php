@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('discovery')]
@@ -105,7 +106,7 @@ class SalesChannelException extends HttpException
 
     public static function noContextData(string $salesChannelId): self
     {
-        return new self(
+        return new NoContextDataException(
             Response::HTTP_PRECONDITION_FAILED,
             self::NO_CONTEXT_DATA_EXCEPTION,
             'No context data found for SalesChannel "{{ salesChannelId }}"',

@@ -119,59 +119,50 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         expect(wrapper.vm.element.config.media.value).toBe('1');
     });
 
-    it('should update style regarding to config value', async () => {
+    it('should cap the height only in standard mode and set a min-height only in cover mode', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '40px',
-            'align-self': null,
-        });
-
         await wrapper.setProps({
             element: {
                 config: {
                     ...defaultProps.element.config,
-                    displayMode: {
-                        source: 'statics',
-                        value: 'cover',
-                    },
-                    minHeight: {
-                        source: 'static',
-                        value: '50px',
-                    },
+                    displayMode: { source: 'static', value: 'standard' },
+                    verticalAlign: { source: 'static', value: 'center' },
                 },
                 data: {},
             },
         });
 
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '50px',
-            'align-self': null,
-        });
+        expect(wrapper.vm.styles).toEqual({ 'min-height': null });
+        expect(wrapper.vm.logoStyles).toEqual({ 'max-height': '100px', 'align-self': 'center' });
 
         await wrapper.setProps({
             element: {
                 config: {
                     ...defaultProps.element.config,
-                    displayMode: {
-                        source: 'statics',
-                        value: 'standard',
-                    },
-                    verticalAlign: {
-                        source: 'static',
-                        value: 'center',
-                    },
+                    displayMode: { source: 'static', value: 'stretch' },
+                    verticalAlign: { source: 'static', value: 'center' },
                 },
                 data: {},
             },
         });
 
-        expect(wrapper.vm.styles).toEqual({
-            'max-width': '180px',
-            'min-height': '40px',
-            'align-self': 'center',
+        expect(wrapper.vm.styles).toEqual({ 'min-height': null });
+        expect(wrapper.vm.logoStyles).toEqual({ 'max-height': null, 'align-self': 'center' });
+
+        await wrapper.setProps({
+            element: {
+                config: {
+                    ...defaultProps.element.config,
+                    displayMode: { source: 'static', value: 'cover' },
+                    minHeight: { source: 'static', value: '50px' },
+                    verticalAlign: { source: 'static', value: 'flex-end' },
+                },
+                data: {},
+            },
         });
+
+        expect(wrapper.vm.styles).toEqual({ 'min-height': '50px' });
+        expect(wrapper.vm.logoStyles).toEqual({ 'max-height': null, 'align-self': 'flex-end' });
     });
 });

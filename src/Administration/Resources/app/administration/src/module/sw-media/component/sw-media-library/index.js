@@ -50,7 +50,7 @@ export default {
         limit: {
             type: Number,
             required: false,
-            default: 25,
+            default: 100,
             validValues: [
                 1,
                 5,
@@ -118,6 +118,8 @@ export default {
             folderLoaderDone: false,
             items: [],
             subFolders: [],
+            itemTotal: 0,
+            folderTotal: 0,
             currentFolder: null,
             parentFolder: null,
             presentation: 'medium-preview',
@@ -174,12 +176,34 @@ export default {
             return this.gridPresentation === 'list-preview';
         },
 
+        allLoaded() {
+            return this.itemLoaderDone && this.folderLoaderDone;
+        },
+
+        loadMoreLoadsEverything() {
+            const foldersComplete =
+                this.folderLoaderDone || (this.folderTotal > 0 && this.folderTotal - this.subFolders.length <= this.limit);
+            const itemsComplete =
+                this.itemLoaderDone || (this.itemTotal > 0 && this.itemTotal - this.items.length <= this.limit);
+
+            return foldersComplete && itemsComplete;
+        },
+
         showLoadMoreButton() {
+            if (this.isLoading || this.shouldDisplayEmptyState || this.allLoaded) {
+                return false;
+            }
+
+            // when a single "load more" would already load everything, only the "load all" button is shown
+            return !this.loadMoreLoadsEverything;
+        },
+
+        showLoadAllButton() {
             if (this.isLoading || this.shouldDisplayEmptyState) {
                 return false;
             }
 
-            return !(this.itemLoaderDone && this.folderLoaderDone);
+            return !this.allLoaded;
         },
 
         nextMediaCriteria() {
@@ -309,6 +333,8 @@ export default {
 
             this.subFolders = [];
             this.items = [];
+            this.itemTotal = 0;
+            this.folderTotal = 0;
 
             this.isLoading = true;
 
@@ -334,6 +360,19 @@ export default {
             }
             this.isLoading = true;
             this.loadItems();
+        },
+
+        async loadAll() {
+            if (this.isLoading === true) {
+                return;
+            }
+
+            // stop once everything is loaded, or when a load made no progress (e.g. a failed request)
+            let loadedCount = -1;
+            while (!this.allLoaded && this.items.length + this.subFolders.length !== loadedCount) {
+                loadedCount = this.items.length + this.subFolders.length;
+                await this.loadItems();
+            }
         },
 
         mapFolderSorting() {
@@ -418,6 +457,7 @@ export default {
 
             const media = await this.mediaRepository.search(criteria, Context.api);
 
+            this.itemTotal = media.total ?? 0;
             this.itemLoaderDone = this.isLoaderDone(criteria, media);
 
             this.pageItem += 1;
@@ -432,6 +472,7 @@ export default {
 
             const subFolders = await this.mediaFolderRepository.search(this.nextFoldersCriteria, Context.api);
 
+            this.folderTotal = subFolders.total ?? 0;
             this.folderLoaderDone = this.isLoaderDone(this.nextFoldersCriteria, subFolders);
 
             this.pageFolder += 1;

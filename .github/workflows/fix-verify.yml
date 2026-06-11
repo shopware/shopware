@@ -176,31 +176,17 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
           prompt: |
-            Run the `reproduce` skill's Analyze phase to verify the fix in PR
+            Run the `reproduce` skill's Analyze phase in FIX-VERIFY mode for PR
             #${{ needs.gate.outputs.pr }} of ${{ github.repository }}.
-            The bug the PR fixes (its linked issue, or the PR description) is in `./issue.md`;
-            the PR's own diff — fix AND its regression test — is in `./fixpr.diff`. READ BOTH
-            FIRST. Derive the cheapest faithful, SELF-CONTAINED repro of the bug that runs on a
-            ref that does NOT contain this PR's changes (the `base` leg) — so it must NOT
-            import or depend on the test file THIS PR adds; reproduce the symptom independently
-            (derive the assertion from the linked issue + the PR's test, but author your own
-            script/test). It asserts the HEALTHY (fixed) behaviour, so on base (fix absent) it
-            fails → reproduced, and on head (fix present) it passes → not_reproduced.
-            BE ECONOMICAL: your VERY FIRST Write must be a complete best-effort analysis.json
-            (plus its spec/test); refine only if turns remain; never finish without it. If the
-            PR has no derivable, CI-reproducible symptom, write analysis.json as
-            {"schema_version":"1","issue":${{ needs.gate.outputs.pr }},"needs_info":"<one
-            question>"} and stop. `confidence` (0..1) measures repro fidelity (not whether a
-            fix exists); set `confidence_reason` if < 0.7.
-            Pick the cheapest faithful `layer` (service < *-api < *-ui) and its `executor`
-            (service→direct, *-api→http, *-ui→playwright). THEN READ
-            `.claude/skills/reproduce/references/executors/<executor>.md` and FOLLOW it
-            (http → request/requests in analysis.json; playwright → repro.spec.ts; direct →
-            ReproTest.php; set script_path). Write analysis.json per
-            `.claude/skills/reproduce/references/SCHEMA.md`. If seeding is needed, write
-            fixtures.json (hex UUIDs + {{SC}}/{{NAV_CAT}}/{{TAX}}/{{CURRENCY}} placeholders).
-            Include `scenario` (numbered Given/When/Then). Comment every step. Emit only the
-            file(s) — no prose, no markdown fence.
+            Follow the runbook at `.claude/skills/reproduce/references/ANALYZE.md` —
+            including its "Fix-verify mode" section (the repro must be SELF-CONTAINED and
+            runnable on the base ref, which lacks this PR's changes).
+            Run parameters for THIS run:
+            - inputs: the bug (the PR's linked issue, or the PR description) is prefetched
+              to `./issue.md`; THIS PR's diff (fix AND its regression test) to `./fixpr.diff`.
+            - outputs: write `analysis.json` (+ `fixtures.json` / the executor's script
+              file when needed) to the workspace root. If the PR has no derivable,
+              CI-reproducible symptom, emit needs_info per the runbook.
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '35' }}
             --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(gh api:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"

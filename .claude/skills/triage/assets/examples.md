@@ -22,7 +22,7 @@ The interactive Markdown layout is fully specified by the template in SKILL.md "
 | `recent_commits_in_area` | yes | Short `git log --oneline` entries, max 200 chars each |
 | `change_size_estimate` | yes | One enum: `quick-fix` (<30 LOC single file), `small` (single component), `medium` (cross-component), `large` (architectural), `unknown` |
 
-**Emission rules:** the unattended gh aw workflow emits the JSON object as its final message — no markdown code fence, no preamble, no trailing prose. The post-run processor (`.github/workflows/process-triage-result.yml`) runs the validator (`.github/bin/js/validate-triage-output.mjs`) to enforce these constraints + scan for secret leakage before publishing deterministic issue updates.
+**Emission rules:** the unattended gh aw workflow emits the JSON object as its final message — no markdown code fence, no preamble, no trailing prose. The post-run processor (`.github/workflows/process-triage-result.yml`) runs the validator (`.github/bin/js/validate-triage-output.ts`) to enforce these constraints + scan for secret leakage before publishing deterministic issue updates.
 
 ## A — `valid-bug` with affected code identified
 

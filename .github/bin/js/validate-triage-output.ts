@@ -10,18 +10,21 @@
  *    GitHub PATs, Anthropic keys, OAuth tokens, and long base64 blocks that look
  *    like exfil payloads.
  *
- * Pure node, no dependencies. Run by `.github/workflows/process-triage-result.yml`
- * after every triage run; exits non-zero if anything trips, which fails the processor run.
+ * No runtime dependencies. TypeScript types are erased at runtime — run with
+ * `node validate-triage-output.ts` (Node >= 22.6 strips types natively) in CI,
+ * or `npx esno validate-triage-output.ts` locally. Invoked by
+ * `.github/workflows/process-triage-result.yml` after every triage run; exits
+ * non-zero if anything trips, which fails the processor run.
  *
  * Usage:
- *   node validate-triage-output.mjs <path-to-triage-output.json>
+ *   node validate-triage-output.ts <path-to-triage-output.json>
  */
 
 import { readFileSync, existsSync } from 'node:fs';
 
 const FILE = process.argv[2];
 if (!FILE) {
-  console.error('usage: validate-triage-output.mjs <triage-output.json>');
+  console.error('usage: validate-triage-output.ts <triage-output.json>');
   process.exit(2);
 }
 if (!existsSync(FILE)) {
@@ -36,16 +39,16 @@ const REQUIRED_FIELDS = [
   'recent_commits_in_area', 'change_size_estimate',
 ];
 
-const DISPOSITIONS = new Set(['valid-bug', 'duplicate', 'needs-info', 'not-a-bug', 'feature-request']);
-const SEVERITIES = new Set(['low', 'medium', 'high', 'critical']);
-const CHANGE_SIZES = new Set(['quick-fix', 'small', 'medium', 'large', 'unknown']);
+const DISPOSITIONS = new Set<string>(['valid-bug', 'duplicate', 'needs-info', 'not-a-bug', 'feature-request']);
+const SEVERITIES = new Set<string>(['low', 'medium', 'high', 'critical']);
+const CHANGE_SIZES = new Set<string>(['quick-fix', 'small', 'medium', 'large', 'unknown']);
 
 // The closed label catalogue. KEEP IN SYNC with the canonical list in
 // .claude/skills/triage/references/DOMAINS.md — when a label is added/removed
 // there, mirror it here (and vice-versa). Kept as a hardcoded set on purpose:
 // parsing the prose doc at runtime would make this gate fragile and non-hermetic.
-const COMPONENT_LABELS = new Set(['component/core', 'component/administration', 'component/storefront']);
-const VALID_LABELS = new Set([
+const COMPONENT_LABELS = new Set<string>(['component/core', 'component/administration', 'component/storefront']);
+const VALID_LABELS = new Set<string>([
   'domain/framework', 'domain/inventory', 'domain/discovery', 'domain/checkout',
   'domain/crm-after-sales', 'domain/b2b', 'domain/dx-tools', 'domain/quality-ops',
   'domain/service-enablement', 'domain/ux', 'domain/customer-support', 'domain/product-ops',
@@ -64,13 +67,22 @@ const LIMITS = {
   labels_max: 2,
 };
 
+interface SecretPattern {
+  name: string;
+  re: RegExp;
+  /** When set, a regex match only counts if its Shannon entropy clears this bar. */
+  minEntropy?: number;
+  /** When set, also scan sliding windows of this size within a match for a high-entropy run. */
+  entropyWindow?: number;
+}
+
 // Catastrophic-leakage patterns. A match fails this post-run validation (red check on
 // the triage run) — it does NOT abort the upload: by the time this runs the artifact is
 // already stored, so this is the deterministic backstop. Upload-time blocking is gh-aw's
 // threat-detection job (configured via safe-outputs.threat-detection in triage.md), which
 // runs before the upload and is aligned to these same patterns.
 // GitHub token prefixes per https://github.blog/2021-04-05-behind-githubs-new-authentication-token-formats/
-const SECRET_PATTERNS = [
+const SECRET_PATTERNS: SecretPattern[] = [
   { name: 'GitHub PAT (classic)', re: /\bghp_[A-Za-z0-9]{36,}\b/ },
   { name: 'GitHub OAuth token', re: /\bgho_[A-Za-z0-9]{36,}\b/ },
   { name: 'GitHub Actions / server token', re: /\bghs_[A-Za-z0-9]{36,}\b/ },
@@ -90,8 +102,8 @@ const SECRET_PATTERNS = [
 
 // Shannon entropy in bits/char. Uniformly-random base64 approaches log2(64)=6;
 // structured text (repeated tokens, minified code) sits well below.
-function shannonEntropy(s) {
-  const freq = new Map();
+function shannonEntropy(s: string): number {
+  const freq = new Map<string, number>();
   for (const ch of s) freq.set(ch, (freq.get(ch) ?? 0) + 1);
   let h = 0;
   for (const n of freq.values()) {
@@ -101,7 +113,7 @@ function shannonEntropy(s) {
   return h;
 }
 
-function entropyMatch(match, minEntropy, windowSize) {
+function entropyMatch(match: string, minEntropy: number, windowSize?: number): string | null {
   if (shannonEntropy(match) >= minEntropy) return match;
   if (windowSize === undefined || match.length <= windowSize) return null;
 
@@ -114,7 +126,7 @@ function entropyMatch(match, minEntropy, windowSize) {
 }
 
 // Show enough of a match to recognise it, never enough to leak it.
-function redactedPreview(match) {
+function redactedPreview(match: string): string {
   if (match.length <= 12) return `${'*'.repeat(match.length)} (${match.length} chars)`;
   return `${match.slice(0, 4)}…${match.slice(-4)} (${match.length} chars)`;
 }
@@ -122,13 +134,13 @@ function redactedPreview(match) {
 // A secret can appear as an object KEY, not only a value. Mask any path segment
 // that itself matches a secret pattern, so a violation message can never echo a
 // key verbatim. (Patterns are non-global → .test() is stateless and safe here.)
-function safeSegment(key) {
+function safeSegment(key: string): string {
   return SECRET_PATTERNS.some(({ re }) => re.test(key)) ? '<redacted-key>' : key;
 }
 
 // Yield [jsonPath, value] for every string anywhere in the payload (recurses
 // objects + arrays) so the scan can report which field tripped.
-function* stringFields(value, path = '$') {
+function* stringFields(value: unknown, path = '$'): Generator<[string, string]> {
   if (typeof value === 'string') {
     yield [path, value];
   } else if (Array.isArray(value)) {
@@ -138,19 +150,22 @@ function* stringFields(value, path = '$') {
   }
 }
 
-const violations = [];
+const violations: string[] = [];
 
-let payload;
+let parsed: unknown;
 try {
-  payload = JSON.parse(readFileSync(FILE, 'utf8'));
+  parsed = JSON.parse(readFileSync(FILE, 'utf8'));
 } catch (e) {
-  console.error(`error: ${FILE} is not valid JSON: ${e.message}`);
+  console.error(`error: ${FILE} is not valid JSON: ${(e as Error).message}`);
   process.exit(2);
 }
 
-if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+const isObject = typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
+if (!isObject) {
   violations.push('payload is not a JSON object');
 }
+// Inspect as an untrusted bag of unknowns; runtime guards below narrow each field.
+const payload: Record<string, unknown> = isObject ? (parsed as Record<string, unknown>) : {};
 
 for (const f of REQUIRED_FIELDS) {
   if (!(f in payload)) violations.push(`missing required field: ${f}`);
@@ -160,7 +175,7 @@ for (const f of REQUIRED_FIELDS) {
 // Reject anything else — an unexpected key (possibly a secret used AS the key,
 // hence the redaction) or a nested object, which would smuggle attacker-
 // controlled keys past the value-only secret scan.
-if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+{
   const allowedKeys = new Set(REQUIRED_FIELDS);
   for (const [k, v] of Object.entries(payload)) {
     if (!allowedKeys.has(k)) violations.push(`unexpected field: ${safeSegment(k)}`);
@@ -170,13 +185,13 @@ if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
   }
 }
 
-if (payload.disposition !== undefined && !DISPOSITIONS.has(payload.disposition)) {
+if (payload.disposition !== undefined && !DISPOSITIONS.has(payload.disposition as string)) {
   violations.push(`invalid disposition: ${JSON.stringify(payload.disposition)}`);
 }
-if (payload.severity !== undefined && !SEVERITIES.has(payload.severity)) {
+if (payload.severity !== undefined && !SEVERITIES.has(payload.severity as string)) {
   violations.push(`invalid severity: ${JSON.stringify(payload.severity)}`);
 }
-if (payload.change_size_estimate !== undefined && !CHANGE_SIZES.has(payload.change_size_estimate)) {
+if (payload.change_size_estimate !== undefined && !CHANGE_SIZES.has(payload.change_size_estimate as string)) {
   violations.push(`invalid change_size_estimate: ${JSON.stringify(payload.change_size_estimate)}`);
 }
 
@@ -214,7 +229,7 @@ if (!Array.isArray(payload.suggested_labels)) {
     else if (!VALID_LABELS.has(l)) violations.push(`suggested_labels[${i}] not in DOMAINS.md catalogue: ${JSON.stringify(l)}`);
   }
   // domain/framework requires an accompanying component/* label (DOMAINS.md "Required second label").
-  if (labels.includes('domain/framework') && !labels.some((l) => COMPONENT_LABELS.has(l))) {
+  if (labels.includes('domain/framework') && !labels.some((l: unknown) => typeof l === 'string' && COMPONENT_LABELS.has(l))) {
     violations.push('domain/framework requires a component/* label (component/core|administration|storefront)');
   }
 }

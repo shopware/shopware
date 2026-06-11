@@ -11,7 +11,7 @@ name: Triage Result Processor
 # staging artifact itself is left in place (deleting would need actions:write);
 # the failure is the signal.
 #
-# Validator is `.github/bin/js/validate-triage-output.mjs`, pure node, no deps.
+# Validator is `.github/bin/js/validate-triage-output.ts` (run via Node native type-stripping), no deps.
 
 on:
   workflow_run:
@@ -104,7 +104,7 @@ jobs:
         if: steps.locate.outputs.found == 'true'
         env:
           TRIAGE_OUTPUT_FILE: ${{ steps.locate.outputs.file }}
-        run: node .github/bin/js/validate-triage-output.mjs "${TRIAGE_OUTPUT_FILE}"
+        run: node .github/bin/js/validate-triage-output.ts "${TRIAGE_OUTPUT_FILE}"
 
       - name: Download triage context artifact
         if: steps.locate.outputs.found == 'true'

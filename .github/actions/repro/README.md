@@ -9,8 +9,9 @@ for by trial and error.
 
 ## How to enable
 
-1. Add an `ANTHROPIC_API_KEY` repository secret (used only by the Analyze job). Without
-   it the workflow **hard-fails** rather than fabricating a plan.
+1. Add a `QUALITY_INITIATIVE_ANTHROPIC_API_KEY` repository secret (used only by the
+   Analyze job); `ANTHROPIC_API_KEY` is accepted as a fallback. Without either the
+   workflow **hard-fails** rather than fabricating a plan.
 2. Trigger a run by either:
    - applying the `ci:reproduce` label to an issue, **or**
    - `gh workflow run reproduce.yml -f issue_number=<N> -f post_comment=true`

@@ -170,7 +170,7 @@ jobs:
       - id: mode
         env:
           DRY_RUN: ${{ github.event.inputs.dry_run }}
-          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          HAS_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY != '' || secrets.ANTHROPIC_API_KEY != '' }}
         run: |
           set -euo pipefail
           if [ "$DRY_RUN" = "true" ]; then m=dry_run
@@ -183,7 +183,7 @@ jobs:
       - name: Guard — refuse to fabricate
         if: steps.mode.outputs.mode == 'fail'
         run: |
-          echo "::error::Analyze requires ANTHROPIC_API_KEY. Refusing to emit a fabricated plan."
+          echo "::error::Analyze requires QUALITY_INITIATIVE_ANTHROPIC_API_KEY (or ANTHROPIC_API_KEY). Refusing to emit a fabricated plan."
           echo "::error::Set the secret, or dispatch with dry_run=true for a clearly-labelled demo."
           exit 1
 
@@ -206,7 +206,7 @@ jobs:
         continue-on-error: true
         uses: anthropics/claude-code-action@11ba60486e4aec9ddfeafcf4bb3f00b028ac2c16 # v1.0.142
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY || secrets.ANTHROPIC_API_KEY }}
           # Use the default token so the action skips the Claude GitHub App token
           # exchange (the App is installed on shopware/shopware, but not everywhere).
           github_token: ${{ github.token }}
@@ -491,14 +491,14 @@ jobs:
           name: analysis
       - id: mode
         env:
-          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+          HAS_KEY: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY != '' || secrets.ANTHROPIC_API_KEY != '' }}
         run: echo "real=$HAS_KEY" >> "$GITHUB_OUTPUT"
       - name: Attribute (agent)
         if: steps.mode.outputs.real == 'true'
         continue-on-error: true # enrichment only — a failed attribution must not red the run
         uses: anthropics/claude-code-action@11ba60486e4aec9ddfeafcf4bb3f00b028ac2c16 # v1.0.142
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic_api_key: ${{ secrets.QUALITY_INITIATIVE_ANTHROPIC_API_KEY || secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns 20

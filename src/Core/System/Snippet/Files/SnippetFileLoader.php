@@ -203,7 +203,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         // self-managed apps (e.g. services) have no files at `path`, they are resolved through their app source
         try {
             $filesystem = $this->sourceResolver->filesystemForAppName($app['name']);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error(
                 \sprintf('Could not load snippet files of app "%s": %s', $app['name'], $e->getMessage()),
                 ['exception' => $e]

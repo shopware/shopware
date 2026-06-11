@@ -214,26 +214,8 @@ $gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
  * ------------------------------------ */
 
 // font-family
-/* stylelint-disable-next-line max-line-length */
-$font-family-default:
-    'Inter',
-    -apple-system,
-    blinkmacsystemfont,
-    'San Francisco',
-    'Segoe UI',
-    roboto,
-    'Helvetica Neue',
-    sans-serif;
-/* stylelint-disable-next-line max-line-length */
-$font-family-variables:
-    'Inter',
-    -apple-system,
-    blinkmacsystemfont,
-    'San Francisco',
-    'Segoe UI',
-    roboto,
-    'Helvetica Neue',
-    sans-serif;
+$font-family-default: inherit;
+$font-family-variables: $font-family-default;
 $font-family-default-feature-settings: inherit;
 
 // font-size

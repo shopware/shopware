@@ -210,7 +210,7 @@ export default class VueAdapter extends ViewAdapter {
             this: ComponentPublicInstance,
             blockName: string,
             expression: unknown,
-            options?: LegacyConditionCaseOptions,
+            options: LegacyConditionCaseOptions,
         ): boolean {
             return legacyIf(getLegacyBlockConditionKey(this, blockName), expression, options);
         };
@@ -218,14 +218,14 @@ export default class VueAdapter extends ViewAdapter {
             this: ComponentPublicInstance,
             blockName: string,
             expression: unknown,
-            options?: LegacyConditionCaseOptions,
+            options: LegacyConditionCaseOptions,
         ): boolean {
             return legacyElseIf(getLegacyBlockConditionKey(this, blockName), expression, options);
         };
         this.app.config.globalProperties.$swLegacyBlockElse = function legacyBlockElse(
             this: ComponentPublicInstance,
             blockName: string,
-            options?: LegacyConditionCaseOptions,
+            options: LegacyConditionCaseOptions,
         ): boolean {
             return legacyElse(getLegacyBlockConditionKey(this, blockName), options);
         };

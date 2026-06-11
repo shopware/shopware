@@ -11,6 +11,21 @@ describe('use-block-context', () => {
     let clearLegacyConditionChain;
     let legacyConditionContext;
     const caseResult = (result) => ({ result });
+    const defaultCase = (segmentCaseIndex, isStartingCondition = false) => ({
+        segmentCaseIndex,
+        renderOrderSegment: 'defaultSlot',
+        isStartingCondition,
+    });
+    const shimCase = (segmentCaseIndex, isStartingCondition = false) => ({
+        segmentCaseIndex,
+        renderOrderSegment: 'shimExtension',
+        isStartingCondition,
+    });
+    const nativeCase = (segmentCaseIndex, isStartingCondition = false) => ({
+        segmentCaseIndex,
+        renderOrderSegment: 'nativeExtension',
+        isStartingCondition,
+    });
 
     beforeEach(async () => {
         useBlockContext = (await import('./use-block-context')).default;
@@ -135,32 +150,33 @@ describe('use-block-context', () => {
     });
 
     it('evaluates legacy if / else-if / else chains', () => {
-        expect(legacyIf('test', false)).toBe(false);
-        expect(legacyElseIf('test', true)).toBe(true);
-        expect(legacyElse('test')).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
+        expect(legacyElse('test', defaultCase(2))).toBe(false);
     });
 
     it('renders legacy else when no previous condition matched', () => {
-        expect(legacyIf('test', false)).toBe(false);
-        expect(legacyElseIf('test', false)).toBe(false);
-        expect(legacyElse('test')).toBe(true);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        expect(legacyElseIf('test', false, defaultCase(1))).toBe(false);
+        expect(legacyElse('test', defaultCase(2))).toBe(true);
     });
 
     it('does not render orphaned legacy else cases', () => {
-        expect(legacyElseIf('test', true)).toBe(false);
-        expect(legacyElse('test')).toBe(false);
+        expect(legacyElseIf('test', true, defaultCase(0))).toBe(false);
+        expect(legacyElse('test', defaultCase(1))).toBe(false);
     });
 
     it('cleans up legacy if chains without an else case', async () => {
-        expect(legacyIf('test', false)).toBe(false);
-        expect(legacyElseIf('test', true)).toBe(true);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: caseResult(true),
-                },
-                nextIndex: 2,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                    caseResult(true),
+                ],
+                shimExtensionCases: [],
+                nativeExtensionCases: [],
                 persistent: false,
             },
         });
@@ -171,26 +187,28 @@ describe('use-block-context', () => {
     });
 
     it('keeps legacy else cases available during the current render tick', () => {
-        expect(legacyIf('test', false)).toBe(false);
-        expect(legacyElse('test')).toBe(true);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        expect(legacyElse('test', defaultCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({});
     });
 
     it('keeps reserved extension cases pending until the shim renders', async () => {
-        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
 
-        expect(legacyElse('test')).toBe(false);
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: undefined,
-                    2: caseResult(false),
-                },
-                extensionStartIndex: 1,
-                nextIndex: 3,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                ],
+                shimExtensionCases: [
+                    undefined,
+                ],
+                nativeExtensionCases: [
+                    caseResult(false),
+                ],
                 persistent: true,
             },
         });
@@ -199,13 +217,15 @@ describe('use-block-context', () => {
 
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: undefined,
-                    2: caseResult(false),
-                },
-                extensionStartIndex: 1,
-                nextIndex: 3,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                ],
+                shimExtensionCases: [
+                    undefined,
+                ],
+                nativeExtensionCases: [
+                    caseResult(false),
+                ],
                 persistent: true,
             },
         });
@@ -218,14 +238,14 @@ describe('use-block-context', () => {
 
         try {
             stopEffects.push(watchEffect(() => {
-                legacyIf('test', false);
+                legacyIf('test', false, defaultCase(0, true));
                 reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
 
-                parentElseResults.push(legacyElse('test'));
+                parentElseResults.push(legacyElse('test', nativeCase(0)));
             }));
 
             stopEffects.push(watchEffect(() => {
-                legacyElseIf('test', false, 0);
+                legacyElseIf('test', false, shimCase(0));
             }));
 
             expect(parentElseResults[0]).toBe(false);
@@ -242,80 +262,80 @@ describe('use-block-context', () => {
     });
 
     it('updates reserved extension cases by their stable shim condition chain index', () => {
-        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 2 });
 
-        expect(legacyElseIf('test', false, 0)).toBe(false);
-        expect(legacyElse('test', 1)).toBe(true);
+        expect(legacyElseIf('test', false, shimCase(0))).toBe(false);
+        expect(legacyElse('test', shimCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: caseResult(false),
-                    2: caseResult(true),
-                },
-                extensionStartIndex: 1,
-                nextIndex: 3,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                ],
+                shimExtensionCases: [
+                    caseResult(false),
+                    caseResult(true),
+                ],
+                nativeExtensionCases: [],
                 persistent: true,
             },
         });
     });
 
-    it('uses nextIndex as extensionStartIndex for shim condition chain indexes', () => {
-        // Native cases consume absolute indexes first.
-        expect(legacyIf('test', false)).toBe(false);
-        expect(legacyElseIf('test', false)).toBe(false);
+    it('evaluates shim cases after default slot cases and before native extension cases', () => {
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
+        expect(legacyElseIf('test', false, defaultCase(1))).toBe(false);
 
-        // The shim reserves two pending slots starting at the current nextIndex.
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 2 });
 
-        // Shim-local indexes 0 and 1 are evaluated as absolute indexes 2 and 3.
-        expect(legacyElseIf('test', true, 0)).toBe(true);
-        expect(legacyElse('test', 1)).toBe(false);
-        // Later native cases continue after the reserved shim range.
-        expect(legacyElse('test')).toBe(false);
+        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
+        expect(legacyElse('test', shimCase(1))).toBe(false);
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: caseResult(false),
-                    2: caseResult(true),
-                    3: caseResult(false),
-                    4: caseResult(false),
-                },
-                extensionStartIndex: 2,
-                nextIndex: 5,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                    caseResult(false),
+                ],
+                shimExtensionCases: [
+                    caseResult(true),
+                    caseResult(false),
+                ],
+                nativeExtensionCases: [
+                    caseResult(false),
+                ],
                 persistent: true,
             },
         });
     });
 
-    it('moves later native absolute cases behind reserved shim cases', () => {
-        expect(legacyIf('test', false, { caseIndex: 0, isStartingCondition: true })).toBe(false);
+    it('evaluates native extension cases behind reserved shim cases', () => {
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
 
-        expect(legacyElse('test', { caseIndex: 1 })).toBe(false);
-        expect(legacyElseIf('test', true, 0)).toBe(true);
-        expect(legacyElse('test', { caseIndex: 1 })).toBe(false);
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
+        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
+        expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: { result: false, isStartingCondition: true },
-                    1: caseResult(true),
-                    2: caseResult(false),
-                    3: caseResult(false),
-                },
-                extensionStartIndex: 1,
-                nextIndex: 4,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                ],
+                shimExtensionCases: [
+                    caseResult(true),
+                ],
+                nativeExtensionCases: [
+                    caseResult(false),
+                ],
                 persistent: true,
             },
         });
     });
 
     it('clears persisted legacy extension chains when the extension is removed', () => {
-        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
         clearLegacyConditionChain('test');
@@ -324,21 +344,22 @@ describe('use-block-context', () => {
     });
 
     it('keeps persisted extension state when the parent legacy chain renders again', () => {
-        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
 
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
-        expect(legacyElseIf('test', true, 0)).toBe(true);
+        expect(legacyElseIf('test', true, shimCase(0))).toBe(true);
 
-        expect(legacyIf('test', false)).toBe(false);
+        expect(legacyIf('test', false, defaultCase(0, true))).toBe(false);
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                caseResults: {
-                    0: caseResult(false),
-                    1: caseResult(true),
-                },
-                extensionStartIndex: 1,
-                nextIndex: 2,
+                defaultSlotCases: [
+                    { result: false, isStartingCondition: true },
+                ],
+                shimExtensionCases: [
+                    caseResult(true),
+                ],
+                nativeExtensionCases: [],
                 persistent: true,
             },
         });

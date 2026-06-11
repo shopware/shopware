@@ -8,12 +8,17 @@ type CaseResult = {
     isStartingCondition?: boolean;
 };
 
+/**
+ * @private
+ */
+export type LegacyConditionRenderOrderSegment = 'defaultSlot' | 'shimExtension' | 'nativeExtension';
+
+type LegacyConditionCaseList = Array<CaseResult | undefined>;
+
 type LegacyConditionChain = {
-    caseResults: Record<number, CaseResult | undefined>;
-    // Points to the next absolute position for cases rendered in the current pass.
-    nextIndex: number;
-    // Marks where shim-local condition chain indexes start inside the absolute chain.
-    extensionStartIndex?: number;
+    defaultSlotCases: LegacyConditionCaseList;
+    shimExtensionCases: LegacyConditionCaseList;
+    nativeExtensionCases: LegacyConditionCaseList;
     // Keeps shim chains alive across ticks until their owning shim component unmounts.
     persistent: boolean;
 };
@@ -22,9 +27,9 @@ type LegacyConditionChain = {
  * @private
  */
 export type LegacyConditionCaseOptions = {
-    caseIndex: number;
+    segmentCaseIndex: number;
+    renderOrderSegment: LegacyConditionRenderOrderSegment;
     isStartingCondition?: boolean;
-    isShim?: boolean;
 };
 
 /**
@@ -39,6 +44,12 @@ const blockContext: Record<string, Slot[]> = reactive({});
 const legacyConditionContext: Record<string, LegacyConditionChain> = {};
 const legacyConditionRenderVersions = reactive<Record<string, number>>({});
 const pendingUpdates = new Set<string>();
+
+const LEGACY_CONDITION_RENDER_ORDER = [
+    'defaultSlot',
+    'shimExtension',
+    'nativeExtension',
+] as const satisfies LegacyConditionRenderOrderSegment[];
 
 // Drops stale chains if no v-else consumes them in the same tick.
 function scheduleLegacyConditionCleanup(chainKey: string, chain: LegacyConditionChain): void {
@@ -77,65 +88,66 @@ function removeBlock(blockName: string, block?: Slot): void {
     }
 }
 
-type LegacyConditionCaseOptionsInput = LegacyConditionCaseOptions | number;
-
-function normalizeLegacyConditionCaseOptions(
-    options?: LegacyConditionCaseOptionsInput,
-    isStartingCondition?: boolean,
-): LegacyConditionCaseOptions | undefined {
-    if (typeof options === 'number') {
-        return {
-            caseIndex: options,
-            isStartingCondition,
-            isShim: true,
-        };
-    }
-
-    return options;
-}
-
 function trackLegacyConditionChain(chainKey: string): void {
     void legacyConditionRenderVersions[chainKey];
 }
 
-/** Returns a stable condition chain index, optionally inside the legacy shim extension range. */
-function getLegacyConditionChainIndex(chain: LegacyConditionChain, options?: LegacyConditionCaseOptions): number {
-    if (!options) {
-        // Native cases render in sequence, so they can consume the next free absolute index.
-        const nextIndex = chain.nextIndex;
-        chain.nextIndex += 1;
-
-        return nextIndex;
-    }
-
-    if (!options.isShim) {
-        const nextIndex = Math.max(options.caseIndex, chain.nextIndex);
-        chain.nextIndex = nextIndex + 1;
-
-        return nextIndex;
-    }
-
-    // Shim cases only know their local index; this offset maps them back into the full chain.
-    chain.extensionStartIndex ??= chain.nextIndex;
-    chain.persistent = true;
-
-    return chain.extensionStartIndex + options.caseIndex;
+function createLegacyConditionChain(): LegacyConditionChain {
+    return {
+        defaultSlotCases: [],
+        shimExtensionCases: [],
+        nativeExtensionCases: [],
+        persistent: false,
+    };
 }
 
-function getChainStartIndex(chain: Record<number, CaseResult | undefined>, currentIndex: number): number {
-    for (let i = currentIndex; i >= 0; i -= 1) {
-        if (chain[i]?.isStartingCondition) {
-            return i;
+function getCaseListForRenderOrderSegment(
+    chain: LegacyConditionChain,
+    renderOrderSegment: LegacyConditionRenderOrderSegment,
+): LegacyConditionCaseList {
+    if (renderOrderSegment === 'defaultSlot') {
+        return chain.defaultSlotCases;
+    }
+
+    if (renderOrderSegment === 'shimExtension') {
+        return chain.shimExtensionCases;
+    }
+
+    return chain.nativeExtensionCases;
+}
+
+function getPreviousCaseResults(chain: LegacyConditionChain, options: LegacyConditionCaseOptions): Array<CaseResult | undefined> {
+    const previousCaseResults: Array<CaseResult | undefined> = [];
+
+    for (const renderOrderSegment of LEGACY_CONDITION_RENDER_ORDER) {
+        const caseList = getCaseListForRenderOrderSegment(chain, renderOrderSegment);
+        const lastSegmentCaseIndex = renderOrderSegment === options.renderOrderSegment
+            ? options.segmentCaseIndex
+            : caseList.length;
+
+        for (let segmentCaseIndex = 0; segmentCaseIndex < lastSegmentCaseIndex; segmentCaseIndex += 1) {
+            const caseResult = caseList[segmentCaseIndex];
+
+            if (caseResult?.isStartingCondition) {
+                previousCaseResults.length = 0;
+            }
+
+            previousCaseResults.push(caseResult);
+        }
+
+        if (renderOrderSegment === options.renderOrderSegment) {
+            return previousCaseResults;
         }
     }
-    return 0;
+
+    return previousCaseResults;
 }
 
-function createLegacyConditionCaseResult(result: boolean, options?: LegacyConditionCaseOptions): CaseResult {
+function createLegacyConditionCaseResult(result: boolean, options: LegacyConditionCaseOptions): CaseResult {
     const caseResult: CaseResult = { result };
 
-    if (options?.isStartingCondition !== undefined) {
-        caseResult.isStartingCondition = options.isStartingCondition;
+    if (options.isStartingCondition === true) {
+        caseResult.isStartingCondition = true;
     }
 
     return caseResult;
@@ -156,12 +168,13 @@ function scheduleChainUpdate(chainKey: string): void {
 function setLegacyCaseResult(
     chainKey: string,
     chain: LegacyConditionChain,
-    index: number,
+    options: LegacyConditionCaseOptions,
     nextResult: CaseResult,
 ): void {
-    const previous = chain.caseResults[index];
+    const caseList = getCaseListForRenderOrderSegment(chain, options.renderOrderSegment);
+    const previous = caseList[options.segmentCaseIndex];
 
-    chain.caseResults[index] = nextResult;
+    caseList[options.segmentCaseIndex] = nextResult;
 
     if (
         chain.persistent &&
@@ -178,29 +191,30 @@ function setLegacyCaseResult(
 function legacyIf(
     chainKey: string,
     expression: unknown,
-    options?: LegacyConditionCaseOptionsInput,
-    isStartingCondition?: boolean,
+    options: LegacyConditionCaseOptions,
 ): boolean {
     const result = Boolean(expression);
-    const normalizedOptions = normalizeLegacyConditionCaseOptions(options, isStartingCondition);
 
     if (!legacyConditionContext[chainKey]) {
-        legacyConditionContext[chainKey] = {
-            caseResults: {},
-            nextIndex: 0,
-            persistent: false,
-        };
+        legacyConditionContext[chainKey] = createLegacyConditionChain();
     }
 
     const chain = legacyConditionContext[chainKey];
-    chain.nextIndex = 0;
-    delete chain.extensionStartIndex;
+
+    if (options.renderOrderSegment === 'defaultSlot') {
+        chain.defaultSlotCases = [];
+        chain.nativeExtensionCases = [];
+    }
+
+    if (options.renderOrderSegment === 'shimExtension') {
+        chain.persistent = true;
+    }
 
     setLegacyCaseResult(
         chainKey,
         chain,
-        getLegacyConditionChainIndex(chain, normalizedOptions),
-        createLegacyConditionCaseResult(result, normalizedOptions),
+        options,
+        createLegacyConditionCaseResult(result, options),
     );
     scheduleLegacyConditionCleanup(chainKey, chain);
 
@@ -211,39 +225,29 @@ function legacyIf(
 function legacyElseIf(
     chainKey: string,
     expression: unknown,
-    options?: LegacyConditionCaseOptionsInput,
-    isStartingCondition?: boolean,
+    options: LegacyConditionCaseOptions,
 ): boolean {
     const chain = legacyConditionContext[chainKey];
-    const normalizedOptions = normalizeLegacyConditionCaseOptions(options, isStartingCondition);
 
     if (!chain) {
         return false;
     }
 
-    const index = getLegacyConditionChainIndex(chain, normalizedOptions);
-    const result = Boolean(expression);
-    let hasPendingPreviousCase = false;
-    let previousCaseMatched = false;
-
-    const chainStartIndex = getChainStartIndex(chain.caseResults, index);
-    for (let currentIndex = chainStartIndex; currentIndex < index; currentIndex += 1) {
-        const previousCaseResult = chain.caseResults[currentIndex];
-
-        previousCaseMatched = previousCaseMatched || previousCaseResult?.result === true;
-        hasPendingPreviousCase = hasPendingPreviousCase || previousCaseResult === undefined;
-
-        if (previousCaseMatched || hasPendingPreviousCase) {
-            break;
-        }
+    if (options.renderOrderSegment === 'shimExtension') {
+        chain.persistent = true;
     }
+
+    const result = Boolean(expression);
+    const previousCaseResults = getPreviousCaseResults(chain, options);
+    const previousCaseMatched = previousCaseResults.some((previousCaseResult) => previousCaseResult?.result === true);
+    const hasPendingPreviousCase = previousCaseResults.some((previousCaseResult) => previousCaseResult === undefined);
 
     const caseResult = !hasPendingPreviousCase && !previousCaseMatched && result;
     setLegacyCaseResult(
         chainKey,
         chain,
-        index,
-        createLegacyConditionCaseResult(caseResult, normalizedOptions),
+        options,
+        createLegacyConditionCaseResult(caseResult, options),
     );
 
     return caseResult;
@@ -252,39 +256,29 @@ function legacyElseIf(
 /** Finishes the chain and renders only when all previous cases missed. */
 function legacyElse(
     chainKey: string,
-    options?: LegacyConditionCaseOptionsInput,
-    isStartingCondition?: boolean,
+    options: LegacyConditionCaseOptions,
 ): boolean {
     trackLegacyConditionChain(chainKey);
     const chain = legacyConditionContext[chainKey];
-    const normalizedOptions = normalizeLegacyConditionCaseOptions(options, isStartingCondition);
 
     if (!chain) {
         return false;
     }
 
-    const index = getLegacyConditionChainIndex(chain, normalizedOptions);
-    let hasPendingPreviousCase = false;
-    let previousCaseMatched = false;
-
-    const chainStartIndex = getChainStartIndex(chain.caseResults, index);
-    for (let currentIndex = chainStartIndex; currentIndex < index; currentIndex += 1) {
-        const previousCaseResult = chain.caseResults[currentIndex];
-
-        previousCaseMatched = previousCaseMatched || previousCaseResult?.result === true;
-        hasPendingPreviousCase = hasPendingPreviousCase || previousCaseResult === undefined;
-
-        if (previousCaseMatched || hasPendingPreviousCase) {
-            break;
-        }
+    if (options.renderOrderSegment === 'shimExtension') {
+        chain.persistent = true;
     }
+
+    const previousCaseResults = getPreviousCaseResults(chain, options);
+    const previousCaseMatched = previousCaseResults.some((previousCaseResult) => previousCaseResult?.result === true);
+    const hasPendingPreviousCase = previousCaseResults.some((previousCaseResult) => previousCaseResult === undefined);
 
     const result = !hasPendingPreviousCase && !previousCaseMatched;
     setLegacyCaseResult(
         chainKey,
         chain,
-        index,
-        createLegacyConditionCaseResult(result, normalizedOptions),
+        options,
+        createLegacyConditionCaseResult(result, options),
     );
 
     if (!chain.persistent) {
@@ -302,21 +296,22 @@ function reserveLegacyConditionCases(chainKey: string, reservation: LegacyCondit
         return;
     }
 
-    chain.extensionStartIndex ??= chain.nextIndex;
     chain.persistent = true;
 
-    const startIndex = chain.extensionStartIndex + reservation.caseStartIndex;
+    const caseList = chain.shimExtensionCases;
     let hasNewReservation = false;
 
-    for (let currentIndex = startIndex; currentIndex < startIndex + reservation.caseCount; currentIndex += 1) {
-        if (!(currentIndex in chain.caseResults)) {
+    for (
+        let currentIndex = reservation.caseStartIndex;
+        currentIndex < reservation.caseStartIndex + reservation.caseCount;
+        currentIndex += 1
+    ) {
+        if (!(currentIndex in caseList)) {
             // Undefined means the case exists, but the shim has not evaluated it yet.
-            chain.caseResults[currentIndex] = undefined;
+            caseList[currentIndex] = undefined;
             hasNewReservation = true;
         }
     }
-
-    chain.nextIndex = Math.max(chain.nextIndex, startIndex + reservation.caseCount);
 
     if (hasNewReservation) {
         scheduleChainUpdate(chainKey);

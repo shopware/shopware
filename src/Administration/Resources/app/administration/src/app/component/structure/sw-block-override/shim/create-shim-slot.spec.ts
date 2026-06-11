@@ -122,9 +122,9 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             );
 
             legacyIf(chainKey, false, {
-                caseIndex: 0,
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
                 isStartingCondition: true,
-                isShim: false,
             });
             slot({
                 $: {
@@ -133,16 +133,17 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             });
 
             expect(legacyConditionContext[chainKey]).toStrictEqual({
-                caseResults: {
-                    0: {
+                defaultSlotCases: [
+                    {
                         result: false,
                         isStartingCondition: true,
                     },
-                    1: undefined,
-                    2: undefined,
-                },
-                extensionStartIndex: 1,
-                nextIndex: 3,
+                ],
+                shimExtensionCases: [
+                    undefined,
+                    undefined,
+                ],
+                nativeExtensionCases: [],
                 persistent: true,
             });
 
@@ -166,9 +167,9 @@ describe('app/component/structure/sw-block-override/shim/create-shim-slot.ts', (
             );
 
             legacyIf(chainKey, false, {
-                caseIndex: 0,
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
                 isStartingCondition: true,
-                isShim: false,
             });
             const [vnode] = slot({
                 $: {

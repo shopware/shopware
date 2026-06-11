@@ -16,8 +16,8 @@ describe('core/factory/twig-block-index.ts', () => {
     });
 
     describe('indexTwigBlocksFromTemplate', () => {
-        function options(caseIndex: number, isStartingCondition: boolean, isShim: boolean): string {
-            return `{ caseIndex: ${caseIndex}, isStartingCondition: ${isStartingCondition}, isShim: ${isShim} }`;
+        function options(segmentCaseIndex: number, isStartingCondition: boolean, renderOrderSegment: string): string {
+            return `{ segmentCaseIndex: ${segmentCaseIndex}, isStartingCondition: ${isStartingCondition}, renderOrderSegment: '${renderOrderSegment}' }`;
         }
 
         it('indexes a single block from a Twig template', () => {
@@ -72,7 +72,7 @@ describe('core/factory/twig-block-index.ts', () => {
 
             expect(entry.innerTemplate).toContain('<sw-block-parent />');
             expect(entry.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElse('legacy_else_block:0', ${options(0, false, true)})"`,
+                `v-if="$swLegacyBlockElse('legacy_else_block:0', ${options(0, false, 'shimExtension')})"`,
             );
             expect(entry.innerTemplate).not.toContain('v-else class="legacy-else"');
             expect(entry.legacyConditionCases).toEqual([
@@ -107,7 +107,7 @@ describe('core/factory/twig-block-index.ts', () => {
             const [pluginOne, pluginTwo] = getBlockEntries('shared_condition_block');
 
             expect(pluginOne.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, true)})"`,
+                `v-if="$swLegacyBlockElseIf('shared_condition_block:0', condition2, ${options(0, false, 'shimExtension')})"`,
             );
             expect(pluginOne.legacyConditionCases).toEqual([
                 {
@@ -117,7 +117,7 @@ describe('core/factory/twig-block-index.ts', () => {
                 },
             ]);
             expect(pluginTwo.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElse('shared_condition_block:0', ${options(1, false, true)})"`,
+                `v-if="$swLegacyBlockElse('shared_condition_block:0', ${options(1, false, 'shimExtension')})"`,
             );
             expect(pluginTwo.legacyConditionCases).toEqual([
                 {

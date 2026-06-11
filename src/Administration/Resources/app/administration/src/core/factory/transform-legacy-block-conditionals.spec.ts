@@ -6,8 +6,8 @@ import transformLegacyBlockConditionals, {
     transformLegacyTwigBlockSequenceConditionals,
 } from './transform-legacy-block-conditionals';
 
-function options(caseIndex: number, isStartingCondition: boolean, isShim: boolean): string {
-    return `{ caseIndex: ${caseIndex}, isStartingCondition: ${isStartingCondition}, isShim: ${isShim} }`;
+function options(segmentCaseIndex: number, isStartingCondition: boolean, renderOrderSegment: string): string {
+    return `{ segmentCaseIndex: ${segmentCaseIndex}, isStartingCondition: ${isStartingCondition}, renderOrderSegment: '${renderOrderSegment}' }`;
 }
 
 describe('core/factory/transform-legacy-block-conditionals.ts', () => {
@@ -28,10 +28,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockConditionals(template);
 
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('test-block:0', isConditionTrue, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('test-block:0', isConditionTrue, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('test-block:0', ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, 'nativeExtension')})"`,
         );
         expect(transformedTemplate).not.toContain('v-else class="false-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
@@ -60,16 +60,16 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockConditionals(template);
 
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('test-block:0', showBlue, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('test-block:0', showBlue, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('test-block:0', showGreen, ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElseIf('test-block:0', showGreen, ${options(1, false, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('test-block:0', showRed, ${options(2, false, false)})"`,
+            `v-if="$swLegacyBlockElseIf('test-block:0', showRed, ${options(0, false, 'nativeExtension')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('test-block:0', ${options(3, false, false)})"`,
+            `v-if="$swLegacyBlockElse('test-block:0', ${options(1, false, 'nativeExtension')})"`,
         );
         expect(() => compile(transformedTemplate)).not.toThrow();
     });
@@ -97,10 +97,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         expect(transformedTemplate).toContain('attr="foo\\"bar"');
         expect(transformedTemplate).toContain(`:config="{ label: 'A/B' }"`);
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('quote-block:0', showComponent, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('quote-block:0', showComponent, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('quote-block:0', ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElse('quote-block:0', ${options(0, false, 'nativeExtension')})"`,
         );
     });
 
@@ -122,10 +122,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockConditionals(template);
 
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('test-block:0', showDefault, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('test-block:0', showDefault, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('test-block:0', ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, 'nativeExtension')})"`,
         );
         expect(transformedTemplate).not.toContain('v-else class="fallback-case"');
         expect(() => compile(transformedTemplate)).not.toThrow();
@@ -147,10 +147,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockConditionals(template);
 
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('grid-block:0', items.length, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('grid-block:0', items.length, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('grid-block:0', ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElse('grid-block:0', ${options(1, false, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('empty-state-block'`);
         expect(transformedTemplate).not.toContain('v-else class="empty-case"');
@@ -177,13 +177,13 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         const transformedTemplate = transformLegacyBlockConditionals(template);
 
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockIf('blue-block:0', showBlue, ${options(0, true, false)})"`,
+            `v-if="$swLegacyBlockIf('blue-block:0', showBlue, ${options(0, true, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('blue-block:0', showGreen, ${options(1, false, false)})"`,
+            `v-if="$swLegacyBlockElseIf('blue-block:0', showGreen, ${options(1, false, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).toContain(
-            `v-if="$swLegacyBlockElse('blue-block:0', ${options(2, false, false)})"`,
+            `v-if="$swLegacyBlockElse('blue-block:0', ${options(2, false, 'defaultSlot')})"`,
         );
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('green-block'`);
         expect(transformedTemplate).not.toContain(`$swLegacyBlockIf('fallback-block'`);
@@ -236,11 +236,11 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         ]);
 
         expect(transformedEntries[1].innerTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('leading-block:0', showMiddle, ${options(1, false, true)})" class="middle-case"`,
+            `v-if="$swLegacyBlockElseIf('leading-block:0', showMiddle, ${options(1, false, 'shimExtension')})" class="middle-case"`,
         );
         expect(transformedEntries[1].innerTemplate).not.toContain(`"-if="showMiddle"`);
         expect(transformedEntries[2].innerTemplate).toContain(
-            `v-if="$swLegacyBlockElse('leading-block:0', ${options(2, false, true)})" class="legacy-else"`,
+            `v-if="$swLegacyBlockElse('leading-block:0', ${options(2, false, 'shimExtension')})" class="legacy-else"`,
         );
         expect(transformedEntries[2].innerTemplate).not.toContain(`')"class="legacy-else"`);
     });
@@ -260,7 +260,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         expect(entry.innerTemplate).toContain('<sw-block-parent />');
         expect(entry.innerTemplate).toContain(
-            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, true)})"`,
+            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, 'shimExtension')})"`,
         );
         expect(entry.innerTemplate).not.toContain('v-else class="false-case"');
         expect(entry.legacyConditionCases).toEqual([
@@ -287,7 +287,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         ]);
 
         expect(entry.innerTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('test-block:0', showRed, ${options(0, false, true)})"`,
+            `v-if="$swLegacyBlockElseIf('test-block:0', showRed, ${options(0, false, 'shimExtension')})"`,
         );
         expect(entry.innerTemplate).not.toContain('v-else-if="showRed"');
         expect(() => compile(entry.innerTemplate)).not.toThrow();
@@ -309,7 +309,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
 
         expect(entry.innerTemplate).toContain('<sw-block-parent />');
         expect(entry.innerTemplate).toContain(
-            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, true)})"`,
+            `v-if="$swLegacyBlockElse('test-block:0', ${options(0, false, 'shimExtension')})"`,
         );
         expect(entry.innerTemplate).not.toContain('v-else class="false-case"');
         expect(() => compile(entry.innerTemplate)).not.toThrow();
@@ -331,7 +331,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
         );
 
         expect(entry.innerTemplate).toContain(
-            `v-if="$swLegacyBlockElseIf('second-block:0', showSecond, ${options(1, false, true)})"`,
+            `v-if="$swLegacyBlockElseIf('second-block:0', showSecond, ${options(1, false, 'shimExtension')})"`,
         );
         expect(entry.innerTemplate).not.toContain('v-else-if="showSecond"');
         expect(entry.legacyConditionCases).toEqual([
@@ -362,10 +362,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             ]);
 
             expect(nativeTemplate).toContain(
-                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, false)})"`,
+                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, 'defaultSlot')})"`,
             );
             expect(extensionEntry.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElse('test_block:0', ${options(0, false, true)})"`,
+                `v-if="$swLegacyBlockElse('test_block:0', ${options(0, false, 'shimExtension')})"`,
             );
             expect(extensionEntry.legacyConditionCases).toEqual([
                 {
@@ -389,10 +389,10 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             ]);
 
             expect(leadingEntry.innerTemplate).toContain(
-                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, true)})"`,
+                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, 'shimExtension')})"`,
             );
             expect(fallbackEntry.innerTemplate).toContain(
-                `v-if="$swLegacyBlockElse('test_block:0', ${options(1, false, true)})"`,
+                `v-if="$swLegacyBlockElse('test_block:0', ${options(1, false, 'shimExtension')})"`,
             );
             expect(fallbackEntry.legacyConditionCases).toEqual([
                 {
@@ -427,13 +427,13 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             `);
 
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, false)})"`,
+                `v-if="$swLegacyBlockIf('test_block:0', condition, ${options(0, true, 'defaultSlot')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('test_block:0', condition2, ${options(1, false, false)})"`,
+                `v-if="$swLegacyBlockElseIf('test_block:0', condition2, ${options(0, false, 'nativeExtension')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('test_block:0', condition3, ${options(2, false, false)})"`,
+                `v-if="$swLegacyBlockElseIf('test_block:0', condition3, ${options(1, false, 'nativeExtension')})"`,
             );
         });
 
@@ -462,19 +462,19 @@ describe('core/factory/transform-legacy-block-conditionals.ts', () => {
             `);
 
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockIf('test-block:0', showPrimary, ${options(0, true, false)})"`,
+                `v-if="$swLegacyBlockIf('test-block:0', showPrimary, ${options(0, true, 'defaultSlot')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('test-block:0', showSecondary, ${options(1, false, false)})"`,
+                `v-if="$swLegacyBlockElseIf('test-block:0', showSecondary, ${options(0, false, 'nativeExtension')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockIf('test-block:1', showRestart, ${options(0, true, false)})"`,
+                `v-if="$swLegacyBlockIf('test-block:1', showRestart, ${options(0, true, 'nativeExtension')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockElseIf('test-block:1', showRestartAlternative, ${options(1, false, false)})"`,
+                `v-if="$swLegacyBlockElseIf('test-block:1', showRestartAlternative, ${options(1, false, 'nativeExtension')})"`,
             );
             expect(transformedTemplate).toContain(
-                `v-if="$swLegacyBlockElse('test-block:1', ${options(2, false, false)})"`,
+                `v-if="$swLegacyBlockElse('test-block:1', ${options(2, false, 'nativeExtension')})"`,
             );
         });
     });

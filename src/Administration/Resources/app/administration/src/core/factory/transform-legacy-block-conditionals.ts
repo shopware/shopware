@@ -2,6 +2,8 @@
  * @sw-package framework
  */
 
+import type { LegacyConditionRenderOrderSegment } from 'src/app/composables/use-block-context';
+
 const SELF_CLOSING_TAG_REG_EXP = /<([A-Za-z][\w:-]*)(?:\s+((?:[^"'<>]|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')*?))?\s*\/>/g;
 const CONDITIONAL_REG_EXP = /v-(?:if|else-if|else)\b/;
 
@@ -12,9 +14,9 @@ type LegacyBlockHelperNames = {
 };
 
 type HelperParameters = {
-    caseIndex: number;
+    segmentCaseIndex: number;
     isStartingCondition?: boolean;
-    isShim?: boolean;
+    renderOrderSegment: LegacyConditionRenderOrderSegment;
 };
 
 /**
@@ -59,12 +61,13 @@ type BlockConditionChainInfo = {
     lastChainInBlock: boolean;
     index: number;
     fullChainKey?: string;
-    caseStartIndex?: number; //Assigned during rewrite construction, the starting case index for this chain in the global condition case reservation
+    caseStartIndex?: number; //Assigned during rewrite construction, the starting case index for this chain in its render-order segment
     followedBy?: BlockConditionChainInfo; //Chains in other blocks that are following this chain as continuation chains
 };
 
 type BlockConditionInfo = {
     blockName: string;
+    renderOrderSegment: LegacyConditionRenderOrderSegment;
     conditionalChains: BlockConditionChainInfo[];
 };
 
@@ -86,7 +89,7 @@ function escapeSingleQuotedString(value: string): string {
 }
 
 function createLegacyConditionOptionsCode(parameters: HelperParameters): string {
-    return `{ caseIndex: ${parameters.caseIndex}, isStartingCondition: ${Boolean(parameters.isStartingCondition)}, isShim: ${Boolean(parameters.isShim)} }`;
+    return `{ segmentCaseIndex: ${parameters.segmentCaseIndex}, isStartingCondition: ${Boolean(parameters.isStartingCondition)}, renderOrderSegment: '${parameters.renderOrderSegment}' }`;
 }
 
 /** Builds the replacement v-if expression that links a case to the legacy condition state. */
@@ -134,10 +137,15 @@ export default function transformNativeLegacyBlockConditionals(template: string)
 
     const blocks = parsedTemplate.content.querySelectorAll('sw-block[name], sw-block[extends]');
 
-    const entries: LegacyTwigBlockSequenceEntry[] = Array.from(blocks).map((block) => ({
-        blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
-        innerTemplate: block.innerHTML,
-    }));
+    const entries = Array.from(blocks).map((block) => {
+        const renderOrderSegment: LegacyConditionRenderOrderSegment = block.hasAttribute('extends') ? 'nativeExtension' : 'defaultSlot';
+
+        return {
+            blockName: block.getAttribute('name') ?? block.getAttribute('extends')!,
+            innerTemplate: block.innerHTML,
+            renderOrderSegment,
+        };
+    });
 
     const blockConditionInfos: BlockConditionInfo[] = [];
 
@@ -145,6 +153,7 @@ export default function transformNativeLegacyBlockConditionals(template: string)
         const conditionalChains = collectBlockConditionalChains(entry.blockName, parseBlockTemplateChildren(entry.innerTemplate));
         blockConditionInfos.push({
             blockName: entry.blockName,
+            renderOrderSegment: entry.renderOrderSegment,
             conditionalChains: conditionalChains,
         });
     });
@@ -154,7 +163,7 @@ export default function transformNativeLegacyBlockConditionals(template: string)
     const allRewrites: RewriteInfo[] = [];
     blockConditionInfos.forEach(blockInfo => {
         blockInfo.conditionalChains.filter(chain => shouldPerformChainRewrite(chain)).forEach(chain => {
-            const rewrites = constructChainAttributeRewrites(chain, template, false);
+            const rewrites = constructChainAttributeRewrites(chain, template, blockInfo.renderOrderSegment);
             allRewrites.push(...rewrites);
         });
     });
@@ -264,10 +273,11 @@ function fillChainIndices(blockConditionInfos: BlockConditionInfo[], caseStartIn
             }
 
             if (chain.fullChainKey) {
-                const caseStartIndex = nextCaseIndexByChainKey.get(chain.fullChainKey) ?? caseStartIndexByChainKey[chain.fullChainKey] ?? 0;
+                const chainSegmentKey = `${chain.fullChainKey}:${blockInfo.renderOrderSegment}`;
+                const caseStartIndex = nextCaseIndexByChainKey.get(chainSegmentKey) ?? caseStartIndexByChainKey[chain.fullChainKey] ?? 0;
                 chain.caseStartIndex = caseStartIndex;
                 nextCaseIndexByChainKey.set(
-                    chain.fullChainKey,
+                    chainSegmentKey,
                     caseStartIndex + chain.children.length,
                 );
             }
@@ -301,16 +311,20 @@ function getAttributeCode(template: string, attributeName: string): string {
     return match[0] ?? '';
 }
 
-function constructChainAttributeRewrites(chain: BlockConditionChainInfo, template: string, isShim: boolean): RewriteInfo[] {
+function constructChainAttributeRewrites(
+    chain: BlockConditionChainInfo,
+    template: string,
+    renderOrderSegment: LegacyConditionRenderOrderSegment,
+): RewriteInfo[] {
     const rewrites: RewriteInfo[] = [];
     const chainKey = chain.fullChainKey ?? createLegacyConditionChainKey(chain.blockName, chain.index);
 
-    chain.children.forEach((child, localCaseIndex) => {
-        const caseIndex = (chain.caseStartIndex ?? 0) + localCaseIndex;
+    chain.children.forEach((child, localSegmentCaseIndex) => {
+        const segmentCaseIndex = (chain.caseStartIndex ?? 0) + localSegmentCaseIndex;
         if (child.hasAttribute('v-if')) {
             const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
             const oldExpression = getAttributeCode(codeBefore, 'v-if');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.if, chainKey, child.getAttribute('v-if'), { isStartingCondition: chain.starting && localCaseIndex === 0, caseIndex, isShim })}"`;
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.if, chainKey, child.getAttribute('v-if'), { isStartingCondition: chain.starting && localSegmentCaseIndex === 0, segmentCaseIndex, renderOrderSegment })}"`;
             rewrites.push({
                 codeBefore: oldExpression,
                 codeAfter: newExpression,
@@ -318,7 +332,7 @@ function constructChainAttributeRewrites(chain: BlockConditionChainInfo, templat
         } else if (child.hasAttribute('v-else-if')) {
             const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
             const oldExpression = getAttributeCode(codeBefore, 'v-else-if');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.elseIf, chainKey, child.getAttribute('v-else-if'), { isStartingCondition: false, caseIndex, isShim })}"`;
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.elseIf, chainKey, child.getAttribute('v-else-if'), { isStartingCondition: false, segmentCaseIndex, renderOrderSegment })}"`;
             rewrites.push({
                 codeBefore: oldExpression,
                 codeAfter: newExpression,
@@ -326,7 +340,7 @@ function constructChainAttributeRewrites(chain: BlockConditionChainInfo, templat
         } else if (child.hasAttribute('v-else')) {
             const codeBefore = normalizeParsedVueTemplate(child.outerHTML);
             const oldExpression = getAttributeCode(codeBefore, 'v-else');
-            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.else, chainKey, undefined, { isStartingCondition: false, caseIndex, isShim })}"`;
+            const newExpression = `v-if="${createLegacyHelperExpression(GLOBAL_LEGACY_HELPERS.else, chainKey, undefined, { isStartingCondition: false, segmentCaseIndex, renderOrderSegment })}"`;
             rewrites.push({
                 codeBefore: oldExpression,
                 codeAfter: newExpression,
@@ -348,7 +362,7 @@ function shouldPerformBlockRewrite(chains: BlockConditionChainInfo[]): boolean {
 }
 
 function shouldPerformChainRewrite(chain: BlockConditionChainInfo): boolean {
-    return !chain.starting || chain.children.length > 1 || chain.firstChainInBlock || chain.lastChainInBlock;
+    return !chain.starting || chain.followedBy !== undefined || chain.firstChainInBlock || chain.lastChainInBlock;
 }
 
 function applyOrderedRewrites(template: string, rewrites: RewriteInfo[]): string {
@@ -409,6 +423,7 @@ export function transformLegacyTwigBlockSequenceConditionals(
         const conditionalChains = collectBlockConditionalChains(entry.blockName, children);
         blockConditonalChains.push({
             blockName: entry.blockName,
+            renderOrderSegment: 'shimExtension',
             conditionalChains,
         });
     });
@@ -427,7 +442,7 @@ export function transformLegacyTwigBlockSequenceConditionals(
                 caseCount: chain.children.length,
             })));
             chains.forEach(chain => {
-                const rewrites = constructChainAttributeRewrites(chain, entry.innerTemplate, true);
+                const rewrites = constructChainAttributeRewrites(chain, entry.innerTemplate, 'shimExtension');
                 entry.innerTemplate = applyOrderedRewrites(entry.innerTemplate, rewrites);
             });
         }

@@ -121,7 +121,11 @@
 
                     {% block buy_widget_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">
-                            {% block buy_widget_was_price_before %}{% endblock %}
+                            {% block buy_widget_was_price_before %}
+                                {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                    position: 'before'
+                                } %}
+                            {% endblock %}
 
                             {# @deprecated tag:v6.8.0 - Snippet listing.beforeListPrice output will be removed. Use twig blocks instead. #}
                             {% if beforeListPriceSnippetExists %}{{ 'listing.beforeListPrice'|trans|trim }}{% endif %}
@@ -131,7 +135,11 @@
                             {# @deprecated tag:v6.8.0 - The conditional "list-price-price" class will be set unconditionally. #}
                             <span{% if not (afterListPriceSnippetExists or beforeListPriceSnippetExists) %} class="list-price-price"{% endif %}>{{ listPrice.price|currency }}</span>
 
-                            {% block buy_widget_was_price_after %}{% endblock %}
+                            {% block buy_widget_was_price_after %}
+                                {% sw_include '@Storefront/storefront/component/product/list-price-affix.html.twig' with {
+                                    position: 'after'
+                                } %}
+                            {% endblock %}
 
                             {# @deprecated tag:v6.8.0 - Snippet listing.afterListPrice output will be removed. Use twig blocks instead. #}
                             {% if afterListPriceSnippetExists %}{{ 'listing.afterListPrice'|trans|trim }}{% endif %}

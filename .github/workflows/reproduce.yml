@@ -195,26 +195,7 @@ jobs:
         env:
           ISSUE: ${{ needs.gate.outputs.issue }}
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          # Issue title + body + COMMENTS — comments often hold the real repro steps,
-          # affected version, and the "closed by #PR" cross-reference. EXCLUDE our own
-          # prior verdict comments (they all start with "## Reproduction") to avoid a
-          # feedback loop / wasted context — free jq filter, the gh call is the same.
-          gh issue view "$ISSUE" --repo "$GITHUB_REPOSITORY" --json title,body,comments \
-            --jq '"# " + .title + "\n\n" + (.body // "") + "\n\n## Comments\n\n" + ([.comments[]? | select(((.body // "") | contains("## Reproduction")) | not) | "**@" + (.author.login // "?") + ":** " + (.body // "")] | join("\n\n"))' \
-            > issue.md 2>/dev/null || echo "(issue unavailable)" > issue.md
-          head -c 60000 issue.md > issue.cap && mv issue.cap issue.md   # bound context
-
-          # First #-referenced number (in body OR comments) that is a real upstream PR →
-          # its title + body + diff (the diff carries the regression test). Best-effort.
-          for n in $(grep -oE '#[0-9]{3,}' issue.md | tr -d '#' | sort -un); do
-            if gh pr view "$n" --repo shopware/shopware --json title,body >/tmp/pv 2>/dev/null; then
-              { echo "# Fix PR shopware/shopware#$n"; jq -r '.title + "\n\n" + (.body // "")' /tmp/pv;
-                echo; echo "## Diff"; gh pr diff "$n" --repo shopware/shopware 2>/dev/null | head -c 40000; } > fixpr.diff
-              echo "prefetched fix PR shopware/shopware#$n"; break
-            fi
-          done
+        run: bash .github/actions/repro/bin/prefetch.sh
 
       - name: Analyze (agent)
         id: analyze
@@ -232,55 +213,13 @@ jobs:
           prompt: |
             Run the `reproduce` skill's Analyze phase for issue
             #${{ needs.gate.outputs.issue }} in repository ${{ github.repository }}.
-            The issue (title, body AND comments) is ALREADY fetched to `./issue.md`, and if
-            a linked fix PR was found, its description + diff (with the regression test) is
-            in `./fixpr.diff` — READ THOSE FIRST and do not re-fetch/search when they suffice
-            (saves turns). Follow any OTHER linked issue/PR only if these are insufficient
-            (use `--repo shopware/shopware`). The working directory is a shopware checkout —
-            read it for code/DAL schema only as needed. If the issue is too vague,
-            contradictory, or missing essentials to derive a FAITHFUL plan, do NOT guess —
-            write analysis.json as {"schema_version":"1","issue":N,"needs_info":"<one
-            specific clarifying question>"} and stop (the pipeline will ask and abort).
-            Otherwise derive the cheapest faithful plan. BE ECONOMICAL — you have a limited turn
-            budget: do the MINIMUM investigation to fill the plan (a few targeted searches,
-            NOT a full code tour). Your VERY FIRST Write MUST be a complete best-effort
-            analysis.json (plus its spec/test file) within the first few tool calls — treat
-            "produce the files" as turn 1, not the finale. Refine them afterwards ONLY if turns
-            remain; NEVER finish (or hit the turn cap) without having written analysis.json. If
-            still uncertain after a handful of tool calls, keep the best-effort plan with a
-            lower `confidence` rather than exploring further. `confidence` (0..1)
-            measures how FAITHFULLY the plan reproduces the reported symptom — NOT whether a
-            fix exists. It is HIGH when the symptom can be asserted deterministically (clear
-            expected-vs-actual, a stable endpoint/field/locator) AND the environment is
-            faithfully reproducible in CI. It is LOW when the symptom is vague or
-            non-deterministic, depends on environment CI can't reproduce (specific
-            timing/network/hardware/third-party state), or the failing layer is unclear.
-            A linked fix PR's regression test is the PREFERRED SOURCE to derive the assertion
-            from (derive, don't discover) and makes a confident plan easy — but its ABSENCE is
-            NEUTRAL: derive the assertion from the issue's described symptom and stay confident
-            if that symptom is concrete and reproducible. Do NOT lower confidence merely
-            because there is no fix PR — open, unfixed, clearly-described bugs are exactly what
-            this pipeline should reproduce. Whenever `confidence` < 0.7 you MUST also set
-            `confidence_reason` to the FAITHFULNESS obstacle in one short sentence (e.g.
-            "symptom is timing/environment-dependent and may not reproduce in CI" or "symptom
-            under-specified: no concrete expected value to assert") — never "no fix PR". A run
-            below 0.4 is NOT executed (a human is asked to confirm the draft first), so the
-            reason is what they act on.
-            Pick the cheapest faithful `layer` (service < *-api < *-ui; escalate only when a
-            cheaper layer cannot fire the symptom) and its matching `executor`: service →
-            direct, *-api → http, *-ui → playwright. THEN READ
-            `.claude/skills/reproduce/references/executors/<executor>.md` and FOLLOW that
-            file's authoring contract for the script that executor needs (http → `request`/
-            `requests` in analysis.json, no separate file; playwright → `repro.spec.ts`;
-            direct → `ReproTest.php`; set `script_path` accordingly). Write analysis.json (per
-            `.claude/skills/reproduce/references/SCHEMA.md`) to `analysis.json` in the
-            workspace root. If the repro needs seeded entities, ALSO write the admin sync
-            payload to `fixtures.json` (fixtures.sync_payload_path): mint 32-char
-            lowercase-hex UUIDs for entities you create and use {{SC}}/{{NAV_CAT}}/{{TAX}}/
-            {{CURRENCY}} placeholders for install ids (never human-readable ids — the sync API
-            rejects them). Include `scenario`: a plain-English, numbered Given/When/Then list
-            of the repro steps. Comment every step of the generated script. Emit only the
-            file(s) — no prose, no markdown fence. Do not comment or label.
+            Follow the runbook at `.claude/skills/reproduce/references/ANALYZE.md` — it
+            defines the decision protocol, economy budget, confidence rules, and outputs.
+            Run parameters for THIS run:
+            - inputs: the issue is prefetched to `./issue.md`; the linked fix PR's
+              description + diff (when found) to `./fixpr.diff`.
+            - outputs: write `analysis.json` (+ `fixtures.json` / the executor's script
+              file when needed) to the workspace root.
           # Pin Sonnet (bounded task) + cap turns (bounds cost when the agent can't find
           # context, e.g. off-repo). Widen the READ-ONLY allowlist so the agent stops
           # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
@@ -297,46 +236,7 @@ jobs:
         env:
           ISSUE: ${{ needs.gate.outputs.issue }}
           DEMO_LAYER: ${{ github.event.inputs.demo_layer || 'http' }}
-        run: |
-          set -euo pipefail
-          echo "::warning::DEMO dry-run ($DEMO_LAYER) — canned plan, NOT a real analysis."
-          case "$DEMO_LAYER" in
-            http)
-              jq -n --argjson issue "$ISSUE" '{
-                schema_version:"1", issue:$issue, layer:"store-api", executor:"http", version:"6.6.10.0",
-                scenario:["Given a running shop","When POST /store-api/checkout/cart with an empty body","Then a healthy shop returns HTTP 400"],
-                build_profile:{admin_build:false,storefront_build:false,theme_build:false},
-                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
-                request:{method:"POST",path:"/store-api/checkout/cart",headers:{"Content-Type":"application/json"},body:"{}"},
-                assertion:{kind:"http_status",expect:"400",field:null,locator:"/store-api/checkout/cart"},
-                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
-              }' > analysis.json
-              ;;
-            direct)
-              jq -n --argjson issue "$ISSUE" '{
-                schema_version:"1", issue:$issue, layer:"service", executor:"direct", version:"6.6.10.0",
-                scenario:["Given a provisioned shop","When a PHPUnit integration test resolves a core service","Then the service is available (healthy)"],
-                build_profile:{admin_build:false,storefront_build:false,theme_build:false},
-                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
-                script_path:"ReproTest.php",
-                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
-              }' > analysis.json
-              cp .github/actions/repro/demo/ReproTest.php ReproTest.php
-              ;;
-            playwright)
-              jq -n --argjson issue "$ISSUE" '{
-                schema_version:"1", issue:$issue, layer:"admin-ui", executor:"playwright", version:"6.6.10.0",
-                scenario:["Given a provisioned shop with the admin built","When the admin entry point is opened","Then the page renders (healthy)"],
-                build_profile:{admin_build:true,storefront_build:false,theme_build:false},
-                fixtures:{demodata:false,sync_payload_path:"fixtures.json"},
-                script_path:"repro.spec.ts",
-                derived_from:"DEMO (dry-run)", confidence:1.0, blocked_reason:null
-              }' > analysis.json
-              cp .github/actions/repro/demo/repro.spec.ts repro.spec.ts
-              ;;
-            *) echo "::error::unknown demo_layer '$DEMO_LAYER'"; exit 1 ;;
-          esac
-          cat analysis.json
+        run: bash .github/actions/repro/bin/demo-plan.sh
 
       # Capture the agent transcript (tool calls, denials, per-turn breakdown) for cost
       # analysis. Fork/dev only — gate behind debug before the real shopware PR (tool
@@ -351,6 +251,8 @@ jobs:
           retention-days: 7
 
       # Compute the target matrix from the produced plan (dedup + not-on-manual-rerun).
+      # Leg matrix + the three graceful pre-provision exits (missing plan / needs_info /
+      # < 0.4 low confidence) — see bin/matrix.sh.
       - id: matrix
         env:
           SKIP_REPORTED: ${{ needs.gate.outputs.skip_reported }}
@@ -358,52 +260,7 @@ jobs:
           ISSUE: ${{ needs.gate.outputs.issue }}
           POST: ${{ needs.gate.outputs.post }}
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          # No plan file: the agent errored or exceeded its turn budget without writing one.
-          # Degrade gracefully (visible comment + clean skip) instead of an opaque red run.
-          if [ ! -f analysis.json ]; then
-            echo "::warning::analyze produced no analysis.json (agent error or exceeded turn budget)"
-            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
-              --body "## Reproduction — could not analyze"$'\n\n'"The analyzer did not produce a repro plan within its turn budget (likely an over-exploring UI/playwright analysis). No reproduction was run. A human can review the issue, or re-trigger to retry."
-            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
-            exit 0
-          fi
-          cat analysis.json
-          # Analyze judged the issue too ambiguous to reproduce faithfully → ask, don't guess.
-          NEEDS=$(jq -r '.needs_info // empty' analysis.json)
-          if [ -n "$NEEDS" ]; then
-            echo "::warning::analyze needs info: $NEEDS"
-            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
-              --body "## Reproduction — needs info"$'\n\n'"$NEEDS"
-            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
-            exit 0
-          fi
-          # Pre-provision bail-out: a plan the agent itself doesn't trust (< 0.4) is almost
-          # always a guess (no fix PR to derive from). Provisioning two installs to test a
-          # guess wastes the expensive part of the run, so ask a human to confirm the draft
-          # plan FIRST rather than spend it. (0.4–0.7 still runs → needs_human_review.)
-          CONF=$(jq -r '.confidence // 1' analysis.json)
-          if awk "BEGIN{exit !($CONF < 0.4)}"; then
-            REASON=$(jq -r '.confidence_reason // .blocked_reason // "no reason given"' analysis.json)
-            SCEN=$(jq -r '(.scenario // []) | map("- " + .) | join("\n")' analysis.json)
-            echo "::warning::analyze low confidence ($CONF) — bailing before provision: $REASON"
-            [ "$POST" = "true" ] && gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" \
-              --body "## Reproduction — low confidence, not run"$'\n\n'"The analyzer produced a draft plan it is not confident is faithful (confidence \`$CONF\`), so the reproduction was **not** run (to avoid provisioning two installs to test a guess)."$'\n\n'"**Why:** $REASON"$'\n\n'"**Draft scenario it would have tried:**"$'\n'"$SCEN"$'\n\n'"_Confirm or correct the steps above and re-trigger to run it._"
-            echo "targets=[]" >> "$GITHUB_OUTPUT"   # no legs → reproduce/report skip
-            exit 0
-          fi
-          VERSION=$(jq -r '.version' analysis.json)
-          # Each leg carries role (reported|trunk) + the ref to display/provision. The
-          # trunk leg uses $BRANCH (default trunk) so you can reproduce against a fix branch.
-          # Trunk-only when explicitly requested (skip_reported) or reported == the branch.
-          if [ "$SKIP_REPORTED" = "true" ] || [ "$VERSION" = "$BRANCH" ]; then
-            TARGETS=$(jq -nc --arg b "$BRANCH" '[$b]')
-          else
-            TARGETS=$(jq -nc --arg v "$VERSION" --arg b "$BRANCH" '[$v,$b]')
-          fi
-          echo "targets=$TARGETS" >> "$GITHUB_OUTPUT"
-          echo "Computed targets: $TARGETS"
+        run: bash .github/actions/repro/bin/matrix.sh
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: analysis
@@ -447,22 +304,7 @@ jobs:
         env:
           LEG_VERSION: ${{ matrix.version }}
           BRANCH: ${{ github.event.inputs.branch || 'trunk' }}
-        run: |
-          set -euo pipefail
-          # role derived: the leg whose version is the branch is "trunk", else "reported".
-          if [ "$LEG_VERSION" = "$BRANCH" ]; then ROLE=trunk; else ROLE=reported; fi
-          echo "role=$ROLE" >> "$GITHUB_OUTPUT"
-          EXECUTOR=$(jq -r .executor analysis.json)
-          echo "executor=$EXECUTOR" >> "$GITHUB_OUTPUT"
-          # trunk leg provisions the branch ref as-is (default trunk); reported leg pins the
-          # exact released tag (v-prefixed).
-          if [ "$ROLE" = "trunk" ]; then
-            echo "version=$LEG_VERSION" >> "$GITHUB_OUTPUT"
-          else
-            echo "version=v$LEG_VERSION" >> "$GITHUB_OUTPUT"
-          fi
-          echo "admin_build=$(jq -r .build_profile.admin_build analysis.json)" >> "$GITHUB_OUTPUT"
-          echo "storefront_build=$(jq -r .build_profile.storefront_build analysis.json)" >> "$GITHUB_OUTPUT"
+        run: bash .github/actions/repro/bin/leg-plan.sh
 
       # Provision only when an executor needs a live shop (http/playwright). Build only the surface.
       # continue-on-error: a dead env blocks THIS leg, it must not kill the run (the other leg + report still go).
@@ -502,17 +344,8 @@ jobs:
         if: steps.provision.outcome == 'failure' || steps.seed.outcome == 'failure'
         env:
           TARGET: ${{ steps.plan.outputs.role }}
-        run: |
-          set -euo pipefail
-          FAILED=provision; [ "${{ steps.seed.outcome }}" = "failure" ] && FAILED=seed
-          jq -n --argjson issue "$(jq -r .issue analysis.json)" --arg target "$TARGET" \
-            --arg version "$(jq -r .version analysis.json)" --arg executor "$(jq -r .executor analysis.json)" --arg failed "$FAILED" '{
-              schema_version:"1", issue:$issue, target:$target, version:$version, executor:$executor,
-              status:"blocked", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
-              evidence:{script:"", script_lang:"sh", reporter_output:($failed+" failed for this leg"),
-                http:[], artifacts:[], truncated:false},
-              blocked_reason:($failed+" step failed (dead env)") }' > result.json
-          cat result.json
+          FAILED: ${{ steps.seed.outcome == 'failure' && 'seed' || 'provision' }}
+        run: bash .github/actions/repro/bin/leg-blocked.sh
 
       - name: Run executor
         if: steps.provision.outcome != 'failure' && steps.seed.outcome != 'failure'

@@ -59,6 +59,9 @@ expensive paths.
 
 ## Reference files
 
+- `references/ANALYZE.md` — the Analyze-phase runbook (inputs, needs_info protocol,
+  economy budget, confidence rules, outputs). The CI prompt supplies only run parameters
+  and defers here.
 - `references/SCHEMA.md` — the three JSON contracts and the universal rules.
 - `references/executors/{http,playwright,direct}.md` — the per-executor authoring
   contract. After choosing the `layer`, read ONLY the file for its executor.

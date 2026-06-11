@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInOpenapiSchem
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ParentAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
@@ -194,7 +195,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             ]),
             new Parameter([
                 'parameter' => 'swLanguageId',
-                'name' => 'sw-language-id',
+                'name' => PlatformRequest::HEADER_LANGUAGE_ID,
                 'in' => 'header',
                 'required' => false,
                 'schema' => [
@@ -205,7 +206,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             ]),
             new Parameter([
                 'parameter' => 'swDomain',
-                'name' => 'sw-domain',
+                'name' => PlatformRequest::HEADER_DOMAIN,
                 'in' => 'header',
                 'required' => false,
                 'schema' => [
@@ -214,7 +215,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                     'example' => 'https://shop.example.com/de',
                 ],
                 'description' => 'URL of a configured sales channel domain. Headless frontends can use this header to have '
-                    . 'the request served with the language and currency configured for that domain, without knowing their ids. '
+                    . 'the request served with the language and currency configured for that domain, without knowing their IDs. '
                     . 'Must match one of the sales channel\'s configured domains. Explicit `sw-language-id` / `sw-currency-id` '
                     . 'headers take precedence.',
             ]),
@@ -371,8 +372,8 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     private function injectContextHeaders(array &$specs): void
     {
         $headers = [
-            ['name' => 'sw-language-id', 'ref' => '#/components/parameters/swLanguageId'],
-            ['name' => 'sw-domain', 'ref' => '#/components/parameters/swDomain'],
+            ['name' => PlatformRequest::HEADER_LANGUAGE_ID, 'ref' => '#/components/parameters/swLanguageId'],
+            ['name' => PlatformRequest::HEADER_DOMAIN, 'ref' => '#/components/parameters/swDomain'],
         ];
 
         foreach ($specs['paths'] as $path => &$pathDefinition) {

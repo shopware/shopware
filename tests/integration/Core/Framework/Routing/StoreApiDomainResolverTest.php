@@ -70,9 +70,9 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testResolvesLanguageAndCurrencyFromDomainHeader(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => self::DE_DOMAIN,
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => self::DE_DOMAIN,
+        ]));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame($this->deDeLanguageId, $this->resolvedLanguageId());
@@ -81,9 +81,9 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testBaseDomainIsDistinguishedFromSubPathDomain(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => self::EN_DOMAIN,
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => self::EN_DOMAIN,
+        ]));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->resolvedLanguageId());
@@ -92,9 +92,9 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testResolvesLanguageWithTrailingSlash(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => self::DE_DOMAIN . '/',
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => self::DE_DOMAIN . '/',
+        ]));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame($this->deDeLanguageId, $this->resolvedLanguageId());
@@ -112,10 +112,10 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testExplicitLanguageHeaderTakesPrecedenceOverDomain(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => self::DE_DOMAIN,
-            'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_LANGUAGE_ID)) => Defaults::LANGUAGE_SYSTEM,
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => self::DE_DOMAIN,
+            PlatformRequest::HEADER_LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+        ]));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         // explicit language wins, currency still resolved from the domain
@@ -125,10 +125,10 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testExplicitCurrencyHeaderTakesPrecedenceOverDomain(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => self::DE_DOMAIN,
-            'HTTP_' . str_replace('-', '_', strtoupper(PlatformRequest::HEADER_CURRENCY_ID)) => $this->eurCurrencyId,
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => self::DE_DOMAIN,
+            PlatformRequest::HEADER_CURRENCY_ID => $this->eurCurrencyId,
+        ]));
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         // language still resolved from the domain, explicit currency wins
@@ -138,14 +138,29 @@ class StoreApiDomainResolverTest extends TestCase
 
     public function testUnknownDomainIsRejected(): void
     {
-        $this->browser->request('GET', '/store-api/context', [], [], [
-            'HTTP_SW_DOMAIN' => 'http://not-a-configured-domain.test',
-        ]);
+        $this->browser->request('GET', '/store-api/context', [], [], $this->serverHeaders([
+            PlatformRequest::HEADER_DOMAIN => 'http://not-a-configured-domain.test',
+        ]));
 
         static::assertSame(400, $this->browser->getResponse()->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(RoutingException::SALES_CHANNEL_DOMAIN_NOT_FOUND, $response['errors'][0]['code']);
+    }
+
+    /**
+     * @param array<string, string> $headers header name => value
+     *
+     * @return array<string, string> server parameters for KernelBrowser::request()
+     */
+    private function serverHeaders(array $headers): array
+    {
+        $server = [];
+        foreach ($headers as $name => $value) {
+            $server['HTTP_' . str_replace('-', '_', strtoupper($name))] = $value;
+        }
+
+        return $server;
     }
 
     private function resolvedLanguageId(): string

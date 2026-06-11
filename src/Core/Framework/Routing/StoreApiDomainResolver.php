@@ -130,8 +130,8 @@ class StoreApiDomainResolver implements EventSubscriberInterface
         }
 
         return [
-            'languageId' => (string) $config['languageId'],
-            'currencyId' => (string) $config['currencyId'],
+            'languageId' => $config['languageId'],
+            'currencyId' => $config['currencyId'],
         ];
     }
 }

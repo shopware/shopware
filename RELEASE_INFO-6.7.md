@@ -49,6 +49,10 @@ This prevents leading or trailing whitespace from being stored in standard addre
 
 Existing customer address records are not changed.
 
+### scssphp/scssphp replaced by shyim/scssphp-compat
+
+The `scssphp/scssphp` dependency was replaced by `shyim/scssphp-compat`, a drop-in compatible, performance-focused fork of scssphp 1.x. It keeps the identical `ScssPhp\ScssPhp` namespace and public API, adds `sass:math` support, and produces byte-for-byte identical CSS output. The package declares `replace` for `scssphp/scssphp`, so no theme, plugin, or app code changes are required.
+
 ### Optional SCSS compile cache
 
 SCSS compilation can now reuse previously compiled output through the new `CachedScssCompiler` decorator, backed by `cache.app.taggable` (tag `scss_compiler`, 1h lifetime).

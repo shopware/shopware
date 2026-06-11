@@ -50,6 +50,7 @@ class CorsListener implements EventSubscriberInterface
             PlatformRequest::HEADER_CONTEXT_TOKEN,
             PlatformRequest::HEADER_ACCESS_KEY,
             PlatformRequest::HEADER_LANGUAGE_ID,
+            PlatformRequest::HEADER_DOMAIN,
             PlatformRequest::HEADER_VERSION_ID,
             PlatformRequest::HEADER_INHERITANCE,
             PlatformRequest::HEADER_INDEXING_BEHAVIOR,

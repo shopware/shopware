@@ -118,7 +118,7 @@ class StoreApiDomainResolver implements EventSubscriberInterface
             'SELECT LOWER(HEX(language_id)) AS languageId, LOWER(HEX(currency_id)) AS currencyId
              FROM sales_channel_domain
              WHERE sales_channel_id = :salesChannelId
-               AND TRIM(TRAILING \'/\' FROM url) = :url',
+               AND (url = :url OR url = CONCAT(:url, \'/\'))',
             [
                 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
                 'url' => rtrim($domainUrl, '/'),

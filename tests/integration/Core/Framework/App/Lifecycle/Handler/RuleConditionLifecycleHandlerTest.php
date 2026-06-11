@@ -5,16 +5,12 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Handler;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
-use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 
 /**
@@ -53,7 +49,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $app = $this->appFixture->createApp($manifest);
         $appId = $app->getId();
 
-        $this->persister->install($this->createPersistContext($app, $manifest));
+        $this->persister->install($this->appFixture->createInstallContext($app, $manifest));
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('appId', $appId));
         $scriptConditions = $this->scriptConditionRepository->search($criteria, Context::createDefaultContext())->getEntities();
@@ -69,7 +65,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         }
 
         $updatedManifest = $this->appFixture->loadManifest(self::UPDATED_MANIFEST);
-        $this->persister->update($this->createPersistContext($app, $updatedManifest));
+        $this->persister->update($this->appFixture->createUpdateContext($app, $updatedManifest));
 
         $scriptConditions = $this->scriptConditionRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
@@ -91,17 +87,6 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         static::assertIsArray($config[0]);
         static::assertArrayHasKey('type', $config[0]);
         static::assertSame('int', $config[0]['type']);
-    }
-
-    private function createPersistContext(AppEntity $app, Manifest $manifest): AppPersistContext
-    {
-        return new AppPersistContext(
-            manifest: $manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(),
-            defaultLocale: 'en-GB',
-        );
     }
 
     private function assertScriptConditionFieldConfig(AppScriptConditionEntity $scriptCondition): void

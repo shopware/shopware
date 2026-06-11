@@ -8,14 +8,11 @@ use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionC
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
-use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
@@ -47,7 +44,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
             AppFixture::createAppRepository($app),
         );
 
-        $persister->install($this->createPersistContext($app, $manifest));
+        $persister->install(AppFixture::createInstallContext($app, $manifest));
 
         $payloads = $this->indexPayloadsByIdentifier($conditionRepository->getPayloads(StaticEntityRepository::UPSERT));
 
@@ -89,7 +86,7 @@ class RuleConditionLifecycleHandlerTest extends TestCase
             AppFixture::createAppRepository($app),
         );
 
-        $persister->update($this->createPersistContext($app, $manifest));
+        $persister->update(AppFixture::createUpdateContext($app, $manifest));
 
         $upserts = $conditionRepository->getPayloads(StaticEntityRepository::UPSERT);
 
@@ -168,17 +165,6 @@ class RuleConditionLifecycleHandlerTest extends TestCase
         $condition->setIdentifier($identifier);
 
         return $condition;
-    }
-
-    private function createPersistContext(AppEntity $app, Manifest $manifest): AppPersistContext
-    {
-        return new AppPersistContext(
-            manifest: $manifest,
-            app: $app,
-            context: Context::createDefaultContext(),
-            appFilesystem: new StaticFilesystem(),
-            defaultLocale: 'en-GB',
-        );
     }
 
     /**

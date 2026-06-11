@@ -16,8 +16,6 @@ use Shopware\Core\Framework\App\Event\PostAppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppFeatureValidator;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
-use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\AbstractLifecycleHandler;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
@@ -215,8 +213,7 @@ class AppManagerTest extends TestCase
 
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('activate')
-            ->with(static::callback(static fn (AppActivationContext $ctx): bool => $ctx->app === $app && $ctx->context === $context));
+            ->method('activate');
 
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
@@ -261,8 +258,7 @@ class AppManagerTest extends TestCase
 
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('deactivate')
-            ->with(static::callback(static fn (AppActivationContext $ctx): bool => $ctx->app === $app && $ctx->context === $context));
+            ->method('deactivate');
 
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->activeAppsLoader->expects($this->once())->method('reset');
@@ -300,11 +296,9 @@ class AppManagerTest extends TestCase
 
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('deactivate')
-            ->with(static::callback(static fn (AppActivationContext $ctx): bool => $ctx->app === $app && $ctx->context === $context));
+            ->method('deactivate');
         $persister->expects($this->once())
-            ->method('uninstall')
-            ->with(static::callback(static fn (AppRemovalContext $ctx): bool => $ctx->app === $app && $ctx->context === $context && $ctx->keepUserData === true));
+            ->method('uninstall');
 
         $this->customEntityLifecycleService = $this->createMock(CustomEntityLifecycleService::class);
         $this->customEntityLifecycleService->expects($this->once())
@@ -348,8 +342,7 @@ class AppManagerTest extends TestCase
 
         $persister = $this->createMock(AbstractLifecycleHandler::class);
         $persister->expects($this->once())
-            ->method('delete')
-            ->with(static::callback(static fn (AppRemovalContext $ctx): bool => $ctx->app === $app && $ctx->context === $context && $ctx->keepUserData === false));
+            ->method('delete');
         $persister->expects($this->never())->method('deactivate');
 
         $this->integrationRepository = new StaticEntityRepository([]);

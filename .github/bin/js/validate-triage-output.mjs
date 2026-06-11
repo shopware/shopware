@@ -10,8 +10,8 @@
  *    GitHub PATs, Anthropic keys, OAuth tokens, and long base64 blocks that look
  *    like exfil payloads.
  *
- * Pure node, no dependencies. Run by `.github/workflows/validate-triage-output.yml`
- * after every triage run; exits non-zero if anything trips, which fails the run.
+ * Pure node, no dependencies. Run by `.github/workflows/process-triage-result.yml`
+ * after every triage run; exits non-zero if anything trips, which fails the processor run.
  *
  * Usage:
  *   node validate-triage-output.mjs <path-to-triage-output.json>

@@ -95,12 +95,12 @@ GitHub Actions only exposes `workflow_dispatch` for workflows that have run at l
 2. Push once — GitHub registers the workflow.
 3. Remove the `push:` trigger and recompile.
 
-## Output validation
+## Output processing
 
-`gh aw` does **not** enforce user-defined output schemas — the `upload-artifact` safe-output just stores the file. We run our own post-validation:
+`gh aw` does **not** enforce user-defined output schemas — the `upload-artifact` safe-output just stores the file. We run our own post-processing:
 
-- `.github/workflows/validate-triage-output.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-triage-output.mjs` against the `triage-output.json` payload.
+- `.github/workflows/process-triage-result.yml` triggers on every triage `workflow_run` completion, downloads the staging artifact, and runs `.github/bin/js/validate-triage-output.mjs` against the `triage-output.json` payload before applying deterministic issue updates.
 - The validator enforces the field-level limits the agent had only as prompt hints (`reasoning` ≤ 2000 chars, `evidence_quotes[]` ≤ 500 chars × ≤ 5 entries) and scans for accidental or prompt-injection-induced secret leakage (GitHub PATs, Anthropic keys, long base64 blocks). It is pure node, no dependencies.
 - The `TriageOutput` shape and field rules live in `.claude/skills/triage/assets/examples.md`; the validator is the machine-readable enforcement of those rules.
 
-A failed validation appears as a red check on the triage run — visible to the maintainer who dispatched it. The staging artifact is not deleted on failure (would need `actions: write`); the visibility of the failed check is the gate.
+A failed validation appears as a red `Triage Result Processor` run — visible to the maintainer who dispatched the triage. The staging artifact is not deleted on failure (would need `actions: write`); the visibility of the failed check is the gate.

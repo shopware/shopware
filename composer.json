@@ -117,7 +117,7 @@
         "psr/log": "^3.0.0",
         "psr/simple-cache": "^3.0.0",
         "ramsey/uuid": "^4.7",
-        "scssphp/scssphp": "v1.12.0",
+        "scssphp/scssphp": "v2.1.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
         "shopware/conflicts": "0.6.1",

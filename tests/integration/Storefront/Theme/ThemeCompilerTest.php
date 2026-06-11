@@ -507,6 +507,7 @@ PHP_EOL;
   background: #fff;
   color: #eee;
 }
+
 .test-selector-app {
   background: #aaa;
   color: #eee;
@@ -630,15 +631,15 @@ PHP_EOL;
 PHP_EOL;
 
         $expectedCssOutput = <<<PHP_EOL
+@import '~vendor/library.min.css';
 .plain-css-from-library {
   color: red;
 }
-.plain-css-from-library {
-  color: red;
-}
+
 .another-lib {
   color: #0d9c0d;
 }
+
 .another-lib {
   color: #0d9c0d;
 }

@@ -519,19 +519,24 @@ class SCSSValidatorTest extends TestCase
             ],
             'rgb(255 0 0 / 0.5)',
         ];
-        yield 'color correct rgb modern with variable' => [
+        // scssphp 2.x (dart-sass) requires numeric rgb() channels and treats `/` purely as the
+        // alpha separator; a variable or hex color in that position is invalid and now rejected.
+        // scssphp 1.x wrongly accepted these by interpreting `/` as division.
+        yield 'color rgb modern with variable is rejected' => [
             [
                 'type' => 'color',
                 'value' => 'rgb($myColor / 0.5)',
             ],
-            'rgb($myColor / 0.5)',
+            '',
+            true,
         ];
-        yield 'color correct rgb modern with hex color' => [
+        yield 'color rgb modern with hex color is rejected' => [
             [
                 'type' => 'color',
                 'value' => 'rgb(#fff / 0.5)',
             ],
-            'rgb(#fff / 0.5)',
+            '',
+            true,
         ];
         yield 'color correct rgba' => [
             [

@@ -35,7 +35,7 @@
         "league/flysystem-local": "^3.29.0",
         "league/flysystem-memory": "^3.10.3",
         "meyfa/php-svg": "^0.16.1",
-        "scssphp/scssphp": "v1.12.0",
+        "scssphp/scssphp": "v2.1.0",
         "shopware/core": "*",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.12",

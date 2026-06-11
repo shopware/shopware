@@ -516,8 +516,11 @@ class ThemeTest extends TestCase
             $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
             static::assertTrue($themeCompiled);
         } catch (ThemeCompileException $e) {
-            // ignore files not found exception
-            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
+            // The storefront vendor assets (bootstrap) are not built in the PHP integration test
+            // environment, so scssphp 2.x cannot resolve the bootstrap import. Ignore only that
+            // failure; any other compile error must still surface.
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". Can\'t find stylesheet to import.')
+                || !str_contains($e->getMessage(), 'bootstrap/scss/functions')) {
                 throw $e;
             }
         }
@@ -783,8 +786,11 @@ class ThemeTest extends TestCase
                 Context::createDefaultContext()
             );
         } catch (ThemeCompileException $e) {
-            // ignore files not found exception
-            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". `~vendor/bootstrap/scss/functions` file not found for @import: src/Storefront/Resources/app/storefront/src/scss/variables.scss')) {
+            // The storefront vendor assets (bootstrap) are not built in the PHP integration test
+            // environment, so scssphp 2.x cannot resolve the bootstrap import. Ignore only that
+            // failure; any other compile error must still surface.
+            if (!str_starts_with($e->getMessage(), 'Unable to compile the theme "Storefront - Theme-ID: ' . $childTheme->getId() . '". Can\'t find stylesheet to import.')
+                || !str_contains($e->getMessage(), 'bootstrap/scss/functions')) {
                 throw $e;
             }
         }

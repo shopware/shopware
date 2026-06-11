@@ -49,6 +49,14 @@ This prevents leading or trailing whitespace from being stored in standard addre
 
 Existing customer address records are not changed.
 
+### scssphp 2.x replaces scssphp 1.x
+
+`scssphp/scssphp` was bumped from `v1.12.0` to `v2.1.0`, a full dart-sass port. Changes relevant for themes:
+* SCSS color arithmetic (e.g. `#fff + #000`) is rejected (use Sass color functions).
+* `rgb()`/`hsl()` channels must be numeric and `/` is only the alpha separator, so values like `rgb(#fff / 0.5)` or `rgb($color / 0.5)` are no longer accepted (`rgb(255 0 0 / 0.5)` still works).
+* `@import` of a plain CSS file with an explicit `.css` extension is no longer inlined and stays a literal `@import`. Drop the extension to keep inlining the file contents.
+* The library's integrated cache and CLI were removed.
+
 ### Optional SCSS compile cache
 
 SCSS compilation can now reuse previously compiled output through the new `CachedScssCompiler` decorator, backed by `cache.app.taggable` (tag `scss_compiler`, 1h lifetime).

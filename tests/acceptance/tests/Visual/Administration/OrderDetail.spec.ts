@@ -29,7 +29,6 @@ test('Visual: Order Detail Page', { tag: '@Visual' }, async ({
         await AdminOrderDetail.detailsTabLink.click();
         await setViewport(AdminOrderDetail.page, {
             requestURL: '/api/search/custom-field-set',
-            contentHeight: 2666,
         });
 
         await replaceElements(AdminOrderDetail.page, [

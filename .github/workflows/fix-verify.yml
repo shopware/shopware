@@ -43,9 +43,12 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
+# Least-privilege DEFAULT: read-only. Jobs that comment opt into pull-requests:write
+# individually — so the `verify` job (which builds + runs UNTRUSTED PR-head code under
+# pull_request_target) inherits a token that cannot write, even if its explicit block is
+# ever dropped.
 permissions:
   contents: read
-  pull-requests: write # comment on the PR, guarded by the gate
 
 jobs:
   # --------------------------------------------------------------------------
@@ -56,6 +59,9 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read # resolve the PR's base/head refs (pulls.get); no write
     outputs:
       run: ${{ steps.decide.outputs.run }}
       pr: ${{ steps.decide.outputs.pr }}
@@ -130,8 +136,10 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      pull-requests: read
-      id-token: write
+      pull-requests: write # posts needs_info / low-confidence / could-not-analyze comments
+      id-token: write # claude-code-action OIDC
+      # NB: this job HOLDS the API key but runs NO untrusted code — it reads the prefetched
+      # issue.md / fixpr.diff as DATA and never checks out or executes PR-head source.
     outputs:
       ready: ${{ steps.matrix.outputs.ready }}
     steps:
@@ -245,6 +253,15 @@ jobs:
     if: needs.gate.outputs.run == 'true' && needs.analyze.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40 # build-from-source is heavier than installing a release
+    # SECURITY: this is the ONLY job that checks out + builds + runs UNTRUSTED PR-head code
+    # (under pull_request_target). It must hold NO secrets and a read-only token:
+    #   - it references no `secrets.*` (the API key lives only in `analyze`), so untrusted
+    #     code has no secret to exfiltrate;
+    #   - contents:read → even arbitrary commands in the PR's composer/build hooks cannot
+    #     push, comment, or otherwise mutate the repo with GITHUB_TOKEN.
+    # The gate's maintainer-trust check is then defence-in-depth, not the only wall.
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:

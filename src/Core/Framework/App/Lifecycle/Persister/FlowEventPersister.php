@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,10 @@ class FlowEventPersister implements PersisterInterface
         }
     }
 
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
     public function updateEvents(Event $flowEvent, string $appId, Context $context, string $defaultLocale): void
     {
         $existingFlowEvents = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_event WHERE app_id = :appId;', [
@@ -65,12 +70,12 @@ class FlowEventPersister implements PersisterInterface
         $this->deleteOldAppFlowEvents($existingFlowEvents, $context);
     }
 
-    public function deactivateFlow(string $appId): void
+    public function deactivate(AppEntity $app, Context $context): void
     {
         $this->connection->executeStatement(
             'UPDATE `flow` SET `active` = false WHERE `event_name` IN (SELECT `name` FROM `app_flow_event` WHERE `app_id` = :appId);',
             [
-                'appId' => Uuid::fromHexToBytes($appId),
+                'appId' => Uuid::fromHexToBytes($app->getId()),
             ],
         );
     }

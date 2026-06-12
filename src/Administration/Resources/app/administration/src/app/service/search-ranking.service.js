@@ -123,21 +123,30 @@ export default function createSearchRankingService() {
     async function getUserSearchPreference() {
         const userConfigSearchFields = await _fetchUserConfig();
         const defaultUserSearchPreference = _getDefaultUserSearchPreference();
+
         if (!userConfigSearchFields) {
             return defaultUserSearchPreference;
         }
+
         const result = {};
+
         Object.keys(defaultUserSearchPreference).forEach((entityName) => {
             if (!userConfigSearchFields[entityName] && Object.keys(defaultUserSearchPreference[entityName]).length > 0) {
                 result[entityName] = defaultUserSearchPreference[entityName];
                 return;
             }
 
-            if (!_isEntitySearchable(userConfigSearchFields[entityName], searchTypeConstants.ALL)) {
+            const currentModule = _getModule(entityName);
+            const sanitizedSearchFields = _sanitizeSearchFields(
+                userConfigSearchFields[entityName],
+                currentModule.defaultSearchConfiguration,
+            );
+
+            if (!_isEntitySearchable(sanitizedSearchFields, searchTypeConstants.ALL)) {
                 return;
             }
 
-            result[entityName] = _scoring(userConfigSearchFields[entityName], entityName);
+            result[entityName] = _scoring(sanitizedSearchFields, entityName);
         });
 
         return result;
@@ -161,7 +170,12 @@ export default function createSearchRankingService() {
             return {};
         }
 
-        return _scoring(userConfigSearchFieldsByEntity, entityName);
+        const sanitizedSearchFields = _sanitizeSearchFields(
+            userConfigSearchFieldsByEntity,
+            currentModule.defaultSearchConfiguration,
+        );
+
+        return _scoring(sanitizedSearchFields, entityName);
     }
 
     function clearCacheUserSearchConfiguration() {
@@ -225,6 +239,10 @@ export default function createSearchRankingService() {
         }
         cacheDefaultUserSearchPreference = {};
         Module.getModuleRegistry().forEach(({ manifest }) => {
+            if (!manifest.entity) {
+                return;
+            }
+
             cacheDefaultUserSearchPreference[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
         });
 
@@ -310,6 +328,77 @@ export default function createSearchRankingService() {
         });
 
         return queryScores;
+    }
+
+    /**
+     * Removes stale fields from persisted search preferences by comparing them with
+     * the current default search configuration. Persisted values keep precedence for
+     * valid fields while internal defaults such as `_searchable` are restored if missing.
+     *
+     * @private
+     * @param {Object} searchFields
+     * @param {Object} defaultSearchFields
+     * @returns {Object}
+     */
+    function _sanitizeSearchFields(searchFields, defaultSearchFields) {
+        if (_isEmptyObject(searchFields) || _isEmptyObject(defaultSearchFields)) {
+            return {};
+        }
+
+        const sanitizedFields = Object.keys(searchFields).reduce((accumulator, field) => {
+            if (!Object.hasOwn(defaultSearchFields, field)) {
+                return accumulator;
+            }
+
+            if (field.startsWith('_')) {
+                accumulator[field] =
+                    typeof searchFields[field] === typeof defaultSearchFields[field]
+                        ? searchFields[field]
+                        : defaultSearchFields[field];
+
+                return accumulator;
+            }
+
+            const nestedSearchFields = searchFields[field];
+            const defaultNestedSearchFields = defaultSearchFields[field];
+
+            if (_isEmptyObject(nestedSearchFields) || _isEmptyObject(defaultNestedSearchFields)) {
+                return accumulator;
+            }
+
+            if (Object.hasOwn(defaultNestedSearchFields, '_searchable')) {
+                accumulator[field] = {
+                    _searchable:
+                        typeof nestedSearchFields._searchable === 'boolean'
+                            ? nestedSearchFields._searchable
+                            : defaultNestedSearchFields._searchable,
+                    _score:
+                        typeof nestedSearchFields._score === 'number'
+                            ? nestedSearchFields._score
+                            : defaultNestedSearchFields._score,
+                };
+
+                return accumulator;
+            }
+
+            const sanitizedNestedSearchFields = _sanitizeSearchFields(nestedSearchFields, defaultNestedSearchFields);
+
+            if (!_isEmptyObject(sanitizedNestedSearchFields)) {
+                accumulator[field] = sanitizedNestedSearchFields;
+            }
+
+            return accumulator;
+        }, {});
+
+        Object.keys(defaultSearchFields).forEach((field) => {
+            if (!field.startsWith('_') || Object.hasOwn(sanitizedFields, field)) {
+                return;
+            }
+
+            sanitizedFields[field] = defaultSearchFields[field];
+        });
+
+        return sanitizedFields;
     }
 
     /**

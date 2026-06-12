@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\Subscriber;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -65,7 +66,11 @@ class CategorySubscriberTest extends TestCase
         $categoryUrlGenerator = $this->createMock(CategoryUrlGenerator::class);
         $categoryUrlGenerator->method('generate')->willReturn('https://example.com');
 
-        $categorySubscriber = new CategorySubscriber($systemConfigService, $categoryUrlGenerator);
+        $categorySubscriber = new CategorySubscriber(
+            $systemConfigService,
+            $categoryUrlGenerator,
+            $this->createConnectionMock()
+        );
 
         $category = new SalesChannelCategoryEntity();
         $category->setId($this->ids->getBytes('category'));
@@ -83,7 +88,7 @@ class CategorySubscriberTest extends TestCase
 
     public function testDoNothingIfNoCommands(): void
     {
-        $subscriber = $this->createSubscriber('default-cms');
+        $subscriber = $this->createSubscriber($this->ids->get('default-cms'));
         $event = EntityWriteEvent::create(
             WriteContext::createFromContext(Context::createDefaultContext()),
             [],
@@ -243,6 +248,40 @@ class CategorySubscriberTest extends TestCase
         static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
     }
 
+    public function testSkipsWhenConfiguredDefaultCmsPageIdIsInvalid(): void
+    {
+        $subscriber = $this->createSubscriber('invalid-id');
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
+    public function testSkipsWhenConfiguredDefaultCmsPageDoesNotExist(): void
+    {
+        $subscriber = $this->createSubscriber($this->ids->get('missing-default-cms'), false);
+
+        $command = new InsertCommand(
+            $this->definition,
+            ['name' => 'Test Category'],
+            ['id' => $this->ids->getBytes('category')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $this->dispatchEvent($subscriber, [$command]);
+
+        static::assertArrayNotHasKey('cms_page_id', $command->getPayload());
+    }
+
     public function testMultipleCommandsProcessedCorrectly(): void
     {
         $defaultCmsPageId = $this->ids->get('default-cms');
@@ -303,7 +342,7 @@ class CategorySubscriberTest extends TestCase
         ]);
     }
 
-    private function createSubscriber(?string $defaultCmsPageId): CategorySubscriber
+    private function createSubscriber(?string $defaultCmsPageId, bool $defaultCmsPageExists = true): CategorySubscriber
     {
         $config = $defaultCmsPageId !== null
             ? [CategoryDefinition::CONFIG_KEY_DEFAULT_CMS_PAGE_CATEGORY => $defaultCmsPageId]
@@ -312,7 +351,16 @@ class CategorySubscriberTest extends TestCase
         return new CategorySubscriber(
             new StaticSystemConfigService($config),
             $this->createMock(CategoryUrlGenerator::class),
+            $this->createConnectionMock($defaultCmsPageExists),
         );
+    }
+
+    private function createConnectionMock(bool $defaultCmsPageExists = true): Connection
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn($defaultCmsPageExists ? Uuid::fromHexToBytes($this->ids->get('default-cms')) : false);
+
+        return $connection;
     }
 
     /**

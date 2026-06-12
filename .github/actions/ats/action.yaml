@@ -117,6 +117,7 @@ runs:
           uses: shopware/setup-shopware@main
           with:
               mysql-version: "builtin"
+              npm-version: 11.8.0
               shopware-version: ${{ github.ref }}
               shopware-repository: ${{ github.repository }}
               install: ${{ inputs.install }}
@@ -151,6 +152,10 @@ runs:
           with:
               node-version: 22
 
+        - name: Install npm
+          shell: bash
+          run: npm install -g npm@11.8.0
+
         - name: Cache npm packages
           uses: actions/cache@v4
           with:
@@ -162,9 +167,10 @@ runs:
                   ${{ runner.os }}-${{ inputs.directory }}
 
         - name: Install dependencies
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npm ci
+          # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
+          uses: ./.github/actions/npm-ci-retry
+          with:
+              working-directory: ${{ inputs.directory }}
 
         - name: Refresh Package List
           shell: bash
@@ -174,11 +180,6 @@ runs:
           shell: bash
           working-directory: ${{ inputs.directory }}
           run: npx playwright install --with-deps chromium
-
-        - name: Prepare Product Analytics consent preconditions
-          if: ${{ inputs.project == 'Platform' }}
-          shell: bash
-          run: php .github/bin/prepare-product-analytics-consent-preconditions.php
 
         - name: Run your tests
           shell: bash

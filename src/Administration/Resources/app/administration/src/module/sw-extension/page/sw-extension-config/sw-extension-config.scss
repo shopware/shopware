@@ -16,7 +16,7 @@
 
         .sw-meteor-page__smart-bar-meta {
             font-size: $font-size-xxs;
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
             line-height: 12px;
         }
     }
@@ -25,7 +25,7 @@
         width: 72px;
         height: 72px;
         border-radius: $border-radius-lg;
-        border: 1px solid rgba(0, 0, 0, 8%);
+        border: 1px solid var(--color-border-primary-default);
     }
 
     &__producer-link {

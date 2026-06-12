@@ -89,10 +89,10 @@ class RuleConditionPersister implements PersisterInterface
         $this->deleteConditionScripts($existingRuleConditions, $context->context);
     }
 
-    public function activateConditionScripts(string $appId, Context $context): void
+    public function activate(AppEntity $app, Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
         $criteria->addFilter(new EqualsFilter('active', false));
 
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();
@@ -102,10 +102,10 @@ class RuleConditionPersister implements PersisterInterface
         $this->appScriptConditionRepository->update($updateSet, $context);
     }
 
-    public function deactivateConditionScripts(string $appId, Context $context): void
+    public function deactivate(AppEntity $app, Context $context): void
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('appId', $app->getId()));
         $criteria->addFilter(new EqualsFilter('active', true));
 
         $scripts = $this->appScriptConditionRepository->searchIds($criteria, $context)->getIds();

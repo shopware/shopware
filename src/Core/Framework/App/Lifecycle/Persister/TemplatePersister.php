@@ -9,10 +9,10 @@ use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
-use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 
@@ -92,11 +92,21 @@ class TemplatePersister implements PersisterInterface
          * only clear cache when we are in an update context
          * otherwise cache is cleared on template active/deactivate
          *
-         * @see TemplateStateService::updateAppTemplates
+         * @see self::updateActiveState()
          **/
         if ($needsCacheClear && !$context->isInstall) {
             $this->cacheClearer->clearHttpCache();
         }
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+        $this->updateActiveState($app->getId(), $context, false, true);
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
+        $this->updateActiveState($app->getId(), $context, true, false);
     }
 
     private function getAppWithExistingTemplates(string $appId, Context $context): AppEntity
@@ -110,5 +120,20 @@ class TemplatePersister implements PersisterInterface
         }
 
         return $app;
+    }
+
+    private function updateActiveState(string $appId, Context $context, bool $currentActiveState, bool $newActiveState): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
+
+        $templates = $this->templateRepository->searchIds($criteria, $context)->getIds();
+
+        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $templates);
+
+        $this->templateRepository->update($updateSet, $context);
+
+        $this->cacheClearer->clearHttpCache();
     }
 }

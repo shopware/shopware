@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
-use OpenSearch\Common\Exceptions\NoNodesAvailableException;
+use OpenSearch\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -120,11 +120,11 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => true,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => true,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -168,11 +168,11 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -215,7 +215,6 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'include_named_queries_score' => true,
                 'track_scores' => true,
                 'body' => [
@@ -223,6 +222,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
                     'from' => 0,
                     'size' => 10,
                     'explain' => true,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([]);
@@ -268,11 +268,11 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $client->expects($this->once())
             ->method('search')->with([
                 'index' => '',
-                'track_total_hits' => false,
                 'body' => [
                     'timeout' => '10s',
                     'from' => 0,
                     'size' => 10,
+                    'track_total_hits' => false,
                 ],
                 'search_type' => 'dfs_query_then_fetch',
             ])->willReturn([
@@ -328,7 +328,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
         // client should not be used if limit is 0
         $client->expects($this->once())
             ->method('search')
-            ->willThrowException(new NoNodesAvailableException());
+            ->willThrowException(new RuntimeException());
 
         $helper = $this->createMock(ElasticsearchHelper::class);
         $helper->expects($this->once())->method('logAndThrowException');

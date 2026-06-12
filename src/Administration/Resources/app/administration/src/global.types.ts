@@ -5,7 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { NavigationGuardNext, RouteLocationNormalizedLoaded, RouteLocationRaw, Router } from 'vue-router';
+import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormalizedLoaded, Router } from 'vue-router';
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -73,6 +73,7 @@ import type NotificationMixin from './app/mixin/notification.mixin';
 import type ValidationMixin from './app/mixin/validation.mixin';
 import type UserSettingsMixin from './app/mixin/user-settings.mixin';
 import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type TranslateWithFallbackMixin from './app/mixin/translate-with-fallback.mixin';
 import type SalutationMixin from './app/mixin/salutation.mixin';
 import type RuleContainerMixin from './app/mixin/rule-container.mixin';
 import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
@@ -84,6 +85,7 @@ import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension
 import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
 import type CmsStateMixin from './module/sw-cms/mixin/sw-cms-state.mixin';
 import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type RuleBetweenOperatorMixin from './app/mixin/rule-between-operator.mixin';
 import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
@@ -303,6 +305,7 @@ declare global {
         validation: typeof ValidationMixin;
         'user-settings': typeof UserSettingsMixin;
         'sw-inline-snippet': typeof SwInlineSnippetMixin;
+        'translate-with-fallback': typeof TranslateWithFallbackMixin;
         salutation: typeof SalutationMixin;
         ruleContainer: typeof RuleContainerMixin;
         'remove-api-error': typeof RemoveApiErrorMixin;
@@ -316,6 +319,7 @@ declare global {
         'generic-condition': typeof GenericConditionMixin;
         'sw-form-field': typeof SwFormFieldMixin;
         'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin;
+        'rule-between-operator': typeof RuleBetweenOperatorMixin;
     }
 
     interface InitContainer extends SubContainer<'init'> {
@@ -544,8 +548,16 @@ declare module '@vue/runtime-core' {
             helpText?: string;
         };
 
-        beforeRouteEnter?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
-        beforeRouteLeave?: (to: RouteLocationRaw, from: RouteLocationRaw, next: NavigationGuardNext) => void;
+        beforeRouteEnter?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
+        beforeRouteLeave?: (
+            to: RouteLocationNormalized,
+            from: RouteLocationNormalizedLoaded,
+            next: NavigationGuardNext,
+        ) => void;
     }
 
     interface PropOptions {

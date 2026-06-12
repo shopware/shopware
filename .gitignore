@@ -30,6 +30,7 @@ yalc.lock
 .codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -37,6 +38,13 @@ yalc.lock
 .aiderignore
 .kite/
 .codewhispererignore
+.chunkhound*
+
+# GIT worktrees
+.worktrees
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar
@@ -115,7 +123,10 @@ app/config/parameters.yml
 .env.dev
 
 # Local AI/LLM overrides
+# Claude.local.md
 *.local.md
+# AGENTS.override.md
+*.override.md
 *.cursorignore.local
 *.cursorindexingignore.local
 *.tabnineignore.local

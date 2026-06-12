@@ -106,14 +106,31 @@ export default Shopware.Mixin.register(
                 const currentSlotConfig = this.getSlotConfigForLanguage(currentLanguageId);
                 const parentSlotConfig = parentLanguageId ? this.getSlotConfigForLanguage(parentLanguageId) : null;
 
-                if (currentSlotConfig && parentSlotConfig) {
-                    return cloneDeep({
-                        ...parentSlotConfig,
-                        ...currentSlotConfig,
-                    });
+                if (!currentSlotConfig && !parentSlotConfig) {
+                    return null;
                 }
 
-                return cloneDeep(currentSlotConfig ?? parentSlotConfig ?? null);
+                /**
+                 * Merge field-by-field within each slot so a partial child-language override
+                 * does not shadow parent-language fields on the same slot.
+                 */
+                const merged: { [slotId: string]: CmsSlotConfig } = {};
+
+                for (const [
+                    slotId,
+                    fields,
+                ] of Object.entries(parentSlotConfig ?? {})) {
+                    merged[slotId] = { ...fields };
+                }
+
+                for (const [
+                    slotId,
+                    fields,
+                ] of Object.entries(currentSlotConfig ?? {})) {
+                    merged[slotId] = { ...(merged[slotId] ?? {}), ...fields };
+                }
+
+                return cloneDeep(merged);
             },
         },
         methods: {

@@ -24,6 +24,11 @@ class Migration1752750086AddIndexToOrderLineItemCreateAndUpdateTest extends Test
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1752750086, (new Migration1752750086AddIndexToOrderLineItemCreateAndUpdate())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1752750086AddIndexToOrderLineItemCreateAndUpdate();

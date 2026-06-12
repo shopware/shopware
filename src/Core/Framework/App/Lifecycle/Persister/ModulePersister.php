@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 
@@ -28,6 +30,14 @@ class ModulePersister implements PersisterInterface
         }
 
         $this->persistModules($context);
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     private function persistModules(AppLifecycleContext $context): void

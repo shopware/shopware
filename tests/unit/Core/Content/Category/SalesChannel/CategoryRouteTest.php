@@ -187,11 +187,7 @@ class CategoryRouteTest extends TestCase
 
         $category->setType(CategoryDefinition::TYPE_FOLDER);
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $this->ids->get('category'),
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
 
         $this->buildContentlessCategoryRepositoryMock(
             $category,

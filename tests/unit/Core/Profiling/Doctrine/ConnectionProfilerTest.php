@@ -143,16 +143,14 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @return array<array{0: mixed, 1: array<mixed>, 2: mixed}>
+     * @return iterable<array{0: mixed, 1: array<mixed>, 2: mixed}>
      */
-    public static function paramProvider(): array
+    public static function paramProvider(): iterable
     {
-        return [
-            ['some value', [], 'some value'],
-            [1, [], 1],
-            [true, [], true],
-            [null, [], null],
-        ];
+        yield 'string profiling parameter stays unchanged' => ['some value', [], 'some value'];
+        yield 'integer profiling parameter stays unchanged' => [1, [], 1];
+        yield 'profiling enabled parameter stays true' => [true, [], true];
+        yield 'missing profiling parameter stays null' => [null, [], null];
     }
 
     public function testCollectQueryWithNoParams(): void
@@ -220,19 +218,15 @@ class ConnectionProfilerTest extends TestCase
         $config = new Configuration();
         $config->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $connection->expects($this->any())
-            ->method('getDatabasePlatform')
+        $connection = static::createStub(Connection::class);
+        $connection->method('getDatabasePlatform')
             ->willReturn(new MySQLPlatform());
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $collector = new ConnectionProfiler($connection);
         foreach ($queries as $queryData) {
-            $query = $this->createMock(Query::class);
+            $query = static::createStub(Query::class);
             $query->method('getSql')
                 ->willReturn($queryData['sql'] ?? '');
             $query->method('getTypes')

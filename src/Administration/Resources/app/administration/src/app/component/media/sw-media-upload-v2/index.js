@@ -28,6 +28,7 @@ export default {
     inject: [
         'repositoryFactory',
         'mediaService',
+        'mediaPresignedUploadService',
         'feature',
         'fileValidationService',
     ],
@@ -249,6 +250,10 @@ export default {
         mediaNameFilter() {
             return Shopware.Filter.getByName('mediaName');
         },
+
+        presignedUploadSupported() {
+            return Shopware.Store.get('context').app.config?.settings?.presignedUploadSupported ?? false;
+        },
     },
 
     watch: {
@@ -278,6 +283,7 @@ export default {
     methods: {
         async createdComponent() {
             this.mediaService.addListener(this.uploadTag, this.handleMediaServiceUploadEvent);
+
             if (this.mediaFolderId) {
                 return;
             }
@@ -478,6 +484,10 @@ export default {
                 }
             }
 
+            if (this.presignedUploadSupported) {
+                await this.handlePresignedUpload(newMediaFiles);
+                return;
+            }
             const syncEntities = [];
 
             const uploadData = newMediaFiles.map((fileHandle) => {
@@ -499,6 +509,18 @@ export default {
             await this.mediaService.addUploads(this.uploadTag, uploadData);
         },
 
+        async handlePresignedUpload(files) {
+            await this.mediaPresignedUploadService.runUploads(
+                this.uploadTag,
+                files,
+                { mediaFolderId: this.mediaFolderId, isPrivate: this.privateFilesystem },
+                {
+                    getListeners: (tag) => this.mediaService.getListenerForTag(tag),
+                    createEvent: (action, tag, payload) => this.mediaService._createUploadEvent(action, tag, payload),
+                },
+            );
+        },
+
         getMediaEntityForUpload() {
             const mediaItem = this.mediaRepository.create();
             mediaItem.mediaFolderId = this.mediaFolderId;
@@ -511,10 +533,25 @@ export default {
             return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
-        handleMediaServiceUploadEvent({ action }) {
+        handleMediaServiceUploadEvent({ action, payload }) {
             if (action === 'media-upload-fail') {
+                this.createNotificationError({
+                    title: this.$t('global.default.error'),
+                    message: this.getUploadFailureMessage(payload),
+                });
+
                 this.onRemoveMediaItem();
             }
+        },
+
+        getUploadFailureMessage(task) {
+            const detail = task?.error?.response?.data?.errors?.[0]?.detail;
+
+            if (typeof detail === 'string' && detail.length > 0) {
+                return detail;
+            }
+
+            return this.$t('global.sw-media-upload-v2.notification.failure.message');
         },
 
         checkFileSize(file) {

@@ -9,8 +9,8 @@ use Composer\Package\Version\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -112,8 +112,7 @@ class PluginServiceTest extends TestCase
         $pluginFinder = $this->createMock(PluginFinder::class);
         $pluginService = $this->getPluginService($pluginRepo, $pluginFinder);
 
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "foo" not found.');
+        $this->expectExceptionObject(PluginException::notFound('foo'));
         $pluginService->getPluginByName('foo', Context::createDefaultContext());
     }
 

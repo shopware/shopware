@@ -31,6 +31,16 @@ export default {
         },
     },
 
+    computed: {
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-product.layoutAssignment.title');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
+        },
+    },
+
     methods: {
         openLayoutModal() {
             this.$emit('modal-layout-open');

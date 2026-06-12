@@ -3,7 +3,7 @@
 .sw-settings-price-rounding {
     .sw-settings-price-rounding__headline {
         font-size: $font-size-s;
-        color: $color-darkgray-200;
+        color: var(--color-text-secondary-default);
         margin: 0 0 10px;
         font-weight: $font-weight-bold;
     }
@@ -16,6 +16,6 @@
         margin: 0 0 20px;
         border: none;
         height: 1px;
-        background-color: $color-gray-300;
+        background-color: var(--color-border-primary-default);
     }
 }

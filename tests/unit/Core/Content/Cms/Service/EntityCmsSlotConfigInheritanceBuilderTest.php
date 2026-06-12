@@ -59,6 +59,42 @@ class EntityCmsSlotConfigInheritanceBuilderTest extends TestCase
         ], $result);
     }
 
+    public function testBuildRetainsParentLanguageFieldsWhenChildOverridesPartialSlot(): void
+    {
+        $childLanguageId = Uuid::randomHex();
+        $parentLanguageId = Uuid::randomHex();
+
+        $builder = new EntityCmsSlotConfigInheritanceBuilder(
+            $this->createConnectionWithParentLanguageIds([
+                $parentLanguageId,
+                null,
+            ]),
+        );
+
+        $translations = new ProductTranslationCollection([
+            $this->createTranslation($parentLanguageId, [
+                'slot-a' => [
+                    'headline' => ['value' => 'parent headline'],
+                    'content' => ['value' => 'parent content'],
+                ],
+            ]),
+            $this->createTranslation($childLanguageId, [
+                'slot-a' => [
+                    'content' => ['value' => 'child content'],
+                ],
+            ]),
+        ]);
+
+        $result = $builder->build($translations, $this->createSalesChannelContext($childLanguageId));
+
+        static::assertSame([
+            'slot-a' => [
+                'headline' => ['value' => 'parent headline'],
+                'content' => ['value' => 'child content'],
+            ],
+        ], $result);
+    }
+
     public function testBuildDoesNotMergeSystemLanguageWithoutExplicitParent(): void
     {
         $childLanguageId = Uuid::randomHex();

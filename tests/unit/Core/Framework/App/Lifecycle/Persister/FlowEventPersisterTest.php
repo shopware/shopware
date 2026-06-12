@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Flow\Event\Event;
 use Shopware\Core\Framework\App\Flow\Event\Xml\CustomEvents;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
@@ -127,6 +128,8 @@ class FlowEventPersisterTest extends TestCase
     public function testDeactivateFlow(): void
     {
         $appId = Uuid::randomHex();
+        $app = new AppEntity();
+        $app->setId($appId);
 
         $this->connectionMock->expects($this->once())->method('executeStatement')->willReturnCallback(static function ($sql, $params) use ($appId): int {
             static::assertSame('UPDATE `flow` SET `active` = false WHERE `event_name` IN (SELECT `name` FROM `app_flow_event` WHERE `app_id` = :appId);', $sql);
@@ -137,6 +140,6 @@ class FlowEventPersisterTest extends TestCase
             return 1;
         });
 
-        $this->flowEventPersister->deactivateFlow($appId);
+        $this->flowEventPersister->deactivate($app, Context::createDefaultContext());
     }
 }

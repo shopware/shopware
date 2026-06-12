@@ -76,15 +76,13 @@ class IterateEntitiesQueryBuilderTest extends TestCase
 
     public function testThrowsEntityDoesNotHaveCreatedAndUpdatedAtFields(): void
     {
-        static::expectException(UsageDataException::class);
-        static::expectExceptionMessage('Entity "test_mapping_entity" is not allowed to be used for usage data');
+        $this->expectExceptionObject(UsageDataException::entityNotAllowed('test_mapping_entity'));
         $this->iteratorFactory->create(TestMappingEntityDefinition::ENTITY_NAME, Operation::CREATE, new \DateTimeImmutable(), null);
     }
 
     public function testCreateThrowsExceptionIfEntityDoesNotExist(): void
     {
-        static::expectException(UsageDataException::class);
-        static::expectExceptionMessage('Entity "no_entity" is not allowed to be used for usage data');
+        $this->expectExceptionObject(UsageDataException::entityNotAllowed('no_entity'));
         $this->iteratorFactory->create('no_entity', Operation::CREATE, new \DateTimeImmutable(), null);
     }
 

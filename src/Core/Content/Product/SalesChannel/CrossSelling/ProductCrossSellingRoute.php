@@ -111,10 +111,6 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $tags = [];
 
         foreach ($elements as $element) {
-            if ($element->getStreamId() !== null) {
-                $tags[] = EntityCacheKeyGenerator::buildStreamTag($element->getStreamId());
-            }
-
             foreach ($element->getProducts() as $product) {
                 $tags[] = EntityCacheKeyGenerator::buildProductTag($product->getId());
 
@@ -148,6 +144,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
     {
         $productStreamId = $crossSelling->getProductStreamId();
         \assert(\is_string($productStreamId));
+
+        $this->cacheTagCollector->addTag(
+            EntityCacheKeyGenerator::buildStreamTag($productStreamId)
+        );
 
         $filters = $this->productStreamBuilder->buildFilters($productStreamId, $context->getContext());
 

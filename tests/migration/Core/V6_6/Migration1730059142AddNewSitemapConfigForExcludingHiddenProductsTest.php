@@ -25,6 +25,11 @@ class Migration1730059142AddNewSitemapConfigForExcludingHiddenProductsTest exten
         $this->connection->delete('system_config', ['configuration_key' => 'core.sitemap.excludeLinkedProducts']);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1730059142, (new Migration1730059142AddNewSitemapConfigForExcludingHiddenProducts())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         static::assertEmpty($this->getConfig());

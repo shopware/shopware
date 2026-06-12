@@ -21,99 +21,99 @@
 
     .sw-order-state__neutral-select.sw-single-select {
         input {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
 
         .sw-block-field__block {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
             border: none;
         }
 
         .sw-single-select__selection-text {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
     }
 
     .sw-order-state__progress-select.sw-single-select {
         input {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
         }
 
         .sw-block-field__block {
-            background-color: $color-shopware-brand-50;
+            background-color: var(--color-background-brand-default);
             border: none;
         }
 
         .sw-single-select__selection-text {
-            color: $sw-order-state-card-progress;
+            color: var(--color-text-brand-default);
         }
 
         .sw-select__select-indicator {
             svg {
-                color: $sw-order-state-card-progress;
+                color: var(--color-icon-brand-default);
             }
         }
     }
 
     .sw-order-state__danger-select.sw-single-select {
         input {
-            background-color: $color-crimson-50;
+            background-color: var(--color-background-critical-default);
         }
 
         .sw-block-field__block {
-            background-color: $color-crimson-50;
+            background-color: var(--color-background-critical-default);
             border: none;
         }
 
         .sw-single-select__selection-text {
-            color: $sw-order-state-card-danger;
+            color: var(--color-text-critical-default);
         }
 
         .sw-select__select-indicator {
             svg {
-                color: $sw-order-state-card-danger;
+                color: var(--color-icon-critical-default);
             }
         }
     }
 
     .sw-order-state__success-select.sw-single-select {
         input {
-            background-color: $color-emerald-50;
+            background-color: var(--color-background-positive-default);
         }
 
         .sw-block-field__block {
-            background-color: $color-emerald-50;
+            background-color: var(--color-background-positive-default);
             border: none;
         }
 
         .sw-single-select__selection-text {
-            color: $sw-order-state-card-success;
+            color: var(--color-text-positive-default);
         }
 
         .sw-select__select-indicator {
             svg {
-                color: $sw-order-state-card-success;
+                color: var(--color-icon-positive-default);
             }
         }
     }
 
     .sw-order-state__warning-select.sw-single-select {
         input {
-            background-color: $color-pumpkin-spice-50;
+            background-color: var(--color-background-attention-default);
         }
 
         .sw-block-field__block {
-            background-color: $color-pumpkin-spice-50;
+            background-color: var(--color-background-attention-default);
             border: none;
         }
 
         .sw-single-select__selection-text {
-            color: $sw-order-state-card-warning;
+            color: var(--color-text-attention-default);
         }
 
         .sw-select__select-indicator {
             svg {
-                color: $sw-order-state-card-warning;
+                color: var(--color-icon-attention-default);
             }
         }
     }

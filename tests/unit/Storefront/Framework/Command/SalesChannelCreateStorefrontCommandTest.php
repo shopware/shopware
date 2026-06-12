@@ -125,7 +125,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         ?string $snippetSetId,
         string $isoCode,
         array $idsSearchResult,
-        string $exception
+        \Exception $exception
     ): void {
         /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
         $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
@@ -162,7 +162,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
 
         $output = static::createStub(OutputInterface::class);
 
-        $this->expectExceptionMessage($exception);
+        $this->expectExceptionObject($exception);
 
         $cmd->run($input, $output);
     }
@@ -205,7 +205,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
                 new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext()),
             ],
-            'exception' => 'Snippet set with isoCode nl-NL cannot be found.',
+            'exception' => new \InvalidArgumentException('Snippet set with isoCode nl-NL cannot be found.'),
         ];
     }
 }

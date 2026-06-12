@@ -18,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionStub;
 use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Validation\Fixtures\DefinitionWithNonStorageAwarePrimaryKeyStub;
 
@@ -131,6 +132,56 @@ class DefinitionValidatorTest extends TestCase
         // The non-StorageAware field should be skipped (line 990 coverage)
         // So only 'id' should be considered, which matches the database
         static::assertEmpty($primaryKeyViolations, 'Non-StorageAware primary key fields should be ignored');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
+    #[DataProvider('featureGatedIgnoreFieldProvider')]
+    public function testFeatureGatedIgnoreFieldsAreValidatedWithFeatureActive(string $key): void
+    {
+        $validator = new DefinitionValidator(
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(Connection::class)
+        );
+        $method = new \ReflectionMethod(DefinitionValidator::class, 'isIgnoredField');
+
+        Feature::fake([], static function () use ($method, $validator, $key): void {
+            static::assertTrue($method->invoke($validator, $key));
+        });
+
+        Feature::fake(['v6.8.0.0'], static function () use ($method, $validator, $key): void {
+            static::assertFalse($method->invoke($validator, $key));
+        });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     */
+    public function testIgnoreFieldsAreStillIgnoredWithFeatureActive(): void
+    {
+        $validator = new DefinitionValidator(
+            $this->createMock(DefinitionInstanceRegistry::class),
+            $this->createMock(Connection::class)
+        );
+        $method = new \ReflectionMethod(DefinitionValidator::class, 'isIgnoredField');
+
+        Feature::fake(['v6.8.0.0'], static function () use ($method, $validator): void {
+            static::assertTrue($method->invoke($validator, 'product.cover'));
+        });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - should be removed when FEATURE_GATED_IGNORE_FIELDS is cleared
+     *
+     * @return \Generator<string, array{string}>
+     */
+    public static function featureGatedIgnoreFieldProvider(): \Generator
+    {
+        yield 'customer billing address' => ['customer.defaultBillingAddress'];
+        yield 'customer shipping address' => ['customer.defaultShippingAddress'];
+        yield 'customer address billing customer' => ['customer_address.defaultBillingAddressCustomer'];
+        yield 'customer address shipping customer' => ['customer_address.defaultShippingAddressCustomer'];
     }
 
     /**

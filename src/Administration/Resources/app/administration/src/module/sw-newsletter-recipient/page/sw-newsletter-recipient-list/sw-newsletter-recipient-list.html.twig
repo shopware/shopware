@@ -78,7 +78,9 @@
             >
                 {% block sw_newsletter_recipientlist_list_grid_email %}
                 <template #column-email="{ item }">
-                    <p>{{ emailIdnFilter(item.email) }}</p>
+                    <mt-link :to="{ name: 'sw.newsletter.recipient.detail', params: { id: item.id } }">
+                        {{ emailIdnFilter(item.email) }}
+                    </mt-link>
                 </template>
                 {% endblock %}
 

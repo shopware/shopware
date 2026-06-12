@@ -96,4 +96,9 @@ class JsonTest extends TestCase
             Json::decodeToList('[{"name": "abc"}, {"name": "foo"}]')
         );
     }
+
+    public function testEncodeIgnoresInvalidUtf8Characters(): void
+    {
+        static::assertSame('"something another"', Json::encode("something\x82 another"));
+    }
 }

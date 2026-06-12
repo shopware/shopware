@@ -22,6 +22,11 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1701677136, (new Migration1701677136RemovePluginChangelogField())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $this->addColumn();

@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @codeCoverageIgnore Tested via an integration test
+ * @codeCoverageIgnore
  *
  * @see SalesChannelAuthenticationListenerTest
  */

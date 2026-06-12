@@ -92,8 +92,7 @@ class TaxAdjustmentTest extends TestCase
             ->method('getTotalRounding')
             ->willReturn(new CashRoundingConfig(2, 0.01, true));
 
-        static::expectException(CartException::class);
-        static::expectExceptionMessage('Line item with identifier ' . $this->ids->get('line-item-1') . ' has no price.');
+        $this->expectExceptionObject(CartException::missingLineItemPrice($this->ids->get('line-item-1')));
 
         $this->adjustment->adjust($cart, $struct, $context);
     }

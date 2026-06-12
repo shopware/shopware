@@ -21,5 +21,10 @@
             <argument type="service" id="sales_channel.salutation.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
         </service>
+
+        <service id="Shopware\Core\System\Salutation\Api\SalutationKeyFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

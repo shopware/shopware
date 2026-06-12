@@ -3,7 +3,7 @@
 .sw-cms-el-product-description-reviews {
     display: grid;
     align-content: flex-start;
-    color: $color-darkgray-200;
+    color: var(--color-text-primary-default);
     width: 100%;
 
     &__tabs {
@@ -14,20 +14,20 @@
     &__description-tab,
     &__reviews-tab {
         font-size: $font-size-xs;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
         margin: auto 10px auto 0;
-        border-bottom: 1px solid $color-gray-500;
+        border-bottom: 1px solid var(--color-border-primary-default);
         padding: 0 0 5px;
     }
 
     &__description-tab {
-        color: $color-darkgray-200;
-        border-bottom: 1px solid $color-darkgray-200;
+        color: var(--color-text-primary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
     }
 
     &__placeholder > div {
         border-radius: 100px;
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
     }
 
     &__placeholder-title {
@@ -58,7 +58,7 @@
         border-radius: 4px;
 
         &:nth-child(odd) {
-            background-color: $color-gray-50;
+            background-color: var(--color-background-tertiary-default);
         }
 
         &:last-child {
@@ -68,7 +68,7 @@
 
     &__placeholder-left,
     &__placeholder-right {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-secondary-default);
         height: 10px;
         border-radius: 100px;
     }

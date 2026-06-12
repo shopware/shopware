@@ -66,8 +66,7 @@ class ProductProxyTest extends TestCase
 
         static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
         $proxy->offsetUnset('name');
     }
@@ -82,8 +81,7 @@ class ProductProxyTest extends TestCase
 
         static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        $this->expectException(ProductException::class);
-        $this->expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
         $proxy->name = 'bar';
     }

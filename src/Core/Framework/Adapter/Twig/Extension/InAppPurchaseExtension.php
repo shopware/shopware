@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Store\InAppPurchase;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:becomes-internal - Will be internal in v6.8.0
+ */
 #[Package('checkout')]
 class InAppPurchaseExtension extends AbstractExtension
 {

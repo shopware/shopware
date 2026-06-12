@@ -327,8 +327,7 @@
           "label": "Generate: Invoice",
           "helpText": "This action increases the value of the corresponding number range.",
           "labelDatePicker": "Date",
-          "labelTextarea": "Comment",
-          "placeholderTextarea": ""
+          "labelTextarea": "Comment"
         },
         "generateCancellationInvoice": {
           "label": "Generate: Cancellation invoice",

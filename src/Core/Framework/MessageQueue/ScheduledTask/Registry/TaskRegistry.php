@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry;
 
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -29,7 +30,8 @@ class TaskRegistry
     public function __construct(
         private readonly iterable $tasks,
         private readonly EntityRepository $scheduledTaskRepository,
-        private readonly ParameterBagInterface $parameterBag
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -74,7 +76,7 @@ class TaskRegistry
         ];
 
         if ($immediately) {
-            $data['nextExecutionTime'] = new \DateTimeImmutable();
+            $data['nextExecutionTime'] = $this->clock->now();
         }
 
         $this->scheduledTaskRepository->update([$data], $context);
@@ -164,7 +166,7 @@ class TaskRegistry
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);

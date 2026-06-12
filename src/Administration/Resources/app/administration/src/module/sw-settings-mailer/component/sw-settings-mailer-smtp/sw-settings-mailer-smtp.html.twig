@@ -1,7 +1,6 @@
 {% block sw_settings_mailer_smtp %}
 <div class="sw-settings-mailer-smtp">
     {% block sw_settings_mailer_smtp_host %}
-
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.host']"
         :label="$t('sw-settings-mailer.card-smtp.host')"
@@ -27,7 +26,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_username %}
-
     <mt-text-field
         v-if="!isOauth"
         v-model="mailerSettings['core.mailerSettings.username']"
@@ -46,7 +44,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_oauth_url %}
-
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.oauthUrl']"
@@ -57,7 +54,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_oauth_scope %}
-
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.oauthScope']"
@@ -68,7 +64,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_client_id %}
-
     <mt-text-field
         v-if="isOauth"
         v-model="mailerSettings['core.mailerSettings.clientId']"
@@ -99,7 +94,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_sender_address %}
-
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.senderAddress']"
         :label="$t('sw-settings-mailer.card-smtp.sender-address')"
@@ -109,7 +103,6 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_delivery_address %}
-
     <mt-text-field
         v-model="mailerSettings['core.mailerSettings.deliveryAddress']"
         :label="$t('sw-settings-mailer.card-smtp.delivery-address')"
@@ -120,10 +113,10 @@
     {% endblock %}
 
     {% block sw_settings_mailer_smtp_disable_delivery %}
-
     <mt-switch
         v-model="mailerSettings['core.mailerSettings.disableDelivery']"
         :label="$t('sw-settings-mailer.card-smtp.disable-delivery')"
+        :bordered="true"
     />
     {% endblock %}
 </div>

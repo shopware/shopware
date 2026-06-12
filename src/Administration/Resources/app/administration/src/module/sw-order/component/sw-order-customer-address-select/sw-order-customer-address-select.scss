@@ -8,7 +8,7 @@
 
 .sw-select-result-list-popover-wrapper {
     .sw-select-result__item-list {
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
         padding-bottom: 5px;
         margin-bottom: 5px;
     }

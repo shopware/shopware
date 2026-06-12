@@ -180,7 +180,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#F88962';
+            this.$route.meta.$module.color = 'var(--color-pumpkin-500)';
             this.$route.meta.$module.icon = 'regular-users';
         },
 

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleContext;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
 use Shopware\Core\Framework\Context;
@@ -101,6 +102,14 @@ class ShippingMethodPersister implements PersisterInterface
         }
 
         $this->deactivateOldShippingMethods($existingShippingMethods, $context->context);
+    }
+
+    public function activate(AppEntity $app, Context $context): void
+    {
+    }
+
+    public function deactivate(AppEntity $app, Context $context): void
+    {
     }
 
     /**

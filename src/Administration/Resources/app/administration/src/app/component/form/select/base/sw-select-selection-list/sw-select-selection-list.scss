@@ -37,10 +37,15 @@
         float: right;
         display: inline-block;
         padding: 12px 16px 12px 8px;
+        background: transparent;
 
         &::placeholder {
             color: var(--color-text-secondary-default);
             white-space: break-spaces;
+        }
+
+        &:disabled {
+            background: transparent;
         }
     }
 }

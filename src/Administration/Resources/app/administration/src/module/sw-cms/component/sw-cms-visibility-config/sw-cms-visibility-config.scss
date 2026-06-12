@@ -1,11 +1,9 @@
-@import "~scss/variables";
-
 .sw-cms-visibility-config {
     padding: 25px;
 
     &__checkbox-group-label {
         margin-bottom: 8px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
     }
 
     &__checkbox {
@@ -14,7 +12,7 @@
         flex-direction: column-reverse;
         gap: 6px;
         align-items: center;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         cursor: pointer;
 
         &-group {
@@ -22,7 +20,7 @@
             justify-content: space-between;
             gap: 10px;
             padding: 16px 30px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
             margin-bottom: 32px;
         }
@@ -34,13 +32,13 @@
 
             &:checked {
                 ~ .mt-icon {
-                    color: $color-shopware-brand-500;
+                    color: var(--color-icon-brand-default);
                 }
             }
         }
 
         .mt-icon {
-            color: $color-gray-900;
+            color: var(--color-icon-primary-default);
         }
     }
 }

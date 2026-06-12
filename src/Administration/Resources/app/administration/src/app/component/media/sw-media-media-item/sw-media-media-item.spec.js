@@ -78,6 +78,32 @@ describe('components/media/sw-media-media-item', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
+    it('should update item with repository data after successful rename', async () => {
+        global.activeAclRoles = ['media.editor'];
+
+        const updatedItem = {
+            id: 'media-id',
+            fileName: 'new file name',
+            url: 'https://example.com/new-file-name.png',
+        };
+
+        const getMock = jest.fn().mockResolvedValue(updatedItem);
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ get: getMock });
+
+        const wrapper = await createWrapper();
+        wrapper.vm.createNotificationSuccess = jest.fn();
+
+        const item = { id: 'media-id', isLoading: false };
+        await wrapper.vm.onChangeName('new file name', item, () => {});
+
+        expect(getMock).toHaveBeenCalledWith('media-id');
+        expect(item.fileName).toBe('new file name');
+        expect(item.url).toBe('https://example.com/new-file-name.png');
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'global.sw-media-media-item.notification.renamingSuccess.message',
+        });
+    });
+
     it('should throw error if new file name is too long', async () => {
         global.activeAclRoles = ['media.editor'];
         const error = {

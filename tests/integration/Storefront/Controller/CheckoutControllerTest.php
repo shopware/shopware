@@ -213,7 +213,7 @@ class CheckoutControllerTest extends TestCase
      * @param array<string> $errorKeys
      */
     #[DataProvider('errorDataProvider')]
-    public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
+    public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false, bool $orderShouldBeBlocked = false): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
         $browser->followRedirects(true);

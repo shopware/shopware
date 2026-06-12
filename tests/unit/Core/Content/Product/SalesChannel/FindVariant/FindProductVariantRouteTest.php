@@ -59,11 +59,7 @@ class FindProductVariantRouteTest extends TestCase
 
     public function testNoDecoration(): void
     {
-        static::expectException(DecorationPatternException::class);
-        static::expectExceptionMessage(
-            'The getDecorated() function of core class ' . FindProductVariantRoute::class
-            . ' cannot be used. This class is the base class.'
-        );
+        $this->expectExceptionObject(new DecorationPatternException(FindProductVariantRoute::class));
 
         $this->route->getDecorated();
     }
@@ -231,11 +227,10 @@ class FindProductVariantRouteTest extends TestCase
                 ),
             );
 
-        static::expectException(VariantNotFoundException::class);
-        static::expectExceptionMessage(
-            'Variant for productId ' . $this->ids->get('productId') . ' with options {"' . $this->ids->get('group2')
-            . '":"' . $this->ids->get('option2') . '"} not found.'
-        );
+        $this->expectExceptionObject(ProductException::variantNotFound(
+            $this->ids->get('productId'),
+            [$this->ids->get('group2') => $this->ids->get('option2')]
+        ));
 
         try {
             $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
@@ -256,8 +251,7 @@ class FindProductVariantRouteTest extends TestCase
                 'options' => $options,
             ]
         );
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('The parameter options is invalid.');
+        $this->expectExceptionObject(ProductException::invalidOptionsParameter());
 
         $this->route->load($this->ids->get('productId'), $request, $this->createMock(SalesChannelContext::class));
     }

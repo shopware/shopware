@@ -108,15 +108,76 @@ class ProductCrossSellingRouteTest extends TestCase
             )
         );
 
-        $this->cacheTagCollector->expects($this->once())
-            ->method('addTag')
-            ->with(
+        $calls = [
+            [EntityCacheKeyGenerator::buildStreamTag($streamId)],
+            [
                 EntityCacheKeyGenerator::buildProductTag($productId),
-                EntityCacheKeyGenerator::buildStreamTag($streamId),
                 EntityCacheKeyGenerator::buildProductTag($childId),
-                EntityCacheKeyGenerator::buildProductTag($childParentId)
-            );
+                EntityCacheKeyGenerator::buildProductTag($childParentId),
+            ],
+        ];
+        $matcher = $this->exactly(\count($calls));
+        $this->cacheTagCollector->expects($matcher)
+            ->method('addTag')
+            ->willReturnCallback(static function (string ...$tags) use ($matcher, $calls): void {
+                self::assertSame($calls[$matcher->numberOfInvocations() - 1], $tags);
+            });
 
         $this->route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+    }
+
+    public function testLoadAlwaysAddsStreamTagForStreamCrossSelling(): void
+    {
+        $productId = Uuid::randomHex();
+        $crossSellingId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier($crossSellingId);
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId($streamId);
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $this->listingLoader->method('load')->willReturn(
+            new EntitySearchResult(
+                'product',
+                0,
+                new ProductCollection(),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $observedTags = [];
+        $this->cacheTagCollector
+            ->method('addTag')
+            ->willReturnCallback(static function (string ...$tags) use (&$observedTags): void {
+                foreach ($tags as $tag) {
+                    $observedTags[] = $tag;
+                }
+            });
+
+        $this->route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
+
+        static::assertContains(
+            EntityCacheKeyGenerator::buildStreamTag($streamId),
+            $observedTags,
+            'Stream tag must be added unconditionally so product_stream_filter writes invalidate cross-selling responses.'
+        );
     }
 }

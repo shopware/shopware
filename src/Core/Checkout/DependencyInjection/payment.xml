@@ -70,6 +70,7 @@
         <service id="Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2">
             <argument type="service" id="shopware.jwt_config"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <deprecated package="shopware/core" version="6.8.0.0">tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0. Use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator instead.</deprecated>
         </service>
@@ -158,6 +159,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="messenger.message_handler"/>
         </service>
 

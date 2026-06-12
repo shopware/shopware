@@ -32,9 +32,10 @@ export default class PurchaseEvent extends AnalyticsEvent
             return;
         }
 
-        gtag('event', 'purchase', { ...{
+        gtag('event', 'purchase', {
             'transaction_id': orderNumber,
-            'items':  LineItemHelper.getLineItems(),
-        }, ...LineItemHelper.getAdditionalProperties() });
+            'items': LineItemHelper.getLineItems(),
+            ...LineItemHelper.getAdditionalProperties(),
+        });
     }
 }

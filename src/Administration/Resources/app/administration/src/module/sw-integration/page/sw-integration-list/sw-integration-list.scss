@@ -1,11 +1,12 @@
-@import "~scss/variables";
-
-$sw-field-help-font-size: $font-size-xs;
-$sw-field-help-line-height: 22px;
-$sw-field-help-color: $color-darkgray-200;
-$sw-field-icon-border-radius: $border-radius-default;
-
 .sw-integration-list {
+    .mt-card__header {
+        gap: 0;
+    }
+
+    .mt-card__content {
+        padding: 0;
+    }
+
     &__overview-table.mt-data-table__layout-default {
         height: auto;
     }
@@ -23,17 +24,8 @@ $sw-field-icon-border-radius: $border-radius-default;
         }
     }
 
-    &__introduction-description {
-        margin: 0;
-        color: var(--color-text-secondary-default);
-        font-size: var(--font-size-xs);
-        line-height: var(--line-height-sm);
-    }
-
     &__overview-empty {
-        .mt-empty-state {
-            padding: var(--scale-size-24);
-        }
+        padding: var(--scale-size-24);
     }
 
     &__integration-name-cell,
@@ -75,36 +67,36 @@ $sw-field-icon-border-radius: $border-radius-default;
         gap: var(--scale-size-8);
     }
 
-    .sw-integration-list__app-icon {
-        background-color: $color-darkgray-500;
-        border-radius: $sw-field-icon-border-radius;
-        width: 20px;
-        height: 20px;
+    &__app-icon {
+        margin-right: var(--scale-size-10);
+        background-color: var(--color-icon-primary-default);
+        border-radius: var(--border-radius-s);
+        width: var(--scale-size-20);
+        height: var(--scale-size-20);
         display: flex;
         align-items: center;
         justify-content: center;
 
         .mt-icon {
-            color: $color-white;
-            width: 10px;
-            height: 10px;
+            translate: -0.5px;
+            color: var(--color-icon-primary-inverse);
         }
+    }
+
+    &__app-badge {
+        margin-left: var(--scale-size-10);
     }
 }
 
 .sw-integration-list__detail {
     .sw-integration-list__secret-help-text-alert {
-        margin-top: 22px;
-    }
-
-    .sw-field.sw-field--checkbox {
-        margin: 0;
+        margin-top: var(--scale-size-20);
     }
 
     .sw-integration-list__help-text {
-        font-size: $sw-field-help-font-size;
-        color: lighten($sw-field-help-color, 20);
-        line-height: $sw-field-help-line-height;
-        margin-top: 7px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-secondary-default);
+        margin-top: var(--scale-size-10);
     }
 }

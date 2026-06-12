@@ -50,7 +50,7 @@ jobs:
           include-hidden-files: true
           path: |
             .
-            !.git/config
+            !.git
             .github/
             !var/cache
             !tests/
@@ -100,6 +100,14 @@ jobs:
       GIT_COMMITTER_NAME: "shopwareBot"
       DEBUG: ${{ github.event.act && '1' || '' }}
     steps:
+      - name: install deps
+        run: apk add git git-subtree bash composer
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        with:
+          fetch-depth: "0"
+          fetch-tags: "true"
+
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # 4
         with:
           name: context
@@ -113,9 +121,6 @@ jobs:
       - name: Is protected
         if: github.ref_protected
         run: echo 'is protected'
-
-      - name: install deps
-        run: apk add git git-subtree bash composer
 
       - name: Mark dir as safe
         run: git config --global --add safe.directory $PWD

@@ -75,6 +75,33 @@ class Migration1768545320RevocationRequestCmsFormTest extends TestCase
         static::assertCount(2, $cmsSlotResult['translations']);
     }
 
+    public function testUpdateDoesNotReuseBlockWithSameNameFromDifferentSection(): void
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $this->deletePageSectionBlockAndSlot();
+
+            $unrelatedBlockByteId = $this->insertUnrelatedCmsBlockWithSameName();
+
+            $migration = new Migration1768545320RevocationRequestCmsForm();
+            $migration->update($this->connection);
+            $migration->update($this->connection);
+
+            $cmsPageResult = $this->getCmsPage();
+            $cmsSectionResult = $this->getCmsSection($cmsPageResult['id']);
+            $cmsBlockResult = $this->getCmsBlock($cmsSectionResult['id']);
+
+            static::assertIsString($cmsBlockResult['id']);
+            static::assertNotSame($unrelatedBlockByteId, $cmsBlockResult['id']);
+
+            $cmsSlotResult = $this->getCmsSlot($cmsBlockResult['id']);
+            static::assertSame($cmsBlockResult['id'], $cmsSlotResult['cms_block_id']);
+        } finally {
+            $this->connection->rollBack();
+        }
+    }
+
     public function testUpdateSkipsDuplicateTranslationsWhenGermanUsesSystemLanguage(): void
     {
         $this->connection->beginTransaction();
@@ -226,6 +253,10 @@ SQL;
             ['cmsPageId' => $cmsPageByteId]
         )->fetchOne();
 
+        if (!\is_string($cmsSectionByteId)) {
+            return null;
+        }
+
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsSectionByteId))) {
             return null;
         }
@@ -239,6 +270,10 @@ SQL;
             'SELECT `id` FROM `cms_block` WHERE `name` = :cmsBlockName',
             ['cmsBlockName' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME]
         )->fetchOne();
+
+        if (!\is_string($cmsBlockByteId)) {
+            return null;
+        }
 
         if (!Uuid::isValid(Uuid::fromBytesToHex($cmsBlockByteId))) {
             return null;
@@ -280,6 +315,52 @@ SQL;
             ['code' => $localeCode],
             ['id' => $localeByteId]
         );
+    }
+
+    private function insertUnrelatedCmsBlockWithSameName(): string
+    {
+        $versionByteId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        $cmsPageByteId = Uuid::randomBytes();
+        $cmsSectionByteId = Uuid::randomBytes();
+        $cmsBlockByteId = Uuid::randomBytes();
+        $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $this->connection->insert('cms_page', [
+            'id' => $cmsPageByteId,
+            'version_id' => $versionByteId,
+            'type' => 'page',
+            'locked' => 1,
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_section', [
+            'id' => $cmsSectionByteId,
+            'version_id' => $versionByteId,
+            'cms_page_id' => $cmsPageByteId,
+            'cms_page_version_id' => $versionByteId,
+            'position' => 0,
+            'type' => 'default',
+            'created_at' => $createdAt,
+        ]);
+
+        $this->connection->insert('cms_block', [
+            'id' => $cmsBlockByteId,
+            'version_id' => $versionByteId,
+            'created_at' => $createdAt,
+            'cms_section_id' => $cmsSectionByteId,
+            'cms_section_version_id' => $versionByteId,
+            'locked' => 1,
+            'position' => 1,
+            'type' => 'form',
+            'name' => Migration1768545320RevocationRequestCmsForm::CMS_BLOCK_NAME,
+            'margin_top' => '20px',
+            'margin_bottom' => '20px',
+            'margin_left' => '20px',
+            'margin_right' => '20px',
+            'background_media_mode' => 'cover',
+        ]);
+
+        return $cmsBlockByteId;
     }
 
     private function deletePageSectionBlockAndSlot(): void

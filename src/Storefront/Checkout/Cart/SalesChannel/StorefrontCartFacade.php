@@ -7,8 +7,12 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
+use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -18,6 +22,7 @@ use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Package('checkout')]
 class StorefrontCartFacade
@@ -31,7 +36,8 @@ class StorefrontCartFacade
         private readonly BlockedPaymentMethodSwitcher $blockedPaymentMethodSwitcher,
         private readonly AbstractContextSwitchRoute $contextSwitchRoute,
         private readonly CartCalculator $calculator,
-        private readonly AbstractCartPersister $cartPersister
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
     ) {
     }
 
@@ -53,6 +59,33 @@ class StorefrontCartFacade
         // Switch payment method if blocked
         $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switch($cartErrors, $originalContext);
 
+        return $this->switchCartMethods($originalCart, $originalContext, $contextShippingMethod, $contextPaymentMethod);
+    }
+
+    public function getWithCheckoutGateway(
+        Request $request,
+        string $token,
+        SalesChannelContext $context,
+        bool $caching = true,
+        bool $taxed = false
+    ): StorefrontCartGatewayResult {
+        $cart = $this->get($token, $context, $caching, $taxed);
+        $gatewayResponse = $this->checkoutGatewayRoute->load($request, $cart, $context);
+
+        if ($this->cartContainsBlockedMethods($gatewayResponse->getErrors())) {
+            $cart = $this->resolveBlockedMethodsFromGatewayResponse($cart, $context, $gatewayResponse);
+            $gatewayResponse->setErrors($cart->getErrors());
+        }
+
+        return new StorefrontCartGatewayResult($cart, $gatewayResponse);
+    }
+
+    private function switchCartMethods(
+        Cart $originalCart,
+        SalesChannelContext $originalContext,
+        ShippingMethodEntity $contextShippingMethod,
+        PaymentMethodEntity $contextPaymentMethod
+    ): Cart {
         if ($contextShippingMethod->getId() === $originalContext->getShippingMethod()->getId()
             && $contextPaymentMethod->getId() === $originalContext->getPaymentMethod()->getId()
         ) {
@@ -76,9 +109,27 @@ class StorefrontCartFacade
         }
 
         // Recalculated cart contains one or more blocked shipping/payment method, rollback changes
-        $this->removeSwitchNotices($cartErrors);
+        $this->removeSwitchNotices($originalCart->getErrors());
 
         return $originalCart;
+    }
+
+    private function resolveBlockedMethodsFromGatewayResponse(Cart $cart, SalesChannelContext $context, CheckoutGatewayRouteResponse $gatewayResponse): Cart
+    {
+        $cartErrors = $gatewayResponse->getErrors();
+
+        $contextShippingMethod = $this->blockedShippingMethodSwitcher->switch(
+            $cartErrors,
+            $context,
+            $gatewayResponse->getShippingMethods()
+        );
+        $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switch(
+            $cartErrors,
+            $context,
+            $gatewayResponse->getPaymentMethods()
+        );
+
+        return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod);
     }
 
     private function cartContainsBlockedMethods(ErrorCollection $errors): bool

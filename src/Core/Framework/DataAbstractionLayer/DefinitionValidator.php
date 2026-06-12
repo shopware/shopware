@@ -119,6 +119,8 @@ class DefinitionValidator
         'consent_state',
         'consent_log',
         'mcp_tool_result_cache',
+        'webhook_delivery',
+        'webhook_stream',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

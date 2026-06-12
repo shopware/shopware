@@ -439,10 +439,9 @@ class SnippetFinderTest extends TestCase
         $kernelMock = $kernel ?? $this->getKernelMock();
         $connectionMock = $connection ?? $this->getConnectionMock('en-GB', []);
         $translationLoader = $this->getTranslationLoader($config);
-        $sanitizer = $this->createMock(HtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willReturnCallback(static function (string $value) {
-            return $value;
-        });
+
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
 
         return new SnippetFinder(
             $kernelMock,

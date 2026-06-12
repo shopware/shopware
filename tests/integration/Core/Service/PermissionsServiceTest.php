@@ -110,8 +110,7 @@ class PermissionsServiceTest extends TestCase
     {
         $invalidRevision = 'invalid-date';
 
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('The provided permissions revision "invalid-date" is not in the correct format Y-m-d.');
+        $this->expectExceptionObject(ServiceException::invalidPermissionsRevisionFormat($invalidRevision));
         $this->permissionsService->grant($invalidRevision, $this->context);
         $storedRevision = $this->systemConfigService->getString('core.services.permissionsConsent');
         static::assertSame('', $storedRevision);
@@ -139,8 +138,7 @@ class PermissionsServiceTest extends TestCase
 
     public function testGrantPermissionsWithInvalidContextThrowsException(): void
     {
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessage('This action is only allowed from Admins.');
+        $this->expectExceptionObject(ServiceException::invalidPermissionsContext());
 
         $this->permissionsService->grant('2025-06-13', Context::createDefaultContext());
     }

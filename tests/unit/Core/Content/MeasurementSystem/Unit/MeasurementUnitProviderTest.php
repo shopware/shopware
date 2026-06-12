@@ -95,8 +95,7 @@ class MeasurementUnitProviderTest extends TestCase
             ->with(static::isInstanceOf(Criteria::class), static::isInstanceOf(Context::class))
             ->willReturn($searchResult);
 
-        static::expectException(MeasurementSystemException::class);
-        static::expectExceptionMessage('The measurement system unit "nonexistent" is not supported. Possible units are: mm');
+        $this->expectExceptionObject(MeasurementSystemException::unsupportedMeasurementUnit('nonexistent', ['mm']));
 
         $this->provider->getUnitInfo('nonexistent');
     }

@@ -50,7 +50,7 @@
     "hammerjs": "2.0.8",
     "history": "4.10.1",
     "mini-css-extract-plugin": "2.9.2",
-    "patch-package": "8.0.0",
+    "patch-package": "8.0.1",
     "postcss-loader": "8.1.1",
     "postcss-pxtorem": "6.1.0",
     "qrcode": "1.5.4",
@@ -89,7 +89,7 @@
     "http-proxy-middleware": "3.0.5",
     "jest": "30.1.3",
     "jest-environment-jsdom": "30.2.0",
-    "jest-junit": "16.0.0",
+    "jest-junit": "17.0.0",
     "license-checker-rseidelsohn": "4.3.0",
     "lodash.get": "4.4.2",
     "prettier": "3.5.3",
@@ -112,8 +112,9 @@
     "@babel/plugin-transform-modules-systemjs": "7.29.4",
     "fast-uri": "3.1.2",
     "postcss": "8.5.14",
-    "tmp": "0.2.5",
-    "qs": "6.14.2",
+    "tmp": "0.2.6",
+    "qs": "6.15.2",
+    "express": "4.22.2",
     "minimatch": "10.2.5",
     "brace-expansion": "5.0.6",
     "serialize-javascript": "7.0.5",
@@ -125,6 +126,9 @@
     "lodash": "4.18.1",
     "path-to-regexp": "0.1.13",
     "picomatch@2": "2.3.2",
-    "picomatch@4": "4.0.4"
+    "picomatch@4": "4.0.4",
+    "sockjs": {
+      "uuid": "11.1.1"
+    }
   }
 }

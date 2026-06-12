@@ -1,6 +1,5 @@
 {% block sw_settings_sso_user_detail %}
 <sw-page class="sw-settings-sso-user-detail">
-
     {% block sw_settings_sso_user_detail_header %}
     <template #smart-bar-header>
         <h2 v-if="!isLoading">
@@ -211,7 +210,7 @@
                     {% block sw_settings_sso_user_detail_grid_add_key %}
                     <mt-button
                         class="sw-sso-detail-card__integrations-create-access-key"
-                        variant="primary"
+                        variant="secondary"
                         size="small"
                         :is-loading="isLoading"
                         :disabled="!$route.params.id || !acl.can('users_and_permissions.editor')"
@@ -296,6 +295,7 @@
                 >
                     {{ $t('global.default.cancel') }}
                 </mt-button>
+
                 <mt-button
                     size="small"
                     variant="critical"

@@ -5,12 +5,14 @@
         {% block sw_integration_list_smart_bar_header_title %}
         <h2>
             {% block sw_integration_list_smart_bar_header_title_text %}
-            {{ $t('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $t('sw-integration.general.headlineIntegrations') }}
+
+            <span>{{ $t('sw-integration.general.headlineIntegrations') }}</span>
             {% endblock %}
         </h2>
         {% endblock %}
@@ -39,21 +41,22 @@
     {% block sw_integration_list_content %}
     <template #content>
         <sw-card-view class="sw-integration-list__content">
-
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_integration_list_introduction %}
-            <mt-card
-                class="sw-integration-list__introduction"
+            <sw-extension-component-section
                 position-identifier="sw-integration-list-introduction"
-                :title="$t('sw-integration.general.heroHeadlineIntegrations')"
-            >
-                <p class="sw-integration-list__introduction-description">
-                    {{ $t('sw-integration.general.heroDescriptionIntegrations') }}
-                </p>
-            </mt-card>
+                :deprecated="true"
+            />
             {% endblock %}
 
             {% block sw_integration_list_overview %}
-            <div class="sw-integration-list__overview">
+            <mt-card
+                class="sw-integration-list__overview"
+                position-identifier="sw-integration-list-overview"
+                :is-loading="isLoading"
+                :title="$t('sw-integration.general.heroHeadlineIntegrations')"
+                :subtitle="$t('sw-integration.general.heroDescriptionIntegrations')"
+            >
                 {% block sw_integration_list_overview_inner %}
                 {% block sw_integration_list_detail_modal %}
                 <sw-modal
@@ -65,7 +68,6 @@
                     @modal-close="onCloseDetailModal"
                 >
                     {% block sw_integration_list_detail_modal_inner %}
-
                     {% block sw_integration_list_detail_modal_inner_field_label %}
                     <sw-container
                         columns="2fr 1fr"
@@ -108,7 +110,6 @@
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-
                     <mt-text-field
                         v-model="currentIntegration.accessKey"
                         name="sw-field--currentIntegration-accessKey"
@@ -121,7 +122,6 @@
 
                     {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                     <template v-if="showSecretAccessKey">
-
                         <mt-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
                             v-model="currentIntegration.secretAccessKey"
@@ -406,21 +406,16 @@
                 {# @deprecated tag:v6.8.0 - Block `sw_product_list_empty_state` will be removed. Use `sw_integration_list_empty_state` instead. #}
                 {% block sw_integration_list_empty_state %}
                 {% block sw_product_list_empty_state %}{% endblock %}
-                <mt-card
+                <mt-empty-state
                     v-else
                     class="sw-integration-list__overview-empty"
-                    position-identifier="sw-integration-list-overview"
-                    :title="$t('sw-integration.general.headlineIntegrations')"
-                >
-                    <mt-empty-state
-                        :icon="$route.meta.$module.icon"
-                        :headline="$t('sw-integration.list.messageEmpty')"
-                        :description="$t('sw-integration.list.sublineEmpty')"
-                    />
-                </mt-card>
+                    :icon="$route.meta.$module.icon"
+                    :headline="$t('sw-integration.list.messageEmpty')"
+                    :description="$t('sw-integration.list.sublineEmpty')"
+                />
                 {% endblock %}
                 {% endblock %}
-            </div>
+            </mt-card>
         {% endblock %}
         </sw-card-view>
         {% endblock %}

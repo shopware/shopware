@@ -78,8 +78,7 @@ class SeoUrlUpdaterTest extends TestCase
 
         $this->seoUrlPersister->expects($this->never())->method('updateSeoUrls');
 
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Default templates not configured');
+        $this->expectExceptionObject(new \RuntimeException('Default templates not configured'));
         $seoUrlUpdater->update('test', []);
     }
 

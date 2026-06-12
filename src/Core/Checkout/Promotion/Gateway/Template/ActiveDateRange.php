@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\Clock;
 
 /**
  * @final
@@ -22,8 +23,7 @@ class ActiveDateRange extends MultiFilter
      */
     public function __construct(?ClockInterface $clock = null)
     {
-        $dateTime = $clock?->now() ?? new \DateTime();
-        $today = $dateTime->setTimezone(new \DateTimeZone('UTC'));
+        $today = ($clock ?? Clock::get())->now()->setTimezone(new \DateTimeZone('UTC'));
 
         $todayStart = $today->format('Y-m-d H:i:s');
         $todayEnd = $today->format('Y-m-d H:i:s');

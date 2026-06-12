@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\InAppPurchase\Services;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
@@ -29,6 +30,7 @@ final readonly class InAppPurchaseProvider
         private JWTDecoder $decoder,
         private KeyFetcher $keyFetcher,
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -112,7 +114,7 @@ final readonly class InAppPurchaseProvider
         foreach ($decodePurchases as $extensionName => $extensionPurchases) {
             foreach ($extensionPurchases as $purchases) {
                 foreach ($purchases as $purchase) {
-                    if (\is_string($purchase->nextBookingDate) && new \DateTime($purchase->nextBookingDate) < new \DateTime()) {
+                    if (\is_string($purchase->nextBookingDate) && new \DateTime($purchase->nextBookingDate) < $this->clock->now()) {
                         continue;
                     }
 

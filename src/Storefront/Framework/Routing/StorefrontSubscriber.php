@@ -182,11 +182,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$this->shouldRedirectLoginPage($event->getThrowable())) {
+        $exception = $event->getThrowable();
+        $request = $event->getRequest();
+
+        if (!$this->shouldRedirectLoginPage($exception, $request)) {
             return;
         }
-
-        $request = $event->getRequest();
 
         $parameters = [
             'redirectTo' => $request->attributes->get('_route'),
@@ -288,8 +289,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function shouldRedirectLoginPage(\Throwable $ex): bool
+    private function shouldRedirectLoginPage(\Throwable $ex, Request $request): bool
     {
+        if ($request->isXmlHttpRequest()) {
+            return false;
+        }
+
         if ($ex instanceof CustomerNotLoggedInRoutingException) {
             return true;
         }

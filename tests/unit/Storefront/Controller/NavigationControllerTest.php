@@ -216,11 +216,7 @@ class NavigationControllerTest extends TestCase
 
         $context = Generator::generateSalesChannelContext();
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(\sprintf(
-            'Category "%s" not found.',
-            $categoryId,
-        ));
+        $this->expectExceptionObject(new CategoryNotFoundException($categoryId));
 
         $this->controller->index($context, $request);
     }

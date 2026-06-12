@@ -16,7 +16,7 @@ _anchors:
         1. Read input.json. Its `persona` field (single slug) means worker mode;
            `personas` (array) or neither key means orchestrator mode. The skill
            SCHEMA.md is authoritative for the output shape.
-        2. Invoke the review skill (Skill tool, name "review") with that payload
+        2. Invoke the review skill (Skill tool, name "sw-review") with that payload
            wrapped in `<input_json>…</input_json>`. The diff is at diff.patch and
            is referenced by `diff_path`.
         3. Write the skill's JSON output verbatim to a file called output.json

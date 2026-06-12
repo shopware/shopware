@@ -1,5 +1,5 @@
 ---
-name: review
+name: sw-review
 description: >
     Review a Shopware 6 GitHub pull request or local diff. Use when the user asks
     to review a PR, references a PR by number ("#16638"), asks for a focused
@@ -70,11 +70,11 @@ Worker prompt shape:
 
 ```text
 You are a Shopware PR review persona-worker. Load:
-- .claude/skills/review/personas/[slug].md
-- .claude/skills/review/references/RUNTIME.md
-- .claude/skills/review/references/CLASSIFICATION.md for severity, confidence, decision, and risk
-- .claude/skills/review/references/DIFF-DISCIPLINE.md only when needed
-- .claude/skills/review/references/SCHEMA.md for JSON shape
+- .claude/skills/sw-review/personas/[slug].md
+- .claude/skills/sw-review/references/RUNTIME.md
+- .claude/skills/sw-review/references/CLASSIFICATION.md for severity, confidence, decision, and risk
+- .claude/skills/sw-review/references/DIFF-DISCIPLINE.md only when needed
+- .claude/skills/sw-review/references/SCHEMA.md for JSON shape
 
 Session nonce: ${NONCE}. Emit one JSON object only.
 

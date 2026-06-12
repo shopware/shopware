@@ -110,6 +110,33 @@ class WebhookDrainToAsyncCommandTest extends TestCase
         static::assertNull($row['last_attempt_at']);
     }
 
+    public function testRollbackDrainRecoversHeldPausedRow(): void
+    {
+        $this->createWebhook('wh-1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->dispatchEventViaWebhookManager();
+        });
+
+        // Simulate a delivery the health gate held back (DEGRADED webhook): paused on both rows.
+        // With the flag off there is no health model to release it, so the drain must recover it.
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET delivery_status = :status',
+            ['status' => WebhookEventLogDefinition::STATUS_PAUSED]
+        );
+        $this->connection->executeStatement(
+            'UPDATE webhook_event_log SET delivery_status = :status',
+            ['status' => WebhookEventLogDefinition::STATUS_PAUSED]
+        );
+
+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function (): void {
+            static::assertSame(Command::SUCCESS, $this->runCommand(['--force' => true]));
+        });
+
+        $row = $this->fetchDeliveryRow('wh-1');
+        static::assertSame(WebhookEventLogDefinition::STATUS_QUEUED, $row['delivery_status'], 'held paused row must drain to queued, not stay stuck');
+    }
+
     public function testRollbackDrainLeavesRunningRowsUntouched(): void
     {
         $this->createWebhook('wh-1', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/webhook');
@@ -287,6 +314,8 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
+            null,
+            null,
             false,
         );
 
@@ -303,6 +332,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             false,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            null,
         );
     }
 

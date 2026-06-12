@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Event\PreWebhooksDispatchEvent;
+use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -61,6 +63,7 @@ class WebhookManager implements ResetInterface
         private readonly bool $isAdminWorkerEnabled,
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
+        private readonly ?EndpointHealth $endpointHealth = null,
     ) {
     }
 
@@ -109,8 +112,30 @@ class WebhookManager implements ResetInterface
         $this->loadPrivileges($event->getName(), $affectedRoleIds);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
+            // Health gate: decide only — the delivery service dispatches, the transport inserts.
+            // A null gate (no EndpointHealth bound) delivers every webhook.
+            $deliver = [];
+            $hold = [];
+            foreach ($webhooksForEvent as $webhook) {
+                $decision = $this->endpointHealth?->gateFor($webhook->id) ?? WebhookDispatchDecision::Deliver;
+                if ($decision === WebhookDispatchDecision::Skip) {
+                    // SUSPENDED/DISABLED: drop the event.
+                    continue;
+                }
 
+                if ($decision === WebhookDispatchDecision::Hold) {
+                    $hold[] = $webhook;
+                } else {
+                    $deliver[] = $webhook;
+                }
+            }
+
+            $heldMessages = $this->collectMessages($hold, $event, $languageId, $userLocale);
+            if ($heldMessages !== []) {
+                $this->webhookDeliveryService->hold($heldMessages);
+            }
+
+            $messages = $this->collectMessages($deliver, $event, $languageId, $userLocale);
             if ($messages !== []) {
                 /** @deprecated tag:v6.8.0 - reason:parameter-will-be-removed - $forceSynchronous will be removed; lifecycle events will go async with retries */
                 $isAppLifecycleEvent = $event instanceof AppDeletedEvent || $event instanceof AppChangedEvent || $event instanceof AppPermissionsUpdated;

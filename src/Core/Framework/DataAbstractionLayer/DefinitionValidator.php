@@ -121,6 +121,7 @@ class DefinitionValidator
         'mcp_tool_result_cache',
         'webhook_delivery',
         'webhook_stream',
+        'webhook_health',
     ];
 
     private const IGNORED_ENTITY_PROPERTIES = [

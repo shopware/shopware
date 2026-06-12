@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
- * Owns webhook health. To be expanded in Phase 2 (#16565).
+ * Owns webhook health (#16565).
  *
  * @internal
  */

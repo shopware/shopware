@@ -36,6 +36,16 @@ class WebhookOutboxStore
     }
 
     /**
+     * Writes a held outbox row directly as PAUSED — not claimable, so the receiver never delivers it
+     * until health releases it. The WEBHOOKS_REWORK dispatch gate's Hold decision routes here via
+     * WebhookTransport (#16565).
+     */
+    public function recordHeldOutboxEntry(OutboxInsert $insert): ?OutboxEntry
+    {
+        return $this->recordOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_PAUSED);
+    }
+
+    /**
      * Writes an inline admin-worker delivery directly as RUNNING before the HTTP call starts.
      *
      * @deprecated tag:v6.8.0 - Only used for the inline admin-worker delivery path that existed before WEBHOOKS_REWORK.
@@ -454,7 +464,7 @@ class WebhookOutboxStore
     }
 
     /**
-     * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING $initialStatus
+     * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING|WebhookEventLogDefinition::STATUS_PAUSED $initialStatus
      */
     private function recordOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
     {

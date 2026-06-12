@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Transport;
 use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -39,7 +40,14 @@ class WebhookTransport implements TransportInterface, KeepaliveReceiverInterface
         }
 
         try {
-            $this->webhookOutboxStore->recordOutboxEntry(OutboxInsert::fromMessage($message));
+            $insert = OutboxInsert::fromMessage($message);
+            // A held dispatch is persisted paused (the dispatch gate's Hold decision); the transport
+            // reads the stamp, not health, so it stays health-agnostic. No stamp → claimable, as before.
+            if ($envelope->last(HeldDeliveryStamp::class) !== null) {
+                $this->webhookOutboxStore->recordHeldOutboxEntry($insert);
+            } else {
+                $this->webhookOutboxStore->recordOutboxEntry($insert);
+            }
         } catch (DBALException $e) {
             /** @phpstan-ignore shopware.domainException (Symfony Messenger's worker contract requires TransportException for transport-layer failures.) */
             throw new TransportException($e->getMessage(), 0, $e);

@@ -36,7 +36,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $this->insertWebhook('wh-1', errorCount: 0);
 
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+        $this->service->recordLegacyFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
         static::assertSame(1, $this->fetchErrorCount('wh-1'));
         static::assertTrue($this->fetchActive('wh-1'));
@@ -46,7 +46,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT - 1);
 
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+        $this->service->recordLegacyFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
         static::assertSame(0, $this->fetchErrorCount('wh-1'));
         static::assertFalse($this->fetchActive('wh-1'));
@@ -56,7 +56,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $this->insertWebhook('wh-1', errorCount: 3, active: false);
 
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+        $this->service->recordLegacyFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
         static::assertSame(3, $this->fetchErrorCount('wh-1'));
         static::assertFalse($this->fetchActive('wh-1'));
@@ -64,7 +64,7 @@ class WebhookHealthServiceTest extends TestCase
 
     public function testRecordTerminalFailureIsNoOpOnMissingWebhook(): void
     {
-        $this->service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+        $this->service->recordLegacyFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
 
         $this->addToAssertionCount(1);
     }
@@ -73,7 +73,7 @@ class WebhookHealthServiceTest extends TestCase
     {
         $this->insertWebhook('wh-1', errorCount: WebhookFailureStrategy::MAX_ERROR_COUNT + 5);
 
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::Ignore);
+        $this->service->recordLegacyFailure($this->ids->get('wh-1'), WebhookFailureStrategy::Ignore);
 
         static::assertSame(WebhookFailureStrategy::MAX_ERROR_COUNT + 6, $this->fetchErrorCount('wh-1'));
         static::assertTrue($this->fetchActive('wh-1'));
@@ -84,7 +84,7 @@ class WebhookHealthServiceTest extends TestCase
         $this->insertWebhook('wh-1', errorCount: 0);
         $this->insertWebhook('wh-2', errorCount: 0);
 
-        $this->service->recordFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
+        $this->service->recordLegacyFailure($this->ids->get('wh-1'), WebhookFailureStrategy::DisableOnThreshold);
 
         static::assertSame(1, $this->fetchErrorCount('wh-1'));
         static::assertSame(1, $this->fetchErrorCount('wh-2'));

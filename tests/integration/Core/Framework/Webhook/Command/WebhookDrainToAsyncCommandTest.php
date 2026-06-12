@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Outbox\RetryDelayCalculator;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -314,8 +315,8 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             static::getContainer()->get('messenger.default_bus'),
             static::getContainer()->get(WebhookHealthService::class),
             static::getContainer()->get('logger'),
-            null,
-            null,
+            static::getContainer()->get(WebhookHealthService::class),
+            new HttpErrorClassifier(),
             false,
         );
 
@@ -332,7 +333,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             false,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
-            null,
+            static::getContainer()->get(WebhookHealthService::class),
         );
     }
 

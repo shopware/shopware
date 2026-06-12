@@ -8,6 +8,8 @@ use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Health\ErrorClassification;
 use Shopware\Core\Framework\Webhook\Health\ErrorClassifier;
 use Shopware\Core\Framework\Webhook\Message\HeldDeliveryStamp;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -29,7 +31,7 @@ class WebhookDeliveryService
     public const HEADER_SEQUENCE = 'X-Shopware-Sequence';
     public const HEADER_ATTEMPT = 'X-Shopware-Attempt';
 
-    // Matches RetryDelayCalculator::RETRY_DELAYS; attempt 6 is terminal.
+    // Matches the number of delays in RetryDelayCalculator::RETRY_DELAYS_IN_SECONDS; attempt 6 is terminal.
     public const MAX_RETRIES = 5;
 
     private readonly WebhookFailureStrategy $failureStrategy;
@@ -42,8 +44,8 @@ class WebhookDeliveryService
         private readonly MessageBusInterface $bus,
         private readonly WebhookHealthService $webhookHealthService,
         private readonly LoggerInterface $logger,
-        private readonly ?EndpointHealth $endpointHealth,
-        private readonly ?ErrorClassifier $errorClassifier,
+        private readonly EndpointHealth $endpointHealth,
+        private readonly ErrorClassifier $errorClassifier,
         private readonly bool $isAdminWorkerEnabled,
         string $failureStrategy = WebhookFailureStrategy::DisableOnThreshold->value,
     ) {
@@ -68,8 +70,9 @@ class WebhookDeliveryService
     }
 
     /**
-     * Dispatches held webhooks so WebhookTransport persists them as paused (held) rows; they are
-     * never delivered. Counterpart to {@see process()} for the dispatch gate's Hold decision (#16565).
+     * Dispatches held webhooks so WebhookTransport stores them as paused (held) rows; they are
+     * never delivered here. The counterpart of {@see process()} for the dispatch gate's Hold
+     * decision (#16565).
      *
      * @param list<WebhookEventMessage> $messages
      */
@@ -85,7 +88,7 @@ class WebhookDeliveryService
         try {
             $entry = $this->webhookOutboxStore->markRunning($message->getWebhookEventId());
             if ($entry === null) {
-                // Under StreamLease, this should be rare — signals lease loss or crash-recovery re-claim.
+                // Should be rare under StreamLease: it means the lease was lost or crash-recovery re-claimed the row.
                 $this->logger->warning('Skipping webhook delivery: lease lost for event {eventId}', [
                     'eventId' => $message->getWebhookEventId(),
                     'webhookId' => $message->getWebhookId(),
@@ -120,8 +123,8 @@ class WebhookDeliveryService
             ], true),
             \ARRAY_FILTER_USE_KEY
         );
-        // Rework-only headers: legacy envelopes have no reliable dispatch-order sequence,
-        // so we omit them entirely.
+        // These headers exist only for rework envelopes: legacy envelopes have no reliable
+        // dispatch-order sequence, so we leave them out entirely.
         if ($message->isReworkEnvelope()) {
             $headers[self::HEADER_EVENT_ID] = $message->getWebhookEventId();
             $headers[self::HEADER_SEQUENCE] = (string) $entry->sequence;
@@ -159,8 +162,8 @@ class WebhookDeliveryService
         /** @var array<string, int> $batchIndexesByEventId */
         $batchIndexesByEventId = [];
 
-        // Write RUNNING directly so the async receiver can't re-claim the row mid-flight;
-        // a concurrent inline caller hits the event_log and gets null here.
+        // Insert the row as RUNNING right away so the async receiver cannot claim it mid-flight.
+        // A concurrent inline caller collides on the event_log insert and gets null here.
         foreach ($messages as $batchIndex => $message) {
             $entry = $this->webhookOutboxStore->recordInflightOutboxEntry(OutboxInsert::fromMessage($message));
             if ($entry === null) {
@@ -202,14 +205,15 @@ class WebhookDeliveryService
         $response = DeliveryResponse::from($request, $result);
 
         if ($result->successful()) {
-            // a stale-success on a stolen lease must not reset error_count.
+            // A stale success on a stolen lease must not reset error_count.
             if ($this->webhookOutboxStore->markSuccess($entry, $response)) {
-                $this->webhookHealthService->resetErrorCount($webhookId);
-
-                // Health seam (no-op when no EndpointHealth is bound). A 2xx clears this webhook's
-                // DEGRADED → HEALTHY, or de-escalates its SUSPENDED half-open trial → DEGRADED.
                 if (Feature::isActive('WEBHOOKS_REWORK')) {
-                    $this->endpointHealth?->recordSuccess($webhookId);
+                    // Flag-on: the health model owns recovery. A 2xx climbs one state
+                    // (SUSPENDED → DEGRADED → HEALTHY) and updates the per-webhook error_count
+                    // mirror; the legacy shared-counter reset must not fire as well.
+                    $this->endpointHealth->recordSuccess($webhookId);
+                } else {
+                    $this->webhookHealthService->resetErrorCount($webhookId);
                 }
 
                 return;
@@ -225,44 +229,129 @@ class WebhookDeliveryService
             return;
         }
 
-        $this->handleFailure($webhookId, $entry, $response, $result->exception);
+        $this->handleFailure($webhookId, $entry, $response, $result->exception, $this->retryAfterHeader($result));
     }
 
-    private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response, ?\Throwable $exception = null): void
+    private function handleFailure(string $webhookId, OutboxEntry $entry, ?DeliveryResponse $response, ?\Throwable $exception = null, ?string $retryAfter = null): void
     {
-        $persisted = $this->persistFailureOutcome($entry, $response);
-        if (!$persisted) {
-            $this->logger->warning('Lease lost while recording webhook failure for event {eventId}', [
-                'eventId' => $entry->webhookEventId,
-                'webhookId' => $webhookId,
-                'sequence' => $entry->sequence,
-                'executionCount' => $entry->executionCount,
-            ]);
+        // Flag-on path: classify the failure, transition health (which holds the webhook's backlog
+        // when the breaker trips), then place the in-flight row based on the resulting state. The
+        // legacy shared-counter / disable path is skipped — under the flag, the health model owns
+        // active and error_count.
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            // Mirror the success path's lease guard. If this attempt's row was already reclaimed
+            // (crash-recovery reset it, or a → SUSPENDED drop deleted it), this late result is no
+            // longer ours. recordFailure must not degrade or suspend the endpoint for a stale
+            // attempt — its terminal write below would only no-op anyway. The success side already
+            // gates recordSuccess on markSuccess().
+            if (!$this->webhookOutboxStore->ownsRunningAttempt($entry)) {
+                $this->logLeaseLost($webhookId, $entry);
+
+                return;
+            }
+
+            // The exception is passed because a pre-response failure (DNS/timeout/TLS) has status 0.
+            $classification = $this->errorClassifier->classify($response->responseStatusCode ?? 0, $exception);
+            $state = $this->endpointHealth->recordFailure($webhookId, $classification, $entry->executionCount);
+            // Only a 429 carries an actionable Retry-After; every other failure mode uses the fixed backoff.
+            $rateLimitRetryAfter = $classification === ErrorClassification::TransientRateLimit ? $retryAfter : null;
+            $this->placeInFlightRow($webhookId, $entry, $response, $classification, $state, $rateLimitRetryAfter);
+
+            return;
+        }
+
+        // Legacy (flag-off) path — byte-equivalent to trunk.
+        if (!$this->persistFailureOutcome($entry, $response)) {
+            $this->logLeaseLost($webhookId, $entry);
 
             return;
         }
 
         // error_count counts failed deliveries, not failed attempts — only bump after retries are exhausted.
         if ($entry->executionCount > self::MAX_RETRIES) {
-            $this->webhookHealthService->recordFailure($webhookId, $this->failureStrategy);
-        }
-
-        // Health seam (no-op when unbound). Fires per attempt (not per exhausted delivery) so a
-        // non-transient error can suspend immediately; the implementation aggregates transient
-        // retries. The exception is passed because a pre-response failure (DNS/timeout/TLS) has status 0.
-        if (Feature::isActive('WEBHOOKS_REWORK') && $this->endpointHealth !== null && $this->errorClassifier !== null) {
-            $classification = $this->errorClassifier->classify($response->responseStatusCode ?? 0, $exception);
-            $this->endpointHealth->recordFailure($webhookId, $classification);
+            $this->webhookHealthService->recordLegacyFailure($webhookId, $this->failureStrategy);
         }
     }
 
-    private function persistFailureOutcome(OutboxEntry $entry, ?DeliveryResponse $response = null): bool
+    /**
+     * Flag-on result side: place the in-flight row based on the failure classification and the
+     * webhook's resulting health state. Every non-transient failure is terminal, for two reasons.
+     * A payload error is the sender's fault, so it never consumes a trial — no cooldown is
+     * advanced, and the next tick releases the next-oldest held row. An auth/410 row must not
+     * retry, or each retry would feed the once-per-delivery streak again. On a DEGRADED or
+     * SUSPENDED webhook, a transient failure re-holds the row for the next cooldown release —
+     * both states hold. DISABLED fails the row; HEALTHY retries with the normal backoff.
+     */
+    private function placeInFlightRow(
+        string $webhookId,
+        OutboxEntry $entry,
+        ?DeliveryResponse $response,
+        ErrorClassification $classification,
+        EndpointState $state,
+        ?string $retryAfter = null
+    ): void {
+        // Non-transient failures (payload, auth, 410) are terminal per the ADR's classification
+        // table. Retrying a 401 won't change the answer, and each retry would count toward the
+        // once-per-delivery auth streak again.
+        if (!$classification->isTransient()) {
+            $this->webhookOutboxStore->markFailed($entry, $response);
+
+            return;
+        }
+
+        if ($state === EndpointState::Degraded || $state === EndpointState::Suspended) {
+            $this->webhookOutboxStore->markPaused($entry, $response);
+
+            return;
+        }
+
+        if ($state === EndpointState::Disabled) {
+            $this->webhookOutboxStore->markFailed($entry, $response);
+
+            return;
+        }
+
+        // HEALTHY: retry with the normal backoff (honouring a 429's Retry-After), and fail for
+        // good once the retry budget is used up. A lost lease here is a real mid-flight reclaim
+        // and worth logging, unlike the no-ops above.
+        if (!$this->persistFailureOutcome($entry, $response, $retryAfter)) {
+            $this->logLeaseLost($webhookId, $entry);
+        }
+    }
+
+    /**
+     * Returns the raw `Retry-After` value (case-insensitive, first occurrence) from a delivery
+     * response, or null. Parsing and clamping happen in the {@see RetryDelayCalculator} — it owns
+     * retry timing and the clock.
+     */
+    private function retryAfterHeader(WebhookResult $result): ?string
+    {
+        foreach ($result->headers ?? [] as $name => $values) {
+            if (strcasecmp($name, 'Retry-After') === 0) {
+                return $values[0] ?? null;
+            }
+        }
+
+        return null;
+    }
+
+    private function logLeaseLost(string $webhookId, OutboxEntry $entry): void
+    {
+        $this->logger->warning('Lease lost while recording webhook failure for event {eventId}', [
+            'eventId' => $entry->webhookEventId,
+            'webhookId' => $webhookId,
+            'sequence' => $entry->sequence,
+            'executionCount' => $entry->executionCount,
+        ]);
+    }
+
+    private function persistFailureOutcome(OutboxEntry $entry, ?DeliveryResponse $response = null, ?string $retryAfter = null): bool
     {
         if ($entry->executionCount > self::MAX_RETRIES) {
             return $this->webhookOutboxStore->markFailed($entry, $response);
         }
 
-        $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $entry->executionCount));
+        $retryAt = $this->retryDelayCalculator->computeNextRetryAt(max(1, $entry->executionCount), $retryAfter);
 
         return $this->webhookOutboxStore->markPendingRetry($entry, $retryAt, $response);
     }

@@ -24,21 +24,42 @@ use Shopware\Tests\Integration\Core\Framework\Webhook\Outbox\WebhookOutboxStoreT
 #[Package('framework')]
 class WebhookOutboxStore
 {
+    /**
+     * webhook_event_log.failure_reason stamped when a held row's delivery is cancelled because the
+     * row aged past the grace window while its webhook was suspended. The payload stays — the row is
+     * the replay surface's input.
+     */
+    public const CANCEL_REASON_SUSPENDED = 'endpoint_suspended';
+
+    /**
+     * Fixed grace age for held rows — a product constant, not config (ADR §Time-budget defaults).
+     * Applied wherever held rows would redeliver (the bulk resume and the single-row release):
+     * younger than this redelivers, older is cancelled. Measured from the row's creation.
+     */
+    public const HELD_GRACE_AGE_HOURS = 24;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ClockInterface $clock,
     ) {
     }
 
+    /**
+     * Writes the claimable outbox row for the gate's Deliver decision. The decision is point-in-time:
+     * a row written claimable in the instant its webhook transitions away from HEALTHY escapes the
+     * transition's pause sweep and is delivered once — its result counts as ordinary evidence
+     * (delivery self-heals, unlike a stranded hold).
+     */
     public function recordOutboxEntry(OutboxInsert $insert): ?OutboxEntry
     {
         return $this->recordOutboxEntryWithStatus($insert, WebhookEventLogDefinition::STATUS_QUEUED);
     }
 
     /**
-     * Writes a held outbox row directly as PAUSED — not claimable, so the receiver never delivers it
-     * until health releases it. The WEBHOOKS_REWORK dispatch gate's Hold decision routes here via
-     * WebhookTransport (#16565).
+     * Writes the held outbox row for the WEBHOOKS_REWORK dispatch gate's Hold decision — verbatim,
+     * with no re-read of the webhook's health: the gate decided, the transport persists. A Hold that
+     * raced a recovery leaves a `paused` row on a HEALTHY webhook; the health task's stale-hold
+     * healing resumes it within a tick.
      */
     public function recordHeldOutboxEntry(OutboxInsert $insert): ?OutboxEntry
     {
@@ -255,6 +276,34 @@ class WebhookOutboxStore
     }
 
     /**
+     * Holds an in-flight (RUNNING) delivery as PAUSED — used on the result side when its webhook is
+     * (now) DEGRADED, so the failed probe, or the delivery that just crossed into DEGRADED, is held for
+     * the next cooldown release instead of retried immediately. Guarded on attempt ownership like the
+     * other terminal writers, so a stale or stolen lease is a no-op.
+     */
+    public function markPaused(OutboxEntry $entry, ?DeliveryResponse $response): bool
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($entry, $response): bool {
+            if (!$this->ownsRunningAttempt($entry)) {
+                return false;
+            }
+
+            $this->updateEventLog($entry->webhookEventId, WebhookEventLogDefinition::STATUS_PAUSED, $response);
+
+            $this->connection->executeStatement(
+                'UPDATE webhook_delivery SET delivery_status = :status, updated_at = :now WHERE webhook_event_log_id = :id',
+                [
+                    'status' => WebhookEventLogDefinition::STATUS_PAUSED,
+                    'now' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'id' => Uuid::fromHexToBytes($entry->webhookEventId),
+                ]
+            );
+
+            return true;
+        });
+    }
+
+    /**
      * Schedules a retry at the given time. The caller owns delay computation;
      * the repository just persists the state.
      */
@@ -464,6 +513,228 @@ class WebhookOutboxStore
     }
 
     /**
+     * Bulk-flips a webhook's claimable rows (QUEUED / PENDING_RETRY) to PAUSED on both tables
+     * delivery_status is mirrored on, so the receiver — which fetches only claimable rows — stops
+     * draining them to a now-DEGRADED endpoint. A RUNNING row is intentionally left alone: it
+     * finishes in-flight and its result re-enters the guarded health UPDATE as a no-op. One atomic
+     * statement, never chunked: an un-flipped row between chunk commits would deliver to the
+     * just-judged-bad endpoint and race the transition. Used on `→ DEGRADED` and `→ SUSPENDED` alike
+     * (both states hold; only DISABLED drops). Returns the multi-table affected count (assertions
+     * should check row state, not the count).
+     */
+    public function pauseDeliveriesForWebhook(string $webhookId): int
+    {
+        $now = $this->clock->now();
+        $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        return RetryableTransaction::retryable(
+            $this->connection,
+            fn (): int => (int) $this->connection->executeStatement(
+                'UPDATE webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 SET d.delivery_status = :paused,
+                     d.updated_at       = :now,
+                     el.delivery_status = :paused,
+                     el.timestamp       = :ts
+                 WHERE d.webhook_id = :id
+                   AND d.delivery_status IN (:queued, :pendingRetry)
+                   AND el.delivery_status NOT IN (:success, :failed)',
+                [
+                    'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                    'queued' => WebhookEventLogDefinition::STATUS_QUEUED,
+                    'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failed' => WebhookEventLogDefinition::STATUS_FAILED,
+                    'now' => $nowFormatted,
+                    'ts' => $now->getTimestamp(),
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                ]
+            )
+        );
+    }
+
+    /**
+     * Reverse of {@see pauseDeliveriesForWebhook}: flips a webhook's PAUSED rows back to
+     * PENDING_RETRY (due now) on both tables — after cancelling held rows that aged past the grace
+     * window ({@see HELD_GRACE_AGE_HOURS}): nothing older is ever redelivered. Called on every
+     * arrival at HEALTHY (trial 2xx, idle promotion, manual/API reactivation, app reset). The flip
+     * is one atomic statement, never chunked: fetchDue orders claimable rows by id and skips paused
+     * ones, so a piecemeal resume would let newer incoming events deliver ahead of the held
+     * backlog's lower-id rows and break the first-attempt id order. Returns the multi-table
+     * affected count of the resume flip.
+     */
+    public function resumeDeliveriesForWebhook(string $webhookId): int
+    {
+        $now = $this->clock->now();
+        $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        return RetryableTransaction::retryable($this->connection, function () use ($webhookId, $now, $nowFormatted): int {
+            $this->cancelAgedHeldRows($webhookId);
+
+            return (int) $this->connection->executeStatement(
+                'UPDATE webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 SET d.delivery_status = :pendingRetry,
+                     d.next_retry_at    = :now,
+                     d.updated_at        = :now,
+                     el.delivery_status = :pendingRetry,
+                     el.timestamp       = :ts
+                 WHERE d.webhook_id = :id
+                   AND d.delivery_status = :paused
+                   AND el.delivery_status NOT IN (:success, :failed)',
+                [
+                    'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                    'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failed' => WebhookEventLogDefinition::STATUS_FAILED,
+                    'now' => $nowFormatted,
+                    'ts' => $now->getTimestamp(),
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                ]
+            );
+        });
+    }
+
+    /**
+     * Releases exactly one held row as the half-open trial: the oldest PAUSED row (lowest id) flips
+     * to PENDING_RETRY due now on both mirrored tables. Held rows that aged past the grace window
+     * are cancelled first ({@see HELD_GRACE_AGE_HOURS} — a release is a redelivery point), so the
+     * released row is always younger than a day. One claimable row among paused siblings = one
+     * trial in flight, so the receiver delivers it next and its result drives the ladder. Returns
+     * the released webhook_delivery id, or null when nothing deliverable is held.
+     */
+    public function releaseOneTrial(string $webhookId): ?int
+    {
+        return RetryableTransaction::retryable($this->connection, function () use ($webhookId): ?int {
+            $this->cancelAgedHeldRows($webhookId);
+
+            $row = $this->connection->fetchAssociative(
+                'SELECT d.id, d.webhook_event_log_id
+                 FROM webhook_delivery d
+                 JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+                 WHERE d.webhook_id = :id AND d.delivery_status = :paused
+                   AND el.delivery_status NOT IN (:success, :failed)
+                 ORDER BY d.id ASC
+                 LIMIT 1
+                 FOR UPDATE',
+                [
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                    'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                    'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
+                    'failed' => WebhookEventLogDefinition::STATUS_FAILED,
+                ]
+            );
+
+            if ($row === false) {
+                return null;
+            }
+
+            $now = $this->clock->now();
+            $nowFormatted = $now->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+            $this->connection->executeStatement(
+                'UPDATE webhook_delivery
+                 SET delivery_status = :pendingRetry, next_retry_at = :now, updated_at = :now
+                 WHERE id = :deliveryId',
+                [
+                    'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'now' => $nowFormatted,
+                    'deliveryId' => $row['id'],
+                ]
+            );
+
+            $this->connection->executeStatement(
+                'UPDATE webhook_event_log SET delivery_status = :pendingRetry, timestamp = :ts WHERE id = :elId',
+                [
+                    'pendingRetry' => WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    'ts' => $now->getTimestamp(),
+                    'elId' => $row['webhook_event_log_id'],
+                ]
+            );
+
+            return (int) $row['id'];
+        });
+    }
+
+    /**
+     * Cancels a webhook's held rows that aged past the grace window: the event-log rows go FAILED
+     * with {@see CANCEL_REASON_SUSPENDED} (payload retained — the replay surface's input), then the
+     * delivery rows are deleted. Event-log first, so a crash between the two statements never
+     * leaves a resurrectable delivery without a terminal log. Runs inside the caller's transaction.
+     */
+    private function cancelAgedHeldRows(string $webhookId): int
+    {
+        $now = $this->clock->now();
+        $cutoff = $now
+            ->modify(\sprintf('-%d hours', self::HELD_GRACE_AGE_HOURS))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $id = Uuid::fromHexToBytes($webhookId);
+
+        $this->connection->executeStatement(
+            'UPDATE webhook_event_log el
+             JOIN webhook_delivery d ON d.webhook_event_log_id = el.id
+             SET el.delivery_status = :failed,
+                 el.failure_reason  = :reason,
+                 el.timestamp       = :ts
+             WHERE d.webhook_id = :id
+               AND d.delivery_status = :paused
+               AND d.created_at < :cutoff
+               AND el.delivery_status NOT IN (:success, :failed)',
+            [
+                'failed' => WebhookEventLogDefinition::STATUS_FAILED,
+                'reason' => self::CANCEL_REASON_SUSPENDED,
+                'ts' => $now->getTimestamp(),
+                'id' => $id,
+                'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                'cutoff' => $cutoff,
+                'success' => WebhookEventLogDefinition::STATUS_SUCCESS,
+            ]
+        );
+
+        return (int) $this->connection->executeStatement(
+            'DELETE FROM webhook_delivery
+             WHERE webhook_id = :id AND delivery_status = :paused AND created_at < :cutoff',
+            [
+                'id' => $id,
+                'paused' => WebhookEventLogDefinition::STATUS_PAUSED,
+                'cutoff' => $cutoff,
+            ]
+        );
+    }
+
+    /**
+     * True only if the entry still owns the live RUNNING attempt (same sequence + execution_count, still
+     * `running`) — a stuck worker whose lease was stolen and re-claimed under a higher execution_count
+     * gets false and backs off. Terminal writers call this inside their transaction, where FOR UPDATE
+     * holds the row; the delivery service's failure path calls it lock-free, so there the answer is
+     * point-in-time only — the residual race is bounded by the lease reclaim and absorbed by the
+     * guarded health transitions (a deliberate asymmetry: holding the lock there would invert the
+     * health→delivery lock order).
+     */
+    public function ownsRunningAttempt(OutboxEntry $entry): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1
+             FROM webhook_delivery
+             WHERE webhook_event_log_id = :id
+               AND id = :sequence
+               AND execution_count = :executionCount
+               AND delivery_status = :status
+             FOR UPDATE',
+            [
+                'id' => Uuid::fromHexToBytes($entry->webhookEventId),
+                'sequence' => $entry->sequence,
+                'executionCount' => $entry->executionCount,
+                'status' => WebhookEventLogDefinition::STATUS_RUNNING,
+            ],
+            [
+                'sequence' => Types::INTEGER,
+                'executionCount' => Types::INTEGER,
+            ]
+        );
+    }
+
+    /**
      * @param WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_RUNNING|WebhookEventLogDefinition::STATUS_PAUSED $initialStatus
      */
     private function recordOutboxEntryWithStatus(OutboxInsert $insert, string $initialStatus): ?OutboxEntry
@@ -582,34 +853,6 @@ class WebhookOutboxStore
         );
 
         return $affected > 0;
-    }
-
-    /**
-     * True only if the row is still RUNNING with the same (sequence, execution_count)
-     * the caller got from markRunning(). A stuck worker whose lease was stolen and
-     * re-claimed under a higher execution_count will get false and back off here.
-     */
-    private function ownsRunningAttempt(OutboxEntry $entry): bool
-    {
-        return (bool) $this->connection->fetchOne(
-            'SELECT 1
-             FROM webhook_delivery
-             WHERE webhook_event_log_id = :id
-               AND id = :sequence
-               AND execution_count = :executionCount
-               AND delivery_status = :status
-             FOR UPDATE',
-            [
-                'id' => Uuid::fromHexToBytes($entry->webhookEventId),
-                'sequence' => $entry->sequence,
-                'executionCount' => $entry->executionCount,
-                'status' => WebhookEventLogDefinition::STATUS_RUNNING,
-            ],
-            [
-                'sequence' => Types::INTEGER,
-                'executionCount' => Types::INTEGER,
-            ]
-        );
     }
 
     private function deleteDelivery(string $eventLogId): void

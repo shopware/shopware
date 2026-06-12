@@ -5,19 +5,27 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Health\HealthConfig;
+use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Framework\Webhook\Service\RelatedWebhooks;
 use Shopware\Core\Framework\Webhook\Service\WebhookHealthService;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 
 /**
+ * Covers the legacy (WEBHOOKS_REWORK-off) shared-counter path on {@see WebhookHealthService}. The
+ * flag-on circuit-breaker state machine is covered by the integration matrix test.
+ *
  * @internal
  */
 #[CoversClass(WebhookHealthService::class)]
 class WebhookHealthServiceTest extends TestCase
 {
-    public function testRecordTerminalFailureIsNoOpWhenWebhookNotFound(): void
+    public function testRecordLegacyFailureIsNoOpWhenWebhookNotFound(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -28,11 +36,11 @@ class WebhookHealthServiceTest extends TestCase
         $relatedWebhooks->expects($this->never())
             ->method('updateRelated');
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+        $this->makeService($connection, $relatedWebhooks)
+            ->recordLegacyFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testRecordTerminalFailureIsNoOpWhenWebhookInactive(): void
+    public function testRecordLegacyFailureIsNoOpWhenWebhookInactive(): void
     {
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())
@@ -43,11 +51,11 @@ class WebhookHealthServiceTest extends TestCase
         $relatedWebhooks->expects($this->never())
             ->method('updateRelated');
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->recordFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
+        $this->makeService($connection, $relatedWebhooks)
+            ->recordLegacyFailure(Uuid::randomHex(), WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testRecordTerminalFailureIncrementsBelowThreshold(): void
+    public function testRecordLegacyFailureIncrementsBelowThreshold(): void
     {
         $webhookId = Uuid::randomHex();
 
@@ -65,11 +73,11 @@ class WebhookHealthServiceTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+        $this->makeService($connection, $relatedWebhooks)
+            ->recordLegacyFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testRecordTerminalFailureDeactivatesAtThresholdWithDisableStrategy(): void
+    public function testRecordLegacyFailureDeactivatesAtThresholdWithDisableStrategy(): void
     {
         $webhookId = Uuid::randomHex();
 
@@ -87,11 +95,11 @@ class WebhookHealthServiceTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->recordFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
+        $this->makeService($connection, $relatedWebhooks)
+            ->recordLegacyFailure($webhookId, WebhookFailureStrategy::DisableOnThreshold);
     }
 
-    public function testRecordTerminalFailureKeepsActiveWithIgnoreStrategyAboveThreshold(): void
+    public function testRecordLegacyFailureKeepsActiveWithIgnoreStrategyAboveThreshold(): void
     {
         $webhookId = Uuid::randomHex();
 
@@ -109,8 +117,8 @@ class WebhookHealthServiceTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->recordFailure($webhookId, WebhookFailureStrategy::Ignore);
+        $this->makeService($connection, $relatedWebhooks)
+            ->recordLegacyFailure($webhookId, WebhookFailureStrategy::Ignore);
     }
 
     public function testResetErrorCount(): void
@@ -128,7 +136,21 @@ class WebhookHealthServiceTest extends TestCase
                 static::isInstanceOf(Context::class)
             );
 
-        $service = new WebhookHealthService($connection, $relatedWebhooks);
-        $service->resetErrorCount($webhookId);
+        $this->makeService($connection, $relatedWebhooks)->resetErrorCount($webhookId);
+    }
+
+    private function makeService(Connection $connection, RelatedWebhooks $relatedWebhooks): WebhookHealthService
+    {
+        // The legacy path uses only the connection + RelatedWebhooks; the flag-on dependencies are
+        // stubbed (a real HealthConfig — production defaults — because it is final and self-validating).
+        return new WebhookHealthService(
+            $connection,
+            $relatedWebhooks,
+            $this->createMock(WebhookOutboxStore::class),
+            new HealthConfig([300, 600, 1200, 2400, 3600, 14400], 5, 3, 7),
+            $this->createMock(ClockInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+            $this->createMock(LoggerInterface::class),
+        );
     }
 }

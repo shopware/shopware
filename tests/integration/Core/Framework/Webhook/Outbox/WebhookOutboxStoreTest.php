@@ -14,10 +14,17 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Outbox\DeliveryResponse;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxEntry;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
+use Shopware\Core\Framework\Webhook\Outbox\StreamLockService;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
+ * Locks down the outbox store's row state machine on the mirrored webhook_event_log +
+ * webhook_delivery pair: claiming a row (markRunning) is exclusive, terminal writes from a stale
+ * attempt are rejected, paused rows are invisible to the unmodified transport until released, and
+ * a resume cancels held rows older than the grace window while keeping their payload for replay.
+ * This matters because a broken transition here fires a webhook twice or strands it forever.
+ *
  * @internal
  */
 class WebhookOutboxStoreTest extends TestCase
@@ -62,8 +69,11 @@ class WebhookOutboxStoreTest extends TestCase
         $this->assertDeliveryDeleted('evt-1');
     }
 
-    public function testRecordHeldOutboxEntryWritesPausedNonClaimableRow(): void
+    public function testRecordHeldOutboxEntryWritesPausedRowVerbatim(): void
     {
+        // No webhook_health row at all: the gate decided Hold and the store persists that decision
+        // as-is, without re-reading health. A Hold that raced a recovery is healed by the health
+        // task's stale-hold sweep, not by the transport second-guessing the gate.
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
 
@@ -89,6 +99,147 @@ class WebhookOutboxStoreTest extends TestCase
             10
         );
         static::assertSame([], $due);
+    }
+
+    /**
+     * The 24 h grace age at the bulk redelivery point: resume cancels a held row older than
+     * {@see WebhookOutboxStore::HELD_GRACE_AGE_HOURS} (delivery row deleted, event_log FAILED,
+     * payload kept for replay) while a younger held row goes back out.
+     */
+    public function testResumeCancelsHeldRowsAgedPastGraceAndRedeliversYounger(): void
+    {
+        $this->createWebhook('wh-1');
+        $oldInsert = $this->toEntry($this->createMessage('evt-old', 'wh-1'));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($oldInsert));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-fresh', 'wh-1'))));
+
+        $this->ageDeliveryRow('evt-old', '-25 hours');
+        $this->ageDeliveryRow('evt-fresh', '-23 hours');
+
+        $this->store->resumeDeliveriesForWebhook($this->ids->get('wh-1'));
+
+        // Aged past grace: cancelled in place, never redelivered, but replayable.
+        $this->assertDeliveryDeleted('evt-old');
+        $oldLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, failure_reason, serialized_webhook_message FROM webhook_event_log WHERE id = :id',
+            ['id' => $this->ids->getBytes('evt-old')]
+        );
+        static::assertNotFalse($oldLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $oldLog['delivery_status']);
+        static::assertSame(WebhookOutboxStore::CANCEL_REASON_SUSPENDED, $oldLog['failure_reason']);
+        static::assertSame($oldInsert->serializedMessage, $oldLog['serialized_webhook_message'], 'cancel must keep the payload — the row is the replay surface\'s input');
+
+        // Younger than grace: resumed as pending_retry due now, on both mirrored tables.
+        $freshDelivery = $this->connection->fetchAssociative(
+            'SELECT delivery_status, next_retry_at FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-fresh')]
+        );
+        static::assertNotFalse($freshDelivery);
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $freshDelivery['delivery_status']);
+        static::assertNotNull($freshDelivery['next_retry_at']);
+        static::assertLessThanOrEqual(
+            (new \DateTimeImmutable('+5 seconds'))->getTimestamp(),
+            (new \DateTimeImmutable((string) $freshDelivery['next_retry_at']))->getTimestamp(),
+            'a resumed row must be due immediately'
+        );
+        $this->assertEventLogStatus('evt-fresh', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+    }
+
+    /**
+     * The same grace age at the single-row redelivery point: releaseOneTrial cancels the over-age
+     * oldest held row and releases the next-oldest as the trial.
+     */
+    public function testReleaseOneTrialCancelsAgedOldestAndReleasesNextOldest(): void
+    {
+        $this->createWebhook('wh-1');
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-old', 'wh-1'))));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-fresh', 'wh-1'))));
+
+        $this->ageDeliveryRow('evt-old', '-25 hours');
+        $this->ageDeliveryRow('evt-fresh', '-23 hours');
+
+        $releasedId = $this->store->releaseOneTrial($this->ids->get('wh-1'));
+
+        $this->assertDeliveryDeleted('evt-old');
+        $oldLog = $this->connection->fetchAssociative(
+            'SELECT delivery_status, failure_reason FROM webhook_event_log WHERE id = :id',
+            ['id' => $this->ids->getBytes('evt-old')]
+        );
+        static::assertNotFalse($oldLog);
+        static::assertSame(WebhookEventLogDefinition::STATUS_FAILED, $oldLog['delivery_status']);
+        static::assertSame(WebhookOutboxStore::CANCEL_REASON_SUSPENDED, $oldLog['failure_reason']);
+
+        $freshDelivery = $this->connection->fetchAssociative(
+            'SELECT id, delivery_status FROM webhook_delivery WHERE webhook_event_log_id = :id',
+            ['id' => $this->ids->getBytes('evt-fresh')]
+        );
+        static::assertNotFalse($freshDelivery);
+        static::assertSame((int) $freshDelivery['id'], $releasedId, 'the trial must be the next-oldest deliverable row, not the cancelled one');
+        static::assertSame(WebhookEventLogDefinition::STATUS_PENDING_RETRY, $freshDelivery['delivery_status']);
+        $this->assertEventLogStatus('evt-fresh', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+    }
+
+    /**
+     * One resume call flips the whole held set, and the recovered backlog drains in delivery-id
+     * order ahead of traffic that arrived after the hold.
+     */
+    public function testResumedHeldBacklogDrainsInIdOrderAheadOfNewerTraffic(): void
+    {
+        $this->createWebhook('wh-1');
+        $heldFirst = $this->createMessage('evt-held-1', 'wh-1');
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($heldFirst)));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-held-2', 'wh-1'))));
+        static::assertNotNull($this->store->recordOutboxEntry($this->toEntry($this->createMessage('evt-newer', 'wh-1'))));
+
+        $this->store->resumeDeliveriesForWebhook($this->ids->get('wh-1'));
+
+        $this->assertEventLogStatus('evt-held-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+        $this->assertEventLogStatus('evt-held-2', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
+
+        $due = $this->store->fetchDue(
+            Hasher::hashBinary($heldFirst->getPartitionKey(), 'xxh128'),
+            [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY],
+            10
+        );
+
+        static::assertSame(
+            [$this->ids->get('evt-held-1'), $this->ids->get('evt-held-2'), $this->ids->get('evt-newer')],
+            array_map(static fn (OutboxEntry $entry) => $entry->webhookEventId, $due),
+            'the held backlog must drain in id order ahead of newer traffic'
+        );
+    }
+
+    /**
+     * While rows are `paused`, the unmodified read path (fetchDue and claimNext) never surfaces
+     * them; a single release makes exactly one row — the oldest — fetchable.
+     */
+    public function testPausedRowsAreInvisibleToUnmodifiedTransportUntilReleased(): void
+    {
+        $this->createWebhook('wh-1');
+        $message = $this->createMessage('evt-1', 'wh-1');
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($message)));
+        static::assertNotNull($this->store->recordHeldOutboxEntry($this->toEntry($this->createMessage('evt-2', 'wh-1'))));
+
+        $partitionKey = Hasher::hashBinary($message->getPartitionKey(), 'xxh128');
+        $claimableStatuses = [WebhookEventLogDefinition::STATUS_QUEUED, WebhookEventLogDefinition::STATUS_PENDING_RETRY];
+
+        static::assertSame([], $this->store->fetchDue($partitionKey, $claimableStatuses, 10));
+        static::assertNotContains(
+            $partitionKey,
+            $this->claimAllPartitions('worker-before-release', $claimableStatuses),
+            'a partition holding only paused rows must not be claimable'
+        );
+
+        static::assertNotNull($this->store->releaseOneTrial($this->ids->get('wh-1')));
+
+        $due = $this->store->fetchDue($partitionKey, $claimableStatuses, 10);
+        static::assertCount(1, $due, 'exactly one row may be in flight after a single release');
+        static::assertSame($this->ids->get('evt-1'), $due[0]->webhookEventId, 'the release must pick the oldest held row');
+        static::assertContains(
+            $partitionKey,
+            $this->claimAllPartitions('worker-after-release', $claimableStatuses),
+            'the released row must make the partition claimable again'
+        );
     }
 
     public function testBackfillDeliveryCreatesDeliveryForQueuedEventLog(): void
@@ -161,7 +312,7 @@ class WebhookOutboxStoreTest extends TestCase
 
     public function testBackfillDeliverySkipsWhenDeliveryAlreadyExists(): void
     {
-        // Second backfill call is idempotent — first commit wins.
+        // A second backfill call is idempotent — the first commit wins.
         $this->createWebhook('wh-1');
         $message = $this->createMessage('evt-1', 'wh-1');
 
@@ -359,7 +510,7 @@ class WebhookOutboxStoreTest extends TestCase
         static::assertInstanceOf(OutboxEntry::class, $first);
         static::assertSame(1, $first->executionCount);
 
-        // Second concurrent call finds the row already RUNNING — caller must skip.
+        // A second concurrent call finds the row already RUNNING — the caller must skip.
         static::assertNull($this->store->markRunning($this->ids->get('evt-1')));
 
         $count = (int) $this->connection->fetchOne(
@@ -382,7 +533,7 @@ class WebhookOutboxStoreTest extends TestCase
 
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_PENDING_RETRY);
 
-        // Second markRunning on a PENDING_RETRY row — must transition to RUNNING and increment count
+        // A markRunning on a due PENDING_RETRY row must transition to RUNNING and increment the count
         $result = $this->store->markRunning($this->ids->get('evt-1'));
 
         static::assertInstanceOf(OutboxEntry::class, $result);
@@ -402,9 +553,9 @@ class WebhookOutboxStoreTest extends TestCase
     }
 
     /**
-     * Mid-rolling-deploy: a trunk runner (no awareness of webhook_delivery) finalizes
-     * event_log to SUCCESS/FAILED while a rework webhook_delivery row still sits in the
-     * table. markRunning must refuse to claim it — otherwise the webhook fires again.
+     * Mid-rolling-deploy: a trunk runner (unaware of webhook_delivery) finalizes event_log to
+     * SUCCESS/FAILED while a rework webhook_delivery row still sits in the table. markRunning must
+     * refuse to claim it — otherwise the webhook fires again.
      */
     public function testMarkRunningIgnoresStrayDeliveryRowForTerminalEventLog(): void
     {
@@ -549,12 +700,9 @@ class WebhookOutboxStoreTest extends TestCase
     }
 
     /**
-     * Race:
-     * - one worker wins markSuccess → event_log SUCCESS, delivery deleted
-     * - a delivery row reappears (e.g. backfill, ops)
-     * - another worker calls markFailed on it
-     *
-     * The row is removed, but event_log stays SUCCESS.
+     * Race: one worker wins markSuccess (event_log SUCCESS, delivery deleted), a delivery row
+     * reappears (e.g. backfill, ops), and another worker calls markFailed on it. The row is
+     * removed, but event_log stays SUCCESS.
      */
     public function testMarkFailedDoesNotRollBackTerminalEventLog(): void
     {
@@ -712,11 +860,9 @@ class WebhookOutboxStoreTest extends TestCase
     }
 
     /**
-     * First attempt is claimed (RUNNING, execution_count=1), then `resetRunningForPartition`
-     * recovers it (back to PENDING_RETRY), then a second attempt is claimed (RUNNING,
-     * execution_count=2). The returned entry is the original first caller's claim — that
-     * caller is no longer the owner: crash recovery handed the active attempt to a different
-     * worker. Any terminal write the first caller tries must be rejected by `ownsRunningAttempt`.
+     * Claims a first attempt, lets crash recovery (`resetRunningForPartition`) take it away, then
+     * claims a second attempt. The returned entry is the first caller's claim — that caller no
+     * longer owns the row, so any terminal write it tries must be rejected by `ownsRunningAttempt`.
      */
     private function setUpStaleFirstAttempt(): OutboxEntry
     {
@@ -746,6 +892,41 @@ class WebhookOutboxStoreTest extends TestCase
         static::assertSame(WebhookEventLogDefinition::STATUS_RUNNING, $delivery['delivery_status']);
         static::assertSame(2, (int) $delivery['execution_count']);
         $this->assertEventLogStatus('evt-1', WebhookEventLogDefinition::STATUS_RUNNING);
+    }
+
+    /**
+     * Backdates the delivery row's created_at (the grace-age input) instead of waiting.
+     */
+    private function ageDeliveryRow(string $eventKey, string $relativeTime): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE webhook_delivery SET created_at = :createdAt WHERE webhook_event_log_id = :id',
+            [
+                'createdAt' => (new \DateTimeImmutable($relativeTime))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => $this->ids->getBytes($eventKey),
+            ]
+        );
+    }
+
+    /**
+     * Drains claimNext until nothing is claimable and returns every claimed partition key.
+     * Assertions check membership of this test's partition rather than the single next claim, so
+     * unrelated partitions cannot break the test.
+     *
+     * @param non-empty-list<WebhookEventLogDefinition::STATUS_QUEUED|WebhookEventLogDefinition::STATUS_PENDING_RETRY> $statuses
+     *
+     * @return list<string>
+     */
+    private function claimAllPartitions(string $workerId, array $statuses): array
+    {
+        $lockService = static::getContainer()->get(StreamLockService::class);
+
+        $claimed = [];
+        while (($lease = $lockService->claimNext($workerId, 60, $statuses)) !== null) {
+            $claimed[] = $lease->partitionKey;
+        }
+
+        return $claimed;
     }
 
     private function assertEventLogStatus(string $eventKey, string $expectedStatus): void

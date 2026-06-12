@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -23,13 +24,19 @@ final class WebhookHealthTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
-        private readonly ?EndpointLifecycle $lifecycle = null,
+        private readonly EndpointLifecycle $lifecycle,
     ) {
         parent::__construct($repository, $logger);
     }
 
     public function run(): void
     {
-        $this->lifecycle?->tick();
+        // shouldRun() gates the enqueue, but a task message queued while the flag was on can
+        // still execute after the flag was turned off. Never mutate health under a disabled flag.
+        if (!Feature::isActive('WEBHOOKS_REWORK')) {
+            return;
+        }
+
+        $this->lifecycle->tick();
     }
 }

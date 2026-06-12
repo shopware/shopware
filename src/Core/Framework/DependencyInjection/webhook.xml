@@ -51,6 +51,11 @@
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\HealthConfig"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Transport\MySQLWebhookReceiver">
@@ -88,7 +93,7 @@
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookDeliveryService"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointHealth" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointHealth"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -145,8 +150,8 @@
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointHealth" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\ErrorClassifier" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointHealth"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\ErrorClassifier"/>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
             <argument>%shopware.webhook.failure_strategy%</argument>
         </service>
@@ -171,7 +176,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\ReactivateWebhooksOnAppReregistrationSubscriber">
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Subscriber\ReactivateWebhookOnActivationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -194,8 +204,9 @@
             <tag name="messenger.message_handler"/>
         </service>
 
-        <!-- Phase 2 endpoint health (#16565) — interfaces only; the consuming services inject them
-             with on-invalid="null", so they resolve to null until a later PR registers the impls. -->
+        <!-- Phase 2 endpoint health (#16565): the health tuning config, the pure error classifier,
+             and the interface bindings onto WebhookHealthService — which owns both the per-delivery
+             health (EndpointHealth) and the off-hot-path lifecycle (EndpointLifecycle). -->
         <service id="Shopware\Core\Framework\Webhook\Health\HealthConfig">
             <argument>%shopware.webhook.health.cooldown_schedule_seconds%</argument>
             <argument>%shopware.webhook.health.degraded_threshold%</argument>
@@ -203,13 +214,19 @@
             <argument>%shopware.webhook.health.max_suspended_days%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier"/>
+
+        <service id="Shopware\Core\Framework\Webhook\Health\EndpointHealth" alias="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
+        <service id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" alias="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
+        <service id="Shopware\Core\Framework\Webhook\Health\ErrorClassifier" alias="Shopware\Core\Framework\Webhook\Health\HttpErrorClassifier"/>
+
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTask">
             <tag name="shopware.scheduled.task"/>
         </service>
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\WebhookHealthTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
-            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Health\EndpointLifecycle"/>
             <tag name="messenger.message_handler"/>
         </service>
     </services>

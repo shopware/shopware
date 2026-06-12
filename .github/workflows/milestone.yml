@@ -21,6 +21,8 @@ jobs:
         - name: Get versions
           id: versions
           uses: shopware/github-actions/versions@main
+          with:
+            github-token: ${{ github.token }}
         - name: Get next minor
           uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # 9
           id: next-milestone

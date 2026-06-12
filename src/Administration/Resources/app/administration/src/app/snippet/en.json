@@ -702,7 +702,8 @@
         "isNoneOf": "Is none of | Are none of",
         "gross": "Gross",
         "net": "Net",
-        "empty": "Is empty | Are empty"
+        "empty": "Is empty | Are empty",
+        "between": "Is between | Are between"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
@@ -772,8 +773,8 @@
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
         "orderTrackingCodeRule": "Tracking code",
-        "orderDeliveryStatusRule": "Delivery status (flow)",
-        "orderCreatedByAdminRule": "Order created by administrator (flow)",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by administrator",
         "adminSalesChannelSourceRule": "Applicable in Administration",
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",

@@ -208,8 +208,7 @@ class ProductExportRepositoryTest extends TestCase
             ],
         ], $this->context);
 
-        static::expectException(DuplicateFileNameException::class);
-        static::expectExceptionMessage('File name "Testexport" already exists.');
+        $this->expectExceptionObject(new DuplicateFileNameException('Testexport'));
 
         $secondId = Uuid::randomHex();
         $this->productExportRepository->upsert([

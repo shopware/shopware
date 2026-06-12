@@ -36,14 +36,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Reader\EntityReaderTest;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\EntityReaderTest;
 
 use function Symfony\Component\String\u;
 
 /**
  * @internal
  *
- * @codeCoverageIgnore - Covered by integration test {@see EntityReaderTest}
+ * @codeCoverageIgnore
+ *
+ * @see EntityReaderTest
  */
 #[Package('framework')]
 class EntityReader implements EntityReaderInterface

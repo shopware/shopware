@@ -291,6 +291,24 @@ class ProductSearchQueryBuilderTest extends TestCase
             ['SW5686779889'],
         ];
 
+        yield 'search joined technical terms in name' => [
+            ['name'],
+            'Channel Line',
+            ['product-13'],
+        ];
+
+        yield 'search technical terms in customSearchKeywords' => [
+            ['customSearchKeywords'],
+            'Channel Line',
+            ['product-14'],
+        ];
+
+        yield 'search productNumber without punctuation' => [
+            ['productNumber'],
+            'Gr49',
+            ['product-12'],
+        ];
+
         yield 'search for custom field json' => [
             ['customFields.evolvesTo'],
             'Flareon',
@@ -374,6 +392,23 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->name('Super Pokemon')
                 ->add('description', 'A cool raichu is traveling around the world')
                 ->add('customSearchKeywords', ['Raichu'])
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-12'))
+                ->name('Technical product')
+                ->number('Gr.49')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-13'))
+                ->name('ChannelLine Connector')
+                ->price(50, 50)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($ids, 'product-14'))
+                ->name('Technical keyword accessory')
+                ->add('customSearchKeywords', ['ChannelLine'])
                 ->price(50, 50)
                 ->visibility()
                 ->build(),

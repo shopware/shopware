@@ -139,6 +139,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeMergedConfigBuilder"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\SeedingThemePathBuilder" lazy="true">
@@ -175,6 +176,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -271,6 +273,7 @@
         <service id="Shopware\Storefront\Theme\Command\ThemeCompileCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="console.command"/>
         </service>

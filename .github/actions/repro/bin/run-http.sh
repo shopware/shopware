@@ -3,13 +3,17 @@
 # request SEQUENCE — against the running shop, and asserts on the FINAL response.
 #
 # Supports:
+#  - auth by surface: admin API (/api/...) → admin OAuth Bearer; store API (/store-api/...)
+#    → sw-access-key. Chosen per request from its path; the executor owns auth (any auth
+#    header the agent wrote is dropped), so an admin-api request is never sent a store key.
 #  - install-specific placeholders in path/body/headers, resolved against the shop:
 #    {{SC}} {{NAV_CAT}} {{COUNTRY}} {{SALUTATION}} {{SALUTATION2}} {{TAX}} {{CURRENCY}}
 #    {{LANGUAGE}} {{STOREFRONT_URL}} {{SW_ACCESS_KEY}} {{SW_CONTEXT_TOKEN}}
 #  - multi-step: `requests: [...]`; sw-context-token is captured and carried forward;
 #    a non-final setup request that isn't 2xx => blocked.
-#  - false-positive guard: an unparseable/empty response_field on a non-2xx response
-#    => inconclusive (NOT a bogus "reproduced").
+#  - false-positive guards: a 401/403 (auth rejected before the symptom ran), or an
+#    unparseable/empty response_field on a non-2xx response => inconclusive (NOT a bogus
+#    "reproduced").
 #
 # expect = HEALTHY value: actual != expect => reproduced; actual == expect => not_reproduced.
 #
@@ -37,13 +41,29 @@ NREQ=$(echo "$REQS" | jq 'length')
 SW_ACCESS_KEY_V="$ACCESS_KEY"; STOREFRONT_URL="$BASE"
 SC=""; NAV_CAT=""; COUNTRY=""; SALUTATION=""; SALUTATION2=""; TAX=""; CURRENCY=""; LANGUAGE=""
 
+# Auth by surface: the admin API (/api/...) needs an OAuth Bearer token; the store API
+# (/store-api/...) uses sw-access-key. Detect whether ANY request targets the admin API.
+is_admin_path() { case "$1" in /store-api/*) return 1 ;; /api/*) return 0 ;; *) return 1 ;; esac; }
+ADMIN_REQ=0
+while IFS= read -r p; do is_admin_path "$p" && { ADMIN_REQ=1; break; }; done < <(echo "$REQS" | jq -r '.[].path // ""')
+
 # Resolve install-specific ids only if the plan references {{...}} beyond the free ones (admin API).
 NEED=$(echo "$REQS" | grep -oE '\{\{[A-Z0-9_]+\}\}' | sort -u | tr -d '{}' || true)
-if echo "$NEED" | grep -qvE '^(SW_ACCESS_KEY|STOREFRONT_URL|SW_CONTEXT_TOKEN)?$'; then
+NEED_IDS=0
+echo "$NEED" | grep -qvE '^(SW_ACCESS_KEY|STOREFRONT_URL|SW_CONTEXT_TOKEN)?$' && NEED_IDS=1
+
+# Fetch the admin OAuth token once if EITHER an admin-api request will run OR we must resolve
+# install-specific ids (both go through the admin API). Without it, admin-api requests get the
+# store-api key and the gateway returns 401 — a harness auth failure, not the reported bug.
+TOKEN=""
+if [ "$ADMIN_REQ" = 1 ] || [ "$NEED_IDS" = 1 ]; then
   TOKEN=$(curl -sS --max-time 30 -X POST "$BASE/api/oauth/token" -H 'Content-Type: application/json' \
     -d "{\"grant_type\":\"password\",\"client_id\":\"administration\",\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\",\"scopes\":\"write\"}" \
     | jq -r '.access_token // empty')
-  [ -n "$TOKEN" ] || { echo "::error::admin token failed (needed to resolve request ids)"; exit 1; }
+  [ -n "$TOKEN" ] || { echo "::error::admin OAuth token request failed (needed for admin-api auth / id resolution)"; exit 1; }
+fi
+
+if [ "$NEED_IDS" = 1 ]; then
   A=(-H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -H 'Accept: application/json')
   q() { curl -sS --max-time 30 -X POST "$BASE/api/search/$1" "${A[@]}" -d "$2"; }
   SCJ=$(q sales-channel '{"limit":1,"filter":[{"type":"equals","field":"active","value":true}]}')
@@ -91,14 +111,21 @@ for i in $(seq 0 $((NREQ - 1))); do
   P=$(resolve "$(echo "$R" | jq -r '.path // ""')")
   B=$(resolve "$(echo "$R" | jq -r '.body // ""')")
   CURL=(curl -sS --max-time 30 -o "$BODYF" -D "$HEAD" -w '%{http_code}' -X "$M" "$BASE$P")
-  [ -n "$ACCESS_KEY" ] && CURL+=(-H "sw-access-key: $ACCESS_KEY")
+  # Auth by surface: admin API → OAuth Bearer; store API → sw-access-key. The executor owns
+  # auth (it dropped any auth header the agent wrote), so each request is authenticated for
+  # the API it actually targets — an admin-api request no longer goes out with a store key.
+  DISP_H=""
+  if is_admin_path "$P"; then
+    [ -n "$TOKEN" ] && { CURL+=(-H "Authorization: Bearer $TOKEN"); DISP_H=" -H \"Authorization: Bearer [REDACTED_TOKEN]\""; }
+  else
+    [ -n "$ACCESS_KEY" ] && { CURL+=(-H "sw-access-key: $ACCESS_KEY"); DISP_H=" -H \"sw-access-key: [REDACTED_KEY]\""; }
+  fi
   [ -n "$CTX" ] && CURL+=(-H "sw-context-token: $CTX")
-  DISP_H=""; [ -n "$ACCESS_KEY" ] && DISP_H=" -H \"sw-access-key: [REDACTED_KEY]\""
-  # plan headers (resolved); drop any sw-access-key the agent added (the executor injects it).
+  # plan headers (resolved); drop any auth header the agent added (the executor injects the right one).
   has_ct=0
   while IFS= read -r h; do
     [ -n "$h" ] || continue
-    case "$h" in sw-access-key:*) continue;; esac
+    case "$(printf '%s' "$h" | tr 'A-Z' 'a-z')" in sw-access-key:*|authorization:*) continue;; esac
     case "$(printf '%s' "$h" | tr 'A-Z' 'a-z')" in content-type:*) has_ct=1;; esac
     h=$(resolve "$h"); CURL+=(-H "$h"); DISP_H+=" -H \"$h\""
   done < <(echo "$R" | jq -r '.headers // {} | to_entries[] | "\(.key): \(.value)"')
@@ -128,9 +155,15 @@ else
       REPORTER="$FIELD = '$ACTUAL_RAW' (expected '$EXPECT'); HTTP $CODE" ;;
     *) ACTUAL_RAW="$CODE"; REPORTER="HTTP $CODE (unknown assertion kind '$KIND')" ;;
   esac
+  # Guard: 401/403 means the gateway rejected auth BEFORE the business logic ran — the harness
+  # credentials were rejected, not the reported symptom. Never score that "reproduced" (unless
+  # the symptom genuinely IS an auth code) → inconclusive, surfaced to a human with the body.
+  if { [ "$CODE" = "401" ] || [ "$CODE" = "403" ]; } && [ "$EXPECT" != "401" ] && [ "$EXPECT" != "403" ]; then
+    STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"$CODE\""
+    REASON_TEXT="request returned HTTP $CODE (authentication/authorization rejected) before the symptom could be exercised — harness-credential failure, not the reported bug. body: $(head -c 500 "$BODYF" 2>/dev/null | tr -d '\r\n' | tr -s ' ')"
   # Guard: a missing field on a non-2xx response means the call was malformed/failed,
   # not that the symptom occurred → inconclusive, never a bogus "reproduced".
-  if [ "$KIND" = "response_field" ] && { [ "$ACTUAL_RAW" = "<unparseable>" ] || [ "$ACTUAL_RAW" = "null" ]; } && ! [[ "$CODE" =~ ^2 ]]; then
+  elif [ "$KIND" = "response_field" ] && { [ "$ACTUAL_RAW" = "<unparseable>" ] || [ "$ACTUAL_RAW" = "null" ]; } && ! [[ "$CODE" =~ ^2 ]]; then
     STATUS="inconclusive"; MATCHED="null"; ACTUAL="\"$ACTUAL_RAW\""
     REASON_TEXT="final request returned HTTP $CODE, asserted field absent (likely malformed) — body: $(head -c 1500 "$BODYF" 2>/dev/null | tr -d '\r\n' | tr -s ' ')"
   elif [ "$ACTUAL_RAW" = "$EXPECT" ]; then
@@ -140,7 +173,7 @@ else
   fi
 fi
 
-{ echo '#!/usr/bin/env bash'; echo '# Reproduction request(s) — set $APP_URL (executor injects sw-access-key / sw-context-token).'; printf '%s' "$SCRIPT"; } > repro.sh
+{ echo '#!/usr/bin/env bash'; echo '# Reproduction request(s) — set $APP_URL (executor injects auth: sw-access-key or admin Bearer, + sw-context-token).'; printf '%s' "$SCRIPT"; } > repro.sh
 
 jq -n \
   --argjson issue "$(jq -r '.issue' "$ANALYSIS")" \

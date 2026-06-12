@@ -11,8 +11,12 @@ generates `repro.sh` from the plan and runs it). Use:
 - `requests` — an array for a multi-step flow (e.g. create context → add to cart → read).
   The assertion runs on the **FINAL** response.
 
-The executor injects `sw-access-key` and captures/carries `sw-context-token` across the
-sequence — **do NOT** put those in the plan.
+The executor authenticates each request **by its path** — admin API (`/api/...`) gets an
+admin OAuth **Bearer** token, store API (`/store-api/...`) gets `sw-access-key` — and
+captures/carries `sw-context-token` across the sequence. **Do NOT** put any auth header
+(`sw-access-key`, `Authorization`) or `sw-context-token` in the plan: the executor injects
+the right credential for the surface and drops any you add. Just give the correct `path`
+(an admin-api bug → `/api/...`; a store-api bug → `/store-api/...`).
 
 ## Install-specific ids → placeholders
 Reference pre-existing install ids via the placeholders the executor resolves against the

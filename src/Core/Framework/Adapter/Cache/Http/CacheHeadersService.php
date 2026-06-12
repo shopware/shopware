@@ -153,7 +153,7 @@ class CacheHeadersService
     {
         return \in_array(
             StoreApiRouteScope::ID,
-            (array) $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, []),
+            $request->attributes->all(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE),
             true
         );
     }

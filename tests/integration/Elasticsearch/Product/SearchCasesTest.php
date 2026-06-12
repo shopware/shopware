@@ -197,6 +197,49 @@ class SearchCasesTest extends TestCase
         }
     }
 
+    public function testMinScoreCutoffDropsWeakFuzzyHit(): void
+    {
+        // Absolute BM25 scores differ between OpenSearch/Elasticsearch versions,
+        // so a hard-coded min_score threshold is not portable across engines.
+        // Instead we observe the live scores on the running engine and derive a
+        // cutoff between the exact and the weak fuzzy hit. min_score is applied
+        // at query time, so the second search needs no re-index.
+        $ids = new IdsCollection();
+        $products = [
+            self::product($ids, 'strong', 'DE-MINSCORE-1', 'Heckenschere Professional'),
+            self::product($ids, 'weak', 'DE-MINSCORE-2', 'Heckeschere Weak Variant'),
+        ];
+
+        $this->clearElasticsearch();
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+        static::getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
+
+        $this->setSearchConfiguration(true, ['name']);
+        $this->setSearchScores(['name' => 1000]);
+
+        $systemConfig = static::getContainer()->get(SystemConfigService::class);
+        $systemConfig->delete('core.search.minScore');
+
+        $this->indexElasticSearch();
+
+        // First pass: no cutoff — both hits present, exact outscores weak.
+        $scores = $this->scoresByKey($ids, 'Heckenschere');
+
+        static::assertArrayHasKey('strong', $scores, 'Exact hit missing without cutoff. Scores: ' . print_r($scores, true));
+        static::assertArrayHasKey('weak', $scores, 'Weak fuzzy hit should be present without a cutoff. Scores: ' . print_r($scores, true));
+        static::assertGreaterThan($scores['weak'], $scores['strong'], 'Exact hit must outscore the weak fuzzy hit.');
+
+        // Cutoff halfway between the two live scores — independent of the engine's absolute BM25 scale.
+        $cutoff = ($scores['strong'] + $scores['weak']) / 2;
+        $systemConfig->set('core.search.minScore', $cutoff);
+
+        // Second pass: query-time min_score now drops the weak hit, keeps the exact one.
+        $scores = $this->scoresByKey($ids, 'Heckenschere');
+
+        static::assertArrayHasKey('strong', $scores, \sprintf('Exact hit should survive cutoff %.4f but was dropped. Scores: %s', $cutoff, print_r($scores, true)));
+        static::assertArrayNotHasKey('weak', $scores, \sprintf('Weak fuzzy hit should be cut by minScore %.4f but survived. Scores: %s', $cutoff, print_r($scores, true)));
+    }
+
     public static function searchScenariosProvider(): \Generator
     {
         $ids = new IdsCollection();
@@ -462,24 +505,6 @@ class SearchCasesTest extends TestCase
         ];
 
         $ids = new IdsCollection();
-        yield 'minScore=200 drops weak fuzzy hit while keeping exact' => [
-            'ids' => $ids,
-            'products' => [
-                self::product($ids, 'g2-strong', 'DE-G2-1', 'Heckenschere Professional'),
-                self::product($ids, 'g2-weak', 'DE-G2-2', 'Heckeschere Weak Variant'),
-            ],
-            'searchFields' => ['name'],
-            'searchScores' => ['name' => 1000],
-            // Observed scores at this scale: exact ≈ 749, weak fuzzy ≈ 127.
-            // 200 comfortably separates the two without being a fragile
-            // threshold close to either score.
-            'minScore' => 200.0,
-            'term' => 'Heckenschere',
-            'expectedFirst' => 'g2-strong',
-            'mustNotContainKeys' => ['g2-weak'],
-        ];
-
-        $ids = new IdsCollection();
         yield 'repeated query token does not double-score the match (unique filter)' => [
             'ids' => $ids,
             'products' => [
@@ -718,6 +743,30 @@ class SearchCasesTest extends TestCase
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    /**
+     * @return array<string, float> live _score per IdsCollection key, for products matched by the term
+     */
+    private function scoresByKey(IdsCollection $ids, string $term): array
+    {
+        $criteria = new Criteria();
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setTerm($term);
+
+        $definition = static::getContainer()->get(ProductDefinition::class);
+        $result = $this->createEntitySearcher()->search($definition, $criteria, Context::createDefaultContext());
+
+        $scores = [];
+        foreach ($result->getData() as $item) {
+            $key = $ids->getKey((string) $item['id']);
+            if ($key === null) {
+                continue;
+            }
+            $scores[$key] = (float) $item['_score'];
+        }
+
+        return $scores;
     }
 
     /**

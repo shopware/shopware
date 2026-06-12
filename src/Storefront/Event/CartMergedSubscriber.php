@@ -38,7 +38,8 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($mainRequest->hasSession(true) === false) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Cart merge intentionally initializes the session to read flash messages.) */
+        if ($mainRequest->hasSession() === false) {
             return;
         }
 

@@ -19,6 +19,11 @@ function dynamicArgument(Request $request, bool $skipIfUninitialized): bool
     return $request->hasSession($skipIfUninitialized);
 }
 
+function nullableMissingArgument(?Request $request): ?bool
+{
+    return $request?->hasSession();
+}
+
 function explicitTrue(Request $request): bool
 {
     return $request->hasSession(true);

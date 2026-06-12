@@ -83,7 +83,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession(true)) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Storefront routing intentionally starts the storefront session when needed.) */
+        if (!$mainRequest->hasSession()) {
             return;
         }
 
@@ -153,7 +154,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession(true)) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Storefront routing intentionally migrates the storefront session.) */
+        if (!$mainRequest->hasSession()) {
             return;
         }
 

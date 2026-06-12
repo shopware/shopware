@@ -41,7 +41,8 @@ class AffiliateTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$request->hasSession(true)) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Affiliate tracking intentionally stores codes in the storefront session.) */
+        if (!$request->hasSession()) {
             return;
         }
 

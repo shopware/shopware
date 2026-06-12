@@ -49,7 +49,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         }
 
-        $session = $request->hasSession(true) ? $request->getSession() : null;
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Sales channel request context resolution intentionally reads session state.) */
+        $session = $request->hasSession() ? $request->getSession() : null;
 
         // Retrieve context for current request
         $usedContextToken = (string) $request->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);

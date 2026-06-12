@@ -9,6 +9,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Type\ObjectType;
+use PHPStan\Type\TypeCombinator;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('framework')]
 class NoUnsafeRequestHasSessionRule implements Rule
 {
-    private const MESSAGE = 'Call Request::hasSession(true) instead of Request::hasSession(). Request::hasSession() itself does not initialize the lazy session, but it returns true for a lazy session factory. A later Request::getSession() initializes the session and can take the PHP session lock. Passive/read-only code, generic listeners, tracking, logging, background/admin-worker paths should use hasSession(true). Deliberate session-owning code must initialize the session explicitly instead of using hasSession() as a guard.';
+    private const MESSAGE = 'Call Request::hasSession(true) instead of Request::hasSession(). Request::hasSession() itself does not initialize the lazy session, but it returns true for a lazy session factory. A later Request::getSession() initializes the session and can take the PHP session lock. Passive/read-only code, generic listeners, tracking, logging, background/admin-worker paths should use hasSession(true). Deliberate session-owning code may use Request::hasSession() only with a targeted @phpstan-ignore shopware.unsafeRequestHasSession comment that explains why initialization is intentional.';
 
     public function getNodeType(): string
     {
@@ -37,7 +38,7 @@ class NoUnsafeRequestHasSessionRule implements Rule
             return [];
         }
 
-        if (!(new ObjectType(Request::class))->isSuperTypeOf($scope->getType($node->var))->yes()) {
+        if (!(new ObjectType(Request::class))->isSuperTypeOf(TypeCombinator::removeNull($scope->getType($node->var)))->yes()) {
             return [];
         }
 

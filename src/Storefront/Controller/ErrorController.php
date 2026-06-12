@@ -34,7 +34,8 @@ class ErrorController extends StorefrontController
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
-        $session = $request->hasSession(true) ? $request->getSession() : null;
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Storefront error rendering intentionally initializes the session for flash messages.) */
+        $session = $request->hasSession() ? $request->getSession() : null;
 
         try {
             $is404StatusCode = $exception instanceof HttpException

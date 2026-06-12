@@ -52,7 +52,8 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession(true)) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Promotion code reset intentionally writes storefront session state.) */
+        if (!$mainRequest->hasSession()) {
             return;
         }
 

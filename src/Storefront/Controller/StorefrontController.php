@@ -224,7 +224,8 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
-        if ($request && $request->hasSession(true) && $request->getSession() instanceof FlashBagAwareSessionInterface) {
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Storefront flash handling intentionally initializes the session to inspect the flash bag.) */
+        if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
             $exists = $request->getSession()->getFlashBag()->peekAll();
         }
 

@@ -23,17 +23,18 @@ return $this->twig->renderWithTimezoneOverride(
 );
 ```
 
-For 6.7, `businessTimeZone` stays nullable. If it is `NULL`, Shopware keeps the existing render behaviour. Existing sales channels and templates are not changed.
+In 6.7, a `NULL` value keeps the existing render behaviour. Existing sales channels and templates are not changed.
 
-In the next major, this nullable compatibility behaviour will be removed. Every sales channel will have a business timezone, with missing values migrated to `UTC`. The Twig environment render method remains the mechanism for applying the timezone to one Twig render call.
+Starting with 6.8, the `NULL` case becomes deterministic: rendering through `renderWithTimezoneOverride` falls back to Twig's configured default timezone, captured before runtime overrides such as the Storefront browser-timezone listener mutate the environment. Documents then render in the same timezone regardless of whether they are generated from a Storefront request, the Administration, or the message queue.
 
 ## Alternatives considered
 
-We considered basing server-side rendering on the customer's timezone instead, for example by storing the browser timezone on the order or by adding a customer profile setting.
+We considered making the field required with a `UTC` default, backfilled by migration in the next major. We rejected this because `UTC` is exactly the behaviour reported as a bug, and the backfill would override installations that already configure a different Twig default timezone via `twig.date.timezone`.
 
-We chose an optional sales-channel business timezone because it is merchant-controlled, deterministic across render entry points, and can be introduced as an opt-in change in 6.7 without changing existing behaviour.
+We also considered basing server-side rendering on the customer's timezone instead, for example by storing the browser timezone on the order or by adding a customer profile setting. This remains possible as a separate, explicit feature later; it requires persisting the customer timezone and is not blocked by an optional business timezone.
 
 ## Consequences
 
 - Merchants can set one deterministic business timezone per sales channel for server-rendered output.
 - The change is opt-in for 6.7. Existing data, templates, and extension points are not required to change while no business timezone is set.
+- From 6.8, rendering without a business timezone no longer depends on the entry point: the browser-timezone cookie no longer affects document rendering, and `twig.date.timezone` configuration keeps working.

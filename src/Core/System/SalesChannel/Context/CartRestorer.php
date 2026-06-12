@@ -141,9 +141,40 @@ class CartRestorer
             ($originalToken === null) ? $customerId : null,
         );
 
+        // The current context may not contain the customer, e.g. when all customer tokens were revoked
+        // by a password change. A new context is created, so events like the CustomerLoginEvent
+        // are dispatched with a context that contains the customer and the matching rule ids.
+        if ($customerId !== null && $currentContext->getCustomerId() !== $customerId) {
+            $currentContext = $this->createCustomerContext($customerId, $currentContext);
+        }
+
         $this->updateRequestState($currentContext);
 
         return $currentContext;
+    }
+
+    private function createCustomerContext(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
+    {
+        $customerContext = $this->factory->create(
+            $currentContext->getToken(),
+            $currentContext->getSalesChannelId(),
+            [
+                SalesChannelContextService::CUSTOMER_ID => $customerId,
+                SalesChannelContextService::LANGUAGE_ID => $currentContext->getLanguageId(),
+                SalesChannelContextService::CURRENCY_ID => $currentContext->getCurrencyId(),
+                SalesChannelContextService::DOMAIN_ID => $currentContext->getDomainId(),
+            ]
+        );
+
+        $customerContext->addState(...$currentContext->getStates());
+
+        if ($currentContext->getImitatingUserId() !== null) {
+            $customerContext->setImitatingUserId($currentContext->getImitatingUserId());
+        }
+
+        $this->cartRuleLoader->loadByToken($customerContext, $customerContext->getToken());
+
+        return $customerContext;
     }
 
     private function deleteGuestContext(SalesChannelContext $guestContext, string $customerId): void

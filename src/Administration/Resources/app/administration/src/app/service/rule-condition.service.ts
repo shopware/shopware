@@ -82,6 +82,10 @@ type CustomFieldConditionConfig = {
 export default class RuleConditionService {
     $store: { [key: string]: Condition } = {};
 
+    $deprecations: {
+        [type: string]: { version: string; replacement?: string; label: string };
+    } = {};
+
     awarenessConfiguration: { [key: string]: AwarenessConfiguration } = {};
 
     operators = {
@@ -288,6 +292,72 @@ export default class RuleConditionService {
         (condition as Condition).type = type;
 
         this.$store[condition.scriptId ?? type] = condition as Condition;
+    }
+
+    registerDeprecation(type: string, deprecation: { version: string; replacement?: string; label: string }) {
+        this.$deprecations[type] = deprecation;
+    }
+
+    getDeprecationsInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+        version: string;
+        replacement: { type: string; label: string } | null;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const deprecation = this.$deprecations[type];
+
+            if (!deprecation) {
+                return [];
+            }
+
+            const replacementCondition = deprecation.replacement ? this.$store[deprecation.replacement] : null;
+
+            return [
+                {
+                    type,
+                    label: deprecation.label,
+                    version: deprecation.version,
+                    replacement: replacementCondition
+                        ? { type: replacementCondition.type, label: replacementCondition.label }
+                        : null,
+                },
+            ];
+        });
+    }
+
+    getFlowOnlyTypesInTree(conditions: Array<{ type: string; children?: unknown }>): Array<{
+        type: string;
+        label: string;
+    }> {
+        const uniqueTypes = [...new Set(this.collectTypes(conditions))];
+
+        return uniqueTypes.flatMap((type) => {
+            const scopes = this.$store[type]?.scopes;
+
+            if (!scopes?.length || !scopes.every((scope) => scope === 'flow')) {
+                return [];
+            }
+
+            const label = this.$store[type]?.label;
+
+            return label ? [{ type, label }] : [];
+        });
+    }
+
+    private collectTypes(conditions: Array<{ type: string; children?: unknown }>): string[] {
+        return conditions.flatMap((condition) => {
+            if (!condition.children) {
+                return [condition.type];
+            }
+
+            return [
+                condition.type,
+                ...this.collectTypes(condition.children as Array<{ type: string; children?: unknown }>),
+            ];
+        });
     }
 
     addScriptConditions(scripts: Script[]) {

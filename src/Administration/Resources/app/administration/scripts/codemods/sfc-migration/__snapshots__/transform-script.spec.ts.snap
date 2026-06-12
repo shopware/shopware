@@ -1,0 +1,451 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`scripts/codemods/sfc-migration/transform-script block-component: converts props, emits, data init from prop, computed, watch (prop+data), methods with $emit and $refs, and lifecycle matches the complete converted script snapshot 1`] = `
+"const props = defineProps({
+        initialCount: {
+            type: Number,
+            required: false,
+            default: 0,
+        },
+        readOnly: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    });
+const emit = defineEmits(['action', 'reset']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject, watch, onMounted } from 'vue';
+
+const cardWrapper = ref(null);
+
+const {
+    acl,
+    title,
+    description,
+    count,
+    canEdit,
+    label,
+    onAction,
+    onReset,
+} = createExtendableSetup(
+    {
+        name: 'sw-block-card',
+        props,
+    },
+    () => {
+        const acl = inject('acl');
+
+        const title = ref('Block Card');
+        const description = ref('A card with extensible blocks');
+        const count = ref(props.initialCount);
+
+        const canEdit = computed(() => {
+            return !props.readOnly && acl.can('product.editor');
+        });
+        const label = computed({
+            get: () => {
+                return title.value;
+            },
+            set: (val) => {
+                title.value = val;
+            },
+        });
+
+        const onAction = () => {
+            count.value += 1;
+            emit('action', count.value);
+        };
+        const onReset = () => {
+            count.value = props.initialCount;
+            title.value = 'Block Card';
+            cardWrapper.value.focus();
+            emit('reset');
+        };
+
+        watch(() => count.value, (newVal) => {
+            if (newVal > 10) {
+                title.value = 'Limit reached';
+            }
+        });
+        watch(() => props.readOnly, (newVal) => {
+            if (newVal) {
+                title.value = 'Read-only mode';
+            }
+        });
+
+        onMounted(() => {
+            count.value = props.initialCount;
+        });
+
+        return {
+            public: {
+                acl,
+                title,
+                description,
+                count,
+                canEdit,
+                label,
+                onAction,
+                onReset,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script composables-component: rewrites $router, $route, $slots, $nextTick, $t, $tc, and $el to their Composition API equivalents matches the complete converted script snapshot 1`] = `
+"const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, nextTick, useSlots, useAttrs, getCurrentInstance } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+const router = useRouter();
+const route = useRoute();
+const slots = useSlots();
+const attrs = useAttrs();
+const { t } = useI18n();
+
+const {
+    value,
+    currentRoute,
+    hasSlot,
+    label,
+    goBack,
+    update,
+    getTitle,
+    focusItem,
+    getAttrsClass,
+} = createExtendableSetup(
+    {
+        name: 'sw-composables',
+        props,
+    },
+    () => {
+        const value = ref('');
+
+        const currentRoute = computed(() => {
+            return route.name;
+        });
+        const hasSlot = computed(() => {
+            return !!slots.default;
+        });
+        const label = computed(() => {
+            return t('sw.composables.label', 2);
+        });
+
+        const goBack = () => {
+            router.back();
+        };
+        const update = async () => {
+            value.value = 'new';
+            await nextTick();
+        };
+        const getTitle = () => {
+            return t('sw.composables.title');
+        };
+        const focusItem = () => {
+            /* TODO: $el */ getCurrentInstance()?.proxy?.$el.querySelector('.item').focus();
+        };
+        const getAttrsClass = () => {
+            return attrs.class ?? '';
+        };
+
+        return {
+            public: {
+                value,
+                currentRoute,
+                hasSlot,
+                label,
+                goBack,
+                update,
+                getTitle,
+                focusItem,
+                getAttrsClass,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script created-component: created() runs as direct setup code; beforeUnmount/unmounted use correct hooks matches the complete converted script snapshot 1`] = `
+"const props = defineProps({
+        selector: {
+            type: String,
+            required: false,
+            default: 'body',
+        },
+    });
+const emit = defineEmits(['ready']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, inject, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+
+const {
+    shortcutService,
+    initialized,
+    reset,
+} = createExtendableSetup(
+    {
+        name: 'sw-created-demo',
+        props,
+    },
+    () => {
+        const shortcutService = inject('shortcutService');
+
+        const initialized = ref(false);
+
+        const reset = () => {
+            initialized.value = false;
+        };
+
+        shortcutService.stopEventListener();
+        emit('ready');
+
+        onMounted(() => {
+            initialized.value = true;
+        });
+        onBeforeUnmount(() => {
+            shortcutService.startEventListener();
+        });
+        onUnmounted(() => {
+            initialized.value = false;
+        });
+
+        return {
+            public: {
+                shortcutService,
+                initialized,
+                reset,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script debounce-component: property-assignment methods (debounce wrappers) are preserved and this-rewritten matches the complete converted script snapshot 1`] = `
+"const { debounce } = Shopware.Utils;
+
+const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref } from 'vue';
+
+const {
+    query,
+    onInput,
+    doSearch,
+    searchDebounce,
+} = createExtendableSetup(
+    {
+        name: 'sw-debounce',
+        props,
+    },
+    () => {
+        const query = ref('');
+
+        const onInput = (value) => {
+            query.value = value;
+            searchDebounce();
+        };
+        const doSearch = () => {
+            query.value = query.value.trim();
+        };
+        const searchDebounce = debounce(() => {
+            doSearch();
+        }, 300);
+
+        return {
+            public: {
+                query,
+                onInput,
+                doSearch,
+                searchDebounce,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script extend-component: Shopware.Component.extend() triggers the partially-migratable soft blocker matches the complete Options API backoff script snapshot 1`] = `
+"Shopware.Component.extend('sw-extended-button', 'sw-button', {
+    data() {
+        return {
+            extraLabel: 'Extended',
+        };
+    },
+
+    methods: {
+        getLabel() {
+            return this.extraLabel;
+        },
+    },
+});"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script inherit-attrs-component: emits defineOptions({ inheritAttrs: false }) and excludes inheritAttrs from the options object matches the complete converted script snapshot 1`] = `
+"defineOptions({ inheritAttrs: false });
+
+const props = defineProps({});
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref } from 'vue';
+
+const {
+    count,
+    increment,
+} = createExtendableSetup(
+    {
+        name: 'sw-inherit-attrs',
+        props,
+    },
+    () => {
+        const count = ref(0);
+
+        const increment = () => {
+            count.value += 1;
+        };
+
+        return {
+            public: {
+                count,
+                increment,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script mixin-component: detects mixins as a blocker and falls back to Options API matches the complete Options API backoff script snapshot 1`] = `
+"import listingMixin from 'src/app/mixin/listing.mixin';
+
+Shopware.Component.register('sw-mixin-list', {
+    mixins: [
+        Shopware.Mixin.getByName('notification'),
+        listingMixin,
+    ],
+
+    data() {
+        return {
+            items: [],
+            isLoading: false,
+        };
+    },
+
+    computed: {
+        total() {
+            return this.items.length;
+        },
+    },
+
+    methods: {
+        async loadItems() {
+            this.isLoading = true;
+            try {
+                this.items = await this.fetchItems();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        onNotify() {
+            this.createNotificationSuccess({ message: 'Done' });
+        },
+    },
+});"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script module-level-component: preserves module-level code (scss import, const declarations) matches the complete converted script snapshot 1`] = `
+"import './module-level-component.scss';
+const { cloneDeep } = Shopware.Utils.object;
+const COLORS = ['#FF0000', '#00FF00', '#0000FF'];
+
+const props = defineProps({
+        name: {
+            type: String,
+            required: true,
+        },
+        items: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+    });
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { computed } from 'vue';
+
+const {
+    clonedItems,
+    nameColor,
+} = createExtendableSetup(
+    {
+        name: 'sw-module-level',
+        props,
+    },
+    () => {
+        const clonedItems = computed(() => {
+            return cloneDeep(props.items);
+        });
+        const nameColor = computed(() => {
+            return COLORS[props.name.length % COLORS.length];
+        });
+
+        return {
+            public: {
+                clonedItems,
+                nameColor,
+            },
+        };
+    },
+);"
+`;
+
+exports[`scripts/codemods/sfc-migration/transform-script simple-component: fully converts inject, data, computed, and methods to Composition API matches the complete converted script snapshot 1`] = `
+"const props = defineProps({});
+const emit = defineEmits(['save']);
+
+import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
+import { ref, computed, inject } from 'vue';
+
+const {
+    repositoryFactory,
+    title,
+    isLoading,
+    description,
+    onSave,
+} = createExtendableSetup(
+    {
+        name: 'sw-simple-card',
+        props,
+    },
+    () => {
+        const repositoryFactory = inject('repositoryFactory');
+
+        const title = ref('Default Title');
+        const isLoading = ref(false);
+
+        const description = computed(() => {
+            return \`This is: \${title.value}\`;
+        });
+
+        const onSave = () => {
+            isLoading.value = true;
+            emit('save', title.value);
+        };
+
+        return {
+            public: {
+                repositoryFactory,
+                title,
+                isLoading,
+                description,
+                onSave,
+            },
+        };
+    },
+);"
+`;

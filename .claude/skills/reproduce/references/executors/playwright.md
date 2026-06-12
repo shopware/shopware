@@ -9,6 +9,15 @@ behaviour, is generated ONCE, and the SAME spec runs on BOTH the reported and tr
 versions — so it must tolerate cross-version UI drift. Use relative paths (`baseURL` is
 injected). Comment every step.
 
+**`admin-ui` specs START AUTHENTICATED — do NOT write login steps.** The harness logs in
+deterministically (proven locators) and injects the session via `storageState` before your
+spec runs. Begin directly at the target module, e.g.
+`await page.goto('/admin#/sw/cms/index')`, and wait for a concrete element of that page.
+Authoring a login preamble is the single most common source of broken runs (strict-mode
+locator fumbles) — it will be redundant at best and flaky at worst. (Storefront *customer*
+login, when an issue genuinely needs it, is still yours to author — follow the locator
+rules below.)
+
 ## Locators — version-stable, semantic ONLY
 - Use `getByRole(role, {name})` / `getByLabel` / `getByText` / `getByPlaceholder` with
   case-insensitive regex and accessible/visible names. `getByRole` and `getByLabel` both

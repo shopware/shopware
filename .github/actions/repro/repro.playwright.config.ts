@@ -24,6 +24,10 @@ export default defineConfig({
     ],
     use: {
         baseURL: process.env['APP_URL'],
+        // For admin-ui repros the executor pre-authenticates (bin/login-state.mjs) and
+        // passes the saved session here — generated specs start logged in and must not
+        // author their own login steps (the recurring source of locator fumbles).
+        storageState: process.env['PW_STORAGE'] || undefined,
         trace: 'on',
         video: 'on',
         screenshot: 'on',

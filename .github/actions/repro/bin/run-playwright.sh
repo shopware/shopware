@@ -27,6 +27,24 @@ REPORT=${PW_REPORT:-pw-report.json}
 CONFIG=.github/actions/repro/repro.playwright.config.ts
 if [ -z "${PW_REPORT:-}" ]; then
   [ -f "$SPEC" ] || { echo "::error::generated spec '$SPEC' not found"; exit 1; }
+  # admin-ui: the HARNESS logs in (proven locators, once) and hands the spec an
+  # authenticated session via storageState — generated specs must not author login steps
+  # (the recurring source of strict-mode locator fumbles). A login failure here is an env
+  # problem, not a reproduction result => blocked.
+  PW_STORAGE=""
+  if [ "$(jq -r '.layer // ""' "$ANALYSIS")" = "admin-ui" ]; then
+    if node "$(dirname "$CONFIG")/bin/login-state.mjs" "$APP_URL" admin-state.json; then
+      PW_STORAGE="admin-state.json"
+    else
+      jq -n --argjson issue "$(jq -r '.issue' "$ANALYSIS")" \
+        --arg target "$TARGET" --arg version "$VERSION" '{
+          schema_version:"1", issue:$issue, target:$target, version:$version, executor:"playwright",
+          status:"blocked", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
+          evidence:{script:"",script_lang:"ts",reporter_output:"harness admin login failed",http:[],artifacts:[],truncated:false},
+          blocked_reason:"the harness could not log in to the admin (env problem, not a reproduction result)" }' > "$OUT"
+      echo "status=blocked  (harness admin login failed)"; exit 0
+    fi
+  fi
   # Playwright's testDir is the config's directory, so the spec must live THERE to be
   # collected — a spec at the workspace root is silently ignored (0 tests => "no tests ran").
   # Place it next to the config (mirrors run-direct.sh dropping ReproTest.php under the shop).
@@ -34,7 +52,7 @@ if [ -z "${PW_REPORT:-}" ]; then
   # No --reporter on the CLI: that would OVERRIDE the config and suppress the html report.
   # Let the config's reporters run — json → $REPORT (pw-report.json), html → playwright-report/.
   set +e
-  APP_URL="$APP_URL" npx playwright test --config "$CONFIG" >pw-stdout.txt 2>pw-stderr.txt
+  APP_URL="$APP_URL" PW_STORAGE="$PW_STORAGE" npx playwright test --config "$CONFIG" >pw-stdout.txt 2>pw-stderr.txt
   set -e
 fi
 

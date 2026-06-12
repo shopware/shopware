@@ -101,16 +101,20 @@ class ServiceController
         name: 'api.service.uninstall',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
+        $integrationId = $this->extractIntegrationIdOrFail($context);
+        $service = $this->serviceStorage->findByNameAndIntegrationId($serviceName, $integrationId, $context);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($serviceName): void {
-            $this->serviceLifecycle->uninstall($serviceName, $context);
+        if (!$service) {
+            throw ServiceException::notFound('name', $serviceName);
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($service): void {
+            $this->serviceLifecycle->uninstall($service->name, $context);
         });
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

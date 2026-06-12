@@ -126,7 +126,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
             }
 
-            /** @phpstan-ignore shopware.unsafeRequestHasSession (Sales channel context creation intentionally keeps session impersonation state in sync.) */
+            /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; sales channel context creation intentionally keeps session impersonation state in sync.) */
             $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
 
             // Remove imitating user id from session, if there is no customer

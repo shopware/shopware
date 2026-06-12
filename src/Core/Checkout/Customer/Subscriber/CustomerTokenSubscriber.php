@@ -105,7 +105,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
             'token' => $newToken,
         ]);
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Customer token migration intentionally initializes the storefront session.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; customer token migration intentionally updates the storefront session.) */
         if (!$mainRequest->hasSession()) {
             return null;
         }

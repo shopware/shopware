@@ -34,7 +34,7 @@ class ErrorController extends StorefrontController
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Storefront error rendering intentionally initializes the session for flash messages.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; storefront error rendering intentionally reads flash messages.) */
         $session = $request->hasSession() ? $request->getSession() : null;
 
         try {

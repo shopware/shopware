@@ -189,6 +189,11 @@ jobs:
             Follow the runbook at `.claude/skills/reproduce/references/ANALYZE.md` —
             including its "Fix-verify mode" section (the repro must be SELF-CONTAINED and
             runnable on the base ref, which lacks this PR's changes).
+            HARD BUDGET (repeated here because it gates everything): your FIRST actions are
+            (1) read the runbook, (2) read ./issue.md + ./fixpr.diff, then (3) WRITE a
+            complete best-effort analysis.json (+ the executor's script file) IMMEDIATELY —
+            within your first ~6 tool calls, before ANY code exploration. Refine afterwards
+            only if turns remain. NEVER end the session without analysis.json on disk.
             Run parameters for THIS run:
             - inputs: the bug (the PR's linked issue, or the PR description) is prefetched
               to `./issue.md`; THIS PR's diff (fix AND its regression test) to `./fixpr.diff`.

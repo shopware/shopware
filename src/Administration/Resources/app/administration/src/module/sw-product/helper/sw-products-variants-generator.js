@@ -327,41 +327,43 @@ export default class VariantsGenerator extends EventEmitter {
              */
             const adoptedNewHashes = new Set();
             if (!isAddOnly) {
+                // Hash every new permutation ONCE up front. Recomputing this
+                // inside the loop below would cost O(existing x permutations)
+                // md5 calls and freeze the browser on large catalogs.
+                const newVariationHashes = newVariationsSorted.map((variation) => md5(JSON.stringify(variation)));
+
                 Object.keys(deleteQueue).forEach((existingHash) => {
                     const existingOptions = optionsByHash[existingHash];
                     if (!existingOptions || existingOptions.length === 0) {
                         return;
                     }
 
-                    const matchHash = newVariationsSorted
-                        .map((variation) => md5(JSON.stringify(variation)))
-                        .find((newHash, idx) => {
-                            if (adoptedNewHashes.has(newHash)) {
-                                return false;
-                            }
-                            if (hashed[newHash] !== undefined) {
-                                // This permutation already exists verbatim on
-                                // the server; not a "newly added" permutation
-                                // and thus not a candidate for adoption.
-                                return false;
-                            }
-                            const newOptions = newVariationsSorted[idx];
-                            if (newOptions.length <= existingOptions.length) {
-                                return false;
-                            }
-                            // Strict subset check: every existing option must
-                            // be present in the new permutation.
-                            return existingOptions.every((optionId) => newOptions.includes(optionId));
-                        });
+                    const matchIndex = newVariationHashes.findIndex((newHash, idx) => {
+                        if (adoptedNewHashes.has(newHash)) {
+                            return false;
+                        }
+                        if (hashed[newHash] !== undefined) {
+                            // This permutation already exists verbatim on
+                            // the server; not a "newly added" permutation
+                            // and thus not a candidate for adoption.
+                            return false;
+                        }
+                        const newOptions = newVariationsSorted[idx];
+                        if (newOptions.length <= existingOptions.length) {
+                            return false;
+                        }
+                        // Strict subset check: every existing option must
+                        // be present in the new permutation.
+                        return existingOptions.every((optionId) => newOptions.includes(optionId));
+                    });
 
-                    if (matchHash === undefined) {
+                    if (matchIndex === -1) {
                         return;
                     }
 
+                    const matchHash = newVariationHashes[matchIndex];
                     const existingVariantId = deleteQueue[existingHash];
-                    const matchedNewOptions = newVariationsSorted.find(
-                        (variation) => md5(JSON.stringify(variation)) === matchHash,
-                    );
+                    const matchedNewOptions = newVariationsSorted[matchIndex];
 
                     const addedOptionIds = matchedNewOptions.filter((optionId) => !existingOptions.includes(optionId));
 

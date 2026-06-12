@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # 4
 
       - name: Install ludtwig
         env:
@@ -120,7 +120,7 @@ jobs:
         run: npm run unit -- --silent
 
       - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -156,7 +156,7 @@ jobs:
           npm run unit:components:coverage -- --coverage.reporter=cobertura --coverage.reportsDirectory=build/artifacts/vitest
 
       - name: Upload coverage
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # 5
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # 5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -170,8 +170,8 @@ jobs:
       WHITELISTED_JS_PACKAGES: "abab@2.0.1;administration;taffydb@2.6.2"
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # 4
-      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # 4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # 4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # 4
         with:
           node-version: 22
       - name: Install npm

@@ -82,6 +82,18 @@ leg_section () { # <leg name>
   render_scripts comment
 } > "$OUT"
 
+# Deterministic secret redaction — the comment is public and parts of it (scenario, scripts,
+# reporter output) originate from agent output over untrusted input. SCHEMA already mandates
+# agent-side redaction; this is the belt that doesn't rely on the agent.
+# NB: no \b — BSD sed lacks it and silent non-redaction is worse than over-redaction.
+sed -E -i.bak \
+  -e 's/sk-ant-[A-Za-z0-9_-]{8,}/[REDACTED_KEY]/g' \
+  -e 's/(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/[REDACTED_TOKEN]/g' \
+  -e 's/github_pat_[A-Za-z0-9_]{20,}/[REDACTED_TOKEN]/g' \
+  -e 's/AKIA[0-9A-Z]{16}/[REDACTED_AWS_KEY]/g' \
+  -e 's/([Bb]earer[[:space:]]+)[A-Za-z0-9._~+\/-]{16,}=*/\1[REDACTED]/g' \
+  "$OUT" && rm -f "$OUT.bak"
+
 if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   { cat "$OUT"
     if [ "$maxlines" -gt 60 ]; then echo; echo "<details><summary>Full generated repro script</summary>"; echo; render_scripts full; echo; echo "</details>"; fi

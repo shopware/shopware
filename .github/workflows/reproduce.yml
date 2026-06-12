@@ -228,7 +228,7 @@ jobs:
           # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '35' }}
-            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(gh api:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
+            --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
 
       # DEMO only: canned plan, reached solely via dry_run=true.
       # DEMO: a canned plan per layer so the WHOLE pipeline (provision → executor → verdict

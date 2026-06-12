@@ -28,4 +28,26 @@ for n in $(grep -oE '#[0-9]{3,}' issue.md | tr -d '#' | sort -un); do
     echo "prefetched fix PR $UPSTREAM#$n"; break
   fi
 done
+# Screenshot attachments → issue-assets/ so the (multimodal) agent can Read them for UI
+# bugs. SECURITY: assets are untrusted user content — fetch UNAUTHENTICATED (never attach
+# a token to asset hosts), only from GitHub's own attachment hosts, capped in count+size,
+# and keep a file only when its MAGIC BYTES say it is an image (videos/HTML/zip are
+# dropped; the model cannot watch videos anyway).
+mkdir -p issue-assets
+i=0
+grep -oE 'https://(github\.com/user-attachments/assets/[A-Za-z0-9-]+|user-images\.githubusercontent\.com/[A-Za-z0-9./_-]+)' issue.md \
+  | sort -u | head -3 | while read -r url; do
+  i=$((i+1)); tmp="issue-assets/.dl-$i"
+  curl -fsSL --proto '=https' --max-time 20 --max-filesize 3145728 -o "$tmp" "$url" 2>/dev/null || { rm -f "$tmp"; continue; }
+  mime=$(file -b --mime-type "$tmp" 2>/dev/null || echo unknown)
+  case "$mime" in
+    image/png)  mv "$tmp" "issue-assets/img-$i.png" ;;
+    image/jpeg) mv "$tmp" "issue-assets/img-$i.jpg" ;;
+    image/gif)  mv "$tmp" "issue-assets/img-$i.gif" ;;
+    image/webp) mv "$tmp" "issue-assets/img-$i.webp" ;;
+    *) rm -f "$tmp" ;; # not an image (video/other) — drop
+  esac
+done
+rmdir issue-assets 2>/dev/null || true # remove if nothing image-like was kept
+[ -d issue-assets ] && echo "prefetched $(ls issue-assets | wc -l | tr -d ' ') screenshot(s) to issue-assets/"
 echo "prefetched issue.md ($(wc -c <issue.md) bytes)$([ -f fixpr.diff ] && echo ", fixpr.diff ($(wc -c <fixpr.diff) bytes)")"

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Exception\RetryableException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -271,7 +272,7 @@ class MySQLWebhookReceiver implements ReceiverInterface, KeepaliveReceiverInterf
      */
     private function recoverCrashedDeliveries(string $partitionKey): void
     {
-        $now = (float) $this->clock->now()->format('U.u');
+        $now = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
         $lastRun = $this->lastCrashRecoveryAt[$partitionKey] ?? 0.0;
 
         if ($now - $lastRun < self::CRASH_RECOVERY_COOLDOWN_SECONDS) {

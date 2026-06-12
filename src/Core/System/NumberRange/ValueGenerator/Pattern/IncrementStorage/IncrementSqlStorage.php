@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -20,8 +21,10 @@ class IncrementSqlStorage extends AbstractIncrementStorage
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function reserve(array $config): int
@@ -37,7 +40,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $start,
                 'id' => Uuid::fromHexToBytes($config['id']),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
 
@@ -95,7 +98,7 @@ class IncrementSqlStorage extends AbstractIncrementStorage
                 'value' => $value,
                 'id' => Uuid::fromHexToBytes($configurationId),
                 'stateId' => $stateId,
-                'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'createdAt' => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
     }

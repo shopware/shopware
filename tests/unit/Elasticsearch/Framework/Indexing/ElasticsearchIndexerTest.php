@@ -26,6 +26,7 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexIteratorEv
 use Shopware\Elasticsearch\Framework\Indexing\IndexCreator;
 use Shopware\Elasticsearch\Framework\Indexing\IndexerOffset;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -421,6 +422,7 @@ class ElasticsearchIndexerTest extends TestCase
             $logger,
             $eventDispatcher,
             1,
+            new NativeClock()
         );
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\Runtime\CachedEscaperRuntime;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
@@ -17,6 +18,8 @@ use Twig\TemplateWrapper;
 #[Package('framework')]
 class TwigEnvironment extends Environment
 {
+    private ?\DateTimeZone $configuredTimezone = null;
+
     /**
      * @param array<string, mixed> $options
      */
@@ -43,13 +46,35 @@ class TwigEnvironment extends Environment
     }
 
     /**
+     * Overrides the runtime timezone, keeping the originally configured one as fallback for renderWithTimezoneOverride().
+     */
+    public function overrideTimezone(\DateTimeZone|string $timezone): void
+    {
+        if (!$this->hasExtension(CoreExtension::class)) {
+            return;
+        }
+
+        $coreExtension = $this->getExtension(CoreExtension::class);
+        $this->configuredTimezone ??= $coreExtension->getTimezone();
+        $coreExtension->setTimezone($timezone);
+    }
+
+    /**
      * Renders a template within a temporary Twig timezone override.
      *
      * @param array<string, mixed> $context
      */
     public function renderWithTimezoneOverride(string|TemplateWrapper $name, array $context = [], \DateTimeZone|string|null $timezone = null): string
     {
-        if ($timezone === null || $timezone === '' || !$this->hasExtension(CoreExtension::class)) {
+        if ($timezone === '') {
+            $timezone = null;
+        }
+
+        if ($timezone === null && Feature::isActive('v6.8.0.0')) {
+            $timezone = $this->configuredTimezone;
+        }
+
+        if ($timezone === null || !$this->hasExtension(CoreExtension::class)) {
             return $this->render($name, $context);
         }
 

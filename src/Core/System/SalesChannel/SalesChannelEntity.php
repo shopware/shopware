@@ -209,9 +209,6 @@ class SalesChannelEntity extends Entity
 
     protected MeasurementUnits $measurementUnits;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be non-nullable.
-     */
     protected ?string $businessTimeZone = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
@@ -978,17 +975,11 @@ class SalesChannelEntity extends Entity
         $this->measurementUnits = $measurementUnits;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return string.
-     */
     public function getBusinessTimeZone(): ?string
     {
         return $this->businessTimeZone;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - Parameter $businessTimeZone will be string.
-     */
     public function setBusinessTimeZone(?string $businessTimeZone): void
     {
         $this->businessTimeZone = $businessTimeZone;

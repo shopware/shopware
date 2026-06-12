@@ -121,7 +121,6 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('mail_header_footer_id', 'mailHeaderFooterId', MailHeaderFooterDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of mail header and footer.'),
             (new FkField('hreflang_default_domain_id', 'hreflangDefaultDomainId', SalesChannelDomainDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of hreflangDefaultDomain.'),
             (new MeasurementUnitsField('measurement_units', 'measurementUnits'))->addFlags(new ApiAware(), new Since('6.7.1.0')),
-            /** @deprecated tag:v6.8.0 - Will be required and default to UTC. */
             (new TimeZoneField('business_time_zone', 'businessTimeZone'))->addFlags(new ApiAware(), new Since('6.7.12.0'))->setDescription('Business timezone used for sales-channel-specific rendering.'),
             (new TranslatedField('name'))->addFlags(new ApiAware()),
             (new StringField('short_name', 'shortName'))->addFlags(new ApiAware())->setDescription('A short name for sales channel.'),

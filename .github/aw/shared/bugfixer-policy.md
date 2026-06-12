@@ -107,6 +107,15 @@ created by this workflow. Do not recreate the PR, rename the branch, close the
 PR, remove labels, dismiss reviews, mark ready/draft, or mutate unrelated
 metadata.
 
+For unattended `workflow_dispatch` improvement runs, the workflow checks out
+the target pull request ref directly. If the checkout is detached, use the PR
+head ref name for a local branch, then make one focused commit and call
+`push_to_pull_request_branch`. Do not run `git fetch`, `git pull`,
+`git ls-remote`, or git plumbing commands such as `git mktree`,
+`git commit-tree`, `git read-tree`, or `git update-ref`. If the PR ref is not
+available locally, call `report_incomplete` instead of spending turns trying to
+reconstruct the branch.
+
 ## Change workflow
 
 1. Understand the issue or feedback and restate the concrete defect/follow-up

@@ -44,7 +44,7 @@ concurrency:
   cancel-in-progress: false
 
 checkout:
-  ref: trunk
+  ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'improve-pr' && github.event.inputs.pr_number && format('refs/pull/{0}/head', github.event.inputs.pr_number) || 'trunk' }}
   fetch-depth: 1
 
 engine:

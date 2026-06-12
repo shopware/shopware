@@ -33,6 +33,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -72,6 +73,7 @@ class AppManager
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AppRegistrationService $registrationService,
         private readonly AppSecretRotationService $appSecretRotationService,
+        private readonly ManifestFactory $manifestFactory,
         private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly EntityRepository $languageRepository,
         private readonly SystemConfigService $systemConfigService,
@@ -132,8 +134,14 @@ class AppManager
      * new credentials. No lifecycle events are emitted because the shop identity is unchanged — the
      * app server still knows this shop and only needs the updated connection details.
      */
-    public function refreshRegistration(AppEntity $app, Manifest $manifest, Context $context): void
+    public function refreshRegistration(AppEntity $app, Context $context): void
     {
+        $manifest = $this->manifestFactory->createFromApp($app);
+
+        if (!$manifest->getSetup()) {
+            return;
+        }
+
         $this->appSecretRotationService->rotateNow(
             $app->getId(),
             $context,
@@ -150,10 +158,20 @@ class AppManager
      * Events are only emitted after a successful handshake and follow the order of a regular
      * installation: app-installed for every app, then app-activated if the app is active.
      */
-    public function reregister(AppEntity $app, Manifest $manifest, Context $context): void
+    public function reregister(AppEntity $app, Context $context): void
     {
+        $manifest = $this->manifestFactory->createFromApp($app);
+
+        if (!$manifest->getSetup()) {
+            return;
+        }
+
         $wasActive = $app->isActive();
-        $this->refreshRegistration($app, $manifest, $context);
+        $this->appSecretRotationService->rotateNow(
+            $app->getId(),
+            $context,
+            AppSecretRotationService::TRIGGER_SHOP_MOVE
+        );
 
         $this->dispatchInstalled($app, $manifest, $context);
 

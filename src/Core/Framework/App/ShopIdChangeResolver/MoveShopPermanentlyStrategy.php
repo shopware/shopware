@@ -6,7 +6,6 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -32,7 +31,6 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ManifestFactory $manifestFactory,
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider
@@ -67,14 +65,8 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         $failedApps = [];
 
         foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
-            $manifest = $this->manifestFactory->createFromApp($app);
-
-            if (!$manifest->getSetup()) {
-                continue;
-            }
-
             try {
-                $this->appManager->refreshRegistration($app, $manifest, $context);
+                $this->appManager->refreshRegistration($app, $context);
             } catch (\Throwable $e) {
                 $failedApps[$app->getName()] = $e;
             }

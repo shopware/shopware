@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\ShopIdChangeResolver;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,7 +30,6 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
      * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
-        private readonly ManifestFactory $manifestFactory,
         private readonly EntityRepository $appRepository,
         private readonly AppManager $appManager,
         private readonly ShopIdProvider $shopIdProvider
@@ -58,14 +56,8 @@ class ReinstallAppsStrategy implements ShopIdChangeStrategy
         $failedApps = [];
 
         foreach ($this->appRepository->search(new Criteria(), $context)->getEntities() as $app) {
-            $manifest = $this->manifestFactory->createFromApp($app);
-
-            if (!$manifest->getSetup()) {
-                continue;
-            }
-
             try {
-                $this->appManager->reregister($app, $manifest, $context);
+                $this->appManager->reregister($app, $context);
             } catch (\Throwable $e) {
                 $failedApps[$app->getName()] = $e;
             }

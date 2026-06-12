@@ -8,8 +8,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\MoveShopPermanentlyStrategy;
 use Shopware\Core\Framework\Context;
@@ -17,9 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -66,12 +62,10 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->method('refreshRegistration')
             ->with(
                 $app,
-                static::callback(static fn (Manifest $manifest): bool => $manifest->getMetadata()->getName() === 'test'),
                 static::isInstanceOf(Context::class)
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            new ManifestFactory(new StaticSourceResolver(['test' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider
@@ -94,7 +88,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->method('refreshRegistration');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            new ManifestFactory(new StaticSourceResolver(['no-setup' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider
@@ -108,7 +101,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
     public function testItContinuesWithOtherAppsWhenOneReregisterFails(): void
     {
         $testAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
-        $withConfigAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/withConfig');
         $testApp = $this->createAppEntity('test', 'app-1');
         $withConfigApp = $this->createAppEntity('withConfig', 'app-2');
 
@@ -134,10 +126,6 @@ class MoveShopPermanentlyStrategyTest extends TestCase
         ]);
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            new ManifestFactory(new StaticSourceResolver([
-                'test' => new Filesystem($testAppDir),
-                'withConfig' => new Filesystem($withConfigAppDir),
-            ])),
             $appRepository,
             $appManager,
             $this->shopIdProvider

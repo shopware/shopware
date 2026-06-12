@@ -23,6 +23,7 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
+use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
@@ -56,6 +57,8 @@ class AppManagerTest extends TestCase
 
     private AppSecretRotationService $appSecretRotationService;
 
+    private ManifestFactory $manifestFactory;
+
     private ActiveAppsLoader $activeAppsLoader;
 
     private SystemConfigService $systemConfigService;
@@ -83,6 +86,7 @@ class AppManagerTest extends TestCase
         $this->permissionLifecycle = $this->createMock(PermissionLifecycleService::class);
         $this->registrationService = $this->createMock(AppRegistrationService::class);
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
         $this->activeAppsLoader = $this->createMock(ActiveAppsLoader::class);
         $this->systemConfigService = $this->createMock(SystemConfigService::class);
         $this->integrationRepository = new StaticEntityRepository([]);
@@ -199,6 +203,12 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
 
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
@@ -209,9 +219,29 @@ class AppManagerTest extends TestCase
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
 
-        $appManager->refreshRegistration($app, $manifest, $context);
+        $appManager->refreshRegistration($app, $context);
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testRefreshRegistrationSkipsAppsWithoutSetup(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn(ManifestFixture::empty());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->refreshRegistration($app, $context);
     }
 
     public function testReregisterReplaysInstallAndActivationForActiveApps(): void
@@ -219,6 +249,12 @@ class AppManagerTest extends TestCase
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
 
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
@@ -230,7 +266,7 @@ class AppManagerTest extends TestCase
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
 
-        $appManager->reregister($app, $manifest, $context);
+        $appManager->reregister($app, $context);
         $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
         static::assertCount(1, $installedEvents);
         static::assertSame($app, $installedEvents[0]->getApp());
@@ -246,6 +282,12 @@ class AppManagerTest extends TestCase
         $manifest = ManifestFixture::empty()->withSetup();
         $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
 
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn($manifest);
+
         $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
         $this->appSecretRotationService->expects($this->once())
             ->method('rotateNow')
@@ -256,11 +298,33 @@ class AppManagerTest extends TestCase
 
         $appManager = $this->createAppManager(AppFixture::createAppRepository($app));
 
-        $appManager->reregister($app, $manifest, $context);
+        $appManager->reregister($app, $context);
         $installedEvents = $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class);
         static::assertCount(1, $installedEvents);
         static::assertSame($app, $installedEvents[0]->getApp());
 
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
+    }
+
+    public function testReregisterSkipsAppsWithoutSetup(): void
+    {
+        $context = Context::createDefaultContext();
+        $app = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: true);
+
+        $this->manifestFactory = $this->createMock(ManifestFactory::class);
+        $this->manifestFactory->expects($this->once())
+            ->method('createFromApp')
+            ->with($app)
+            ->willReturn(ManifestFixture::empty());
+
+        $this->appSecretRotationService = $this->createMock(AppSecretRotationService::class);
+        $this->appSecretRotationService->expects($this->never())->method('rotateNow');
+
+        $this->scriptExecutor = $this->createMock(ScriptExecutor::class);
+        $this->scriptExecutor->expects($this->never())->method('execute');
+
+        $this->createAppManager(AppFixture::createAppRepository($app))->reregister($app, $context);
+        static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppInstalledEvent::class));
         static::assertCount(0, $this->eventDispatcher->getEventsOfClass(AppActivatedEvent::class));
     }
 
@@ -501,6 +565,7 @@ XML,
             $this->eventDispatcher,
             $this->registrationService,
             $this->appSecretRotationService,
+            $this->manifestFactory,
             $this->activeAppsLoader,
             AppFixture::createLanguageRepository(),
             $this->systemConfigService,

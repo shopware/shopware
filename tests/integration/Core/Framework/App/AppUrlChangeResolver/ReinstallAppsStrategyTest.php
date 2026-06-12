@@ -8,8 +8,6 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
@@ -17,9 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -66,12 +62,10 @@ class ReinstallAppsStrategyTest extends TestCase
             ->method('reregister')
             ->with(
                 $app,
-                static::callback(static fn (Manifest $manifest): bool => $manifest->getMetadata()->getName() === 'test'),
                 static::isInstanceOf(Context::class)
             );
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new ManifestFactory(new StaticSourceResolver(['test' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider
@@ -82,7 +76,7 @@ class ReinstallAppsStrategyTest extends TestCase
         static::assertNotSame($shopId, $this->shopIdProvider->getShopId()->id);
     }
 
-    public function testItIgnoresAppsWithoutSetup(): void
+    public function testItDelegatesAppsWithoutSetupToAppManager(): void
     {
         $appDir = __DIR__ . '/../Lifecycle/Registration/_fixtures/no-setup';
         $this->loadAppsFromDir($appDir);
@@ -90,11 +84,10 @@ class ReinstallAppsStrategyTest extends TestCase
         $shopId = $this->changeAppUrl(false);
 
         $appManager = $this->createMock(AppManager::class);
-        $appManager->expects($this->never())
+        $appManager->expects($this->once())
             ->method('reregister');
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new ManifestFactory(new StaticSourceResolver(['no-setup' => new Filesystem($appDir)])),
             static::getContainer()->get('app.repository'),
             $appManager,
             $this->shopIdProvider
@@ -107,8 +100,6 @@ class ReinstallAppsStrategyTest extends TestCase
 
     public function testItContinuesWithOtherAppsWhenOneReinstallFails(): void
     {
-        $testAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/test');
-        $withConfigAppDir = (string) realpath(__DIR__ . '/../Manifest/_fixtures/withConfig');
         $testApp = $this->createAppEntity('test', 'app-1');
         $withConfigApp = $this->createAppEntity('withConfig', 'app-2');
 
@@ -130,10 +121,6 @@ class ReinstallAppsStrategyTest extends TestCase
         ]);
 
         $reinstallAppsResolver = new ReinstallAppsStrategy(
-            new ManifestFactory(new StaticSourceResolver([
-                'test' => new Filesystem($testAppDir),
-                'withConfig' => new Filesystem($withConfigAppDir),
-            ])),
             $appRepository,
             $appManager,
             $this->shopIdProvider

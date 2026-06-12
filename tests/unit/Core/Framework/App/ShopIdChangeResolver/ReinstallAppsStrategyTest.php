@@ -8,14 +8,11 @@ use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AppManager;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\ManifestFactory;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\ShopIdChangeResolver\ReinstallAppsStrategy;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
-use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 
 /**
  * @internal
@@ -29,7 +26,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new ReinstallAppsStrategy(
-            $this->createMock(ManifestFactory::class),
             $appRepository,
             $this->createMock(AppManager::class),
             $this->createMock(ShopIdProvider::class)
@@ -39,7 +35,7 @@ class ReinstallAppsStrategyTest extends TestCase
         static::assertNotEmpty($strategy->getDescription());
     }
 
-    public function testDeletesShopIdAndReregistersEveryAppWithSetup(): void
+    public function testDeletesShopIdAndReregistersEveryApp(): void
     {
         $context = Context::createDefaultContext();
         $appOne = AppFixture::createAppEntity(name: 'app-one', id: 'app-one-id');
@@ -48,17 +44,12 @@ class ReinstallAppsStrategyTest extends TestCase
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('deleteShopId');
 
-        $manifest = ManifestFixture::empty()->withSetup();
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->method('createFromApp')->willReturn($manifest);
-
         $appManager = $this->createMock(AppManager::class);
         $calledApps = [];
         $appManager->expects($this->exactly(2))
             ->method('reregister')
-            ->willReturnCallback(static function (AppEntity $app, Manifest $passedManifest, Context $passedContext) use (&$calledApps, $manifest, $context): void {
+            ->willReturnCallback(static function (AppEntity $app, Context $passedContext) use (&$calledApps, $context): void {
                 $calledApps[] = $app->getName();
-                self::assertSame($manifest, $passedManifest);
                 self::assertSame($context, $passedContext);
             });
 
@@ -66,7 +57,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(
-            $manifestFactory,
             $appRepository,
             $appManager,
             $shopIdProvider
@@ -77,30 +67,6 @@ class ReinstallAppsStrategyTest extends TestCase
         static::assertSame(['app-one', 'app-two'], $calledApps);
     }
 
-    public function testSkipsAppsWithoutSetup(): void
-    {
-        $shopIdProvider = $this->createMock(ShopIdProvider::class);
-        $shopIdProvider->expects($this->once())->method('deleteShopId');
-
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty());
-
-        $appManager = $this->createMock(AppManager::class);
-        $appManager->expects($this->never())->method('reregister');
-
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([new AppCollection([AppFixture::createAppEntity(name: 'no-setup', id: 'no-setup-id')])]);
-
-        $strategy = new ReinstallAppsStrategy(
-            $manifestFactory,
-            $appRepository,
-            $appManager,
-            $shopIdProvider
-        );
-
-        $strategy->resolve(Context::createDefaultContext());
-    }
-
     public function testContinuesWithRemainingAppsAndReportsFailuresTogether(): void
     {
         $appOne = AppFixture::createAppEntity(name: 'app-one', id: 'app-one-id');
@@ -108,9 +74,6 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->expects($this->once())->method('deleteShopId');
-
-        $manifestFactory = $this->createMock(ManifestFactory::class);
-        $manifestFactory->method('createFromApp')->willReturn(ManifestFixture::empty()->withSetup());
 
         $appManager = $this->createMock(AppManager::class);
         $calls = 0;
@@ -126,7 +89,6 @@ class ReinstallAppsStrategyTest extends TestCase
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(
-            $manifestFactory,
             $appRepository,
             $appManager,
             $shopIdProvider

@@ -49,13 +49,10 @@ describe('src/module/sw-order/component/sw-order-promotion-tag-field', () => {
             groupId: 'set-group-id',
         });
 
-        expect(wrapper.vm.$t).toHaveBeenCalledWith(
-            'sw-order.createBase.textPromotionDescription.cart.percentage',
-            {
-                value: 10,
-                groupId: 'set-group-id',
-            },
-        );
+        expect(wrapper.vm.$t).toHaveBeenCalledWith('sw-order.createBase.textPromotionDescription.cart.percentage', {
+            value: 10,
+            groupId: 'set-group-id',
+        });
         expect(description).toBe('10% discount on shopping cart');
     });
 

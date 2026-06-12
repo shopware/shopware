@@ -179,14 +179,18 @@ jobs:
       - name: Cache npm packages
         uses: actions/cache@v5
         with:
-          path: src/Storefront/Resources/app/storefront/node_modules
+          # ~/.npm is npm's tarball cache; `npm ci` wipes node_modules but reuses this
+          # offline (see prefer-offline below), which keeps retries off the network.
+          path: |
+            src/Storefront/Resources/app/storefront/node_modules
+            ~/.npm
           key: ${{ runner.os }}-storefront-${{ hashFiles('src/Storefront/Resources/app/storefront/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-storefront-
       - name: install packages
-        working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
+        uses: ./.github/actions/npm-ci-retry
+        with:
+          working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
         working-directory: src/Storefront/Resources/app/storefront
         run: |

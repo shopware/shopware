@@ -100,7 +100,7 @@ safe-outputs:
     base-branch: trunk
     allowed-branches:
       - "bugfixer/issue-*"
-    labels: [qi:fix]
+    labels: [qi:fix, qi/candidate]
     preserve-branch-name: true
     fallback-as-issue: false
     auto-close-issue: true

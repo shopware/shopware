@@ -140,6 +140,44 @@ confidence, reproduction, or validation is incomplete. Do not create empty PRs.
 For improvement runs, commit only focused follow-up changes to the existing PR
 branch. Do not open a new PR for improvement feedback.
 
+## Changelog and release notes
+
+Do not add release documentation by default. Most Bugfixer changes are small
+behavioral corrections and should be documented by the PR title/body only.
+
+Before adding or editing `RELEASE_INFO-6.*.md`, `UPGRADE-6.*.md`, or legacy
+`changelog/` files, decide whether users, extension developers, app developers,
+theme developers, or operators must take action or should be explicitly told
+about the change.
+
+Add release documentation when the patch includes one of these externally
+relevant changes:
+
+- a new deprecation, breaking change, or changed extension point contract;
+- a public API, Store API, Admin API, Sync API, webhook, app system, theme, Twig
+  block, event, DAL entity/field, service decoration point, config schema, CLI
+  command, or plugin-facing behavior change;
+- a database migration, indexing/storage change, or operational behavior that
+  can affect upgrades, deployments, or integrations;
+- a user-visible behavior change that merchants or administrators should know
+  about beyond "the bug is fixed".
+
+Do not add release documentation for narrow bug fixes that only restore intended
+behavior, test-only changes, internal refactors, styling/layout fixes with no
+integration impact, typo fixes, or validation hardening that needs no user or
+developer action.
+
+When release documentation is needed, follow the current release-info process in
+`adr/2025-10-28-changelog-release-info-process.md`: use `RELEASE_INFO-6.*.md`
+for developer-facing or merchant-facing information and `UPGRADE-6.*.md` for
+breaking changes or required upgrade actions. Only touch legacy `changelog/`
+files when nearby project conventions or explicit maintainer feedback require
+that format.
+
+If a release documentation entry has author metadata, credit the automation, not
+the issue reporter or affected customer. Use `GitHub Action` as the author name
+and do not infer author details from the issue.
+
 ## Validation discipline
 
 Run targeted validation only. Examples:

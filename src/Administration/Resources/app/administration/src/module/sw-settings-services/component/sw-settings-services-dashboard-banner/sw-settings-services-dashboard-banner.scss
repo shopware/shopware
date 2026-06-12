@@ -1,4 +1,4 @@
-.mt-banner.sw-settings-services-dashboard-banner {
+.mt-banner.sw-settings-services-dashboard-banner__content {
     max-width: 60rem;
     margin: var(--scale-size-32) auto;
     background: var(--color-elevation-surface-raised);
@@ -13,7 +13,7 @@
         width: 100%;
     }
 
-    .sw-settings-services-dashboard-banner__content {
+    .sw-settings-services-dashboard-banner__text {
         display: flex;
         flex-direction: column;
         gap: var(--scale-size-6);

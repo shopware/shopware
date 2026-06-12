@@ -83,7 +83,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; storefront routing intentionally starts the storefront session when needed.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront routing starting the storefront session when needed.) */
         if (!$mainRequest->hasSession()) {
             return;
         }
@@ -154,7 +154,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; storefront routing intentionally migrates the storefront session.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to storefront routing migrating the storefront session.) */
         if (!$mainRequest->hasSession()) {
             return;
         }

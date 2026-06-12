@@ -41,7 +41,7 @@ class AffiliateTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; affiliate tracking intentionally stores codes in the storefront session.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to affiliate tracking storing codes in the storefront session.) */
         if (!$request->hasSession()) {
             return;
         }

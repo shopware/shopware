@@ -52,7 +52,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @phpstan-ignore shopware.unsafeRequestHasSession (Danger: this guard allows getSession() to initialize the lazy session and take the PHP session lock; promotion reset intentionally writes storefront session state.) */
+        /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to promotion reset writing storefront session state.) */
         if (!$mainRequest->hasSession()) {
             return;
         }

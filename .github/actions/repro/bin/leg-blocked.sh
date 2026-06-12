@@ -12,11 +12,17 @@ FAILED=${FAILED:-provision}
 ANALYSIS=${ANALYSIS:-analysis.json}
 OUT=${OUT:-result.json}
 
+# Carry the seed step's API validation detail when it exists — an invalid fixture payload
+# is a PLAN defect a human can act on, not an opaque "dead env".
+DETAIL=""
+[ "$FAILED" = "seed" ] && [ -f seed-error.txt ] && DETAIL=$(head -c 400 seed-error.txt | tr -d '\r')
+
 jq -n --argjson issue "$(jq -r .issue "$ANALYSIS")" --arg target "$TARGET" \
-  --arg version "$(jq -r .version "$ANALYSIS")" --arg executor "$(jq -r .executor "$ANALYSIS")" --arg failed "$FAILED" '{
+  --arg version "$(jq -r .version "$ANALYSIS")" --arg executor "$(jq -r .executor "$ANALYSIS")" \
+  --arg failed "$FAILED" --arg detail "$DETAIL" '{
     schema_version:"1", issue:$issue, target:$target, version:$version, executor:$executor,
     status:"blocked", assertion:{expect:null,actual:null,matched:null}, duration_s:0,
     evidence:{script:"", script_lang:"sh", reporter_output:($failed+" failed for this leg"),
       http:[], artifacts:[], truncated:false},
-    blocked_reason:($failed+" step failed (dead env)") }' > "$OUT"
+    blocked_reason:(($failed+" step failed (dead env)") + (if $detail == "" then "" else " — " + $detail end)) }' > "$OUT"
 cat "$OUT"

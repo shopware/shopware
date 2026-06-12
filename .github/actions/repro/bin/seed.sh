@@ -79,6 +79,11 @@ fi
 RESP=$(mktemp)
 CODE=$(curl -sS --max-time 60 -o "$RESP" -w '%{http_code}' -X POST "$BASE/api/_action/sync" "${AUTH[@]}" --data @"$OUT")
 if [ "$CODE" != "200" ] && [ "$CODE" != "204" ]; then
-  echo "::error::sync failed (HTTP $CODE)"; cat "$RESP"; exit 1
+  echo "::error::sync failed (HTTP $CODE)"; cat "$RESP"
+  # Persist the API's validation detail so leg-blocked.sh can surface it in the report —
+  # a buried 400 made repeated invalid-fixture rolls undiagnosable from the issue side.
+  { printf 'sync HTTP %s: ' "$CODE"; jq -r '[.errors[]?.detail] | join("; ")' "$RESP" 2>/dev/null || head -c 300 "$RESP"; } \
+    | head -c 400 > seed-error.txt
+  exit 1
 fi
 echo "seeded OK (sync HTTP $CODE; SC=$SC nav=$NAV tax=$TAX cur=$CUR)"

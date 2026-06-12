@@ -35,7 +35,9 @@ done
 # dropped; the model cannot watch videos anyway).
 mkdir -p issue-assets
 i=0
-grep -oE 'https://(github\.com/user-attachments/assets/[A-Za-z0-9-]+|user-images\.githubusercontent\.com/[A-Za-z0-9./_-]+)' issue.md \
+# NB: `|| true` — an issue with no image URLs makes grep exit 1, which pipefail would
+# otherwise turn into a prefetch crash (a real miss: every no-screenshot issue died here).
+{ grep -oE 'https://(github\.com/user-attachments/assets/[A-Za-z0-9-]+|user-images\.githubusercontent\.com/[A-Za-z0-9./_-]+)' issue.md || true; } \
   | sort -u | head -3 | while read -r url; do
   i=$((i+1)); tmp="issue-assets/.dl-$i"
   curl -fsSL --proto '=https' --max-time 20 --max-filesize 3145728 -o "$tmp" "$url" 2>/dev/null || { rm -f "$tmp"; continue; }

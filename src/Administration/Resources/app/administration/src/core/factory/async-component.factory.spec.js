@@ -10,6 +10,10 @@ import TemplateFactory from 'src/core/factory/template.factory';
 import * as twigBlockIndex from 'src/core/factory/twig-block-index';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import { _overridesMap } from 'src/app/adapter/composition-extension-system';
+import { isNativeShopwareComponentName, nativeShopwareComponentNames } from 'src/app/component/native-shopware-components';
+
+const nativeShopwareComponentName = 'sw-meteor-entity-data-table';
+const nativeComponentWarning = `The component "${nativeShopwareComponentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use Shopware.Component.overrideComponentSetup() and/or sw-block instead.`;
 
 function createComponentMatrix(components) {
     const possibilities = [
@@ -279,6 +283,63 @@ describe('core/factory/async-component.factory.ts', () => {
                     expect.anything(),
                 );
             });
+        });
+    });
+
+    describe('native Shopware component name guard', () => {
+        it('uses the shared native component registry', () => {
+            expect(nativeShopwareComponentNames.has(nativeShopwareComponentName)).toBe(true);
+            expect(isNativeShopwareComponentName(nativeShopwareComponentName)).toBe(true);
+        });
+
+        it('rejects register calls for native components without populating the component registry', async () => {
+            const spy = jest.spyOn(console, 'warn').mockImplementation();
+            const componentConfig = { template: '<div>Shadowed native component</div>' };
+
+            const component = Shopware.Component.register(nativeShopwareComponentName, componentConfig);
+
+            expect(component).toBe(false);
+            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
+            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
+
+            spy.mockRestore();
+        });
+
+        it('rejects extend calls from native components without populating the component registry', async () => {
+            const spy = jest.spyOn(console, 'warn').mockImplementation();
+            const componentConfig = { template: '<div>Extended native component</div>' };
+
+            const component = Shopware.Component.extend(
+                'sw-meteor-entity-data-table-extension',
+                nativeShopwareComponentName,
+                componentConfig,
+            );
+
+            expect(component).toBe(false);
+            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
+            expect(ComponentFactory.getComponentRegistry().has('sw-meteor-entity-data-table-extension')).toBe(false);
+            expect(ComponentFactory.getComponentRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(TemplateFactory.getTemplateRegistry().has('sw-meteor-entity-data-table-extension')).toBe(false);
+
+            spy.mockRestore();
+        });
+
+        it('rejects override calls for native components without populating override or block state', async () => {
+            const spy = jest.spyOn(console, 'warn').mockImplementation();
+            const componentConfig = {
+                template: '{% block sw_meteor_entity_data_table_test %}<div>Override</div>{% endblock %}',
+            };
+
+            const component = Shopware.Component.override(nativeShopwareComponentName, componentConfig);
+
+            expect(component).toBe(false);
+            expect(spy).toHaveBeenCalledWith('[ComponentFactory]', nativeComponentWarning, componentConfig);
+            expect(ComponentFactory.getOverrideRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(TemplateFactory.getTemplateRegistry().has(nativeShopwareComponentName)).toBe(false);
+            expect(twigBlockIndex.getBlockEntries('sw_meteor_entity_data_table_test')).toEqual([]);
+
+            spy.mockRestore();
         });
     });
 

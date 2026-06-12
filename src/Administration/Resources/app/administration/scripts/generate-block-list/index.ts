@@ -7,9 +7,9 @@ const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    const listOfTwigFiles = globSync(`${sourcePath}/**/*.html.twig`);
+    const listOfTemplateFiles = globSync(`${sourcePath}/**/*.{html.twig,vue}`);
 
-    const blocks = extractBlocks(listOfTwigFiles);
+    const blocks = extractBlocks(listOfTemplateFiles);
     updateBlocksList(blocks);
 }
 

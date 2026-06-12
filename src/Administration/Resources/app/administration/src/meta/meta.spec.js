@@ -50,7 +50,7 @@ const isTestAbleFile = (file) => {
 };
 const testAbleFiles = allFiles.filter(isTestAbleFile);
 const templateFiles = allFiles.filter((file) => {
-    return file.endsWith('.html.twig');
+    return file.endsWith('.html.twig') || file.endsWith('.vue');
 });
 
 // eslint-disable-next-line no-undef

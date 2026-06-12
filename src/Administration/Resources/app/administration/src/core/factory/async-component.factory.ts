@@ -7,6 +7,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import { isNativeShopwareComponentName } from 'src/app/component/native-shopware-components';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -95,6 +96,16 @@ const componentHelper: ComponentHelper = {} as ComponentHelper;
  * @private
  */
 const syncComponents = new Set<string>();
+
+function rejectNativeShopwareComponentName(componentName: string, componentConfiguration: unknown): false {
+    warn(
+        'ComponentFactory',
+        `The component "${componentName}" is a native Shopware component and cannot be registered, extended, or overridden through Shopware.Component. Use Shopware.Component.overrideComponentSetup() and/or sw-block instead.`,
+        componentConfiguration,
+    );
+
+    return false;
+}
 
 /**
  * Check if the component should be a synchronous component
@@ -480,6 +491,10 @@ function register(componentName: string, componentConfiguration: unknown): unkno
         return false;
     }
 
+    if (isNativeShopwareComponentName(componentName)) {
+        return rejectNativeShopwareComponentName(componentName, componentConfiguration);
+    }
+
     if (componentRegistry.has(componentName)) {
         warn(
             'ComponentFactory',
@@ -549,7 +564,14 @@ function extend(
     componentName: string,
     extendComponentName: string,
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>) = { name: '' },
-): () => Promise<ComponentConfig> {
+): false | (() => Promise<ComponentConfig>) {
+    if (isNativeShopwareComponentName(componentName) || isNativeShopwareComponentName(extendComponentName)) {
+        return rejectNativeShopwareComponentName(
+            isNativeShopwareComponentName(componentName) ? componentName : extendComponentName,
+            componentConfiguration,
+        );
+    }
+
     let config: ComponentConfig;
 
     const configurationResolveMethod = async (): Promise<ComponentConfig> => {
@@ -609,7 +631,11 @@ function override(
     componentName: string,
     componentConfiguration: ComponentConfig | (() => Promise<ComponentConfig>),
     overrideIndex: number | null = null,
-): () => Promise<ComponentConfig> {
+): false | (() => Promise<ComponentConfig>) {
+    if (isNativeShopwareComponentName(componentName)) {
+        return rejectNativeShopwareComponentName(componentName, componentConfiguration);
+    }
+
     let config: ComponentConfig;
 
     /**

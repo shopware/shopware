@@ -52,6 +52,7 @@ import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackba
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 
+import { nativeShopwareComponents } from 'src/app/component/native-shopware-components';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
@@ -419,6 +420,15 @@ export default class VueAdapter extends ViewAdapter {
             ]) => {
                 const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
                 this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+            },
+        );
+
+        Object.entries(nativeShopwareComponents).forEach(
+            ([
+                componentName,
+                importMethod,
+            ]) => {
+                this.registerAsyncComponent(componentName, importMethod);
             },
         );
 

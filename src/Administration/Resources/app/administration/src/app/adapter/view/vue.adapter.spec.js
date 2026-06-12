@@ -6,6 +6,7 @@
 
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
+import { nativeShopwareComponents } from 'src/app/component/native-shopware-components';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import Bottle from 'bottlejs';
 import ApplicationBootstrapper from 'src/core/application';
@@ -899,6 +900,20 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             meteorComponents.forEach((componentName) => {
                 expect(rootComponent._context.components[componentName]).toBeDefined();
             });
+        });
+
+        it('should register native Shopware SFC components as lazy Vue components', async () => {
+            Object.keys(nativeShopwareComponents).forEach((componentName) => {
+                const nativeComponent = rootComponent._context.components[componentName];
+
+                expect(nativeComponent).toBeDefined();
+                expect(nativeComponent.__asyncLoader).toEqual(expect.any(Function));
+                expect(Shopware.Component.getComponentRegistry().has(componentName)).toBe(false);
+            });
+
+            const nativeComponent = rootComponent._context.components['sw-meteor-entity-data-table'];
+
+            await expect(nativeComponent.__asyncLoader()).resolves.toHaveProperty('name', 'SwMeteorEntityDataTable');
         });
 
         it('should add the router to the rootComponent', () => {

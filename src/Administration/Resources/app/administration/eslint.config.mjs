@@ -74,7 +74,7 @@ const baseRules = {
     'sw-core-rules/no-tc-translation': 'error',
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
-    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'filename-rules/match': [2, /^.*(?:\.js|\.ts|\.vue|\.html|\.html\.twig)$/],
     'vue/multi-word-component-names': ['error', {
         ignores: ['index.html'],
     }],
@@ -248,6 +248,27 @@ export default [
             'sw-deprecation-rules/no-compat-conditions': ['error'],
             'sw-deprecation-rules/no-empty-listeners': ['error', 'enableFix'],
             'sw-deprecation-rules/no-vue-options-api': 'off',
+        },
+    },
+
+    // Vue SFC files can contain TypeScript script blocks.
+    {
+        files: ['**/*.vue'],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        languageOptions: {
+            parser: vueParser,
+            parserOptions: {
+                parser: tseslint.parser,
+                sourceType: 'module',
+            },
+        },
+        rules: {
+            // Core JS rules do not understand TypeScript-only names in SFC script blocks.
+            'no-undef': 'off',
+            'no-unused-vars': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'all', caughtErrorsIgnorePattern: '^_' }],
         },
     },
 

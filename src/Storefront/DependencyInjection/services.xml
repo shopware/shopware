@@ -98,6 +98,11 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber">
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
             <tag name="shopware.route_scope"/>
         </service>

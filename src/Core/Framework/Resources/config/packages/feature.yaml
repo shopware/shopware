@@ -41,6 +41,11 @@ shopware:
         major: true
         toggleable: true
         description: "Experimental! Contains Performance Tweaks for future changes"
+      - name: TWIG_COMPILE_TIME_OPTIMIZATION
+        default: false
+        major: false
+        toggleable: true
+        description: "Experimental! Optimize static Twig feature flag calls at compile time"
       - name: ENABLE_OPENSEARCH_FOR_ADMIN_API
         default: false
         major: false

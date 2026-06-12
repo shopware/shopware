@@ -6,14 +6,53 @@ import { mount } from '@vue/test-utils';
 import type { VueWrapper } from '@vue/test-utils';
 import { h, nextTick, ref } from 'vue';
 import { overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
+import type Repository from 'src/core/data/repository.data';
 import SwMeteorEntityDataTable from './sw-meteor-entity-data-table.vue';
 
 const componentName = 'sw-meteor-entity-data-table';
 
-type SwMeteorEntityDataTableProps = InstanceType<typeof SwMeteorEntityDataTable>['$props'];
 type SlotRenderers = Record<string, string | ((slotProps: { source: string }) => ReturnType<typeof h>)>;
 
-const columns: NonNullable<SwMeteorEntityDataTableProps['columns']> = [
+type TestRepository = Repository<keyof EntitySchema.Entities>;
+
+type TestColumn = {
+    label: string;
+    property: string;
+    renderer: 'text' | 'number' | 'price' | 'badge';
+    position: number;
+};
+
+type TestRecord = {
+    id: string;
+    name: string;
+};
+
+type TestAdditionalContextButton = {
+    key: string;
+    label: string;
+    type: 'default' | 'active' | 'critical';
+};
+
+type SwMeteorEntityDataTableTestProps = {
+    repository: TestRepository;
+    columns: TestColumn[];
+    records?: TestRecord[] | null;
+    total?: number | null;
+    initialPage?: number;
+    initialLimit?: number;
+    isLoading?: boolean;
+    allowRowSelection?: boolean;
+    disableSearch?: boolean;
+    showSettings?: boolean;
+    enableReload?: boolean;
+    allowEdit?: boolean;
+    allowDelete?: boolean;
+    allowBulkDelete?: boolean;
+    allowBulkEdit?: boolean;
+    additionalContextButtons?: TestAdditionalContextButton[];
+};
+
+const columns: TestColumn[] = [
     {
         label: 'Name',
         property: 'name',
@@ -22,7 +61,7 @@ const columns: NonNullable<SwMeteorEntityDataTableProps['columns']> = [
     },
 ];
 
-const records = [
+const records: TestRecord[] = [
     {
         id: 'record-1',
         name: 'First record',
@@ -33,7 +72,7 @@ const records = [
     },
 ];
 
-const additionalContextButtons: NonNullable<SwMeteorEntityDataTableProps['additionalContextButtons']> = [
+const additionalContextButtons: TestAdditionalContextButton[] = [
     {
         key: 'duplicate',
         label: 'Duplicate',
@@ -41,10 +80,10 @@ const additionalContextButtons: NonNullable<SwMeteorEntityDataTableProps['additi
     },
 ];
 
-function createRepositoryMock(): NonNullable<SwMeteorEntityDataTableProps['repository']> {
+function createRepositoryMock(): TestRepository {
     return {
         search: jest.fn(),
-    } as unknown as NonNullable<SwMeteorEntityDataTableProps['repository']>;
+    } as unknown as TestRepository;
 }
 
 const MtDataTableStub = {
@@ -99,14 +138,14 @@ const SwBlockStub = {
     `,
 };
 
-function defaultRequiredProps() {
+function defaultRequiredProps(): Pick<SwMeteorEntityDataTableTestProps, 'repository' | 'columns'> {
     return {
         repository: createRepositoryMock(),
         columns,
     };
 }
 
-function defaultProps() {
+function defaultProps(): Pick<SwMeteorEntityDataTableTestProps, 'repository' | 'columns' | 'records' | 'total'> {
     return {
         ...defaultRequiredProps(),
         records,
@@ -116,7 +155,7 @@ function defaultProps() {
 
 function createWrapper(
     options: {
-        props?: Partial<SwMeteorEntityDataTableProps>;
+        props?: Partial<SwMeteorEntityDataTableTestProps>;
         slots?: SlotRenderers;
     } = {},
 ) {
@@ -137,7 +176,7 @@ function createWrapper(
 
 function createWrapperWithoutControlledData(
     options: {
-        props?: Partial<SwMeteorEntityDataTableProps>;
+        props?: Partial<SwMeteorEntityDataTableTestProps>;
         slots?: SlotRenderers;
     } = {},
 ) {

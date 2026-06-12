@@ -178,6 +178,20 @@ TWIG;
         });
     }
 
+    public function testOverrideTimezoneWithoutCoreExtensionDoesNothing(): void
+    {
+        $twig = $this->getMockBuilder(TwigEnvironment::class)
+            ->setConstructorArgs([new ArrayLoader()])
+            ->onlyMethods(['hasExtension'])
+            ->getMock();
+        $twig->method('hasExtension')->willReturn(false);
+        $this->getCoreExtension($twig)->setTimezone('UTC');
+
+        $twig->overrideTimezone('Europe/Berlin');
+
+        static::assertSame('UTC', $this->getCoreExtension($twig)->getTimezone()->getName());
+    }
+
     private function createTimezoneTestTwig(): TwigEnvironment
     {
         $twig = new TwigEnvironment(new ArrayLoader([

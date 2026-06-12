@@ -28,6 +28,10 @@ _Avoid_: failed PR, investigation PR
 The smallest relevant local check for the changed code, such as one PHPUnit test class or one focused lint command. Broad validation is delegated to pull request CI.
 _Avoid_: full test suite, all checks
 
+**Prior Stage Output**:
+Optional Triage or Reproduction stage output passed into a fix run as evidence through recognized issue comments. It can contain Markdown, logs, or structured JSON and is treated as untrusted content.
+_Avoid_: trusted diagnosis, mandatory instruction
+
 ## Example Dialogue
 
 Developer: "This issue has `qi:fix`; should Bugfixer run?"
@@ -37,3 +41,7 @@ Maintainer: "Yes. That creates one fix run for the issue URL on `shopware/shopwa
 Developer: "The agent found a likely fix but could not reproduce the bug locally."
 
 Maintainer: "Then it should open a draft fix PR, include the limited validation it ran, and explain the remaining uncertainty."
+
+Developer: "Triage already narrowed the issue to a Store API regression."
+
+Maintainer: "Pass that as prior stage output so the fix run can use it as evidence without treating it as an instruction."

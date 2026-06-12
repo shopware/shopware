@@ -5,6 +5,7 @@ import { configureProvider, createAgent, type FlueContext, type FlueHarness } fr
 import { local } from "@flue/runtime/node";
 import * as v from "valibot";
 import improvePr from "../skills/improve-pr/SKILL.md" with { type: "skill" };
+import sharedRules from "../skills/shared-rules.md" with { type: "markdown" };
 
 const DEFAULT_REPOSITORY = "shopware/shopware";
 const DEFAULT_MODEL = "openai-codex/gpt-5.5";
@@ -79,7 +80,8 @@ const bugfixer = createAgent(() => {
             "Prefer focused follow-up commits and targeted validation. Broad CI validation is handled by pull request checks.",
             "Use non-interactive commands only. Do not watch PR checks, open pagers, or run commands that wait for terminal input.",
             "Do not create a new PR, remove labels, close issues, or print secrets.",
-        ].join("\n"),
+            String(sharedRules).trim(),
+        ].join("\n\n"),
         model: process.env.FLUE_MODEL ?? DEFAULT_MODEL,
         sandbox: local({ env: shellEnv }),
         skills: [improvePr],

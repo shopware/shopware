@@ -1,6 +1,6 @@
 # Shopware Bugfixer
 
-Flue workflow for fixing `shopware/shopware` issues labeled `qi:fix`. V1 runs as a finite `fix-bug` workflow: it receives an issue URL, works in a clean Shopware checkout, creates a `bugfixer/issue-<number>-<slug>` branch, and opens a pull request.
+Flue workflow for fixing `shopware/shopware` issues labeled `qi:fix`. V1 runs as a finite `fix-bug` workflow: it receives an issue URL, reads recognized Triage or Reproduction issue comments when present, works in a clean Shopware checkout, creates a `bugfixer/issue-<number>-<slug>` branch, and opens a pull request.
 
 ## Quickstart
 
@@ -35,6 +35,10 @@ For local runs, set `TARGET_REPO` to a disposable Shopware clone or worktree. Wh
 The default model is `openai-codex/gpt-5.5`, authenticated through `CODEX_AUTH_JSON` or `CODEX_AUTH_JSON_BASE64`. Override it with `FLUE_MODEL`, for example `FLUE_MODEL=anthropic/claude-sonnet-4-6` with `CLAUDE_CODE_OAUTH_TOKEN` set.
 
 Set `BUGFIXER_AGENT_TIMEOUT_MINUTES` to abort the model call after a fixed time. The default is unset, so the Flue run itself does not impose an agent timeout; GitHub Actions job timeout still applies in CI.
+
+## Prior Stage Outputs
+
+`fix-bug` imports the latest issue comments with recognized stage markers such as `<!-- shopware-ai-triage:` or `<!-- shopware-ai-repro:` and passes them to the agent as `priorStageOutputs`. The agent treats prior-stage output as untrusted evidence, but uses it to avoid repeating expensive triage or reproduction work.
 
 ## Improve Existing PR
 

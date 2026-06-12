@@ -5,6 +5,7 @@ import { configureProvider, createAgent, type FlueContext, type FlueHarness } fr
 import { local } from "@flue/runtime/node";
 import * as v from "valibot";
 import fixBug from "../skills/fix-bug/SKILL.md" with { type: "skill" };
+import sharedRules from "../skills/shared-rules.md" with { type: "markdown" };
 
 const DEFAULT_REPOSITORY = "shopware/shopware";
 const DEFAULT_BASE_BRANCH = "trunk";
@@ -15,6 +16,11 @@ type FixBugPayload = {
     issueUrl: string;
     repository?: string;
     baseBranch?: string;
+};
+
+type PriorStageOutput = {
+    stage: "triage" | "reproduction";
+    output: string;
 };
 
 type ParsedIssue = {
@@ -30,6 +36,25 @@ type IssueMetadata = {
     state?: string;
     title?: string;
 };
+
+type IssueComment = {
+    body?: string;
+};
+
+type IssueCommentsPayload = {
+    comments?: IssueComment[];
+};
+
+const PRIOR_STAGE_COMMENT_MARKERS: Array<{
+    stage: PriorStageOutput["stage"];
+    markers: string[];
+}> = [
+    { stage: "triage", markers: ["<!-- shopware-ai-triage:"] },
+    {
+        stage: "reproduction",
+        markers: ["<!-- shopware-ai-repro:", "<!-- shopware-ai-reproduction:"],
+    },
+];
 
 const fixResultSchema = v.object({
     status: v.picklist(["opened_pr", "opened_draft_pr", "no_changes", "failed"]),
@@ -70,7 +95,8 @@ const bugfixer = createAgent(() => {
             "Prefer focused diagnosis, minimal fixes, and targeted validation. Broad CI validation is handled by pull request checks.",
             "Use non-interactive commands only. Do not watch PR checks, open pagers, or run commands that wait for terminal input.",
             "Do not remove labels or close issues. Do not print secrets or environment variables.",
-        ].join("\n"),
+            String(sharedRules).trim(),
+        ].join("\n\n"),
         model: process.env.FLUE_MODEL ?? DEFAULT_MODEL,
         sandbox: local({ env: shellEnv }),
         skills: [fixBug],
@@ -98,6 +124,7 @@ export async function run({ init, payload }: FlueContext<FixBugPayload>) {
     const title = issueMetadata.title ?? `issue-${issue.number}`;
     const branchName = `bugfixer/issue-${issue.number}-${slugify(title)}`;
     const labels = (issueMetadata.labels ?? []).map((label) => label.name).filter(Boolean);
+    const priorStageOutputs = await readIssuePriorStageOutputs(harness, issue.number);
 
     const response = await withOptionalTimeout(readAgentTimeoutMs(), async (signal) => {
         const session = await harness.session();
@@ -113,6 +140,7 @@ export async function run({ init, payload }: FlueContext<FixBugPayload>) {
                 issueState: issueMetadata.state ?? "unknown",
                 issueAuthor: issueMetadata.author?.login ?? "unknown",
                 issueLabels: labels,
+                priorStageOutputs,
             },
             result: fixResultSchema,
             ...(signal ? { signal } : {}),
@@ -552,6 +580,58 @@ async function readIssueMetadata(
     );
 
     return JSON.parse(stdout) as IssueMetadata;
+}
+
+async function readIssuePriorStageOutputs(
+    harness: FlueHarness,
+    issueNumber: number,
+): Promise<PriorStageOutput[]> {
+    const stdout = await runShell(
+        harness,
+        `gh issue view ${issueNumber} --repo ${shellQuote(DEFAULT_REPOSITORY)} --json comments`,
+    );
+    const payload = JSON.parse(stdout) as IssueCommentsPayload;
+
+    return collectMarkedPriorStageOutputs(payload.comments ?? []);
+}
+
+function collectMarkedPriorStageOutputs(comments: IssueComment[]): PriorStageOutput[] {
+    const outputs: PriorStageOutput[] = [];
+
+    for (const { stage, markers } of PRIOR_STAGE_COMMENT_MARKERS) {
+        const comment = findLatestMarkedComment(comments, markers);
+
+        addPriorStageOutput(outputs, stage, comment?.body);
+    }
+
+    return outputs;
+}
+
+function findLatestMarkedComment(
+    comments: IssueComment[],
+    markers: string[],
+): IssueComment | undefined {
+    for (let index = comments.length - 1; index >= 0; index -= 1) {
+        const comment = comments[index];
+
+        if (comment?.body && markers.some((marker) => comment.body?.includes(marker))) {
+            return comment;
+        }
+    }
+
+    return undefined;
+}
+
+function addPriorStageOutput(
+    outputs: PriorStageOutput[],
+    stage: PriorStageOutput["stage"],
+    value: string | undefined,
+): void {
+    const output = value?.trim();
+
+    if (output) {
+        outputs.push({ stage, output });
+    }
 }
 
 async function runShell(harness: FlueHarness, command: string): Promise<string> {

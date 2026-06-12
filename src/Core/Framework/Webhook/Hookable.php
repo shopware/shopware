@@ -13,6 +13,10 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Event\SystemHeartbeatEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 #[Package('framework')]
@@ -29,6 +33,15 @@ interface Hookable
         UpdatePostFinishEvent::class => UpdatePostFinishEvent::EVENT_NAME,
         SystemConfigChangedHook::class => SystemConfigChangedHook::EVENT_NAME,
         SystemHeartbeatEvent::class => SystemHeartbeatEvent::NAME,
+        // Endpoint-health lifecycle (#16565): isAllowed scopes each event to the OWNING app,
+        // so one app never sees another app's failures. Recursion is bounded: a lifecycle event
+        // delivered as a webhook can itself fail and emit more lifecycle events, but the
+        // dispatch gate drops events for the suspended/disabled endpoint, so the chain stops
+        // at the breaker.
+        WebhookActivatedEvent::class => WebhookActivatedEvent::NAME,
+        WebhookDegradedEvent::class => WebhookDegradedEvent::NAME,
+        WebhookSuspendedEvent::class => WebhookSuspendedEvent::NAME,
+        WebhookDisabledEvent::class => WebhookDisabledEvent::NAME,
     ];
 
     public const HOOKABLE_EVENTS_DESCRIPTION = [
@@ -42,6 +55,10 @@ interface Hookable
         UpdatePostFinishEvent::class => 'Fires after an shopware update has been finished',
         SystemConfigChangedHook::class => 'Fires when a system config value is changed',
         SystemHeartbeatEvent::class => 'Fires as a recurrent task. Indicates to the app that the system is up and running.',
+        WebhookActivatedEvent::class => 'Fires when one of the app\'s webhooks recovers to healthy',
+        WebhookDegradedEvent::class => 'Fires when one of the app\'s webhooks degrades after repeated transient delivery failures',
+        WebhookSuspendedEvent::class => 'Fires when one of the app\'s webhooks is suspended and new events start being shed',
+        WebhookDisabledEvent::class => 'Fires when one of the app\'s webhooks is disabled by escalation or an operator',
     ];
 
     public const HOOKABLE_EVENTS_PRIVILEGES = [
@@ -55,6 +72,10 @@ interface Hookable
         UpdatePostFinishEvent::class => [],
         SystemConfigChangedHook::class => ['system_config:read'],
         SystemHeartbeatEvent::class => [],
+        WebhookActivatedEvent::class => [],
+        WebhookDegradedEvent::class => [],
+        WebhookSuspendedEvent::class => [],
+        WebhookDisabledEvent::class => [],
     ];
 
     public function getName(): string;

@@ -195,6 +195,22 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Webhook\Subscriber\WebhookHealthNotificationSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <!-- PR4: the health API surface, gated as a whole behind WEBHOOKS_REWORK. -->
+        <service id="Shopware\Core\Framework\Webhook\Api\WebhookHealthController" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookHealthService"/>
+            <argument type="service" id="Symfony\Component\Clock\ClockInterface"/>
+
+            <tag name="controller.service_arguments"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />

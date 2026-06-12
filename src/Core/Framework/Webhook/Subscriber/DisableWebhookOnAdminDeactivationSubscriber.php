@@ -11,12 +11,15 @@ use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Routes the admin deactivate gesture — `PATCH /api/webhook/{id}` with `active = false` — through the
- * health model so an operator kill lands as DISABLED with `disabled_origin = operator`, not merely as
- * `active = 0` over stale health where recovery would silently resurrect it. The echo guard lives in
- * {@see EndpointLifecycle::disableByOperator}: a write that merely repeats the mirrored value (a
- * full-entity round-trip while suspended) is a no-op. The BC mirror's own `webhook.active` writes use
- * raw SQL and never fire `webhook.written`, so only an operator/API DAL write reaches this subscriber.
+ * Routes the admin deactivate gesture (`PATCH /api/webhook/{id}` with `active = false`)
+ * through the health model. An operator kill must land as DISABLED with
+ * `disabled_origin = operator`, not just as `active = 0` on top of stale health, where
+ * recovery would silently bring the webhook back.
+ *
+ * The echo guard lives in {@see EndpointLifecycle::disableByOperatorOnActiveFlip}: a write
+ * that just repeats the mirrored value (for example a full-entity round-trip while
+ * suspended) is a no-op. The BC mirror writes `webhook.active` with raw SQL and never
+ * fires `webhook.written`, so only an operator/API DAL write reaches this subscriber.
  *
  * @internal
  */
@@ -51,7 +54,7 @@ class DisableWebhookOnAdminDeactivationSubscriber implements EventSubscriberInte
             $id = $payload['id'] ?? null;
 
             if (($payload['active'] ?? null) === false && \is_string($id)) {
-                $this->endpointLifecycle->disableByOperator($id);
+                $this->endpointLifecycle->disableByOperatorOnActiveFlip($id);
             }
         }
     }

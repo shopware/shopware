@@ -2,23 +2,58 @@
 
 namespace Shopware\Core\Framework\Webhook\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
+use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * A webhook entered DEGRADED. Best-effort and post-commit: advisory only, the `webhook_health` row
- * is the truth, and a listener failure never affects the transition. DEGRADED is routine
- * self-healing — no Admin notification is attached to this event.
+ * A webhook entered DEGRADED. Best-effort and post-commit: the event is advisory only,
+ * the `webhook_health` row is the truth, and a listener failure never affects the
+ * transition. DEGRADED is routine self-healing, so no Admin notification is attached
+ * to this event.
  *
  * @internal
  */
 #[Package('framework')]
-final readonly class WebhookDegradedEvent
+final readonly class WebhookDegradedEvent implements Hookable, FlowEventAware
 {
+    use WebhookHealthEventBehaviour;
+
+    public const NAME = 'webhook.health.degraded';
+
     public function __construct(
         public string $webhookId,
         public ?string $appId,
         public EndpointState $fromState,
     ) {
+    }
+
+    public function getName(): string
+    {
+        return self::NAME;
+    }
+
+    /**
+     * Ids and state only. Never the endpoint URL, headers, or a delivery payload.
+     *
+     * @return array<string, mixed>
+     */
+    public function getWebhookPayload(?AppEntity $app = null): array
+    {
+        return [
+            'webhookId' => $this->webhookId,
+            'fromState' => $this->fromState->value,
+        ];
+    }
+
+    public static function getAvailableData(): EventDataCollection
+    {
+        return (new EventDataCollection())
+            ->add('webhookId', new ScalarValueType(ScalarValueType::TYPE_STRING))
+            ->add('fromState', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 }

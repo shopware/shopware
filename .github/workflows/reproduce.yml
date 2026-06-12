@@ -47,9 +47,9 @@ on:
         default: "trunk"
         type: string
       max_turns:
-        description: "Cap on the Analyze agent's turns (cost control; default 25)"
+        description: "Cap on the Analyze agent's turns (cost control; default 40)"
         required: false
-        default: "25"
+        default: "40"
         type: string
 
 concurrency:
@@ -230,11 +230,13 @@ jobs:
               description + diff (when found) to `./fixpr.diff`.
             - outputs: write `analysis.json` (+ `fixtures.json` / the executor's script
               file when needed) to the workspace root.
-          # Pin Sonnet (bounded task) + cap turns (bounds cost when the agent can't find
-          # context, e.g. off-repo). Widen the READ-ONLY allowlist so the agent stops
-          # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
+          # Pin Sonnet (bounded task) + cap turns. --max-turns is a CEILING, not a quota:
+          # the agent writes analysis.json early and stops, so the cheaper layers (http)
+          # finish well under it — size it for the heaviest derivation (direct reads the DAL
+          # schema; playwright derives selectors). Widen the READ-ONLY allowlist so the agent
+          # stops thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
           claude_args: >-
-            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '25' }}
+            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '40' }}
             --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
 
       # DEMO only: canned plan, reached solely via dry_run=true.

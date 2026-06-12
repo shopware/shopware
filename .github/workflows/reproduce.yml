@@ -47,9 +47,9 @@ on:
         default: "trunk"
         type: string
       max_turns:
-        description: "Cap on the Analyze agent's turns (cost control; default 35)"
+        description: "Cap on the Analyze agent's turns (cost control; default 25)"
         required: false
-        default: "35"
+        default: "25"
         type: string
 
 concurrency:
@@ -234,7 +234,7 @@ jobs:
           # context, e.g. off-repo). Widen the READ-ONLY allowlist so the agent stops
           # thrashing on denied tools (denials burn turns -> $). Matches triage's pins.
           claude_args: >-
-            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '35' }}
+            --model claude-sonnet-4-6 --max-turns ${{ github.event.inputs.max_turns || '25' }}
             --allowedTools "Read,Glob,Grep,Write,Bash(gh issue view:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh search:*),Bash(rg:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git blame:*),Bash(cat:*),Bash(ls:*),Bash(find:*),Bash(jq:*),Bash(grep:*),Bash(head:*),Bash(tail:*),Bash(sed:*),Bash(wc:*)"
 
       # DEMO only: canned plan, reached solely via dry_run=true.

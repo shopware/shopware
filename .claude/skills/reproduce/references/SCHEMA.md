@@ -84,6 +84,11 @@ Rules:
       }
   }
   ```
+- Fixture payloads may contain **plain writable fields only** — never write-protected or
+  computed fields (`autoIncrement`, `createdAt`/`updatedAt`, `versionId`, `childCount`,
+  `ratingAverage`, `sales`, token/`accessKey` fields, ...): the sync API rejects them with
+  `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` ("This field is write-protected") and the whole
+  leg blocks. When unsure whether a field is writable, leave it out — defaults are fine.
 - `fixtures.sync_payload` entity ids MUST be 32-char lowercase-hex Shopware UUIDs
   (e.g. `0192f3c4a5b67890abcdef0123456789`) — the admin sync API rejects non-UUID
   strings (`FRAMEWORK__WRITE_CONSTRAINT_VIOLATION`). Use `{{SC}}/{{NAV_CAT}}/{{TAX}}/

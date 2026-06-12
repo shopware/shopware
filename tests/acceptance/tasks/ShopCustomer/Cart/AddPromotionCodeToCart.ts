@@ -10,7 +10,7 @@ export const AddPromotionCodeToCart = base.extend<{ AddPromotionCodeToCart: Task
                 await StorefrontCheckoutCart.enterPromoInput.fill(promotionCode);
                 await StorefrontCheckoutCart.enterPromoInput.press('Enter');
 
-                await ShopCustomer.expects(StorefrontCheckoutCart.page.getByText(promotionName)).toBeVisible();
+                await ShopCustomer.expects(StorefrontCheckoutCart.page.getByText(promotionName).first()).toBeVisible();
             }
         };
 

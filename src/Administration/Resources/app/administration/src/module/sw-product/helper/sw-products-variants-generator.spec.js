@@ -664,15 +664,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
         });
     });
 
-    /**
-     * Regression coverage for shopware/shopware#16252.
-     *
-     * Adding a brand-new property axis must preserve the existing variant
-     * rows (and their per-variant customizations) by adopting each existing
-     * variant into one of the new permutations that is a strict superset of
-     * its current options.
-     */
-    describe('preservation of existing variants when a new axis is added (#16252)', () => {
+    describe('preservation of existing variants when a new axis is added', () => {
         const RED = 'option-red';
         const BLUE = 'option-blue';
         const SIZE_S = 'option-size-s';
@@ -731,8 +723,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
             // Both existing variants must survive — no deletions.
             expect(result.deleteQueue).toEqual([]);
 
-            // Two permutations get "adopted" by existing variants, so only
-            // the remaining two are created fresh.
+            // two permutations are adopted, the remaining two are created
             expect(result.createQueue).toHaveLength(2);
 
             const adoptedOptionSets = variantsGenerator.extendExistingVariantOptions.reduce(
@@ -744,8 +735,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 {},
             );
 
-            // Each preserved variant gets exactly one newly added option (from
-            // the new "size" axis), never a duplicate of its own option.
+            // each preserved variant gets exactly one option from the new axis
             expect(Object.keys(adoptedOptionSets).sort()).toEqual([
                 'variant-id-blue',
                 'variant-id-red',
@@ -761,23 +751,21 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 SIZE_L,
             ]).toContain(adoptedOptionSets['variant-id-blue'][0]);
 
-            // Each new permutation is adopted by at most one existing variant.
+            // each permutation is adopted by at most one variant
             const adoptedSizeOptions = [
                 adoptedOptionSets['variant-id-red'][0],
                 adoptedOptionSets['variant-id-blue'][0],
             ];
 
-            // Permutations already claimed by preservation are not recreated.
+            // adopted permutations are not recreated
             const createdOptionIds = result.createQueue.map((variant) => variant.options.map((o) => o.id).sort());
             expect(createdOptionIds).toHaveLength(2);
             createdOptionIds.forEach((combo) => {
-                // Each newly created combo must contain the *other* size (the
-                // one not used by preservation) paired with its color.
+                // created combos pair a color with the size not used by adoption
                 expect(combo).toHaveLength(2);
             });
 
-            // Sanity: exactly the four expected permutations are accounted for
-            // (2 preserved + 2 created), and every color/size appears twice.
+            // all four permutations are covered: 2 preserved + 2 created
             const allResultingCombos = [
                 ...createdOptionIds,
                 [
@@ -856,10 +844,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
 
             const result = await variantsGenerator.filterVariations(newVariations, variationOnServer, currencies);
 
-            // The red variant is preserved (subset of a new permutation);
-            // the blue variant is legitimately deleted because "blue" is no
-            // longer part of any new permutation — mapping preservation must
-            // never paper over explicit user removals.
+            // red is preserved; blue was removed by the user and must stay deleted
             expect(result.deleteQueue).toEqual(['variant-id-blue']);
             expect(result.createQueue).toHaveLength(1);
 
@@ -901,8 +886,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 true, // isAddOnly
             );
 
-            // In add-only mode we keep the legacy behavior: nothing is
-            // deleted, so there is no "existing variant at risk" to rescue.
+            // add-only mode keeps the legacy behavior: nothing to rescue
             expect(result.deleteQueue).toEqual([]);
             expect(variantsGenerator.extendExistingVariantOptions).toEqual([]);
         });
@@ -930,8 +914,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 },
             ]);
 
-            // Preserved variants must be queued for re-indexing so derived
-            // fields (e.g. option_ids) are rebuilt.
+            // preserved variants are queued for re-indexing
             expect(variantsGenerator.productIds.sort()).toEqual([
                 'variant-1',
                 'variant-2',
@@ -972,9 +955,8 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 ]),
             };
 
-            // Color × Size × Material = 8 permutations; two existing single-axis
-            // variants (Red, Blue) must each be adopted into exactly one permutation
-            // and pick up the missing Size + Material options via the extension queue.
+            // Color x Size x Material = 8 permutations; each existing variant
+            // adopts one and picks up one option per new axis
             const newVariations = [
                 [RED, SIZE_S, MAT_COTTON],
                 [RED, SIZE_S, MAT_WOOL],
@@ -1012,6 +994,111 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     expect.stringMatching(/^option-material-/),
                 ]));
             }
+        });
+    });
+
+    describe('adoption state lifecycle', () => {
+        const RED = 'option-red';
+        const BLUE = 'option-blue';
+        const SIZE_S = 'option-size-s';
+        const SIZE_L = 'option-size-l';
+
+        it('should persist isNew configurator settings for options granted only via adoption', async () => {
+            const syncSpy = jest.spyOn(variantsGenerator.syncService, 'sync').mockResolvedValue({});
+
+            const settings = [
+                {
+                    id: 'setting-red',
+                    optionId: RED,
+                    option: { id: RED },
+                    price: null,
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-blue',
+                    optionId: BLUE,
+                    option: { id: BLUE },
+                    price: null,
+                    isNew: () => false,
+                },
+                {
+                    id: 'setting-size-s',
+                    optionId: SIZE_S,
+                    option: { id: SIZE_S },
+                    price: null,
+                    isNew: () => true,
+                },
+                {
+                    id: 'setting-size-l',
+                    optionId: SIZE_L,
+                    option: { id: SIZE_L },
+                    price: null,
+                    isNew: () => true,
+                },
+            ];
+
+            variantsGenerator.product = {
+                ...product,
+                configuratorSettings: settings,
+            };
+
+            const result = await variantsGenerator.filterVariations(
+                [
+                    [RED, SIZE_S],
+                    [RED, SIZE_L],
+                    [BLUE, SIZE_S],
+                    [BLUE, SIZE_L],
+                ],
+                {
+                    'variant-id-red': { options: [RED], productNumber: 'SW.RED' },
+                    'variant-id-blue': { options: [BLUE], productNumber: 'SW.BLUE' },
+                },
+                currencies,
+            );
+
+            // both variants adopt the first size value, so SIZE_S is in no created variant
+            const createdOptionIds = result.createQueue.flatMap((variant) => variant.options.map((o) => o.id));
+            expect(createdOptionIds).not.toContain(SIZE_S);
+
+            // its configurator setting must still be persisted
+            await variantsGenerator.saveConfiguratorSettings(settings, result.createQueue);
+
+            const payloadOptionIds = syncSpy.mock.calls[0][0][0].payload.map((setting) => setting.optionId);
+            expect(payloadOptionIds).toEqual(
+                expect.arrayContaining([
+                    RED,
+                    BLUE,
+                    SIZE_S,
+                    SIZE_L,
+                ]),
+            );
+
+            syncSpy.mockRestore();
+        });
+
+        it('should reset queued adoption state when a generation pass starts with an empty selection', async () => {
+            // leftovers from an earlier preview pass
+            variantsGenerator.extendExistingVariantOptions = [
+                { productId: 'variant-id-red', optionId: SIZE_S },
+            ];
+            variantsGenerator.adoptedOptionIds = new Set([SIZE_S]);
+
+            const queuesPromise = new Promise((resolve) => {
+                variantsGenerator.once('queues', resolve);
+            });
+
+            // empty selection takes the path that never reaches filterVariations
+            variantsGenerator.generateVariants(currencies, {
+                ...product,
+                configuratorSettings: [],
+            });
+
+            const queues = await queuesPromise;
+            expect(queues).toEqual({ createQueue: [], deleteQueue: [] });
+
+            // stale adoption state must not survive into the next save
+            expect(variantsGenerator.extendExistingVariantOptions).toEqual([]);
+            expect(variantsGenerator.adoptedOptionIds.size).toBe(0);
         });
     });
 });

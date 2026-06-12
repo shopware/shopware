@@ -6,8 +6,13 @@ import { mount } from '@vue/test-utils';
 import type { VueWrapper } from '@vue/test-utils';
 import { h, nextTick, ref } from 'vue';
 import { overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
+import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
+import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
+import { normalizeSwMeteorEntityDataTableColumns } from './sw-meteor-entity-data-table-column-normalizer';
 import SwMeteorEntityDataTable from './sw-meteor-entity-data-table.vue';
+import type { SwMeteorEntityDataTableColumn } from './sw-meteor-entity-data-table.types';
 
 const componentName = 'sw-meteor-entity-data-table';
 
@@ -15,12 +20,7 @@ type SlotRenderers = Record<string, string | ((slotProps: { source: string }) =>
 
 type TestRepository = Repository<keyof EntitySchema.Entities>;
 
-type TestColumn = {
-    label: string;
-    property: string;
-    renderer: 'text' | 'number' | 'price' | 'badge';
-    position: number;
-};
+type TestColumn = SwMeteorEntityDataTableColumn;
 
 type TestRecord = {
     id: string;
@@ -33,69 +33,98 @@ type TestAdditionalContextButton = {
     type: 'default' | 'active' | 'critical';
 };
 
+type TestSearchMock = jest.Mock<
+    Promise<EntityCollection<keyof EntitySchema.Entities>>,
+    [CriteriaType, typeof Shopware.Context.api]
+>;
+
 type SwMeteorEntityDataTableTestProps = {
     repository: TestRepository;
     columns: TestColumn[];
     records?: TestRecord[] | null;
     total?: number | null;
+    criteria?: CriteriaType | null;
+    context?: ApiContext | null;
     initialPage?: number;
     initialLimit?: number;
     isLoading?: boolean;
+    disableDataFetching?: boolean;
+    detailRoute?: string;
     allowRowSelection?: boolean;
     disableSearch?: boolean;
+    searchValue?: string;
     showSettings?: boolean;
+    showActions?: boolean;
     enableReload?: boolean;
     allowEdit?: boolean;
+    allowView?: boolean;
     allowDelete?: boolean;
     allowBulkDelete?: boolean;
     allowBulkEdit?: boolean;
     additionalContextButtons?: TestAdditionalContextButton[];
 };
 
-const columns: TestColumn[] = [
-    {
-        label: 'Name',
-        property: 'name',
-        renderer: 'text',
-        position: 0,
-    },
-];
+const columns: TestColumn[] = [{ label: 'Name', property: 'name', renderer: 'text', position: 0 }];
 
 const records: TestRecord[] = [
-    {
-        id: 'record-1',
-        name: 'First record',
-    },
-    {
-        id: 'record-2',
-        name: 'Second record',
-    },
+    { id: 'record-1', name: 'First record' },
+    { id: 'record-2', name: 'Second record' },
 ];
 
-const additionalContextButtons: TestAdditionalContextButton[] = [
-    {
-        key: 'duplicate',
-        label: 'Duplicate',
-        type: 'default',
-    },
-];
+const additionalContextButtons: TestAdditionalContextButton[] = [{ key: 'duplicate', label: 'Duplicate', type: 'default' }];
 
-function createRepositoryMock(): TestRepository {
+const shopwareApplication = Shopware.Application as unknown as {
+    view: {
+        i18n: {
+            global: {
+                t: (key: string) => string;
+            };
+        };
+    };
+};
+const shopwareI18n = shopwareApplication.view.i18n.global;
+const originalTranslate = shopwareI18n.t;
+const { Criteria } = Shopware.Data;
+
+function createSearchResult(
+    resultRecords: TestRecord[] = records,
+    total = resultRecords.length,
+): EntityCollection<keyof EntitySchema.Entities> {
+    return Object.assign([...resultRecords], { total }) as unknown as EntityCollection<keyof EntitySchema.Entities>;
+}
+
+function createRepositoryMock(searchResult = createSearchResult()): TestRepository {
+    const search: TestSearchMock = jest.fn<ReturnType<TestSearchMock>, Parameters<TestSearchMock>>();
+    search.mockResolvedValue(searchResult);
+
     return {
-        search: jest.fn(),
+        search,
     } as unknown as TestRepository;
+}
+
+function getSearchMock(repository: TestRepository): TestSearchMock {
+    return (repository as unknown as { search: TestSearchMock }).search;
 }
 
 const MtDataTableStub = {
     name: 'mt-data-table',
+    emits: [
+        'sort-change',
+        'pagination-current-page-change',
+        'pagination-limit-change',
+        'search-value-change',
+        'reload',
+    ],
     props: [
         'dataSource',
         'columns',
         'currentPage',
         'paginationLimit',
+        'paginationOptions',
         'paginationTotalItems',
         'sortBy',
         'sortDirection',
+        'searchValue',
         'isLoading',
         'allowRowSelection',
         'allowBulkDelete',
@@ -118,6 +147,11 @@ const MtDataTableStub = {
             <div class="mt-data-table-stub__empty-state">
                 <slot name="empty-state" source="empty-state" />
             </div>
+            <button class="mt-data-table-stub__sort" type="button" @click="$emit('sort-change', columns[0]?.property, 'DESC')">Sort</button>
+            <button class="mt-data-table-stub__page" type="button" @click="$emit('pagination-current-page-change', 3)">Page</button>
+            <button class="mt-data-table-stub__limit" type="button" @click="$emit('pagination-limit-change', 50)">Limit</button>
+            <button class="mt-data-table-stub__search" type="button" @click="$emit('search-value-change', 'needle')">Search</button>
+            <button class="mt-data-table-stub__reload" type="button" @click="$emit('reload')">Reload</button>
         </div>
     `,
 };
@@ -205,13 +239,28 @@ function findBlock(wrapper: VueWrapper, name: string) {
     return block!;
 }
 
+function getTableColumns(wrapper: VueWrapper): TestColumn[] {
+    return wrapper.findComponent(MtDataTableStub).props('columns') as TestColumn[];
+}
+
+function getLastSearchCriteria(repository: TestRepository): CriteriaType {
+    const searchMock = getSearchMock(repository);
+    const lastCall = searchMock.mock.calls[searchMock.mock.calls.length - 1];
+
+    expect(lastCall).toBeDefined();
+
+    return lastCall[0];
+}
+
 describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
     beforeEach(() => {
         delete _overridesMap[componentName];
+        shopwareI18n.t = originalTranslate;
     });
 
     afterEach(() => {
         delete _overridesMap[componentName];
+        shopwareI18n.t = originalTranslate;
     });
 
     it('renders mt-data-table', () => {
@@ -262,25 +311,174 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         );
     });
 
-    it('enables edit, delete, and bulk actions on mt-data-table when ACL props allow them', () => {
+    it('fails when a column property is missing', () => {
+        expect(() => {
+            normalizeSwMeteorEntityDataTableColumns([
+                {
+                    label: 'Name',
+                },
+            ]);
+        }).toThrow('Please specify a "property" to render a column');
+    });
+
+    it('translates column labels with the Administration fallback', () => {
+        shopwareI18n.t = (key: string) => {
+            if (key === 'sw.test.translated-column') {
+                return 'Translated column';
+            }
+
+            return '';
+        };
+
         const wrapper = createWrapper({
             props: {
-                allowEdit: true,
-                allowDelete: true,
-                allowBulkDelete: true,
-                allowBulkEdit: true,
+                columns: [
+                    {
+                        label: 'sw.test.translated-column',
+                        property: 'translated',
+                    },
+                    {
+                        label: 'sw.test.missing-column',
+                        property: 'missing',
+                    },
+                ],
             },
         });
 
-        const table = wrapper.findComponent(MtDataTableStub);
+        expect(getTableColumns(wrapper).map((column) => column.label)).toEqual([
+            'Translated column',
+            'sw.test.missing-column',
+        ]);
+    });
 
-        expect(table.props()).toEqual(
-            expect.objectContaining({
-                allowBulkDelete: true,
-                allowBulkEdit: true,
-                disableEdit: false,
-                disableDelete: false,
-            }),
+    it('assigns stable default positions and text renderers', () => {
+        const wrapper = createWrapper({
+            props: {
+                columns: [
+                    {
+                        label: 'Name',
+                        property: 'name',
+                    },
+                    {
+                        label: 'Company',
+                        property: 'company',
+                    },
+                    {
+                        label: 'Created at',
+                        property: 'createdAt',
+                        position: 450,
+                    },
+                ],
+            },
+        });
+
+        expect(getTableColumns(wrapper)).toEqual([
+            {
+                label: 'Name',
+                property: 'name',
+                renderer: 'text',
+                position: 0,
+            },
+            {
+                label: 'Company',
+                property: 'company',
+                renderer: 'text',
+                position: 100,
+            },
+            {
+                label: 'Created at',
+                property: 'createdAt',
+                renderer: 'text',
+                position: 450,
+            },
+        ]);
+    });
+
+    it('normalizes numeric, pixel, and auto column widths', () => {
+        const wrapper = createWrapper({
+            props: {
+                columns: [
+                    {
+                        label: 'Numeric width',
+                        property: 'numericWidth',
+                        width: 100,
+                    },
+                    {
+                        label: 'Numeric string width',
+                        property: 'numericStringWidth',
+                        width: '100',
+                    },
+                    {
+                        label: 'Pixel width',
+                        property: 'pixelWidth',
+                        width: '100px',
+                    },
+                    {
+                        label: 'Auto width',
+                        property: 'autoWidth',
+                        width: 'auto',
+                    },
+                ],
+            },
+        });
+        const normalizedColumns = getTableColumns(wrapper);
+
+        expect(normalizedColumns.map((column) => column.width)).toEqual([
+            100,
+            100,
+            100,
+            undefined,
+        ]);
+        expect(normalizedColumns[3]).not.toHaveProperty('width');
+    });
+
+    it('keeps dataIndex sort mapping metadata while passing Meteor columns', async () => {
+        const wrapper = createWrapper({
+            props: {
+                columns: [
+                    {
+                        label: 'Translated name',
+                        property: 'translated.name',
+                        dataIndex: 'name',
+                        naturalSorting: true,
+                        useCustomSort: true,
+                    },
+                ],
+            },
+        });
+        expect(getTableColumns(wrapper)[0]).toEqual({
+            label: 'Translated name',
+            property: 'translated.name',
+            renderer: 'text',
+            position: 0,
+        });
+
+        await wrapper.find('.mt-data-table-stub__sort').trigger('click');
+
+        expect(wrapper.emitted('sort-change')).toEqual([
+            [
+                {
+                    property: 'translated.name',
+                    dataIndex: 'name',
+                    direction: 'DESC',
+                    naturalSorting: true,
+                },
+            ],
+        ]);
+    });
+
+    it('fails loudly for unsupported legacy-only column fields', () => {
+        expect(() => {
+            normalizeSwMeteorEntityDataTableColumns([
+                {
+                    label: 'Name',
+                    property: 'name',
+                    routerLink: 'sw.product.detail',
+                    inlineEdit: 'string',
+                },
+            ]);
+        }).toThrow(
+            'unsupported field(s): routerLink, inlineEdit. These legacy sw-data-grid fields require upstream mt-data-table support',
         );
     });
 
@@ -288,9 +486,7 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         const wrapper = createWrapperWithoutControlledData();
 
         const table = wrapper.findComponent(MtDataTableStub);
-        const setupStateKeys = Object.keys(
-            (wrapper.vm.$ as unknown as { setupState: Record<string, unknown> }).setupState,
-        );
+        const setupStateKeys = Object.keys((wrapper.vm.$ as unknown as { setupState: Record<string, unknown> }).setupState);
 
         expect(table.props('dataSource')).toEqual([]);
         expect(table.props('paginationTotalItems')).toBe(0);
@@ -298,6 +494,388 @@ describe('src/app/component/entity/sw-meteor-entity-data-table', () => {
         expect(setupStateKeys).toContain('totalItems');
         expect(setupStateKeys).not.toContain('records');
         expect(setupStateKeys).not.toContain('total');
+    });
+
+    it('loads records in self-fetching mode with a cloned criteria', async () => {
+        const searchResult = createSearchResult(
+            [
+                {
+                    id: 'record-3',
+                    name: 'Third record',
+                },
+            ],
+            37,
+        );
+        const repository = createRepositoryMock(searchResult);
+        const context = {
+            ...Shopware.Context.api,
+            inheritance: true,
+        } as ApiContext;
+        const criteria = new Criteria(9, 99);
+        criteria.addFilter(Criteria.equals('active', true));
+        criteria.addPostFilter(Criteria.equals('visible', true));
+        criteria.addAssociation('manufacturer');
+        criteria.getAssociation('manufacturer').addFilter(Criteria.equals('name', 'ACME'));
+        criteria.addAggregation(Criteria.count('count-id', 'id'));
+        criteria.addIncludes({
+            product: [
+                'id',
+                'name',
+            ],
+        });
+        criteria.addFields('id', 'name');
+        criteria.addGrouping('manufacturerId');
+        criteria.addGroupField('manufacturerId');
+        criteria.setTotalCountMode(2);
+        criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
+
+        const originalCriteriaPayload = criteria.parse();
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+                criteria,
+                context,
+                initialPage: 2,
+                initialLimit: 10,
+                searchValue: 'shirt',
+            },
+        });
+
+        await flushPromises();
+
+        const searchMock = getSearchMock(repository);
+        const usedCriteria = getLastSearchCriteria(repository);
+        const usedCriteriaPayload = usedCriteria.parse();
+
+        expect(searchMock).toHaveBeenCalledTimes(1);
+        expect(usedCriteria).not.toBe(criteria);
+        expect(criteria.parse()).toEqual(originalCriteriaPayload);
+        expect(usedCriteriaPayload).toEqual(
+            expect.objectContaining({
+                page: 2,
+                limit: 10,
+                term: 'shirt',
+                filter: originalCriteriaPayload.filter,
+                'post-filter': originalCriteriaPayload['post-filter'],
+                aggregations: originalCriteriaPayload.aggregations,
+                includes: originalCriteriaPayload.includes,
+                fields: originalCriteriaPayload.fields,
+                grouping: originalCriteriaPayload.grouping,
+                groupFields: originalCriteriaPayload.groupFields,
+                associations: originalCriteriaPayload.associations,
+                'total-count-mode': 2,
+            }),
+        );
+        expect(usedCriteriaPayload.sort).toBeUndefined();
+        expect(searchMock).toHaveBeenCalledWith(usedCriteria, context);
+        expect(wrapper.findComponent(MtDataTableStub).props('dataSource')).toEqual(searchResult);
+        expect(wrapper.findComponent(MtDataTableStub).props('paginationTotalItems')).toBe(37);
+        expect(wrapper.emitted('update-records')).toEqual([
+            [
+                searchResult,
+            ],
+        ]);
+    });
+
+    it('reloads self-fetching data for page, limit, and search changes', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+                initialPage: 2,
+                initialLimit: 25,
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__page').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('page-change')).toContainEqual([
+            {
+                page: 3,
+                limit: 25,
+            },
+        ]);
+        expect(getLastSearchCriteria(repository).parse()).toEqual(
+            expect.objectContaining({
+                page: 3,
+                limit: 25,
+            }),
+        );
+
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__limit').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('page-change')).toContainEqual([
+            {
+                page: 1,
+                limit: 50,
+            },
+        ]);
+        expect(getLastSearchCriteria(repository).parse()).toEqual(
+            expect.objectContaining({
+                page: 1,
+                limit: 50,
+            }),
+        );
+
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__search').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('search-change')).toEqual([
+            [
+                'needle',
+            ],
+        ]);
+        expect(getLastSearchCriteria(repository).parse()).toEqual(
+            expect.objectContaining({
+                page: 1,
+                limit: 50,
+                term: 'needle',
+            }),
+        );
+    });
+
+    it('sorts self-fetching data by every dataIndex field with natural sorting', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+                initialPage: 2,
+                columns: [
+                    {
+                        label: 'Customer name',
+                        property: 'customerName',
+                        dataIndex: 'firstName, lastName',
+                        naturalSorting: true,
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__sort').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('sort-change')).toEqual([
+            [
+                {
+                    property: 'customerName',
+                    dataIndex: 'firstName, lastName',
+                    direction: 'DESC',
+                    naturalSorting: true,
+                },
+            ],
+        ]);
+        expect(wrapper.emitted('page-change')).toEqual([
+            [
+                {
+                    page: 1,
+                    limit: 25,
+                },
+            ],
+        ]);
+        expect(getLastSearchCriteria(repository).parse()).toEqual(
+            expect.objectContaining({
+                page: 1,
+                sort: [
+                    {
+                        field: 'firstName',
+                        order: 'DESC',
+                        naturalSorting: true,
+                    },
+                    {
+                        field: 'lastName',
+                        order: 'DESC',
+                        naturalSorting: true,
+                    },
+                ],
+            }),
+        );
+    });
+
+    it('emits useCustomSort changes without fetching data', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+                columns: [
+                    {
+                        label: 'Translated name',
+                        property: 'translated.name',
+                        dataIndex: 'name',
+                        useCustomSort: true,
+                    },
+                ],
+            },
+        });
+
+        await flushPromises();
+        getSearchMock(repository).mockClear();
+
+        await wrapper.find('.mt-data-table-stub__sort').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.emitted('sort-change')).toEqual([
+            [
+                {
+                    property: 'translated.name',
+                    dataIndex: 'name',
+                    direction: 'DESC',
+                    naturalSorting: false,
+                },
+            ],
+        ]);
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+    });
+
+    it('emits table state changes without fetching when data fetching is disabled', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+                disableDataFetching: true,
+            },
+        });
+
+        await flushPromises();
+
+        await wrapper.find('.mt-data-table-stub__page').trigger('click');
+        await wrapper.find('.mt-data-table-stub__limit').trigger('click');
+        await wrapper.find('.mt-data-table-stub__search').trigger('click');
+        await wrapper.find('.mt-data-table-stub__sort').trigger('click');
+        await wrapper.find('.mt-data-table-stub__reload').trigger('click');
+        await flushPromises();
+
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(wrapper.emitted('page-change')).toEqual([
+            [
+                {
+                    page: 3,
+                    limit: 25,
+                },
+            ],
+            [
+                {
+                    page: 1,
+                    limit: 50,
+                },
+            ],
+        ]);
+        expect(wrapper.emitted('search-change')).toEqual([
+            [
+                'needle',
+            ],
+        ]);
+        expect(wrapper.emitted('sort-change')).toEqual([
+            [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    direction: 'DESC',
+                    naturalSorting: false,
+                },
+            ],
+        ]);
+    });
+
+    it('emits load-failed and keeps previous records when self-fetching fails', async () => {
+        const repository = createRepositoryMock();
+        const errorResponse = new Error('Failed to load records');
+        getSearchMock(repository).mockRejectedValueOnce(errorResponse);
+        const wrapper = createWrapperWithoutControlledData({
+            props: {
+                repository,
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.findComponent(MtDataTableStub).props('dataSource')).toEqual([]);
+        expect(wrapper.findComponent(MtDataTableStub).props('paginationTotalItems')).toBe(0);
+        expect(wrapper.emitted('update-records')).toBeUndefined();
+        expect(wrapper.emitted('load-failed')).toEqual([
+            [
+                errorResponse,
+            ],
+        ]);
+    });
+
+    it('keeps controlled mode parent-owned and never fetches', async () => {
+        const repository = createRepositoryMock();
+        const wrapper = createWrapper({
+            props: {
+                repository,
+                initialPage: 2,
+                initialLimit: 10,
+                isLoading: true,
+            },
+        });
+
+        await flushPromises();
+
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(wrapper.findComponent(MtDataTableStub).props()).toEqual(
+            expect.objectContaining({
+                dataSource: records,
+                paginationTotalItems: 42,
+                currentPage: 2,
+                paginationLimit: 10,
+                isLoading: true,
+            }),
+        );
+
+        await wrapper.find('.mt-data-table-stub__sort').trigger('click');
+        await wrapper.find('.mt-data-table-stub__page').trigger('click');
+        await wrapper.find('.mt-data-table-stub__search').trigger('click');
+        await wrapper.find('.mt-data-table-stub__reload').trigger('click');
+        await flushPromises();
+
+        expect(getSearchMock(repository)).not.toHaveBeenCalled();
+        expect(wrapper.emitted('sort-change')).toEqual([
+            [
+                {
+                    property: 'name',
+                    dataIndex: 'name',
+                    direction: 'DESC',
+                    naturalSorting: false,
+                },
+            ],
+        ]);
+        expect(wrapper.emitted('page-change')).toEqual([
+            [
+                {
+                    page: 1,
+                    limit: 10,
+                },
+            ],
+            [
+                {
+                    page: 3,
+                    limit: 10,
+                },
+            ],
+            [
+                {
+                    page: 1,
+                    limit: 10,
+                },
+            ],
+        ]);
+        expect(wrapper.emitted('search-change')).toEqual([
+            [
+                'needle',
+            ],
+        ]);
     });
 
     it('reacts to controlled records and total prop updates', async () => {

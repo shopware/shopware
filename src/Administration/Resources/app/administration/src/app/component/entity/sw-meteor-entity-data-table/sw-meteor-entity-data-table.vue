@@ -10,22 +10,24 @@
                     :columns="normalizedColumns"
                     :current-page="page"
                     :pagination-limit="limit"
+                    :pagination-options="paginationOptions"
                     :pagination-total-items="totalItems"
                     :sort-by="sortBy"
                     :sort-direction="sortDirection"
-                    :is-loading="isLoading"
+                    :search-value="searchTerm"
+                    :is-loading="loading"
                     :allow-row-selection="allowRowSelection"
-                    :allow-bulk-delete="allowBulkDelete"
+                    :allow-bulk-delete="tableAllowBulkDelete"
                     :allow-bulk-edit="allowBulkEdit"
                     :selected-rows="selectedIds"
                     :disable-row-select="disableRowSelect"
                     :disable-search="disableSearch"
-                    :disable-edit="!allowEdit"
-                    :disable-delete="!allowDelete"
+                    :disable-edit="tableDisableEdit"
+                    :disable-delete="tableDisableDelete"
                     :disable-settings-table="disableSettingsTable"
                     :enable-reload="enableReload"
                     :column-changes="columnChanges"
-                    :additional-context-buttons="additionalContextButtons"
+                    :additional-context-buttons="tableAdditionalContextButtons"
                     @sort-change="setSort"
                     @pagination-current-page-change="setPage"
                     @pagination-limit-change="setLimit"
@@ -60,14 +62,21 @@
  * @sw-package framework
  */
 
-import { computed, defineComponent, ref, watch } from 'vue';
+import { computed, defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
 import type { ComputedRef, PropType, Ref, SetupContext } from 'vue';
+import type { Router } from 'vue-router';
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { ApiContext } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { createExtendableSetup } from 'src/app/adapter/composition-extension-system';
 import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
+import { normalizeSwMeteorEntityDataTableColumns } from './sw-meteor-entity-data-table-column-normalizer';
+import type {
+    SwMeteorEntityDataTableColumn,
+    SwMeteorEntityDataTableColumnSortMetadata,
+    SwMeteorEntityDataTableNormalizedColumn,
+} from './sw-meteor-entity-data-table.types';
 
 type SwMeteorEntityDataTableEntityName = keyof EntitySchema.Entities;
 
@@ -79,21 +88,6 @@ type SwMeteorEntityDataTableRecord =
       };
 
 type SwMeteorEntityDataTableRecords = EntityCollection<SwMeteorEntityDataTableEntityName> | SwMeteorEntityDataTableRecord[];
-
-type SwMeteorEntityDataTableColumn = {
-    label: string;
-    property: string;
-    renderer: 'text' | 'number' | 'price' | 'badge';
-    position: number;
-    sortable?: boolean;
-    width?: number;
-    allowResize?: boolean;
-    cellWrap?: 'nowrap' | 'normal';
-    visible?: boolean;
-    clickable?: boolean;
-    previewImage?: string;
-    rendererOptions?: unknown;
-};
 
 type SwMeteorEntityDataTableColumnChanges = {
     property?: string;
@@ -157,6 +151,8 @@ type MultipleSelectionChangePayload = {
     value: boolean;
 };
 
+type SwMeteorEntityDataTableRouter = Pick<Router, 'push'>;
+
 type SwMeteorEntityDataTablePublicApi = {
     dataSource: Ref<SwMeteorEntityDataTableRecords>;
     totalItems: Ref<number>;
@@ -164,9 +160,11 @@ type SwMeteorEntityDataTablePublicApi = {
     limit: Ref<number>;
     sortBy: Ref<string>;
     sortDirection: Ref<SwMeteorEntityDataTableSortDirection>;
+    searchTerm: Ref<string>;
+    loading: Ref<boolean>;
     selectedIds: Ref<string[]>;
     columnChanges: Ref<Record<string, SwMeteorEntityDataTableColumnChanges>>;
-    normalizedColumns: ComputedRef<SwMeteorEntityDataTableColumn[]>;
+    normalizedColumns: ComputedRef<SwMeteorEntityDataTableNormalizedColumn[]>;
     buildCriteria: () => CriteriaType;
     loadData: () => Promise<void>;
     setSort: (property: string, direction: SwMeteorEntityDataTableSortDirection) => Promise<void> | void;
@@ -188,7 +186,12 @@ type SwMeteorEntityDataTableBlockDataScope = {
 type SwMeteorEntityDataTablePrivateApi = {
     blockDataScope: ComputedRef<SwMeteorEntityDataTableBlockDataScope>;
     disableRowSelect: Ref<string[]>;
+    tableAllowBulkDelete: ComputedRef<boolean>;
+    tableDisableEdit: ComputedRef<boolean>;
+    tableDisableDelete: ComputedRef<boolean>;
+    tableAdditionalContextButtons: ComputedRef<SwMeteorEntityDataTableAdditionalContextButton[]>;
     disableSettingsTable: ComputedRef<boolean>;
+    columnSortMetadataByProperty: ComputedRef<Record<string, SwMeteorEntityDataTableColumnSortMetadata>>;
     onSelectionChange: (payload: SelectionChangePayload) => void;
     onMultipleSelectionChange: (payload: MultipleSelectionChangePayload) => void;
     onSearchValueChange: (term: string) => void;
@@ -285,7 +288,7 @@ export default defineComponent({
         showActions: {
             type: Boolean,
             required: false,
-            default: false,
+            default: true,
         },
 
         showSettings: {
@@ -437,55 +440,138 @@ export default defineComponent({
                 const limit = ref(setupProps.initialLimit ?? 25);
                 const sortBy = ref('');
                 const sortDirection = ref<SwMeteorEntityDataTableSortDirection>('ASC');
+                const searchTerm = ref(setupProps.searchValue ?? '');
+                const loading = ref(setupProps.records !== null ? setupProps.isLoading === true : false);
                 const selectedIds = ref<string[]>([]);
                 const columnChanges = ref({});
                 const disableRowSelect = ref<string[]>([]);
-                const normalizedColumns = computed<SwMeteorEntityDataTableColumn[]>(() => {
-                    const configuredColumns: unknown = setupProps.columns;
-
-                    if (!Array.isArray(configuredColumns)) {
-                        return [];
-                    }
-
-                    return configuredColumns as SwMeteorEntityDataTableColumn[];
+                const instanceRouter = getCurrentInstance()?.proxy?.$router as SwMeteorEntityDataTableRouter | undefined;
+                const isControlledDataMode = computed(() => setupProps.records !== null);
+                const columnNormalization = computed(() => {
+                    return normalizeSwMeteorEntityDataTableColumns(setupProps.columns);
                 });
+                void columnNormalization.value;
+
+                const normalizedColumns = computed(() => columnNormalization.value.columns);
+                const columnSortMetadataByProperty = computed(() => columnNormalization.value.sortMetadataByProperty);
 
                 function buildCriteria() {
-                    return setupProps.criteria ?? new Criteria(page.value, limit.value);
+                    const criteria = setupProps.criteria
+                        ? Criteria.fromCriteria(setupProps.criteria)
+                        : new Criteria(page.value, limit.value);
+
+                    criteria.setPage(page.value);
+                    criteria.setLimit(limit.value);
+                    criteria.setTerm(searchTerm.value);
+                    criteria.resetSorting();
+
+                    const sortMetadata = getActiveSortMetadata();
+
+                    getActiveSortingFields().forEach((field) => {
+                        criteria.addSorting(
+                            Criteria.sort(field, sortDirection.value, sortMetadata?.naturalSorting ?? false),
+                        );
+                    });
+
+                    return criteria;
                 }
 
-                function loadData(): Promise<void> {
-                    return Promise.resolve();
+                async function loadData(): Promise<void> {
+                    if (isControlledDataMode.value || setupProps.disableDataFetching) {
+                        return;
+                    }
+
+                    loading.value = true;
+
+                    try {
+                        const searchContext = (setupProps.context ?? Shopware.Context.api) as typeof Shopware.Context.api;
+                        const result = await setupProps.repository.search(
+                            buildCriteria(),
+                            searchContext,
+                        );
+
+                        dataSource.value = result;
+                        totalItems.value = resolveTotal(result, result.total);
+
+                        setupContext.emit('update-records', result);
+                    } catch (errorResponse) {
+                        setupContext.emit('load-failed', errorResponse);
+                    } finally {
+                        loading.value = false;
+                    }
                 }
 
-                function setSort(property: string, direction: SwMeteorEntityDataTableSortDirection): void {
+                function getActiveSortMetadata(): SwMeteorEntityDataTableColumnSortMetadata | null {
+                    if (!sortBy.value) {
+                        return null;
+                    }
+
+                    return columnSortMetadataByProperty.value[sortBy.value] ?? null;
+                }
+
+                function getActiveSortingFields(): string[] {
+                    const sortMetadata = getActiveSortMetadata();
+                    const dataIndex = sortMetadata?.dataIndex ?? sortBy.value;
+
+                    return dataIndex
+                        .split(',')
+                        .map((field) => field.trim())
+                        .filter((field) => field.length > 0);
+                }
+
+                function emitPageChange(): void {
+                    setupContext.emit('page-change', {
+                        page: page.value,
+                        limit: limit.value,
+                    });
+                }
+
+                function resetPage(): void {
+                    if (page.value === 1) {
+                        return;
+                    }
+
+                    page.value = 1;
+                    emitPageChange();
+                }
+
+                function setSort(
+                    property: string,
+                    direction: SwMeteorEntityDataTableSortDirection,
+                ): Promise<void> | void {
+                    const sortMetadata = columnSortMetadataByProperty.value[property];
+
                     sortBy.value = property;
                     sortDirection.value = direction;
+                    resetPage();
 
                     setupContext.emit('sort-change', {
                         property,
-                        dataIndex: property,
+                        dataIndex: sortMetadata?.dataIndex ?? property,
                         direction,
-                        naturalSorting: false,
+                        naturalSorting: sortMetadata?.naturalSorting ?? false,
                     });
+
+                    if (sortMetadata?.useCustomSort) {
+                        return;
+                    }
+
+                    return loadData();
                 }
 
-                function setPage(nextPage: number): void {
+                function setPage(nextPage: number): Promise<void> {
                     page.value = nextPage;
+                    emitPageChange();
 
-                    setupContext.emit('page-change', {
-                        page: page.value,
-                        limit: limit.value,
-                    });
+                    return loadData();
                 }
 
-                function setLimit(nextLimit: number): void {
+                function setLimit(nextLimit: number): Promise<void> {
                     limit.value = nextLimit;
+                    page.value = 1;
+                    emitPageChange();
 
-                    setupContext.emit('page-change', {
-                        page: page.value,
-                        limit: limit.value,
-                    });
+                    return loadData();
                 }
 
                 function setSelectedIds(nextSelectedIds: string[]): void {
@@ -505,43 +591,59 @@ export default defineComponent({
                 }
 
                 function onSelectionChange(payload: SelectionChangePayload): void {
-                    const nextSelectedIds = new Set(selectedIds.value);
-
                     if (payload.value) {
-                        nextSelectedIds.add(payload.id);
-                    } else {
-                        nextSelectedIds.delete(payload.id);
+                        if (selectedIds.value.includes(payload.id)) {
+                            return;
+                        }
+
+                        setSelectedIds([
+                            ...selectedIds.value,
+                            payload.id,
+                        ]);
+                        return;
                     }
 
-                    setSelectedIds([
-                        ...nextSelectedIds,
-                    ]);
+                    setSelectedIds(selectedIds.value.filter((id) => id !== payload.id));
                 }
 
                 function onMultipleSelectionChange(payload: MultipleSelectionChangePayload): void {
-                    const nextSelectedIds = new Set(selectedIds.value);
+                    if (payload.value) {
+                        const nextSelectedIds = [
+                            ...selectedIds.value,
+                            ...payload.selections.filter((id) => !selectedIds.value.includes(id)),
+                        ];
 
-                    payload.selections.forEach((id) => {
-                        if (payload.value) {
-                            nextSelectedIds.add(id);
-                        } else {
-                            nextSelectedIds.delete(id);
-                        }
-                    });
+                        setSelectedIds(nextSelectedIds);
+                        return;
+                    }
 
-                    setSelectedIds([
-                        ...nextSelectedIds,
-                    ]);
+                    setSelectedIds(selectedIds.value.filter((id) => !payload.selections.includes(id)));
                 }
 
                 function onSearchValueChange(term: string): void {
+                    searchTerm.value = term;
+                    resetPage();
+
                     setupContext.emit('search-change', term);
+
+                    void loadData();
                 }
 
                 function onOpenDetails(record: SwMeteorEntityDataTableRecord): void {
-                    setupContext.emit('open-details', {
+                    const openDetailsPayload = {
                         id: record.id,
-                    });
+                    };
+
+                    if (setupProps.detailRoute) {
+                        void getRouter(instanceRouter)?.push({
+                            name: setupProps.detailRoute,
+                            params: {
+                                id: record.id,
+                            },
+                        });
+                    }
+
+                    setupContext.emit('open-details', openDetailsPayload);
                 }
 
                 function onContextSelect(payload: SwMeteorEntityDataTableContextSelectPayload): void {
@@ -552,6 +654,22 @@ export default defineComponent({
                     void loadData();
                 }
 
+                const tableAllowBulkDelete = computed(() => {
+                    return setupProps.allowBulkDelete === true && setupProps.allowDelete === true;
+                });
+                const tableDisableEdit = computed(() => {
+                    return setupProps.showActions === false || !(setupProps.allowEdit === true || setupProps.allowView === true);
+                });
+                const tableDisableDelete = computed(() => {
+                    return setupProps.showActions === false || setupProps.allowDelete !== true;
+                });
+                const tableAdditionalContextButtons = computed(() => {
+                    if (setupProps.showActions === false) {
+                        return [];
+                    }
+
+                    return setupProps.additionalContextButtons ?? [];
+                });
                 const disableSettingsTable = computed(() => !setupProps.showSettings);
 
                 const blockDataScope = computed(() => ({
@@ -561,6 +679,8 @@ export default defineComponent({
                     limit: limit.value,
                     sortBy: sortBy.value,
                     sortDirection: sortDirection.value,
+                    searchTerm: searchTerm.value,
+                    loading: loading.value,
                     selectedIds: selectedIds.value,
                     columnChanges: columnChanges.value,
                     normalizedColumns: normalizedColumns.value,
@@ -577,6 +697,11 @@ export default defineComponent({
                 watch(
                     () => setupProps.records,
                     (nextRecords) => {
+                        if (!isControlledDataMode.value) {
+                            void loadData();
+                            return;
+                        }
+
                         dataSource.value = nextRecords ?? [];
                         totalItems.value = resolveTotal(nextRecords, setupProps.total);
                     },
@@ -585,9 +710,62 @@ export default defineComponent({
                 watch(
                     () => setupProps.total,
                     (nextTotal) => {
+                        if (!isControlledDataMode.value) {
+                            return;
+                        }
+
                         totalItems.value = resolveTotal(dataSource.value, nextTotal);
                     },
                 );
+
+                watch(
+                    () => setupProps.isLoading,
+                    (nextIsLoading) => {
+                        if (!isControlledDataMode.value) {
+                            return;
+                        }
+
+                        loading.value = nextIsLoading === true;
+                    },
+                );
+
+                watch(
+                    () => setupProps.searchValue,
+                    (nextSearchValue) => {
+                        searchTerm.value = nextSearchValue ?? '';
+
+                        void loadData();
+                    },
+                );
+
+                watch(
+                    () => setupProps.criteria,
+                    () => {
+                        void loadData();
+                    },
+                );
+
+                watch(
+                    () => setupProps.context,
+                    () => {
+                        void loadData();
+                    },
+                );
+
+                watch(
+                    () => setupProps.disableDataFetching,
+                    (nextDisableDataFetching) => {
+                        if (nextDisableDataFetching) {
+                            return;
+                        }
+
+                        void loadData();
+                    },
+                );
+
+                onMounted(() => {
+                    void loadData();
+                });
 
                 return {
                     public: {
@@ -597,6 +775,8 @@ export default defineComponent({
                         limit,
                         sortBy,
                         sortDirection,
+                        searchTerm,
+                        loading,
                         selectedIds,
                         columnChanges,
                         normalizedColumns,
@@ -612,7 +792,12 @@ export default defineComponent({
                     private: {
                         blockDataScope,
                         disableRowSelect,
+                        tableAllowBulkDelete,
+                        tableDisableEdit,
+                        tableDisableDelete,
+                        tableAdditionalContextButtons,
                         disableSettingsTable,
+                        columnSortMetadataByProperty,
                         onSelectionChange,
                         onMultipleSelectionChange,
                         onSearchValueChange,
@@ -636,6 +821,16 @@ function resolveTotal(records: SwMeteorEntityDataTableRecords | null | undefined
     }
 
     return records?.length ?? 0;
+}
+
+function getRouter(instanceRouter: SwMeteorEntityDataTableRouter | undefined): SwMeteorEntityDataTableRouter | undefined {
+    const shopwareApplication = Shopware.Application as unknown as {
+        view?: {
+            router?: SwMeteorEntityDataTableRouter;
+        };
+    };
+
+    return instanceRouter ?? shopwareApplication.view?.router;
 }
 </script>
 

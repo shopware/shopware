@@ -8,6 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-    - uses: srvaroa/labeler@v1.13.0
+    - uses: srvaroa/labeler@v1.14.0
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

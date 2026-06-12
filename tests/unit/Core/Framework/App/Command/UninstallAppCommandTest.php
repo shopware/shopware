@@ -26,7 +26,7 @@ class UninstallAppCommandTest extends TestCase
             ->willReturn(null);
 
         $appLifecycle = $this->createMock(AbstractAppLifecycle::class);
-        $appLifecycle->expects($this->never())->method('delete');
+        $appLifecycle->expects($this->never())->method(static::anything());
 
         $command = new UninstallAppCommand($appLifecycle, $appStorage);
 

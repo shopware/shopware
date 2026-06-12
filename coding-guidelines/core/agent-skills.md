@@ -7,8 +7,8 @@ skills, not two snowflakes.
 A **Skill** packages an AI capability in the [Anthropic Agent Skills](https://agentskills.io/specification)
 format. It auto-loads in Claude Code, opencode, Codex CLI, Cursor, Gemini
 CLI and other Agent-Skills-compatible runtimes when the user message matches
-the skill's `description`. Today this repository ships one skill (`triage`);
-the same pattern applies to any future skill.
+the skill's `description`. Today this repository ships `triage` and
+`bugfixer`; the same pattern applies to any future skill.
 
 ## Two surfaces per skill
 
@@ -19,11 +19,14 @@ Each skill has up to two surfaces — keep them in lockstep:
    (typically Markdown).
 2. **Unattended (optional)** — a [GitHub Agentic Workflow](https://github.com/githubnext/gh-aw)
    at `.github/workflows/<name>.md` plus a `runtime-import`-ed policy fragment
-   at `.github/aw/<name>-policy.md`. Emits a structured artifact via
-   `safe-outputs` (`upload-artifact`, `add-labels`, `add-comment`).
+   at `.github/aw/<name>-policy.md`. Emits through `safe-outputs`
+   (`upload-artifact`, `create-pull-request`, `push-to-pull-request-branch`,
+   `add-labels`, `add-comment`, `noop`, depending on the workflow).
 
-Both surfaces share the same rubric and references under
-`.claude/skills/<name>/references/` so they cannot drift in classification logic.
+When both surfaces exist, they share the same rubric under
+`.github/aw/shared/<name>-policy.md` so they cannot drift in policy. Keep
+interactive-only references under `.claude/skills/<name>/references/` when the
+gh aw workflow does not need to import them.
 
 ## Prerequisite
 
@@ -46,6 +49,7 @@ install command live in [`.github/aw/README.md`](../../.github/aw/README.md) →
 
 .github/workflows/<name>.md    # optional — gh aw SOURCE (edit this)
 .github/workflows/<name>.lock.yml   # compiled — `gh aw compile` regenerates
+.github/workflows/agentics-maintenance.yml # generated when gh aw needs safe-output maintenance/replay
 .github/aw/<name>-policy.md    # optional — gh-aw-mode-specific fragment,
                                # runtime-imported by the workflow
 .github/aw/shared/<name>-policy.md  # optional — shared rubric loaded by

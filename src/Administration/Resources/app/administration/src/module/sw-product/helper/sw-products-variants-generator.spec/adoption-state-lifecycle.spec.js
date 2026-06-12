@@ -82,10 +82,22 @@ describe('sw-products-variants-generator.spec/adoption-state-lifecycle.spec.js',
 
             const result = await variantsGenerator.filterVariations(
                 [
-                    [RED, SIZE_S],
-                    [RED, SIZE_L],
-                    [BLUE, SIZE_S],
-                    [BLUE, SIZE_L],
+                    [
+                        RED,
+                        SIZE_S,
+                    ],
+                    [
+                        RED,
+                        SIZE_L,
+                    ],
+                    [
+                        BLUE,
+                        SIZE_S,
+                    ],
+                    [
+                        BLUE,
+                        SIZE_L,
+                    ],
                 ],
                 {
                     'variant-id-red': { options: [RED], productNumber: 'SW.RED' },

@@ -329,14 +329,46 @@ describe('sw-products-variants-generator.spec/variant-preservation.spec.js', () 
             // Color x Size x Material = 8 permutations; each existing variant
             // adopts one and picks up one option per new axis
             const newVariations = [
-                [RED, SIZE_S, MAT_COTTON],
-                [RED, SIZE_S, MAT_WOOL],
-                [RED, SIZE_L, MAT_COTTON],
-                [RED, SIZE_L, MAT_WOOL],
-                [BLUE, SIZE_S, MAT_COTTON],
-                [BLUE, SIZE_S, MAT_WOOL],
-                [BLUE, SIZE_L, MAT_COTTON],
-                [BLUE, SIZE_L, MAT_WOOL],
+                [
+                    RED,
+                    SIZE_S,
+                    MAT_COTTON,
+                ],
+                [
+                    RED,
+                    SIZE_S,
+                    MAT_WOOL,
+                ],
+                [
+                    RED,
+                    SIZE_L,
+                    MAT_COTTON,
+                ],
+                [
+                    RED,
+                    SIZE_L,
+                    MAT_WOOL,
+                ],
+                [
+                    BLUE,
+                    SIZE_S,
+                    MAT_COTTON,
+                ],
+                [
+                    BLUE,
+                    SIZE_S,
+                    MAT_WOOL,
+                ],
+                [
+                    BLUE,
+                    SIZE_L,
+                    MAT_COTTON,
+                ],
+                [
+                    BLUE,
+                    SIZE_L,
+                    MAT_WOOL,
+                ],
             ];
 
             const variationOnServer = {
@@ -355,15 +387,20 @@ describe('sw-products-variants-generator.spec/variant-preservation.spec.js', () 
                 return acc;
             }, {});
 
-            expect(Object.keys(adopted).sort()).toEqual(['variant-id-blue', 'variant-id-red']);
+            expect(Object.keys(adopted).sort()).toEqual([
+                'variant-id-blue',
+                'variant-id-red',
+            ]);
 
             // Each preserved variant must pick up exactly one option per newly introduced axis.
             for (const ids of Object.values(adopted)) {
                 expect(ids).toHaveLength(2);
-                expect(ids).toEqual(expect.arrayContaining([
-                    expect.stringMatching(/^option-size-/),
-                    expect.stringMatching(/^option-material-/),
-                ]));
+                expect(ids).toEqual(
+                    expect.arrayContaining([
+                        expect.stringMatching(/^option-size-/),
+                        expect.stringMatching(/^option-material-/),
+                    ]),
+                );
             }
         });
     });

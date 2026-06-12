@@ -1,0 +1,60 @@
+{% block sw_experience_studio_detail %}
+<sw-page
+    class="sw-experience-studio-detail"
+    :show-search-bar="false"
+    :show-smart-bar="false"
+>
+    {% block sw_experience_studio_detail_content %}
+    <template #content>
+        <div class="sw-experience-studio-detail__content">
+            {% block sw_experience_studio_detail_toolbar %}
+            <sw-experience-studio-toolbar
+                :layout="layout"
+                :is-loading="isLoading"
+                :current-viewport="currentViewport"
+                :allow-save="allowSave"
+                :preview-sales-channel-id="previewSalesChannelId"
+                @back="onClickBack"
+                @viewport-change="onViewportChange"
+                @preview-sales-channel-change="onPreviewSalesChannelChange"
+                @save="onSave"
+            />
+            {% endblock %}
+
+            {% block sw_experience_studio_detail_workspace %}
+            <div class="sw-experience-studio-detail__workspace">
+                {% block sw_experience_studio_detail_sidebar_tree %}
+                <sw-experience-studio-sidebar-tree
+                    class="sw-experience-studio-detail__sidebar-tree"
+                    :layout="layout"
+                    :selected-element-id="selectedElementId"
+                    @select-element="onSelectElement"
+                    @add-element="onAddElement"
+                />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_preview %}
+                <sw-experience-studio-preview
+                    class="sw-experience-studio-detail__preview"
+                    :layout="layout"
+                    :viewport="currentViewport"
+                    :sales-channel-id="previewSalesChannelId"
+                />
+                {% endblock %}
+
+                {% block sw_experience_studio_detail_element_settings %}
+                <sw-experience-studio-element-settings
+                    class="sw-experience-studio-detail__element-settings"
+                    :layout="layout"
+                    :selected-element-id="selectedElementId"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            <sw-loader v-if="isLoading" />
+        </div>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

@@ -1,0 +1,42 @@
+.sw-experience-studio-preview {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+
+    &__frame-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 24px;
+        overflow: auto;
+        background-color: var(--color-background-secondary-default);
+        background-image: radial-gradient(
+            var(--color-border-primary-default) 1px,
+            transparent 1px
+        );
+        background-size: 24px 24px;
+    }
+
+    &__frame {
+        width: 100%;
+        min-height: 480px;
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 0 8px 0 var(--color-elevation-shadow-default);
+        transition: width 0.2s ease;
+
+        &.is--mobile {
+            width: 375px;
+        }
+
+        &.is--tablet-landscape {
+            width: 768px;
+        }
+
+        &.is--desktop {
+            width: 100%;
+            max-width: 1280px;
+        }
+    }
+}

@@ -1,0 +1,46 @@
+{
+  "sw-experience-studio": {
+    "general": {
+      "mainMenuItemGeneral": "Experience Studio",
+      "descriptionTextModule": "Manage content layouts for the new content system.",
+      "placeholderSearchBar": "Search layouts...",
+      "moduleTitle": "Experience Studio",
+      "createNewLayout": "Create new layout"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnVersion": "Version",
+      "columnCreatedAt": "Created at",
+      "columnUpdatedAt": "Updated at",
+      "emptyStateTitle": "No content layouts yet",
+      "emptyStateSubline": "Create your first content layout to get started."
+    },
+    "detail": {
+      "toolbar": {
+        "undo": "Undo",
+        "redo": "Redo",
+        "viewportMobile": "Mobile",
+        "viewportTablet": "Tablet",
+        "viewportDesktop": "Desktop",
+        "previewSalesChannel": "Sales channel",
+        "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "save": "Save layout"
+      },
+      "sidebarTree": {
+        "title": "Structure",
+        "emptyState": "No elements in this layout yet.",
+        "addElement": "Add element",
+        "configureElement": "Configure element"
+      },
+      "preview": {
+        "title": "Preview",
+        "placeholder": "Storefront preview will be shown here."
+      },
+      "elementSettings": {
+        "title": "Element settings",
+        "emptyState": "Select an element to edit its settings."
+      },
+      "messageSaved": "Content layout saved successfully."
+    }
+  }
+}

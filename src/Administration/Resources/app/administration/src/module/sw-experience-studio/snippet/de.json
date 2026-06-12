@@ -1,0 +1,46 @@
+{
+  "sw-experience-studio": {
+    "general": {
+      "mainMenuItemGeneral": "Experience Studio",
+      "descriptionTextModule": "Verwalte Inhaltslayouts für das neue Content-System.",
+      "placeholderSearchBar": "Layouts durchsuchen ...",
+      "moduleTitle": "Experience Studio",
+      "createNewLayout": "Neues Layout erstellen"
+    },
+    "list": {
+      "columnName": "Name",
+      "columnVersion": "Version",
+      "columnCreatedAt": "Erstellt am",
+      "columnUpdatedAt": "Aktualisiert am",
+      "emptyStateTitle": "Noch keine Inhaltslayouts",
+      "emptyStateSubline": "Erstelle Dein erstes Inhaltslayout, um loszulegen."
+    },
+    "detail": {
+      "toolbar": {
+        "undo": "Rückgängig",
+        "redo": "Wiederholen",
+        "viewportMobile": "Mobil",
+        "viewportTablet": "Tablet",
+        "viewportDesktop": "Desktop",
+        "previewSalesChannel": "Verkaufskanal",
+        "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
+        "save": "Layout speichern"
+      },
+      "sidebarTree": {
+        "title": "Struktur",
+        "emptyState": "Dieses Layout enthält noch keine Elemente.",
+        "addElement": "Element hinzufügen",
+        "configureElement": "Element konfigurieren"
+      },
+      "preview": {
+        "title": "Vorschau",
+        "placeholder": "Die Storefront-Vorschau wird hier angezeigt."
+      },
+      "elementSettings": {
+        "title": "Element-Einstellungen",
+        "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten."
+      },
+      "messageSaved": "Inhaltslayout erfolgreich gespeichert."
+    }
+  }
+}

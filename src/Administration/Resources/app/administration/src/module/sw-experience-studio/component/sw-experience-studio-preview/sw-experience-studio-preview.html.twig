@@ -1,0 +1,15 @@
+{% block sw_experience_studio_preview %}
+<div class="sw-experience-studio-preview">
+    <div class="sw-experience-studio-preview__frame-wrapper">
+        <div
+            class="sw-experience-studio-preview__frame"
+            :class="viewportClass"
+        >
+            <mt-empty-state
+                icon="regular-eye"
+                :description="$t('sw-experience-studio.detail.preview.placeholder')"
+            />
+        </div>
+    </div>
+</div>
+{% endblock %}

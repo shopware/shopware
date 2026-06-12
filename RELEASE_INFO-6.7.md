@@ -184,6 +184,11 @@ This reduced loading is **enabled for fresh installations** and **disabled for e
 
 A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 
+### PHPStan enforces safe session checks
+
+Shopware's PHPStan rules now require `Request::hasSession(true)` instead of `Request::hasSession()`.
+This prevents code from treating lazy session factories as initialized sessions and later materializing the PHP session through `Request::getSession()`, which can acquire a session lock.
+
 ## Administration
 
 ### Storefront icon cache and speculation rules can be configured per sales channel

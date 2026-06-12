@@ -83,7 +83,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 
@@ -153,7 +153,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$mainRequest->hasSession()) {
+        if (!$mainRequest->hasSession(true)) {
             return;
         }
 

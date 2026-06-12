@@ -126,7 +126,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
                 $currentRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
             }
 
-            $requestSession = $currentRequest?->hasSession() ? $currentRequest->getSession() : null;
+            $requestSession = $currentRequest?->hasSession(true) ? $currentRequest->getSession() : null;
 
             // Remove imitating user id from session, if there is no customer
             if ($requestSession && $context->getImitatingUserId() && !$context->getCustomerId()) {

@@ -11,17 +11,17 @@ use Shopware\Core\Framework\Webhook\WebhookDefinition;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Routes the admin reactivate gesture — `PATCH /api/webhook/{id}` with `active = true` — through the
- * health model so a SUSPENDED/DISABLED webhook is reset to HEALTHY (counters cleared, held backlog
- * resumed, audit event emitted), not merely flipped `active = 1` over stale health. This is the
- * manual recovery path while the flag is on. `reactivate()` is a no-op for an already-HEALTHY webhook,
- * so an unrelated edit that happens to include `active = true` costs nothing. A bare secret rotation
- * emits no such write, so it stays a known gap (recover via this PATCH or an app install/update).
+ * Routes the admin deactivate gesture — `PATCH /api/webhook/{id}` with `active = false` — through the
+ * health model so an operator kill lands as DISABLED with `disabled_origin = operator`, not merely as
+ * `active = 0` over stale health where recovery would silently resurrect it. The echo guard lives in
+ * {@see EndpointLifecycle::disableByOperator}: a write that merely repeats the mirrored value (a
+ * full-entity round-trip while suspended) is a no-op. The BC mirror's own `webhook.active` writes use
+ * raw SQL and never fire `webhook.written`, so only an operator/API DAL write reaches this subscriber.
  *
  * @internal
  */
 #[Package('framework')]
-class ReactivateWebhookOnActivationSubscriber implements EventSubscriberInterface
+class DisableWebhookOnAdminDeactivationSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly EndpointLifecycle $endpointLifecycle,
@@ -42,7 +42,7 @@ class ReactivateWebhookOnActivationSubscriber implements EventSubscriberInterfac
         }
 
         foreach ($event->getWriteResults() as $writeResult) {
-            // Only an update can be a reactivation; a freshly inserted webhook is HEALTHY by default.
+            // Only an update can be an operator deactivation; a freshly inserted webhook is HEALTHY by default.
             if ($writeResult->getOperation() !== EntityWriteResult::OPERATION_UPDATE) {
                 continue;
             }
@@ -50,8 +50,8 @@ class ReactivateWebhookOnActivationSubscriber implements EventSubscriberInterfac
             $payload = $writeResult->getPayload();
             $id = $payload['id'] ?? null;
 
-            if (($payload['active'] ?? null) === true && \is_string($id)) {
-                $this->endpointLifecycle->reactivateOnActiveFlip($id);
+            if (($payload['active'] ?? null) === false && \is_string($id)) {
+                $this->endpointLifecycle->disableByOperator($id);
             }
         }
     }

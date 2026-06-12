@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Outbox\OutboxInsert;
 use Shopware\Core\Framework\Webhook\Outbox\WebhookOutboxStore;
@@ -25,19 +26,17 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * A SUSPENDED webhook whose admin merely flips `active = 1` over stale health would stay
- * undeliverable: the gate reads `webhook_health`, not the legacy column. This proves the admin
- * reactivate gesture — a DAL `PATCH /api/webhook/{id}` with `active = true` — is routed through
- * {@see WebhookHealthService::reactivate} with trigger {@see WebhookActivationTrigger::Manual} by
- * {@see ReactivateWebhookOnActivationSubscriber}, but only under `WEBHOOKS_REWORK`. The webhook is
- * updated through `webhook.repository` so the real `webhook.written` event fires the registered
- * subscriber end to end.
- *
- * Observable contract per the amended ADR: the health-row transition (counters cleared), the BC
- * `webhook.active`/`error_count` mirror, the held-backlog resume, and exactly one dispatched
- * {@see WebhookActivatedEvent} on a real transition. `reactivate()` heals idempotently — an
- * already-HEALTHY write emits no event but still repairs a drifted legacy mirror and resumes
- * stranded `paused` rows (review M2).
+ * Locks down the admin reactivate gesture: a DAL `PATCH /api/webhook/{id}` with `active = true`
+ * must be routed through {@see WebhookHealthService::reactivate} (trigger Manual) by
+ * {@see ReactivateWebhookOnActivationSubscriber}, but only under `WEBHOOKS_REWORK`. Without this,
+ * flipping `active = 1` over stale health would leave the webhook undeliverable — the gate reads
+ * `webhook_health`, not the legacy column. Per the ADR's echo-guarded write table, only a write
+ * that flips the mirrored value carries intent: the reset runs from SUSPENDED/DISABLED (health row
+ * to HEALTHY, counters cleared, mirror repaired, held backlog resumed, exactly one
+ * {@see WebhookActivatedEvent}); on DEGRADED the write is an echo and must not reset the breaker;
+ * an already-HEALTHY write emits no event but still heals the mirror and stranded `paused` rows
+ * (review M2). Updates go through `webhook.repository` so the real `webhook.written` event fires
+ * the registered subscriber end to end.
  *
  * @internal
  */
@@ -70,9 +69,9 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Catches: the subscriber failing to route an `active = true` update to `reactivate()` under
-     * flag-on (wrong subscribed event, mis-read `active` payload, or a no-op `reactivate`), or a
-     * reactivation that flips the state but strands the held backlog / the episode markers.
+     * Catches: an `active = true` update not reaching `reactivate()` with the Manual trigger under
+     * flag-on, or a reactivation that flips the state but strands the held backlog or the episode
+     * markers.
      */
     public function testActivatingSuspendedWebhookHealsItUnderFlagOn(): void
     {
@@ -122,10 +121,87 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Catches: a non-idempotent heal. An already-HEALTHY write dispatches no event, but the
-     * operator gesture still repairs a drifted legacy mirror (a flag-off auto-disable left
-     * `active = 0` / `error_count > 0` over a healthy row) and resumes `paused` rows stranded by a
-     * crash mid-recovery (review M2).
+     * Catches: the operator-disabled recovery being blocked by its own provenance. Automation never
+     * undoes an operator kill — admin `PATCH active = true` is exactly the gesture that reverses
+     * it, so it must reset the webhook regardless of `disabled_origin`.
+     */
+    public function testActivatingOperatorDisabledWebhookRecoversIt(): void
+    {
+        $this->seedWebhook('wh', active: false, errorCount: 2);
+        $this->seedHealth('wh', EndpointState::Disabled, [
+            'consecutive_transient_failures' => 2,
+            'disabled_since' => '2026-06-02 12:00:00.000',
+            'disabled_origin' => DisabledOrigin::Operator->value,
+        ]);
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => true]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Healthy->value, $health['endpoint_state'], 'PATCH active=true is the operator-disabled recovery — it must reset DISABLED regardless of origin.');
+        static::assertSame(0, (int) $health['consecutive_transient_failures']);
+        static::assertNull($health['disabled_since'], 'reaching HEALTHY ends the disable episode');
+        static::assertNull($health['disabled_origin'], 'the operator provenance is cleared with the episode');
+
+        $webhook = $this->fetchBcColumns('wh');
+        static::assertSame(1, $webhook['active']);
+        static::assertSame(0, $webhook['error_count']);
+
+        $activated = $events();
+        static::assertCount(1, $activated, 'the recovery must dispatch exactly one WebhookActivatedEvent');
+        static::assertSame(EndpointState::Disabled, $activated[0]->fromState);
+        static::assertSame(WebhookActivationTrigger::Manual, $activated[0]->trigger);
+        static::assertNull($activated[0]->clearedSuspendedSince, 'no suspension episode was cleared — the webhook was operator-disabled, not suspended');
+    }
+
+    /**
+     * Catches: a missing echo guard on DEGRADED. DEGRADED already mirrors `active = 1`, so writing
+     * `active = true` again carries no intent — resetting would wipe the ladder and the failure
+     * streak mid-episode. Everything must stay as it was, and no event may fire.
+     */
+    public function testActivatingDegradedWebhookIsAnEchoAndDoesNotResetTheBreaker(): void
+    {
+        $cooldown = (new \DateTimeImmutable('+4 hours'))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->seedWebhook('wh', active: true, errorCount: 4);
+        $this->seedHealth('wh', EndpointState::Degraded, [
+            'consecutive_transient_failures' => 4,
+            'degraded_cycle_count' => 1,
+            'cooldown_until' => $cooldown,
+        ]);
+        $this->seedHeldRow('held-event', 'wh');
+
+        $events = $this->captureActivatedEvents();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function (): void {
+            $this->webhookRepository->update(
+                [['id' => $this->ids->get('wh'), 'active' => true]],
+                Context::createDefaultContext(),
+            );
+        });
+
+        $health = $this->fetchHealthRow('wh');
+        static::assertSame(EndpointState::Degraded->value, $health['endpoint_state'], 'an echo write must not reset a DEGRADED webhook');
+        static::assertSame(4, (int) $health['consecutive_transient_failures'], 'the failure streak must survive the echo');
+        static::assertSame(1, (int) $health['degraded_cycle_count'], 'the ladder must survive the echo');
+        static::assertSame($cooldown, $health['cooldown_until'], 'the running cooldown must survive the echo');
+        static::assertSame(
+            'paused',
+            $this->fetchDeliveryStatus('held-event'),
+            'a refused echo must not resume the deliberately held backlog onto a still-breaking endpoint',
+        );
+        static::assertCount(0, $events(), 'an echo must not dispatch a WebhookActivatedEvent');
+    }
+
+    /**
+     * Catches: a non-idempotent heal. An already-HEALTHY write dispatches no event, but it must
+     * still repair a drifted legacy mirror (a flag-off auto-disable left `active = 0` over a
+     * healthy row) and resume `paused` rows stranded by a crash mid-recovery (review M2).
      */
     public function testActivatingAlreadyHealthyWebhookRepairsMirrorDriftAndStrandedHolds(): void
     {
@@ -153,9 +229,8 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Catches: the subscriber running with the flag off — i.e. a missing `Feature::isActive` guard.
-     * Flag-off, the legacy raw `active = 1` write must stand alone: the SUSPENDED health row and the
-     * held backlog stay untouched and no event is dispatched.
+     * Catches: a missing `Feature::isActive` guard. Flag-off, the legacy raw `active = 1` write
+     * stands alone: the SUSPENDED health row and the held backlog stay untouched, no event fires.
      */
     public function testActivationIsNoOpUnderFlagOff(): void
     {
@@ -189,7 +264,7 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Catches: the subscriber treating a deactivation (`active = false`) as a reactivation — only
+     * Catches: a deactivation (`active = false`) being treated as a reactivation — only
      * `active === true` may trigger `reactivate()`.
      */
     public function testDeactivationDoesNotReactivate(): void
@@ -218,9 +293,8 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Subscribes a collector to WebhookActivatedEvent and returns a callable that detaches the
-     * listener and yields the events captured so far. The dispatcher is the same `event_dispatcher`
-     * WebhookHealthService dispatches through, so this observes the real reactivation side effect.
+     * Collects WebhookActivatedEvent dispatches; the returned closure detaches the listener and
+     * returns what was captured. Same dispatcher the service uses, so this sees the real side effect.
      *
      * @return \Closure(): list<WebhookActivatedEvent>
      */
@@ -266,7 +340,7 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     }
 
     /**
-     * Seeds a held (`paused`) outbox row through the store's own Hold writer — the same rows a
+     * Seeds a held (`paused`) outbox row through the store's own Hold writer — the same row a
      * DEGRADED/SUSPENDED hold leaves behind for reactivate to resume.
      */
     private function seedHeldRow(string $eventKey, string $webhookKey): void
@@ -312,7 +386,7 @@ class ReactivateWebhookOnActivationSubscriberTest extends TestCase
     {
         $row = $this->connection->fetchAssociative(
             'SELECT endpoint_state, consecutive_transient_failures, consecutive_non_transient_failures,
-                    degraded_cycle_count, cooldown_until, suspended_since
+                    degraded_cycle_count, cooldown_until, suspended_since, disabled_since, disabled_origin
              FROM webhook_health WHERE webhook_id = :id',
             ['id' => $this->ids->getBytes($key)],
         );

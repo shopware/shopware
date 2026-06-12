@@ -15,7 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
 use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
 use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
+use Shopware\Core\Framework\Webhook\Health\DisabledOrigin;
 use Shopware\Core\Framework\Webhook\Health\EndpointHealth;
 use Shopware\Core\Framework\Webhook\Health\EndpointLifecycle;
 use Shopware\Core\Framework\Webhook\Health\EndpointState;
@@ -65,9 +67,11 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         return match ($this->currentState($webhookId)) {
             EndpointState::Healthy => WebhookDispatchDecision::Deliver,
             EndpointState::Degraded => WebhookDispatchDecision::Hold,
-            // SUSPENDED holds its pre-suspension backlog but sheds new events: no row, no write.
-            // (Its natural-traffic half-open trial admission is a later step; here both skip.)
-            EndpointState::Suspended, EndpointState::Disabled => WebhookDispatchDecision::Skip,
+            // SUSPENDED holds its pre-suspension backlog and sheds new events (no row, no write) —
+            // except that with nothing held and nothing in flight, an elapsed cooldown admits the
+            // next natural event as the half-open trial. DISABLED never recovers on traffic.
+            EndpointState::Suspended => $this->admitSuspendedTrial($webhookId),
+            EndpointState::Disabled => WebhookDispatchDecision::Skip,
         };
     }
 
@@ -151,17 +155,46 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
     }
 
     /**
-     * One scheduled tick over the clocked duties. This build carries the DEGRADED duties — trial
-     * releases and idle promotion; the SUSPENDED duties ride the same loop once SUSPENDED recovery
-     * is wired (the gate skips SUSPENDED entirely in this build, so there is nothing to release).
+     * One scheduled tick over the five clocked duties (ADR §Half-open recovery): trial releases for
+     * both non-HEALTHY states, idle promotion, the 7-day retirement, crash-leftover cleanup, and
+     * stale-hold healing — plus the suspension-clock pause for deactivated apps. Each duty is a
+     * cheap indexed check; every per-webhook action runs in its own short transaction.
      */
     public function tick(): int
     {
+        $this->shiftPausedSuspensionClocks();
+
+        return $this->runDueReleases()
+            + $this->retireSuspendedPastBound()
+            + $this->cancelSurplusSuspendedInFlight()
+            + $this->healStrandedHolds();
+    }
+
+    /**
+     * Duties 1 + 2: per DEGRADED/SUSPENDED webhook with an elapsed cooldown, release the oldest held
+     * row as the trial — or, for DEGRADED with nothing held and nothing in flight, idle-promote.
+     * SUSPENDED never idle-promotes (the gate admits the next natural event as its trial instead),
+     * and SUSPENDED webhooks of deactivated apps get no trials at all — their events are
+     * eligibility-filtered before the gate, so their suspension clock is paused, not running.
+     */
+    private function runDueReleases(): int
+    {
         /** @var list<string> $candidates */
         $candidates = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(webhook_id)) FROM webhook_health
-             WHERE endpoint_state = :degraded AND (cooldown_until IS NULL OR cooldown_until <= :now)',
-            ['degraded' => EndpointState::Degraded->value, 'now' => $this->now()]
+            'SELECT LOWER(HEX(wh.webhook_id))
+             FROM webhook_health wh
+             LEFT JOIN webhook w ON w.id = wh.webhook_id
+             LEFT JOIN app a ON a.id = w.app_id
+             WHERE (wh.cooldown_until IS NULL OR wh.cooldown_until <= :now)
+               AND (
+                    wh.endpoint_state = :degraded
+                    OR (wh.endpoint_state = :suspended AND (a.id IS NULL OR a.active = 1))
+               )',
+            [
+                'now' => $this->now(),
+                'degraded' => EndpointState::Degraded->value,
+                'suspended' => EndpointState::Suspended->value,
+            ]
         );
 
         $acted = 0;
@@ -170,12 +203,16 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                 // Serialise concurrent ticks on this webhook: hold the health row FOR UPDATE across
                 // the in-flight check, release, and idle promotion. Without it two ticks can both
                 // pass the in-flight check and double-release, or one can idle-promote while the
-                // other's just-released trial is mid-flight. Re-confirm DEGRADED under the lock.
-                $stillDegraded = (bool) $this->connection->fetchOne(
-                    'SELECT 1 FROM webhook_health WHERE webhook_id = :id AND endpoint_state = :degraded FOR UPDATE',
-                    ['id' => Uuid::fromHexToBytes($webhookId), 'degraded' => EndpointState::Degraded->value]
-                );
-                if (!$stillDegraded) {
+                // other's just-released trial is mid-flight. Re-confirm the state under the lock.
+                $row = $this->lockHealthRow($webhookId);
+                if ($row === null) {
+                    return 0;
+                }
+                $state = EndpointState::from((string) $row['endpoint_state']);
+                if ($state !== EndpointState::Degraded && $state !== EndpointState::Suspended) {
+                    return 0;
+                }
+                if ($row['cooldown_until'] !== null && (string) $row['cooldown_until'] > $this->now()) {
                     return 0;
                 }
 
@@ -187,8 +224,15 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
                 }
 
                 // A held row → release exactly one as the trial; its result drives the ladder.
+                // Releasing itself never counts: the cooldown stays elapsed, so the result lands
+                // counted (and re-arms the next tier).
                 if ($this->outboxStore->releaseOneTrial($webhookId) !== null) {
                     return 1;
+                }
+
+                if ($state === EndpointState::Suspended) {
+                    // Nothing held: the gate admits the next natural event as the trial.
+                    return 0;
                 }
 
                 // True idle (nothing held, nothing in flight) → promote to HEALTHY. A guarded "stay"
@@ -200,9 +244,190 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         return $acted;
     }
 
+    /**
+     * Duty 3: SUSPENDED webhooks held past `suspended_since + max_suspended_days` retire to DISABLED
+     * (origin escalation) — time-based, not traffic-based, so a dead endpoint still retires. Skips
+     * webhooks of deactivated apps: their clock is paused ({@see shiftPausedSuspensionClocks}), and
+     * retiring them at the first tick after reactivation would punish time without a recovery path.
+     */
+    private function retireSuspendedPastBound(): int
+    {
+        $cutoff = $this->clock->now()
+            ->modify(\sprintf('-%d days', $this->config->maxSuspendedDays))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        /** @var list<string> $candidates */
+        $candidates = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(wh.webhook_id))
+             FROM webhook_health wh
+             LEFT JOIN webhook w ON w.id = wh.webhook_id
+             LEFT JOIN app a ON a.id = w.app_id
+             WHERE wh.endpoint_state = :suspended
+               AND wh.suspended_since IS NOT NULL AND wh.suspended_since <= :cutoff
+               AND (a.id IS NULL OR a.active = 1)',
+            ['suspended' => EndpointState::Suspended->value, 'cutoff' => $cutoff]
+        );
+
+        $retired = 0;
+        foreach ($candidates as $webhookId) {
+            $event = RetryableTransaction::retryable($this->connection, function () use ($webhookId, $cutoff): ?WebhookDisabledEvent {
+                $id = Uuid::fromHexToBytes($webhookId);
+                // SKIP LOCKED steps past a candidate a concurrent tick or trial is touching; the
+                // guarded UPDATE makes a trial that recovered it to DEGRADED a zero-row no-op.
+                $locked = $this->connection->fetchOne(
+                    'SELECT 1 FROM webhook_health
+                     WHERE webhook_id = :id AND endpoint_state = :suspended AND suspended_since <= :cutoff
+                     FOR UPDATE SKIP LOCKED',
+                    ['id' => $id, 'suspended' => EndpointState::Suspended->value, 'cutoff' => $cutoff]
+                );
+                if ($locked === false) {
+                    return null;
+                }
+
+                $disabledRows = (int) $this->connection->executeStatement(
+                    'UPDATE webhook_health
+                     SET endpoint_state = :disabled, disabled_since = :now, disabled_origin = :origin,
+                         cooldown_until = NULL, updated_at = :now
+                     WHERE webhook_id = :id AND endpoint_state = :suspended',
+                    [
+                        'disabled' => EndpointState::Disabled->value,
+                        'now' => $this->now(),
+                        'origin' => DisabledOrigin::Escalation->value,
+                        'id' => $id,
+                        'suspended' => EndpointState::Suspended->value,
+                    ]
+                );
+                if ($disabledRows === 0) {
+                    return null;
+                }
+                $this->mirrorBcColumns($webhookId);
+
+                return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Suspended, DisabledOrigin::Escalation);
+            });
+
+            if ($event === null) {
+                continue;
+            }
+
+            // DISABLED cancels everything still undelivered — queued, held, and mid-flight alike.
+            $this->outboxStore->dropBacklogForWebhook($webhookId, WebhookOutboxStore::DROP_REASON_DISABLED);
+            $this->dispatchBestEffort($event);
+            $this->logger->warning('Webhook endpoint disabled after exceeding the suspension bound', [
+                'webhookId' => $webhookId,
+                'maxSuspendedDays' => $this->config->maxSuspendedDays,
+            ]);
+            ++$retired;
+        }
+
+        return $retired;
+    }
+
+    /**
+     * Duty 4: enforce "only the one deliberately released row may be in flight" on SUSPENDED
+     * webhooks — crash-recovery can resurrect pre-suspension deliveries as claimable rows.
+     */
+    private function cancelSurplusSuspendedInFlight(): int
+    {
+        /** @var list<string> $candidates */
+        $candidates = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(d.webhook_id))
+             FROM webhook_delivery d
+             JOIN webhook_health wh ON wh.webhook_id = d.webhook_id
+             WHERE wh.endpoint_state = :suspended AND d.delivery_status IN (:queued, :pendingRetry)',
+            [
+                'suspended' => EndpointState::Suspended->value,
+                'queued' => 'queued',
+                'pendingRetry' => 'pending_retry',
+            ]
+        );
+
+        $acted = 0;
+        foreach ($candidates as $webhookId) {
+            $acted += $this->outboxStore->cancelSurplusInFlightRows($webhookId) > 0 ? 1 : 0;
+        }
+
+        return $acted;
+    }
+
+    /**
+     * Duty 5: resume `paused` rows stranded on a HEALTHY webhook by a Hold decision that raced a
+     * recovery (the gate persists its decision verbatim; this is the absorption side of that race).
+     */
+    private function healStrandedHolds(): int
+    {
+        $acted = 0;
+        foreach ($this->outboxStore->findWebhookIdsWithStrandedHolds() as $webhookId) {
+            $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
+            ++$acted;
+        }
+
+        return $acted;
+    }
+
+    /**
+     * The suspension-clock pause for deactivated apps (ADR §SUSPENDED): each tick moves
+     * `suspended_since` forward by the time elapsed since the row's last write, so only time with a
+     * live recovery path counts toward the 7-day bound — net effect identical to rebasing the clock
+     * at reactivation, without storing the deactivation timestamp anywhere. `updated_at` is the
+     * shift cursor; {@see pauseSuspensionClockForApp} initialises it at deactivation. MySQL applies
+     * SET clauses left to right, so `suspended_since` reads the pre-shift cursor.
+     */
+    private function shiftPausedSuspensionClocks(): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             JOIN app a ON a.id = w.app_id
+             SET wh.suspended_since = TIMESTAMPADD(MICROSECOND, TIMESTAMPDIFF(MICROSECOND, wh.updated_at, :now), wh.suspended_since),
+                 wh.updated_at = :now
+             WHERE a.active = 0
+               AND wh.endpoint_state = :suspended
+               AND wh.suspended_since IS NOT NULL
+               AND wh.updated_at IS NOT NULL AND wh.updated_at < :now',
+            ['now' => $this->now(), 'suspended' => EndpointState::Suspended->value]
+        );
+    }
+
+    public function pauseSuspensionClockForApp(string $appId): void
+    {
+        // Initialise the shift cursor (updated_at) at the deactivation moment, so the first tick's
+        // shift covers exactly the deactivated time — not the gap back to the last health write.
+        $this->connection->executeStatement(
+            'UPDATE webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             SET wh.updated_at = :now
+             WHERE w.app_id = :appId AND wh.endpoint_state = :suspended',
+            [
+                'now' => $this->now(),
+                'appId' => Uuid::fromHexToBytes($appId),
+                'suspended' => EndpointState::Suspended->value,
+            ]
+        );
+    }
+
     public function reactivate(string $webhookId, WebhookActivationTrigger $trigger): int
     {
-        $event = RetryableTransaction::retryable($this->connection, function () use ($webhookId, $trigger): ?WebhookActivatedEvent {
+        return $this->reactivateFrom($webhookId, $trigger, null);
+    }
+
+    public function reactivateOnActiveFlip(string $webhookId): int
+    {
+        // The admin `PATCH active = true` gesture. Intent is read only from a write that actually
+        // flips the mirrored value (ADR §Admin API backwards-compat): SUSPENDED/DISABLED mirror
+        // active = false, so the write is a genuine flip there — including an operator-disabled
+        // webhook, whose recovery is exactly this gesture. On HEALTHY/DEGRADED the mirrored value is
+        // already true, so the write is an echo and must not feed back into the state machine (a
+        // full-entity round-trip of a DEGRADED webhook must not reset it). The idempotent heal
+        // inside still runs for HEALTHY rows (drifted mirror, stranded holds).
+        return $this->reactivateFrom($webhookId, WebhookActivationTrigger::Manual, [EndpointState::Suspended, EndpointState::Disabled]);
+    }
+
+    /**
+     * @param list<EndpointState>|null $onlyFrom restricts which states may transition; null = any non-HEALTHY
+     */
+    private function reactivateFrom(string $webhookId, WebhookActivationTrigger $trigger, ?array $onlyFrom): int
+    {
+        $event = RetryableTransaction::retryable($this->connection, function () use ($webhookId, $trigger, $onlyFrom): ?WebhookActivatedEvent {
             // Serialise with concurrent transitions via the webhook row lock; bail if the webhook is gone.
             $exists = (bool) $this->connection->fetchOne(
                 'SELECT 1 FROM webhook WHERE id = :id FOR UPDATE',
@@ -233,13 +458,25 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
             $fromState = EndpointState::from((string) $row['endpoint_state']);
 
             $transitioned = $fromState !== EndpointState::Healthy
+                && ($onlyFrom === null || \in_array($fromState, $onlyFrom, true))
                 && $this->resetToHealthy($webhookId, keepStreaks: false);
 
-            // Idempotent heal (also for an already-HEALTHY webhook or one without a health row): the
-            // mirror repairs drifted legacy columns and the resume releases a crash-stranded held
-            // backlog — both no-ops when there is nothing to repair. Inside the transaction, so a
-            // crash can't commit the transition without them (a HEALTHY row that WebhookLoader's
-            // active=1 filter excludes would be an unrecoverable zombie).
+            // Idempotent heal on a real transition or an already-HEALTHY webhook: the mirror repairs
+            // drifted legacy columns and the resume releases a crash-stranded held backlog — both
+            // no-ops when there is nothing to repair. Inside the transaction, so a crash can't
+            // commit the transition without them (a HEALTHY row that WebhookLoader's active=1 filter
+            // excludes would be an unrecoverable zombie). A REFUSED echo (e.g. PATCH active=true on
+            // DEGRADED) must heal nothing: resuming would release a deliberately held backlog onto
+            // an endpoint that is still breaking.
+            if (!$transitioned && $fromState !== EndpointState::Healthy) {
+                // A refused gesture still re-derives the BC mirror (state untouched, nothing
+                // resumed): the app persister force-writes active = 1 on every app update, and a
+                // refused recovery must not leave an operator-killed webhook reading active.
+                $this->mirrorBcColumns($webhookId);
+
+                return null;
+            }
+
             $this->mirrorBcColumns($webhookId);
             $this->outboxStore->resumeDeliveriesForWebhook($webhookId);
 
@@ -267,9 +504,102 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
 
     public function reactivateForApp(string $appId): int
     {
-        // The app install/update clean-slate reset is not active in this build; an app's webhooks
-        // recover only via {@see reactivate}. Returns 0 — nothing is reset here.
-        return 0;
+        // App install/update is a deliberate config refresh — a clean slate that replaces exactly
+        // what usually broke the endpoint. Reset every non-HEALTHY webhook of the app via the
+        // per-webhook reactivate (resume, mirror, one WebhookActivatedEvent each) — EXCEPT an
+        // operator-disabled one: a merchant's explicit kill survives a routine app update; only the
+        // operator gesture reverses it.
+        /** @var list<string> $webhookIds */
+        $webhookIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(wh.webhook_id)) FROM webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             WHERE w.app_id = :appId AND wh.endpoint_state <> :healthy
+               AND NOT (wh.endpoint_state = :disabled AND wh.disabled_origin = :operator)',
+            [
+                'appId' => Uuid::fromHexToBytes($appId),
+                'healthy' => EndpointState::Healthy->value,
+                'disabled' => EndpointState::Disabled->value,
+                'operator' => DisabledOrigin::Operator->value,
+            ]
+        );
+
+        $reset = 0;
+        foreach ($webhookIds as $webhookId) {
+            $reset += $this->reactivate($webhookId, WebhookActivationTrigger::AppReset);
+        }
+
+        // The excluded operator kills never reach reactivate(), but the app persister has just
+        // force-written active = 1 on every webhook of the app — re-derive their BC mirror so the
+        // merchant's kill keeps reading active = false.
+        /** @var list<string> $operatorKilled */
+        $operatorKilled = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(wh.webhook_id)) FROM webhook_health wh
+             JOIN webhook w ON w.id = wh.webhook_id
+             WHERE w.app_id = :appId AND wh.endpoint_state = :disabled AND wh.disabled_origin = :operator',
+            [
+                'appId' => Uuid::fromHexToBytes($appId),
+                'disabled' => EndpointState::Disabled->value,
+                'operator' => DisabledOrigin::Operator->value,
+            ]
+        );
+        foreach ($operatorKilled as $webhookId) {
+            $this->mirrorBcColumns($webhookId);
+        }
+
+        return $reset;
+    }
+
+    public function disableByOperator(string $webhookId): int
+    {
+        // The admin `PATCH active = false` gesture. Intent is read only from a write that actually
+        // flips the mirrored value: HEALTHY/DEGRADED mirror active = true, so the write is a genuine
+        // kill there; on SUSPENDED/DISABLED the mirrored value is already false — an echo (e.g. a
+        // full-entity round-trip while suspended) that must not register as operator intent. The
+        // fail-open INSERT is load-bearing: a never-failed webhook has no health row, yet its
+        // already-enqueued deliveries keep delivering after active = false, and a late failure on
+        // one would insert a fresh HEALTHY row and mirror active = 1 — resurrecting the endpoint the
+        // operator just switched off.
+        $event = RetryableTransaction::retryable($this->connection, function () use ($webhookId): ?WebhookDisabledEvent {
+            $row = $this->lockHealthRow($webhookId);
+
+            if ($row === null) {
+                return $this->insertFreshDisabledRow($webhookId);
+            }
+
+            $fromState = EndpointState::from((string) $row['endpoint_state']);
+            if ($fromState !== EndpointState::Healthy && $fromState !== EndpointState::Degraded) {
+                return null;
+            }
+
+            $this->connection->executeStatement(
+                'UPDATE webhook_health
+                 SET endpoint_state = :disabled, disabled_since = :now, disabled_origin = :origin,
+                     cooldown_until = NULL, updated_at = :now
+                 WHERE webhook_id = :id AND endpoint_state = :from',
+                [
+                    'disabled' => EndpointState::Disabled->value,
+                    'now' => $this->now(),
+                    'origin' => DisabledOrigin::Operator->value,
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                    'from' => $fromState->value,
+                ]
+            );
+            $this->mirrorBcColumns($webhookId);
+
+            return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), $fromState, DisabledOrigin::Operator);
+        });
+
+        if ($event === null) {
+            return 0;
+        }
+
+        // DISABLED cancels everything still undelivered — an operator's kill also stops a backlog
+        // that was still deliverable.
+        $this->outboxStore->dropBacklogForWebhook($webhookId, WebhookOutboxStore::DROP_REASON_DISABLED);
+        $this->dispatchBestEffort($event);
+        $this->logger->warning('Webhook endpoint disabled by operator', ['webhookId' => $webhookId]);
+
+        return 1;
     }
 
     /**
@@ -721,6 +1051,96 @@ class WebhookHealthService implements EndpointHealth, EndpointLifecycle
         );
 
         return \is_array($row) ? $row : null;
+    }
+
+    /**
+     * Half-open trial admission for a SUSPENDED webhook on natural traffic. Only with nothing held
+     * (else the task releases the oldest held row instead) and nothing in flight; once the cooldown
+     * elapses, the ladder is advanced one tier AT ADMISSION — re-arming the cooldown so a burst sees
+     * the future lease and skips (exactly one trial), and so the trial's own failure result lands as
+     * a straggler and cannot count a second time. A 2xx resets everything via recordSuccess anyway.
+     */
+    private function admitSuspendedTrial(string $webhookId): WebhookDispatchDecision
+    {
+        if ($this->hasHeldRow($webhookId)) {
+            return WebhookDispatchDecision::Skip;
+        }
+
+        $admitted = RetryableTransaction::retryable($this->connection, function () use ($webhookId): bool {
+            $row = $this->lockHealthRow($webhookId);
+            if ($row === null || (string) $row['endpoint_state'] !== EndpointState::Suspended->value) {
+                return false;
+            }
+            if ($row['cooldown_until'] !== null && (string) $row['cooldown_until'] > $this->now()) {
+                return false;
+            }
+            if ($this->hasHeldRow($webhookId) || $this->hasInFlightRow($webhookId)) {
+                return false;
+            }
+
+            $top = \count($this->config->cooldownScheduleSeconds) - 1;
+            $index = min((int) $row['degraded_cycle_count'] + 1, $top);
+            $this->connection->executeStatement(
+                'UPDATE webhook_health
+                 SET degraded_cycle_count = :index, cooldown_until = :cooldown, updated_at = :now
+                 WHERE webhook_id = :id AND endpoint_state = :suspended',
+                [
+                    'index' => $index,
+                    'cooldown' => $this->cooldownAt($index),
+                    'now' => $this->now(),
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                    'suspended' => EndpointState::Suspended->value,
+                ]
+            );
+
+            return true;
+        });
+
+        return $admitted ? WebhookDispatchDecision::Deliver : WebhookDispatchDecision::Skip;
+    }
+
+    private function hasHeldRow(string $webhookId): bool
+    {
+        return (bool) $this->connection->fetchOne(
+            'SELECT 1 FROM webhook_delivery d
+             JOIN webhook_event_log el ON el.id = d.webhook_event_log_id
+             WHERE d.webhook_id = :id AND d.delivery_status = :paused
+               AND el.delivery_status NOT IN (:success, :failed)
+             LIMIT 1',
+            [
+                'id' => Uuid::fromHexToBytes($webhookId),
+                'paused' => 'paused',
+                'success' => 'success',
+                'failed' => 'failed',
+            ]
+        );
+    }
+
+    /**
+     * Fail-open insert for the operator kill on a webhook without a health row.
+     */
+    private function insertFreshDisabledRow(string $webhookId): ?WebhookDisabledEvent
+    {
+        try {
+            $this->connection->executeStatement(
+                'INSERT INTO webhook_health (webhook_id, endpoint_state, disabled_since, disabled_origin, created_at)
+                 VALUES (:id, :disabled, :now, :origin, :now)',
+                [
+                    'id' => Uuid::fromHexToBytes($webhookId),
+                    'disabled' => EndpointState::Disabled->value,
+                    'now' => $this->now(),
+                    'origin' => DisabledOrigin::Operator->value,
+                ]
+            );
+        } catch (UniqueConstraintViolationException) {
+            // The row appeared concurrently; the caller's gesture is re-evaluated against it on the
+            // next write — absorbing one insert race keeps the guarded-transition invariant.
+            return null;
+        }
+
+        $this->mirrorBcColumns($webhookId);
+
+        return new WebhookDisabledEvent($webhookId, $this->appIdOf($webhookId), EndpointState::Healthy, DisabledOrigin::Operator);
     }
 
     /**

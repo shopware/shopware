@@ -17,7 +17,9 @@ use Shopware\Core\Framework\Webhook\Event\WebhookActivationTrigger;
  *   ── this interface ──
  *   SUSPENDED → DISABLED           tick() duty 3                  held past `max_suspended_days`
  *   any non-HEALTHY → HEALTHY      reactivateForApp               app install/update clean slate (operator-disabled excluded)
- *   any non-HEALTHY → HEALTHY      reactivate                     manual per-webhook reactivation (admin PATCH / app API)
+ *   any non-HEALTHY → HEALTHY      reactivate                     explicit per-webhook reactivation (app API / dedicated action)
+ *   SUSPENDED/DISABLED → HEALTHY   reactivateOnActiveFlip         admin PATCH active=true (echo-guarded — only a value flip carries intent)
+ *   HEALTHY/DEGRADED → DISABLED    disableByOperator              admin PATCH active=false (echo-guarded; origin operator)
  *
  * @internal
  */
@@ -69,4 +71,36 @@ interface EndpointLifecycle
      * @return int 1 when a non-HEALTHY webhook was reset, 0 otherwise
      */
     public function reactivate(string $webhookId, WebhookActivationTrigger $trigger): int;
+
+    /**
+     * The admin `PATCH active = true` gesture, echo-guarded: only a write that actually flips the
+     * mirrored value carries intent, so the reset runs only from SUSPENDED/DISABLED (any
+     * `disabled_origin` — this gesture is the operator-disabled recovery). On HEALTHY/DEGRADED the
+     * write is an echo and is a no-op for the state machine; the idempotent heal (mirror repair,
+     * stranded-hold resume) still runs for HEALTHY rows.
+     *
+     * @return int 1 when a webhook was reset, 0 otherwise
+     */
+    public function reactivateOnActiveFlip(string $webhookId): int;
+
+    /**
+     * The admin `PATCH active = false` gesture, echo-guarded: transitions HEALTHY/DEGRADED →
+     * DISABLED with `disabled_origin = operator` and cancels everything still undelivered. On
+     * SUSPENDED/DISABLED the mirrored value is already false, so the write is an echo — a no-op
+     * (the unambiguous gesture there is the dedicated deactivate action). A webhook without a
+     * health row is inserted DISABLED, so an enqueued-but-undelivered delivery cannot resurrect
+     * `active = 1`. Operator-disabled webhooks are excluded from every automatic recovery path;
+     * only {@see reactivateOnActiveFlip} reverses them.
+     *
+     * @return int 1 when a webhook was disabled, 0 otherwise
+     */
+    public function disableByOperator(string $webhookId): int;
+
+    /**
+     * Marks the start of an app-deactivation pause for the app's SUSPENDED webhooks: a deactivated
+     * app's events never reach the gate, so its webhooks get no trials — the 7-day clock pauses
+     * instead of running ({@see tick()} shifts `suspended_since` forward while the app stays
+     * deactivated, and the retirement sweep skips it).
+     */
+    public function pauseSuspensionClockForApp(string $appId): void;
 }

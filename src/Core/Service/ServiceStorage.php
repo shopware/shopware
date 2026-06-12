@@ -35,6 +35,18 @@ class ServiceStorage
         return $this->wrap($this->repository->search($criteria, $context)->getEntities()->first());
     }
 
+    public function findByNameAndIntegrationId(string $name, string $integrationId, Context $context): ?Service
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $criteria->addAssociation('app.acl_role');
+        $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
+        $criteria->setLimit(1);
+
+        return $this->wrap($this->repository->search($criteria, $context)->getEntities()->first());
+    }
+
     public function findByIntegrationId(string $integrationId, Context $context): ?Service
     {
         $criteria = new Criteria();

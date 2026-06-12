@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpPersister;
+use Shopware\Core\Framework\App\Lifecycle\Handler\McpLifecycleHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
@@ -97,7 +97,7 @@ class McpServiceConfigTest extends TestCase
      */
     public static function expectedServiceProvider(): iterable
     {
-        yield McpPersister::class => [McpPersister::class];
+        yield McpLifecycleHandler::class => [McpLifecycleHandler::class];
         yield McpServerController::class => [McpServerController::class];
         yield EntitySchemaTool::class => [EntitySchemaTool::class];
         yield EntitySearchTool::class => [EntitySearchTool::class];

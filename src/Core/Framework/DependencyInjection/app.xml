@@ -88,89 +88,89 @@
         </service>
 
         <!-- App Lifecycle Persisters - do not change priority without careful consideration -->
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\FlowActionLifecycleHandler">
             <argument type="service" id="app_flow_action.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.app_lifecycle.persister" priority="0"/>
+            <tag name="shopware.app_lifecycle.handler" priority="0"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\WebhookLifecycleHandler">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookCacheClearer"/>
             <argument type="service" id="Psr\Clock\ClockInterface"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-100"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\FlowEventLifecycleHandler">
             <argument type="service" id="app_flow_event.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-200"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-200"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\PaymentMethodLifecycleHandler">
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-300"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-300"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\TaxProviderLifecycleHandler">
             <argument type="service" id="tax_provider.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-400"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-400"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ModulePersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ModuleLifecycleHandler">
             <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-500"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-500"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ShippingMethodLifecycleHandler">
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="app_shipping_method.repository"/>
             <argument type="service" id="media.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-600"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-600"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\RuleConditionLifecycleHandler">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="app_script_condition.repository"/>
             <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-700"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-700"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ActionButtonLifecycleHandler">
             <argument type="service" id="app_action_button.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-800"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-800"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\TemplateLifecycleHandler">
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
             <argument type="service" id="app_template.repository"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-900"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-900"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader"/>
             <argument type="service" id="script.repository"/>
             <argument type="service" id="app.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1000"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1000"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\CustomFieldLifecycleHandler">
             <argument type="service" id="custom_field_set.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="custom_field_set_relation.repository"/>
             <argument type="service" id="custom_field.repository"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1100"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1100"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
+        <service id="Shopware\Core\Framework\App\Lifecycle\Handler\CmsBlockLifecycleHandler">
             <argument type="service" id="app_cms_block.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>
-            <tag name="shopware.app_lifecycle.persister" priority="-1200"/>
+            <tag name="shopware.app_lifecycle.handler" priority="-1200"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\ScriptFileReader">
@@ -299,7 +299,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppManager">
-            <argument type="tagged_iterator" tag="shopware.app_lifecycle.persister"/>
+            <argument type="tagged_iterator" tag="shopware.app_lifecycle.handler"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService"/>
             <argument type="service" id="event_dispatcher"/>

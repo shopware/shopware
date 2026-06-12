@@ -24,6 +24,10 @@ class RelatedWebhooks
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Legacy shared-counter sibling propagation (same event+url+live-config), the
+     * flag-off failure path; the per-webhook health model replaces it. Removed with WEBHOOKS_REWORK and the
+     * legacy `webhook.active`/`error_count` columns.
+     *
      * @param array<string, mixed> $data
      */
     public function updateRelated(string $webhookId, array $data, Context $context): void

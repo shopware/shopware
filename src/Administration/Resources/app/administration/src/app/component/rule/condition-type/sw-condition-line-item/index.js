@@ -44,13 +44,6 @@ export default {
             },
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
-        },
-
         productCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');

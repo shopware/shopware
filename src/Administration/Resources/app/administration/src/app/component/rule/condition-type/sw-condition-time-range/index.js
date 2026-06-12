@@ -69,12 +69,5 @@ export default {
         timezoneOptions() {
             return Shopware.Service('timezoneService').getTimezoneOptions();
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueFromTimeError || this.conditionValueToTimeError || this.conditionValueTimezoneError;
-        },
     },
 };

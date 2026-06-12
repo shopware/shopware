@@ -48,13 +48,6 @@ export default {
                 };
             },
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
-        },
     },
 
     created() {

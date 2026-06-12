@@ -37,13 +37,6 @@ export default {
                 this.condition.value = { ...this.condition.value, amount };
             },
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueIsNetError || this.conditionValueOperatorError || this.conditionValueAmountError;
-        },
     },
 
     watch: {

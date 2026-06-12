@@ -13,15 +13,12 @@ The data property `processSuccess` and the method `resetButtons()` on the `sw-se
 
 ### Removals on `sw-condition-*` components
 
-* `mapPropertyErrors('condition', [...])` spreads have been dropped from every `sw-condition-*` component.
+* `mapPropertyErrors('condition', [...])` spreads have been removed from every individual `sw-condition-*` component, along with the `conditionValue*Error` computed properties they generated (e.g. `conditionValueOperatorError`). Read errors from the `rule_condition` entity error store instead.
+* The local `currentError` computed override has been removed from the individual `sw-condition-*` components; they now inherit `currentError` from `sw-condition-base`.
 * `hasError` prop on `sw-condition-type-select` has been removed.
 * `operatorClasses` and `hasError` computed properties on `sw-condition-operator-select` have been removed.
 * `typeSelectClasses` and `arrowColor` computed properties on `sw-condition-type-select` have been removed.
 * `currentError` has been removed from the `generic-condition.mixin.ts` mixin.
-
-### Deprecation
-
-* `currentError` computed on every individual `sw-condition-*` component is deprecated and will be removed in v6.8.0.0.
 
 ## Deprecation of `sw_settings_mailer_headline_agent` twig block
 

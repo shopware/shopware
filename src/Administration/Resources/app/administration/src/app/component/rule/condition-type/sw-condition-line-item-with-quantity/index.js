@@ -55,12 +55,5 @@ export default {
                 this.condition.value = { ...this.condition.value, id };
             },
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;
-        },
     },
 };

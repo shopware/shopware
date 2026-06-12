@@ -51,13 +51,6 @@ export default {
             },
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
-        },
-
         optionCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.setIds(this.identifiers);

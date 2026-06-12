@@ -59,13 +59,6 @@ export default {
             return `${defaultPlaceholder} ${this.$t('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueZipCodesError;
-        },
-
         numericOptions() {
             return [
                 {

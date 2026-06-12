@@ -205,6 +205,7 @@ Column headers and the column visibility settings in `sw-data-grid` now resolve 
 ### Rule builder shows per-field errors on conditions
 
 Invalid condition inputs are now highlighted individually with a list of the affected fields below the row. All reversed date ranges are reported in one save instead of one at a time.
+
 ### Reworked timeframe options in `sw-date-filter`
 
 The order date filter dropdown now offers a 15-entry list, in display order:

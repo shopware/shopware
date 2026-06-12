@@ -108,19 +108,6 @@ export default {
             return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return (
-                this.conditionValueRenderedFieldError ||
-                this.conditionValueSelectedFieldError ||
-                this.conditionValueSelectedFieldSetError ||
-                this.conditionValueOperatorError ||
-                this.conditionValueRenderedFieldValueError
-            );
-        },
-
         truncateFilter() {
             return Filter.getByName('truncate');
         },

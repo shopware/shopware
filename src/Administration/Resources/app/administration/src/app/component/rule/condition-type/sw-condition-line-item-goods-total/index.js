@@ -35,12 +35,5 @@ export default {
                 this.condition.value = { ...this.condition.value, count };
             },
         },
-
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed
-         */
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCountError;
-        },
     },
 };

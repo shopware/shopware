@@ -126,14 +126,13 @@ class ServiceController
         name: 'api.service.uninstall',
         defaults: [
             'auth_required' => true,
-            PlatformRequest::ATTRIBUTE_ACL => ['api_service_toggle'],
         ],
         methods: [Request::METHOD_POST]
     )]
     public function uninstall(string $serviceName, Context $context): JsonResponse
     {
-        $this->extractIntegrationIdOrFail($context);
-        $service = $this->loadServiceByName($serviceName, $context);
+        $integrationId = $this->extractIntegrationIdOrFail($context);
+        $service = $this->loadServiceByNameAndIntegrationId($serviceName, $integrationId, $context);
 
         if (!$service) {
             throw ServiceException::notFound('name', $serviceName);
@@ -265,6 +264,17 @@ class ServiceController
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsFilter('selfManaged', true));
+        $criteria->setLimit(1);
+
+        return $this->appRepository->search($criteria, $context)->getEntities()->first();
+    }
+
+    private function loadServiceByNameAndIntegrationId(string $name, string $integrationId, Context $context): ?AppEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+        $criteria->addFilter(new EqualsFilter('integrationId', $integrationId));
         $criteria->addFilter(new EqualsFilter('selfManaged', true));
         $criteria->setLimit(1);
 

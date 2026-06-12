@@ -657,7 +657,7 @@ class ServiceLifecycleTest extends TestCase
         $app = AppFixture::createAppEntity(name: 'MyCoolService');
 
         $this->appManager->expects($this->once())
-            ->method('delete')
+            ->method('uninstall')
             ->with($app, $context);
 
         $this->createLifecycle($this->buildAppRepository([$app]))->uninstall('MyCoolService', $context);
@@ -667,7 +667,7 @@ class ServiceLifecycleTest extends TestCase
     {
         static::expectExceptionObject(ServiceException::notFound('name', 'MyCoolService'));
 
-        $this->appManager->expects($this->never())->method('delete');
+        $this->appManager->expects($this->never())->method('uninstall');
 
         $this->createLifecycle($this->buildAppRepository())->uninstall('MyCoolService', Context::createDefaultContext());
     }

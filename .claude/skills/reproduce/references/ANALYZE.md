@@ -15,13 +15,6 @@ inputs are, output filenames — and defers to this file for everything else.
 - `issue-assets/img-*.{png,jpg,gif,webp}` — screenshots attached to the issue, when any
   exist. For UI bugs, Read them: a screenshot often carries the symptom (which element,
   which page, what looks wrong) better than the text. Skip them for api/service bugs.
-- `prior-plan/` — when present, a **previously PROVEN plan for this same issue** (a past
-  run actually reproduced the symptom with it). **REPLAY IT**: re-emit its `analysis.json`
-  and script/fixtures essentially verbatim as your outputs (this should take ~2 tool
-  calls). Only deviate when the issue/comments have materially changed since, or the plan
-  visibly conflicts with the runbook — and say why in `confidence_reason`. Re-deriving
-  from scratch has regressed a reproduced bug to inconclusive; don't gamble away proven
-  work.
 
 ## Trust boundaries
 

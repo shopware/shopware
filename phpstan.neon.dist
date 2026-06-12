@@ -216,9 +216,3 @@ parameters:
         -
             message: "#Offset 'source' might not exist on array{status: string, code: #"
             path: tests
-
-        - # Bug in PHPStan. See https://github.com/phpstan/phpstan-phpunit/issues/286
-            message: '#Method Shopware\\Tests\\Integration\\Elasticsearch.*Test::test.*Search\(\) invoked with \d parameters, \d required#'
-            paths:
-                - tests/integration/Elasticsearch/Admin/AdminSearchControllerTest.php
-                - tests/integration/Elasticsearch/Product/ProductSearchQueryBuilderTest.php

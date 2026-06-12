@@ -63,8 +63,8 @@
                             <input type="hidden" name="forwardTo" value="frontend.cart.offcanvas">
 
                             {% block component_offcanvas_summary_content_shipping_select %}
-                                <label class="visually-hidden" for="shippingMethodId">{{ 'checkout.shippingMethod'|trans|sw_sanitize }}</label>
-                                <select class="form-select mt-2 col-12" name="shippingMethodId">
+                                <label class="visually-hidden" for="offcanvasShippingMethodId">{{ 'checkout.shippingMethod'|trans|sw_sanitize }}</label>
+                                <select class="form-select mt-2 col-12" name="shippingMethodId" id="offcanvasShippingMethodId">
                                     <option disabled>{{ 'checkout.confirmChangeShipping'|trans|sw_sanitize }}</option>
 
                                     {% for shippingMethod in page.shippingMethods %}

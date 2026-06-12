@@ -168,6 +168,11 @@ The new `parent.name` search field allows variants to be found through their par
 
 The field is disabled by default. Enable `parent.name` in the product search configuration to make this behavior active and adjust its ranking there.
 
+### PHPStan enforces safe session checks
+
+Shopware's PHPStan rules now require `Request::hasSession(true)` instead of `Request::hasSession()`.
+This prevents code from treating lazy session factories as initialized sessions and later materializing the PHP session through `Request::getSession()`, which can acquire a session lock.
+
 ## Administration
 
 ### Storefront icon cache and speculation rules can be configured per sales channel

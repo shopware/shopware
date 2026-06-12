@@ -38,7 +38,7 @@ class CartMergedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($mainRequest->hasSession() === false) {
+        if ($mainRequest->hasSession(true) === false) {
             return;
         }
 

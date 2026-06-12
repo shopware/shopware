@@ -41,7 +41,7 @@ class AffiliateTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$request->hasSession()) {
+        if (!$request->hasSession(true)) {
             return;
         }
 

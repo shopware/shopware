@@ -34,7 +34,7 @@ class ErrorController extends StorefrontController
 
     public function error(\Throwable $exception, Request $request, SalesChannelContext $context): Response
     {
-        $session = $request->hasSession() ? $request->getSession() : null;
+        $session = $request->hasSession(true) ? $request->getSession() : null;
 
         try {
             $is404StatusCode = $exception instanceof HttpException

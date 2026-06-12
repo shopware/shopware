@@ -37,7 +37,7 @@ class CustomerLogoutSubscriber implements EventSubscriberInterface
 
         $mainRequest = $this->requestStack->getMainRequest();
 
-        if (!$mainRequest?->hasSession()) {
+        if (!$mainRequest?->hasSession(true)) {
             return;
         }
 

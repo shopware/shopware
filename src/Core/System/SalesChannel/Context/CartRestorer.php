@@ -164,7 +164,7 @@ class CartRestorer
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
-        if (!$request->hasSession()) {
+        if (!$request->hasSession(true)) {
             return;
         }
 

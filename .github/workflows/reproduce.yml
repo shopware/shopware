@@ -218,6 +218,13 @@ jobs:
             #${{ needs.gate.outputs.issue }} in repository ${{ github.repository }}.
             Follow the runbook at `.claude/skills/reproduce/references/ANALYZE.md` — it
             defines the decision protocol, economy budget, confidence rules, and outputs.
+            HARD BUDGET (repeated here because it gates everything): your FIRST actions are
+            (1) read the runbook, (2) read ./issue.md, then (3) WRITE a complete best-effort
+            analysis.json (+ the executor's script file) IMMEDIATELY — within your first ~6
+            tool calls, before ANY code exploration. Refine afterwards only if turns remain.
+            NEVER end the session without analysis.json on disk: a worse-but-written plan
+            beats an unwritten perfect one (lower `confidence` is the escape valve, not
+            more exploration).
             Run parameters for THIS run:
             - inputs: the issue is prefetched to `./issue.md`; the linked fix PR's
               description + diff (when found) to `./fixpr.diff`.

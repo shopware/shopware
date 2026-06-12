@@ -232,7 +232,7 @@ class ServiceControllerTest extends TestCase
     {
         $controller = new ServiceController(new ServiceStorage($this->appRepo), $this->bus, $this->serviceLifecycle, $this->manager);
 
-        $source = new AdminApiSource('AABB', 'EEFF');
+        $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
 
         $this->serviceLifecycle->expects($this->once())->method('uninstall')->with('MyCoolService', $context);

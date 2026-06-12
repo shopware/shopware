@@ -236,7 +236,7 @@ class ServiceControllerTest extends TestCase
     {
         $controller = new ServiceController($this->appRepo, $this->bus, $this->appStateService, $this->appLifecycle, $this->manager);
 
-        $source = new AdminApiSource('AABB', 'EEFF');
+        $source = new AdminApiSource('AABB', 'CCDD');
         $context = Context::createDefaultContext($source);
 
         $this->appLifecycle->expects($this->once())->method('delete')->with($this->appId, ['id' => $this->appId], $context);

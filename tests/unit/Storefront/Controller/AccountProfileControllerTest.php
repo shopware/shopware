@@ -3,8 +3,13 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -12,9 +17,11 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\AccountProfileController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
+use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\AccountProfileControllerStub;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
@@ -24,16 +31,32 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('checkout')]
 class AccountProfileControllerTest extends TestCase
 {
+    private ChangePasswordRoute&Stub $changePasswordRoute;
+
+    private AccountProfileControllerStub $controller;
+
+    protected function setUp(): void
+    {
+        $this->changePasswordRoute = static::createStub(ChangePasswordRoute::class);
+
+        $this->controller = new AccountProfileControllerStub(
+            static::createStub(AccountOverviewPageLoader::class),
+            static::createStub(AccountProfilePageLoader::class),
+            static::createStub(AbstractChangeCustomerProfileRoute::class),
+            $this->changePasswordRoute,
+            static::createStub(AbstractChangeEmailRoute::class),
+            static::createStub(AbstractDeleteCustomerRoute::class),
+            static::createStub(LoggerInterface::class),
+        );
+    }
+
     public function testSavePasswordWithMissingPasswordParam(): void
     {
-        $controller = $this->createAccountProfileController();
-        $dataBag = new RequestDataBag();
-
         $this->expectExceptionObject(RoutingException::missingRequestParameter('password'));
 
-        $controller->savePassword(
-            $dataBag,
-            $this->createMock(SalesChannelContext::class),
+        $this->controller->savePassword(
+            new RequestDataBag(),
+            static::createStub(SalesChannelContext::class),
             new CustomerEntity(),
             new Request()
         );
@@ -41,150 +64,66 @@ class AccountProfileControllerTest extends TestCase
 
     public function testSavePasswordWithConstraintViolation(): void
     {
-        $controller = $this->createAccountProfileController(true);
+        $this->changePasswordRoute->method('change')->willThrowException(
+            new ConstraintViolationException(new ConstraintViolationList(), [])
+        );
 
-        $passwordBag = new RequestDataBag([
-            'newPassword' => 'newPassword123',
-            'newPasswordConfirm' => 'newPassword123',
-            'password' => 'oldPassword',
-        ]);
-
-        $dataBag = new RequestDataBag(['password' => $passwordBag]);
-
-        $response = $controller->savePassword(
-            $dataBag,
-            $this->createMock(SalesChannelContext::class),
+        $this->controller->savePassword(
+            $this->passwordDataBag(),
+            static::createStub(SalesChannelContext::class),
             new CustomerEntity(),
             new Request()
         );
 
-        static::assertSame('frontend.account.profile.page', $response->headers->get('X-Forwarded-Route'));
+        static::assertSame('frontend.account.profile.page', $this->controller->forwardToRoute);
+        static::assertTrue($this->controller->forwardToRouteAttributes['passwordFormViolation']);
+        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->forwardToRouteAttributes['formViolations']);
+        static::assertSame(['account.passwordChangeNoSuccess'], $this->controller->flashBag[StorefrontController::DANGER]);
     }
 
     public function testSavePasswordWithDefaultRedirect(): void
     {
-        $controller = $this->createAccountProfileController();
-
-        $passwordBag = new RequestDataBag([
-            'newPassword' => 'newPassword123',
-            'newPasswordConfirm' => 'newPassword123',
-            'password' => 'oldPassword',
-        ]);
-
-        $dataBag = new RequestDataBag(['password' => $passwordBag]);
-
-        $response = $controller->savePassword(
-            $dataBag,
-            $this->createMock(SalesChannelContext::class),
+        $this->controller->savePassword(
+            $this->passwordDataBag(),
+            static::createStub(SalesChannelContext::class),
             new CustomerEntity(),
             new Request()
         );
 
-        static::assertSame('frontend.account.profile.page', $response->headers->get('X-Redirect-Route'));
+        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->redirected);
+        static::assertSame(['account.passwordChangeSuccess'], $this->controller->flashBag[StorefrontController::SUCCESS]);
     }
 
     public function testSavePasswordWithCustomRedirect(): void
     {
-        $controller = $this->createAccountProfileController();
-
-        $passwordBag = new RequestDataBag([
-            'newPassword' => 'newPassword123',
-            'newPasswordConfirm' => 'newPassword123',
-            'password' => 'oldPassword',
-        ]);
-
-        $dataBag = new RequestDataBag(['password' => $passwordBag]);
-        $request = new Request([], ['redirectTo' => 'frontend.home.page']);
-
-        $response = $controller->savePassword(
-            $dataBag,
-            $this->createMock(SalesChannelContext::class),
+        $this->controller->savePassword(
+            $this->passwordDataBag(),
+            static::createStub(SalesChannelContext::class),
             new CustomerEntity(),
-            $request
+            new Request([], ['redirectTo' => 'frontend.home.page'])
         );
 
-        static::assertSame('frontend.home.page', $response->headers->get('X-Redirect-Route'));
+        static::assertArrayHasKey('frontend.home.page', $this->controller->redirected);
     }
 
     public function testSavePasswordWithForwardToParam(): void
     {
-        $controller = $this->createAccountProfileController();
+        $this->controller->savePassword(
+            $this->passwordDataBag(),
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request([], ['forwardTo' => 'frontend.account.home.page'])
+        );
 
-        $passwordBag = new RequestDataBag([
+        static::assertSame('frontend.account.home.page', $this->controller->forwardToRoute);
+    }
+
+    private function passwordDataBag(): RequestDataBag
+    {
+        return new RequestDataBag(['password' => new RequestDataBag([
             'newPassword' => 'newPassword123',
             'newPasswordConfirm' => 'newPassword123',
             'password' => 'oldPassword',
-        ]);
-
-        $dataBag = new RequestDataBag(['password' => $passwordBag]);
-        $request = new Request([], ['forwardTo' => 'frontend.account.home.page']);
-
-        $response = $controller->savePassword(
-            $dataBag,
-            $this->createMock(SalesChannelContext::class),
-            new CustomerEntity(),
-            $request
-        );
-
-        static::assertSame('frontend.account.home.page', $response->headers->get('X-Forward-Route'));
-    }
-
-    private function createAccountProfileController(bool $throwConstraintViolation = false): AccountProfileController
-    {
-        $changePasswordRoute = $this->createMock(ChangePasswordRoute::class);
-
-        if ($throwConstraintViolation) {
-            $changePasswordRoute->method('change')->willThrowException(
-                new ConstraintViolationException(new ConstraintViolationList(), [])
-            );
-        }
-
-        $controller = $this->getMockBuilder(AccountProfileController::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['trans', 'addFlash', 'redirectToRoute', 'forwardToRoute', 'createActionResponse'])
-            ->getMock();
-
-        $reflectionProperty = new \ReflectionProperty(AccountProfileController::class, 'changePasswordRoute');
-        $reflectionProperty->setValue($controller, $changePasswordRoute);
-
-        $controller->method('trans')->willReturn('translated.message');
-
-        $controller->method('addFlash')->willReturnSelf();
-
-        $controller->method('redirectToRoute')->willReturnCallback(
-            static function (string $route) {
-                $response = new RedirectResponse('/account/profile');
-                $response->headers->set('X-Redirect-Route', $route);
-
-                return $response;
-            }
-        );
-
-        $controller->method('forwardToRoute')->willReturnCallback(
-            static function (string $routeName) {
-                $response = new Response();
-                $response->headers->set('X-Forwarded-Route', $routeName);
-
-                return $response;
-            }
-        );
-
-        $controller->method('createActionResponse')->willReturnCallback(
-            static function (Request $request) {
-                $response = new Response();
-
-                if ($request->request->get('redirectTo')) {
-                    $response->headers->set('X-Redirect-Route', (string) $request->request->get('redirectTo'));
-                }
-
-                if ($request->request->get('forwardTo')) {
-                    $response->headers->set('X-Forward-Route', (string) $request->request->get('forwardTo'));
-                }
-
-                return $response;
-            }
-        );
-
-        return $controller;
+        ])]);
     }
 }

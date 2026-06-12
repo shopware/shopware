@@ -8,11 +8,10 @@
                 role="list"
             >
                 {% block layout_footer_navigation_hotline %}
-                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0">
+                    <div class="col-md-4 footer-column js-footer-column pb-4 pb-md-0" role="listitem">
                         {% block layout_footer_navigation_hotline_headline %}
                             <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                 id="collapseFooterHotlineTitle"
-                                 role="listitem">
+                                 id="collapseFooterHotlineTitle">
                                 {{ 'footer.serviceHotlineHeadline'|trans|sw_sanitize }}
 
                                 {% block layout_footer_navigation_hotline_icons %}
@@ -40,8 +39,7 @@
 
                             <div id="collapseFooterHotline"
                                  class="footer-column-content collapse js-footer-column-content footer-contact mb-4 mb-md-0"
-                                 aria-labelledby="collapseFooterHotlineTitle"
-                                 role="listitem">
+                                 aria-labelledby="collapseFooterHotlineTitle">
 
                                 <div class="footer-column-content-inner">
                                     <p class="footer-contact-hotline">
@@ -114,11 +112,10 @@
                 {% block layout_footer_navigation_columns %}
                     {% for root in footer.navigation.tree %}
                         {% block layout_footer_navigation_column %}
-                            <div class="col-md-4 footer-column js-footer-column">
+                            <div class="col-md-4 footer-column js-footer-column" role="listitem">
                                 {% block layout_footer_navigation_information_headline %}
                                     <div class="footer-column-headline footer-headline js-footer-column-headline"
-                                         id="collapseFooterTitle{{ loop.index }}"
-                                         role="listitem">
+                                         id="collapseFooterTitle{{ loop.index }}">
 
                                         {% if root.category.type == 'folder' %}
                                             {{ root.category.translated.name }}
@@ -155,8 +152,7 @@
                                 {% block layout_footer_navigation_information_content %}
                                     <div id="collapseFooter{{ loop.index }}"
                                          class="footer-column-content collapse js-footer-column-content"
-                                         aria-labelledby="collapseFooterTitle{{ loop.index }}"
-                                         role="listitem">
+                                         aria-labelledby="collapseFooterTitle{{ loop.index }}">
 
                                         <div class="footer-column-content-inner">
                                             {% block layout_footer_navigation_information_links %}

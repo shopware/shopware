@@ -7,7 +7,6 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -109,8 +108,7 @@ class KeyFetcherTest extends TestCase
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetKeyReturns400ResponseWithoutExistingKeyDeprecated(): void
     {
-        static::expectException(AppException::class);
-        static::expectExceptionMessage('Unable to retrieve JWKS key');
+        $this->expectExceptionObject(StoreException::jwksNotFound());
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig->expects($this->once())
@@ -145,8 +143,7 @@ class KeyFetcherTest extends TestCase
 
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('Unable to retrieve JWKS key');
+        $this->expectExceptionObject(StoreException::jwksNotFound());
 
         $systemConfig = $this->createMock(SystemConfigService::class);
         $systemConfig->expects($this->once())

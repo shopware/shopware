@@ -89,6 +89,7 @@ class CategoryIndexer extends EntityIndexer
         $idsWithChangedParentIds = [];
         $runAllUpdaters = false;
         $parentIdChanged = false;
+        $activeStateChanged = false;
 
         foreach ($categoryEvent->getWriteResults() as $result) {
             $operation = $result->getOperation();
@@ -114,6 +115,10 @@ class CategoryIndexer extends EntityIndexer
                 }
                 $idsWithChangedParentIds[] = $payload['id'];
             }
+
+            if (\array_key_exists('active', $payload) && $payload['active'] === true) {
+                $activeStateChanged = true;
+            }
         }
 
         if ($ids === []) {
@@ -131,7 +136,7 @@ class CategoryIndexer extends EntityIndexer
             );
         }
 
-        if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged) {
+        if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged && !$activeStateChanged) {
             // we would skip all updaters, so we can return early without dispatching messages for children
             return null;
         }

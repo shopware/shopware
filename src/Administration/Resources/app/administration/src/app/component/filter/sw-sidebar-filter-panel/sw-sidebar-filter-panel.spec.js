@@ -19,6 +19,7 @@ describe('components/sw-sidebar-filter-panel', () => {
             global: {
                 stubs: {
                     'sw-sidebar-item': {
+                        inject: ['registerSidebarItem'],
                         props: ['tooltipShortcut'],
                         template: `
                             <div
@@ -31,6 +32,11 @@ describe('components/sw-sidebar-filter-panel', () => {
                         `,
                         methods: {
                             openContent: openContentMock,
+                        },
+                        created() {
+                            this.registerSidebarItem({
+                                openContent: openContentMock,
+                            });
                         },
                     },
                     'sw-filter-panel': {

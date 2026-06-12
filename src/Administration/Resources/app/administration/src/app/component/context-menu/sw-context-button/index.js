@@ -150,6 +150,10 @@ export default {
         },
     },
 
+    beforeUnmount() {
+        this.removeClickEventListeners();
+    },
+
     methods: {
         onClickButton() {
             if (this.disabled) {
@@ -230,6 +234,10 @@ export default {
         closeMenu() {
             this.$emit('on-open-change', false);
             this.showMenu = false;
+            this.removeClickEventListeners();
+        },
+
+        removeClickEventListeners() {
             document.removeEventListener('click', this.handleOutsideClickEvent, true);
             document.removeEventListener('click', this.handleClickEvent);
         },

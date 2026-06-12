@@ -86,6 +86,27 @@ describe('src/app/component/context-menu/sw-context-button', () => {
         outsideButton.remove();
     });
 
+    it('should remove click listeners before unmounting', async () => {
+        const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
+        const wrapper = await createWrapper({
+            props: {
+                autoCloseOutsideClick: true,
+            },
+        });
+
+        await wrapper.trigger('click');
+        await flushPromises();
+
+        const { handleOutsideClickEvent, handleClickEvent } = wrapper.vm;
+
+        wrapper.unmount();
+
+        expect(removeEventListenerSpy).toHaveBeenCalledWith('click', handleOutsideClickEvent, true);
+        expect(removeEventListenerSpy).toHaveBeenCalledWith('click', handleClickEvent);
+
+        removeEventListenerSpy.mockRestore();
+    });
+
     it('should not open the context menu on click', async () => {
         const wrapper = await createWrapper({
             props: {

@@ -2,14 +2,15 @@
  * @sw-package framework
  */
 
-const keystrokeDelay = 1000;
+const componentShortcutKeystrokeDelay = 1000;
 /**
  * @private
  */
 export default {
     install(Vue) {
         let activeShortcuts = [];
-        let shortcutState = {
+        // Component shortcuts trigger instance methods, so they keep their own keydown sequence state.
+        let componentShortcutState = {
             buffer: [],
         };
 
@@ -17,13 +18,16 @@ export default {
             return Shopware.Service('shortcutService')?.isShortcutsDisabled?.() === true;
         }
 
-        function resetShortcutState() {
-            shortcutState = {
+        function resetComponentShortcutState() {
+            componentShortcutState = {
                 buffer: [],
             };
         }
 
-        const resetShortcutStateDebounced = Shopware.Utils.debounce(resetShortcutState, keystrokeDelay);
+        const resetComponentShortcutStateDebounced = Shopware.Utils.debounce(
+            resetComponentShortcutState,
+            componentShortcutKeystrokeDelay,
+        );
 
         function isSystemShortcut(shortcutKey) {
             return /SYSTEMKEY/.test(shortcutKey);
@@ -39,27 +43,27 @@ export default {
 
         function getMatchedShortcut(shortcutKey) {
             if (isSystemShortcut(shortcutKey)) {
-                resetShortcutStateDebounced.cancel?.();
-                resetShortcutState();
+                resetComponentShortcutStateDebounced.cancel?.();
+                resetComponentShortcutState();
 
                 return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
             }
 
             const buffer = [
-                ...shortcutState.buffer,
+                ...componentShortcutState.buffer,
                 shortcutKey,
             ];
             const sequence = buffer.join('');
             const matchedShortcut = activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === sequence);
 
-            shortcutState = {
+            componentShortcutState = {
                 buffer,
             };
-            resetShortcutStateDebounced();
+            resetComponentShortcutStateDebounced();
 
             if (matchedShortcut) {
-                resetShortcutStateDebounced.cancel?.();
-                resetShortcutState();
+                resetComponentShortcutStateDebounced.cancel?.();
+                resetComponentShortcutState();
 
                 return matchedShortcut;
             }
@@ -74,8 +78,8 @@ export default {
                 return null;
             }
 
-            resetShortcutStateDebounced.cancel?.();
-            resetShortcutState();
+            resetComponentShortcutStateDebounced.cancel?.();
+            resetComponentShortcutState();
 
             return activeShortcuts.find((shortcut) => shortcut.key.toUpperCase() === shortcutKey);
         }
@@ -86,7 +90,7 @@ export default {
             }
 
             if (areShortcutsDisabled()) {
-                resetShortcutState();
+                resetComponentShortcutState();
 
                 return;
             }
@@ -96,7 +100,7 @@ export default {
             const isFromModal = eventTarget?.closest('.sw-modal') || eventTarget?.closest('.sw-modal__dialog');
 
             if (isFromModal) {
-                resetShortcutState();
+                resetComponentShortcutState();
 
                 return;
             }
@@ -110,7 +114,7 @@ export default {
             const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
 
             if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
-                resetShortcutState();
+                resetComponentShortcutState();
 
                 return;
             }

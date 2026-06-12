@@ -83,12 +83,17 @@ async function createWrapper(privileges = []) {
 
                     'sw-search-bar': true,
                     'sw-language-switch': true,
-                    'sw-sidebar': true,
+                    'sw-sidebar': {
+                        emits: ['item-register'],
+                        template: '<div><slot></slot></div>',
+                        mounted() {
+                            this.$emit('item-register', {
+                                openContent: openContentMock,
+                            });
+                        },
+                    },
                     'sw-sidebar-item': {
                         template: '<div><slot></slot></div>',
-                        methods: {
-                            openContent: openContentMock,
-                        },
                     },
                     'sw-collapse': true,
                     'sw-context-menu-item': true,

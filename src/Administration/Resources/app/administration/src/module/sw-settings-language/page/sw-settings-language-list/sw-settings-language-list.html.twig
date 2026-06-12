@@ -222,11 +222,13 @@
 
     {% block sw_settings_language_list_grid_sidebar %}
     <template #sidebar>
-        <sw-sidebar :propagate-width="true">
+        <sw-sidebar
+            :propagate-width="true"
+            @item-register="registerFilterSidebarItem"
+        >
 
             {% block sw_settings_language_list_grid_sidebar_filter %}
             <sw-sidebar-item
-                ref="filterSideBar"
                 icon="regular-filter"
                 :title="$t('sw-settings-language.list.titleSidebarFilter')"
                 :tooltip-shortcut="['O', 'F']"

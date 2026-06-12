@@ -36,6 +36,7 @@ export default {
             isLoading: true,
             sortBy: 'active',
             sortDirection: 'DESC',
+            filterSidebarItem: null,
         };
     },
 
@@ -119,8 +120,12 @@ export default {
     },
 
     methods: {
+        registerFilterSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+        },
+
         openFilterSidebar() {
-            this.$refs.filterSideBar.openContent();
+            this.filterSidebarItem?.openContent?.();
         },
 
         getList() {

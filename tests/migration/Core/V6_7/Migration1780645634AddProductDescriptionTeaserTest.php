@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1780645634AddProductDescriptionTeaser;
@@ -16,6 +17,8 @@ use Shopware\Core\Migration\V6_7\Migration1780645634AddProductDescriptionTeaser;
 #[CoversClass(Migration1780645634AddProductDescriptionTeaser::class)]
 class Migration1780645634AddProductDescriptionTeaserTest extends TestCase
 {
+    private const CONFIG_KEY = 'core.listing.partialDataLoading';
+
     private Connection $connection;
 
     protected function setUp(): void
@@ -23,6 +26,20 @@ class Migration1780645634AddProductDescriptionTeaserTest extends TestCase
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
+
+        unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE], $_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE], $_ENV[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE]);
+
+        $this->connection->executeStatement(
+            'DELETE FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => self::CONFIG_KEY]
+        );
+
+        parent::tearDown();
     }
 
     public function testGetCreationTimestamp(): void
@@ -64,6 +81,58 @@ class Migration1780645634AddProductDescriptionTeaserTest extends TestCase
         } finally {
             (new IndexerQueuer($this->connection))->finishIndexer(['product.description_teaser.indexer']);
         }
+    }
+
+    public function testFreshInstallationEnablesPartialDataLoading(): void
+    {
+        $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
+
+        $migration = new Migration1780645634AddProductDescriptionTeaser();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $values = $this->connection->fetchFirstColumn(
+            'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => self::CONFIG_KEY]
+        );
+
+        static::assertCount(1, $values, 'config must be written exactly once');
+        static::assertSame(['_value' => true], json_decode((string) $values[0], true));
+    }
+
+    public function testUpdateOnExistingInstallationDoesNotEnablePartialDataLoading(): void
+    {
+        $migration = new Migration1780645634AddProductDescriptionTeaser();
+        $migration->update($this->connection);
+
+        $value = $this->connection->fetchOne(
+            'SELECT 1 FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => self::CONFIG_KEY]
+        );
+
+        static::assertFalse($value, 'existing shops must keep full listing loading (opt-in)');
+    }
+
+    public function testFreshInstallationKeepsExistingConfigValue(): void
+    {
+        $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
+
+        $this->connection->executeStatement(
+            'INSERT INTO `system_config` (`id`, `configuration_key`, `configuration_value`, `created_at`)
+             VALUES (0x11111111111111111111111111111111, :key, :value, NOW(3))',
+            ['key' => self::CONFIG_KEY, 'value' => '{"_value": false}']
+        );
+
+        $migration = new Migration1780645634AddProductDescriptionTeaser();
+        $migration->update($this->connection);
+
+        $values = $this->connection->fetchFirstColumn(
+            'SELECT `configuration_value` FROM `system_config` WHERE `configuration_key` = :key',
+            ['key' => self::CONFIG_KEY]
+        );
+
+        static::assertCount(1, $values);
+        static::assertSame(['_value' => false], json_decode((string) $values[0], true));
     }
 
     private function dropTeaserColumnIfExists(): void

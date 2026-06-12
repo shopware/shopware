@@ -49,6 +49,23 @@ This prevents leading or trailing whitespace from being stored in standard addre
 
 Existing customer address records are not changed.
 
+### New `contentSelector` option for the `AlertAriaPlugin`
+
+The `AlertAriaPlugin` now supports a `contentSelector` option to define the content element inside the `aria-live` region that is toggled to trigger the screenreader.
+It defaults to `.alert-content-container`. Override it when applying the plugin to custom markup that is not based on the alert template:
+
+```twig
+<div class="cart-live-update visually-hidden"
+     role="status"
+     aria-live="polite"
+     data-alert-aria="true"
+     data-alert-aria-options='{{ { contentSelector: ".cart-live-update-content" }|json_encode }}'>
+    <div class="cart-live-update-content">
+        {# ... content that should be announced ... #}
+    </div>
+</div>
+```
+
 ## API
 
 ### Plain JSON API includes preserve extension wrappers
@@ -180,7 +197,7 @@ The field is disabled by default. Enable `parent.name` in the product search con
 
 Product listings can now load a shortened, HTML-free excerpt of the product description instead of the full text, which significantly reduces database load, transfer size and memory usage for catalogs with large descriptions. Previously the complete description was loaded for every product box even though the storefront only displays a few clamped lines.
 
-This reduced loading is **disabled by default** (opt-in) and can be enabled per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
+This reduced loading is **enabled for fresh installations** and **disabled for existing shops**, which keep the full listing loading on update and can opt in per sales channel via the new `core.listing.partialDataLoading` setting (Settings > Products). When enabled, the product listing route loads a curated, reduced field set covering the default product boxes; listing products are then partial entities. Only enable it if your theme and extensions work with the reduced product data in listings.
 
 A new read-only, translatable `descriptionTeaser` field is available on `product` (and `product_translation`). It is derived from the description on write (HTML stripped, truncated to 512 characters) and exposed via the Store and Admin API. The stripping is configurable through the `html_sanitizer` field set `product_translation.descriptionTeaser`. Existing products are backfilled asynchronously: the migration schedules the `product.description_teaser.indexer`, which runs over the message queue after the update (or manually via `bin/console dal:refresh:index`).
 

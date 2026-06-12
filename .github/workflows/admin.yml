@@ -97,9 +97,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: install packages
-        working-directory: src/Storefront/Resources/app/storefront
-        run: |
-          npm ci
+        uses: ./.github/actions/npm-ci-retry
+        with:
+          working-directory: src/Storefront/Resources/app/storefront
       - name: Check license
         working-directory: src/Administration/Resources/app/administration
         run: |

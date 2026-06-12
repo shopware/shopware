@@ -1,0 +1,198 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Handler\ShippingMethodLifecycleHandler;
+use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
+
+/**
+ * @internal
+ */
+#[CoversClass(ShippingMethodLifecycleHandler::class)]
+class ShippingMethodLifecycleHandlerTest extends TestCase
+{
+    private const ICON_URL = __DIR__ . '/_fixtures/Icons/TestIcon.png';
+
+    private const APP_ID = '2b0e78aa591e11ee8c990242ac120002';
+
+    private const DEFAULT_LOCALE_ID = '350202b740dd451db69e4bdcb76cd3b4';
+
+    public function testUpdateShippingMethodInstallsTwoNewShippingMethodsWithBasicManifest(): void
+    {
+        $manifest = $this->getManifest(__DIR__ . '/_fixtures/manifest_basic.xml');
+
+        $shippingMethodHandler = $this->createShippingMethodHandler();
+
+        $shippingMethodHandler->install($this->buildContext($manifest));
+    }
+
+    public function testUpdateShippingMethodInstallsOneNewUpdateOneAndDeactivatesOneShippingMethodsWithUpdateManifest(): void
+    {
+        $manifest = $this->getManifest(__DIR__ . '/_fixtures/update_basic.xml');
+
+        $appShippingMethodRepositoryMock = $this->createAppShippingMethodRepositoryMockWithExistingAppShippingMethods();
+
+        $shippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
+        $shippingMethodRepositoryMock->expects($this->once())->method('upsert');
+        $shippingMethodRepositoryMock->expects($this->once())->method('update');
+
+        $shippingMethodHandler = $this->createShippingMethodHandler([
+            'shippingMethodRepository' => $shippingMethodRepositoryMock,
+            'appShippingMethodRepository' => $appShippingMethodRepositoryMock,
+            'mediaService' => $this->createMock(MediaService::class),
+        ]);
+
+        $shippingMethodHandler->install($this->buildContext($manifest));
+    }
+
+    private function buildContext(Manifest $manifest): AppPersistContext
+    {
+        $app = new AppEntity();
+        $app->setId(self::APP_ID);
+        $app->setActive(true);
+
+        return new AppPersistContext(
+            manifest: $manifest,
+            app: $app,
+            context: Context::createDefaultContext(),
+            appFilesystem: new StaticFilesystem(['icons/TestIcon.png' => 'someiconblob']),
+            defaultLocale: self::DEFAULT_LOCALE_ID,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $services
+     */
+    private function createShippingMethodHandler(array $services = []): ShippingMethodLifecycleHandler
+    {
+        $deliveryTime = new DeliveryTimeEntity();
+        $deliveryTime->setId('ca565fa321ad4c87a2669161907fc4c8');
+
+        return new ShippingMethodLifecycleHandler(
+            \array_key_exists('shippingMethodRepository', $services) ? $services['shippingMethodRepository'] : $this->createShippingMethodRepositoryMock(),
+            \array_key_exists('appShippingMethodRepository', $services) ? $services['appShippingMethodRepository'] : $this->createAppShippingMethodRepositoryMock(),
+            \array_key_exists('mediaRepository', $services) ? $services['mediaRepository'] : $this->createMediaRepositoryMock(),
+            \array_key_exists('mediaService', $services) ? $services['mediaService'] : $this->createMediaServiceMock(),
+        );
+    }
+
+    /**
+     * @return StaticEntityRepository<ShippingMethodCollection>
+     */
+    private function createShippingMethodRepositoryMock(): StaticEntityRepository
+    {
+        /** @var StaticEntityRepository<ShippingMethodCollection> */
+        return new StaticEntityRepository([]);
+    }
+
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
+    private function createAppShippingMethodRepositoryMock(): EntityRepository
+    {
+        $appShippingMethodMock = $this->createMock(EntityRepository::class);
+        $appShippingMethodMock->method('search')->willReturn(
+            new EntitySearchResult(
+                AppShippingMethodEntity::class,
+                0,
+                new EntityCollection(),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        return $appShippingMethodMock;
+    }
+
+    /**
+     * @return EntityRepository<MediaCollection>
+     */
+    private function createMediaRepositoryMock(): EntityRepository
+    {
+        $mediaRepositoryMock = $this->createMock(EntityRepository::class);
+        $mediaRepositoryMock->method('searchIds')->willReturn(
+            new IdSearchResult(
+                0,
+                [],
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        return $mediaRepositoryMock;
+    }
+
+    private function createMediaServiceMock(): MediaService&MockObject
+    {
+        $mediaServiceMock = $this->createMock(MediaService::class);
+        $mediaServiceMock->expects($this->once())->method('saveFile')->willReturn(self::ICON_URL);
+
+        return $mediaServiceMock;
+    }
+
+    private function getManifest(string $file): Manifest
+    {
+        static::assertTrue(is_file($file));
+
+        return Manifest::createFromXmlFile($file);
+    }
+
+    /**
+     * @return EntityRepository<EntityCollection<AppShippingMethodEntity>>
+     */
+    private function createAppShippingMethodRepositoryMockWithExistingAppShippingMethods(): EntityRepository|MockObject
+    {
+        $shippingMethodOne = new ShippingMethodEntity();
+        $shippingMethodOne->setId('40a65bae126c4d9784da11144e1fc9e3');
+        $shippingMethodOne->setUniqueIdentifier('shippingMethodOne');
+        $shippingMethodOne->setName('shippingMethodOne');
+
+        $appShippingMethodOne = new AppShippingMethodEntity();
+        $appShippingMethodOne->setId('0a0dc6f736b84b068ac98eed17ff9ef4');
+        $appShippingMethodOne->setShippingMethod($shippingMethodOne);
+        $appShippingMethodOne->setIdentifier('shippingMethodOne');
+
+        $shippingMethodTwo = new ShippingMethodEntity();
+        $shippingMethodTwo->setId('16cf9ee9b93e413faa20646258014e71');
+        $shippingMethodTwo->setUniqueIdentifier('shippingMethodTwo');
+        $shippingMethodTwo->setName('shippingMethodTwo');
+
+        $appShippingMethodTwo = new AppShippingMethodEntity();
+        $appShippingMethodTwo->setId('ac131e0ec3f3487fa52bd2fb31cfdf64');
+        $appShippingMethodTwo->setShippingMethod($shippingMethodTwo);
+        $appShippingMethodTwo->setIdentifier('shippingMethodTwo');
+
+        $entityCollection = new EntityCollection([
+            $appShippingMethodOne,
+            $appShippingMethodTwo,
+        ]);
+
+        $entitySearchResultMock = $this->createMock(EntitySearchResult::class);
+        $entitySearchResultMock->expects($this->once())->method('getEntities')->willReturn($entityCollection);
+
+        $appShippingMethodRepositoryMock = $this->createMock(EntityRepository::class);
+        $appShippingMethodRepositoryMock->expects($this->once())->method('search')->willReturn($entitySearchResultMock);
+
+        return $appShippingMethodRepositoryMock;
+    }
+}

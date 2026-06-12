@@ -35,6 +35,7 @@
     "basicForm": {
       "labelTitle": "Name",
       "labelDescription": "Description",
+      "hintCoverImageDescription": "Begin the description with one or two short sentences describing the product shown in the cover image. This improves accessibility and the presentation in product listings.",
       "labelProductNumber": "Product number",
       "labelManufacturer": "Manufacturer",
       "labelManufacturerCreation": "manufacturer",

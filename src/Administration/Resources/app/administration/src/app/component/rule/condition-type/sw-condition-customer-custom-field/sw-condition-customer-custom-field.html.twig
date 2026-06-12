@@ -9,7 +9,6 @@
         :criteria="customFieldCriteria"
         :placeholder="$t('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
         :disabled="disabled || undefined"
-        size="medium"
         show-clearable-button
         @update:value="onFieldChange"
     >
@@ -55,7 +54,6 @@
 
     <sw-form-field-renderer
         v-else-if="renderedField"
-        size="medium"
         :value="renderedFieldValue"
         :config="conditionDataProviderService.getTransformedCustomFieldConditionConfig(renderedField.config)"
         :disabled="disabled || undefined"

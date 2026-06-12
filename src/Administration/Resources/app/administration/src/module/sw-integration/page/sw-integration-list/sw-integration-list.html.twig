@@ -5,12 +5,14 @@
         {% block sw_integration_list_smart_bar_header_title %}
         <h2>
             {% block sw_integration_list_smart_bar_header_title_text %}
-            {{ $t('sw-settings.index.title') }}
+            <span>{{ $t('sw-settings.index.title') }}</span>
+
             <mt-icon
                 name="regular-chevron-right-xs"
                 size="12px"
             />
-            {{ $t('sw-integration.general.headlineIntegrations') }}
+
+            <span>{{ $t('sw-integration.general.headlineIntegrations') }}</span>
             {% endblock %}
         </h2>
         {% endblock %}
@@ -39,24 +41,21 @@
     {% block sw_integration_list_content %}
     <template #content>
         <sw-card-view class="sw-integration-list__content">
-
+            {# @deprecated tag:v6.8.0 - Will be removed. #}
             {% block sw_integration_list_introduction %}
-            <mt-card
-                :hero="true"
+            <sw-extension-component-section
                 position-identifier="sw-integration-list-introduction"
-            >
-                <h3 class="sw-integration-list__welcome-headline">
-                    {{ $t('sw-integration.general.heroHeadlineIntegrations') }}
-                </h3>
-                <p>{{ $t('sw-integration.general.heroDescriptionIntegrations') }}</p>
-            </mt-card>
+                :deprecated="true"
+            />
             {% endblock %}
 
             {% block sw_integration_list_overview %}
             <mt-card
-                :is-loading="isLoading"
                 class="sw-integration-list__overview"
                 position-identifier="sw-integration-list-overview"
+                :is-loading="isLoading"
+                :title="$t('sw-integration.general.heroHeadlineIntegrations')"
+                :subtitle="$t('sw-integration.general.heroDescriptionIntegrations')"
             >
                 {% block sw_integration_list_overview_inner %}
                 {% block sw_integration_list_detail_modal %}
@@ -69,7 +68,6 @@
                     @modal-close="onCloseDetailModal"
                 >
                     {% block sw_integration_list_detail_modal_inner %}
-
                     {% block sw_integration_list_detail_modal_inner_field_label %}
                     <sw-container
                         columns="2fr 1fr"
@@ -112,7 +110,6 @@
                     {% endblock %}
 
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
-
                     <mt-text-field
                         v-model="currentIntegration.accessKey"
                         name="sw-field--currentIntegration-accessKey"
@@ -125,7 +122,6 @@
 
                     {% block sw_integration_list_detail_modal_inner_field_secretaccesskey %}
                     <template v-if="showSecretAccessKey">
-
                         <mt-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
                             v-model="currentIntegration.secretAccessKey"
@@ -263,7 +259,6 @@
                     :allow-view="acl.can('integration.viewer')"
                     :is-loading="isLoading"
                 >
-
                     {% block sw_integration_list_grid_inner_slot_columns_label %}
                     <template #column-label="{ item }">
                         <span class="sw-integration-list__app-icon">
@@ -272,49 +267,43 @@
                                 size="12px"
                             />
                         </span>
-                        <a
+
+                        <mt-link
                             v-if="!isAppIntegration(item)"
-                            href="#"
+                            as="a"
                             @click.prevent="onShowDetailModal(item)"
                         >
                             {{ item.label }}
-                        </a>
+                        </mt-link>
+
                         <span v-else>{{ item.label }}</span>
-                        <sw-label
+
+                        <mt-badge
                             v-if="item.app"
-                            size="medium"
-                            ghost
-                            caps
-                            light
+                            class="sw-integration-list__app-badge"
+                            variant="info"
                         >
                             {{ $t('sw-integration.list.labelManagedByApp') }}
-                        </sw-label>
+                        </mt-badge>
                     </template>
                     {% endblock %}
 
                     {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
                     <template #column-writeAccess="{ item }">
-                        <sw-label
+                        <mt-badge
                             v-if="item.admin"
-                            size="medium"
-                            ghost
-                            caps
-                            light
+                            variant="attention"
                         >
                             {{ $t('sw-users-permissions.users.user-detail.labelAdministrator') }}
-                        </sw-label>
+                        </mt-badge>
 
                         <span v-if="!item.admin && item.aclRoles && item.aclRoles.length">
-                            <sw-label
+                            <mt-badge
                                 v-for="role in item.aclRoles"
                                 :key="role.name"
-                                size="medium"
-                                ghost
-                                caps
-                                light
                             >
                                 {{ role.name }}
-                            </sw-label>
+                            </mt-badge>
                         </span>
                     </template>
                     {% endblock %}
@@ -363,7 +352,7 @@
                             {% block sw_integration_list_grid_inner_slot_delete_modal_confirmtext %}
                             <p>
                                 {{ $t('sw-integration.detail.confirmDelete') }}
-                                <strong>"{{ item.label }}"</strong>
+                                "{{ item.label }}"
                             </p>
                             {% endblock %}
 
@@ -379,7 +368,7 @@
 
                                 <mt-button
                                     size="small"
-                                    variant="primary"
+                                    variant="critical"
                                     @click="onConfirmDelete(item.id)"
                                 >
                                     {{ $t('sw-integration.detail.buttonDelete') }}

@@ -64,7 +64,7 @@ class UninstallAppCommand extends Command
 
         $keepUserData = $input->getOption('keep-user-data');
 
-        $this->appLifecycle->delete(
+        $this->appLifecycle->uninstall(
             $app->getName(),
             [
                 'id' => $app->getId(),

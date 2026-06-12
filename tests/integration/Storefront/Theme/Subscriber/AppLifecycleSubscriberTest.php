@@ -68,7 +68,7 @@ class AppLifecycleSubscriberTest extends TestCase
 
         static::assertCount(1, $themeRepo->search($criteria, $this->context)->getElements());
 
-        $this->appLifecycle->delete($app['name'], $app, $this->context, $keepUserData);
+        $this->appLifecycle->uninstall($app['name'], $app, $this->context, $keepUserData);
         static::assertCount($keepUserData ? 1 : 0, $themeRepo->search($criteria, $this->context)->getElements());
 
         $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();

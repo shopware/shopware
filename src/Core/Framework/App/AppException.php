@@ -574,13 +574,21 @@ class AppException extends HttpException
     /**
      * @param list<string> $failedAppNames
      */
-    public static function reRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null): self
+    public static function reRegistrationFailed(array $failedAppNames, ?\Throwable $previous = null, ?string $recoveryHint = null): self
     {
+        $message = 'Failed to re-register {{ count }} app(s): {{ apps }}';
+        $parameters = ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)];
+
+        if ($recoveryHint !== null) {
+            $message .= ' {{ recoveryHint }}';
+            $parameters['recoveryHint'] = $recoveryHint;
+        }
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::RE_REGISTRATION_FAILED,
-            'Failed to re-register {{ count }} app(s): {{ apps }}',
-            ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)],
+            $message,
+            $parameters,
             $previous
         );
     }

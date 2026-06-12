@@ -73,7 +73,11 @@ class MoveShopPermanentlyStrategy implements ShopIdChangeStrategy
         }
 
         if ($failedApps !== []) {
-            throw AppException::reRegistrationFailed(array_keys($failedApps), reset($failedApps));
+            throw AppException::reRegistrationFailed(
+                array_keys($failedApps),
+                reset($failedApps),
+                'After resolving the issue, retry each failed app with "bin/console app:secret:rotate <app-name>".'
+            );
         }
     }
 }

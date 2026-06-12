@@ -131,7 +131,10 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->shopIdProvider
         );
 
-        $this->expectExceptionObject(AppException::reRegistrationFailed(['test']));
+        $this->expectExceptionObject(AppException::reRegistrationFailed(
+            ['test'],
+            recoveryHint: 'After resolving the issue, retry each failed app with "bin/console app:secret:rotate <app-name>".'
+        ));
 
         $moveShopPermanentlyResolver->resolve($this->context);
     }

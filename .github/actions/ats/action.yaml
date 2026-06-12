@@ -167,9 +167,10 @@ runs:
                   ${{ runner.os }}-${{ inputs.directory }}
 
         - name: Install dependencies
-          shell: bash
-          working-directory: ${{ inputs.directory }}
-          run: npm ci
+          # Reuses the ~/.npm tarballs cached above (offline) and retries transient registry resets.
+          uses: ./.github/actions/npm-ci-retry
+          with:
+              working-directory: ${{ inputs.directory }}
 
         - name: Refresh Package List
           shell: bash

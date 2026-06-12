@@ -308,7 +308,6 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-list/sw-
         await flushPromises();
 
         await wrapper.vm.onDeleteCustomField();
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const rows = wrapper.findAll('.sw-grid .sw-grid__body .sw-grid-row');

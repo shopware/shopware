@@ -44,8 +44,8 @@ concurrency:
   cancel-in-progress: false
 
 checkout:
-  fetch: ["*"]
-  fetch-depth: 0
+  ref: trunk
+  fetch-depth: 1
 
 engine:
   id: claude
@@ -108,7 +108,7 @@ safe-outputs:
     max-patch-files: 30
     max-patch-size: 1024
   push-to-pull-request-branch:
-    target: "*"
+    target: "${{ github.event.inputs.pr_number || github.event.pull_request.number || github.event.issue.number }}"
     required-labels: [qi:fix]
     max: 1
     protected-files: fallback-to-issue

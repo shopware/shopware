@@ -186,11 +186,6 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\AppStateService">
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppManager"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
-        </service>
-
         <service id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
@@ -519,14 +514,14 @@
 
         <service id="Shopware\Core\Framework\App\Command\ActivateAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\DeactivateAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\AppStorage"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
 
             <tag name="console.command"/>
         </service>

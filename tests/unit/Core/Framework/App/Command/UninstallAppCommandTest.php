@@ -144,7 +144,7 @@ class UninstallAppCommandTest extends TestCase
     {
         /** @var ?array{context: Context, keepUserData: bool} $captured */
         $captured = null;
-        $this->appLifecycle->method('delete')
+        $this->appLifecycle->method('uninstall')
             ->willReturnCallback(static function (string $name, array $config, Context $context, bool $keepUserData) use (&$captured): void {
                 $captured = ['context' => $context, 'keepUserData' => $keepUserData];
             });

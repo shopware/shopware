@@ -43,6 +43,20 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Administration\Framework\App\ActiveAdminAppLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Administration\Framework\Api\Subscriber\AdminInfoConfigBundlesSubscriber">
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="Shopware\Administration\Framework\App\ActiveAdminAppLoader"/>
+            <argument type="service" id="filesystem"/>
+            <argument type="service" id="Shopware\Administration\Framework\Twig\ViteFileAccessorDecorator"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Administration\Framework\Asset\AssetUploadListener">
             <tag name="kernel.event_listener"/>
         </service>

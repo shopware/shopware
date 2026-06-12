@@ -104,7 +104,9 @@
         "message": "The condition “Item in dynamic product group” will never be true.",
         "action": "Learn more in our documentation"
       },
-      "productStatesConditionWarning": "The condition \"Item with product state\" is deprecated and will be removed in v6.8. Please use \"Item with product type\" instead.",
+      "deprecatedConditionWarning": "The condition \"{label}\" is deprecated and will be removed in {version}. Please use \"{replacement}\" instead.",
+      "deprecatedConditionWarningNoReplacement": "The condition \"{label}\" is deprecated and will be removed in {version}.",
+      "flowOnlyConditionsWarning": "The following conditions in this rule require a flow context: {conditions}. Outside of a flow (for example in shipping methods, payment methods, or promotion assignments) they will always evaluate to false.",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",

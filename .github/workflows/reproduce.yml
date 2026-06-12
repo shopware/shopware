@@ -198,6 +198,7 @@ jobs:
         env:
           ISSUE: ${{ needs.gate.outputs.issue }}
           GH_TOKEN: ${{ github.token }}
+          EVIDENCE_BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH }} # also hosts proven prior plans
         run: bash .github/actions/repro/bin/prefetch.sh
 
       - name: Analyze (agent)
@@ -512,6 +513,20 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           TOKEN: ${{ github.token }}
         run: bash .github/actions/repro/bin/embed-evidence.sh
+
+      # A verdict that actually reproduced the symptom proves the plan — persist it so
+      # re-runs REPLAY it instead of gambling on a fresh derivation (a live_bug once
+      # regressed to inconclusive that way). Enhancement only, never fails the report.
+      - name: Persist proven plan
+        if: vars.REPRO_EVIDENCE_BRANCH != ''
+        continue-on-error: true
+        env:
+          VERDICT: ${{ needs.verdict.outputs.verdict }}
+          ISSUE: ${{ needs.gate.outputs.issue }}
+          BRANCH: ${{ vars.REPRO_EVIDENCE_BRANCH }}
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ github.token }}
+        run: bash .github/actions/repro/bin/persist-plan.sh
 
       - name: Post comment
         # 'blocked' = the repro env/seed failed (infra), not a bug verdict → keep it in the

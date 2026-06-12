@@ -28,6 +28,20 @@ for n in $(grep -oE '#[0-9]{3,}' issue.md | tr -d '#' | sort -un); do
     echo "prefetched fix PR $UPSTREAM#$n"; break
   fi
 done
+# A previously PROVEN plan for this issue (persisted by persist-plan.sh on a reproducing
+# verdict) → ./prior-plan/, so analyze REPLAYS it instead of re-deriving from scratch.
+# Re-derivation is a gamble that has regressed a live_bug to inconclusive.
+if [ -n "${EVIDENCE_BRANCH:-}" ]; then
+  if files=$(gh api "repos/$REPO/contents/plans/issue-$ISSUE?ref=$EVIDENCE_BRANCH" \
+      --jq '.[] | .name + " " + .download_url' 2>/dev/null) && [ -n "$files" ]; then
+    mkdir -p prior-plan
+    while read -r name url; do
+      curl -fsSL --proto '=https' --max-time 20 --max-filesize 1048576 -o "prior-plan/$name" "$url" 2>/dev/null || true
+    done <<< "$files"
+    echo "prefetched PROVEN prior plan ($(ls prior-plan | tr '\n' ' '))"
+  fi
+fi
+
 # Screenshot attachments → issue-assets/ so the (multimodal) agent can Read them for UI
 # bugs. SECURITY: assets are untrusted user content — fetch UNAUTHENTICATED (never attach
 # a token to asset hosts), only from GitHub's own attachment hosts, capped in count+size,

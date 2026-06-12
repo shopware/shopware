@@ -166,12 +166,17 @@ class SystemConfigControllerTest extends TestCase
     }
 
     #[DataProvider('saveConfigurationProvider')]
-    public function testSaveConfiguration(Request $request, ?string $expectedSalesChannelId, bool $expectedSilent): void
+    public function testSaveConfiguration(Request $request, ?string $expectedSalesChannelId, ?bool $expectedSilent): void
     {
         $systemConfig = $this->createMock(SystemConfigService::class);
-        $systemConfig->expects($this->once())
-            ->method('setMultiple')
-            ->with(['foo' => '1'], $expectedSalesChannelId, $expectedSilent);
+        $setMultiple = $systemConfig->expects($this->once())
+            ->method('setMultiple');
+
+        if ($expectedSilent === null) {
+            $setMultiple->with(['foo' => '1'], $expectedSalesChannelId);
+        } else {
+            $setMultiple->with(['foo' => '1'], $expectedSalesChannelId, $expectedSilent);
+        }
 
         $controller = new SystemConfigController(
             $this->createMock(ConfigurationService::class),
@@ -189,7 +194,7 @@ class SystemConfigControllerTest extends TestCase
         yield 'without silent' => [
             new Request([], ['foo' => '1']),
             null,
-            false,
+            null,
         ];
 
         yield 'with silent' => [
@@ -198,22 +203,33 @@ class SystemConfigControllerTest extends TestCase
             true,
         ];
 
+        yield 'with explicit non-silent' => [
+            new Request(['silent' => '0'], ['foo' => '1']),
+            null,
+            false,
+        ];
+
         yield 'with sales channel' => [
             new Request(['salesChannelId' => 'sc-id'], ['foo' => '1']),
             'sc-id',
-            false,
+            null,
         ];
     }
 
     #[DataProvider('batchSaveConfigurationProvider')]
-    public function testBatchSaveConfiguration(Request $request, ?string $expectedSalesChannelId, bool $expectedSilent): void
+    public function testBatchSaveConfiguration(Request $request, ?string $expectedSalesChannelId, ?bool $expectedSilent): void
     {
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
 
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
-        $systemConfigServiceMock->expects($this->once())
-            ->method('setMultiple')
-            ->with([], $expectedSalesChannelId, $expectedSilent);
+        $setMultiple = $systemConfigServiceMock->expects($this->once())
+            ->method('setMultiple');
+
+        if ($expectedSilent === null) {
+            $setMultiple->with([], $expectedSalesChannelId);
+        } else {
+            $setMultiple->with([], $expectedSalesChannelId, $expectedSilent);
+        }
 
         $systemConfigValidatorMock = $this->createMock(SystemConfigValidator::class);
         $systemConfigValidatorMock->method('validate');
@@ -234,13 +250,19 @@ class SystemConfigControllerTest extends TestCase
         yield 'without silent' => [
             new Request([], ['null' => []]),
             null,
-            false,
+            null,
         ];
 
         yield 'with silent' => [
             new Request(['silent' => '1'], ['null' => []]),
             null,
             true,
+        ];
+
+        yield 'with explicit non-silent' => [
+            new Request(['silent' => '0'], ['null' => []]),
+            null,
+            false,
         ];
     }
 

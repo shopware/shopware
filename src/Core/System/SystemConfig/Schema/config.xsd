@@ -27,6 +27,7 @@
             <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="cache-relevant" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="input-field">
         <xs:sequence>
@@ -34,6 +35,7 @@
             <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="type" type="type" default="text"/>
+        <xs:attribute name="cache-relevant" type="xs:boolean"/>
     </xs:complexType>
     <xs:simpleType name="type">
         <xs:restriction base="xs:string">

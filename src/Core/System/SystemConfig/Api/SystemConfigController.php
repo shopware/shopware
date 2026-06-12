@@ -107,8 +107,14 @@ class SystemConfigController extends AbstractController
         }
 
         $kvs = $request->request->all();
-        $silent = $request->query->getBoolean('silent');
-        $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
+
+        // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+        // @deprecated tag:v6.8.0 - remove the branch and pass $request->query->getBoolean('silent', true) instead.
+        if ($request->query->has('silent')) {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+        } else {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+        }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
@@ -123,8 +129,6 @@ class SystemConfigController extends AbstractController
     {
         $this->systemConfigValidator->validate($request->request->all(), $context);
 
-        $silent = $request->query->getBoolean('silent');
-
         /**
          * @var string $salesChannelId
          * @var array<string, mixed> $kvs
@@ -134,7 +138,13 @@ class SystemConfigController extends AbstractController
                 $salesChannelId = null;
             }
 
-            $this->systemConfig->setMultiple($kvs, $salesChannelId, $silent);
+            // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+            // @deprecated tag:v6.8.0 - remove the branch and pass $request->query->getBoolean('silent', true) instead.
+            if ($request->query->has('silent')) {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+            } else {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            }
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

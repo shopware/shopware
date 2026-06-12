@@ -158,6 +158,8 @@ class ConfigReader extends XmlReader
             'componentName' => $element->getAttribute('name'),
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
     }
 
@@ -174,7 +176,25 @@ class ConfigReader extends XmlReader
             'type' => $swFieldType,
         ];
 
+        $elementData = $this->addCacheRelevantAttribute($element, $elementData);
+
         return $this->addOptionsToElementData($options, $elementData);
+    }
+
+    /**
+     * @param array<string, mixed> $elementData
+     *
+     * @return array<string, mixed>
+     */
+    private function addCacheRelevantAttribute(\DOMElement $element, array $elementData): array
+    {
+        if (!$element->hasAttribute('cache-relevant')) {
+            return $elementData;
+        }
+
+        $elementData['cacheRelevant'] = filter_var($element->getAttribute('cache-relevant'), \FILTER_VALIDATE_BOOLEAN);
+
+        return $elementData;
     }
 
     /**

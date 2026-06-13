@@ -229,6 +229,61 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         ]);
     });
 
+    it('should add an always-false id filter when no product custom-field-set relations exist', async () => {
+        // see https://github.com/shopware/shopware/issues/15732
+        // empty customFieldSetIDs must not produce equalsAny with an empty value (400)
+        // and must not drop the scope filter entirely (would return unrelated custom fields)
+        expect(wrapper.vm.customFieldSetIDs).toEqual([]);
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const hasCustomFieldSetIdFilter = (params) => (params.filter ?? []).some((f) => f.field === 'customFieldSetId');
+        const hasNullIdFilter = (params) =>
+            (params.filter ?? []).some((f) => f.type === 'equals' && f.field === 'id' && f.value === null);
+
+        expect(hasCustomFieldSetIdFilter(criteriaParams)).toBe(false);
+        expect(hasCustomFieldSetIdFilter(singleSelectCriteriaParams)).toBe(false);
+        expect(hasNullIdFilter(criteriaParams)).toBe(true);
+        expect(hasNullIdFilter(singleSelectCriteriaParams)).toBe(true);
+    });
+
+    it('should not add any id scope filter when customFieldSetIDs is not yet loaded', async () => {
+        wrapper.vm.customFieldSetIDs = null;
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const hasScopeFilter = (params) =>
+            (params.filter ?? []).some((f) => f.field === 'customFieldSetId' || f.field === 'id');
+
+        expect(hasScopeFilter(criteriaParams)).toBe(false);
+        expect(hasScopeFilter(singleSelectCriteriaParams)).toBe(false);
+    });
+
+    it('should add a customFieldSetId equalsAny filter when product custom-field-set relations exist', async () => {
+        wrapper.vm.customFieldSetIDs = [
+            'set-id-1',
+            'set-id-2',
+        ];
+
+        const criteriaParams = wrapper.vm.customFieldCriteria.parse();
+        const singleSelectCriteriaParams = wrapper.vm.customFieldCriteriaSingleSelect().parse();
+
+        const findCustomFieldSetIdFilter = (params) => (params.filter ?? []).find((f) => f.field === 'customFieldSetId');
+
+        const mainFilter = findCustomFieldSetIdFilter(criteriaParams);
+        const singleSelectFilter = findCustomFieldSetIdFilter(singleSelectCriteriaParams);
+
+        expect(mainFilter).toBeDefined();
+        expect(mainFilter.type).toBe('equalsAny');
+        expect(mainFilter.value).toBe('set-id-1|set-id-2');
+
+        expect(singleSelectFilter).toBeDefined();
+        expect(singleSelectFilter.type).toBe('equalsAny');
+        expect(singleSelectFilter.value).toBe('set-id-1|set-id-2');
+    });
+
     it('should change productSortingEntity when add custom field', async () => {
         await wrapper.setProps({
             productSortingEntity: {

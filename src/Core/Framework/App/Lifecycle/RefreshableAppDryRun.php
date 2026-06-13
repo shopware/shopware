@@ -70,7 +70,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
         $this->toBeUpdated[$manifest->getMetadata()->getName()] = $manifest;
     }
 
-    public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
+    public function uninstall(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $this->toBeDeleted[$appName] = $appName;
     }

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivationFailedEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
@@ -18,6 +19,7 @@ use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -37,7 +39,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         private readonly string $projectDirectory,
         private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         private readonly ThemeLifecycleHandler $themeLifecycleHandler,
-        private readonly ThemeLifecycleService $themeLifecycleService
+        private readonly ThemeLifecycleService $themeLifecycleService,
     ) {
     }
 
@@ -49,10 +51,11 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         return [
             PluginPostActivateEvent::class => 'pluginPostActivate',
             PluginPreUpdateEvent::class => 'pluginUpdate',
-            PluginPreDeactivateEvent::class => 'pluginDeactivateAndUninstall',
+            PluginPostUpdateEvent::class => 'pluginPostUpdate',
+            PluginPreDeactivateEvent::class => 'pluginPreDeactivate',
             PluginPostDeactivateEvent::class => 'pluginPostDeactivate',
             PluginPostDeactivationFailedEvent::class => 'pluginPostDeactivateFailed',
-            PluginPreUninstallEvent::class => 'pluginDeactivateAndUninstall',
+            PluginPreUninstallEvent::class => 'pluginPreUninstall',
             PluginPostUninstallEvent::class => 'pluginPostUninstall',
         ];
     }
@@ -87,45 +90,91 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function pluginPostDeactivate(PluginPostDeactivateEvent $event): void
-    {
-        $pluginName = $event->getPlugin()->getName();
-        $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
-
-        if (!$config) {
-            return;
-        }
-
-        if (
-            !$config->hasAdditionalBundles()
-            || $this->skipCompile($event->getContext()->getContext())
-        ) {
-            return;
-        }
-
-        $this->themeLifecycleHandler->recompileAllActiveThemes($event->getContext()->getContext());
-    }
-
-    public function pluginDeactivateAndUninstall(PluginPreDeactivateEvent|PluginPreUninstallEvent $event): void
+    public function pluginPostUpdate(PluginPostUpdateEvent $event): void
     {
         if ($this->skipCompile($event->getContext()->getContext())) {
             return;
         }
 
+        $this->refreshActiveThemeImportMaps(
+            $event->getContext()->getContext(),
+            $this->storefrontPluginRegistry->getConfigurations()
+        );
+    }
+
+    public function pluginPostDeactivate(PluginPostDeactivateEvent $event): void
+    {
+        $context = $event->getContext()->getContext();
+
+        if ($this->skipCompile($context)) {
+            return;
+        }
+
         $pluginName = $event->getPlugin()->getName();
-        $config = $this->storefrontPluginRegistry->getConfigurations()->getByTechnicalName($pluginName);
+        $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
+
+        $this->refreshActiveThemeImportMaps($context, $storefrontPluginConfigurations);
+
+        $config = $storefrontPluginConfigurations->getByTechnicalName($pluginName);
+
+        if (!$config || !$config->hasAdditionalBundles()) {
+            return;
+        }
+
+        $this->themeLifecycleHandler->recompileAllActiveThemes($context);
+    }
+
+    public function pluginPreDeactivate(PluginPreDeactivateEvent $event): void
+    {
+        $context = $event->getContext()->getContext();
+
+        if ($this->skipCompile($context)) {
+            return;
+        }
+
+        $pluginName = $event->getPlugin()->getName();
+        $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
+
+        $config = $storefrontPluginConfigurations->getByTechnicalName($pluginName);
 
         if (!$config) {
             return;
         }
 
         if ($config->hasAdditionalBundles()) {
-            $this->themeLifecycleHandler->deactivateTheme($config, $event->getContext()->getContext());
+            $this->themeLifecycleHandler->deactivateTheme($config, $context);
 
             return;
         }
 
-        $this->themeLifecycleHandler->handleThemeUninstall($config, $event->getContext()->getContext());
+        $this->themeLifecycleHandler->handleThemeUninstall($config, $context);
+    }
+
+    public function pluginPreUninstall(PluginPreUninstallEvent $event): void
+    {
+        $context = $event->getContext()->getContext();
+
+        if ($this->skipCompile($context)) {
+            return;
+        }
+
+        $pluginName = $event->getPlugin()->getName();
+        $storefrontPluginConfigurations = $this->storefrontPluginRegistry->getConfigurations();
+        $filteredConfigurations = $storefrontPluginConfigurations->filter(
+            static fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $pluginName
+        );
+
+        $config = $storefrontPluginConfigurations->getByTechnicalName($pluginName);
+
+        if ($config) {
+            if ($config->hasAdditionalBundles()) {
+                $this->themeLifecycleHandler->deactivateTheme($config, $context);
+            } else {
+                $this->themeLifecycleHandler->handleThemeUninstall($config, $context);
+            }
+        }
+
+        $this->refreshActiveThemeImportMaps($context, $filteredConfigurations);
     }
 
     public function pluginPostUninstall(PluginPostUninstallEvent $event): void
@@ -161,7 +210,9 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($this->skipCompile($event->getContext()->getContext())) {
+        $context = $event->getContext()->getContext();
+
+        if ($this->skipCompile($context)) {
             return;
         }
 
@@ -179,12 +230,21 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate(
             $storefrontPluginConfig,
             $configurationCollection,
-            $event->getContext()->getContext()
+            $context
         );
+
+        $this->refreshActiveThemeImportMaps($context, $configurationCollection);
     }
 
     private function skipCompile(Context $context): bool
     {
         return $context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING);
+    }
+
+    private function refreshActiveThemeImportMaps(
+        Context $context,
+        StorefrontPluginConfigurationCollection $configurationCollection
+    ): void {
+        $this->themeLifecycleHandler->refreshAllActiveThemeImportMaps($context, $configurationCollection);
     }
 }

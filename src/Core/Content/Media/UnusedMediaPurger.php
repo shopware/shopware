@@ -130,6 +130,10 @@ class UnusedMediaPurger
      */
     public function searchMedia(array $ids, Context $context): array
     {
+        if ($ids === []) {
+            return [];
+        }
+
         $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
 
         return array_values($media);
@@ -150,7 +154,7 @@ class UnusedMediaPurger
      */
     private function filterOutNewMedia(array $mediaIds, int $gracePeriodDays, Context $context): array
     {
-        if ($gracePeriodDays === 0) {
+        if ($gracePeriodDays === 0 || $mediaIds === []) {
             return $mediaIds;
         }
 

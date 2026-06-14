@@ -64,8 +64,7 @@ class CriteriaCollectionTest extends TestCase
 
     public function testAddDuplicates(): void
     {
-        $this->expectException(DuplicateCriteriaKeyException::class);
-        $this->expectExceptionMessage('The key "dup_key" is duplicated in the criteria collection.');
+        $this->expectExceptionObject(new DuplicateCriteriaKeyException('dup_key'));
 
         $collection = new CriteriaCollection();
         $collection->add('key1', ProductDefinition::class, new Criteria());

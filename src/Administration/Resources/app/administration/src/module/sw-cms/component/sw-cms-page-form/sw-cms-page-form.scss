@@ -37,7 +37,7 @@
 
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         &:last-child {
             margin-bottom: 0;
@@ -74,7 +74,7 @@
         text-align: center;
         height: 20px;
         margin: 85px 0;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
     }
 
     &__section {
@@ -123,11 +123,11 @@
     &__section-action-icon {
         display: inline-block;
         margin-right: 10px;
-        color: $color-gray-900;
+        color: var(--color-icon-primary-default);
     }
 
     &__section-action-label {
-        color: #52667a;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
         line-height: 22px;
         width: 190px;
@@ -154,7 +154,7 @@
     &__section-type-name,
     &__section-type-icon {
         margin-right: 10px;
-        color: #b3bfcc;
+        color: var(--color-text-secondary-default);
         font-weight: $font-weight-semi-bold;
     }
 
@@ -164,13 +164,13 @@
         width: 100%;
         height: 1px;
         border: 0 none;
-        background: #d1d9e0;
+        background: var(--color-background-tertiary-default);
     }
 
     &__device-actions,
     &__block-device-actions {
         width: 96px;
-        color: $color-gray-500;
+        color: var(--color-text-secondary-default);
         display: flex;
         gap: 10px;
         align-items: center;

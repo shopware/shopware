@@ -28,15 +28,15 @@
 
         .sw-category-layout-card__desc-headline.is--empty,
         .sw-category-layout-card__desc-subheadline.is--empty {
-            color: $color-gray-500;
+            color: var(--color-text-secondary-default);
         }
 
         .sw-category-layout-card__desc-actions {
             .sw-context-button {
                 height: 32px;
                 border-radius: $border-radius-default;
-                border: 1px solid $color-gray-500;
-                background-color: $color-white;
+                border: 1px solid var(--color-border-primary-default);
+                background-color: var(--color-elevation-surface-raised);
 
                 .sw-context-button__button {
                     border: none;
@@ -48,7 +48,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
             text-decoration: none;
             font-size: $font-size-xs;
             margin-top: 8px;

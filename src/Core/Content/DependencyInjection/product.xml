@@ -152,6 +152,7 @@
 
         <service id="Shopware\Core\Content\Product\AbstractIsNewDetector" class="Shopware\Core\Content\Product\IsNewDetector">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>
@@ -184,6 +185,24 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder">
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductDescriptionTeaserBuilder"/>
+
+            <tag name="shopware.entity_indexer"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
@@ -257,6 +276,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="logger"/>
 
             <tag name="shopware.cms.product_slider.processor"/>
         </service>
@@ -427,6 +447,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater" on-invalid="null"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -436,6 +457,7 @@
             <argument type="service" id="product.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
+            <argument type="service" id="language.repository"/>
             <argument>%shopware.product_stream.indexing%</argument>
             <tag name="shopware.entity_indexer"/>
         </service>
@@ -478,6 +500,7 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="product.repository"/>
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.product.search_keyword.indexing%</argument>
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -559,6 +582,7 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductListRoute" public="true">

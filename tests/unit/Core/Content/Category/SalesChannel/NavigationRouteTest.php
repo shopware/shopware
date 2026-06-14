@@ -173,10 +173,7 @@ class NavigationRouteTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([]);
 
-        $this->expectException(CategoryNotFoundException::class);
-        $this->expectExceptionMessage(
-            \sprintf('Category "%s" not found.', $activeId)
-        );
+        $this->expectExceptionObject(new CategoryNotFoundException($activeId));
 
         $this->navigationRoute->load(
             $activeId,

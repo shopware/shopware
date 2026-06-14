@@ -57,6 +57,11 @@ class Migration1776848421RepairDigitalProductTypeTest extends TestCase
         );
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1776848421, (new Migration1776848421RepairDigitalProductType())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         static::assertSame(1776848421, (new Migration1776848421RepairDigitalProductType())->getCreationTimestamp());

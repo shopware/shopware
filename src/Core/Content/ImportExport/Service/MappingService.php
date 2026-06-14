@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -34,7 +35,8 @@ class MappingService extends AbstractMappingService
     public function __construct(
         private readonly AbstractFileService $fileService,
         private readonly EntityRepository $profileRepository,
-        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -64,7 +66,7 @@ class MappingService extends AbstractMappingService
         }
 
         // create the file
-        $expireDate = new \DateTimeImmutable();
+        $expireDate = $this->clock->now();
         $expireDate = $expireDate->modify('+1 hour');
         $fileEntity = $this->fileService->storeFile(
             $context,

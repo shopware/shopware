@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\InputField;
-use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
@@ -13,116 +12,121 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[CoversClass(InputField::class)]
 class InputFieldTest extends TestCase
 {
-    private \DOMElement $config;
-
-    protected function setUp(): void
-    {
-        $document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
-        );
-        $actions = $document->getElementsByTagName('flow-actions')->item(0);
-        static::assertNotNull($actions);
-        $action = $actions->getElementsByTagName('flow-action')->item(0);
-        static::assertNotNull($action);
-
-        $config = $action->getElementsByTagName('config')->item(0);
-        static::assertNotNull($config);
-        $this->config = $config;
-    }
-
     public function testFromXml(): void
     {
-        $inputField = $this->config->getElementsByTagName('input-field')->item(0);
-        static::assertNotNull($inputField);
+        $inputField = InputField::fromXml(self::loadElement(<<<'XML'
+<input-field>
+    <name>message</name>
+    <label>Message</label>
+    <label lang="de-DE">Nachricht</label>
+    <place-holder>Enter message...</place-holder>
+    <place-holder lang="de-DE">Nachricht eingeben...</place-holder>
+    <helpText>Visible to customers</helpText>
+    <helpText lang="de-DE">Fuer Kunden sichtbar</helpText>
+    <required>true</required>
+    <defaultValue>Hello</defaultValue>
+</input-field>
+XML));
 
-        $expectedInputField = InputField::fromArray([
-            'name' => 'textField',
-            'label' => [
-                'en-GB' => 'To',
-                'de-DE' => 'To DE',
+        static::assertSame('message', $inputField->getName());
+        static::assertSame(
+            [
+                'en-GB' => 'Message',
+                'de-DE' => 'Nachricht',
             ],
-            'required' => true,
-            'defaultValue' => 'Shopware 6',
-            'placeHolder' => [
-                'en-GB' => 'Enter to...',
-                'de-DE' => 'Enter to DE...',
+            $inputField->getLabel()
+        );
+        static::assertSame(
+            [
+                'en-GB' => 'Enter message...',
+                'de-DE' => 'Nachricht eingeben...',
             ],
-            'type' => 'text',
-            'helpText' => [
-                'en-GB' => 'Help text',
-                'de-DE' => 'Help text DE',
+            $inputField->getPlaceHolder()
+        );
+        static::assertSame(
+            [
+                'en-GB' => 'Visible to customers',
+                'de-DE' => 'Fuer Kunden sichtbar',
             ],
-        ]);
-
-        $inputFieldResult = InputField::fromXml($inputField);
-        static::assertEquals($expectedInputField, $inputFieldResult);
+            $inputField->getHelpText()
+        );
+        static::assertTrue($inputField->getRequired());
+        static::assertSame('Hello', $inputField->getDefaultValue());
+        static::assertSame('text', $inputField->getType());
+        static::assertSame([], $inputField->getOptions());
     }
 
-    public function testFromXmlWithOption(): void
+    public function testFromXmlWithOptions(): void
     {
-        $inputField = $this->config->getElementsByTagName('input-field')->item(3);
-        static::assertNotNull($inputField);
+        $inputField = InputField::fromXml(self::loadElement(<<<'XML'
+<input-field type="single-select">
+    <name>mailMethod</name>
+    <options>
+        <option value="smtp">
+            <label>SMTP</label>
+            <label lang="de-DE">SMTP DE</label>
+        </option>
+        <option value="pop3">
+            <label>POP3</label>
+        </option>
+    </options>
+</input-field>
+XML));
 
-        $expectedInputField = InputField::fromArray([
-            'name' => 'mailMethod',
-            'label' => null,
-            'required' => null,
-            'defaultValue' => null,
-            'placeHolder' => null,
-            'type' => 'single-select',
-            'helpText' => null,
-            'options' => [
+        static::assertSame('mailMethod', $inputField->getName());
+        static::assertSame('single-select', $inputField->getType());
+        static::assertSame(
+            [
                 [
                     'value' => 'smtp',
                     'label' => [
-                        'en-GB' => 'English label',
-                        'de-DE' => 'German label',
+                        'en-GB' => 'SMTP',
+                        'de-DE' => 'SMTP DE',
                     ],
                 ],
                 [
                     'value' => 'pop3',
                     'label' => [
-                        'en-GB' => 'English label',
-                        'de-DE' => 'German label',
+                        'en-GB' => 'POP3',
                     ],
                 ],
             ],
-        ]);
-
-        $inputFieldResult = InputField::fromXml($inputField);
-        static::assertEquals($expectedInputField, $inputFieldResult);
+            $inputField->getOptions()
+        );
     }
 
     public function testToArray(): void
     {
-        $inputField = InputField::fromArray([
-            'name' => 'textField',
-            'label' => [
-                'en-GB' => 'To',
-                'de-DE' => 'To DE',
-            ],
-            'required' => true,
-            'defaultValue' => 'Shopware 6',
-            'placeHolder' => [
-                'en-GB' => 'Enter to...',
-                'de-DE' => 'Enter to DE...',
-            ],
-            'type' => 'text',
-            'helpText' => [
-                'en-GB' => 'Help text',
-                'de-DE' => 'Help text DE',
-            ],
-        ]);
+        $inputField = InputField::fromXml(self::loadElement(<<<'XML'
+<input-field type="text">
+    <name>message</name>
+    <label>Message</label>
+    <required>false</required>
+    <defaultValue>Hello</defaultValue>
+</input-field>
+XML));
 
-        $result = $inputField->toArray('en-GB');
-        static::assertArrayHasKey('name', $result);
-        static::assertArrayHasKey('label', $result);
-        static::assertArrayHasKey('placeHolder', $result);
-        static::assertArrayHasKey('required', $result);
-        static::assertArrayHasKey('helpText', $result);
-        static::assertArrayHasKey('defaultValue', $result);
-        static::assertArrayHasKey('options', $result);
-        static::assertArrayHasKey('type', $result);
+        static::assertSame(
+            [
+                'name' => 'message',
+                'label' => ['en-GB' => 'Message'],
+                'placeHolder' => null,
+                'required' => false,
+                'helpText' => null,
+                'defaultValue' => 'Hello',
+                'options' => [],
+                'type' => 'text',
+            ],
+            $inputField->toArray('en-GB')
+        );
+    }
+
+    private static function loadElement(string $xml): \DOMElement
+    {
+        $document = new \DOMDocument();
+        static::assertTrue($document->loadXML($xml));
+        static::assertInstanceOf(\DOMElement::class, $document->documentElement);
+
+        return $document->documentElement;
     }
 }

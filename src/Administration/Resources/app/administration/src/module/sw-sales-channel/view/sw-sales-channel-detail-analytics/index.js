@@ -34,6 +34,12 @@ export default {
         salesChannel() {
             this.createAnalyticsData();
         },
+
+        'salesChannel.analytics.trackOrders'(newValue) {
+            if (!newValue && this.salesChannel?.analytics) {
+                this.salesChannel.analytics.enhancedConversions = false;
+            }
+        },
     },
 
     created() {

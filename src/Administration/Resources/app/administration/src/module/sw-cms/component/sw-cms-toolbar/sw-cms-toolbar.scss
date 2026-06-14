@@ -3,29 +3,29 @@
 .sw-cms-toolbar {
     padding: 0 20px;
     min-height: 81px;
-    border-bottom: 2px solid $color-gray-300;
+    border-bottom: 2px solid var(--color-border-primary-default);
     display: grid;
     grid-template-columns: 1fr 1fr auto auto auto;
     align-items: center;
     align-content: center;
     z-index: 251;
-    background-color: $color-white;
+    background-color: var(--color-elevation-surface-raised);
 
     .sw-cms-toolbar__back-btn {
         padding: 10px 20px;
 
         .mt-icon {
-            color: $color-gray-300;
+            color: var(--color-icon-secondary-default);
             transform: rotate(180deg);
         }
 
         a:hover .mt-icon {
-            color: $color-darkgray-200;
+            color: var(--color-text-primary-default);
         }
     }
 
     .sw-cms-toolbar__title h2 {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-m;
         font-weight: $font-weight-semi-bold;
         white-space: nowrap;

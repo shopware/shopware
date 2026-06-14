@@ -352,6 +352,15 @@ shopware:
                 limits:
                     -   domain: 'core.cart.lineItemAddLimit'
                         interval: '60 seconds'
+            mcp:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '1 hours'
+                limits:
+                    - limit: 60
+                      interval: '60 seconds'
+                    - limit: 120
+                      interval: '120 seconds'
             app_shop_verify:
                 enabled: true
                 policy: 'sliding_window'
@@ -364,7 +373,8 @@ shopware:
         enable_notification_worker: true
         # This has to be lower than PHP's max_execution_time (default: 30s)
         poll_interval: 20
-        transports: ["async", "low_priority"]
+        # Keep webhook before async so inline admin-worker failures scheduled for retry are drained.
+        transports: ["webhook", "async", "low_priority"]
 
     auto_update:
         enabled: true
@@ -393,6 +403,10 @@ shopware:
         presigned_upload:
             enabled: false
             expiration_minutes: 5
+        svg:
+            allowed_elements: ["a", "circle", "clippath", "defs", "desc", "ellipse", "g", "image", "line", "lineargradient", "marker", "mask", "metadata", "path", "pattern", "polygon", "polyline", "radialgradient", "rect", "stop", "style", "svg", "switch", "symbol", "text", "title", "tspan", "use", "view"]
+            allowed_attributes: ["alignment-baseline", "aria-describedby", "aria-hidden", "aria-label", "aria-labelledby", "aria-roledescription", "baseline-shift", "class", "clip-path", "clip-rule", "clippathunits", "color", "color-interpolation", "color-interpolation-filters", "cursor", "cx", "cy", "d", "direction", "display", "dominant-baseline", "dx", "dy", "fill", "fill-opacity", "fill-rule", "filter", "flood-color", "flood-opacity", "font-family", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-variant", "font-weight", "fx", "fy", "gradienttransform", "gradientunits", "height", "href", "id", "image-rendering", "lang", "letter-spacing", "lighting-color", "marker", "marker-end", "marker-mid", "marker-start", "markerheight", "markerunits", "markerwidth", "mask", "mask-type", "maskcontentunits", "maskunits", "offset", "opacity", "orient", "overflow", "paint-order", "patterncontentunits", "patterntransform", "patternunits", "pointer-events", "points", "preserveaspectratio", "r", "refx", "refy", "role", "rx", "ry", "shape-rendering", "spreadmethod", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "style", "text-anchor", "text-decoration", "text-overflow", "text-rendering", "transform", "transform-origin", "type", "unicode-bidi", "vector-effect", "version", "viewbox", "visibility", "white-space", "width", "word-spacing", "writing-mode", "x", "x1", "x2", "xlink:href", "xml:lang", "xml:space", "xmlns", "xmlns:xlink", "y", "y1", "y2"]
+            allowed_reference_attributes: ["href", "xlink:href"]
 
     dal:
         batch_size: 125
@@ -471,6 +485,8 @@ shopware:
         fields:
             - name: product_translation.description
               sets: ["basic", "media", "HTML5"]
+            - name: product_translation.descriptionTeaser
+              sets: []
             - name: app_cms_block.template
               sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
@@ -660,6 +676,7 @@ shopware:
           - digital
         search_keyword:
             indexing: true
+            relevant_keyword_count: 8
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
@@ -41,7 +42,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(SystemConfigService::class),
         );
 
         static::expectException(\RuntimeException::class);
@@ -62,10 +64,57 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $logger
+            $logger,
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->logAndThrowException(new \RuntimeException('test'));
+    }
+
+    public function testAllowIndexingCatchesTransportFailures(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->method('ping')->willThrowException(new \RuntimeException('cURL error 6: Could not resolve host'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('critical');
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            false,
+            $client,
+            $this->createMock(ElasticsearchRegistry::class),
+            $this->createMock(CriteriaParser::class),
+            $logger,
+            $this->createMock(SystemConfigService::class),
+        );
+
+        static::assertFalse($helper->allowIndexing());
+    }
+
+    public function testAllowIndexingRethrowsTransportFailuresWhenConfigured(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->method('ping')->willThrowException(new \RuntimeException('cURL error 6: Could not resolve host'));
+
+        $helper = new ElasticsearchHelper(
+            'prod',
+            true,
+            true,
+            'prefix',
+            true,
+            $client,
+            $this->createMock(ElasticsearchRegistry::class),
+            $this->createMock(CriteriaParser::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
+        );
+
+        static::expectException(\RuntimeException::class);
+        $helper->allowIndexing();
     }
 
     public function testGetIndexName(): void
@@ -79,7 +128,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         static::assertSame('prefix_product', $helper->getIndexName(new ProductDefinition()));
@@ -102,7 +152,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $registry,
             $this->createMock(CriteriaParser::class),
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $criteria = new Criteria();
@@ -152,7 +203,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $parser,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -191,7 +243,8 @@ class ElasticsearchHelperTest extends TestCase
             $this->createMock(Client::class),
             $this->createMock(ElasticsearchRegistry::class),
             $parser,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(SystemConfigService::class),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);

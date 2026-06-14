@@ -25,9 +25,15 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $response = new Response(200, [], '{"payload":"data"}');
         $request = new Request('GET', '/');
 
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('delete');
+
         $middleware = new ShopSecretInvalidMiddleware(
-            $this->createMock(Connection::class),
-            $this->createMock(SystemConfigService::class)
+            $connection,
+            $systemConfigService
         );
 
         $handledResponse = $middleware($response, $request);
@@ -40,14 +46,21 @@ class ShopSecretInvalidMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"payload":"data"}');
         $request = new Request('GET', '/');
 
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->expects($this->never())->method('delete');
+
         $middleware = new ShopSecretInvalidMiddleware(
-            $this->createMock(Connection::class),
-            $this->createMock(SystemConfigService::class)
+            $connection,
+            $systemConfigService
         );
 
         $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
+        static::assertSame('{"payload":"data"}', (string) $handledResponse->getBody());
     }
 
     public function testThrowsAndDeletesStoreTokensIfApiRespondsWithTokenExpiredException(): void

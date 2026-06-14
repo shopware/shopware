@@ -38,6 +38,11 @@ class Migration1703850843FixSearchConfigTest extends TestCase
         $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1703850843, (new Migration1703850843FixSearchConfig())->getCreationTimestamp());
+    }
+
     /**
      * @param list<array<string, mixed>> $input
      * @param array<string, mixed> $expected

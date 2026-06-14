@@ -84,8 +84,7 @@ trait StorefrontPageTestBehaviour
 
     protected function expectParamMissingException(string $paramName): void
     {
-        $this->expectException(RoutingException::class);
-        $this->expectExceptionMessage('Parameter "' . $paramName . '" is missing');
+        $this->expectExceptionObject(RoutingException::missingRequestParameter($paramName));
     }
 
     protected function placeRandomOrder(SalesChannelContext $context): string

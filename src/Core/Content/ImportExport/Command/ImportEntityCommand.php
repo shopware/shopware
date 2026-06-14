@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Command;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportException;
@@ -48,7 +49,8 @@ class ImportEntityCommand extends Command
         private readonly EntityRepository $profileRepository,
         private readonly ImportExportFactory $importExportFactory,
         private readonly Connection $connection,
-        private readonly FilesystemOperator $filesystem
+        private readonly FilesystemOperator $filesystem,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -108,7 +110,7 @@ class ImportEntityCommand extends Command
             $dryRun
         );
 
-        $startTime = time();
+        $startTime = $this->clock->now()->getTimestamp();
 
         $importExport = $this->importExportFactory->create(
             $log->getId(),
@@ -131,7 +133,7 @@ class ImportEntityCommand extends Command
             $progressBar->setProgress($progress->getOffset());
         } while (!$progress->isFinished());
 
-        $elapsed = time() - $startTime;
+        $elapsed = $this->clock->now()->getTimestamp() - $startTime;
         $io->newLine(2);
 
         if ($printErrors) {

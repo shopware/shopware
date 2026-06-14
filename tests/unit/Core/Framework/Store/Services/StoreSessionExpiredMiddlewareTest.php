@@ -31,8 +31,11 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(200, [], '{"payload":"data"}');
         $request = new Psr7Request('GET', '/');
 
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->createMock(Connection::class),
+            $connection,
             new RequestStack(),
         );
 
@@ -46,14 +49,18 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"payload":"data"}');
         $request = new Psr7Request('GET', '/');
 
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
         $middleware = new StoreSessionExpiredMiddleware(
-            $this->createMock(Connection::class),
+            $connection,
             new RequestStack(),
         );
 
         $handledResponse = $middleware($response, $request);
 
         static::assertSame($response, $handledResponse);
+        static::assertSame('{"payload":"data"}', (string) $handledResponse->getBody());
     }
 
     #[DataProvider('provideRequestStacks')]
@@ -62,10 +69,10 @@ class StoreSessionExpiredMiddlewareTest extends TestCase
         $response = new Response(401, [], '{"code":"ShopwarePlatformException-1"}');
         $request = new Psr7Request('GET', '/');
 
-        $middleware = new StoreSessionExpiredMiddleware(
-            $this->createMock(Connection::class),
-            $requestStack
-        );
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $middleware = new StoreSessionExpiredMiddleware($connection, $requestStack);
 
         $this->expectException(StoreSessionExpiredException::class);
         $middleware($response, $request);

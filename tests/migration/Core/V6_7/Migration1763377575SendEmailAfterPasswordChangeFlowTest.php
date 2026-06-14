@@ -21,6 +21,11 @@ class Migration1763377575SendEmailAfterPasswordChangeFlowTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1763377575, (new Migration1763377575SendEmailAfterPasswordChangeFlow())->getCreationTimestamp());
+    }
+
     public function testTimestamp(): void
     {
         $migration = new Migration1763377575SendEmailAfterPasswordChangeFlow();

@@ -15,7 +15,7 @@ All blocks of this template are available in the template which renders this tem
             {% block document_line_item_table_head %}
                 {% block document_line_item_table_head_position %}
                     {% if config.displayLineItemPosition %}
-                        <th>{{ 'document.lineItems.header.position'|trans|sw_sanitize(null, true) }}</th>
+                        <th class="position">{{ 'document.lineItems.header.position'|trans|sw_sanitize(null, true) }}</th>
                     {% endif %}
                 {% endblock %}
 

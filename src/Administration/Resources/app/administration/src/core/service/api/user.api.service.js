@@ -33,6 +33,14 @@ class UserApiService extends ApiService {
             });
     }
 
+    saveMcpAllowlist(userId, allowlist, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient.post(`/_action/user/${userId}/mcp-allowlist`, { allowlist }, { headers }).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
+
     /**
      * Update information of the logged in user
      *

@@ -14,12 +14,12 @@
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .sw-data-grid__cell-content {
             .is--inactive {
-                color: $color-crimson-500;
+                color: var(--color-text-critical-default);
                 margin: auto;
             }
 
             .is--active {
-                color: $color-emerald-500;
+                color: var(--color-icon-positive-default);
                 margin: auto;
             }
         }
@@ -59,15 +59,15 @@
         height: 36px;
         line-height: 33px;
         text-align: center;
-        color: $color-darkgray-200;
-        border: 1px solid $color-gray-300;
+        color: var(--color-text-primary-default);
+        border: 1px solid var(--color-border-primary-default);
         border-radius: 4px;
-        background: $color-white;
+        background: var(--color-elevation-surface-raised);
         cursor: pointer;
 
         &:hover {
-            color: $color-shopware-brand-500;
-            border-color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
+            border-color: var(--color-border-brand-default);
         }
     }
 
@@ -88,7 +88,7 @@
 
     .sw-cms-list__icon-lock {
         margin-right: 10px;
-        color: $color-gray-300;
+        color: var(--color-icon-secondary-default);
     }
 
     .sw-cms-list__list-pagination {

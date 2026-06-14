@@ -266,6 +266,90 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
+    public function testPreventCreateUserWithAdminFlagAsNonAdmin(): void
+    {
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:create', 'user:update']);
+        $client = $this->getBrowser();
+
+        $data = [
+            'email' => 'escalated@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'escalated',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => true,
+        ];
+
+        $client->jsonRequest('POST', '/api/user', $data);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    public function testPreventUpdateUserWithAdminFlagAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => false,
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:create', 'user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('user'),
+            ['admin' => true]
+        );
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    public function testCreateUserWithAdminFlagAsAdmin(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
+
+        $this->kernelBrowser = null;
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
+
+        $data = [
+            'email' => 'new-admin@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'new-admin',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => true,
+        ];
+
+        $client->jsonRequest('POST', '/api/user', $data);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $adminFlag = static::getContainer()->get(Connection::class)
+            ->fetchOne(
+                'SELECT admin FROM user WHERE username = :username',
+                ['username' => 'new-admin']
+            );
+
+        static::assertSame(1, (int) $adminFlag);
+    }
+
     public function testLogoutRevokesRefreshTokens(): void
     {
         $client = $this->getBrowser();

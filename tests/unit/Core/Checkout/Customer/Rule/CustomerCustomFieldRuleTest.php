@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -28,16 +28,16 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
-    private MockObject $customer;
+    private Stub $customer;
 
     private CheckoutRuleScope $scope;
 
     protected function setUp(): void
     {
-        $salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
 
-        $this->customer = $this->getMockBuilder(CustomerEntity::class)->disableOriginalConstructor()->getMock();
+        $this->customer = static::createStub(CustomerEntity::class);
         $salesChannelContext->method('getCustomer')->willReturn($this->customer);
 
         $this->scope = new CheckoutRuleScope($salesChannelContext);
@@ -177,27 +177,27 @@ class CustomerCustomFieldRuleTest extends TestCase
             'customFieldValueInCustomer' => true,
             'result' => false,
         ];
-        yield 'testStringCustomField' => [
+        yield 'matching string custom field satisfies the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_test_value',
             'result' => true,
         ];
-        yield 'testStringCustomFieldInvalid' => [
+        yield 'different string custom field does not satisfy the rule' => [
             'rule' => self::setupStringRule('my_test_value'),
             'customFieldValueInCustomer' => 'my_invalid_value',
             'result' => false,
         ];
-        yield 'testMultiSelectCustomField' => [
+        yield 'overlapping multi select custom field satisfies the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [1],
             'result' => true,
         ];
-        yield 'testMultiSelectCustomFieldInvalid' => [
+        yield 'different multi select custom field does not satisfy the rule' => [
             'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
         ];
-        yield 'testMultiSelectCustomFieldNull' => [
+        yield 'null multi select rule value does not satisfy the rule' => [
             'rule' => self::setupSelectRule(null, ['componentName' => 'sw-multi-select']),
             'customFieldValueInCustomer' => [3],
             'result' => false,
@@ -205,32 +205,28 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsTrueProvider(): iterable
     {
-        return [
-            ['yes'],
-            ['True'],
-            ['1'],
-            ['true'],
-            ['yes '],
-        ];
+        yield 'yes string is treated as true' => ['yes'];
+        yield 'uppercase true string is treated as true' => ['True'];
+        yield 'one string is treated as true' => ['1'];
+        yield 'lowercase true string is treated as true' => ['true'];
+        yield 'yes string with trailing space is treated as true' => ['yes '];
     }
 
     /**
-     * @return array<array<string>>
+     * @return iterable<array<string>>
      */
-    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): array
+    public static function getStringRuleValueWhichShouldBeConsideredAsFalseProvider(): iterable
     {
-        return [
-            ['no'],
-            ['False'],
-            ['0'],
-            ['false'],
-            ['no '],
-            ['some string'],
-        ];
+        yield 'no string is treated as false' => ['no'];
+        yield 'uppercase false string is treated as false' => ['False'];
+        yield 'zero string is treated as false' => ['0'];
+        yield 'lowercase false string is treated as false' => ['false'];
+        yield 'no string with trailing space is treated as false' => ['no '];
+        yield 'unknown string is treated as false' => ['some string'];
     }
 
     /**

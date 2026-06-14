@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -47,6 +48,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
         private readonly ValidatorInterface $validator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -155,7 +157,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
                 $referenceDocumentNumber = $referenceInvoiceNumbers[$operation->getOrderId()];
 
                 $config->merge([
-                    'documentDate' => $operation->getConfig()['documentDate'] ?? (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'documentDate' => $operation->getConfig()['documentDate'] ?? $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                     'documentNumber' => $number,
                     'custom' => [
                         'creditNoteNumber' => $number,

@@ -19,6 +19,11 @@ class Migration1773420826AddSalutationPositionColumnTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1773420826, (new Migration1773420826AddSalutationPositionColumn())->getCreationTimestamp());
+    }
+
     public function testMigrationAddsColumnAndAssignsPositions(): void
     {
         $connection = self::getContainer()->get(Connection::class);

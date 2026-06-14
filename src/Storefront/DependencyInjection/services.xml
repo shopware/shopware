@@ -37,6 +37,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber">
@@ -97,6 +98,11 @@
             <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber">
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Routing\StorefrontRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
@@ -113,11 +119,23 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
+            <argument>%kernel.environment%</argument>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Mail\MailThemeConfigSubscriber">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\Mail\MailThemeIdLoader"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\Mail\MailThemeIdLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">
             <argument type="service" id="Shopware\Storefront\Theme\ResolvedConfigLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollector"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\ConfigExtension">
@@ -151,8 +169,6 @@
         <service id="Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter" public="false">
             <tag name="twig.extension"/>
         </service>
-
-        <service id="Shopware\Core\System\Salutation\AbstractSalutationsSorter" class="Shopware\Core\System\Salutation\SalutationSorter"/>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
@@ -321,7 +337,6 @@
         <service id="Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
-            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
@@ -332,7 +347,6 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade"/>
-            <argument type="service" id="Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute"/>
             <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
         </service>
@@ -533,6 +547,7 @@
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\SystemCheck\SalesChannelsReadinessCheck">
@@ -578,5 +593,24 @@
         <service id="Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist">
             <tag name="shopware.route_scope_whitelist"/>
         </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener">
+            <argument>%kernel.environment%</argument>
+            <tag name="kernel.event_listener" />
+        </service>
+
+        <service id="Shopware\Storefront\Storybook\StorybookService">
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeRuntimeConfigStorage"/>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Routing\StorybookRouteScopeAllowList">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+
     </services>
 </container>

@@ -149,11 +149,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 continue;
             }
 
-            // skip plugin snippets that already exist via translation installation
-            if ($bundle instanceof Plugin && $this->translationLoader->pluginTranslationExists($bundle)) {
-                continue;
-            }
-
             $snippetDir = $bundle->getPath() . '/Resources/snippet';
 
             if (!is_dir($snippetDir)) {
@@ -162,6 +157,14 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             foreach ($this->loadSnippetFilesInDir($snippetDir, $bundle, $authors) as $snippetFile) {
                 if ($snippetFileCollection->hasFileForPath($snippetFile->getPath())) {
+                    continue;
+                }
+
+                // skip plugin file if a core translation for this specific locale already exists
+                if (
+                    $bundle instanceof Plugin
+                    && $this->translationLoader->pluginTranslationExistsForLocale($bundle, $snippetFile->getIso())
+                ) {
                     continue;
                 }
 

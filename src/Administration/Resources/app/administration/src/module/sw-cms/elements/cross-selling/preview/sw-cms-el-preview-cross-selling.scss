@@ -4,7 +4,7 @@
     h4 {
         font-size: $font-size-xs;
         margin-bottom: 10px;
-        border-bottom: 1px solid #d1d9e0;
+        border-bottom: 1px solid var(--color-border-primary-default);
         padding-bottom: 5px;
     }
 
@@ -23,7 +23,7 @@
         align-items: center;
         align-content: stretch;
         padding: 0;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         border-radius: 2px;
 
         &__image {
@@ -46,7 +46,7 @@
         &__skeleton-left,
         &__skeleton-right {
             height: 5px;
-            background: $color-gray-100;
+            background: var(--color-background-tertiary-default);
             border-radius: 5px;
         }
 
@@ -59,7 +59,7 @@
         }
 
         &__action {
-            background: $color-gray-900;
+            background: var(--color-elevation-floating-default);
             border-radius: 2px;
             width: 100%;
             height: 14px;

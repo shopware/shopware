@@ -32,7 +32,7 @@ final readonly class DocumentGenerator
         private DocumentDataProviderRegistry $documentDataProviderRegistry,
         private DocumentRendererRegistry $documentRendererRegistry,
         private DocumentNumberGenerator $documentNumberGenerator,
-        private DocumentEntityPersister $documentEntityPersister,
+        private DocumentPersister $documentPersister,
         private DocumentDependencyResolver $dependencyResolver,
         private EntityRepository $orderRepository,
     ) {
@@ -112,31 +112,17 @@ final readonly class DocumentGenerator
             $result = $renderer->renderToString(
                 $renderInput,
                 $renderState,
+                $languageAwareContext,
             );
 
             $renderState->add($result);
         }
 
-        $persistedFiles = [];
-
-        foreach ($requestedFormats as $format) {
-            $renderer = $this->documentRendererRegistry->getRenderer(
-                $format,
-                $generationRequest->documentType,
-            );
-
-            $mediaId = $renderer->persistToFile(
-                $renderInput,
-                $renderState->require($format)
-            );
-
-            $persistedFiles[$format] = $mediaId;
-        }
-
-        return $this->documentEntityPersister->persist(
+        return $this->documentPersister->persist(
             $generationRequest,
             $renderInput,
-            $persistedFiles,
+            $renderState,
+            $requestedFormats,
             $apiContext,
         );
     }
@@ -174,7 +160,10 @@ final readonly class DocumentGenerator
         DocumentGenerationRequest $generationRequest,
         Context $apiContext,
     ): array {
-        $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $apiContext);
+        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $languageAwareContext = clone $apiContext;
+
+        $orderLanguageId = $this->loadOrderLanguageId($generationRequest, $orderVersionContext);
 
         $langChain = [
             'languageIdChain' => array_values(array_unique(array_filter(
@@ -182,13 +171,13 @@ final readonly class DocumentGenerator
             ))),
         ];
 
-        $orderVersionContext = $apiContext->createWithVersionId($generationRequest->orderVersionId);
         $orderVersionContext->assign($langChain);
-
-        $languageAwareContext = clone $apiContext;
         $languageAwareContext->assign($langChain);
 
-        return [$orderVersionContext, $languageAwareContext];
+        return [
+            $orderVersionContext,
+            $languageAwareContext,
+        ];
     }
 
     /**
@@ -213,24 +202,23 @@ final readonly class DocumentGenerator
     /**
      * @throws DocumentV2Exception
      */
-    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest, Context $apiContext): string
+    private function loadOrderLanguageId(DocumentGenerationRequest $generationRequest, Context $context): string
     {
         $criteria = (new Criteria([$generationRequest->orderId]))
             ->setTitle('document-v2-generator::load-order-language')
             ->addFields(['languageId']);
 
-        $context = $apiContext->createWithVersionId($generationRequest->orderVersionId);
+        $languageId = $this->orderRepository
+            ->search($criteria, $context)
+            ->getEntities()
+            ->first()
+            ?->get('languageId');
 
-        $order = $this->orderRepository->search(
-            $criteria,
-            $context,
-        )->getEntities()->first();
-
-        if (!$order instanceof OrderEntity) {
+        if (!\is_string($languageId)) {
             throw DocumentV2Exception::orderNotFound($generationRequest->orderId);
         }
 
-        return $order->getLanguageId();
+        return $languageId;
     }
 
     /**

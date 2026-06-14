@@ -56,5 +56,10 @@
         <service id="Shopware\Core\System\Currency\ContentSystem\DataLoader\CurrencyLoaderConfigSerializer">
             <tag name="content_system.config_serializer"/>
         </service>
+
+        <service id="Shopware\Core\System\Currency\Api\CurrencyIsoCodeFkResolver">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.sync.fk_resolver"/>
+        </service>
     </services>
 </container>

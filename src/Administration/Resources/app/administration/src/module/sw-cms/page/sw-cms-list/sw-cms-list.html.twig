@@ -148,6 +148,18 @@
                                     >
                                         <template #contextMenu>
                                             <sw-context-button class="sw-cms-list-item__options">
+                                                <template #button>
+                                                    <mt-button
+                                                        variant="secondary"
+                                                        size="x-small"
+                                                    >
+                                                        <mt-icon
+                                                            name="regular-ellipsis-h"
+                                                            size="16"
+                                                        />
+                                                    </mt-button>
+                                                </template>
+
                                                 {% block sw_cms_list_listing_list_item_option_add_preview %}
                                                 <sw-context-menu-item
                                                     class="sw-cms-list-item__option-preview"

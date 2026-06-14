@@ -17,6 +17,7 @@
     <import resource="../../Rule/Api/*Controller.php" type="attribute" />
     <import resource="../../Gateway/**/*Route.php" type="attribute" />
     <import resource="../../Sso/Controller/**/*Controller.php" type="attribute" />
+    <import resource="../../Mcp/Controller/*Controller.php" type="attribute" />
     <import resource="../../Validation/Api/*Controller.php" type="attribute" />
 
 </routes>

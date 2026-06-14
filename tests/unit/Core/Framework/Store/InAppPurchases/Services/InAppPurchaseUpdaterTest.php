@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -81,7 +82,8 @@ class InAppPurchaseUpdaterTest extends TestCase
                     $systemConfig,
                     $this->createMock(LoggerInterface::class)
                 ),
-                $this->createMock(LoggerInterface::class)
+                $this->createMock(LoggerInterface::class),
+                new NativeClock()
             )
         );
 
@@ -145,7 +147,8 @@ class InAppPurchaseUpdaterTest extends TestCase
                     $systemConfig,
                     $this->createMock(LoggerInterface::class)
                 ),
-                $this->createMock(LoggerInterface::class)
+                $this->createMock(LoggerInterface::class),
+                new NativeClock()
             )
         );
 

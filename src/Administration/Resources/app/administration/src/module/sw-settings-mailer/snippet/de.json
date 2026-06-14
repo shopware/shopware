@@ -4,7 +4,9 @@
       "mainMenuItemGeneral": "Mailer",
       "textHeadline": "Mailer",
       "buttonSave": "Speichern",
-      "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
+      "helpText": "Für weitere Informationen schaue bitte in die {documentation}",
+      "docsLabel": "Dokumentation",
+      "docsLink": "https://docs.shopware.com/de/shopware-6-de/einstellungen/mailer"
     },
     "mailer-configuration": {
       "card-title": "Mailer-Konfiguration",
@@ -56,8 +58,7 @@
       "no-encryption": "Keine Verschlüsselung",
       "ssl": "SSL",
       "tls": "TLS"
-    },
-    "helpText": "Für weitere Informationen schaue bitte in die <a target=\"_blank\" href=\"https://docs.shopware.com/de/shopware-6-de\">Dokumentation</a>"
+    }
   }
 }
 

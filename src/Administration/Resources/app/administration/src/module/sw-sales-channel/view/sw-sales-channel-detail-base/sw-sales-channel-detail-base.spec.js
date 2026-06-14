@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
@@ -1496,7 +1498,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
 
         const card = wrapper.get(
-            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-open-ai"]',
+            'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
         );
         expect(card.exists()).toBe(true);
         expect(wrapper.findAll('sw-form-field-renderer-stub')).toHaveLength(1);

@@ -85,10 +85,10 @@ class CanonicalRedirectServiceTest extends TestCase
 
         $post = $this->createMock(CallableClass::class);
         $post->expects($this->exactly(1))->method('__invoke');
-        $dispatcher->addListener(ExtensionDispatcher::post(CanonicalRedirectExtension::NAME), $post);
+        $dispatcher->addListener(CanonicalRedirectExtension::onPost(), $post);
 
         $dispatcher->addListener(
-            ExtensionDispatcher::pre(CanonicalRedirectExtension::NAME),
+            CanonicalRedirectExtension::onPre(),
             static function (CanonicalRedirectExtension $extension): void {
                 $extension->stopPropagation();
 

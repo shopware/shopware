@@ -4,35 +4,29 @@
     position-identifier="sw-users-permissions-role-listing"
     :title="$t('sw-users-permissions.roles.general.cardLabel')"
 >
-
     {% block sw_users_permissions_role_listing_toolbar %}
     <div class="sw-users-permissions-role-listing__toolbar">
-        <sw-container
-            columns="1fr minmax(100px, 200px)"
-            gap="0 10px"
-        >
-            {% block sw_users_permissions_role_listing_toolbar_search_field %}
-            <sw-simple-search-field
-                v-model:value="term"
-                size="small"
-                variant="form"
-                @search-term-change="onSearch"
-            />
-            {% endblock %}
+        {% block sw_users_permissions_role_listing_toolbar_search_field %}
+        <sw-simple-search-field
+            v-model:value="term"
+            size="small"
+            variant="form"
+            @search-term-change="onSearch"
+        />
+        {% endblock %}
 
-            {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
-            <mt-button
-                ghost
-                size="small"
-                :disabled="!acl.can('users_and_permissions.creator') || undefined"
-                class="sw-users-permissions-role-listing__add-role-button"
-                variant="secondary"
-                @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
-            >
-                {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
-            </mt-button>
-            {% endblock %}
-        </sw-container>
+        {% block sw_users_permissions_role_listing_toolbar_add_role_button %}
+        <mt-button
+            ghost
+            size="small"
+            :disabled="!acl.can('users_and_permissions.creator') || undefined"
+            class="sw-users-permissions-role-listing__add-role-button"
+            variant="secondary"
+            @click="$router.push({ name: 'sw.users.permissions.role.detail' })"
+        >
+            {{ $t('sw-users-permissions.roles.general.labelCreateNewRole') }}
+        </mt-button>
+        {% endblock %}
     </div>
     {% endblock %}
 
@@ -46,7 +40,7 @@
 
     {% block sw_users_permissions_role_listing_grid %}
     <sw-data-grid
-        v-if="showListingResults"
+        v-if="showListingResults || isLoading"
         :data-source="roles"
         :columns="rolesColumns"
         identifier="roles-grid"
@@ -55,7 +49,6 @@
         :is-loading="isLoading"
         @column-sort="onSortColumn"
     >
-
         {% block sw_users_permissions_role_listing_grid_actions %}
         <template #actions="{ item }">
             {% block sw_users_permissions_role_listing_grid_actions_edit %}
@@ -84,9 +77,9 @@
         {% block sw_users_permissions_role_listing_grid_columns %}
         <template #column-name="{ item }">
             {% block sw_users_permissions_role_listing_grid_columns_name %}
-            <router-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
+            <mt-link :to="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
                 {{ item.name }}
-            </router-link>
+            </mt-link>
             {% endblock %}
         </template>
         {% endblock %}
@@ -157,6 +150,5 @@
         :description="$t('sw-users-permissions.roles.role-grid.messageEmptySubline')"
     />
     {% endblock %}
-
 </mt-card>
 {% endblock %}

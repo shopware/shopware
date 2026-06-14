@@ -12,6 +12,7 @@ use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\System\Command\SystemInstallCommand;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
@@ -196,7 +197,8 @@ class SystemInstallCommandTest extends TestCase
             $setupDatabaseAdapterMock,
             $connectionFactory,
             $this->createMock(CacheClearer::class),
-            $this->createMock(SystemLocker::class)
+            $this->createMock(SystemLocker::class),
+            new NativeClock()
         );
 
         $application = new class extends Application {
@@ -303,7 +305,8 @@ class SystemInstallCommandTest extends TestCase
             $setupDatabaseAdapterMock,
             $connectionFactory,
             $this->createMock(CacheClearer::class),
-            $this->createMock(SystemLocker::class)
+            $this->createMock(SystemLocker::class),
+            new NativeClock()
         );
 
         $application = new class extends Application {
@@ -359,7 +362,8 @@ class SystemInstallCommandTest extends TestCase
                 $setupDatabaseAdapterMock,
                 $connectionFactory,
                 $this->createMock(CacheClearer::class),
-                $this->createMock(SystemLocker::class)
+                $this->createMock(SystemLocker::class),
+                new NativeClock()
             )
         );
         $application->setDispatcher($dispatcher);
@@ -389,7 +393,8 @@ class SystemInstallCommandTest extends TestCase
             $setupDatabaseAdapterMock,
             $connectionFactory,
             $this->createMock(CacheClearer::class),
-            $systemLocker
+            $systemLocker,
+            new NativeClock()
         );
 
         $application = $this->createMock(Application::class);

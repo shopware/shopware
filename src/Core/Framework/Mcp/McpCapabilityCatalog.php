@@ -54,9 +54,7 @@ class McpCapabilityCatalog
         $tools = [];
 
         foreach ($this->registry->getTools()->references as $tool) {
-            if (!$tool instanceof Tool) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($tool instanceof Tool);
 
             if ($allowlist !== null && !\in_array($tool->name, $allowlist, true)) {
                 continue;
@@ -115,9 +113,7 @@ class McpCapabilityCatalog
         $resources = [];
 
         foreach ($this->registry->getResources()->references as $resource) {
-            if (!$resource instanceof Resource) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($resource instanceof Resource);
 
             if ($allowlist !== null && !\in_array($resource->uri, $allowlist, true)) {
                 continue;
@@ -152,9 +148,7 @@ class McpCapabilityCatalog
         $prompts = [];
 
         foreach ($this->registry->getPrompts()->references as $prompt) {
-            if (!$prompt instanceof Prompt) {
-                continue; // @codeCoverageIgnore
-            }
+            \assert($prompt instanceof Prompt);
 
             if ($allowlist !== null && !\in_array($prompt->name, $allowlist, true)) {
                 continue;

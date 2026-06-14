@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Search\CriteriaCollection;
 use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\FrameworkException;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ class CriteriaCollectionTest extends TestCase
 
         $collection->add(new Criteria());
 
-        static::expectExceptionMessage(\sprintf('Expected collection element of type %s got %s', Criteria::class, NotificationEntity::class));
+        $this->expectExceptionObject(FrameworkException::collectionElementInvalidType(Criteria::class, NotificationEntity::class));
         /** @phpstan-ignore argument.type (for test purpose) */
         $collection->add(new NotificationEntity());
 
